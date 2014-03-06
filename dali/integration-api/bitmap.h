@@ -98,6 +98,18 @@ public:
    **/
   static Bitmap* New(Profile profile, bool managePixelBuffer);
 
+  /**
+   * Create a new instance of a Bitmap with a profile appropriate to the
+   * pixel format requested with a buffer that is owned by the instance
+   * and is not referenced externally, and so its lifetime can be managed
+   * by the instance.
+   * @return Pointer to created Bitmap subclass. Clients should immediately
+   * wrap this in a reference-counting smart pointer or store it in a similarly
+   * automatic owning collection.
+   * @param[in] format Defines image data and required features of the bitmap.
+   **/
+  static Bitmap* New(Pixel::Format format);
+
   /** \name GeneralFeatures
    * Features that are generic between profiles. */
   /**@{*/
@@ -204,9 +216,9 @@ public:
      *
      * The buffer must have been allocated with the C++ array new operator, not
      * with malloc or as a local or static object. The precise form is as follows:
-     *
+     * <code>
      *    PixelBuffer * buffer = new PixelBuffer[bufSize];
-     *
+     * </code>
      * @pre bufferWidth, bufferHeight have to be power of two
      * @param[in] pixelFormat   pixel format
      * @param[in] buffer        the pixel buffer
@@ -341,6 +353,17 @@ private:
   // Changes scope, should be at end of class
   DALI_LOG_OBJECT_STRING_DECLARATION;
 };
+
+class ImageData;
+typedef IntrusivePtr<ImageData> ImageDataPtr;
+
+/**
+ * Make a Bitmap instance from an ImageData object, destructively.
+ * @param[in] imageData A populated buffer of image data. Its buffer may be
+ *            null on exit, so it should not be used again.
+ * @returns Bitmap owning the image data buffer passed in or a copy of it.
+ **/
+BitmapPtr ConvertToBitmap(ImageData& imageData);
 
 } // namespace Integration
 

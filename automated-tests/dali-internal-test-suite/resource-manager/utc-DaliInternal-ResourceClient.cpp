@@ -37,6 +37,7 @@
 #include <dali/internal/event/images/image-impl.h>
 #include <dali/internal/event/modeling/model-data-impl.h>
 #include <dali/integration-api/resource-cache.h>
+#include <dali/integration-api/image-data.h>
 #include <dali/internal/render/gl-resources/texture-declarations.h>
 #include <dali/internal/render/shaders/shader.h>
 #include <dali/internal/common/owner-pointer.h>
@@ -177,8 +178,7 @@ Internal::ImagePtr LoadImage(TestApplication& application, char* name)
   application.SendNotification(); // Flush update messages
   application.Render();           // Process resource request
   Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, false );
-  bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80,80,80,80 );
+  Integration::ImageDataPtr bitmap = Integration::NewBitmapImageData( 80, 80, Pixel::RGBA8888 );
   Integration::ResourcePointer resourcePtr(bitmap); // reference it
   application.GetPlatform().SetResourceLoaded(req->GetId(), req->GetType()->id, resourcePtr);
   application.Render();           // Process LoadComplete
@@ -194,15 +194,14 @@ Internal::ResourceTicketPtr CheckLoadBitmap(TestApplication& application, char* 
 {
   Internal::ResourceClient& resourceClient = Internal::ThreadLocalStorage::Get().GetResourceClient();
   ImageAttributes attr;
-  Integration::BitmapResourceType bitmapRequest(attr);
+  Integration::ImageResourceType bitmapRequest( Integration::ResourceImageData, attr );
   Internal::ResourceTicketPtr ticket = resourceClient.RequestResource( bitmapRequest, name );
   ticket->AddObserver(testTicketObserver);
   application.SendNotification(); // Flush update messages
   application.Render();           // Process resource request
   Integration::ResourceRequest*   req = application.GetPlatform().GetRequest();
-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, false );
-  bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, w, h, w, h );
-  Integration::ResourcePointer resourcePtr(bitmap); // reference it
+  Integration::ImageDataPtr bitmap = Integration::NewBitmapImageData( w, h, Pixel::RGBA8888 );
+  Integration::ResourcePointer resourcePtr( bitmap ); // reference it
   application.GetPlatform().SetResourceLoaded(req->GetId(), req->GetType()->id, resourcePtr);
   application.Render();           // Process LoadComplete
   application.SendNotification(); // Process event messages
@@ -247,7 +246,7 @@ static void UtcDaliInternalRequestResourceBitmapRequests01()
 
   Internal::ResourceManager& resourceManager = Internal::ThreadLocalStorage::Get().GetResourceManager();
   ImageAttributes attr;
-  Integration::BitmapResourceType bitmapRequest (attr);
+  Integration::ImageResourceType bitmapRequest (Integration::ResourceImageData,  attr);
   Internal::ResourceId id(0);
 
   testTicketObserver.Reset();
@@ -278,20 +277,19 @@ static void UtcDaliInternalRequestResourceBitmapRequests01()
 
     // Create a resource
     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
-    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, false );
-    bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80, 80, 80, 80 );
+    Integration::ImageDataPtr bitmap = Integration::NewBitmapImageData( 80, 80, Pixel::RGBA8888 );
     Integration::ResourcePointer resourcePtr(bitmap); // reference it
 
     // Set up platform abstraction to load it
     id=req->GetId();
-    application.GetPlatform().SetResourceLoaded( id, Integration::ResourceBitmap, resourcePtr );
+    application.GetPlatform().SetResourceLoaded( id, Integration::ResourceImageData, resourcePtr );
 
     DALI_TEST_CHECK( ! resourceManager.IsResourceLoaded(req->GetId()) );
 
     // load the cache, which will immediately have the loaded resource
     application.Render(0);
 
-    DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetResourcesFunc ) );
+    DALI_TEST_CHECK( application.GetPlatform().WasCalled( TestPlatformAbstraction::GetResourcesFunc ) );
 
     DALI_TEST_CHECK( resourceManager.IsResourceLoaded(req->GetId()) );
     Internal::BitmapMetadata bitmapData = resourceManager.GetBitmapMetadata(req->GetId());
@@ -335,7 +333,7 @@ static void UtcDaliInternalRequestResourceBitmapRequests02()
 
   Internal::ResourceManager& resourceManager = Internal::ThreadLocalStorage::Get().GetResourceManager();
   ImageAttributes attr;
-  Integration::BitmapResourceType bitmapRequest (attr);
+  Integration::ImageResourceType bitmapRequest (Integration::ResourceImageData, attr);
   Internal::ResourceId id(0);
 
   testTicketObserver.Reset();
@@ -398,7 +396,7 @@ static void UtcDaliInternalRequestResourceBitmapRequests03()
 
   Internal::ResourceManager& resourceManager = Internal::ThreadLocalStorage::Get().GetResourceManager();
   ImageAttributes attr;
-  Integration::BitmapResourceType bitmapRequest (attr);
+  Integration::ImageResourceType bitmapRequest (Integration::ResourceImageData, attr);
   Internal::ResourceId id(0);
 
   testTicketObserver.Reset();
@@ -490,11 +488,10 @@ static void UtcDaliInternalRequestReloadBitmapRequests01()
 
     // Create a new resource - the image size could have changed in the meantime
     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
-    Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, false );
-    bitmap2->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 120, 120, 120, 120 );
-    Integration::ResourcePointer resourcePtr2(bitmap2); // reference it
+    Integration::ImageDataPtr bitmap2 = Integration::NewBitmapImageData( 120, 120, Pixel::RGBA8888 );
+    Integration::ResourcePointer resourcePtr2( bitmap2 ); // reference it
     DALI_TEST_CHECK( req->GetId() == ticket->GetId() );
-    application.GetPlatform().SetResourceLoaded(id, Integration::ResourceBitmap, resourcePtr2);
+    application.GetPlatform().SetResourceLoaded(id, Integration::ResourceImageData, resourcePtr2);
 
     application.Render(0);  // Process update messages / UpdateCache
     DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetResourcesFunc ) );
@@ -543,7 +540,7 @@ static void UtcDaliInternalRequestReloadBitmapRequests02()
 
   Internal::ResourceManager& resourceManager = Internal::ThreadLocalStorage::Get().GetResourceManager();
   ImageAttributes attr;
-  Integration::BitmapResourceType bitmapRequest (attr);
+  Integration::ImageResourceType bitmapRequest (Integration::ResourceImageData, attr);
   Internal::ResourceId id(0);
 
   testTicketObserver.Reset();
@@ -588,14 +585,15 @@ static void UtcDaliInternalRequestReloadBitmapRequests02()
     DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetResourcesFunc ) );
     // Create a resource
     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
-    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, false );
-    bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80, 80, 80, 80 );
+    //Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, false ); ///@todo Delete these two lines.
+    //bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80, 80, 80, 80 );
+    Integration::ImageDataPtr bitmap = Integration::NewBitmapImageData( 80, 80, Pixel::RGBA8888 );
     Integration::ResourcePointer resourcePtr(bitmap); // reference it
 
     // Set up platform abstraction to load it
     id=req->GetId();
 
-    application.GetPlatform().SetResourceLoaded(id, Integration::ResourceBitmap, resourcePtr);
+    application.GetPlatform().SetResourceLoaded(id, Integration::ResourceImageData, resourcePtr);
 
     DALI_TEST_CHECK( ! resourceManager.IsResourceLoaded(id));
 
@@ -656,7 +654,7 @@ static void UtcDaliInternalRequestReloadBitmapRequests03()
 
   Internal::ResourceManager& resourceManager = Internal::ThreadLocalStorage::Get().GetResourceManager();
   ImageAttributes attr;
-  Integration::BitmapResourceType bitmapRequest (attr);
+  Integration::ImageResourceType bitmapRequest (Integration::ResourceImageData, attr);
   Internal::ResourceId id(0);
 
   testTicketObserver.Reset();
@@ -676,7 +674,7 @@ static void UtcDaliInternalRequestReloadBitmapRequests03()
     DALI_TEST_CHECK( testTicketObserver.LoadFailedCalled() == 0 );
     DALI_TEST_CHECK( testTicketObserver.LoadSucceededCalled() == 0 );
 
-    Internal::ImageTicketPtr imageTicket(dynamic_cast<Internal::ImageTicket*>(ticket.Get()));
+    Internal::ImageTicketPtr imageTicket( dynamic_cast<Internal::ImageTicket*>(ticket.Get()) );
     DALI_TEST_CHECK( imageTicket );
     DALI_TEST_EQUALS( imageTicket->GetWidth(), 0, TEST_LOCATION );
     DALI_TEST_EQUALS( imageTicket->GetHeight(), 0, TEST_LOCATION );
@@ -697,14 +695,13 @@ static void UtcDaliInternalRequestReloadBitmapRequests03()
 
     // Create a resource
     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
-    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, false );
-    bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80, 80, 80, 80 );
+    Integration::ImageDataPtr bitmap = Integration::NewBitmapImageData( 80, 80, Pixel::RGBA8888 );
     Integration::ResourcePointer resourcePtr(bitmap); // reference it
 
     // Set up platform abstraction to load it
     id=req->GetId();
 
-    application.GetPlatform().SetResourceLoaded(id, Integration::ResourceBitmap, resourcePtr);
+    application.GetPlatform().SetResourceLoaded(id, Integration::ResourceImageData, resourcePtr);
 
     DALI_TEST_CHECK( ! resourceManager.IsResourceLoaded(id));
 
@@ -741,13 +738,12 @@ static void UtcDaliInternalRequestReloadBitmapRequests03()
 
     // Create a new resource - the image size could have changed in the meantime
     req = application.GetPlatform().GetRequest();
-    Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, false );
-    bitmap2->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 120, 120, 120, 120 );
-    Integration::ResourcePointer resourcePtr2(bitmap2); // reference it
+    Integration::ImageDataPtr bitmap2 = Integration::NewBitmapImageData( 120, 120, Pixel::RGBA8888 );
+    Integration::ResourcePointer resourcePtr2( bitmap2 ); // reference it
     DALI_TEST_CHECK( req->GetId() == id );
-    application.GetPlatform().SetResourceLoaded(id, Integration::ResourceBitmap, resourcePtr2);
+    application.GetPlatform().SetResourceLoaded( id, Integration::ResourceImageData, resourcePtr2 );
 
-    application.Render(0);  // Process update messages / UpdateCache
+    application.Render( 0 );  // Process update messages / UpdateCache
 
     DALI_TEST_CHECK( resourceManager.IsResourceLoaded(id));
     bitmapData = resourceManager.GetBitmapMetadata(id);

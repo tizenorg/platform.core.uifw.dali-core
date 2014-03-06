@@ -112,7 +112,7 @@ ResourceTicketPtr ImageFactory::Load( Request *req )
       ticket = IssueLoadRequest( req->url, req->attributes );
       req->resourceId = ticket->GetId();
     }
-    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceImageData   ||
                        ticket->GetTypePath().type->id == ResourceNativeImage ||
                        ticket->GetTypePath().type->id == ResourceTargetImage );
   }
@@ -151,7 +151,7 @@ ResourceTicketPtr ImageFactory::Reload( Request* request )
   }
   else // ticket still alive
   {
-    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceImageData   ||
                        ticket->GetTypePath().type->id == ResourceNativeImage ||
                        ticket->GetTypePath().type->id == ResourceTargetImage );
 
@@ -172,7 +172,7 @@ ResourceTicketPtr ImageFactory::Reload( Request* request )
     }
     else
     {
-      // if not, return a different ticket
+      // If not, return a different ticket
       ticket = IssueLoadRequest( request->url, request->attributes );
       request->resourceId = ticket->GetId();
     }
@@ -197,9 +197,10 @@ const ImageAttributes& ImageFactory::GetActualAttributes( ResourceId resourceId 
   ResourceTicketPtr ticket = mResourceClient.RequestResourceTicket( resourceId );
   if( ticket )
   {
-    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceImageData   ||
                        ticket->GetTypePath().type->id == ResourceNativeImage ||
-                       ticket->GetTypePath().type->id == ResourceTargetImage );
+                       ticket->GetTypePath().type->id == ResourceTargetImage ||
+                       ticket->GetTypePath().type->id == ResourceAppBitmap );
     const ImageAttributes& attrib = static_cast<ImageTicket*>(ticket.Get())->GetAttributes();
     return attrib;
   }
@@ -336,7 +337,7 @@ ResourceTicketPtr ImageFactory::FindCompatibleResource( const std::string& filen
         continue;
       }
 
-      DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+      DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceImageData   ||
                          ticket->GetTypePath().type->id == ResourceNativeImage ||
                          ticket->GetTypePath().type->id == ResourceTargetImage );
 
@@ -380,7 +381,7 @@ ResourceTicketPtr ImageFactory::IssueLoadRequest( const std::string& filename, c
     attributes.SetSize( size.width, size.height );
   }
 
-  BitmapResourceType resourceType( attributes );
+  ImageResourceType resourceType( ResourceImageData, attributes );
   ResourceTicketPtr ticket = mResourceClient.RequestResource( resourceType, filename );
   return ticket;
 }

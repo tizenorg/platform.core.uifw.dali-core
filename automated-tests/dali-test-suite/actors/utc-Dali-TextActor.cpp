@@ -682,9 +682,9 @@ static void UtcDaliTextActorSynchronousGlyphLoading()
   // no glyphs will be cached
 
   // so..GetGlyphData should have been called to gather metrics
-  DALI_TEST_CHECK( application.GetPlatform().GetTrace().FindMethodAndParams( "GetGlyphData", "getBitmap:false" ) );
+  DALI_TEST_CHECK( application.GetPlatform().GetTrace().FindMethodAndParams( "GetGlyphData", "getImageData:false" ) );
   // ..but not to load glyph bitmap data
-  DALI_TEST_CHECK( ! application.GetPlatform().GetTrace().FindMethodAndParams( "GetGlyphData", "getBitmap:true" ) );
+  DALI_TEST_CHECK( ! application.GetPlatform().GetTrace().FindMethodAndParams( "GetGlyphData", "getImageData:true" ) );
   // ..also, cached high quality glyphs will not have been requested yet
   DALI_TEST_CHECK( ! application.GetPlatform().WasCalled(TestPlatformAbstraction::GetCachedGlyphDataFunc) );
 
@@ -698,7 +698,7 @@ static void UtcDaliTextActorSynchronousGlyphLoading()
   // An attempt to load high quality glyphs will have been requested and loaded nothing
   DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetCachedGlyphDataFunc) );
   // low quality glyphs bitmap data will have now been generated
-  DALI_TEST_CHECK( application.GetPlatform().GetTrace().FindMethodAndParams( "GetGlyphData", "getBitmap:true" ) );
+  DALI_TEST_CHECK( application.GetPlatform().GetTrace().FindMethodAndParams( "GetGlyphData", "getImageData:true" ) );
 
   // request numerals
   actor.SetText( "0123456789" );
@@ -712,7 +712,7 @@ static void UtcDaliTextActorSynchronousGlyphLoading()
   // An attempt to load high quality glyphs will have been requested and loaded all the numerals
   DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetCachedGlyphDataFunc) );
   // ..therefore no low quality glyphs bitmap data will have been requested
-  DALI_TEST_CHECK( !application.GetPlatform().GetTrace().FindMethodAndParams( "GetGlyphData", "getBitmap:true" ) );
+  DALI_TEST_CHECK( !application.GetPlatform().GetTrace().FindMethodAndParams( "GetGlyphData", "getImageData:true" ) );
 }
 
 static void UtcDaliTextActorAutomaticSizeSet()

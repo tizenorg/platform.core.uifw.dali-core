@@ -21,6 +21,7 @@
 
 #include <dali/public-api/dali-core.h>
 #include <dali-test-suite-utils.h>
+#include <dali/integration-api/image-data.h>
 
 using namespace Dali;
 #include <mesh-builder.h>
@@ -206,9 +207,8 @@ static void  UtcDaliMaterialStage01()
     std::vector<GLuint> ids;
     ids.push_back( 23 );
     application.GetGlAbstraction().SetNextTextureIds( ids );
-    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, true );
-    Integration::ResourcePointer resource(bitmap);
-    bitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, 80, 80, 80, 80);
+    Integration::ImageDataPtr bitmap = Integration::NewBitmapImageData( 80, 80, Pixel::RGBA8888 );
+    Integration::ResourcePointer resource( bitmap );
     DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::LoadResourceFunc) );
     Integration::ResourceRequest* request = application.GetPlatform().GetRequest();
     DALI_TEST_CHECK( request != NULL );
@@ -318,9 +318,8 @@ static void  UtcDaliMaterialStage02()
       Integration::ResourceRequest* request = application.GetPlatform().GetRequest();
       DALI_TEST_CHECK( request != NULL );
 
-      Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, true );
+      Integration::ImageDataPtr bitmap = Integration::NewBitmapImageData( 80, 80, Pixel::RGBA8888 );
       Integration::ResourcePointer resource(bitmap);
-      bitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, 80, 80, 80, 80);
       if(request)
       {
         application.GetPlatform().SetResourceLoaded(request->GetId(), request->GetType()->id, resource);

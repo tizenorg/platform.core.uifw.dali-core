@@ -316,9 +316,8 @@ void CompleteImageLoad(TestApplication& application, Integration::ResourceId res
   ids.push_back( 23 );
   application.GetGlAbstraction().SetNextTextureIds( ids );
 
-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, true );
-  Integration::ResourcePointer resource(bitmap);
-  bitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, 80, 80, 80, 80);
+  Integration::ImageDataPtr bitmap = Integration::NewBitmapImageData( 80, 80, Pixel::RGBA8888 );
+  Integration::ResourcePointer resource( bitmap );
 
   application.GetPlatform().SetResourceLoaded(resourceId, requestType, resource);
 }
@@ -353,8 +352,7 @@ unsigned int GetLastResourceId(TestApplication& application)
   application.Render();           // Process resource request
   Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
 
-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, false );
-  bitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, 80, 80, 80, 80);
+  Integration::ImageDataPtr bitmap = Integration::NewBitmapImageData( 80, 80, Pixel::RGBA8888 );
   Integration::ResourcePointer resourcePtr(bitmap); // reference it
   unsigned int id = req->GetId();
 

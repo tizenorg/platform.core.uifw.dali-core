@@ -110,7 +110,7 @@ public: // Used by application-side objects e.g. Dali::Image
    * Adding an observer to the ticket will enable the application to determine when the
    * resource has finished decoding.
    * @note Only images are currently supported by this function.
-   * @param[in] type The type of resource. Must be BitmapResourceType.
+   * @param[in] type The type of resource. Must be ImageDataResourceType.
    * @param[in] buffer The raw data of the resource.
    * @param[in] priority The priority of the request. This is ignored if the resource is already being loaded.
    * @return A ref-counted request object on success or a null pointer on failure.

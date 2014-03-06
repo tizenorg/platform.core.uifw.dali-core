@@ -25,6 +25,7 @@
 #include <dali/internal/event/images/bitmap-compressed.h>
 #include <dali/internal/event/images/bitmap-external.h>
 #include <dali/integration-api/gl-abstraction.h>
+#include <dali/public-api/images/pixel-extras.h>
 
 namespace Dali
 {
@@ -252,8 +253,7 @@ Bitmap* Bitmap::New(const Profile profile = BITMAP_2D_PACKED_PIXELS, const bool 
      * scanlines past the bottom of the image in the buffer if requested.*/
     case BITMAP_2D_PACKED_PIXELS:
     {
-      Bitmap * const bitmap = new Dali::Internal::BitmapPackedPixel(managePixelBuffer);
-      return bitmap;
+      return new Dali::Internal::BitmapPackedPixel(managePixelBuffer);
     }
 
     /** The data for the bitmap is buffered in an opaque form.*/
@@ -263,6 +263,18 @@ Bitmap* Bitmap::New(const Profile profile = BITMAP_2D_PACKED_PIXELS, const bool 
     }
   }
   return 0;
+}
+
+Bitmap* Bitmap::New(const Pixel::Format format)
+{
+  if( Pixel::IsEncoded( format ) )
+  {
+    return new Dali::Internal::BitmapCompressed(true);
+  }
+  else
+  {
+    return new Dali::Internal::BitmapPackedPixel(true);
+  }
 }
 
 Bitmap::Bitmap( bool discardable, Dali::Integration::PixelBuffer* pixBuf)

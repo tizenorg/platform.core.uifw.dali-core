@@ -119,6 +119,8 @@ struct ResourceManager::ResourceManagerImpl
     }
   }
 
+  void UploadImageData( const ResourceId id, Bitmap& bitmap );
+
   PlatformAbstraction&     mPlatformAbstraction;
   NotificationManager&     mNotificationManager;
   ResourceClient*          mResourceClient; // (needs to be a ptr - it's not instantiated yet)
@@ -496,18 +498,6 @@ void ResourceManager::HandleSaveResourceRequest( ResourceId id, const ResourceTy
 
     switch( typePath.type->id )
     {
-      case ResourceBitmap:
-      {
-        break;
-      }
-      case ResourceNativeImage:
-      {
-        break;
-      }
-      case ResourceTargetImage:
-      {
-        break;
-      }
       case ResourceShader:
       {
         resource = GetShaderData(id);
@@ -518,11 +508,15 @@ void ResourceManager::HandleSaveResourceRequest( ResourceId id, const ResourceTy
         resource = GetModelData(id);
         break;
       }
+
+      // No other resource types are saveable:
+      case ResourceImageData:
+      case ResourceNativeImage:
+      case ResourceTargetImage:
       case ResourceMesh:
-      {
-        break;
-      }
       case ResourceText:
+      case ResourceTexture:
+      case ResourceAppBitmap:
       {
         break;
       }
@@ -589,7 +583,7 @@ void ResourceManager::HandleDiscardResourceRequest( ResourceId deadId, ResourceT
 
   if (wasComplete)
   {
-    if(typeId == ResourceBitmap ||
+    if(typeId == ResourceImageData ||
        typeId == ResourceNativeImage ||
        typeId == ResourceTargetImage )
     {
@@ -738,6 +732,23 @@ LoadStatus ResourceManager::GetAtlasLoadStatus( ResourceId atlasId )
  ************************* ResourceCache Implementation  ************************
  ********************************************************************************/
 
+void ResourceManager::ResourceManagerImpl::UploadImageData( const ResourceId id, Bitmap& bitmap )
+{
+  // Either update an existing texture for a reloaded image or allocate a fresh
+  // texture for a newly loaded image:
+  BitmapMetadataIter iter = mBitmapMetadata.find( id );
+  if (iter != mBitmapMetadata.end())
+  {
+    iter->second.Update( &bitmap );
+    mTextureCacheDispatcher.DispatchUpdateTexture( id, &bitmap );
+  }
+  else
+  {
+    mTextureCacheDispatcher.DispatchCreateTextureForBitmap( id, &bitmap );
+    mBitmapMetadata.insert( BitmapMetadataPair( id, BitmapMetadata::New(&bitmap) ) );
+  }
+}
+
 void ResourceManager::LoadResponse( ResourceId id, ResourceTypeId type, ResourcePointer resource, LoadStatus loadStatus )
 {
   DALI_ASSERT_DEBUG( mImpl->mResourceClient != NULL );
@@ -759,41 +770,27 @@ void ResourceManager::LoadResponse( ResourceId id, ResourceTypeId type, Resource
 
     switch ( type )
     {
-      case ResourceBitmap:
+      case ResourceImageData:
       {
         DALI_ASSERT_DEBUG( loadStatus == RESOURCE_COMPLETELY_LOADED && "Partial results not handled for image loading.\n" );
-        Bitmap* const bitmap = static_cast<Bitmap*>( resource.Get() );
-        if( !bitmap )
+        ImageData* const imageData = static_cast<ImageData*>( resource.Get() );
+        if( !imageData )
         {
-          DALI_LOG_ERROR( "Missing bitmap in loaded resource with id %u.\n", id );
+          DALI_LOG_ERROR( "Missing imageData in loaded resource with id %u.\n", id );
           break;
         }
-        unsigned int bitmapWidth  = bitmap->GetImageWidth();
-        unsigned int bitmapHeight = bitmap->GetImageHeight();
+        unsigned int bitmapWidth  = imageData->imageWidth;
+        unsigned int bitmapHeight = imageData->imageHeight;
 
-        if( Bitmap::PackedPixelsProfile * packedBitmap = bitmap->GetPackedPixelsProfile() )
-        {
-          bitmapWidth  = packedBitmap->GetBufferWidth();
-          bitmapHeight = packedBitmap->GetBufferHeight();
-        }
-        Pixel::Format pixelFormat = bitmap->GetPixelFormat();
+        Pixel::Format pixelFormat = imageData->pixelFormat;
 
-        ImageAttributes attrs = ImageAttributes::New( bitmapWidth, bitmapHeight, pixelFormat ); ///!< Issue #AHC01
+        ImageAttributes attrs = ImageAttributes::New( bitmapWidth, bitmapHeight, pixelFormat );
         UpdateImageTicket (id, attrs);
 
-        // Check for reloaded bitmap
-        BitmapMetadataIter iter = mImpl->mBitmapMetadata.find(id);
-        if (iter != mImpl->mBitmapMetadata.end())
-        {
-          iter->second.Update(bitmap);
-          mImpl->mTextureCacheDispatcher.DispatchUpdateTexture( id, bitmap );
-        }
-        else
-        {
-          mImpl->mTextureCacheDispatcher.DispatchCreateTextureForBitmap( id, bitmap );
-          mImpl->mBitmapMetadata.insert(BitmapMetadataPair(id, BitmapMetadata::New(bitmap)));
-        }
+        // Pass the loaded data on towards a GLES texture:
+        OwnerPointer<Bitmap> bitmap( Bitmap::New( pixelFormat ) );
 
+        mImpl->UploadImageData( id, *bitmap );
         break;
       }
 
@@ -807,11 +804,6 @@ void ResourceManager::LoadResponse( ResourceId id, ResourceTypeId type, Resource
         mImpl->mTextureCacheDispatcher.DispatchCreateTextureForNativeImage( id, nativeImg );
 
         UpdateImageTicket (id, attrs);
-        break;
-      }
-
-      case ResourceTargetImage:
-      {
         break;
       }
 
@@ -840,6 +832,15 @@ void ResourceManager::LoadResponse( ResourceId id, ResourceTypeId type, Resource
         UploadGlyphsToTexture(*glyphSet);
         mImpl->atlasStatus.Update(id, glyphSet->GetAtlasResourceId(), loadStatus );
         SendToClient( LoadingGlyphSetSucceededMessage( *mImpl->mResourceClient, id, glyphSet, loadStatus) );
+        break;
+      }
+
+
+      case ResourceTargetImage:
+      case ResourceTexture:
+      case ResourceAppBitmap:
+      {
+        DALI_ASSERT_DEBUG( 0 == "These resource types are never loaded." );
         break;
       }
     }
@@ -970,15 +971,15 @@ void ResourceManager::UploadGlyphsToTexture( const GlyphSet& glyphSet )
     const GlyphSet::Character& character( charList[i] );
 
     // grab a pointer to the bitmap
-    Bitmap* bitmap( character.first.Get() );
+    ImageData* imageData( character.first.Get() );
 
-    // create a bitmap upload object, then add it to the array
-    BitmapUpload upload( bitmap->ReleaseBuffer(),               // Inform the bitmap we're taking ownership of it's pixel buffer.
-                         character.second.xPosition,            // x position in the texture to which upload the bitmap
-                         character.second.yPosition,            // y position in the texture to which upload the bitmap
-                         bitmap->GetImageWidth(),              // bitmap width
-                         bitmap->GetImageHeight(),             // bitmap height
-                         BitmapUpload::DISCARD_PIXEL_DATA );    // tell the the texture to delete the bitmap pixel buffer when it's done
+    // create a ImageData upload object, then add it to the array
+    BitmapUpload upload( imageData->ReleaseImageBuffer(),  // Inform the ImageData we're taking ownership of it's pixel buffer.
+                         character.second.xPosition,         // x position in the texture to which upload the ImageData
+                         character.second.yPosition,         // y position in the texture to which upload the ImageData
+                         imageData->imageWidth,              // ImageData width
+                         imageData->imageHeight,             // ImageData height
+                         BitmapUpload::DISCARD_PIXEL_DATA ); // Tell the the texture to delete the ImageData pixel buffer when it's done
 
     uploadArray.push_back( upload );
   }
@@ -1047,14 +1048,19 @@ void ResourceManager::DiscardDeadResources( BufferIndex updateBufferIndex )
      */
     switch (iter->second)
     {
-      case ResourceBitmap:
+      case ResourceImageData:
       case ResourceNativeImage:
       case ResourceTargetImage:
+      case ResourceText:
+      case ResourceTexture:
+      case ResourceAppBitmap:
+      {
         break;
+      }
 
       case ResourceModel:
       {
-        ModelCacheIter model = mImpl->mModels.find(iter->first);
+        ModelCacheIter model = mImpl->mModels.find( iter->first );
         DALI_ASSERT_DEBUG( mImpl->mModels.end() != model );
 
         mImpl->mDiscardQueue.Add( updateBufferIndex, *(model->second) );
@@ -1072,14 +1078,9 @@ void ResourceManager::DiscardDeadResources( BufferIndex updateBufferIndex )
       }
       break;
 
-      case ResourceText:
-      {
-        break;
-      }
-
       case ResourceShader:
       {
-        ShaderCacheIter shaderIter = mImpl->mShaders.find(iter->first);
+        ShaderCacheIter shaderIter = mImpl->mShaders.find( iter->first );
         DALI_ASSERT_DEBUG( mImpl->mShaders.end() != shaderIter );
 
         mImpl->mDiscardQueue.Add( updateBufferIndex, *(shaderIter->second) );
@@ -1088,10 +1089,10 @@ void ResourceManager::DiscardDeadResources( BufferIndex updateBufferIndex )
       }
     }
 
-    mImpl->atlasStatus.Remove(iter->first);
+    mImpl->atlasStatus.Remove( iter->first );
 
     // Erase the item and increment the iterator
-    mImpl->deadRequests.erase(iter++);
+    mImpl->deadRequests.erase( iter++ );
   }
 }
 

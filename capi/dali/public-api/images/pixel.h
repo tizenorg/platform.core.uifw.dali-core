@@ -86,8 +86,11 @@ bool HasAlpha(Format pixelformat);
 
 /**
  * Returns The number of bytes per pixel for the specified pixel format
+ * @note Some pixel formats such as compressed textures do not have a meaningful
+ * number of bytes per pixel.
  * @param [in] pixelFormat The pixel format
- * @return The number of bytes per pixel
+ * @return The number of bytes per pixel or zero if there is no meaningful value
+ * for the format.
  */
 unsigned int GetBytesPerPixel(Format pixelFormat);
 

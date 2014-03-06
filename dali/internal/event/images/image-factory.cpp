@@ -112,7 +112,7 @@ ResourceTicketPtr ImageFactory::Load( Request *req )
       ticket = IssueLoadRequest( req->url, req->attributes );
       req->resourceId = ticket->GetId();
     }
-    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceImageData   ||
                        ticket->GetTypePath().type->id == ResourceNativeImage ||
                        ticket->GetTypePath().type->id == ResourceTargetImage );
   }
@@ -151,7 +151,7 @@ ResourceTicketPtr ImageFactory::Reload( Request* request )
   }
   else // ticket still alive
   {
-    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceImageData   ||
                        ticket->GetTypePath().type->id == ResourceNativeImage ||
                        ticket->GetTypePath().type->id == ResourceTargetImage );
 
@@ -197,7 +197,7 @@ const ImageAttributes& ImageFactory::GetActualAttributes( ResourceId resourceId 
   ResourceTicketPtr ticket = mResourceClient.RequestResourceTicket( resourceId );
   if( ticket )
   {
-    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceImageData   ||
                        ticket->GetTypePath().type->id == ResourceNativeImage ||
                        ticket->GetTypePath().type->id == ResourceTargetImage );
     const ImageAttributes& attrib = static_cast<ImageTicket*>(ticket.Get())->GetAttributes();
@@ -336,7 +336,7 @@ ResourceTicketPtr ImageFactory::FindCompatibleResource( const std::string& filen
         continue;
       }
 
-      DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+      DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceImageData   ||
                          ticket->GetTypePath().type->id == ResourceNativeImage ||
                          ticket->GetTypePath().type->id == ResourceTargetImage );
 
@@ -380,7 +380,7 @@ ResourceTicketPtr ImageFactory::IssueLoadRequest( const std::string& filename, c
     attributes.SetSize( size.width, size.height );
   }
 
-  BitmapResourceType resourceType( attributes );
+  ImageResourceType resourceType( ResourceImageData, attributes );
   ResourceTicketPtr ticket = mResourceClient.RequestResource( resourceType, filename );
   return ticket;
 }

@@ -98,6 +98,9 @@ public:
    **/
   static Bitmap* New(Profile profile, bool managePixelBuffer);
 
+  /** Temp while introducing ImageData? */
+  static Bitmap* New(Pixel::Format format);
+
   /** \name GeneralFeatures
    * Features that are generic between profiles. */
   /**@{*/

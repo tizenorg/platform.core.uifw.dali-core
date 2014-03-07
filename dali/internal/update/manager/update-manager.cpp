@@ -265,6 +265,8 @@ struct UpdateManager::Impl
   SortedLayerPointers                 sortedLayers;                  ///< A container of Layer pointers sorted by depth
   SortedLayerPointers                 systemLevelSortedLayers;       ///< A separate container of system-level Layers
 
+  OwnerContainer< PropertyOwner* >    customObjects;                 ///< A container of owned objects (with custom properties)
+
   AnimationContainer                  animations;                    ///< A container of owned animations
   PropertyNotificationContainer       propertyNotifications;         ///< A container of owner property notifications.
 
@@ -434,6 +436,34 @@ void UpdateManager::AttachToNode( Node* node, NodeAttachment* attachment )
   // attach node to attachment first so that parent is known by the time attachment is connected
   node->Attach( *attachment ); // node takes ownership
   attachment->ConnectToSceneGraph( *mImpl->sceneController, mSceneGraphBuffers.GetUpdateBufferIndex() );
+}
+
+void UpdateManager::AddObject( PropertyOwner* object )
+{
+  DALI_ASSERT_DEBUG( NULL != object );
+
+  mImpl->customObjects.PushBack( object );
+}
+
+void UpdateManager::RemoveObject( PropertyOwner* object )
+{
+  DALI_ASSERT_DEBUG( NULL != object );
+
+  OwnerContainer< PropertyOwner* >& customObjects = mImpl->customObjects;
+
+  // Find the object and destroy it
+  for ( OwnerContainer< PropertyOwner* >::Iterator iter = customObjects.Begin(); iter != customObjects.End(); ++iter )
+  {
+    PropertyOwner* current = *iter;
+    if ( current == object )
+    {
+      customObjects.Erase( iter );
+      return;
+    }
+  }
+
+  // Should not reach here
+  DALI_ASSERT_DEBUG(false);
 }
 
 void UpdateManager::AddAnimation( Animation* animation )
@@ -808,6 +838,16 @@ void UpdateManager::ApplyConstraints()
   PERF_MONITOR_START(PerformanceMonitor::APPLY_CONSTRAINTS);
 
   mImpl->activeConstraints = 0;
+
+  // constrain custom objects... (in construction order)
+  OwnerContainer< PropertyOwner* >& customObjects = mImpl->customObjects;
+
+  const OwnerContainer< PropertyOwner* >::Iterator endIter = customObjects.End();
+  for ( OwnerContainer< PropertyOwner* >::Iterator iter = customObjects.Begin(); endIter != iter; ++iter )
+  {
+    PropertyOwner& object = **iter;
+    mImpl->activeConstraints += ConstrainPropertyOwner( object, mSceneGraphBuffers.GetUpdateBufferIndex() );
+  }
 
   // constrain nodes... (in Depth First traversal order)
   if ( mImpl->root )

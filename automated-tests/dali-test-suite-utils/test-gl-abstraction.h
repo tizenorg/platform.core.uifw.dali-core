@@ -289,7 +289,7 @@ public:
     mShaderTrace.PushCall("CompileShader", out.str());
   }
 
-  void CompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data)
+  void CompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data, GLint id)
   {
   }
 
@@ -814,7 +814,7 @@ public:
   {
   }
 
-  void TexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels)
+  void TexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels, GLint id)
   {
     std::stringstream out;
     out << width << ", " << height;

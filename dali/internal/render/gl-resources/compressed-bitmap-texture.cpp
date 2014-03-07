@@ -92,14 +92,19 @@ void CompressedBitmapTexture::AssignBitmap( bool generateTexture, const unsigned
   Integration::ConvertToGlFormat(mPixelFormat, pixelDataType, pixelFormat);
 
   mContext.PixelStorei(GL_UNPACK_ALIGNMENT, 1); // We always use tightly packed data
-  mContext.CompressedTexImage2D(GL_TEXTURE_2D, 0, pixelFormat, mWidth, mHeight, 0, bufferSize, pixels);
+  mContext.CompressedTexImage2D(GL_TEXTURE_2D, 0, pixelFormat, mWidth, mHeight, 0, bufferSize, pixels, mId);
   mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-  DALI_LOG_RESOURCE("[UPLOAD] Uploaded image data from Bitmap %p to Texture %d - size %d bytes (%dx%d)\n",
-                    mBitmap.Get(), mId, bufferSize, mWidth, mHeight);
+  DALI_RESOURCE_INFO( ResourceTrackMessage::UPLOAD_TEXTURE,
+                      mBitmap.Get(),
+                      mWidth,
+                      mHeight,
+                      mId,
+                      0 );
+
   INCREASE_BY( PerformanceMonitor::TEXTURE_DATA_UPLOADED, bufferSize );
 }
 

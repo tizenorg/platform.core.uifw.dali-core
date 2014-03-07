@@ -482,10 +482,10 @@ public:
    * Wrapper for OpenGL ES 2.0 glCompressedTexImage2D()
    */
   void CompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height,
-                            GLint border, GLsizei imageSize, const void* data)
+                            GLint border, GLsizei imageSize, const void* data, GLint id)
   {
     LOG_GL("CompressedTexImage2D %d %d %x %d %d %d %d %p\n", target, level, internalformat, width, height, border, imageSize, data);
-    CHECK_GL( *this, mGlAbstraction.CompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data) );
+    CHECK_GL( *this, mGlAbstraction.CompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data, id) );
   }
 
   /**
@@ -1518,10 +1518,10 @@ public:
    * Wrapper for OpenGL ES 2.0 glTexImage2D()
    */
   void TexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height,
-                  GLint border, GLenum format, GLenum type, const void* pixels)
+                  GLint border, GLenum format, GLenum type, const void* pixels, GLint id)
   {
     LOG_GL("TexImage2D %x %d %d %dx%d %d %x %x %p\n", target, level, internalformat, width, height, border, format, type, pixels);
-    CHECK_GL( *this, mGlAbstraction.TexImage2D(target, level, internalformat, width, height, border, format, type, pixels) );
+    CHECK_GL( *this, mGlAbstraction.TexImage2D(target, level, internalformat, width, height, border, format, type, pixels, id) );
   }
 
   /**

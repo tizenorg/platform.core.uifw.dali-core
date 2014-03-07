@@ -308,7 +308,14 @@ void Bitmap::DeletePixelBuffer()
   {
     return;
   }
-  DALI_LOG_RESOURCE("[DELBUF] Deleting pixel buffer for Bitmap %p at address %p.\n", this, mData);
+
+  DALI_RESOURCE_INFO( ResourceTrackMessage::DELETE_BUFFER,
+                      GetBuffer(),
+                      0,
+                      0,
+                      0,
+                      Pixel::GetBytesPerPixel( mPixelFormat )*mImageWidth*mImageHeight );
+
   delete [] mData;
   mData = NULL;
 }

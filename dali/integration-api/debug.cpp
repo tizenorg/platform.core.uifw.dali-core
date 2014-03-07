@@ -93,14 +93,14 @@ typedef LogFunction* LogFunctionPtr; ///< LogFunction pointer
  */
 struct ThreadLocalLogging
 {
-  ThreadLocalLogging(LogFunction func, unsigned int opts)
-  :function(func),
-   logOptions(opts)
+  ThreadLocalLogging(LogFunction func, ResourceTrackingInterface* tracker )
+  :function( func ),
+   resourceTracker( tracker )
   {
   }
 
   LogFunction function;
-  unsigned int logOptions;
+  ResourceTrackingInterface* resourceTracker;
 };
 
 #ifndef EMSCRIPTEN // single threaded
@@ -109,62 +109,12 @@ boost::thread_specific_ptr<ThreadLocalLogging> threadLocal;
 std::auto_ptr<ThreadLocalLogging> threadLocal;
 #endif
 
+// Resource Tracking enabled ?
+static bool resourceTrackingManagerState = false;
+
 /* Forward declarations */
 std::string FormatToString(const char *format, ...);
 std::string ArgListToString(const char *format, va_list args);
-
-unsigned int ParseLogOptions (const char* logOptString)
-{
-  unsigned int ret = LogNone;
-  if (logOptString == NULL)
-  {
-    // environment variable was not set, turn on logging for all threads by default
-    ret |= LogEventThread;
-    ret |= LogUpdateThread;
-    ret |= LogRenderThread;
-    ret |= LogResourceThreads;
-  }
-  else
-  {
-    std::string setting(logOptString);
-    if (!setting.compare(DALI_LOG_OFF))
-    {
-      // leave as "LogNone"
-    }
-    else if (!setting.compare(DALI_LOG_EVENT_THREAD))
-    {
-      ret |= LogEventThread;
-    }
-    else if (!setting.compare(DALI_LOG_UPDATE_THREAD))
-    {
-      ret |= LogUpdateThread;
-    }
-    else if (!setting.compare(DALI_LOG_RENDER_THREAD))
-    {
-      ret |= LogRenderThread;
-    }
-    else if (!setting.compare(DALI_LOG_RESOURCE_THREADS))
-    {
-      ret |= LogResourceThreads;
-    }
-    else if (!setting.compare(DALI_LOG_ALL_THREADS))
-    {
-      ret |= LogEventThread;
-      ret |= LogUpdateThread;
-      ret |= LogRenderThread;
-      ret |= LogResourceThreads;
-    }
-    else if (!setting.compare(DALI_LOG_RESOURCE_LIFETIME))
-    {
-      ret |= LogEventThread;
-      ret |= LogUpdateThread;
-      ret |= LogRenderThread;
-      ret |= LogResourceThreads;
-      ret |= LogResourceLifetime;
-    }
-  }
-  return ret;
-}
 
 void LogMessage(DebugPriority priority, const char* format, ...)
 {
@@ -180,11 +130,6 @@ void LogMessage(DebugPriority priority, const char* format, ...)
     return;
   }
 
-  // avoid string operations and function call if trying to log resources when not requested
-  if (priority == DebugResources && !(threadLogging->logOptions & LogResourceLifetime))
-  {
-    return;
-  }
   va_list arg;
   va_start(arg, format);
   std::string message = ArgListToString(format, arg);
@@ -193,19 +138,42 @@ void LogMessage(DebugPriority priority, const char* format, ...)
   logfunction(priority,message);
 }
 
-void InstallLogFunction(const LogFunction& logFunction, unsigned int logOpts)
+void LogResourceTracking( Dali::ResourceTrackMessage::Type message, void* ptr, unsigned int p1, unsigned int p2, unsigned int p3, unsigned int p4 )
+{
+  ThreadLocalLogging* threadLogging = threadLocal.get();
+  if ( !threadLogging )
+  {
+    return;
+  }
+  if ( threadLogging->resourceTracker )
+  {
+
+    threadLogging->resourceTracker->AddMessage( message, ptr, p1, p2, p3, p4 );
+  }
+}
+
+void InstallLogFunction( const LogFunction& logFunction, ResourceTrackingInterface* tracker )
 {
   // TLS stores a pointer to an object.
   // It needs to be allocated on the heap, because TLS will destroy it when the thread exits.
 
-  ThreadLocalLogging* logStruct = new ThreadLocalLogging(logFunction, logOpts);
-
+  ThreadLocalLogging* logStruct = new ThreadLocalLogging(logFunction, tracker);
   threadLocal.reset(logStruct);
 }
 
 void UninstallLogFunction()
 {
   threadLocal.reset();
+}
+
+void SetResourceTrackingManagerEnabled( bool enabled )
+{
+  resourceTrackingManagerState = enabled;
+}
+
+bool IsResourceTrackingManagerEnabled()
+{
+  return resourceTrackingManagerState;
 }
 
 #ifdef DEBUG_ENABLED

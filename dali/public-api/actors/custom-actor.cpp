@@ -68,7 +68,7 @@ const CustomActorImpl& CustomActor::GetImplementation() const
 }
 
 CustomActor::CustomActor(CustomActorImpl& implementation)
-: Actor(Internal::CustomActor::New(implementation).Get())
+: Actor(Internal::CustomActor::New(implementation))
 {
 }
 

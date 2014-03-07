@@ -34,9 +34,9 @@ public:
 
   /**
    * Create a new custom actor.
-   * @return A smart-pointer to the newly allocated Actor.
+   * @return A pointer to the newly allocated Actor.
    */
-  static CustomActorPtr New(CustomActorImpl& extension);
+  static CustomActor* New(CustomActorImpl& extension);
 
   /**
    * Retrieve the custom actor implementation.

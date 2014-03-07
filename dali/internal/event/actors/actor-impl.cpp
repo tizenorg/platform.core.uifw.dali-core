@@ -471,7 +471,6 @@ Dali::Actor Actor::FindChildByAlias(const std::string& actorAlias)
       child = Dali::Actor(child_ptr.Get());
     }
   }
-
   return child;
 }
 
@@ -492,7 +491,6 @@ Dali::Actor Actor::DoGetChildByAlias(const std::string& actorAlias)
       }
     }
   }
-
   return child;
 }
 

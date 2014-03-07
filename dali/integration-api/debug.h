@@ -23,6 +23,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+#include <dali/integration-api/hash-string.h>
+#include <dali/integration-api/resource-tracking.h>
 
 // Using Debug namespace alias shortens the log usage significantly
 namespace Dali{namespace Integration{namespace Log{}}}
@@ -43,17 +45,6 @@ namespace Integration
 namespace Log
 {
 
-// environment variable for enabling/disabling logging in different threads
-#define DALI_ENV_ENABLE_LOG "DALI_ENABLE_LOG"
-// values of the environment variable
-#define DALI_LOG_OFF               "FALSE"            ///< disable log messages from all threads. Do not log resource creation / destruction
-#define DALI_LOG_EVENT_THREAD      "EVENT"            ///< enable log messages from event thread. Do not log resource creation / destruction
-#define DALI_LOG_UPDATE_THREAD     "UPDATE"           ///< enable log messages from update thread. Do not log resource creation / destruction
-#define DALI_LOG_RENDER_THREAD     "RENDER"           ///< enable log messages from render thread. Do not log resource creation / destruction
-#define DALI_LOG_RESOURCE_THREADS  "RESOURCE_LOADER"  ///< enable log messages from render thread. Do not log resource creation / destruction
-#define DALI_LOG_ALL_THREADS       "ALL"              ///< enable log messages from all threads. Do not log resource creation / destruction
-#define DALI_LOG_RESOURCE_LIFETIME "RESOURCE_LOG"     ///< log resource creation / destruction. Enables logging on all threads.
-
 // environment variable for enabling/disabling fps tracking
 #define DALI_ENV_FPS_TRACKING "DALI_FPS_TRACKING"
 
@@ -64,30 +55,8 @@ enum DebugPriority
 {
   DebugInfo,
   DebugWarning,
-  DebugError,
-  DebugResources
+  DebugError
 };
-
-/**
- * Control logging in separate threads.
- * If DEBUG_ENABLED macro is not defined, only errors and resource lifetime messages are logged.
- */
-enum LoggingOptions
-{
-  LogNone              = 0,
-  LogEventThread       = 1 << 0,
-  LogUpdateThread      = 1 << 1,
-  LogRenderThread      = 1 << 2,
-  LogResourceThreads   = 1 << 3,
-  LogResourceLifetime  = 1 << 4
-};
-
-/**
- * Return log settings (bitfield) based on the value set in environment
- * @param[in] setting the string contained in DALI_ENABLE_LOG env. variable (or NULL if not set)
- * @return a bitfield with all the relevant LoggingOptions values set
- */
-DALI_IMPORT_API unsigned int ParseLogOptions (const char* setting);
 
 /**
  * Used by logging macros to log a message along with function/class name
@@ -97,9 +66,45 @@ DALI_IMPORT_API unsigned int ParseLogOptions (const char* setting);
 DALI_IMPORT_API void LogMessage(enum DebugPriority level,const char *format, ...);
 
 /**
+ * @brief Log a resource allocation message
+ *
+ * @param message resource message
+ */
+DALI_IMPORT_API void LogResourceTracking( Dali::ResourceTrackMessage::Type message, void* ptr, unsigned int p1, unsigned int p2, unsigned int p3, unsigned int p4 );
+
+/**
  * typedef for the logging function.
  */
 typedef void (*LogFunction)(DebugPriority priority, std::string& message);
+
+/**
+ * @brief Interface to handle communication between Dali core and the tracking classes in adaptor
+ *
+ */
+class ResourceTrackingInterface
+{
+
+public:
+
+  virtual ~ResourceTrackingInterface() {}
+
+  /**
+   * @brief Add a message to the current thread's log
+   *
+   * @param message type of message
+   * @param ptr any pointer that needs to be recorded contextual to the message
+   * @param p1 parameter1
+   * @param p2 parameter2
+   * @param p3 parameter3
+   * @param p4 parameter4
+   */
+  virtual void AddMessage( Dali::ResourceTrackMessage::Type message,
+                           void* ptr,
+                           unsigned int p1,
+                           unsigned int p2,
+                           unsigned int p3,
+                           unsigned int p4 ) = 0;
+};
 
 /**
  * A log function has to be installed for every thread that wants to use logging.
@@ -107,14 +112,28 @@ typedef void (*LogFunction)(DebugPriority priority, std::string& message);
  * The log function can be different for each thread.
  * @param logFunction the log function to install
  * @param logOpts the log options to save in thread
+ * @param resourceTracker void pointer to this thread's resource tracker
  */
-DALI_IMPORT_API void InstallLogFunction(const LogFunction& logFunction, unsigned int logOpts);
+DALI_IMPORT_API void InstallLogFunction(const LogFunction& logFunction, ResourceTrackingInterface* tracker);
 
 /**
  * A log function has to be uninstalled for every thread that wants to use logging.
  * The log function can be different for each thread.
  */
 DALI_IMPORT_API void UninstallLogFunction();
+
+/**
+ * @brief Return status of resource tracking manager
+ *
+ */
+DALI_IMPORT_API bool IsResourceTrackingEnabled();
+
+/**
+ * @brief Set status of Resource Tracking Manager
+ *
+ * @param bool enabled
+ */
+DALI_IMPORT_API void SetResourceTrackingEnabled( bool enabled );
 
 /********************************************************************************
  *                            Error/Warning  macros.                            *
@@ -130,7 +149,8 @@ DALI_IMPORT_API void UninstallLogFunction();
 /**
  * Provides unfiltered logging for resource usage
  */
-#define DALI_LOG_RESOURCE(format, args...)     Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugResources, format, ## args)
+#define DALI_RESOURCE_INFO( message, ptr, p1, p2, p3, p4 ) if ( Dali::Integration::Log::IsResourceTrackingEnabled() ) \
+                                                              { Dali::Integration::Log::LogResourceTracking( message, ptr, p1, p2, p3, p4 ); }
 
 /**
  * Provides unfiltered logging for fps monitor

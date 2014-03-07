@@ -68,7 +68,7 @@ bool NativeTexture::Bind(GLenum target, GLenum textureunit )
   mContext.ActiveTexture( textureunit );
   mContext.Bind2dTexture( mId );
 
-  mNativeImage->PrepareTexture();
+  mNativeImage->PrepareTexture( mId );
 
   return created;
 }

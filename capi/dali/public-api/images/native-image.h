@@ -63,7 +63,7 @@ public:
    * The correct texture sampler has already been bound before the function gets called.
    * @pre glAbstraction is being used by context in current thread
    */
-  virtual void PrepareTexture() = 0;
+  virtual void PrepareTexture( int id) = 0;
 
   /**
    * Returns the width of the NativeImage

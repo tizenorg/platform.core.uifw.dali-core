@@ -53,6 +53,7 @@
 #include <dali/public-api/modeling/model-data.h>
 #include <dali/public-api/modeling/model.h>
 
+#include <dali/public-api/object/custom-handle.h>
 #include <dali/public-api/object/type-info.h>
 #include <dali/public-api/object/type-registry.h>
 

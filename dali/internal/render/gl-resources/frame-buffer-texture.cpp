@@ -111,10 +111,7 @@ bool FrameBufferTexture::CreateGlTexture()
   GLenum pixelFormat = GL_RGBA;
   GLenum pixelDataType = GL_UNSIGNED_BYTE;
   Integration::ConvertToGlFormat(mPixelFormat, pixelDataType, pixelFormat);
-
-  mContext.TexImage2D(GL_TEXTURE_2D, 0, pixelFormat,mWidth, mHeight, 0, pixelFormat, pixelDataType, NULL);
-  DALI_LOG_RESOURCE("[UPLOAD] Allocated memory for FrameBufferTexture %p GL Texture %d - size %d bytes (%dx%d)\n",
-                    this, mId, Pixel::GetBytesPerPixel(mPixelFormat)*mWidth*mHeight, mWidth, mHeight);
+  mContext.TexImage2D(GL_TEXTURE_2D, 0, pixelFormat,mWidth, mHeight, 0, pixelFormat, pixelDataType, NULL, mId);
 
   if (!mFrameBufferName)
   {

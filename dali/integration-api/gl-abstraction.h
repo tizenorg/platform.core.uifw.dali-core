@@ -908,7 +908,7 @@ public:
   virtual void         ClearStencil (GLint s) = 0;
   virtual void         ColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) = 0;
   virtual void         CompileShader (GLuint shader) = 0;
-  virtual void         CompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data) = 0;
+  virtual void         CompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data, GLint id) = 0;
   virtual void         CompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data) = 0;
   virtual void         CopyTexImage2D (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border) = 0;
   virtual void         CopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height) = 0;
@@ -992,7 +992,7 @@ public:
   virtual void         StencilMaskSeparate (GLenum face, GLuint mask) = 0;
   virtual void         StencilOp (GLenum fail, GLenum zfail, GLenum zpass) = 0;
   virtual void         StencilOpSeparate (GLenum face, GLenum fail, GLenum zfail, GLenum zpass) = 0;
-  virtual void         TexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels) = 0;
+  virtual void         TexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels, GLint id) = 0;
   virtual void         TexParameterf (GLenum target, GLenum pname, GLfloat param) = 0;
   virtual void         TexParameterfv (GLenum target, GLenum pname, const GLfloat* params) = 0;
   virtual void         TexParameteri (GLenum target, GLenum pname, GLint param) = 0;

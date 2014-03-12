@@ -25,6 +25,7 @@
 
 #include <dali/public-api/animation/animator-functions.h>
 
+#include <dali/public-api/common/any.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/map-wrapper.h>
 #include <dali/public-api/common/set-wrapper.h>

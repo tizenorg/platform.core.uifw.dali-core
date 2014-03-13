@@ -46,6 +46,7 @@ struct Property
   typedef int Index;
 
   static const int INVALID_INDEX; ///< -1 is not a valid property index
+  static const int INVALID_COMPONENT_INDEX; ///< -1 is not a valid property index
 
   typedef std::vector< Index > IndexContainer; ///< A vector of property indices
 
@@ -105,8 +106,9 @@ struct Property
    * Create a Property instance.
    * @param [in] object A valid handle to the target object.
    * @param [in] propertyIndex The index of a property.
+   * @param [in] componentIndex Index to a sub component of a property, for use with Vector2, Vector3 and Vector4. -1 for main property (default is -1)
    */
-  Property( Handle& object, Property::Index propertyIndex );
+  Property( Handle& object, Property::Index propertyIndex, int componentIndex = INVALID_COMPONENT_INDEX );
 
   /**
    * Create a Property instance.
@@ -114,8 +116,9 @@ struct Property
    * constructing a Property directly with the index.
    * @param [in] object A valid handle to the target object.
    * @param [in] propertyName The property name.
+   * @param [in] componentIndex Index to a sub component of a property, for use with Vector2, Vector3 and Vector4. -1 for main property (default is -1)
    */
-  Property( Handle& object, const std::string& propertyName );
+  Property( Handle& object, const std::string& propertyName, int componentIndex = INVALID_COMPONENT_INDEX );
 
   /**
    * Non-virtual destructor; Property is not intended as a base class.
@@ -125,6 +128,8 @@ struct Property
   Handle& object; ///< A valid handle to the target object.
 
   Index propertyIndex; ///< The index of a property provided by object.
+
+  int componentIndex; ///< Index of a property sub component, for use with Vector2, Vector3 and Vector4, -1 if using main property
 };
 
 } // namespace Dali

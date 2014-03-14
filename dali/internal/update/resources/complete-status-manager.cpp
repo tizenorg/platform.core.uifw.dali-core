@@ -106,6 +106,7 @@ CompleteStatusManager::CompleteState CompleteStatusManager::GetStatus( Integrati
 {
   CompleteState readiness = CompleteStatusManager::NOT_READY;
 
+  BitmapMetadata bitmapMetadata = mResourceManager.GetBitmapMetadata( id );
   TrackedResourcesIter iter = mTrackedResources.find(id);
   if( iter != mTrackedResources.end() )
   {
@@ -121,6 +122,11 @@ CompleteStatusManager::CompleteState CompleteStatusManager::GetStatus( Integrati
   else if( mResourceManager.IsResourceLoadFailed(id) )
   {
     readiness = CompleteStatusManager::NEVER;
+  }
+
+  if( readiness == CompleteStatusManager::NOT_READY && bitmapMetadata.GetIsFramebuffer() )
+  {
+    readiness = CompleteStatusManager::READY;
   }
 
   TRACKER_LOG_FMT(Debug::General, "id:%d = %s\n", id, (readiness==CompleteStatusManager::COMPLETE)?"COMPLETE":((readiness==CompleteStatusManager::NEVER)?"NEVER":"NOT_READY"));

@@ -194,7 +194,6 @@ private: // Data
 
   BitmapMetadata  mBitmapMetadata;///< The bitmap metadata
   Vector2 mGeometrySize;          ///< The size of the currently used geometry
-
 };
 
 // Messages for ImageAttachment

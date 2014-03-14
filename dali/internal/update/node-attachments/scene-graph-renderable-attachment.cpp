@@ -140,7 +140,20 @@ void RenderableAttachment::FollowTracker( Integration::ResourceId id )
 
   if( completeStatusManager.FindResourceTracker(id) != NULL )
   {
-    mTrackedResources.PushBack( id );
+    bool found = false;
+    std::size_t numTrackedResources = mTrackedResources.Count();
+    for( size_t i=0; i < numTrackedResources; ++i )
+    {
+      if(mTrackedResources[i] == id)
+      {
+        found = true;
+        break;
+      }
+    }
+    if( ! found )
+    {
+      mTrackedResources.PushBack( id );
+    }
   }
   else
   {
@@ -196,22 +209,19 @@ void RenderableAttachment::GetReadyAndComplete(bool& ready, bool& complete) cons
   else
   {
     // If there are tracked resources and no untracked resources, test the trackers
-    ready = true;
+    bool trackersComplete = true;
     for( size_t i=0; i < numTrackedResources; ++i )
     {
-      ResourceTracker* tracker = completeStatusManager.FindResourceTracker(mTrackedResources[i]);
-      if( tracker && ! tracker->IsComplete() )
+      ResourceId id = mTrackedResources[i];
+      ResourceTracker* tracker = completeStatusManager.FindResourceTracker(id);
+      if( tracker  && ! tracker->IsComplete() )
       {
-        ready = false;
+        trackersComplete = false;
         break;
       }
     }
-
-    complete = mFinishedResourceAcquisition;
-    if( ! complete )
-    {
-      complete = ready;
-    }
+    ready = true;
+    complete = mFinishedResourceAcquisition || trackersComplete;
   }
 }
 

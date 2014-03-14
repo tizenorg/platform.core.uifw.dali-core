@@ -238,18 +238,26 @@ bool ImageAttachment::DoPrepareResources( BufferIndex updateBufferIndex, Resourc
 
   switch( status )
   {
-    case CompleteStatusManager::COMPLETE:
-    {
-      ready = true;
-      mFinishedResourceAcquisition = true;
-    }
-    break;
-
     case CompleteStatusManager::NOT_READY:
     {
       ready = false;
       mFinishedResourceAcquisition = false;
       FollowTracker( mTextureId );
+    }
+    break;
+
+    case CompleteStatusManager::READY:
+    {
+      ready = true;
+      mFinishedResourceAcquisition = false;
+      FollowTracker( mTextureId );
+    }
+    break;
+
+    case CompleteStatusManager::COMPLETE:
+    {
+      ready = true;
+      mFinishedResourceAcquisition = true;
     }
     break;
 

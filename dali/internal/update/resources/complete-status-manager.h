@@ -61,6 +61,7 @@ public:
   enum CompleteState
   {
     NOT_READY, ///< Resource is not ready yet
+    READY,     ///< Resource can be rendered
     COMPLETE,  ///< Resource has finished loading, or is otherwise complete
     NEVER      ///< Resource will never be complete, e.g. load failed.
   };

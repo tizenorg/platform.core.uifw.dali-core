@@ -34,7 +34,7 @@ namespace Dali DALI_IMPORT_API
  * Enumerations are being used here rather than static constants so that switch statements can be
  * used to compare property indices.
  */
-enum PropertyRegistration
+enum PropertyRegistrationIndices
 {
   PROPERTY_REGISTRATION_START_INDEX = 10000000,   ///< The index when registering a property should start from this number
   PROPERTY_REGISTRATION_MAX_INDEX   = 19999999    ///< The maximum index supported when registering a property

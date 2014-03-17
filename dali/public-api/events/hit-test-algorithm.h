@@ -26,7 +26,7 @@ namespace Dali DALI_IMPORT_API
 class RenderTask;
 
 /**
- * This namespace is provided for application developers to do hit-test for the actors.
+ * @brief This namespace is provided for application developers to do hit-test for the actors.
  *
  * <h3>Hit Test Algorithm:</h3>
  *
@@ -113,15 +113,18 @@ struct Results
 };
 
 /**
- * Definition of a hit-test function to use in HitTest() method to check if the actor is hittable (e.g. touchable or focusable).
+ * @brief Definition of a hit-test function to use in HitTest() method to check if the actor is hittable (e.g. touchable or focusable).
+ *
  * @return true, if the actor is hittable, false otherwise.
  */
 typedef bool (*HitTestFunction)(Actor actor, TraverseType type);
 
 /**
- * Given screen coordinates, this method returns the hit actor & the local coordinates relative to
- * the top-left (0.0f, 0.0f, 0.5f) of the actor. An actor is only hittable if the actor meets all the
- * conditions defined by the given function (see HitTestAlgorithm).
+ * @brief Given screen coordinates, this method returns the hit actor & the local coordinates relative to
+ * the top-left (0.0f, 0.0f, 0.5f) of the actor.
+ *
+ * An actor is only hittable if the actor meets all the conditions
+ * defined by the given function (see HitTestAlgorithm).
  *
  * Typically, if an actor has a zero size or its world color is fully transparent, it should not be
  * hittable; and if an actor's visibility flag is unset, its children should not be hittable either.
@@ -134,7 +137,8 @@ typedef bool (*HitTestFunction)(Actor actor, TraverseType type);
 void HitTest( Stage stage, const Vector2& screenCoordinates, Results& results, HitTestFunction func );
 
 /**
- * Hit test specific to a given RenderTask
+ * @brief Hit test specific to a given RenderTask.
+ *
  * @param[in] renderTask The render task for hit test
  * @param[in] screenCoordinates The screen coordinates.
  * @param[out] results The results of the hit-test.

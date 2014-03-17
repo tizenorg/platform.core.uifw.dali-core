@@ -32,25 +32,27 @@ typedef EntityAnimatorMapContainer::const_iterator EntityAnimatorMapIter;
 
 
 /**
- * The entity animator map class holds the keyframe channels associated
+ * @brief The entity animator map class holds the keyframe channels associated.
  * with a named entity.
+ *
  * (It only holds key frame data, it cannot be used by the animation system)
  */
 class EntityAnimatorMap
 {
 public:
   /**
-   * Constructor
+   * @brief Constructor.
    */
   EntityAnimatorMap(const std::string& name);
 
   /**
-   * Destructor
+   * @brief Destructor.
    */
   virtual ~EntityAnimatorMap();
 
   /**
-   * Set the entity name
+   * @brief Set the entity name.
+   *
    * @param[in] name - the entity name
    */
   void SetEntityName(const std::string&  name)
@@ -59,7 +61,8 @@ public:
   }
 
   /**
-   * Get the entity name
+   * @brief Get the entity name.
+   *
    * @return the name of the entity to which this animator applies
    */
   const std::string& GetEntityName() const
@@ -68,7 +71,8 @@ public:
   }
 
   /**
-   * Set the animated entity
+   * @brief Set the animated entity.
+   *
    * @param[in] animatedEntity The animated entity
    */
   void SetAnimatedEntity(Entity animatedEntity)
@@ -77,7 +81,8 @@ public:
   }
 
   /**
-   * Get the animated entity.
+   * @brief Get the animated entity.
+   *
    * @return the animated entity
    */
   Entity GetAnimatedEntity(void)
@@ -117,13 +122,15 @@ public:
   }
 
   /**
-   * Set the duration of the animation on this entity.
+   * @brief Set the duration of the animation on this entity.
+   *
    * @param[in] duration - the duration in seconds.
    */
   void SetDuration(float duration) { mDuration = duration; }
 
   /**
-   * Get the duration of the animation on this entity.
+   * @brief Get the duration of the animation on this entity.
+   *
    * @return the duration in seconds
    */
   const float GetDuration() const { return mDuration; }

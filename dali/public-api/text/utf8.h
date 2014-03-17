@@ -21,7 +21,8 @@
 namespace Dali DALI_IMPORT_API
 {
 /**
- * Determine the length (in bytes) of a UTF-8 character
+ * @brief Determine the length (in bytes) of a UTF-8 character.
+ *
  * @param[in] leadByte The lead byte of a UTF-8 character sequence
  * @return The length of the sequence, or zero if the UTF-8 character is invalid.
  */
@@ -30,4 +31,3 @@ DALI_IMPORT_API size_t Utf8SequenceLength(const unsigned char leadByte);
 } // namespace Dali
 
 #endif // __DALI_UTF8_H__
-

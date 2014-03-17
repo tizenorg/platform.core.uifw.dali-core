@@ -20,6 +20,10 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 
+/**
+ * @addtogroup CAPI_DALI_COMMON_MODULE
+ * @{
+ */
 
 #ifndef HIDE_DALI_INTERNALS
 
@@ -41,5 +45,9 @@
 # define _GLIBCXX_VISIBILITY_ATTR(V) __attribute__ ((__visibility__ (#V))) // restore `_GLIBCXX_VISIBILITY_ATTR`
 
 #endif //ifndef HIDE_DALI_INTERNALS
+
+/**
+ * @}
+ */
 
 #endif /* __DALI_MAP_H__ */

@@ -17,6 +17,11 @@
 // limitations under the License.
 //
 
+/**
+ * @addtogroup CAPI_DALI_COMMON_MODULE
+ * @{
+ */
+
 // EXTERNAL INCLUDES
 
 #ifndef HIDE_DALI_INTERNALS
@@ -40,4 +45,7 @@
 
 #endif //ifndef HIDE_DALI_INTERNALS
 
+/**
+ * @}
+ */
 #endif /* __DALI_SET_H__ */

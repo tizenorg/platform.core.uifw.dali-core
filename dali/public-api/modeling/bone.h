@@ -32,46 +32,49 @@ typedef BoneContainer::iterator       BoneIter;
 typedef BoneContainer::const_iterator BoneConstIter;
 
 /**
- * A single bone in a mesh
+ * @brief A single bone in a mesh.
  */
 class Bone
 {
 public:
   /**
-   * Default constructor
+   * @brief Default constructor.
    */
   Bone ();
 
   /**
-   * Constructor
+   * @brief Constructor.
+   *
    * @param name of the bone
    * @param offsetMatrix for the bone
    */
   Bone( const std::string& name, const Matrix& offsetMatrix );
 
   /**
-   * Destructor.
+   * @brief Destructor.
    */
   ~Bone();
 
   /**
-   * Copy constructor
+   * @brief Copy constructor.
    */
   Bone( const Bone& rhs );
 
   /**
-   * Assignment operator
+   * @brief Assignment operator.
    */
   Bone& operator=(const Bone& rhs);
 
   /**
-   * Get name
+   * @brief Get name.
+   *
    * @return returns the name of the bone
    */
   const std::string& GetName() const;
 
   /**
-   * Get offset matrix
+   * @brief Get offset matrix.
+   *
    * @return returns the offset matrix for this bone
    */
    const Matrix& GetOffsetMatrix() const;

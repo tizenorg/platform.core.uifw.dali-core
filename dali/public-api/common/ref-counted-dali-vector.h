@@ -25,9 +25,12 @@ namespace Dali DALI_IMPORT_API
 {
 
 /**
- * A reference counting wrapper for a vector class that allows a set of
+ * @brief A reference counting wrapper for a vector class.
+ *
+ * that allows a set of
  * referencing smart pointers to collaborate in managing its lifetime
  * and eventually cleaning it up.
+ *
  * This should only be allocated on the new/delete heap, not a thread's
  * stack.
  * @param T type of the data that the vector holds
@@ -36,21 +39,21 @@ template< typename T >
 class RefCountedVector : public RefObject
 {
 public:
-  /** Construct empty vector. */
-  RefCountedVector() {}
+  /** @breif Construct empty vector. */
+  RefCountedVector() {}.
 
   /** @return A reference to the vector that this object wraps. */
-  Vector< T >& GetVector() { return mVector; }
+  Vector< T >& GetVector() { return mVector; }.
 
 protected:
   virtual ~RefCountedVector() {}
 
 private:
   // Disable copy-constructing and copying:
-  RefCountedVector(const RefCountedVector &);
-  RefCountedVector & operator = (const RefCountedVector &);
+  RefCountedVector(const RefCountedVector &); ///< Undefined
+  RefCountedVector & operator = (const RefCountedVector &); ///< Undefined
 
-  Vector< T > mVector;
+  Vector< T > mVector; ///< The vector of data
 };
 
 } // namespace Dali

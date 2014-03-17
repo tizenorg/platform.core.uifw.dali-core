@@ -27,13 +27,13 @@ struct ModelAnimationMap;
 typedef std::vector<ModelAnimationMap> ModelAnimationMapContainer;
 
 /**
- * ModelAnimationMap holds a set of entity animators for a given named animation,
+ * @brief ModelAnimationMap holds a set of entity animators for a given named animation,
  * along with animation properties such as duration, repeats, etc.
  */
 struct ModelAnimationMap
 {
   /**
-   * Destructor.
+   * @brief Destructor.
    **/
   ModelAnimationMap()
     : duration(0.0f),
@@ -50,4 +50,3 @@ struct ModelAnimationMap
 } // namespace Dali
 
 #endif // __DALI_MODEL_ANIMATION_MAP_H__
-

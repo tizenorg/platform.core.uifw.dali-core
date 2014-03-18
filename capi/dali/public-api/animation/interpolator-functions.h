@@ -181,7 +181,7 @@ typedef boost::function<Matrix (const Matrix& current, const Matrix& target, flo
 /**
  * @brief Any interpolator function.
  */
-typedef boost::any AnyInterpolator;
+typedef Any AnyInterpolator;
 
 /**
  * @brief Retrieve an interpolator function for a property.

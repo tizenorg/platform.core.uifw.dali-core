@@ -117,7 +117,7 @@ public:
 
   typedef SignalV2< void (Animation&) > AnimationSignalV2; ///< Animation finished signal type
 
-  typedef boost::any AnyFunction; ///< Interpolation function
+  typedef Any AnyFunction; ///< Interpolation function
   typedef boost::function<Vector3 (float alpha, const Vector3& current)> Vector3AnimatorFunc; ///< Interpolation function
   typedef boost::function<Quaternion (float alpha, const Quaternion& current)> QuaternionAnimatorFunc; ///< Interpolation function
 

@@ -219,9 +219,8 @@ public:
   Vector3 GetTargetPosition() const;
 
   /**
-   * Set whether the Y axis is inverted in the update calculation
-   * Inverting the Y axis allows +ve Y down in main coordinate system
-   * The default value is inverted.
+   * Request for an inversion on the Y axis on the projection calculation.
+   * The default value is not inverted.
    * @param[in] invertYAxis True if the Y axis should be inverted
    */
   void SetInvertYAxis(bool invertYAxis);

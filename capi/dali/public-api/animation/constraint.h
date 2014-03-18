@@ -28,6 +28,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/alpha-functions.h>
+#include <dali/public-api/object/any.h>
 #include <dali/public-api/animation/constraint-source.h>
 #include <dali/public-api/animation/interpolator-functions.h>
 #include <dali/public-api/object/handle.h>

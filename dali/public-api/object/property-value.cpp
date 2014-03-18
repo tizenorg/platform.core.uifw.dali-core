@@ -550,7 +550,7 @@ Property::Type Property::Value::GetType() const
 
 void Property::Value::Get(bool& boolValue) const
 {
-  DALI_ASSERT_ALWAYS( Property::BOOLEAN == GetType() && "Property type invalid" );
+  DALI_ASSERT_DEBUG( Property::BOOLEAN == GetType() && "Property type invalid" );
 
   boolValue = boost::any_cast<bool>(mImpl->mValue);
 }

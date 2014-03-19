@@ -35,7 +35,7 @@ namespace Dali DALI_IMPORT_API
 /**
  * Stores a value of any type.
  *
- * @note Assignments of values with different types are now allowed to replicate Any behaviour
+ * @note Assignments of values with different types are now allowed to replicate boost::any behaviour
  *
  * Examples of use:
  * \code{.cpp}
@@ -313,13 +313,18 @@ public:
     /**
      * @brief Get the container's stored value
      *
-     * @return value of Type
+     * @return value of type Type
      */
     const Type& GetValue() const
     {
       return mValue;
     }
 
+    /**
+     * @brief Set the container's stored value
+     *
+     * @param value of type Type
+     */
     void SetValue( const Type& value )
     {
       mValue = value;

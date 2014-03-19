@@ -23,7 +23,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/any.hpp>
 #include <boost/function.hpp>
 
 // INTERNAL INCLUDES
@@ -55,7 +54,7 @@ class DALI_IMPORT_API Constraint : public BaseHandle
 {
 public:
 
-  typedef boost::any AnyFunction; ///< Generic function pointer for constraint and interpolator functions
+  typedef Any AnyFunction; ///< Generic function pointer for constraint and interpolator functions
 
   /**
    * @brief The action that will happen when the constraint is removed.

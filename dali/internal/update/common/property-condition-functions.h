@@ -65,7 +65,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalBoolean( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalBoolean( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if float is LessThan
@@ -73,7 +73,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalFloat( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector2.Length() is LessThan
@@ -81,7 +81,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector2( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector3.Length() is LessThan
@@ -89,7 +89,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector3( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector4.Length() is LessThan
@@ -97,7 +97,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector4( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Default check for other types
@@ -105,7 +105,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalDefault( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
 };
 
@@ -116,7 +116,7 @@ private:
  * Checks if a Property is "Greater Than" the argument:
  *
  * bool       => false (0.0) or true (1.0) is greater than arg0.
- * float      => value is grVector2eater than arg0.
+ * float      => value is greater than arg0.
  * Vector2    => 2 dimensional length of vector is greater than arg0.
  * Vector3    => 3 dimensional length of vector is greater than arg0.
  * Vector4    => 4 dimensional length of vector is greater than arg0.
@@ -141,7 +141,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalBoolean( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalBoolean( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if float is GreaterThan
@@ -149,7 +149,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalFloat( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector2.Length() is GreaterThan
@@ -157,7 +157,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector2( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector3.Length() is GreaterThan
@@ -165,7 +165,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector3( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector4.Length() is GreaterThan
@@ -173,7 +173,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector4( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Default check for other types.
@@ -181,7 +181,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalDefault( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
 };
 
@@ -192,10 +192,10 @@ private:
  * Checks if a Property is "Inside" the two arguments:
  *
  * bool       => false (0.0) or true (1.0) is inside arg0.
- * float      => value is inside arg0.
- * Vector2    => 2 dimensional length of vector is inside arg0.
- * Vector3    => 3 dimensional length of vector is inside arg0.
- * Vector4    => 4 dimensional length of vector is inside arg0.
+ * float      => value is between arg0 and arg1.
+ * Vector2    => 2 dimensional length of vector is between arg0 and arg1.
+ * Vector3    => 3 dimensional length of vector is between arg0 and arg1.
+ * Vector4    => 4 dimensional length of vector is between arg0 and arg1.
  * Default    => return false.
  */
 class Inside
@@ -217,7 +217,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalBoolean( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalBoolean( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if float is Inside
@@ -225,7 +225,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalFloat( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector2.Length() is Inside
@@ -233,7 +233,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector2( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector3.Length() is Inside
@@ -241,7 +241,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector3( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector4.Length() is Inside
@@ -249,7 +249,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector4( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Default check for other types.
@@ -257,7 +257,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalDefault( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
 };
 
@@ -268,10 +268,10 @@ private:
  * Checks if a Property is "Outside" the two arguments:
  *
  * bool       => false (0.0) or true (1.0) is outside arg0.
- * float      => value is inside arg0.
- * Vector2    => 2 dimensional length of vector is outside arg0.
- * Vector3    => 3 dimensional length of vector is outside arg0.
- * Vector4    => 4 dimensional length of vector is outside arg0.
+ * float      => value is outside arg0 and arg1.
+ * Vector2    => 2 dimensional length of vector is outside arg0 and arg1.
+ * Vector3    => 3 dimensional length of vector is outside arg0 and arg1.
+ * Vector4    => 4 dimensional length of vector is outside arg0 and arg1.
  * Default    => return false.
  */
 class Outside
@@ -293,7 +293,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalBoolean( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalBoolean( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if float is Outside
@@ -301,7 +301,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalFloat( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector2.Length() is Outside
@@ -309,7 +309,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector2( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector3.Length() is Outside
@@ -317,7 +317,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector3( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if Vector4.Length() is Outside
@@ -325,7 +325,7 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalVector4( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Default check for other types.
@@ -333,7 +333,139 @@ private:
    * @param[in] arg The supplied arguments for the condition.
    * @return Condition result (true if condition met, false if not)
    */
-  static bool EvalDefault( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg );
+  static bool EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+};
+
+// Step ////////////////////////////////////////////////////////////////////
+
+/**
+ * Step condition class,
+ * Checks if a Property has stepped a certain amount from the reference point
+ *
+ * float      => value has stepped arg1 amount from arg0.
+ * Vector2    => 2 dimensional length of vector has stepped arg1 amount from arg0.
+ * Vector3    => 3 dimensional length of vector has stepped arg1 amount from arg0.
+ * Vector4    => 4 dimensional length of vector has stepped arg1 amount from arg0.
+ * Default    => return false.
+ */
+class Step
+{
+
+public:
+
+  /**
+   * @return function pointer to the correct condition function, based on
+   * the type of value being examined.
+   */
+  static ConditionFunction GetFunction(Property::Type valueType);
+
+private:
+
+  /**
+   * Checks if float is Outside
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
+   * Checks if Vector2.Length() is Outside
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
+   * Checks if Vector3.Length() is Outside
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
+   * Checks if Vector4.Length() is Outside
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
+   * Default check for other types.
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+};
+
+/**
+ * Step condition class,
+ * Checks if a Property has stepped a certain amount from the reference point
+ *
+ * float      => value has stepped arg1 amount from arg0.
+ * Vector2    => 2 dimensional length of vector has stepped arg1 amount from arg0.
+ * Vector3    => 3 dimensional length of vector has stepped arg1 amount from arg0.
+ * Vector4    => 4 dimensional length of vector has stepped arg1 amount from arg0.
+ * Default    => return false.
+ */
+class VariableStep
+{
+
+public:
+
+  /**
+   * @return function pointer to the correct condition function, based on
+   * the type of value being examined.
+   */
+  static ConditionFunction GetFunction(Property::Type valueType);
+
+private:
+
+  /**
+   * Checks if float is Outside
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
+   * Checks if Vector2.Length() is Outside
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
+   * Checks if Vector3.Length() is Outside
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
+   * Checks if Vector4.Length() is Outside
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
+   * Default check for other types.
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
 };
 

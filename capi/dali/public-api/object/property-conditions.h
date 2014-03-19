@@ -143,6 +143,31 @@ PropertyCondition InsideCondition(float arg0, float arg1);
  */
 PropertyCondition OutsideCondition(float arg0, float arg1);
 
+/**
+ * @brief Detects when property changes by a certain amount from initial position, in both positive and negative directions
+ *
+ * property type:
+ * float (float)
+ * vector2 (the 2D length)
+ * vector3 (the 3D length)
+ * vector4 (the 4D length)
+ * @param[in] stepAmount The step size required to trigger condition
+ * @return A property condition function object
+ */
+PropertyCondition StepCondition(float stepAmount, float referenceValue = 0.0f);
+
+/**
+ * @brief Detects when property changes by a certain amount from initial position. In this case initial position is fixed to multiples of stepAmount
+ *
+ * property type:
+ * float (float)
+ * @param[in] arg0 The first argument for the condition
+ * @param[in] arg1 The second argument for the condition
+ * @param[in] arg2
+ * @return A property condition function object
+ */
+PropertyCondition VariableStepCondition(const std::vector<float>& stepAmount, float referenceValue = 0.0f);
+
 } // namespace Dali
 
 /**

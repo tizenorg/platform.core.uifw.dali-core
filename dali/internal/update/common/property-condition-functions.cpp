@@ -73,37 +73,37 @@ ConditionFunction LessThan::GetFunction(Property::Type valueType)
   return function;
 }
 
-bool LessThan::EvalBoolean( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool LessThan::EvalBoolean( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float arg0 = arg[0];
   return (value.GetBoolean() < arg0);
 }
 
-bool LessThan::EvalFloat( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool LessThan::EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float arg0 = arg[0];
   return (value.GetFloat() < arg0);
 }
 
-bool LessThan::EvalVector2( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool LessThan::EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float arg0 = arg[0];
   return (value.GetVector2().LengthSquared() < arg0 * arg0);
 }
 
-bool LessThan::EvalVector3( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool LessThan::EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float arg0 = arg[0];
   return (value.GetVector3().LengthSquared() < arg0 * arg0);
 }
 
-bool LessThan::EvalVector4( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool LessThan::EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float arg0 = arg[0];
   return (value.GetVector4().LengthSquared() < arg0 * arg0);
 }
 
-bool LessThan::EvalDefault( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool LessThan::EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   return false;
 }
@@ -151,37 +151,37 @@ ConditionFunction GreaterThan::GetFunction(Property::Type valueType)
   return function;
 }
 
-bool GreaterThan::EvalBoolean( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool GreaterThan::EvalBoolean( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float arg0 = arg[0];
   return (value.GetBoolean() > arg0);
 }
 
-bool GreaterThan::EvalFloat( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool GreaterThan::EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float arg0 = arg[0];
   return (value.GetFloat() > arg0);
 }
 
-bool GreaterThan::EvalVector2( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool GreaterThan::EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float arg0 = arg[0];
   return (value.GetVector2().LengthSquared() > arg0 * arg0);
 }
 
-bool GreaterThan::EvalVector3( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool GreaterThan::EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float arg0 = arg[0];
   return (value.GetVector3().LengthSquared() > arg0 * arg0);
 }
 
-bool GreaterThan::EvalVector4( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool GreaterThan::EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float arg0 = arg[0];
   return (value.GetVector4().LengthSquared() > arg0 * arg0);
 }
 
-bool GreaterThan::EvalDefault( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool GreaterThan::EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   return false;
 }
@@ -229,37 +229,37 @@ ConditionFunction Inside::GetFunction(Property::Type valueType)
   return function;
 }
 
-bool Inside::EvalBoolean( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Inside::EvalBoolean( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const bool valueBoolean = value.GetBoolean();
   return ( (valueBoolean > arg[0]) && (valueBoolean < arg[1]) );
 }
 
-bool Inside::EvalFloat( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Inside::EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float valueFloat = value.GetFloat();
   return ( (valueFloat > arg[0]) && (valueFloat < arg[1]) );
 }
 
-bool Inside::EvalVector2( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Inside::EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float length2 = value.GetVector2().LengthSquared();
   return ( (length2 > arg[0]*arg[0]) && (length2 < arg[1]*arg[1]) );
 }
 
-bool Inside::EvalVector3( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Inside::EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float length2 = value.GetVector3().LengthSquared();
   return ( (length2 > arg[0]*arg[0]) && (length2 < arg[1]*arg[1]) );
 }
 
-bool Inside::EvalVector4( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Inside::EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float length2 = value.GetVector4().LengthSquared();
   return ( (length2 > arg[0]*arg[0]) && (length2 < arg[1]*arg[1]) );
 }
 
-bool Inside::EvalDefault( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Inside::EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   return false;
 }
@@ -307,37 +307,191 @@ ConditionFunction Outside::GetFunction(Property::Type valueType)
   return function;
 }
 
-bool Outside::EvalBoolean( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Outside::EvalBoolean( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const bool valueBoolean = value.GetBoolean();
   return ( (valueBoolean < arg[0]) || (valueBoolean > arg[1]) );
 }
 
-bool Outside::EvalFloat( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Outside::EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float valueFloat = value.GetFloat();
   return ( (valueFloat < arg[0]) || (valueFloat > arg[1]) );
 }
 
-bool Outside::EvalVector2( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Outside::EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float length2 = value.GetVector2().LengthSquared();
   return ( (length2 < arg[0]*arg[0]) || (length2 > arg[1]*arg[1]) );
 }
 
-bool Outside::EvalVector3( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Outside::EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float length2 = value.GetVector3().LengthSquared();
   return ( (length2 < arg[0]*arg[0]) || (length2 > arg[1]*arg[1]) );
 }
 
-bool Outside::EvalVector4( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Outside::EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   const float length2 = value.GetVector4().LengthSquared();
   return ( (length2 < arg[0]*arg[0]) || (length2 > arg[1]*arg[1]) );
 }
 
-bool Outside::EvalDefault( const Dali::PropertyInput& value, const PropertyNotification::RawArgumentContainer& arg )
+bool Outside::EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
+{
+  return false;
+}
+
+// ValueChangeAmount ////////////////////////////////////////////////////////////////////
+
+ConditionFunction Step::GetFunction(Property::Type valueType)
+{
+  ConditionFunction function = NULL;
+
+  switch(valueType)
+  {
+    case Property::FLOAT:
+    {
+      function = EvalFloat;
+      break;
+    }
+    case Property::VECTOR2:
+    {
+      function = EvalVector2;
+      break;
+    }
+    case Property::VECTOR3:
+    {
+      function = EvalVector3;
+      break;
+    }
+    case Property::VECTOR4:
+    {
+      function = EvalVector4;
+      break;
+    }
+    default:
+    {
+      function = EvalDefault;
+      break;
+    }
+  } // end switch
+
+  return function;
+}
+
+bool Step::EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
+{
+  const float propertyValue = value.GetFloat();
+  float refValue = arg[0];
+  float step = arg[1];
+  float currentMultiple = arg[2];
+  float baseValue = (propertyValue - refValue);
+  // step is actual 1.0f / step so can multiply instead of dividing
+  int newMultiple = floorf(baseValue * step);
+  if( baseValue < 0.0f )
+  {
+    // need to differentiate between -0.0f and 0.0f
+    newMultiple -= 1.0f;
+  }
+  if( (newMultiple < currentMultiple - Math::MACHINE_EPSILON_1)
+      || (newMultiple > currentMultiple + Math::MACHINE_EPSILON_1) )
+  {
+    std::cout << "Step::EvalFloat() - propertyValue: " << propertyValue << ", currentMultiple: " << currentMultiple << ", newMultiple: " << newMultiple << std::endl;
+    // in new section
+    arg[2] = newMultiple;
+    return true;
+  }
+  /*float lower = fixedStep ? refValue + (step * (currentMultiple - 1)) : refValue - step;
+  if( propertyValue > 0.0f )
+  {
+    float lower =
+    float upper = fixedStep ? refValue + (step * currentMultiple);
+    if( propertyValue < lower )
+    {
+      currentMultiple = (propertyValue % step) + 1.0f;
+    }
+    else if( propertyValue > upper )
+    {
+      arg[3] += 1.0f;
+    }
+  }*/
+  return false;
+}
+
+bool Step::EvalVector2( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
+{
+  const float propertyValue = value.GetVector2().LengthSquared();
+  float refValue = arg[0];
+  float step = arg[1];
+  float currentMultiple = arg[2];
+  float baseValue = (propertyValue - refValue);
+  // step is actual 1.0f / step so can multiply instead of dividing
+  float newMultiple = (propertyValue - refValue) * step;
+  if( baseValue < 0.0f )
+  {
+    // need to differentiate between -0.0f and 0.0f
+    newMultiple -= 1.0f;
+  }
+  if( (newMultiple < currentMultiple - Math::MACHINE_EPSILON_1)
+      || (newMultiple > currentMultiple + Math::MACHINE_EPSILON_1) )
+  {
+    // in new section
+    arg[2] = newMultiple;
+    return true;
+  }
+  return false;
+}
+
+bool Step::EvalVector3( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
+{
+  float propertyValue = value.GetVector3().LengthSquared();
+  float refValue = arg[0];
+  float step = arg[1];
+  float currentMultiple = arg[2];
+  float baseValue = (propertyValue - refValue);
+  // step is actual 1.0f / step so can multiply instead of dividing
+  float newMultiple = (propertyValue - refValue) * step;
+  if( baseValue < 0.0f )
+  {
+    // need to differentiate between -0.0f and 0.0f
+    newMultiple -= 1.0f;
+  }
+  if( (newMultiple < currentMultiple - Math::MACHINE_EPSILON_1)
+      || (newMultiple > currentMultiple + Math::MACHINE_EPSILON_1) )
+  {
+    // in new section
+    arg[2] = newMultiple;
+    return true;
+  }
+  return false;
+}
+
+bool Step::EvalVector4( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
+{
+  const float propertyValue = value.GetVector4().LengthSquared();
+  float refValue = arg[0];
+  float step = arg[1];
+  float currentMultiple = arg[2];
+  float baseValue = (propertyValue - refValue);
+  // step is actual 1.0f / step so can multiply instead of dividing
+  float newMultiple = (propertyValue - refValue) * step;
+  if( baseValue < 0.0f )
+  {
+    // need to differentiate between -0.0f and 0.0f
+    newMultiple -= 1.0f;
+  }
+  if( (newMultiple < currentMultiple - Math::MACHINE_EPSILON_1)
+      || (newMultiple > currentMultiple + Math::MACHINE_EPSILON_1) )
+  {
+    // in new section
+    arg[2] = newMultiple;
+    return true;
+  }
+  return false;
+}
+
+bool Step::EvalDefault( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
 {
   return false;
 }

@@ -71,7 +71,7 @@ const Property::Type DEFAULT_IMAGE_ACTOR_PROPERTY_TYPES[DEFAULT_IMAGE_ACTOR_PROP
 
 ImageActor::Style StyleEnum(const std::string &s)
 {
-  if(s == "NINE_PATCH")
+  if(s == "STYLE_NINE_PATCH")
   {
     return Dali::ImageActor::STYLE_NINE_PATCH;
   }
@@ -85,7 +85,7 @@ std::string StyleString(const ImageActor::Style style)
 {
   if(style == Dali::ImageActor::STYLE_NINE_PATCH)
   {
-    return "NINE_PATCH";
+    return "STYLE_NINE_PATCH";
   }
   else // if(s == "QUAD")
   {
@@ -562,7 +562,7 @@ void ImageActor::SetDefaultProperty( Property::Index index, const Property::Valu
       }
       case Dali::ImageActor::BORDER:
       {
-        SetNinePatchBorder(propertyValue.Get<Vector4>());
+        SetNinePatchBorder( propertyValue.Get<Vector4>(), true /*in pixels*/ );
         break;
       }
       case Dali::ImageActor::IMAGE:
@@ -627,7 +627,9 @@ Property::Value ImageActor::GetDefaultProperty( Property::Index index ) const
       }
       case Dali::ImageActor::IMAGE:
       {
-        ret = Property::Value(Property::MAP);
+        Property::Map map;
+        Scripting::CreatePropertyMap( mImageAttachment->GetImage(), map );
+        ret = Property::Value( map );
         break;
       }
       default:

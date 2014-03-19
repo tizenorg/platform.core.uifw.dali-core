@@ -18,8 +18,10 @@
 #include <dali/public-api/scripting/scripting.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/images/image-attributes.h>
+#include <dali/public-api/object/type-registry.h>
 #include <dali/internal/event/images/image-impl.h>
 #include <dali/internal/event/images/frame-buffer-image-impl.h>
 #include <dali/internal/event/images/bitmap-image-impl.h>
@@ -81,6 +83,103 @@ bool CompareEnums(const std::string& a, const std::string& b)
     return false;
   }
 
+}
+
+
+ColorMode GetColorMode( const std::string& value )
+{
+  ColorMode v( USE_OWN_COLOR );
+
+  bool set = \
+    SetIfEqual(value, "USE_OWN_COLOR"                , v, USE_OWN_COLOR                 ) || \
+    SetIfEqual(value, "USE_PARENT_COLOR"             , v, USE_PARENT_COLOR              ) || \
+    SetIfEqual(value, "USE_OWN_MULTIPLY_PARENT_COLOR", v, USE_OWN_MULTIPLY_PARENT_COLOR);
+
+  if( !set )
+  {
+    DALI_ASSERT_ALWAYS( !"Unknown Color mode" );
+  }
+
+  return v;
+}
+
+
+PositionInheritanceMode GetPositionInheritanceMode( const std::string& value )
+{
+  PositionInheritanceMode v(INHERIT_PARENT_POSITION);
+
+  bool set = \
+    SetIfEqual(value, "INHERIT_PARENT_POSITION", v, INHERIT_PARENT_POSITION                                    ) || \
+    SetIfEqual(value, "USE_PARENT_POSITION"    , v, USE_PARENT_POSITION                                        ) || \
+    SetIfEqual(value, "USE_PARENT_POSITION_PLUS_LOCAL_POSITION", v, USE_PARENT_POSITION_PLUS_LOCAL_POSITION    ) || \
+    SetIfEqual(value, "DONT_INHERIT_POSITION"  , v, DONT_INHERIT_POSITION);
+
+  if( !set )
+  {
+    DALI_ASSERT_ALWAYS( !"Unknown position inheritance mode" );
+  }
+
+  return v;
+}
+
+
+DrawMode::Type GetDrawMode( const std::string& value )
+{
+  DrawMode::Type e(DrawMode::NORMAL);
+
+  bool set = \
+    SetIfEqual(value, "NORMAL", e, DrawMode::NORMAL  ) || \
+    SetIfEqual(value, "OVERLAY",e, DrawMode::OVERLAY ) || \
+    SetIfEqual(value, "STENCIL",e, DrawMode::STENCIL);
+
+  if(!set)
+  {
+    DALI_ASSERT_ALWAYS( !"Unknown DrawMode type" );
+  }
+
+  return e;
+}
+
+
+Vector3 GetAnchorConstant( const std::string& value )
+{
+  Vector3 v = ParentOrigin::CENTER; // a Vector3x
+
+  bool set =
+    SetIfEqual( value, "BACK_TOP_LEFT",        v, ParentOrigin::BACK_TOP_LEFT      ) ||
+    SetIfEqual( value, "BACK_TOP_CENTER",      v, ParentOrigin::BACK_TOP_CENTER    ) ||
+    SetIfEqual( value, "BACK_TOP_RIGHT",       v, ParentOrigin::BACK_TOP_RIGHT     ) ||
+    SetIfEqual( value, "BACK_CENTER_LEFT",     v, ParentOrigin::BACK_CENTER_LEFT   ) ||
+    SetIfEqual( value, "BACK_CENTER",          v, ParentOrigin::BACK_CENTER        ) ||
+    SetIfEqual( value, "BACK_CENTER_RIGHT",    v, ParentOrigin::BACK_CENTER_RIGHT  ) ||
+    SetIfEqual( value, "BACK_BOTTOM_LEFT",     v, ParentOrigin::BACK_BOTTOM_LEFT   ) ||
+    SetIfEqual( value, "BACK_BOTTOM_CENTER",   v, ParentOrigin::BACK_BOTTOM_CENTER ) ||
+    SetIfEqual( value, "BACK_BOTTOM_RIGHT",    v, ParentOrigin::BACK_BOTTOM_RIGHT  ) ||
+    SetIfEqual( value, "TOP_LEFT",             v, ParentOrigin::TOP_LEFT           ) ||
+    SetIfEqual( value, "TOP_CENTER",           v, ParentOrigin::TOP_CENTER         ) ||
+    SetIfEqual( value, "TOP_RIGHT",            v, ParentOrigin::TOP_RIGHT          ) ||
+    SetIfEqual( value, "CENTER_LEFT",          v, ParentOrigin::CENTER_LEFT        ) ||
+    SetIfEqual( value, "CENTER",               v, ParentOrigin::CENTER             ) ||
+    SetIfEqual( value, "CENTER_RIGHT",         v, ParentOrigin::CENTER_RIGHT       ) ||
+    SetIfEqual( value, "BOTTOM_LEFT",          v, ParentOrigin::BOTTOM_LEFT        ) ||
+    SetIfEqual( value, "BOTTOM_CENTER",        v, ParentOrigin::BOTTOM_CENTER      ) ||
+    SetIfEqual( value, "BOTTOM_RIGHT",         v, ParentOrigin::BOTTOM_RIGHT       ) ||
+    SetIfEqual( value, "FRONT_TOP_LEFT",       v, ParentOrigin::FRONT_TOP_LEFT     ) ||
+    SetIfEqual( value, "FRONT_TOP_CENTER",     v, ParentOrigin::FRONT_TOP_CENTER   ) ||
+    SetIfEqual( value, "FRONT_TOP_RIGHT",      v, ParentOrigin::FRONT_TOP_RIGHT    ) ||
+    SetIfEqual( value, "FRONT_CENTER_LEFT",    v, ParentOrigin::FRONT_CENTER_LEFT  ) ||
+    SetIfEqual( value, "FRONT_CENTER",         v, ParentOrigin::FRONT_CENTER       ) ||
+    SetIfEqual( value, "FRONT_CENTER_RIGHT",   v, ParentOrigin::FRONT_CENTER_RIGHT ) ||
+    SetIfEqual( value, "FRONT_BOTTOM_LEFT",    v, ParentOrigin::FRONT_BOTTOM_LEFT  ) ||
+    SetIfEqual( value, "FRONT_BOTTOM_CENTER",  v, ParentOrigin::FRONT_BOTTOM_CENTER) ||
+    SetIfEqual( value, "FRONT_BOTTOM_RIGHT",   v, ParentOrigin::FRONT_BOTTOM_RIGHT );
+
+  if(!set)
+  {
+    DALI_ASSERT_ALWAYS(!"Unknown Parent origin Constant" );
+  }
+
+  return v;
 }
 
 
@@ -358,6 +457,140 @@ ShaderEffect NewShaderEffect( const Property::Value& map )
 
   return Dali::ShaderEffect(ret.Get());
 }
+
+
+Actor NewActor( const Property::Map& map )
+{
+  BaseHandle handle;
+
+  const Property::Map::const_iterator endIter = map.end();
+
+  // First find type and create Actor
+  Property::Map::const_iterator typeIter = map.begin();
+  for (; typeIter != endIter; ++typeIter )
+  {
+    if ( typeIter->first == "type" )
+    {
+      TypeInfo type = TypeRegistry::Get().GetTypeInfo( typeIter->second.Get< std::string >() );
+      if ( type )
+      {
+        handle = type.CreateInstance();
+      }
+      break;
+    }
+  }
+
+  if ( !handle )
+  {
+    DALI_LOG_ERROR( "Actor type not provided, returning empty handle" );
+    return Actor();
+  }
+
+  Actor actor( Actor::DownCast( handle ) );
+
+  if ( actor )
+  {
+    // Now set the properties, or create children
+    for ( Property::Map::const_iterator iter = map.begin(); iter != endIter; ++iter )
+    {
+      if ( iter == typeIter )
+      {
+        continue;
+      }
+
+      if ( iter->first == "actors" )
+      {
+        // Create children
+
+        Property::Array actorArray = iter->second.Get< Property::Array >();
+        for ( Property::Array::iterator arrayIter = actorArray.begin(), arrayEndIter = actorArray.end(); arrayIter != arrayEndIter; ++arrayIter )
+        {
+          actor.Add( NewActor( arrayIter->Get< Property::Map >() ) );
+        }
+      }
+      else if ( iter->first == "signals" )
+      {
+        DALI_LOG_ERROR( "signals not supported" );
+      }
+      else if( iter->first ==  "parent-origin" )
+      {
+        // Parent Origin can be a string constant as well as a Vector3
+
+        const Property::Type type( iter->second.GetType() );
+        if ( type == Property::VECTOR3 )
+        {
+          actor.SetParentOrigin( iter->second.Get< Vector3 >() );
+        }
+        else if( type == Property::STRING )
+        {
+          actor.SetParentOrigin( GetAnchorConstant( iter->second.Get< std::string >() ) );
+        }
+      }
+      else if( iter->first ==  "anchor-point" )
+      {
+        // Anchor Point can be a string constant as well as a Vector3
+
+        const Property::Type type( iter->second.GetType() );
+        if ( type == Property::VECTOR3 )
+        {
+          actor.SetAnchorPoint( iter->second.Get< Vector3 >() );
+        }
+        else if( type == Property::STRING )
+        {
+          actor.SetAnchorPoint( GetAnchorConstant( iter->second.Get< std::string >() ) );
+        }
+      }
+      else if( iter->first == "opacity" )
+      {
+        actor.SetOpacity( iter->second.Get< float >() );
+      }
+      else if( iter->first == "color-mode" )
+      {
+        actor.SetColorMode( GetColorMode( iter->second.Get< std::string >() ) );
+      }
+      else if( iter->first == "inherit-shader-effect")
+      {
+        actor.SetInheritShaderEffect( iter->second.Get< bool >() );
+      }
+      else if( iter->first == "sensitive" )
+      {
+        actor.SetSensitive( iter->second.Get< bool >() );
+      }
+      else if( iter->first == "leave-required" )
+      {
+        actor.SetLeaveRequired( iter->second.Get< bool >() );
+      }
+      else if( iter->first == "position-inheritance" )
+      {
+        actor.SetPositionInheritanceMode( GetPositionInheritanceMode( iter->second.Get< std::string >() ) );
+      }
+      else if( iter->first == "draw-mode" )
+      {
+        actor.SetDrawMode( GetDrawMode( iter->second.Get< std::string >() ) );
+      }
+      else if( iter->first == "inherit-rotation" )
+      {
+        actor.SetInheritRotation( iter->second.Get< bool >() );
+      }
+      else if( iter->first == "inherit-scale" )
+      {
+        actor.SetInheritScale( iter->second.Get< bool >() );
+      }
+      else
+      {
+        Property::Index index( actor.GetPropertyIndex( iter->first ) );
+
+        if ( index != Property::INVALID_INDEX )
+        {
+          actor.SetProperty( index, iter->second );
+        }
+      }
+    }
+  }
+
+  return actor;
+}
+
 
 } // namespace scripting
 

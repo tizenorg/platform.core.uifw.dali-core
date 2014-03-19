@@ -51,6 +51,13 @@ namespace Dali
 namespace Internal
 {
 
+namespace
+{
+
+const float DEFAULT_STEREO_BASE( 65.0f );
+
+} // unnamed namespace
+
 StagePtr Stage::New( AnimationPlaylist& playlist,
                      PropertyNotificationManager& propertyNotificationManager,
                      DynamicsNotifier& dynamicsNotifier,
@@ -252,6 +259,94 @@ SystemOverlay* Stage::GetSystemOverlayInternal()
   return overlay;
 }
 
+void Stage::SetViewMode( ViewMode viewMode )
+{
+  if( mViewMode != viewMode )
+  {
+    DALI_LOG_INFO( Debug::Filter::gActor, Debug::Concise, "View mode changed from %d to %d\n", mViewMode, viewMode);
+
+    const float stereoBase( (mStereoBase / 25.4f) * GetDpi().x );
+
+    if( mViewMode == MONO )
+    {
+      mDefaultCamera->SetX( -stereoBase / 2.0f );
+      mDefaultCamera->SetPerspectiveProjection( mSize, -stereoBase / 2.0f );
+      mDefaultCamera->SetType( Dali::Camera::FREE_LOOK );
+
+      mRightCamera = CameraActor::New( Size::ZERO );
+      mRightCamera->SetParentOrigin( ParentOrigin::CENTER );
+      mRightCamera->SetPerspectiveProjection( mSize, stereoBase / 2.0f);
+      mRightCamera->SetPosition( Vector3( stereoBase, 0.0f, 0.0f ) );
+      mDefaultCamera->Add( *mRightCamera.Get() );
+      mRightRenderTask = mRenderTaskList->CreateTask();
+      mRightRenderTask.SetCameraActor( Dali::CameraActor(mRightCamera.Get()) );
+      mRightCamera->SetType( Dali::Camera::FREE_LOOK );
+    }
+
+    // save new mode
+    mViewMode = viewMode;
+
+    switch( viewMode )
+    {
+      case MONO:
+      {
+        // delete extra stereoscopic render task and camera
+        mRenderTaskList->RemoveTask( mRightRenderTask );
+        mDefaultCamera->Remove( *mRightCamera.Get() );
+        mRightRenderTask.Reset();
+        mRightCamera.Reset();
+
+        mDefaultCamera->SetX(0.0f);
+        mDefaultCamera->SetType( Dali::Camera::LOOK_AT_TARGET );
+        break;
+      }
+      case STEREO_HORIZONTAL:
+      {
+        mRenderTaskList->GetTask(0).SetViewport( Viewport(0, 0, mSize.width, mSize.height * 0.5f ) );
+        mRightRenderTask.SetViewport( Viewport(0, mSize.height * 0.5f, mSize.width, mSize.height * 0.5f) );
+        break;
+      }
+      case STEREO_VERTICAL:
+      {
+        mRenderTaskList->GetTask(0).SetViewport( Viewport(0, 0, mSize.width * 0.5f, mSize.height ) );
+        mRightRenderTask.SetViewport( Viewport(mSize.width * 0.5f, 0, mSize.width * 0.5f, mSize.height ) );
+        break;
+      }
+      case STEREO_INTERLACED:
+      {
+        break;
+      }
+    }
+  }
+}
+
+ViewMode Stage::GetViewMode() const
+{
+  return mViewMode;
+}
+
+void Stage::SetStereoBase( float stereoBase )
+{
+  if( ! Equals( mStereoBase, stereoBase ) )
+  {
+    DALI_LOG_INFO( Debug::Filter::gActor, Debug::Concise, "old( %.2f) new(%.2f)", mStereoBase, stereoBase );
+    mStereoBase = stereoBase;
+
+    if( mViewMode != MONO )
+    {
+      mDefaultCamera->SetX( -stereoBase / 2.0f );
+      mDefaultCamera->SetPerspectiveProjection( mSize, -stereoBase / 2.0f );
+      mRightCamera->SetX( stereoBase );
+      mRightCamera->SetPerspectiveProjection( mSize, stereoBase / 2.0f );
+    }
+  }
+}
+
+float Stage::GetStereoBase() const
+{
+  return mStereoBase;
+}
+
 void Stage::SetBackgroundColor(Vector4 color)
 {
   // Cache for public GetBackgroundColor()
@@ -358,6 +453,8 @@ Stage::Stage( AnimationPlaylist& playlist,
   mNotificationManager(notificationManager),
   mSize(Vector2::ZERO),
   mBackgroundColor(Dali::Stage::DEFAULT_BACKGROUND_COLOR),
+  mViewMode( MONO ),
+  mStereoBase( DEFAULT_STEREO_BASE ),
   mDynamicsFactory(NULL),
   mSystemOverlay(NULL)
 {

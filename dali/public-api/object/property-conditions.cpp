@@ -83,4 +83,30 @@ PropertyCondition OutsideCondition(float arg0, float arg1)
   return condition;
 }
 
+PropertyCondition StepCondition(float stepAmount, float referenceValue)
+{
+  PropertyCondition condition;
+  GetImplementation(condition).type = Internal::PropertyCondition::Step;
+  GetImplementation(condition).arguments.push_back(Property::Value(referenceValue));
+  GetImplementation(condition).arguments.push_back(Property::Value(1.0f / stepAmount));
+  GetImplementation(condition).arguments.push_back(Property::Value(0.0f)); // current step
+
+  return condition;
+}
+
+PropertyCondition VariableStepCondition(const std::vector<float>& stepAmount)
+{
+  PropertyCondition condition;
+  GetImplementation(condition).type = Internal::PropertyCondition::VariableStep;
+  GetImplementation(condition).arguments.push_back(Property::Value(0.0f)); // current step
+  int size = stepAmount.size();
+  GetImplementation(condition).arguments.push_back(Property::Value(static_cast<float>(size))); // store number of steps
+  for( int i = 0 ; i < size ; i++ )
+  {
+    GetImplementation(condition).arguments.push_back(Property::Value(stepAmount[i]));
+  }
+
+  return condition;
+}
+
 } // namespace Dali

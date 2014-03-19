@@ -24,6 +24,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/object/any.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 
 namespace Dali DALI_IMPORT_API

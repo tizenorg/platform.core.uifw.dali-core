@@ -510,7 +510,7 @@ void UtcDaliDynamicsBodyConfigCollisionGroup()
   application.Render();
   application.Render();
 
-  const int testGroup = 0x1234;
+  const short int testGroup = 0x1234;
 
   DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
   DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
@@ -526,12 +526,12 @@ void UtcDaliDynamicsBodyConfigCollisionGroup()
   config.SetCollisionGroup(testGroup);
 
   tet_infoline("UtcDaliDynamicsBodyConfigCollisionGroup- DynamicsBodyConfig::GetCollisionGroup");
-  DALI_TEST_EQUALS( testGroup, config.GetCollisionGroup(), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+  DALI_TEST_EQUALS( testGroup, config.GetCollisionGroup(), TEST_LOCATION );
 
   tet_infoline("UtcDaliDynamicsBodyConfigCollisionGroup - DynamicsBodyConfig::SetCollisionGroup");
-  const int group = config.GetCollisionGroup() + 1;
+  const short int group = config.GetCollisionGroup() + 1;
   config.SetCollisionGroup(group);
-  DALI_TEST_EQUALS( group, config.GetCollisionGroup(), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+  DALI_TEST_EQUALS( group, config.GetCollisionGroup(), TEST_LOCATION );
 }
 
 void UtcDaliDynamicsBodyConfigCollisionMask()
@@ -543,7 +543,7 @@ void UtcDaliDynamicsBodyConfigCollisionMask()
   application.Render();
   application.Render();
 
-  const int testMask = 0x7ffe;
+  const short int testMask = 0x7ffe;
 
   DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
   DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
@@ -559,12 +559,12 @@ void UtcDaliDynamicsBodyConfigCollisionMask()
   config.SetCollisionMask(testMask);
 
   tet_infoline("UtcDaliDynamicsBodyConfigCollisionMask- DynamicsBodyConfig::GetCollisionMask");
-  DALI_TEST_EQUALS( testMask, config.GetCollisionMask(), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+  DALI_TEST_EQUALS( testMask, config.GetCollisionMask(), TEST_LOCATION );
 
   tet_infoline("UtcDaliDynamicsBodyConfigCollisionMask - DynamicsBodyConfig::SetCollisionMask");
-  const int mask = config.GetCollisionMask() + 1;
+  const short int mask = config.GetCollisionMask() + 1;
   config.SetCollisionMask(mask);
-  DALI_TEST_EQUALS( mask, config.GetCollisionMask(), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+  DALI_TEST_EQUALS( mask, config.GetCollisionMask(), TEST_LOCATION );
 }
 
 void UtcDaliDynamicsBodyConfigAnchorHardness()

@@ -22,7 +22,7 @@
 #include <dali/public-api/dali-core.h>
 
 #include <dali-test-suite-utils.h>
-
+#include <test-dynamics.h>
 
 using namespace Dali;
 
@@ -93,6 +93,8 @@ void UtcDaliDynamicsWorldConstructor()
 void UtcDaliDynamicsWorldGravity()
 {
   TestApplication application;
+  TraceCallStack& trace( application.GetPlatform().GetTrace() );
+  trace.Enable( true );
 
   // start up
   application.SendNotification();
@@ -113,7 +115,13 @@ void UtcDaliDynamicsWorldGravity()
 
   tet_infoline("UtcDaliDynamicsWorldGravity - DynamicsWorld::SetGravity");
   world.SetGravity(gravity);
-  DALI_TEST_CHECK(true);
+
+  // update
+  application.SendNotification();
+  application.Render();
+  application.Render();
+
+  DALI_TEST_CHECK( trace.FindMethod( "DynamicsWorld::SetGravity" ) );
 
   tet_infoline("UtcDaliDynamicsWorldGravity - DynamicsWorld::GetGravity");
   DALI_TEST_EQUALS(gravity, world.GetGravity(), TEST_LOCATION);
@@ -122,6 +130,8 @@ void UtcDaliDynamicsWorldGravity()
 void UtcDaliDynamicsWorldDebugDrawMode()
 {
   TestApplication application;
+  TraceCallStack& trace( application.GetPlatform().GetTrace() );
+  trace.Enable( true );
 
   // start up
   application.SendNotification();
@@ -143,7 +153,13 @@ void UtcDaliDynamicsWorldDebugDrawMode()
 
   tet_infoline("UtcDaliDynamicsWorldDebugDrawMode - DynamicsWorld::SetDebugDrawMode");
   world.SetDebugDrawMode(mode);
-  DALI_TEST_CHECK(true);
+
+  // update
+  application.SendNotification();
+  application.Render();
+  application.Render();
+
+  DALI_TEST_CHECK( trace.FindMethod( "DynamicsWorld::SetDebugDrawMode" ) );
 
   tet_infoline("UtcDaliDynamicsWorldDebugDrawMode - DynamicsWorld::GetDebugDrawMode");
   DALI_TEST_CHECK(mode == world.GetDebugDrawMode());

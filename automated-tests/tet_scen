@@ -17,6 +17,7 @@ PUBLIC
     ^animation
     ^common
     ^context
+    ^dynamics
     ^effects
     ^events
     ^geometry
@@ -41,6 +42,9 @@ text-actor
 
 animation
     :include:/dali-test-suite/animation/tslist
+
+dynamics
+    :include:/dali-test-suite/dynamics/tslist
 
 effects
     :include:/dali-test-suite/effects/tslist

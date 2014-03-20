@@ -191,6 +191,8 @@ void UtcDaliDynamicsBodySetLinearVelocity()
   tet_infoline("UtcDaliDynamicsBodySetLinearVelocity - DynamicsBody::SetLinearVelocity");
 
   TestApplication application;
+  TraceCallStack& trace( application.GetPlatform().GetTrace() );
+  trace.Enable( true );
 
   // start up
   application.SendNotification();
@@ -216,7 +218,14 @@ void UtcDaliDynamicsBodySetLinearVelocity()
   DynamicsBody body(actor.GetDynamicsBody());
   body.SetLinearVelocity(Vector3::ONE);
 
-  DALI_TEST_CHECK( true );
+  DALI_TEST_CHECK( ! trace.FindMethod( "DynamicsBody::SetLinearVelocity" ) );
+
+  // update
+  application.SendNotification();
+  application.Render();
+  application.Render();
+
+  DALI_TEST_CHECK( trace.FindMethod( "DynamicsBody::SetLinearVelocity" ) );
 }
 
 void UtcDaliDynamicsBodySetAngularVelocity()
@@ -224,6 +233,8 @@ void UtcDaliDynamicsBodySetAngularVelocity()
   tet_infoline("UtcDaliDynamicsBodySetAngularVelocity - DynamicsBody::SetAngularVelocity");
 
   TestApplication application;
+  TraceCallStack& trace( application.GetPlatform().GetTrace() );
+  trace.Enable( true );
 
   // start up
   application.SendNotification();
@@ -249,7 +260,14 @@ void UtcDaliDynamicsBodySetAngularVelocity()
   DynamicsBody body(actor.GetDynamicsBody());
   body.SetAngularVelocity(Vector3::ONE);
 
-  DALI_TEST_CHECK( true );
+  DALI_TEST_CHECK( ! trace.FindMethod( "DynamicsBody::SetAngularVelocity" ) );
+
+  // update
+  application.SendNotification();
+  application.Render();
+  application.Render();
+
+  DALI_TEST_CHECK( trace.FindMethod( "DynamicsBody::SetAngularVelocity" ) );
 }
 
 void UtcDaliDynamicsBodySetKinematic()
@@ -339,6 +357,8 @@ void UtcDaliDynamicsBodySetSleepEnabled()
   tet_infoline("UtcDaliDynamicsBodySetSleepEnabled");
 
   TestApplication application;
+  TraceCallStack& trace( application.GetPlatform().GetTrace() );
+  trace.Enable( true );
 
   // start up
   application.SendNotification();
@@ -366,7 +386,17 @@ void UtcDaliDynamicsBodySetSleepEnabled()
   // SleepEnabled true by default
   DALI_TEST_CHECK( body.GetSleepEnabled() );
   body.SetSleepEnabled(false);
-  DALI_TEST_CHECK( !body.GetSleepEnabled() );
+
+  DALI_TEST_CHECK( ! trace.FindMethod( "DynamicsBody::SetSleepEnabled" ) );
+
+  // update
+  application.SendNotification();
+  application.Render();
+  application.Render();
+
+  DALI_TEST_CHECK( trace.FindMethod( "DynamicsBody::SetSleepEnabled" ) );
+
+  DALI_TEST_CHECK( ! body.GetSleepEnabled() );
 }
 
 void UtcDaliDynamicsBodyGetSleepEnabled()
@@ -409,6 +439,8 @@ void UtcDaliDynamicsBodyWakeUp()
   tet_infoline("UtcDaliDynamicsBodyWakeUp");
 
   TestApplication application;
+  TraceCallStack& trace( application.GetPlatform().GetTrace() );
+  trace.Enable( true );
 
   // start up
   application.SendNotification();
@@ -434,7 +466,15 @@ void UtcDaliDynamicsBodyWakeUp()
   DynamicsBody body(actor.GetDynamicsBody());
 
   body.WakeUp();
-  DALI_TEST_CHECK( true );
+
+  DALI_TEST_CHECK( ! trace.FindMethod( "DynamicsBody::WakeUp" ) );
+
+  // update
+  application.SendNotification();
+  application.Render();
+  application.Render();
+
+  DALI_TEST_CHECK( trace.FindMethod( "DynamicsBody::WakeUp" ) );
 }
 
 void UtcDaliDynamicsBodyAddAnchor()

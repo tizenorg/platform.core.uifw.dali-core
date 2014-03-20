@@ -27,6 +27,7 @@
 
 #include <dali/integration-api/glyph-set.h>
 #include <test-trace-call-stack.h>
+#include <test-dynamics.h>
 
 namespace Dali
 {
@@ -75,7 +76,9 @@ public:
   /**
    * Constructor
    */
-  TestPlatformAbstraction() : mRequest(0)
+  TestPlatformAbstraction()
+  : mRequest(0),
+    mDynamicsFactory( NULL )
   {
     Initialize();
   }
@@ -85,6 +88,7 @@ public:
    */
   virtual ~TestPlatformAbstraction()
   {
+    delete mDynamicsFactory;
   }
 
   /**
@@ -423,10 +427,14 @@ public:
   }
 
   virtual Integration::DynamicsFactory* GetDynamicsFactory()
-  {
-    mTrace.PushCall("GetDynamicsFactory", "");
-    return NULL;
-  }
+   {
+     mTrace.PushCall("GetDynamicsFactory", "");
+     if( NULL == mDynamicsFactory )
+     {
+       mDynamicsFactory = new TestDynamicsFactory( mTrace );
+     }
+     return mDynamicsFactory;
+   }
 
   virtual bool ReadGlobalMetricsFromCache( const std::string& fontFamily,
                                            const std::string& fontStyle,
@@ -714,6 +722,7 @@ private:
   LoadFileResult                mLoadFileResult;
   bool                          mSaveFileResult;
   mutable FontListMode          mFontListMode;
+  TestDynamicsFactory*          mDynamicsFactory;
 };
 
 } // Dali

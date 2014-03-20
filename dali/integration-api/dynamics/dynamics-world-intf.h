@@ -49,6 +49,10 @@ public:
    */
   virtual ~DynamicsWorld() {}
 
+  /**
+   * Initialise the DynamicsWorld object.
+   * @param[in] worldSettings A DynamicsWorldSettings object describing the required capabilities of the dynamics world.
+   */
   virtual void Initialize( const DynamicsWorldSettings& worldSettings ) = 0;
 
   /**

@@ -145,11 +145,8 @@ void DynamicsWorld::RemoveBody(DynamicsBody& body)
 
   mDynamicsWorld->RemoveBody( body.GetBody() );
 
-  // Add to inactive container
-  mInactiveBodies.PushBack(*iter);
-
-  // Remove from active container
-  mBodies.Release(iter);
+  // move from active container to inactive container
+  mInactiveBodies.PushBack( mBodies.Release(iter) );
 
   DALI_LOG_INFO(Debug::Filter::gDynamics, Debug::General, "%s - (Bodies: %d)\n", __PRETTY_FUNCTION__, (int)(mBodies.Count() + mInactiveBodies.Count()) );
 }
@@ -163,11 +160,8 @@ void DynamicsWorld::DeleteBody(DynamicsBody& body)
   DynamicsBodyContainer::Iterator iter = std::find(mInactiveBodies.Begin(), mInactiveBodies.End(), &body);
   DALI_ASSERT_DEBUG(iter != mInactiveBodies.End());
 
-  // Add body to be discarded container
-  mDiscardedBodies.PushBack(&body);
-
-  // Remove from inactive container
-  mInactiveBodies.Release(iter);
+  // move from inactive container to discarded container
+  mDiscardedBodies.PushBack( mInactiveBodies.Release(iter) );
 
   DALI_LOG_INFO(Debug::Filter::gDynamics, Debug::General, "%s - (Bodies: %d)\n", __PRETTY_FUNCTION__, (int)(mBodies.Count() + mInactiveBodies.Count()) );
 }
@@ -202,11 +196,8 @@ void DynamicsWorld::RemoveJoint(DynamicsJoint& joint)
   // remove from simulation
   mDynamicsWorld->RemoveJoint( joint.GetJoint() );
 
-  // Add to inactive container
-  mInactiveJoints.PushBack(*iter);
-
-  // Remove from active container
-  mJoints.Release(iter);
+  // move from active container to inactive container
+  mInactiveJoints.PushBack( mJoints.Release(iter) );
 
   DALI_LOG_INFO(Debug::Filter::gDynamics, Debug::General, "%s - (Joints: %d)\n", __PRETTY_FUNCTION__, (int)(mJoints.Count() + mInactiveJoints.Count()));
 }
@@ -220,11 +211,8 @@ void DynamicsWorld::DeleteJoint(DynamicsJoint& joint)
   DynamicsJointContainer::Iterator iter = std::find(mInactiveJoints.Begin(), mInactiveJoints.End(), &joint);
   DALI_ASSERT_DEBUG(iter != mInactiveJoints.End());
 
-  // add to discarded container
-  mDiscardedJoints.PushBack(&joint);
-
-  // remove from inactive container
-  mInactiveJoints.Release(iter);
+  // move from inactive container to discarded container
+  mDiscardedJoints.PushBack( mInactiveJoints.Release(iter) );
 
   DALI_LOG_INFO(Debug::Filter::gDynamics, Debug::General, "%s - (Joints: %d)\n", __PRETTY_FUNCTION__, (int)(mJoints.Count() + mInactiveJoints.Count()));
 }
@@ -248,11 +236,8 @@ void DynamicsWorld::DeleteShape(DynamicsShape& shape)
   DynamicsShapeContainer::Iterator iter = std::find(mShapes.Begin(), mShapes.End(), &shape);
   DALI_ASSERT_DEBUG(iter != mShapes.End());
 
-  // add to discarded container
-  mDiscardedShapes.PushBack(&shape);
-
-  // remove from container
-  mShapes.Release(iter);
+  // move from active container to discarded container
+  mDiscardedShapes.PushBack( mShapes.Release(iter) );
 }
 
 void DynamicsWorld::SetGravity( const Vector3& gravity )

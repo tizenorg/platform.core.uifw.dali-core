@@ -1564,8 +1564,6 @@ void Actor::DisconnectDynamics()
   {
     if( OnStage() )
     {
-      mDynamicsData->body->Disconnect(*mStage);
-
       // Disconnect all joints
       if( !mDynamicsData->joints.empty() )
       {
@@ -1579,6 +1577,8 @@ void Actor::DisconnectDynamics()
           joint->Disconnect(*mStage);
         }
       }
+
+      mDynamicsData->body->Disconnect(*mStage);
     }
   }
 }

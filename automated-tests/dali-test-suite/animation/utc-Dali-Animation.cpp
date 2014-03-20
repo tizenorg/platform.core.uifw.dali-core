@@ -108,6 +108,7 @@ TEST_FUNCTION( UtcDaliAnimationAnimateToVector3, POSITIVE_TC_IDX );
 TEST_FUNCTION( UtcDaliAnimationAnimateToVector3AlphaFunction, POSITIVE_TC_IDX );
 TEST_FUNCTION( UtcDaliAnimationAnimateToVector3TimePeriod, POSITIVE_TC_IDX ); // 60
 TEST_FUNCTION( UtcDaliAnimationAnimateToVector3AlphaFunctionTimePeriod, POSITIVE_TC_IDX );
+TEST_FUNCTION( UtcDaliAnimationAnimateToVector3Component, POSITIVE_TC_IDX );
 TEST_FUNCTION( UtcDaliAnimationAnimateToVector4, POSITIVE_TC_IDX );
 TEST_FUNCTION( UtcDaliAnimationAnimateToVector4AlphaFunction, POSITIVE_TC_IDX );
 TEST_FUNCTION( UtcDaliAnimationAnimateToVector4TimePeriod, POSITIVE_TC_IDX );
@@ -3464,6 +3465,65 @@ static void UtcDaliAnimationAnimateToVector3AlphaFunctionTimePeriod()
   float delay = 0.5f;
   animation.AnimateTo(Property(actor, "test-property"),
                       targetValue,
+                      AlphaFunctions::Linear,
+                      TimePeriod(delay, durationSeconds - delay));
+
+  // Start the animation
+  animation.Play();
+
+  bool signalReceived(false);
+  AnimationFinishCheck finishCheck(signalReceived);
+  animation.FinishedSignal().Connect(&application, finishCheck);
+
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*500.0f)/* 50% animation progress, 0% animator progress */);
+
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetProperty<Vector3>(index), startValue, TEST_LOCATION );
+
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*250.0f)/* 75% animation progress, 50% animator progress */);
+
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetProperty<Vector3>(index), startValue+(relativeValue*0.5f), TEST_LOCATION );
+
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*250.0f) + 1u/*just beyond the animation duration*/);
+
+  // We did expect the animation to finish
+  application.SendNotification();
+  finishCheck.CheckSignalReceived();
+  DALI_TEST_EQUALS( actor.GetProperty<Vector3>(index), targetValue, TEST_LOCATION );
+}
+
+static void UtcDaliAnimationAnimateToVector3Component()
+{
+  TestApplication application;
+
+  Actor actor = Actor::New();
+
+  // Register a Vector3 property
+  Vector3 startValue(10.0f, 10.0f, 10.0f);
+  Property::Index index = actor.RegisterProperty( "test-property", startValue );
+  Stage::GetCurrent().Add(actor);
+  DALI_TEST_EQUALS( actor.GetProperty<Vector3>(index), startValue, TEST_LOCATION );
+
+  // Build the animation
+  float durationSeconds(1.0f);
+  Animation animation = Animation::New(durationSeconds);
+  Vector3 targetValue(30.0f, 30.0f, 10.0f);
+  Vector3 relativeValue(targetValue - startValue);
+  float delay = 0.5f;
+  animation.AnimateTo(Property(actor, "test-property", 0),
+                      30.0f,
+                      AlphaFunctions::Linear,
+                      TimePeriod(delay, durationSeconds - delay));
+  animation.AnimateTo(Property(actor, index, 1),
+                      30.0f,
                       AlphaFunctions::Linear,
                       TimePeriod(delay, durationSeconds - delay));
 

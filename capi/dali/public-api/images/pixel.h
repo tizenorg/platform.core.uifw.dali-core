@@ -72,6 +72,47 @@ enum Format ///< pixel format, default color depth is RGBA 32 bit with alpha
   ///! Update LAST_VALID_PIXEL_FORMAT below if you add an enum value here.
 };
 
+namespace Usages
+{
+/**
+ * @brief Uses that can be made of image data.
+ *
+ * Image pixel data can be used by dali as a source for rendering, as a destination
+ * for rendering, and in a bitmap accessed directly by the application.
+ * Not all pixel formats can be used in each case.
+ * The Usage type allows the application to query UsageSupported() to find out
+ * if a particular pixel format is suitable for one of these enumerated cases.
+ *
+ * Pass the type around as <code>Pixel::Usage</code> and use the individual
+ * enumerated values as <code>Pixel::Usages::SPECIFIC_VALUE</code>:
+ * <code>
+ *   bool ExampleUsageUsage( Pixel::Usage u )
+ *   {
+ *     switch( u )
+ *     {
+ *     case Pixel::Usages::RENDER_FROM:
+ *       return false;
+ *     case Pixel::Usages::RENDER_TO:
+ *       break;
+ *     case Pixel::Usages::APPLICATION_ACCESSABLE:
+ *       break;
+ *     }
+ *     return true;
+ *   }
+ * </code>
+ */
+enum Usage
+{
+  /** Can be used in Image instances as an input to the rendering of a stage. */
+  RENDER_FROM,
+  /** Can be bound to a FramebufferImage for Dali to fill with the result of rendering a stage. */
+  RENDER_TO,
+  /** Can be used with a BitmapImage to make a buffer of pixels that the application can modify directly. */
+  APPLICATION_ACCESSABLE
+};
+}
+using Usages::Usage;
+
 /**
  * @brief For asserting that a variable has a valid pixel format.
  *
@@ -97,8 +138,13 @@ bool HasAlpha(Format pixelformat);
 /**
  * @brief Returns The number of bytes per pixel for the specified pixel format.
  *
- * @param [in] pixelFormat The pixel format
- * @return The number of bytes per pixel
+ * @note Not all formats have a meaningful value for this. Compressed formats in
+ * particular are often dealt with as an opaque block of memory and simply
+ * dividing their total size by the number of pixels can yield a number less
+ * than 1.
+ * @param [in] pixelFormat The pixel format.
+ * @return The number of bytes per pixel or zero if the concept of bytes per
+ * pixel is not meanigful for the format specified.
  */
 unsigned int GetBytesPerPixel(Format pixelFormat);
 
@@ -112,6 +158,16 @@ unsigned int GetBytesPerPixel(Format pixelFormat);
  * @param[out] bitMask the bitmask
  */
 void GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitMask);
+
+/**
+ * @brief Returns whether a given pixel format is supported for a specified usage.
+ *
+ * @param [in] pixelFormat The pixel format.
+ * @param [in] usage The scenario to be queried for the pixel format.
+ * @return True if the format passed in can be used in the scenario also
+ * specified, else false if it cannot.
+ */
+bool UsageSupported( Format pixelFormat, Usage usage );
 
 } //namespace Pixel
 

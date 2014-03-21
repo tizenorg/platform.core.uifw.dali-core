@@ -54,7 +54,7 @@ public:
    * @param[out] seconds The time in seconds since the reference point.
    * @param[out] microSeconds The remainder in microseconds.
    */
-  virtual void GetTimeMicroseconds(unsigned int &seconds, unsigned int &microSeconds) = 0;
+  virtual void GetTimeMicroseconds(unsigned int& seconds, unsigned int& microSeconds) = 0;
 
   /**
    * Tell the platform abstraction that Dali is ready to pause, such as when the
@@ -174,7 +174,7 @@ public:
    * @param[in] fontStyle  The style of the font
    * @param[in] capsHeight The caps-height in pixels
    */
-  virtual const PixelSize GetFontLineHeightFromCapsHeight(const std::string fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight) const = 0;
+  virtual const PixelSize GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight) const = 0;
 
   /**
    * Called by Font objects to synchronously query glyph data.

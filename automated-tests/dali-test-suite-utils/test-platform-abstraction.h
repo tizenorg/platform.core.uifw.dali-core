@@ -90,7 +90,7 @@ public:
   /**
    * @copydoc PlatformAbstraction::GetTimeMicroseconds()
    */
-  virtual void GetTimeMicroseconds(unsigned int &seconds, unsigned int &microSeconds)
+  virtual void GetTimeMicroseconds(unsigned int& seconds, unsigned int& microSeconds)
   {
     seconds = mSeconds;
     microSeconds = mMicroSeconds;
@@ -218,7 +218,7 @@ public:
     return mGetDefaultFontSizeResult;
   }
 
-  virtual const PixelSize GetFontLineHeightFromCapsHeight(const std::string fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight) const
+  virtual const PixelSize GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight) const
   {
     mTrace.PushCall("GetFontLineHeightFromCapsHeight", "");
     // LineHeight will be bigger than CapsHeight, so return capsHeight + 1

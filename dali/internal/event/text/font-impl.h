@@ -325,7 +325,6 @@ public:
    */
   bool IsTextLoaded( const TextArray& text, const TextFormat& format, unsigned int textureId ) const;
 
-
 private:
 
   /**

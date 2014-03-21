@@ -39,6 +39,7 @@ class Font;
 
 /**
  * @brief Encapsulates a font resource.
+ *
  * Fonts are managed by the font manager, which loads any new fonts requested by applications. The font
  * manager keeps a cache of the most recently used fonts, and if a new font is requested when the cache
  * is full it will delete an old one (if there is one not in use).

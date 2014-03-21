@@ -357,6 +357,10 @@ bool RenderTask::TranslateCoordinates( Vector2& screenCoords ) const
       {
         screenCoords.x = localX;
         screenCoords.y = localY;
+        if( localCamera->GetInvertYAxis() ) // local camera and default camera have opposite Y directions
+        {
+          screenCoords.y = actorSize.y - localY;
+        }
       }
       else
       {

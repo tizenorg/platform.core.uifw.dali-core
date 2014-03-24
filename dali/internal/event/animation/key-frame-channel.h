@@ -90,9 +90,9 @@ bool KeyFrameChannel<V>::IsActive (float progress)
   if(!mValues.empty())
   {
     ProgressValue<V>& first = mValues.front();
-    ProgressValue<V>& last  = mValues.back();
+    //ProgressValue<V>& last  = mValues.back();
 
-    if (progress >= first.GetProgress() && progress <= last.GetProgress() )
+    if( progress >= first.GetProgress() ) // && progress <= last.GetProgress() )
     {
       active = true;
     }

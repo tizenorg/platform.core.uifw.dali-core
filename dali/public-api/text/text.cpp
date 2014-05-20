@@ -146,6 +146,11 @@ size_t Text::GetLength() const
 
 void Text::Append( const Text& text )
 {
+  Insert( GetLength(), text );
+}
+
+void Text::Insert( std::size_t position, const Text& text )
+{
   if( NULL != text.mImpl )
   {
     if( NULL == mImpl )
@@ -154,7 +159,7 @@ void Text::Append( const Text& text )
     }
     else
     {
-      mImpl->Append( text );
+      mImpl->Insert( position, text );
     }
   }
 }

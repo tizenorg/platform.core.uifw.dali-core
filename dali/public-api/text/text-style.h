@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <string>
+#include <iostream> // VCC remove!!!!!!!!!!!!!!!!!!!!!
 
 // INTERNAL INCLUDES
 #include <dali/public-api/text/font.h>
@@ -518,6 +519,11 @@ private:
   TextStyleContainer* mContainer;               // container for any needed text style structures
 
 };
+
+
+
+//VCC Remove
+DALI_IMPORT_API std::ostream& operator<< (std::ostream& o, const TextStyle& textStyle);
 
 } // namespace Dali
 

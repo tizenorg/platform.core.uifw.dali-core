@@ -2557,4 +2557,68 @@ void TextStyleContainer::ResetGradient()
   delete reinterpret_cast<StyleGradientAttributes*>( toDelete );
 }
 
+std::ostream& operator<<( std::ostream& o, const TextStyle& textStyle )
+{
+  o << "{" << std::endl;
+
+  if( !textStyle.IsFontNameDefault() )
+  {
+    o << "    [ font name : " << textStyle.GetFontName() << "]" << std::endl;
+  }
+  if( !textStyle.IsFontStyleDefault() )
+  {
+    o << "   [ font style : " << textStyle.GetFontStyle() << "]" << std::endl;
+  }
+  if( !textStyle.IsFontSizeDefault() )
+  {
+    o << "    [ font size : " << textStyle.GetFontPointSize() << "]" << std::endl;
+  }
+  if( !textStyle.IsTextColorDefault() )
+  {
+    o << "   [ text color : " << textStyle.GetTextColor() << "]" << std::endl;
+  }
+  if( !textStyle.IsFontWeightDefault() )
+  {
+    o << "  [ font weight : " << textStyle.GetWeight() << "]" << std::endl;
+  }
+  // if( !textStyle.IsSmoothEdgeDefault() )
+  // {
+  //   o << "  [ : " << << "]" << std::endl;
+  // }
+  if( !textStyle.IsItalicsDefault() )
+  {
+    o << "      [ italics : " << ( textStyle.IsItalicsEnabled() ? std::string("enabled") : std::string("disabled") )<< "]" << std::endl;
+  }
+  if( !textStyle.IsUnderlineDefault() )
+  {
+    o << "    [ underline : " << ( textStyle.IsUnderlineEnabled() ? std::string("enabled") : std::string("disabled") )<< "]" << std::endl;
+    o << "    [ thickness : " << textStyle.GetUnderlineThickness() << "]" << std::endl;
+    o << "    [  position : " << textStyle.GetUnderlinePosition() << "]" << std::endl;
+  }
+  // if( !textStyle.IsShadowDefault() )
+  // {
+  //   o << "  [ : " << << "]" << std::endl;
+  // }
+  // if( !textStyle.IsGlowDefault() )
+  // {
+  //   o << "  [ : " << << "]" << std::endl;
+  // }
+  // if( !textStyle.IsOutlineDefault() )
+  // {
+  //   o << "  [ : " << << "]" << std::endl;
+  // }
+  if( !textStyle.IsGradientDefault() )
+  {
+    o << "     [ gradient : " << textStyle.IsGradientEnabled() << "]" << std::endl;
+    o << "        [ color : " << textStyle.GetGradientColor() << "]" << std::endl;
+    o << "        [ start : " << textStyle.GetGradientStartPoint() << "]" << std::endl;
+    o << "          [ end : " << textStyle.GetGradientEndPoint() << "]" << std::endl;
+  }
+
+  o << "}";
+
+
+  return o;
+}
+
 } // namespace Dali

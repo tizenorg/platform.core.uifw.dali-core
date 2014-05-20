@@ -279,6 +279,40 @@ int UtcDaliTextAppend(void)
   END_TEST;
 }
 
+int UtcDaliTextInsert(void)
+{
+  TestApplication application;
+
+  Text text( "Some text" );
+
+  text.Insert( 0u, "A" );
+
+  DALI_TEST_CHECK( std::string( "ASome text" ) == text.GetText() );
+
+  Character c = text[0u];
+  text.Insert( 5u, c );
+
+  DALI_TEST_CHECK( std::string( "ASomeA text" ) == text.GetText() );
+
+  Text text2( "B" );
+  text.Insert( 8u, text2 );
+
+  DALI_TEST_CHECK( std::string( "ASomeA tBext" ) == text.GetText() );
+
+  // insert to a null text
+
+  Text emptyText;
+  emptyText.Insert( 0u, text2 );
+  DALI_TEST_CHECK( text2.GetText() == emptyText.GetText() );
+
+  // insert out of bounds
+
+  text.Insert( 100u, std::string( "CDEF" ) );
+  DALI_TEST_CHECK( std::string( "ASomeA tBextCDEF" ) == text.GetText() );
+
+  END_TEST;
+}
+
 int UtcDaliTextRemove01(void)
 {
   TestApplication application;
@@ -456,6 +490,7 @@ int UtcDaliTextGetSubText(void)
   subText.SetText( "Hello" );
   text.GetSubText( 30u, 31u, subText );
   DALI_TEST_EQUALS( subText.GetText(), std::string( "Hello" ), TEST_LOCATION );
+
   text.GetSubText( 0u, 31u, subText );
   DALI_TEST_EQUALS( subText.GetText(), std::string( "Hello" ), TEST_LOCATION );
   text.GetSubText( 30u, 1u, subText );

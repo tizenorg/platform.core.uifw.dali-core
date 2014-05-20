@@ -264,6 +264,18 @@ public:
   void GetMetrics(const Dali::Character& character, Dali::Font::Metrics::Impl& metrics) const;
 
   /**
+   * @note metrics must have enough space allocated for the number of metrics requested.
+   */
+  void GetMetrics( const TextArray& characters,
+                   std::size_t from,
+                   std::size_t numberOfCharacters,
+                   std::vector<Dali::Font::Metrics>& metrics ) const;
+  /**
+   *
+   */
+  void GetGlobalMetrics( Dali::Font::GlobalMetrics::Impl* globalMetrics ) const;
+
+  /**
    * @copydoc Dali::PointsToPixels()
    */
   static unsigned int PointsToPixels(float pointSize);

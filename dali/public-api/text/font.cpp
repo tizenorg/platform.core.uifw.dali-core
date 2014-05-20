@@ -84,6 +84,68 @@ Font::Metrics::Metrics( const Impl& implementation )
   mImpl->height = implementation.height;
 }
 
+Font::Metrics::Impl* Font::Metrics::GetImplementation()
+{
+  return mImpl;
+}
+
+Font::GlobalMetrics::GlobalMetrics()
+: mImpl( new Font::GlobalMetrics::Impl() )
+{
+}
+
+Font::GlobalMetrics::~GlobalMetrics()
+{
+  delete mImpl;
+}
+
+Font::GlobalMetrics::GlobalMetrics( const Font::GlobalMetrics& globalMetrics )
+: mImpl( new Font::GlobalMetrics::Impl() )
+{
+  mImpl->lineHeight = globalMetrics.mImpl->lineHeight;
+  mImpl->ascender = globalMetrics.mImpl->ascender;
+  mImpl->underlinePosition = globalMetrics.mImpl->underlinePosition;
+  mImpl->underlineThickness = globalMetrics.mImpl->underlineThickness;
+}
+
+Font::GlobalMetrics& Font::GlobalMetrics::operator=( const Font::GlobalMetrics& globalMetrics )
+{
+  if( &globalMetrics != this )
+  {
+    mImpl->lineHeight = globalMetrics.mImpl->lineHeight;
+    mImpl->ascender = globalMetrics.mImpl->ascender;
+    mImpl->underlinePosition = globalMetrics.mImpl->underlinePosition;
+    mImpl->underlineThickness = globalMetrics.mImpl->underlineThickness;
+  }
+
+  return *this;
+}
+
+float Font::GlobalMetrics::GetLineHeight() const
+{
+  return mImpl->lineHeight;
+}
+
+float Font::GlobalMetrics::GetAscender() const
+{
+  return mImpl->ascender;
+}
+
+float Font::GlobalMetrics::GetUnderlinePosition() const
+{
+  return mImpl->underlinePosition;
+}
+
+float Font::GlobalMetrics::GetUnderlineThickness() const
+{
+  return mImpl->underlineThickness;
+}
+
+Font::GlobalMetrics::Impl* Font::GlobalMetrics::GetImplementation()
+{
+  return mImpl;
+}
+
 Font::Font()
 {
 }
@@ -199,22 +261,26 @@ bool Font::AllGlyphsSupported(const Character& character) const
 
 float Font::GetLineHeight() const
 {
-  return GetImplementation(*this).GetLineHeight() * GetImplementation(*this).GetUnitsToPixels();
+  const Internal::Font& font = GetImplementation(*this);
+  return font.GetLineHeight() * font.GetUnitsToPixels();
 }
 
 float Font::GetAscender() const
 {
-  return GetImplementation(*this).GetAscender() * GetImplementation(*this).GetUnitsToPixels();
+  const Internal::Font& font = GetImplementation(*this);
+  return font.GetAscender() * font.GetUnitsToPixels();
 }
 
 float Font::GetUnderlineThickness() const
 {
-  return GetImplementation(*this).GetUnderlineThickness() * GetImplementation(*this).GetUnitsToPixels();
+  const Internal::Font& font = GetImplementation(*this);
+  return font.GetUnderlineThickness() * font.GetUnitsToPixels();
 }
 
 float Font::GetUnderlinePosition() const
 {
-  return GetImplementation(*this).GetUnderlinePosition() * GetImplementation(*this).GetUnitsToPixels();
+  const Internal::Font& font = GetImplementation(*this);
+  return font.GetUnderlinePosition() * font.GetUnitsToPixels();
 }
 
 Font::Metrics Font::GetMetrics(const Character& character) const
@@ -222,6 +288,11 @@ Font::Metrics Font::GetMetrics(const Character& character) const
   Font::Metrics::Impl metricsImpl;
   GetImplementation(*this).GetMetrics(character, metricsImpl);
   return Font::Metrics( metricsImpl );
+}
+
+void Font::GetGlobalMetrics( Font::GlobalMetrics& globalMetrics ) const
+{
+  GetImplementation(*this).GetGlobalMetrics( globalMetrics.GetImplementation() );
 }
 
 bool Font::IsDefaultSystemFont() const

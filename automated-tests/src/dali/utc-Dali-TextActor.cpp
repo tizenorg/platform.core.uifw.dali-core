@@ -1096,7 +1096,6 @@ int UtcDaliTextActorAutomaticSizeSetAnimation(void)
   END_TEST;
 }
 
-
 int UtcDaliTextActorPropertyIndices(void)
 {
   TestApplication application;

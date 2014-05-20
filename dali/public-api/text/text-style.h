@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <string>
+#include <iostream> // VCC remove!!!!!!!!!!!!!!!!!!!!!
 
 // INTERNAL INCLUDES
 #include <dali/public-api/text/font.h>
@@ -145,6 +146,14 @@ public:
    * @param[in] mask Specifies which text style parameters are going to be copied. By default all parateres are copied.
    */
   void Copy( const TextStyle& textStyle, Mask mask = ALL );
+
+  /**
+   * @brief Copies from the given text style those parameters specified in the given mask which are not default.
+   *
+   * @param[in] textStyle The given text style.
+   * @param[in] mask Specifies which text style parameters are going to be copied. By default all parateres are copied.
+   */
+  void Merge( const TextStyle& textStyle, Mask mask = ALL );
 
   /**
    * @brief Resets to default the text style parameters specified in the mask.
@@ -564,6 +573,11 @@ private:
   TextStyleContainer* mContainer;               // container for any needed text style structures
 
 };
+
+
+
+//VCC Remove
+DALI_IMPORT_API std::ostream& operator<< (std::ostream& o, const TextStyle& textStyle);
 
 } // namespace Dali
 

@@ -54,22 +54,22 @@ public:
   };
 
   /**
-   * @copydoc Dali::TextActor::New(const Dali::Text&,bool,bool)
+   * @copydoc Dali::TextActor::New(const Dali::Text&,bool)
    * @return A pointer to a new TextActor.
    */
-  static TextActorPtr New(const Dali::Text& text, bool fontDetection, bool isLeftToRight);
+  static TextActorPtr New(const Dali::Text& text, bool fontDetection);
 
   /**
-   * @copydoc Dali::TextActor::New(const Dali::Text&,Dali::Font,bool,bool)
+   * @copydoc Dali::TextActor::New(const Dali::Text&,Dali::Font,bool)
    * @return A pointer to a new TextActor.
    */
-  static TextActorPtr New(const Dali::Text& text, bool fontDetection, bool isLeftToRight, Font& font);
+  static TextActorPtr New(const Dali::Text& text, bool fontDetection, Font& font);
 
   /**
-   * @copydoc Dali::TextActor::New(const Text&,const TextStyle&,bool,bool)
+   * @copydoc Dali::TextActor::New(const Text&,const TextStyle&,bool)
    * @return A pointer to a new TextActor.
    */
-  static TextActorPtr New(const Dali::Text& text, bool fontDetection, bool isLeftToRight, const Dali::TextStyle& style );
+  static TextActorPtr New(const Dali::Text& text, bool fontDetection, const Dali::TextStyle& style );
 
   /**
    * @copydoc Dali::Internal::Actor::OnInitialize
@@ -271,7 +271,7 @@ protected:
   /**
    * Protected constructor; see also TextActor::New()
    */
-  TextActor(bool fontDetection, bool isLeftToRight );
+  TextActor(bool fontDetection);
 
   /**
    * A reference counted object may only be deleted by calling Unreference()
@@ -401,7 +401,6 @@ private:
   bool mUsingNaturalSize:1;  ///< whether the actor is using natural size
   bool mInternalSetSize:1;  ///< to determine when we are internally setting size
   bool mFontDetection:1;  ///< tells whether TextActor should query platform abstraction after SetText
-  bool mIsLeftToRight:1;  ///< tells whether text is displayed from left to right or from right to left
   bool mObserving:1;      ///< Whether the text actor is waiting for text to load
   static bool mFirstInstance;
   static DefaultPropertyLookup* mDefaultTextActorPropertyLookup; ///< Default properties

@@ -37,6 +37,13 @@ void utc_dali_font_cleanup(void)
 namespace
 {
 
+const std::string LATIN_FONT( "LatinFont" );
+const std::string GREEK_FONT( "GreekFont" );
+const std::string CYRILLIC_FONT( "CyrillicFont" );
+const std::string HEBREW_FONT( "HebrewFont" );
+const std::string ARABIC_FONT( "ArabicFont" );
+const std::string CJK_FONT( "CJKFont" ); // Chinese, Japanese and Korean.
+
 const std::string FAMILY_NAME = "Arial";
 const std::string STYLE = "Bold";
 const unsigned int PIXEL_SIZE = 20;
@@ -350,23 +357,28 @@ int UtcFontGetFamilyForText(void)
 
   tet_infoline("Testing Dali::Font::GetFamilyForText()");
 
-  std::string latinFont = Font::GetFamilyForText("Hello world");
-  DALI_TEST_CHECK( latinFont.size() != 0 );
+  std::string font;
 
-  latinFont = Font::GetFamilyForText( Text(std::string("Hello world")) );
-  DALI_TEST_CHECK( latinFont.size() != 0 );
+  font = Font::GetFamilyForText("Hello world");
+  DALI_TEST_EQUALS( font, std::string( "LatinFont" ), TEST_LOCATION );
 
-  std::string asianFont = Font::GetFamilyForText("繁體中文");
-  DALI_TEST_CHECK( asianFont.size() != 0 );
+  font = Font::GetFamilyForText( Text(std::string("Hello world")) );
+  DALI_TEST_EQUALS( font, std::string( "LatinFont" ), TEST_LOCATION );
 
-  asianFont = Font::GetFamilyForText(Text(std::string("繁體中文")));
-  DALI_TEST_CHECK( asianFont.size() != 0 );
+  font = Font::GetFamilyForText("繁體中文");
+  DALI_TEST_EQUALS( font, std::string( "CJKFont" ), TEST_LOCATION );
 
-  Text text = Text(std::string("繁體中文"))[0];
+  font = Font::GetFamilyForText(Text(std::string("繁體中文")));
+  DALI_TEST_EQUALS( font, std::string( "CJKFont" ), TEST_LOCATION );
+
+  Text text = Text(std::string("繁體中文"));
   Character c = text[0];
 
-  asianFont = Font::GetFamilyForText(c );
-  DALI_TEST_CHECK( asianFont.size() != 0 );
+  font = Font::GetFamilyForText(c );
+  DALI_TEST_EQUALS( font, std::string( "CJKFont" ), TEST_LOCATION );
+
+  font = Font::GetFamilyForText( std::string("مرحباالعالم") );
+  DALI_TEST_EQUALS( font, std::string( "ArabicFont" ), TEST_LOCATION );
 
   END_TEST;
 }
@@ -395,24 +407,38 @@ int UtcFontAllGlyphsSupported(void)
 
   tet_infoline("Testing Dali::Font::AllGlyphsSupported()");
 
-  Font font = Font::New();
+  Font font = Font::New( FontParameters( "LatinFont", "", PointSize( 10.f ) ) );
 
-  font.AllGlyphsSupported("Hello World\n");
+  DALI_TEST_CHECK( font.AllGlyphsSupported( "Hello World\n" ) );
 
-  DALI_TEST_CHECK(application.GetPlatform().WasCalled(TestPlatformAbstraction::AllGlyphsSupportedFunc));
+  DALI_TEST_CHECK( application.GetPlatform().WasCalled( TestPlatformAbstraction::AllGlyphsSupportedFunc ) );
   application.GetPlatform().ResetTrace();
 
-  font.AllGlyphsSupported(Text(std::string("Hello World\n")));
+  DALI_TEST_CHECK( font.AllGlyphsSupported( Text( std::string( "Hello World\n" ) ) ) );
 
-  DALI_TEST_CHECK(application.GetPlatform().WasCalled(TestPlatformAbstraction::AllGlyphsSupportedFunc));
-
+  DALI_TEST_CHECK( application.GetPlatform().WasCalled( TestPlatformAbstraction::AllGlyphsSupportedFunc ) );
   application.GetPlatform().ResetTrace();
 
-  Text text = Text(std::string("t"))[0];
+  Text text = Text( std::string( "t" ) );
   Character c = text[0];
-  font.AllGlyphsSupported(c);
+  DALI_TEST_CHECK( font.AllGlyphsSupported( c ) );
 
-  DALI_TEST_CHECK(application.GetPlatform().WasCalled(TestPlatformAbstraction::AllGlyphsSupportedFunc));
+  DALI_TEST_CHECK( application.GetPlatform().WasCalled( TestPlatformAbstraction::AllGlyphsSupportedFunc ) );
+  application.GetPlatform().ResetTrace();
+
+  font = Font::New( FontParameters( "CJKFont", "", PointSize( 10.f ) ) );
+
+  DALI_TEST_CHECK( font.AllGlyphsSupported( "繁體中文" ) );
+
+  DALI_TEST_CHECK( application.GetPlatform().WasCalled( TestPlatformAbstraction::AllGlyphsSupportedFunc ) );
+  application.GetPlatform().ResetTrace();
+
+  font = Font::New( FontParameters( "ArabicFont", "", PointSize( 10.f ) ) );
+
+  DALI_TEST_CHECK( font.AllGlyphsSupported( "مرحباالعالم" ) );
+
+  DALI_TEST_CHECK( application.GetPlatform().WasCalled( TestPlatformAbstraction::AllGlyphsSupportedFunc ) );
+
   END_TEST;
 }
 
@@ -423,7 +449,8 @@ int UtcFontGetMetrics(void)
   tet_infoline("Testing Dali::Font::UtcFontGetMetrics()");
 
   Font font = Font::New();
-  font.MeasureText(Text(std::string("Hello World"))); // Builds fake metrics in TestPlatformAbstraction.
+  Text text( std::string( "Hello World" ) );
+  font.MeasureText( text ); // Builds fake metrics in TestPlatformAbstraction.
 
   float lineHeight = font.GetLineHeight();
   float ascender = font.GetAscender();
@@ -440,6 +467,7 @@ int UtcFontGetMetrics(void)
   DALI_TEST_EQUALS( metrics.GetAdvance(), 11.380209f, Math::MACHINE_EPSILON_1000, TEST_LOCATION );
   DALI_TEST_EQUALS( metrics.GetBearing(), 10.242188f, Math::MACHINE_EPSILON_1000, TEST_LOCATION );
   DALI_TEST_EQUALS( metrics.GetWidth(), 11.380209f, Math::MACHINE_EPSILON_1000, TEST_LOCATION );
+
   END_TEST;
 }
 
@@ -449,7 +477,7 @@ int UtcFontIsDefault(void)
 
   tet_infoline("Testing Dali::Font::UtcFontIsDefault()");
 
-  FontParameters fontParams("FreeSans", "", PointSize(10.f));
+  FontParameters fontParams(LATIN_FONT, "", PointSize(10.f));
   Font font1 = Font::New(fontParams);
 
   DALI_TEST_CHECK( !font1.IsDefaultSystemFont() );
@@ -460,7 +488,7 @@ int UtcFontIsDefault(void)
 
   Font font2 = Font::New();
 
-  DALI_TEST_CHECK( !font2.IsDefaultSystemFont() );
+  DALI_TEST_CHECK( font2.IsDefaultSystemFont() );
   DALI_TEST_CHECK( font2.IsDefaultSystemSize() );
 
   DALI_TEST_CHECK( application.GetPlatform().WasCalled( TestPlatformAbstraction::ValidateFontFamilyNameFunc ) );

@@ -35,76 +35,92 @@ TextActor::TextActor()
 
 TextActor TextActor::New()
 {
-  return New( Text( "" ) );
+  Internal::TextActorPtr internal( Internal::TextActor::New( Text( std::string( "" ) ), true /*fontDetection*/ ) );
+  return TextActor( internal.Get() );
 }
 
 TextActor TextActor::New(const string& text)
 {
-  return New( Text( text ) );
+  Internal::TextActorPtr internal( Internal::TextActor::New( Text( text ), true /*fontDetection*/ ) );
+  return TextActor( internal.Get() );
 }
 
 TextActor TextActor::New(const Text& text)
 {
-  return New( text, true /*fontDetection*/, true /*isLeftToRight*/ );
+  Internal::TextActorPtr internal( Internal::TextActor::New( text, true /*fontDetection*/ ) );
+  return TextActor( internal.Get() );
 }
 
 TextActor TextActor::New(const string& text, bool fontDetection)
 {
-  return New( Text( text ), fontDetection );
+  Internal::TextActorPtr internal( Internal::TextActor::New( Text( text ), fontDetection ) );
+  return TextActor( internal.Get() );
 }
 
 TextActor TextActor::New(const Text& text, bool fontDetection)
 {
-  return New( text, fontDetection, true /*isLeftToRight*/ );
+  Internal::TextActorPtr internal( Internal::TextActor::New( text, fontDetection ) );
+  return TextActor( internal.Get() );
 }
 
-TextActor TextActor::New(const string& text, bool fontDetection, bool isLeftToRight )
+TextActor TextActor::New(const string& text, bool fontDetection, bool /*isLeftToRight*/ )
 {
-  return New( Text( text ), fontDetection, isLeftToRight );
+  Internal::TextActorPtr internal( Internal::TextActor::New( Text( text ), fontDetection ) );
+  return TextActor( internal.Get() );
 }
 
-TextActor TextActor::New(const Text& text, bool fontDetection, bool isLeftToRight )
+TextActor TextActor::New(const Text& text, bool fontDetection, bool /*isLeftToRight*/ )
 {
-  Internal::TextActorPtr internal( Internal::TextActor::New( text, fontDetection, isLeftToRight) );
-
+  Internal::TextActorPtr internal( Internal::TextActor::New( text, fontDetection ) );
   return TextActor( internal.Get() );
 }
 
 TextActor TextActor::New(const string& text, Font font)
 {
-  return New( Text( text ), font, true /*fontDetection*/, true /*isLeftToRight*/ );
+  Internal::TextActorPtr internal( Internal::TextActor::New( Text( text ), true /*fontDetection*/, GetImplementation(font) ) );
+  return TextActor( internal.Get() );
 }
 
 TextActor TextActor::New(const Text& text, Font font)
 {
-  return New( text, font, true /*fontDetection*/, true /*isLeftToRight*/ );
+  Internal::TextActorPtr internal( Internal::TextActor::New( text, true /*fontDetection*/, GetImplementation(font) ) );
+  return TextActor( internal.Get() );
 }
 
 TextActor TextActor::New(const string& text, Font font, bool fontDetection)
 {
-  return New( Text( text ), font, fontDetection, true /*isLeftToRight*/ );
+  Internal::TextActorPtr internal( Internal::TextActor::New( Text( text ), fontDetection, GetImplementation(font) ) );
+  return TextActor( internal.Get() );
 }
 
 TextActor TextActor::New(const Text& text, Font font, bool fontDetection)
 {
-  return New( text, font, fontDetection, true /*isLeftToRight*/ );
-}
-
-TextActor TextActor::New(const string& text, Font font, bool fontDetection, bool isLeftToRight )
-{
-  return New( Text( text ), font, fontDetection, isLeftToRight );
-}
-
-TextActor TextActor::New(const Text& text, Font font, bool fontDetection, bool isLeftToRight )
-{
-  Internal::TextActorPtr internal( Internal::TextActor::New( text, fontDetection, isLeftToRight, GetImplementation(font) ) );
-
+  Internal::TextActorPtr internal( Internal::TextActor::New( text, fontDetection, GetImplementation(font) ) );
   return TextActor( internal.Get() );
 }
 
-TextActor TextActor::New(const Text& text, const TextStyle& style, bool fontDetection, bool isLeftToRight)
+TextActor TextActor::New(const string& text, Font font, bool fontDetection, bool /*isLeftToRight*/ )
 {
-  Internal::TextActorPtr internal = Internal::TextActor::New( text, fontDetection, isLeftToRight, style );
+  Internal::TextActorPtr internal( Internal::TextActor::New( Text( text ), fontDetection, GetImplementation(font) ) );
+  return TextActor( internal.Get() );
+}
+
+TextActor TextActor::New(const Text& text, Font font, bool fontDetection, bool /*isLeftToRight*/ )
+{
+  Internal::TextActorPtr internal( Internal::TextActor::New( text, fontDetection, GetImplementation(font) ) );
+  return TextActor( internal.Get() );
+}
+
+TextActor TextActor::New(const Text& text, const TextStyle& style, bool fontDetection)
+{
+  Internal::TextActorPtr internal = Internal::TextActor::New( text, fontDetection, style );
+
+  return TextActor(internal.Get());
+}
+
+TextActor TextActor::New(const Text& text, const TextStyle& style, bool fontDetection, bool /*isLeftToRight*/)
+{
+  Internal::TextActorPtr internal = Internal::TextActor::New( text, fontDetection, style );
 
   return TextActor(internal.Get());
 }

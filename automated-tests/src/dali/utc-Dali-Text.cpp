@@ -444,6 +444,7 @@ int UtcDaliTextGetSubText(void)
   subText.SetText( "Hello" );
   text.GetSubText( 30u, 31u, subText );
   DALI_TEST_EQUALS( subText.GetText(), std::string( "Hello" ), TEST_LOCATION );
+
   text.GetSubText( 0u, 31u, subText );
   DALI_TEST_EQUALS( subText.GetText(), std::string( "Hello" ), TEST_LOCATION );
   text.GetSubText( 30u, 1u, subText );

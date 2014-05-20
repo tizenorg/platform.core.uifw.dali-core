@@ -99,7 +99,7 @@ public:
   static TextActor New();
 
   /**
-   * @brief Create a TextActor object with LeftToRight text and font detection
+   * @brief Create a TextActor object with font detection
    *
    * @param [in] text          The text which will be displayed
    * @return A handle to a newly allocated Dali resource.
@@ -112,7 +112,7 @@ public:
   static TextActor New(const Text& text);
 
   /**
-   * @brief Create a TextActor object with LeftToRight text.
+   * @brief Create a TextActor object.
    *
    * @param [in] text          The text which will be displayed
    * @param [in] fontDetection Try to detect font in case text is not supported with current one.
@@ -126,22 +126,17 @@ public:
   static TextActor New(const Text& text, bool fontDetection);
 
   /**
-   * @brief Create a TextActor object.
-   *
-   * @param [in] text          The text which will be displayed
-   * @param [in] fontDetection Try to detect font in case text is not supported with current one.
-   * @param [in] isLeftToRight Text is displayed from left to right if true, otherwise from right to left.
-   * @return A handle to a newly allocated Dali resource.
+   * @deprecated Use any other TextActor::New() without the \e isLeftToRight parameter.
    */
   static TextActor New(const std::string& text, bool fontDetection, bool isLeftToRight);
 
   /**
-   * @copydoc New(const std::string& text, bool fontDetection, bool isLeftToRight)
+   * @deprecated Use any other TextActor::New() without the \e isLeftToRight parameter.
    */
   static TextActor New(const Text& text, bool fontDetection, bool isLeftToRight);
 
   /**
-   * @brief Create a TextActor object with LeftToRight text and font detection.
+   * @brief Create a TextActor object with font detection.
    *
    * @param [in] text          The text which will be displayed
    * @param [in] font          The font which will be used for the text
@@ -155,7 +150,7 @@ public:
   static TextActor New(const Text& text, Font font);
 
   /**
-   * @brief Create a TextActor object with LeftToRight text.
+   * @brief Create a TextActor object with a given font.
    *
    * @param [in] text          The text which will be displayed
    * @param [in] font          The font which will be used for the text
@@ -170,29 +165,27 @@ public:
   static TextActor New(const Text& text, Font font, bool fontDetection);
 
   /**
-   * @brief Create a TextActor object.
-   *
-   * @param [in] text          The text which will be displayed
-   * @param [in] font          The font which will be used for the text
-   * @param [in] fontDetection Try to detect font in case text is not supported with current one.
-   * @param [in] isLeftToRight Text is displayed from left to right if true, otherwise from right to left.
-   * @return A handle to a newly allocated Dali resource.
+   * @deprecated Use any other TextActor::New() without the \e isLeftToRight parameter.
    */
   static TextActor New(const std::string& text, Font font, bool fontDetection, bool isLeftToRight);
 
   /**
-   * @copydoc New(const std::string& text, Font font, bool fontDetection, bool isLeftToRight)
+   * @deprecated Use any other TextActor::New() without the \e isLeftToRight parameter.
    */
   static TextActor New(const Text& text, Font font, bool fontDetection, bool isLeftToRight);
 
   /**
-   * @brief Create a TextActor object.
+   * @brief Create a TextActor object with a given style.
    *
    * @param [in] text          The text which will be displayed
    * @param [in] style         The style which will be used for the text
    * @param [in] fontDetection Try to detect font in case text is not supported with current one.
-   * @param [in] isLeftToRight Text is displayed from left to right if true, otherwise from right to left.
    * @return A handle to a newly allocated Dali resource.
+   */
+  static TextActor New(const Text& text, const TextStyle& style, bool fontDetection);
+
+  /**
+   * @deprecated Use any other TextActor::New() without the \e isLeftToRight parameter.
    */
   static TextActor New(const Text& text, const TextStyle& style, bool fontDetection, bool isLeftToRight);
 

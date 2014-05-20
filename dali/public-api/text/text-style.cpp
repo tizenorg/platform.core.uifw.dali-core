@@ -816,6 +816,107 @@ void TextStyle::Copy( const TextStyle& textStyle, Mask mask )
   }
 }
 
+void TextStyle::Merge( const TextStyle& textStyle, Mask mask )
+{
+  // If we're attemping to copy ourselves then just return
+  if ( this == &textStyle )
+  {
+    return;
+  }
+
+  // Check to see if we're copying a default style ?
+  if ( textStyle.mContainer == NULL )
+  {
+    // nothing to merge.
+    return;
+  }
+
+  if( mask & FONT )
+  {
+    if( !textStyle.IsFontNameDefault() )
+    {
+      SetFontName( textStyle.GetFontName() );
+    }
+  }
+  if( mask & STYLE )
+  {
+    if( !textStyle.IsFontStyleDefault() )
+    {
+      SetFontStyle( textStyle.GetFontStyle() );
+    }
+  }
+  if( mask & SIZE )
+  {
+    if( !textStyle.IsFontSizeDefault() )
+    {
+      SetFontPointSize( textStyle.GetFontPointSize() );
+    }
+  }
+  if( mask & COLOR )
+  {
+    if( !textStyle.IsTextColorDefault() )
+    {
+      SetTextColor( textStyle.GetTextColor() ) ;
+    }
+  }
+  if( mask & WEIGHT )
+  {
+    if( !textStyle.IsFontWeightDefault() )
+    {
+      SetWeight( textStyle.GetWeight() );
+    }
+  }
+  if( mask & SMOOTH )
+  {
+    if( !textStyle.IsSmoothEdgeDefault() )
+    {
+      SetSmoothEdge( textStyle.GetSmoothEdge() );
+    }
+  }
+  if( mask & ITALICS )
+  {
+    if( !textStyle.IsItalicsDefault() )
+    {
+      SetItalics( textStyle.IsItalicsEnabled(), textStyle.GetItalicsAngle() );
+    }
+  }
+  if( mask & UNDERLINE )
+  {
+    if( !textStyle.IsUnderlineDefault() )
+    {
+      SetUnderline( textStyle.IsUnderlineEnabled(), textStyle.GetUnderlineThickness(), textStyle.GetUnderlinePosition() );
+    }
+  }
+  if( mask & SHADOW )
+  {
+    if( !textStyle.IsShadowDefault() )
+    {
+      SetShadow( textStyle.IsShadowEnabled(), textStyle.GetShadowColor(), textStyle.GetShadowOffset(), textStyle.GetShadowSize() );
+    }
+  }
+  if( mask & GLOW )
+  {
+    if( !textStyle.IsGlowDefault() )
+    {
+      SetGlow( textStyle.IsGlowEnabled(), textStyle.GetGlowColor(), textStyle.GetGlowIntensity() );
+    }
+  }
+  if( mask & OUTLINE )
+  {
+    if( !textStyle.IsOutlineDefault() )
+    {
+      SetOutline( textStyle.IsOutlineEnabled(), textStyle.GetOutlineColor(), textStyle.GetOutlineThickness() );
+    }
+  }
+  if( mask & GRADIENT )
+  {
+    if( !textStyle.IsGradientDefault() )
+    {
+      SetGradient( textStyle.IsGradientEnabled(), textStyle.GetGradientColor(), textStyle.GetGradientStartPoint(), textStyle.GetGradientEndPoint() );
+    }
+  }
+}
+
 void TextStyle::Reset( Mask mask )
 {
   if( NULL == mContainer )
@@ -2519,6 +2620,70 @@ void TextStyleContainer::ResetGradient()
   mParameters.Remove( index );
 
   delete reinterpret_cast<StyleGradientAttributes*>( toDelete );
+}
+
+std::ostream& operator<<( std::ostream& o, const TextStyle& textStyle )
+{
+  o << "{" << std::endl;
+
+  if( !textStyle.IsFontNameDefault() )
+  {
+    o << "    [ font name : " << textStyle.GetFontName() << "]" << std::endl;
+  }
+  if( !textStyle.IsFontStyleDefault() )
+  {
+    o << "   [ font style : " << textStyle.GetFontStyle() << "]" << std::endl;
+  }
+  if( !textStyle.IsFontSizeDefault() )
+  {
+    o << "    [ font size : " << textStyle.GetFontPointSize() << "]" << std::endl;
+  }
+  if( !textStyle.IsTextColorDefault() )
+  {
+    o << "   [ text color : " << textStyle.GetTextColor() << "]" << std::endl;
+  }
+  if( !textStyle.IsFontWeightDefault() )
+  {
+    o << "  [ font weight : " << textStyle.GetWeight() << "]" << std::endl;
+  }
+  // if( !textStyle.IsSmoothEdgeDefault() )
+  // {
+  //   o << "  [ : " << << "]" << std::endl;
+  // }
+  if( !textStyle.IsItalicsDefault() )
+  {
+    o << "      [ italics : " << ( textStyle.IsItalicsEnabled() ? std::string("enabled") : std::string("disabled") )<< "]" << std::endl;
+  }
+  if( !textStyle.IsUnderlineDefault() )
+  {
+    o << "    [ underline : " << ( textStyle.IsUnderlineEnabled() ? std::string("enabled") : std::string("disabled") )<< "]" << std::endl;
+    o << "    [ thickness : " << textStyle.GetUnderlineThickness() << "]" << std::endl;
+    o << "    [  position : " << textStyle.GetUnderlinePosition() << "]" << std::endl;
+  }
+  // if( !textStyle.IsShadowDefault() )
+  // {
+  //   o << "  [ : " << << "]" << std::endl;
+  // }
+  // if( !textStyle.IsGlowDefault() )
+  // {
+  //   o << "  [ : " << << "]" << std::endl;
+  // }
+  // if( !textStyle.IsOutlineDefault() )
+  // {
+  //   o << "  [ : " << << "]" << std::endl;
+  // }
+  if( !textStyle.IsGradientDefault() )
+  {
+    o << "     [ gradient : " << textStyle.IsGradientEnabled() << "]" << std::endl;
+    o << "        [ color : " << textStyle.GetGradientColor() << "]" << std::endl;
+    o << "        [ start : " << textStyle.GetGradientStartPoint() << "]" << std::endl;
+    o << "          [ end : " << textStyle.GetGradientEndPoint() << "]" << std::endl;
+  }
+
+  o << "}";
+
+
+  return o;
 }
 
 } // namespace Dali

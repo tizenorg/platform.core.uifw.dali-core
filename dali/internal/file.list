@@ -103,6 +103,7 @@ internal_src_files = \
   $(internal_src_dir)/event/text/text-format.cpp \
   $(internal_src_dir)/event/text/text-request-helper.cpp \
   $(internal_src_dir)/event/text/text-impl.cpp \
+  $(internal_src_dir)/event/text/text-style-manager.cpp \
   $(internal_src_dir)/event/text/utf8-impl.cpp \
   $(internal_src_dir)/event/text/glyph-status/glyph-status.cpp \
   $(internal_src_dir)/event/text/glyph-status/glyph-status-container.cpp \

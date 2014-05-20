@@ -132,16 +132,16 @@ SignalConnectorType s1( mType, Dali::TextActor::SIGNAL_TEXT_LOADING_FINISHED, &T
 
 }
 
-TextActorPtr TextActor::New(const Dali::Text& text, bool fontDetection, bool isLeftToRight)
+TextActorPtr TextActor::New(const Dali::Text& text, bool fontDetection)
 {
   Dali::Font font( Dali::Font::New() );
-  return New( text, fontDetection, isLeftToRight, GetImplementation( font ) );
+  return New( text, fontDetection, GetImplementation( font ) );
 }
 
-TextActorPtr TextActor::New(const Dali::Text& text, bool fontDetection, bool isLeftToRight, Font& font )
+TextActorPtr TextActor::New(const Dali::Text& text, bool fontDetection, Font& font )
 {
   // first stage construction
-  TextActorPtr actor ( new TextActor( fontDetection, isLeftToRight ) );
+  TextActorPtr actor ( new TextActor( fontDetection ) );
 
   FontPointer fontPtr(&font);
 
@@ -149,17 +149,17 @@ TextActorPtr TextActor::New(const Dali::Text& text, bool fontDetection, bool isL
   actor->Initialize();
 
   //create the attachment
-  actor->mTextAttachment = TextAttachment::New( *actor->mNode, TextArray(), fontPtr, isLeftToRight);
+  actor->mTextAttachment = TextAttachment::New( *actor->mNode, TextArray(), fontPtr );
 
   actor->SetText( text );
 
   return actor;
 }
 
-TextActorPtr TextActor::New(const Dali::Text& text, bool fontDetection, bool isLeftToRight, const Dali::TextStyle& style )
+TextActorPtr TextActor::New(const Dali::Text& text, bool fontDetection, const Dali::TextStyle& style )
 {
   // first stage construction
-  TextActorPtr actor ( new TextActor( fontDetection, isLeftToRight ) );
+  TextActorPtr actor ( new TextActor( fontDetection ) );
 
   FontPointer fontPtr( Font::New(style.GetFontName(), style.GetFontStyle(), style.GetFontPointSize() ) );
 
@@ -167,7 +167,7 @@ TextActorPtr TextActor::New(const Dali::Text& text, bool fontDetection, bool isL
   actor->Initialize();
 
   //create the attachment
-  actor->mTextAttachment = TextAttachment::New( *actor->mNode, TextArray(), fontPtr, isLeftToRight );
+  actor->mTextAttachment = TextAttachment::New( *actor->mNode, TextArray(), fontPtr );
 
   // Note: SetTextStyle() MUST be called before SetText(), to ensure
   //       that a single ResourceRequest for the glyphs is made. Calling
@@ -179,13 +179,12 @@ TextActorPtr TextActor::New(const Dali::Text& text, bool fontDetection, bool isL
   return actor;
 }
 
-TextActor::TextActor(bool fontDetection, bool isLeftToRight)
+TextActor::TextActor(bool fontDetection)
 : RenderableActor(),
   mLoadingState(Dali::ResourceLoading),
   mUsingNaturalSize(true),
   mInternalSetSize(false),
   mFontDetection(fontDetection),
-  mIsLeftToRight(isLeftToRight),
   mObserving(false)
 {
 }

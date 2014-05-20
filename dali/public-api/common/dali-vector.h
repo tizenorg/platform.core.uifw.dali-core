@@ -21,6 +21,7 @@
 
 // EXTERNAL INCLUDES
 #include <cstddef>
+#include <algorithm>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -261,7 +262,6 @@ protected: // API for deriving classes
   {
     VectorBase::Erase( address, elementSize );
   }
-
 };
 
 /**
@@ -515,6 +515,31 @@ public: // API
   }
 
 };
+
+template< class Iterator1, class Iterator2 >
+bool Equal( Iterator1 first1, Iterator1 last1, Iterator2 first2 )
+{
+  return std::equal( first1, last1, first2 );
+}
+
+template< class Iterator >
+void Sort( Iterator first, Iterator last )
+{
+  return std::sort( first, last );
+}
+
+template< class Iterator >
+Iterator Unique( Iterator first, Iterator last )
+{
+  return std::unique( first, last );
+}
+
+template< class Iterator, class UnaryPredicate >
+Iterator RemoveIf( Iterator first, Iterator last, UnaryPredicate predicate )
+{
+  return std::remove_if( first, last, predicate );
+}
+
 
 } // namespace Dali
 

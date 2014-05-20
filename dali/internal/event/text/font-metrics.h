@@ -54,6 +54,24 @@ struct Font::Metrics::Impl
   float height;  ///< The glyph's height.
 };
 
+/**
+ *
+ */
+struct Font::GlobalMetrics::Impl
+{
+  Impl()
+  : lineHeight( 0.f ),
+    ascender( 0.f ),
+    underlinePosition( 0.f ),
+    underlineThickness( 0.f )
+  {}
+
+  float lineHeight;         ///<
+  float ascender;           ///<
+  float underlinePosition;  ///<
+  float underlineThickness; ///<
+};
+
 namespace Integration
 {
 class PlatformAbstraction;
@@ -214,6 +232,11 @@ public:
    * @param[out] metrics used to store the glyph metrics .
    */
   void GetMetrics( const Dali::Character& character, Dali::Font::Metrics::Impl& metrics );
+
+  /**
+   *
+   */
+  void GetMetrics( const TextArray& characters, std::size_t from, std::size_t numberOfCharacters, std::vector<Dali::Font::Metrics>& metrics );
 
   /**
    * Increase the number of fonts using the metrics object

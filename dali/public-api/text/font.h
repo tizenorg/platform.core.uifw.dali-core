@@ -71,7 +71,7 @@ public:
      *
      * Destroyes the implementaiton instance.
      */
-    virtual ~Metrics();
+    ~Metrics();
 
     /**
      * @brief Copy constructor.
@@ -127,10 +127,42 @@ public:
      */
     Metrics( const Impl& implementation );
 
+    /**
+     *
+     */
+    DALI_INTERNAL Impl* GetImplementation();
+
   private:
     Impl* mImpl; ///< Implementation.
   };
 
+  /**
+   *
+   */
+  class GlobalMetrics
+  {
+  public:
+    GlobalMetrics();
+    ~GlobalMetrics();
+    GlobalMetrics( const GlobalMetrics& globalMetrics );
+    GlobalMetrics& operator=( const GlobalMetrics& globalMetrics );
+
+    float GetLineHeight() const;
+    float GetAscender() const;
+    float GetUnderlinePosition() const;
+    float GetUnderlineThickness() const;
+
+  public: // Not intended for application developers
+    struct Impl;
+
+    /**
+     *
+     */
+    DALI_INTERNAL Impl* GetImplementation();
+
+  private:
+    Impl* mImpl; ///< Implementation.
+  };
 public:
   /**
    * @brief Create an empty Font.
@@ -286,6 +318,11 @@ public:
    * @return The glyph metrics.
    */
   Metrics GetMetrics(const Character& character) const;
+
+  /**
+   *
+   */
+  void GetGlobalMetrics( GlobalMetrics& globalMetrics ) const;
 
   /**
    * @brief Retrieves whether this font was created with a default system font.

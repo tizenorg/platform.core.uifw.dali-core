@@ -54,6 +54,8 @@ SET(TC_SOURCES
         utc-Dali-SignalTemplatesFunctors.cpp
         utc-Dali-SignalTemplatesV2.cpp
         utc-Dali-Stage.cpp
+        utc-Dali-StyledCharacters.cpp
+        utc-Dali-StyledText.cpp
         utc-Dali-TapGesture.cpp
         utc-Dali-TapGestureDetector.cpp
         utc-Dali-Text.cpp

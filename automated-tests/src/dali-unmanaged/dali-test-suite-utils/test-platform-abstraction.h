@@ -111,7 +111,10 @@ public:
    */
   virtual void LoadResource(const Integration::ResourceRequest& request);
 
-  virtual Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath);
+  /**
+   * @copydoc PlatformAbstraction::LoadResourceSynchronously()
+   */
+  virtual Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath );
 
   /**
    * @copydoc PlatformAbstraction::SaveResource()
@@ -235,6 +238,10 @@ public:
 
   virtual Integration::BitmapPtr GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const;
 
+  /**
+   * @copydoc PlatformAbstraction::ProcessText(Integration::Text&)
+   */
+  virtual void ProcessText( Integration::Text& text ) const;
 
 public: // TEST FUNCTIONS
 
@@ -269,6 +276,8 @@ public: // TEST FUNCTIONS
     WriteGlobalMetricsToCacheFileFunc,
     ReadMetricsFromCacheFileFunc,
     WriteMetricsToCacheFileFunc,
+    GetGlyphImageFunc,
+    ProcessTextFunc
   } TestFuncEnum;
 
   /** Call this every test */

@@ -42,6 +42,7 @@ platform_abstraction_header_files = \
    $(platform_abstraction_src_dir)/platform-abstraction.h \
    $(platform_abstraction_src_dir)/shader-data.h \
    $(platform_abstraction_src_dir)/system-overlay.h \
+   $(platform_abstraction_src_dir)/text.h \
    $(platform_abstraction_src_dir)/common/lockless-buffer.h \
    $(platform_abstraction_src_dir)/text-array.h
 

@@ -112,8 +112,11 @@ public_api_src_files = \
   $(public_api_src_dir)/text/character.cpp \
   $(public_api_src_dir)/text/font.cpp \
   $(public_api_src_dir)/text/font-parameters.cpp \
+  $(public_api_src_dir)/text/styled-characters.cpp \
+  $(public_api_src_dir)/text/styled-text.cpp \
   $(public_api_src_dir)/text/text.cpp \
   $(public_api_src_dir)/text/text-actor-parameters.cpp \
+  $(public_api_src_dir)/text/text-processor.cpp \
   $(public_api_src_dir)/text/text-style.cpp \
   $(public_api_src_dir)/text/utf8.cpp \
   $(public_api_src_dir)/dali-core-version.cpp
@@ -286,7 +289,10 @@ public_api_core_text_header_files = \
   $(public_api_src_dir)/text/character.h \
   $(public_api_src_dir)/text/font.h \
   $(public_api_src_dir)/text/font-parameters.h \
+  $(public_api_src_dir)/text/styled-characters.h \
+  $(public_api_src_dir)/text/styled-text.h \
   $(public_api_src_dir)/text/text.h \
   $(public_api_src_dir)/text/text-actor-parameters.h \
+  $(public_api_src_dir)/text/text-processor.h \
   $(public_api_src_dir)/text/text-style.h \
   $(public_api_src_dir)/text/utf8.h

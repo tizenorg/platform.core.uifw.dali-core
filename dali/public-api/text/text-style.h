@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <string>
+#include <iostream> // VCC remove!!!!!!!!!!!!!!!!!!!!!
 
 // INTERNAL INCLUDES
 #include <dali/public-api/text/font.h>
@@ -137,6 +138,16 @@ public:
    * @return true if the text style is not identical
    */
   bool operator!=( const TextStyle& textStyle ) const;
+
+  /**
+   * @brief Whether all parameters defined in the mask are equal.
+   *
+   * @param[in] textStyle The text style to compare
+   * @param[in] mask Specifies which text style parameters are going to be compared.
+   *
+   * @return \e true if all parameters specified in the mask are equal to the ones stored in the current text style, otherwise \e false.
+   */
+  bool Compare( const TextStyle& textStyle, Mask mask = ALL ) const;
 
   /**
    * @brief Copies from the given text style those parameters specified in the given mask.
@@ -518,6 +529,11 @@ private:
   TextStyleContainer* mContainer;               // container for any needed text style structures
 
 };
+
+
+
+//VCC Remove
+DALI_IMPORT_API std::ostream& operator<< (std::ostream& o, const TextStyle& textStyle);
 
 } // namespace Dali
 

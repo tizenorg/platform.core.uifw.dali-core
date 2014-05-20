@@ -298,7 +298,6 @@ float FontMetrics::GetPadAdjustY() const
   return mFontLayout.GetPadAdjustY();
 }
 
-
 void FontMetrics::GetMetrics( const Dali::Character& character, Dali::Font::Metrics::Impl& metrics )
 {
   Integration::TextArray utfCodes;
@@ -324,6 +323,39 @@ void FontMetrics::GetMetrics( const Dali::Character& character, Dali::Font::Metr
     metrics.bearing = 0.0f;
     metrics.width = 0.0f;
     metrics.height = 0.0f;
+  }
+}
+
+void FontMetrics::GetMetrics( const Integration::TextArray& characters, std::size_t from, std::size_t numberOfCharacters, std::vector<Dali::Font::Metrics>& metrics )
+{
+  LoadMetricsSynchronously( characters );
+
+  const std::size_t to = from + numberOfCharacters;
+  Integration::TextArray::ConstIterator characterIt, characterEndIt;
+  std::vector<Dali::Font::Metrics>::iterator metricsIt, metricsEndIt;
+  for( characterIt = characters.Begin() + from, characterEndIt = characters.Begin() + to, metricsIt = metrics.begin() + from, metricsEndIt = metrics.begin() + to;
+       ( characterIt != characterEndIt ) && ( metricsIt != metricsEndIt );
+       ++characterIt, ++metricsIt )
+  {
+    Dali::Font::Metrics::Impl* metrics = (*metricsIt).GetImplementation();
+    const GlyphMetric* glyph;
+
+    glyph = GetGlyph( *characterIt );
+
+    if( glyph )
+    {
+      metrics->advance = glyph->GetXAdvance();
+      metrics->bearing = glyph->GetTop();
+      metrics->width = std::max( glyph->GetWidth(), glyph->GetXAdvance() );
+      metrics->height = glyph->GetHeight();
+    }
+    else
+    {
+      metrics->advance = 0.0f;
+      metrics->bearing = 0.0f;
+      metrics->width = 0.0f;
+      metrics->height = 0.0f;
+    }
   }
 }
 

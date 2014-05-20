@@ -22,6 +22,58 @@
 namespace Dali
 {
 
+namespace
+{
+
+const std::string LATIN_FONT( "LatinFont" );
+const std::string GREEK_FONT( "GreekFont" );
+const std::string CYRILLIC_FONT( "CyrillicFont" );
+const std::string HEBREW_FONT( "HebrewFont" );
+const std::string ARABIC_FONT( "ArabicFont" );
+const std::string CJK_FONT( "CJKFont" ); // Chinese, Japanese and Korean.
+const std::string NULL_FONT( "" );
+
+const std::string DEFAULT_FONT( LATIN_FONT );
+
+std::string GetFontFamilyName( const uint32_t character )
+{
+  // Note than ranges don't cover all characters!!!
+
+  if( character <= 0x036f )
+  {
+    return LATIN_FONT;
+  }
+
+  if( ( 0x0374 <= character ) && ( character <= 0x03ff ) )
+  {
+    return GREEK_FONT;
+  }
+
+  if( ( 0x0374 <= character ) && ( character <= 0x052f ) )
+  {
+    return CYRILLIC_FONT;
+  }
+
+  if( ( 0x05be <= character ) && ( character <= 0x05f4 ) )
+  {
+    return HEBREW_FONT;
+  }
+
+  if( ( 0x0600 <= character ) && ( character <= 0x06ff ) )
+  {
+    return ARABIC_FONT;
+  }
+
+  if( ( 0x4e00 <= character ) && ( character <= 0x9fff ) )
+  {
+    return CJK_FONT;
+  }
+
+  return std::string( "" );
+}
+
+} //namespace
+
 /**
  * Constructor
  */
@@ -325,7 +377,20 @@ void TestPlatformAbstraction::SetDpi (unsigned int dpiHorizontal, unsigned int d
 const std::string& TestPlatformAbstraction::GetFontFamilyForChars(const Integration::TextArray& charsRequested) const
 {
   mTrace.PushCall("GetFontFamilyForChars", "");
-  return mGetDefaultFontFamilyResult;
+
+  // Return a font according the unicode ranges;
+
+  const std::string& font = GetFontFamilyName( *charsRequested.Begin() );
+
+  for( Integration::TextArray::ConstIterator it = charsRequested.Begin() + 1, endIt = charsRequested.End(); it != endIt; ++it )
+  {
+    if( font != GetFontFamilyName( *it ) )
+    {
+      return NULL_FONT;
+    }
+  }
+
+  return font;
 }
 
 /**
@@ -334,6 +399,17 @@ const std::string& TestPlatformAbstraction::GetFontFamilyForChars(const Integrat
 bool TestPlatformAbstraction::AllGlyphsSupported(const std::string& name, const std::string& fontStyle, const Integration::TextArray& text) const
 {
   mTrace.PushCall("AllGlyphsSupported", "");
+
+  const std::string& fontName = name.empty() ? DEFAULT_FONT : name;
+
+  for( Integration::TextArray::ConstIterator it = text.Begin(), endIt = text.End(); it != endIt; ++it )
+  {
+    if( fontName != GetFontFamilyName( *it ) )
+    {
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -343,13 +419,31 @@ bool TestPlatformAbstraction::AllGlyphsSupported(const std::string& name, const 
 bool TestPlatformAbstraction::ValidateFontFamilyName(const std::string& fontFamily, const std::string& fontStyle, bool& isDefaultSystemFont, std::string& closestMatch, std::string& closestStyleMatch) const
 {
   mTrace.PushCall("ValidateFontFamilyName", "");
+
+  if( ( fontFamily == LATIN_FONT ) ||
+      ( fontFamily == GREEK_FONT ) ||
+      ( fontFamily == CYRILLIC_FONT ) ||
+      ( fontFamily == HEBREW_FONT ) ||
+      ( fontFamily == ARABIC_FONT ) ||
+      ( fontFamily == CJK_FONT ) )
+  {
+    closestMatch = fontFamily;
+    isDefaultSystemFont = false;
+  }
+  else
+  {
+    isDefaultSystemFont = true;
+  }
+
+  closestStyleMatch = fontStyle;
+
   return true;
 }
 
 /**
  * @copydoc PlatformAbstraction::GetFontList()
  */
-void TestPlatformAbstraction::GetFontList( PlatformAbstraction::FontListMode mode, std::vector<std::string>& fonstList ) const
+void TestPlatformAbstraction::GetFontList( PlatformAbstraction::FontListMode mode, std::vector<std::string>& fontList ) const
 {
   mFontListMode = mode;
   mTrace.PushCall("ValidateGetFontList", "");
@@ -442,7 +536,6 @@ void TestPlatformAbstraction::WriteMetricsToCache( const std::string& fontFamily
   mTrace.PushCall("WriteMetricsToCacheFile", "");
 }
 
-
 void TestPlatformAbstraction::GetFileNamesFromDirectory( const std::string& directoryName,
                                                          std::vector<std::string>& fileNames )
 {
@@ -451,7 +544,6 @@ void TestPlatformAbstraction::GetFileNamesFromDirectory( const std::string& dire
   fileNames.push_back( std::string( "u1f170.png" ) );
   fileNames.push_back( std::string( "u1f601.png" ) );
 }
-
 
 Integration::BitmapPtr TestPlatformAbstraction::GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const
 {
@@ -463,6 +555,10 @@ Integration::BitmapPtr TestPlatformAbstraction::GetGlyphImage( const std::string
   return image;
 }
 
+void TestPlatformAbstraction::ProcessText( Integration::Text& text ) const
+{
+  mTrace.PushCall("ProcessText", "");
+}
 
 /** Call this every test */
 void TestPlatformAbstraction::Initialize()
@@ -486,7 +582,6 @@ void TestPlatformAbstraction::Initialize()
     mRequest = 0;
   }
 }
-
 
 bool TestPlatformAbstraction::WasCalled(TestFuncEnum func)
 {
@@ -520,6 +615,8 @@ bool TestPlatformAbstraction::WasCalled(TestFuncEnum func)
     case WriteGlobalMetricsToCacheFileFunc:   return mTrace.FindMethod("WriteGlobalMetricsToCacheFile");
     case ReadMetricsFromCacheFileFunc:        return mTrace.FindMethod("ReadMetricsFromCacheFile");
     case WriteMetricsToCacheFileFunc:         return mTrace.FindMethod("WriteMetricsToCacheFile");
+    case GetGlyphImageFunc:                   return mTrace.FindMethod("GetGlyphImage");
+    case ProcessTextFunc:                     return mTrace.FindMethod("ProcessText");
   }
   return false;
 }

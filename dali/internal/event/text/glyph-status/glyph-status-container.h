@@ -154,7 +154,7 @@ public:
    * Get the list of dead characters
    * @param[out] deadList to be filled with a list of dead characters
    */
-  void GetDeadCharacters( std::vector< unsigned int >& deadList );
+  void GetDeadCharacters( TextArray& deadList );
 
   /**
    * Clear dead characters.

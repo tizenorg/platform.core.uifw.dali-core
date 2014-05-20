@@ -42,9 +42,12 @@ TextArray GetUniqueCharacters( const TextArray &text  )
 {
   TextArray utfCodes( text );
 
-  std::sort( utfCodes.begin(), utfCodes.end() );
-  TextArray::iterator it = std::unique( utfCodes.begin(), utfCodes.end() );
-  utfCodes.resize(it - utfCodes.begin());
+  Sort<TextArray::Iterator>( utfCodes.Begin(), utfCodes.End() );
+
+  TextArray::Iterator it = Unique<TextArray::Iterator>( utfCodes.Begin(), utfCodes.End() );
+
+  utfCodes.Resize( it - utfCodes.Begin() );
+
   return utfCodes;
 }
 
@@ -191,11 +194,11 @@ const GlyphStatusContainer::StatusSet& GlyphStatusContainer::GetStatusSet() cons
   return mCharacterLookup;
 }
 
-bool GlyphStatusContainer::IsTextLoaded( const TextArray& text, FontId fontId) const
+bool GlyphStatusContainer::IsTextLoaded( const TextArray& text, FontId fontId ) const
 {
-  for( std::size_t n = 0, size = text.size(); n < size; ++n)
+  for( TextArray::ConstIterator it = text.Begin(), endIt = text.End(); it != endIt; ++it )
   {
-    uint32_t charCode = text[n];
+    const uint32_t charCode = *it;
 
     // ignore invisible characters
     if( charCode < SpecialCharacters::FIRST_VISIBLE_CHAR )
@@ -222,9 +225,9 @@ void GlyphStatusContainer::GetTextStatus( const TextArray& text,
 
   TextArray uniqueText = GetUniqueCharacters( text );
 
-  for( std::size_t n = 0, size = uniqueText.size(); n < size; ++n)
+  for( TextArray::ConstIterator it = text.Begin(), endIt = text.End(); it != endIt; ++it )
   {
-    uint32_t charCode = uniqueText[n];
+    const uint32_t charCode = *it;
 
     // ignore invisible characters
     if( charCode < SpecialCharacters::FIRST_VISIBLE_CHAR )
@@ -270,9 +273,9 @@ void GlyphStatusContainer::CloneContents( const GlyphStatusContainer& clone )
 }
 
 
-void GlyphStatusContainer::GetDeadCharacters( std::vector< unsigned int >& deadList )
+void GlyphStatusContainer::GetDeadCharacters( TextArray& deadList )
 {
-  deadList.reserve( mDeadCharacters.size() );
+  deadList.Reserve( mDeadCharacters.size() );
 
   // iterate through the dead character list
 
@@ -280,7 +283,7 @@ void GlyphStatusContainer::GetDeadCharacters( std::vector< unsigned int >& deadL
   for( StatusPointerSet::iterator iter = mDeadCharacters.begin(); iter != endIter; ++iter )
   {
     const GlyphStatus* glyphStatus(*iter);
-    deadList.push_back( glyphStatus->GetUniqueId());
+    deadList.PushBack( glyphStatus->GetUniqueId());
   }
 
 }

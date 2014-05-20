@@ -73,7 +73,6 @@ void RepositionData( TextVertexBuffer& buffer )
 
   // move the vertices so 0,0 is the centre of the text string.
   float minX=1e8f, maxX=-1e8f;
-  float minY=1e8f, maxY=-1e8f;
   std::vector<TextVertex2D>& vertices = buffer.mVertices;
 
   for (std::size_t i=0, size = vertices.size() ; i < size; ++i)
@@ -81,14 +80,11 @@ void RepositionData( TextVertexBuffer& buffer )
     TextVertex2D& vertex = vertices[i];
     minX = std::min(minX, vertex.mX);
     maxX = std::max(maxX, vertex.mX);
-
-    minY = std::min(minY, vertex.mY);
-    maxY = std::max(maxY, vertex.mY);
   }
 
   Vector2 offset;
   offset.x = ( maxX + minX ) * 0.5f;
-  offset.y = ( maxY + minY ) * 0.5f;
+  offset.y = buffer.mVertexMax.height * 0.5f;
 
   for (std::size_t i=0, size = vertices.size() ; i< size; ++i)
   {
@@ -98,7 +94,7 @@ void RepositionData( TextVertexBuffer& buffer )
   }
 
   buffer.mGeometryExtent.width = maxX - minX;
-  buffer.mGeometryExtent.height = maxY - minY;
+  buffer.mGeometryExtent.height = buffer.mVertexMax.height;
 }
 
 void AddVertex( VertexBuffer& vertexBuffer,
@@ -269,14 +265,14 @@ void AddUnderline( VertexBuffer& vertexBuffer,
   vertexBuffer.push_back(v);
 }
 
-void GetAdjustedSize(float &charWidth,
-                     float &charHeight,
-                     float &left,
-                     float &top,
-                     float padAdjustX,
-                     float padAdjustY,
-                     float scalar,
-                     const GlyphMetric& glyph)
+void GetAdjustedSize( float& charWidth,
+                      float& charHeight,
+                      float& left,
+                      float& top,
+                      float padAdjustX,
+                      float padAdjustY,
+                      float scalar,
+                      const GlyphMetric& glyph )
 {
   charWidth  = (glyph.GetWidth()  + padAdjustX * 2.0f) * scalar;
   charHeight = (glyph.GetHeight() + padAdjustY * 2.0f) * scalar;
@@ -332,7 +328,7 @@ TextVertexBuffer* TextVertexGenerator::Generate( const TextArray& text,
   const float tileWidth( metrics.GetMaxWidth() * scalar );
   const float tileHeight( metrics.GetMaxHeight() * scalar );
 
-  for( TextArray::const_iterator it = text.begin(), endIt = text.end(); it != endIt; ++it )
+  for( TextArray::ConstIterator it = text.Begin(), endIt = text.End(); it != endIt; ++it )
   {
     const uint32_t charIndex = *it;
 
@@ -416,7 +412,7 @@ TextVertexBuffer* TextVertexGenerator::Generate( const TextArray& text,
 #endif
 
   DALI_LOG_INFO(gTextVertsLogFilter, Debug::General, "TextVertexBuffer for %c%c%c...: Calculated Extents:(%5.2f, %5.2f)\n  Geometry Extents:(%5.2f, %5.2f )\n",
-                text.size()>0?(char)text[0]:' ', text.size()>1?(char)text[1]:' ', text.size()>2?(char)text[2]:' ',
+                text.Count()>0?(char)text[0]:' ', text.Count()>1?(char)text[1]:' ', text.Count()>2?(char)text[2]:' ',
                 textVertexBuffer->mVertexMax.x,textVertexBuffer->mVertexMax.y,
                 textVertexBuffer->mGeometryExtent.width,textVertexBuffer->mGeometryExtent.height);
 

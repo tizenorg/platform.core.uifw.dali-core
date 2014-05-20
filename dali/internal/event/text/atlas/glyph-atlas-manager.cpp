@@ -50,7 +50,7 @@ TextVertexBuffer* GlyphAtlasManager::TextRequired( const TextArray& text ,
   // get the font id
   FontId fontId = metrics.GetFontId();
 
-  AtlasRanking bestRank( text.size() );
+  AtlasRanking bestRank( text.Count() );
 
   // find the atlas which is best suited to displaying the text string
   GlyphAtlas* atlas  = FindAtlas( text, format, fontId, bestRank);
@@ -162,13 +162,13 @@ GlyphAtlas* GlyphAtlasManager::FindAtlas( const TextArray& text,
   TextArray searchText( text );
   if( format.IsUnderLined() )
   {
-    searchText.push_back( format.GetUnderLineCharacter() );
+    searchText.PushBack( format.GetUnderLineCharacter() );
   }
 
   if( mAtlasList.Count() == 0 )
   {
     // make sure the initial atlas size holds the requested text.
-    unsigned int size = GlyphAtlasSize::GetInitialSize( searchText.size() );
+    unsigned int size = GlyphAtlasSize::GetInitialSize( searchText.Count() );
 
     return CreateAtlas( size );
   }

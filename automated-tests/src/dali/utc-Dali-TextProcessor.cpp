@@ -1,6 +1,3 @@
-#ifndef __DALI_INTERNAL_TEXT_ARRAY_H__
-#define __DALI_INTERNAL_TEXT_ARRAY_H__
-
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -18,25 +15,29 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <stdint.h>
+#include <iostream>
 
-// INTERNAL INCLUDES
-#include <dali/public-api/common/dali-vector.h>
+#include <stdlib.h>
+#include <dali/dali.h>
+#include <dali-test-suite-utils.h>
 
-namespace Dali
+using namespace Dali;
+
+void utc_dali_text_startup(void)
 {
+  test_return_value = TET_UNDEF;
+}
 
-namespace Internal
+void utc_dali_text_cleanup(void)
 {
+  test_return_value = TET_PASS;
+}
 
-/**
- * array of UTF-32 codes.
- */
-typedef Vector<uint32_t> TextArray;
+int UtcDaliTextProcessorConstructor(void)
+{
+  TestApplication application;
 
-} // namespace Internal
+  TextProcessor& textProcessor = TextProcessor::Get();
 
-} // namespace Dali
-
-#endif // __DALI_INTERNAL_TEXT_ARRAY_H__
+  END_TEST;
+}

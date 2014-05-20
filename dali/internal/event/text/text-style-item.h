@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_TEXT_ARRAY_H__
-#define __DALI_INTERNAL_TEXT_ARRAY_H__
+#ifndef __DALI_TEXT_STYLE_ITEM_H__
+#define __DALI_TEXT_STYLE_ITEM_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -19,10 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <stdint.h>
+#include<dali/public-api/text/text-style.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/dali-vector.h>
 
 namespace Dali
 {
@@ -31,12 +30,17 @@ namespace Internal
 {
 
 /**
- * array of UTF-32 codes.
+ * @brief Stores a text style, the number of references to it and the position of the text style manager's vector where it's stored.
  */
-typedef Vector<uint32_t> TextArray;
+struct TextStyleItem
+{
+  TextStyle      mStyle;             ///< Stores a text style.
+  std::size_t    mNumberOfInstances; ///< Number of references to that text style.
+  unsigned short mVectorPosition;    ///< Position within the text style manager's vector.
+};
 
 } // namespace Internal
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_TEXT_ARRAY_H__
+#endif // __DALI_TEXT_STYLE_ITEM_H__

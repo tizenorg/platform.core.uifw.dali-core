@@ -18,17 +18,13 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <stdint.h>
-
 // INTERNAL INCLUDES
 #include <dali/integration-api/resource-cache.h>
 #include <dali/integration-api/glyph-set.h>
+#include <dali/integration-api/text.h>
 
 namespace Dali
 {
-
-typedef std::vector<uint32_t> TextArray;
 
 namespace Integration
 {
@@ -400,6 +396,14 @@ public:
    * @return A bitmap representing the character.
    */
   virtual Integration::BitmapPtr GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const = 0;
+
+  /**
+   * Checks for each character if it's supported by the given font.
+   * If it's not, it replaces the given font by a most suitable one.
+   *
+   * @param[in] text Text to be processed.
+   */
+  virtual void ProcessText( Integration::Text& text ) const = 0;
 
 }; // class PlatformAbstraction
 

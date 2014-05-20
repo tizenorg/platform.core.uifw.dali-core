@@ -149,7 +149,7 @@ public:
   /**
    * @copydoc PlatformAbstraction::GetFontLineHeightFromCapsHeight()
    */
-  virtual Dali::PixelSize GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, CapsHeight capsHeight) const;
+  virtual PixelSize GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, CapsHeight capsHeight) const;
 
   /**
    * @copydoc PlatformAbstraction::GetGlyphData()
@@ -185,12 +185,12 @@ public:
   /**
    * @copydoc PlatformAbstraction::GetFontFamilyForChars()
    */
-  virtual const std::string& GetFontFamilyForChars(const TextArray& charsRequested) const;
+  virtual const std::string& GetFontFamilyForChars(const Integration::TextArray& charsRequested) const;
 
   /**
    * @copydoc PlatformAbstraction::AllGlyphsSupported()
    */
-  virtual bool AllGlyphsSupported(const std::string& name, const std::string& fontStyle, const TextArray& text) const;
+  virtual bool AllGlyphsSupported(const std::string& name, const std::string& fontStyle, const Integration::TextArray& text) const;
 
   /**
    * @copydoc PlatformAbstraction::ValidateFontFamilyName()
@@ -233,11 +233,15 @@ public:
                                     const std::string& fontStyle,
                                     const Integration::GlyphSet& glyphSet );
 
-
   virtual void GetFileNamesFromDirectory( const std::string& directoryName,
                                           std::vector<std::string>& fileNames );
 
   virtual Integration::BitmapPtr GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const;
+
+  /**
+   * @copydoc PlatformAbstraction::ProcessText(Integration::Text&)
+   */
+  virtual void ProcessText( Integration::Text& text ) const;
 
 public: // TEST FUNCTIONS
 
@@ -272,6 +276,8 @@ public: // TEST FUNCTIONS
     WriteGlobalMetricsToCacheFileFunc,
     ReadMetricsFromCacheFileFunc,
     WriteMetricsToCacheFileFunc,
+    GetGlyphImageFunc,
+    ProcessTextFunc
   } TestFuncEnum;
 
   /** Call this every test */

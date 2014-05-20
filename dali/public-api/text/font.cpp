@@ -86,6 +86,68 @@ Font::Metrics::Metrics( const Impl& implementation )
   mImpl->height = implementation.height;
 }
 
+Font::Metrics::Impl* Font::Metrics::GetImplementation()
+{
+  return mImpl;
+}
+
+Font::GlobalMetrics::GlobalMetrics()
+: mImpl( new Font::GlobalMetrics::Impl() )
+{
+}
+
+Font::GlobalMetrics::~GlobalMetrics()
+{
+  delete mImpl;
+}
+
+Font::GlobalMetrics::GlobalMetrics( const Font::GlobalMetrics& globalMetrics )
+: mImpl( new Font::GlobalMetrics::Impl() )
+{
+  mImpl->lineHeight = globalMetrics.mImpl->lineHeight;
+  mImpl->ascender = globalMetrics.mImpl->ascender;
+  mImpl->underlinePosition = globalMetrics.mImpl->underlinePosition;
+  mImpl->underlineThickness = globalMetrics.mImpl->underlineThickness;
+}
+
+Font::GlobalMetrics& Font::GlobalMetrics::operator=( const Font::GlobalMetrics& globalMetrics )
+{
+  if( &globalMetrics != this )
+  {
+    mImpl->lineHeight = globalMetrics.mImpl->lineHeight;
+    mImpl->ascender = globalMetrics.mImpl->ascender;
+    mImpl->underlinePosition = globalMetrics.mImpl->underlinePosition;
+    mImpl->underlineThickness = globalMetrics.mImpl->underlineThickness;
+  }
+
+  return *this;
+}
+
+float Font::GlobalMetrics::GetLineHeight() const
+{
+  return mImpl->lineHeight;
+}
+
+float Font::GlobalMetrics::GetAscender() const
+{
+  return mImpl->ascender;
+}
+
+float Font::GlobalMetrics::GetUnderlinePosition() const
+{
+  return mImpl->underlinePosition;
+}
+
+float Font::GlobalMetrics::GetUnderlineThickness() const
+{
+  return mImpl->underlineThickness;
+}
+
+Font::GlobalMetrics::Impl* Font::GlobalMetrics::GetImplementation()
+{
+  return mImpl;
+}
+
 Font::Font()
 {
 }

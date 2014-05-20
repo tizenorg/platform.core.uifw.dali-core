@@ -42,7 +42,7 @@ static const char* LongTestText = "This is a very long piece of text, and is sur
 static const std::string DEFAULT_NAME_STYLE( "" );
 static const PointSize DEFAULT_FONT_POINT_SIZE( 0.f );
 
-static const std::string FONT_FAMILY( "Arial" );
+static const std::string FONT_FAMILY( "LatinFont" );
 static const std::string FONT_STYLE( "Bold" );
 static const PointSize FONT_POINT_SIZE( 12.f );
 static const Vector4 TEXT_COLOR( Color::RED );
@@ -440,6 +440,8 @@ int UtcDaliTextActorSetTextIndividualStyles(void)
   actor.SetItalics( false );
   DALI_TEST_CHECK( !actor.GetItalics() );
   actor.SetItalics( true, Degree( 15.f ) );
+  DALI_TEST_EQUALS( actor.GetItalicsAngle(), Degree( 15.f ), TEST_LOCATION );
+  actor.SetItalics( true, Radian( Degree( 15.f ) ) );
   DALI_TEST_EQUALS( actor.GetItalicsAngle(), Degree( 15.f ), TEST_LOCATION );
 
   END_TEST;
@@ -1047,7 +1049,6 @@ int UtcDaliTextActorAutomaticSizeSetAnimation(void)
   DALI_TEST_EQUALS( naturalSize.GetVectorXY(), actor.GetCurrentSize().GetVectorXY(), TEST_LOCATION );
   END_TEST;
 }
-
 
 int UtcDaliTextActorPropertyIndices(void)
 {

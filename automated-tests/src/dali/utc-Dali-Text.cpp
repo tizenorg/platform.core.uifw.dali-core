@@ -180,7 +180,7 @@ int UtcDaliTextAccessOperator01(void)
   catch( DaliException& e )
   {
     tet_printf( "Assertion %s failed at %s\n", e.mCondition.c_str(), e.mLocation.c_str() );
-    DALI_TEST_EQUALS( e.mCondition, "position < mString.size() && \"Text::operator[]: Character position is out of bounds\"", TEST_LOCATION );
+    DALI_TEST_EQUALS( e.mCondition, "position < mString.Count() && \"Text::operator[]: Character position is out of bounds\"", TEST_LOCATION );
 
     assert2 = true;
   }
@@ -279,6 +279,40 @@ int UtcDaliTextAppend(void)
   END_TEST;
 }
 
+int UtcDaliTextInsert(void)
+{
+  TestApplication application;
+
+  Text text( "Some text" );
+
+  text.Insert( 0u, "A" );
+
+  DALI_TEST_CHECK( std::string( "ASome text" ) == text.GetText() );
+
+  Character c = text[0u];
+  text.Insert( 5u, c );
+
+  DALI_TEST_CHECK( std::string( "ASomeA text" ) == text.GetText() );
+
+  Text text2( "B" );
+  text.Insert( 8u, text2 );
+
+  DALI_TEST_CHECK( std::string( "ASomeA tBext" ) == text.GetText() );
+
+  // insert to a null text
+
+  Text emptyText;
+  emptyText.Insert( 0u, text2 );
+  DALI_TEST_CHECK( text2.GetText() == emptyText.GetText() );
+
+  // insert out of bounds
+
+  text.Insert( 100u, std::string( "CDEF" ) );
+  DALI_TEST_CHECK( std::string( "ASomeA tBextCDEF" ) == text.GetText() );
+
+  END_TEST;
+}
+
 int UtcDaliTextRemove01(void)
 {
   TestApplication application;
@@ -296,7 +330,7 @@ int UtcDaliTextRemove01(void)
   catch( DaliException& e )
   {
     tet_printf( "Assertion %s failed at %s\n", e.mCondition.c_str(), e.mLocation.c_str() );
-    DALI_TEST_EQUALS( e.mCondition, "position < mString.size() && \"Text::Remove: Character position is out of bounds\"", TEST_LOCATION );
+    DALI_TEST_EQUALS( e.mCondition, "position < mString.Count() && \"Text::Remove: Character position is out of bounds\"", TEST_LOCATION );
     assert1 = true;
   }
 
@@ -307,7 +341,7 @@ int UtcDaliTextRemove01(void)
   catch( DaliException& e )
   {
     tet_printf( "Assertion %s failed at %s\n", e.mCondition.c_str(), e.mLocation.c_str() );
-    DALI_TEST_EQUALS( e.mCondition, "position + numberOfCharacters <= mString.size() && \"Text::Remove: Character position + numberOfCharacters is out of bounds\"", TEST_LOCATION );
+    DALI_TEST_EQUALS( e.mCondition, "position + numberOfCharacters <= mString.Count() && \"Text::Remove: Character position + numberOfCharacters is out of bounds\"", TEST_LOCATION );
     assert2 = true;
   }
 
@@ -456,6 +490,7 @@ int UtcDaliTextGetSubText(void)
   subText.SetText( "Hello" );
   text.GetSubText( 30u, 31u, subText );
   DALI_TEST_EQUALS( subText.GetText(), std::string( "Hello" ), TEST_LOCATION );
+
   text.GetSubText( 0u, 31u, subText );
   DALI_TEST_EQUALS( subText.GetText(), std::string( "Hello" ), TEST_LOCATION );
   text.GetSubText( 30u, 1u, subText );

@@ -71,7 +71,6 @@ Font* Font::New(const std::string& fontFamily, const std::string& fontStyle, flo
                   tls.GetResourceClient(),
                   fontFactory,
                   fontFactory.GetAtlasManagerInterface());
-
 }
 
 bool Font::operator==( const Font& font ) const
@@ -83,7 +82,7 @@ const std::string Font::GetFamilyForText(const TextArray& text)
 {
   Integration::PlatformAbstraction& platform = ThreadLocalStorage::Get().GetPlatformAbstraction();
   // this is a synchronous request
-  return platform.GetFontFamilyForChars(text);
+  return platform.GetFontFamilyForChars( text );
 }
 
 PixelSize Font::GetLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight)
@@ -247,16 +246,47 @@ float Font::GetUnitsToPixels() const
 void Font::GetMetrics(const Dali::Character& character, Dali::Font::Metrics::Impl& metricsImpl) const
 {
   TextArray text;
-  text.push_back( character.GetImplementation().GetCharacter() );
+  text.PushBack( character.GetImplementation().GetCharacter() );
 
   mMetrics->GetMetrics( character, metricsImpl );
 
-  const float unitsToPixel( GetUnitsToPixels() );
+  const float unitsToPixel = GetUnitsToPixels();
 
   metricsImpl.advance *= unitsToPixel;
   metricsImpl.bearing *= unitsToPixel;
   metricsImpl.width *= unitsToPixel;
   metricsImpl.height *= unitsToPixel;
+}
+
+void Font::GetMetrics( const TextArray& characters,
+                       std::size_t from,
+                       std::size_t numberOfCharacters,
+                       std::vector<Dali::Font::Metrics>& metrics ) const
+{
+  const float unitsToPixel = GetUnitsToPixels();
+
+  // Note! metrics must have at this point enough items for the number of characters requested.
+  mMetrics->GetMetrics( characters, from, numberOfCharacters, metrics );
+
+  for( std::size_t index = from, to = from + numberOfCharacters; index < to; ++index )
+  {
+    Dali::Font::Metrics::Impl* characterMetrics = ( *( metrics.begin() + index ) ).GetImplementation();
+
+    characterMetrics->advance *= unitsToPixel;
+    characterMetrics->bearing *= unitsToPixel;
+    characterMetrics->width *= unitsToPixel;
+    characterMetrics->height *= unitsToPixel;
+  }
+}
+
+void Font::GetGlobalMetrics( Dali::Font::GlobalMetrics::Impl* globalMetrics ) const
+{
+  const float unitsToPixel = GetUnitsToPixels();
+
+  globalMetrics->lineHeight = mMetrics->GetLineHeight() * unitsToPixel;
+  globalMetrics->ascender = mMetrics->GetAscender() * unitsToPixel;
+  globalMetrics->underlinePosition = GetUnderlinePosition() * unitsToPixel;
+  globalMetrics->underlineThickness = GetUnderlineThickness() * unitsToPixel;
 }
 
 unsigned int Font::PointsToPixels(float pointSize)
@@ -330,7 +360,7 @@ TextVertexBuffer* Font::TextRequired( const TextArray& text, const TextFormat& f
   if( format.IsUnderLined() )
   {
     TextArray underline;
-    underline.push_back( SpecialCharacters::UNDERLINE_CHARACTER );
+    underline.PushBack( SpecialCharacters::UNDERLINE_CHARACTER );
 
     mMetrics->LoadMetricsSynchronously( underline );
   }

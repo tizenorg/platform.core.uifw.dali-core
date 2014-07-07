@@ -70,6 +70,11 @@ public:
   ~Text();
 
   /**
+   * Clears the text.
+   */
+  void Clear();
+
+  /**
    * Converts stored text encoded in UTF-32 to a std::string encoded with UTF-8.
    * @param [out] text The text resultant of the UTF-32 to UTF-8 conversion.
    */
@@ -106,16 +111,34 @@ public:
   void Remove( size_t position, size_t numberOfCharacters );
 
   /**
-   * Sets a UTF-32 endoded string.
-   * @param[in] textArray A UTF-32 endoded string.
+   * @copydoc Dali::Text::Find( const Character& character, std::size_t from, std::size_t to, Vector<std::size_t>& positions )
    */
-  void SetTextArray( const TextArray& textArray );
+  void Find( uint32_t character, std::size_t from, std::size_t to, Vector<std::size_t>& positions ) const;
 
   /**
-   * Retrieves a copy of the UTF-32 endoded string.
-   * @param[out] textArray A copy of the UTF-32 endoded string.
+   * @copydoc Dali::Text::Find( SpecialCharacter character, std::size_t from, std::size_t to, Vector<std::size_t>& positions )
    */
-  void GetTextArray( TextArray& textArray ) const;
+  void FindWhiteSpace( std::size_t from, std::size_t to, Vector<std::size_t>& positions ) const;
+
+  /**
+   * @copydoc Dali::Text::Find( SpecialCharacter character, std::size_t from, std::size_t to, Vector<std::size_t>& positions )
+   */
+  void FindNewLine( std::size_t from, std::size_t to, Vector<std::size_t>& positions ) const;
+
+  /**
+   * @copydoc Dali::Text::GetSubText()
+   */
+  void GetSubText( std::size_t from, std::size_t to, Text* subText ) const;
+
+  /**
+   * @copydoc Dali::Text::IsWhiteSpace()
+   */
+  bool IsWhiteSpace( std::size_t index ) const;
+
+  /**
+   * @copydoc Dali::Text::IsNewLine()
+   */
+  bool IsNewLine( std::size_t index ) const;
 
   /**
    * Retrieves a reference to the UTF-32 encoded string.
@@ -125,7 +148,7 @@ public:
 
 private:
 
-  TextArray mString;
+  TextArray mString; ///< Stores an array of unicodes.
 };
 
 } // namespace Internal

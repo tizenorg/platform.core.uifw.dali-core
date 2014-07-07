@@ -164,6 +164,8 @@ extern int UtcDaliMouseWheelEventIsNotAltModifier(void);
 extern int UtcDaliMouseWheelEventANDModifer(void);
 extern int UtcDaliMouseWheelEventORModifer(void);
 extern int UtcDaliMouseWheelEventSignalling(void);
+extern int UtcDaliNinePatch01(void);
+extern int UtcDaliNinePatch02(void);
 extern int UtcDaliObjectRegistryGet(void);
 extern int UtcDaliObjectRegistrySignalActorCreated(void);
 extern int UtcDaliObjectRegistrySignalCameraCreated(void);
@@ -413,6 +415,8 @@ testcase tc_array[] = {
     {"UtcDaliMouseWheelEventANDModifer", UtcDaliMouseWheelEventANDModifer, utc_dali_unmanaged_startup, utc_dali_unmanaged_cleanup},
     {"UtcDaliMouseWheelEventORModifer", UtcDaliMouseWheelEventORModifer, utc_dali_unmanaged_startup, utc_dali_unmanaged_cleanup},
     {"UtcDaliMouseWheelEventSignalling", UtcDaliMouseWheelEventSignalling, utc_dali_unmanaged_startup, utc_dali_unmanaged_cleanup},
+    {"UtcDaliNinePatch01", UtcDaliNinePatch01, utc_dali_unmanaged_startup, utc_dali_unmanaged_cleanup},
+    {"UtcDaliNinePatch02", UtcDaliNinePatch02, utc_dali_unmanaged_startup, utc_dali_unmanaged_cleanup},
     {"UtcDaliObjectRegistryGet", UtcDaliObjectRegistryGet, utc_dali_unmanaged_startup, utc_dali_unmanaged_cleanup},
     {"UtcDaliObjectRegistrySignalActorCreated", UtcDaliObjectRegistrySignalActorCreated, utc_dali_unmanaged_startup, utc_dali_unmanaged_cleanup},
     {"UtcDaliObjectRegistrySignalCameraCreated", UtcDaliObjectRegistrySignalCameraCreated, utc_dali_unmanaged_startup, utc_dali_unmanaged_cleanup},

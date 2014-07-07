@@ -44,7 +44,10 @@ extern int UtcDaliMaterialIsOpaqueWithoutTexture(void);
 extern int UtcDaliMaterialIsOpaqueWithTexture(void);
 extern int UtcDaliMaterialIsOpaqueWithProps(void);
 extern int UtcDaliMaterialRender(void);
-extern int UtcDaliTextGetImplementation(void);
+extern int UtcDaliTextGetImplementation01(void);
+extern int UtcDaliTextGetImplementation02(void);
+extern int UtcDaliTextGetTextArray(void);
+extern int UtcDaliTextGetSetText(void);
 extern int UtcDaliInternalRequestResourceBitmapRequests01(void);
 extern int UtcDaliInternalRequestResourceBitmapRequests02(void);
 extern int UtcDaliInternalRequestResourceBitmapRequests03(void);
@@ -133,7 +136,10 @@ testcase tc_array[] = {
     {"UtcDaliMaterialIsOpaqueWithTexture", UtcDaliMaterialIsOpaqueWithTexture, utc_dali_material_startup, utc_dali_material_cleanup},
     {"UtcDaliMaterialIsOpaqueWithProps", UtcDaliMaterialIsOpaqueWithProps, utc_dali_material_startup, utc_dali_material_cleanup},
     {"UtcDaliMaterialRender", UtcDaliMaterialRender, utc_dali_material_startup, utc_dali_material_cleanup},
-    {"UtcDaliTextGetImplementation", UtcDaliTextGetImplementation, utc_dali_material_startup, utc_dali_material_cleanup},
+    {"UtcDaliTextGetImplementation01", UtcDaliTextGetImplementation01, utc_dali_material_startup, utc_dali_material_cleanup},
+    {"UtcDaliTextGetImplementation02", UtcDaliTextGetImplementation02, utc_dali_material_startup, utc_dali_material_cleanup},
+    {"UtcDaliTextGetTextArray", UtcDaliTextGetTextArray, utc_dali_material_startup, utc_dali_material_cleanup},
+    {"UtcDaliTextGetSetText", UtcDaliTextGetSetText, utc_dali_material_startup, utc_dali_material_cleanup},
     {"UtcDaliInternalRequestResourceBitmapRequests01", UtcDaliInternalRequestResourceBitmapRequests01, utc_dali_material_startup, utc_dali_material_cleanup},
     {"UtcDaliInternalRequestResourceBitmapRequests02", UtcDaliInternalRequestResourceBitmapRequests02, utc_dali_material_startup, utc_dali_material_cleanup},
     {"UtcDaliInternalRequestResourceBitmapRequests03", UtcDaliInternalRequestResourceBitmapRequests03, utc_dali_material_startup, utc_dali_material_cleanup},

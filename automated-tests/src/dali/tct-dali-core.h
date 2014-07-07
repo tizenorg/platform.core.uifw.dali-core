@@ -502,6 +502,7 @@ extern int UtcDaliCharacterIsLeftToRight(void);
 extern int UtcDaliGetCharacterDirection(void);
 extern int UtcDaliCharacterIsWhiteSpace(void);
 extern int UtcDaliCharacterIsNewLine(void);
+extern int UtcDaliCharacterGetImplementation(void);
 extern int UtcDaliConstraintNewBoolean(void);
 extern int UtcDaliConstraintNewFloat(void);
 extern int UtcDaliConstraintNewVector2(void);
@@ -1199,6 +1200,9 @@ extern int UtcDaliTextGetLength(void);
 extern int UtcDaliTextAppend(void);
 extern int UtcDaliTextRemove01(void);
 extern int UtcDaliTextRemove02(void);
+extern int UtcDaliTextFind(void);
+extern int UtcDaliTextGetSubText(void);
+extern int UtcDaliTextIsWhiteSpaceNewLine(void);
 extern int UtcDaliTextActorConstructorVoid(void);
 extern int UtcDaliTextActorNew01(void);
 extern int UtcDaliTextActorNew02(void);
@@ -1736,6 +1740,7 @@ testcase tc_array[] = {
     {"UtcDaliGetCharacterDirection", UtcDaliGetCharacterDirection, utc_dali_character_startup, utc_dali_character_cleanup},
     {"UtcDaliCharacterIsWhiteSpace", UtcDaliCharacterIsWhiteSpace, utc_dali_character_startup, utc_dali_character_cleanup},
     {"UtcDaliCharacterIsNewLine", UtcDaliCharacterIsNewLine, utc_dali_character_startup, utc_dali_character_cleanup},
+    {"UtcDaliCharacterGetImplementation", UtcDaliCharacterGetImplementation, utc_dali_character_startup, utc_dali_character_cleanup},
     {"UtcDaliConstraintNewBoolean", UtcDaliConstraintNewBoolean, utc_dali_constraint_startup, utc_dali_constraint_cleanup},
     {"UtcDaliConstraintNewFloat", UtcDaliConstraintNewFloat, utc_dali_constraint_startup, utc_dali_constraint_cleanup},
     {"UtcDaliConstraintNewVector2", UtcDaliConstraintNewVector2, utc_dali_constraint_startup, utc_dali_constraint_cleanup},
@@ -2433,6 +2438,9 @@ testcase tc_array[] = {
     {"UtcDaliTextAppend", UtcDaliTextAppend, utc_dali_text_startup, utc_dali_text_cleanup},
     {"UtcDaliTextRemove01", UtcDaliTextRemove01, utc_dali_text_startup, utc_dali_text_cleanup},
     {"UtcDaliTextRemove02", UtcDaliTextRemove02, utc_dali_text_startup, utc_dali_text_cleanup},
+    {"UtcDaliTextFind", UtcDaliTextFind, utc_dali_text_startup, utc_dali_text_cleanup},
+    {"UtcDaliTextGetSubText", UtcDaliTextGetSubText, utc_dali_text_startup, utc_dali_text_cleanup},
+    {"UtcDaliTextIsWhiteSpaceNewLine", UtcDaliTextIsWhiteSpaceNewLine, utc_dali_text_startup, utc_dali_text_cleanup},
     {"UtcDaliTextActorConstructorVoid", UtcDaliTextActorConstructorVoid, text_actor_test_startup, text_actor_test_cleanup},
     {"UtcDaliTextActorNew01", UtcDaliTextActorNew01, text_actor_test_startup, text_actor_test_cleanup},
     {"UtcDaliTextActorNew02", UtcDaliTextActorNew02, text_actor_test_startup, text_actor_test_cleanup},

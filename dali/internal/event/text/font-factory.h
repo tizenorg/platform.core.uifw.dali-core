@@ -22,7 +22,7 @@
 #include <dali/internal/event/text/atlas/glyph-atlas-manager-interface.h>
 #include <dali/internal/event/text/font-metrics.h>
 #include <dali/internal/event/text/resource/font-lookup-interface.h>
-#include <dali/internal/common/text-array.h>
+#include <dali/integration-api/text-array.h>
 
 namespace Dali
 {

@@ -83,7 +83,7 @@ const std::string Font::GetFamilyForText(const TextArray& text)
 {
   Integration::PlatformAbstraction& platform = ThreadLocalStorage::Get().GetPlatformAbstraction();
   // this is a synchronous request
-  return platform.GetFontFamilyForChars(text);
+  return platform.GetFontFamilyForChars( text );
 }
 
 PixelSize Font::GetLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight)
@@ -247,7 +247,7 @@ float Font::GetUnitsToPixels() const
 void Font::GetMetrics(const Dali::Character& character, Dali::Font::Metrics::Impl& metricsImpl) const
 {
   TextArray text;
-  text.push_back( character.GetImplementation().GetCharacter() );
+  text.PushBack( character.GetImplementation().GetCharacter() );
 
   mMetrics->GetMetrics( character, metricsImpl );
 
@@ -330,7 +330,7 @@ TextVertexBuffer* Font::TextRequired( const TextArray& text, const TextFormat& f
   if( format.IsUnderLined() )
   {
     TextArray underline;
-    underline.push_back( SpecialCharacters::UNDERLINE_CHARACTER );
+    underline.PushBack( SpecialCharacters::UNDERLINE_CHARACTER );
 
     mMetrics->LoadMetricsSynchronously( underline );
   }

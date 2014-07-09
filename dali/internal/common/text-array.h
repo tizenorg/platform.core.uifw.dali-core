@@ -22,7 +22,7 @@
 #include <stdint.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/common/dali-vector.h>
 
 namespace Dali
 {
@@ -33,7 +33,7 @@ namespace Internal
 /**
  * array of UTF-32 codes.
  */
-typedef std::vector<uint32_t> TextArray;
+typedef Vector<uint32_t> TextArray;
 
 } // namespace Internal
 

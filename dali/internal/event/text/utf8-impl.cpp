@@ -145,12 +145,12 @@ size_t UTF8Tokenize(const unsigned char* utf8Data, const size_t utf8DataLength, 
     }
 
     code = UTF8Read(utf8Data, sequenceLength);
-    tokens.push_back(code);
+    tokens.PushBack(code);
 
     utf8Data += sequenceLength;
     dataLength -= sequenceLength;
   }
-  return tokens.size();
+  return tokens.Count();
 }
 
 } // namespace Internal

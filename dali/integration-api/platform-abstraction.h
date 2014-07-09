@@ -22,16 +22,17 @@
 #include <stdint.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/integration-api/glyph-set.h>
 
 namespace Dali
 {
 
-typedef std::vector<uint32_t> TextArray;
-
 namespace Integration
 {
+
+typedef Vector<uint32_t> TextArray;
 
 class Bitmap;
 class DynamicsFactory;

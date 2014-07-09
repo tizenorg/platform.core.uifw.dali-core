@@ -46,12 +46,12 @@ const uint32_t FIRST_NON_CONTROL_CHAR( 0x20 ); // 0x20 is the white space which 
 const uint32_t LINE_SEPARATOR( '\n' );
 
 
-TextArray GetUniqueCharacters( const TextArray &text )
+TextArray GetUniqueCharacters( const TextArray& text )
 {
-  TextArray utfCodes(text.begin(), text.end());
-  std::sort( utfCodes.begin(), utfCodes.end() );
-  TextArray::iterator it = std::unique( utfCodes.begin(), utfCodes.end() );
-  utfCodes.resize(it - utfCodes.begin());
+  TextArray utfCodes = text;
+  std::sort( utfCodes.Begin(), utfCodes.End() );
+  TextArray::Iterator it = std::unique( utfCodes.Begin(), utfCodes.End() );
+  utfCodes.Resize( it - utfCodes.Begin() );
   return utfCodes;
 }
 
@@ -90,10 +90,11 @@ void FontMetrics::LoadGlobalMetrics()
 
 Vector3 FontMetrics::MeasureText( const TextArray& text )
 {
-  if( text.empty() )
+  if( 0u == text.Count() )
   {
     return  Vector3::ZERO;
   }
+
   TextArray  utfCodes = GetUniqueCharacters( text );
 
   // ensure all the metrics are loaded for the characters
@@ -106,7 +107,7 @@ Vector3 FontMetrics::MeasureText( const TextArray& text )
 
   float xPos = 0.0f;
 
-  for( TextArray::const_iterator it = text.begin(), endIt = text.end(); it != endIt; ++it )
+  for( TextArray::ConstIterator it = text.Begin(), endIt = text.End(); it != endIt; ++it )
   {
     const uint32_t utfCode( *it );
 
@@ -136,7 +137,7 @@ bool FontMetrics::TextAvailable( const TextArray& text ) const
 {
   TCharMap::const_iterator endIter = mCharMap.end();
 
-  for( TextArray::const_iterator it = text.begin(), endIt = text.end(); it != endIt; ++it )
+  for( TextArray::ConstIterator it = text.Begin(), endIt = text.End(); it != endIt; ++it )
   {
     const uint32_t utfCode( *it );
 
@@ -157,7 +158,7 @@ unsigned int FontMetrics::GetMissingText( const TextArray& text, CharacterList& 
 
   // scan through the metrics cache, making a list of characters that are missing
   TCharMap::const_iterator endIter = mCharMap.end();
-  for( TextArray::const_iterator it = utfCodes.begin(), endIt = utfCodes.end(); it != endIt; ++it )
+  for( TextArray::ConstIterator it = utfCodes.Begin(), endIt = utfCodes.End(); it != endIt; ++it )
   {
     const uint32_t utfCode( *it );
 
@@ -301,7 +302,7 @@ float FontMetrics::GetPadAdjustY() const
 void FontMetrics::GetMetrics( const Dali::Character& character, Dali::Font::Metrics::Impl& metrics )
 {
   TextArray utfCodes;
-  utfCodes.push_back( character.GetImplementation().GetCharacter() );
+  utfCodes.PushBack( character.GetImplementation().GetCharacter() );
 
   LoadMetricsSynchronously( utfCodes );
 

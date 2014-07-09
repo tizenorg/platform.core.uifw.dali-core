@@ -193,10 +193,11 @@ const std::string TextActor::GetText() const
 
   std::string text;
 
+  const std::size_t length = utfCodes.Count();
   // minimize allocations for ascii strings
-  text.reserve(utfCodes.size());
+  text.reserve( length );
 
-  for (unsigned int i = 0; i < utfCodes.size(); ++i)
+  for (unsigned int i = 0; i < length; ++i)
   {
     unsigned char utf8Data[4];
     unsigned int utf8Length;

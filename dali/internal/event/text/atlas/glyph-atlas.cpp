@@ -63,9 +63,9 @@ TextVertexBuffer* GlyphAtlas::AssignText( const TextArray& text,
 void GlyphAtlas::TextNoLongerUsed( const TextArray& text, const TextFormat &format, FontId fontId )
 {
   // go through each character un-referencing it
-  for( std::size_t i = 0, size = text.size(); i < size; ++i)
+  for( TextArray::ConstIterator it = text.Begin(), endIt = text.End(); it != endIt; ++it )
   {
-    mGlyphContainer.DecreaseRefCount( text[i], fontId );
+    mGlyphContainer.DecreaseRefCount( *it, fontId );
   }
 
   if( format.IsUnderLined() )
@@ -110,7 +110,7 @@ bool GlyphAtlas::IsTextLoaded( const TextArray& text, const TextFormat &format, 
   if( format.IsUnderLined() )
   {
     TextArray tempText;
-    tempText.push_back( format.GetUnderLineCharacter() );
+    tempText.PushBack( format.GetUnderLineCharacter() );
     bool loaded = mGlyphContainer.IsTextLoaded( tempText, fontId );
 
     if( !loaded )
@@ -168,12 +168,12 @@ void GlyphAtlas::ClearDeadCharacters()
   // but have a reference count of zero.
   // go through each dead character, marking them as de-allocated in the atlas
 
-  std::vector< unsigned int > deadCharacters;
+  TextArray deadCharacters;
   mGlyphContainer.GetDeadCharacters( deadCharacters );
 
-  for( std::size_t i = 0; i < deadCharacters.size() ; ++i )
+  for( TextArray::ConstIterator it = deadCharacters.Begin(), endIt = deadCharacters.End(); it != endIt; ++it )
   {
-    mAtlas.Remove( deadCharacters[i]);
+    mAtlas.Remove( *it );
   }
 
   // clear the dead characters from the glyph container
@@ -284,10 +284,10 @@ void GlyphAtlas::ReferenceText(  const TextArray& text,
 {
 
   // go through each character, if it exists increase it's ref count.
-  for( std::size_t i = 0, size = text.size(); i < size; ++i)
+  for( TextArray::ConstIterator it = text.Begin(), endIt = text.End(); it != endIt; ++it )
   {
     // this will automatically load the character if it doesn't exist
-    IncreaseGlyphRefCount( text[i], fontId );
+    IncreaseGlyphRefCount( *it, fontId );
   }
 
   if( format.IsUnderLined() )

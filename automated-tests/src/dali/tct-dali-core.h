@@ -884,6 +884,10 @@ extern int UtcDaliPanGestureAngleOutOfRange(void);
 extern int UtcDaliPanGestureAngleProcessing(void);
 extern int UtcDaliPanGestureDirectionHandling(void);
 extern int UtcDaliPanGestureDirectionProcessing(void);
+extern int UtcDaliPanGestureNoPredictionNoSmoothing(void);
+extern int UtcDaliPanGestureNoPredictionSmoothing(void);
+extern int UtcDaliPanGesturePredictionNoSmoothing(void);
+extern int UtcDaliPanGesturePredictionSmoothing(void);
 extern int UtcDaliPanGestureSetProperties(void);
 extern int UtcDaliPanGestureSetPropertiesAlreadyPanning(void);
 extern int UtcDaliPanGesturePropertyIndices(void);
@@ -2118,6 +2122,10 @@ testcase tc_array[] = {
     {"UtcDaliPanGestureAngleProcessing", UtcDaliPanGestureAngleProcessing, utc_dali_pan_gesture_detector_startup, utc_dali_pan_gesture_detector_cleanup},
     {"UtcDaliPanGestureDirectionHandling", UtcDaliPanGestureDirectionHandling, utc_dali_pan_gesture_detector_startup, utc_dali_pan_gesture_detector_cleanup},
     {"UtcDaliPanGestureDirectionProcessing", UtcDaliPanGestureDirectionProcessing, utc_dali_pan_gesture_detector_startup, utc_dali_pan_gesture_detector_cleanup},
+    {"UtcDaliPanGestureNoPredictionNoSmoothing", UtcDaliPanGestureNoPredictionNoSmoothing, utc_dali_pan_gesture_detector_startup, utc_dali_pan_gesture_detector_cleanup},
+    {"UtcDaliPanGestureNoPredictionSmoothing", UtcDaliPanGestureNoPredictionSmoothing, utc_dali_pan_gesture_detector_startup, utc_dali_pan_gesture_detector_cleanup},
+    {"UtcDaliPanGesturePredictionNoSmoothing", UtcDaliPanGesturePredictionNoSmoothing, utc_dali_pan_gesture_detector_startup, utc_dali_pan_gesture_detector_cleanup},
+    {"UtcDaliPanGesturePredictionSmoothing", UtcDaliPanGesturePredictionSmoothing, utc_dali_pan_gesture_detector_startup, utc_dali_pan_gesture_detector_cleanup},
     {"UtcDaliPanGestureSetProperties", UtcDaliPanGestureSetProperties, utc_dali_pan_gesture_detector_startup, utc_dali_pan_gesture_detector_cleanup},
     {"UtcDaliPanGestureSetPropertiesAlreadyPanning", UtcDaliPanGestureSetPropertiesAlreadyPanning, utc_dali_pan_gesture_detector_startup, utc_dali_pan_gesture_detector_cleanup},
     {"UtcDaliPanGesturePropertyIndices", UtcDaliPanGesturePropertyIndices, utc_dali_pan_gesture_detector_startup, utc_dali_pan_gesture_detector_cleanup},

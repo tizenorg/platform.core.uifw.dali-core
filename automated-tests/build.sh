@@ -24,6 +24,8 @@ done
 if [ false == $opt_rebuild -o ! -d "build" ] ; then
     rm -rf build
     mkdir build
+else
+  find build \( -name "*.gcno" \) -exec rm '{}' \;
 fi
 
 function build

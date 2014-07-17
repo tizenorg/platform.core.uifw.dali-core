@@ -121,7 +121,7 @@ public:
   /**
    * @copydoc Dali::Internal::SceneGraph::Renderer::IsOutsideClipSpace()
    */
-  virtual bool IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix );
+  virtual bool IsOutsideClipSpace( const Frustum& frustum, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix );
 
   /**
    * @copydoc Dali::Internal::SceneGraph::Renderer::DoRender()
@@ -205,11 +205,12 @@ private:
   ImageRenderer& operator=(const ImageRenderer& rhs);
 
   /**
-   * @param modelMatrix
-   * @param modelViewProjectionMatrix
+   * @param[in] frustum
+   * @param[in] modelMatrix
+   * @param[in] modelViewProjectionMatrix
    * @return true if the renderer is outside clip space and doesn't need rendering
    */
-  bool IsOutsideClipSpaceImpl(const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix);
+  bool IsOutsideClipSpaceImpl( const Frustum& frustum, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix);
 
 private:
 

@@ -215,7 +215,7 @@ void ImageAttachment::ShaderChanged( BufferIndex updateBufferIndex )
   }
 }
 
-void ImageAttachment::SizeChanged( BufferIndex updateBufferIndex )
+void ImageAttachment::DoSizeChanged( BufferIndex updateBufferIndex )
 {
   // avoid regenerating geometry if the size did not actually change (visibility change can accumulate a false SizeChanged)
   const Vector3& actorSize = GetParent().GetSize( updateBufferIndex );

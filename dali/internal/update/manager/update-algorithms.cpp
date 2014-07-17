@@ -308,42 +308,23 @@ inline void UpdateNodeWorldMatrix( Node& node, RenderableAttachment& updatedRend
   }
 }
 
-/**
- * Update an attachment.
- * @return An updated renderable attachment if one was ready.
- */
-inline RenderableAttachment* UpdateAttachment( NodeAttachment& attachment,
-                                               Node& node,
-                                               BufferIndex updateBufferIndex,
-                                               ResourceManager& resourceManager,
-                                               int nodeDirtyFlags )
+inline void UpdateRenderableAttachment( RenderableAttachment& renderableAttachment,
+                                        Node& node,
+                                        BufferIndex updateBufferIndex,
+                                        ResourceManager& resourceManager,
+                                        int nodeDirtyFlags )
 {
-  // Allow attachments to do specialised processing during updates
-  attachment.Update( updateBufferIndex, node, nodeDirtyFlags );
-
-  RenderableAttachment* renderable = attachment.GetRenderable(); // not all scene objects render
-  if( renderable )
+  // Notify renderables when shader has changed
+  if( nodeDirtyFlags & ShaderFlag )
   {
-    // Notify renderables when size has changed
-    // Size can change while node was invisible so we need to check size again if we were previously invisible
-    if( nodeDirtyFlags & (SizeFlag|VisibleFlag) )
-    {
-      renderable->SizeChanged( updateBufferIndex );
-    }
-
-    // Notify renderables when shader has changed
-    if( nodeDirtyFlags & ShaderFlag )
-    {
-      renderable->ShaderChanged( updateBufferIndex );
-    }
-
-    // check if node is visible
-    if( renderable->ResolveVisibility( updateBufferIndex ) )
-    {
-      renderable->PrepareResources( updateBufferIndex, resourceManager );
-    }
+    renderableAttachment.ShaderChanged( updateBufferIndex );
   }
-  return renderable;
+
+  // check if node is visible
+  if( renderableAttachment.ResolveVisibility( updateBufferIndex ) )
+  {
+    renderableAttachment.PrepareResources( updateBufferIndex, resourceManager );
+  }
 }
 
 inline void AddRenderableToLayer( Layer& layer,
@@ -420,23 +401,39 @@ inline int UpdateNodesAndAttachments( Node& node,
 
   if ( node.HasAttachment() )
   {
-    /*
-     * Add renderables for the children into the current Layer
-     */
-    RenderableAttachment* renderable = UpdateAttachment( node.GetAttachment(),
-                                                         node,
-                                                         updateBufferIndex,
-                                                         resourceManager,
-                                                         nodeDirtyFlags );
+    NodeAttachment& attachment = node.GetAttachment();
+    attachment.Update( updateBufferIndex, node, nodeDirtyFlags );
 
-
-    if( NULL != renderable )
+    RenderableAttachment* renderableAttachment = attachment.GetRenderable(); // not all scene objects render
+    if( renderableAttachment != NULL )
     {
-      // Update the world matrix after renderable update; the ScaleForSize property should now be calculated
-      UpdateNodeWorldMatrix( node, *renderable, nodeDirtyFlags, updateBufferIndex );
+      // Notify renderables when size has changed
+      // Size can change while node was invisible so we need to check size again if we were previously invisible
+      bool recalculateBoundingBox = false;
+      if( nodeDirtyFlags & (SizeFlag|VisibleFlag|TransformFlag) )
+      {
+        renderableAttachment->SizeChanged( updateBufferIndex );
+        recalculateBoundingBox = true;
+      }
+
+      UpdateNodeWorldMatrix( node, *renderableAttachment, nodeDirtyFlags, updateBufferIndex );
+
+      if( recalculateBoundingBox )
+      {
+        renderableAttachment->UpdateBoundingBox(updateBufferIndex);
+      }
+
+      /*
+       * Add renderables for the children into the current Layer
+       */
+      UpdateRenderableAttachment( *renderableAttachment,
+                                  node,
+                                  updateBufferIndex,
+                                  resourceManager,
+                                  nodeDirtyFlags );
 
       // The attachment is ready to render, so it is added to a set of renderables.
-      AddRenderableToLayer( *layer, *renderable, updateBufferIndex, inheritedDrawMode );
+      AddRenderableToLayer( *layer, *renderableAttachment, updateBufferIndex, inheritedDrawMode );
     }
   }
   else if( node.IsObserved() )

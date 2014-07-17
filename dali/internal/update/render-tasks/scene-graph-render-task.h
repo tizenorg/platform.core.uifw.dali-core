@@ -27,6 +27,7 @@
 #include <dali/internal/update/common/double-buffered.h>
 #include <dali/internal/update/common/property-owner.h>
 #include <dali/internal/update/common/animatable-property.h>
+#include <dali/internal/update/common/frustum.h>
 
 namespace Dali
 {
@@ -297,6 +298,12 @@ public:
   bool ViewMatrixUpdated();
 
   /**
+   * Query whether frustum culling is required.
+   * @return The set of frusum planes if culling is required and the camera is available, otherwise NULL.
+   */
+  const Frustum* GetFrustumCullingPlanes() const;
+
+  /**
    * Set the complete status tracker.
    * @param[in] completeStatusManager The complete status Tracker (not owned)
    */
@@ -335,7 +342,7 @@ private:
   bool mNotifyTrigger:1; ///< True if a render once render task has finished renderering
   bool mExclusive: 1; ///< Whether the render task has exclusive access to the source actor (node in the scene graph implementation).
   bool mClearEnabled: 1; ///< Whether previous results are cleared.
-  bool mCullMode: 1; ///< Whether renderers should be frustum culled
+  bool mCullMode : 1; ///< Whether frustum culling is enabled or not.
 
   FrameBufferTexture* mRenderTarget;
   Viewport mViewport;

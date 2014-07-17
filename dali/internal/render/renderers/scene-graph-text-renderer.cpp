@@ -332,7 +332,7 @@ void TextRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& 
   }
 }
 
-bool TextRenderer::IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
+bool TextRenderer::IsOutsideClipSpace( const Frustum& frustum, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
 {
   return false; // @todo add implementation
 }

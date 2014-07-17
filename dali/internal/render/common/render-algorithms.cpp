@@ -47,7 +47,6 @@ namespace Render
  * @param[in] frameTime The elapsed time between the last two updates.
  * @param[in] viewMatrix The view matrix from the appropriate camera.
  * @param[in] projectionMatrix The projection matrix from the appropriate camera.
- * @param[in] cullMode True if the renderers should be subjected to clipspace culling
  */
 inline void ProcessRenderList( const RenderList& renderList,
                                Context& context,
@@ -55,7 +54,7 @@ inline void ProcessRenderList( const RenderList& renderList,
                                float frameTime,
                                const Matrix& viewMatrix,
                                const Matrix& projectionMatrix,
-                               bool cullMode )
+                               const Frustum* frustum )
 {
   DALI_PRINT_RENDER_LIST( renderList );
 
@@ -116,7 +115,7 @@ inline void ProcessRenderList( const RenderList& renderList,
     SceneGraph::Renderer* renderer = const_cast< SceneGraph::Renderer* >( item.GetRenderer() );
     const Matrix& modelViewMatrix = item.GetModelViewMatrix();
 
-    renderer->Render( bufferIndex, modelViewMatrix, viewMatrix, projectionMatrix, frameTime, cullMode );
+    renderer->Render( bufferIndex, modelViewMatrix, viewMatrix, projectionMatrix, frameTime, frustum );
   }
 }
 
@@ -144,7 +143,7 @@ void ProcessRenderInstruction( const RenderInstruction& instruction,
       if(  renderList &&
           !renderList->IsEmpty() )
       {
-        ProcessRenderList( *renderList, context, bufferIndex, frameTime, *viewMatrix, *projectionMatrix, instruction.mCullMode );
+        ProcessRenderList( *renderList, context, bufferIndex, frameTime, *viewMatrix, *projectionMatrix, instruction.mFrustum );
       }
     }
   }

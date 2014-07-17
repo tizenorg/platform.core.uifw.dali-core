@@ -224,7 +224,7 @@ void TextAttachment::ShaderChanged( BufferIndex updateBufferIndex )
   }
 }
 
-void TextAttachment::SizeChanged( BufferIndex updateBufferIndex )
+void TextAttachment::DoSizeChanged( BufferIndex updateBufferIndex )
 {
   SetRecalculateScaleForSize();
 }

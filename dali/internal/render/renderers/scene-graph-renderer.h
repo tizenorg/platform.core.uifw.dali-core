@@ -25,6 +25,7 @@
 #include <dali/internal/common/message.h>
 #include <dali/internal/render/gl-resources/gl-resource-owner.h>
 #include <dali/internal/update/common/double-buffered.h>
+#include <dali/internal/update/common/frustum.h>
 #include <dali/internal/render/renderers/scene-graph-renderer-declarations.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/common/type-abstraction-enums.h>
@@ -110,14 +111,14 @@ public:
    * @param[in] viewMatrix The view matrix.
    * @param[in] projectionMatrix The projection matrix.
    * @param[in] frametime The elapsed time between the last two updates.
-   * @param[in] cull Whether to frustum cull this renderer
+   * @param[in] frustum The frustum planes in model space
    */
   void Render( BufferIndex bufferIndex,
                const Matrix& modelViewMatrix,
                const Matrix& viewMatrix,
                const Matrix& projectionMatrix,
                float frametime,
-               bool cull );
+               const Frustum* frustum );
 
 protected:
 
@@ -151,12 +152,13 @@ private:
   virtual void ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& outType, ShaderSubTypes& outSubType ) = 0;
 
   /**
-   * Checks if renderer's is culled.
+   * Checks if renderer is culled.
+   * @param[in] frustum The view frustum plane equations
    * @param[in] modelMatrix The model matrix.
    * @param[in] modelViewProjectionMatrix The MVP matrix.
    * @return \e true if it is. Otherwise \e false.
    */
-  virtual bool IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix ) = 0;
+  virtual bool IsOutsideClipSpace( const Frustum& frustum, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix ) = 0;
 
   /**
    * Called from Render; implemented in derived classes.
@@ -179,7 +181,6 @@ private:
   BlendingOptions mBlendingOptions;
   bool mUseBlend:1;                 ///< True if blending should be enabled, 1 bit is enough
   CullFaceMode mCullFaceMode:3;     ///< cullface enum, 3 bits is enough
-
 };
 
 } // namespace SceneGraph

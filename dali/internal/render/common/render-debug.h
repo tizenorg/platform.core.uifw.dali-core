@@ -45,7 +45,7 @@
 #undef DALI_PRINT_RENDERERS
 
 // Turn this on to see a snapshot of # renderers and # culled renderers every 2 seconds
-//#define DALI_PRINT_RENDERERS 1
+#define DALI_PRINT_RENDERERS 1
 
 #ifdef DALI_PRINT_RENDERERS
 #define DALI_PRINT_RENDERER_COUNT(x, y)  Render::PrintRendererCount(x, y)

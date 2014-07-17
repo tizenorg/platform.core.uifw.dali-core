@@ -439,6 +439,18 @@ bool RenderTask::ViewMatrixUpdated()
   return retval;
 }
 
+const Frustum* RenderTask::GetFrustumCullingPlanes() const
+{
+  const Frustum* frustumPlanes( NULL );
+
+  if( mCullMode && mCameraAttachment )
+  {
+    frustumPlanes = &mCameraAttachment->GetFrustum();
+  }
+
+  return frustumPlanes;
+}
+
 void RenderTask::SetCompleteStatusManager(CompleteStatusManager* completeStatusManager)
 {
   mCompleteStatusManager = completeStatusManager;

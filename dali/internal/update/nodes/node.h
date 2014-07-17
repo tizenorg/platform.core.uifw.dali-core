@@ -1071,6 +1071,49 @@ private: // from RenderDataProvider
     return GetWorldColor( bufferId );
   }
 
+  /**
+   * @copydoc Dali::Internal::SceneGraph::RenderDataProvider::GetHalfExtent()
+   */
+  virtual Vector3 GetHalfExtent()
+  {
+    return mHalfExtent;
+  }
+
+  /**
+   * @copydoc Dali::Internal::SceneGraph::RenderDataProvider::GetCenter()
+   */
+  virtual Vector3 GetCenter()
+  {
+    return mBoundsCenter;
+  }
+
+public:
+  /**
+   * Set the half-extent of the AABB of the node. Used for determining if
+   * the renderer should be culled.
+   *
+   * This property is not animatable.
+   *
+   * @param[in] halfExtent The half-extent vector (relative positive coords of corner of bounding box)
+   */
+  void SetHalfExtent( const Vector3& halfExtent)
+  {
+    mHalfExtent = halfExtent;
+  }
+
+  /**
+   * Set the center of the AABB of the node. Used for determining if
+   * the renderer should be culled.
+   *
+   * This property is not animatable.
+   *
+   * @param[in] center The center vector (absolute coords of center of bounding box)
+   */
+  void SetCenter( const Vector3& center)
+  {
+    mBoundsCenter = center;
+  }
+
 private:
 
   // Undefined
@@ -1124,7 +1167,9 @@ protected:
   NodeContainer       mChildren;                     ///< Container of children; not owned
 
   Vector3             mGeometryScale;                ///< Applied before calculating world transform.
-  Vector3             mInitialVolume;                ///< Initial volume... TODO - need a better name
+  Vector3             mInitialVolume;                ///< Initial volume.
+  Vector3             mHalfExtent;                   ///< Half extent of Axis-Aligned Bounding Box in world space
+  Vector3             mBoundsCenter;                 ///< Center of Axis-Aligned Bounding Box in world space
 
   // flags, compressed to bitfield
   int  mDirtyFlags:10;                               ///< A composite set of flags for each of the Node properties

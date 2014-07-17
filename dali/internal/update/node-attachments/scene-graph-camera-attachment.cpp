@@ -315,6 +315,10 @@ void CameraAttachment::Update( BufferIndex updateBufferIndex, const Node& owning
     // with the Identity.
     mUpdateProjectionFlag = UPDATE_COUNT;
   }
+
+  // Must be called before mUpdateViewFlag or mUpdateProjectionFlag is decremented
+  UpdateFrustum( updateBufferIndex );
+
   if( 0u != mUpdateViewFlag )
   {
     --mUpdateViewFlag;
@@ -354,6 +358,61 @@ void CameraAttachment::Update( BufferIndex updateBufferIndex, const Node& owning
 bool CameraAttachment::ViewMatrixUpdated()
 {
   return 0u != mUpdateViewFlag;
+}
+
+void CameraAttachment::UpdateFrustum( int updateBufferIndex )
+{
+  if( 0u != mUpdateViewFlag ||
+      0u != mUpdateProjectionFlag )
+  {
+    const Vector3& cameraPosition = mParent->GetWorldPosition( updateBufferIndex );
+
+    Vector3 cameraX, cameraY;
+    Vector3 cameraZ = cameraPosition;
+
+    if( Dali::Camera::LOOK_AT_TARGET == mType )
+    {
+      cameraZ -= mTargetPosition;
+    }
+
+    cameraY = mParent->GetWorldRotation( updateBufferIndex ).Rotate( -Vector3::YAXIS );
+    cameraX = cameraZ.Cross( cameraY );
+
+    cameraX.Normalize();
+    cameraY.Normalize();
+    cameraZ.Normalize();
+
+    float tanHalfFov = tan( mFieldOfView * 0.5f );
+
+    Vector2 halfNearPlane;
+    halfNearPlane.height = tanHalfFov * mNearClippingPlane;
+    halfNearPlane.width  = halfNearPlane.height * mAspectRatio;
+
+    Vector2 halfFarPlane;
+    halfFarPlane.height = tanHalfFov * mFarClippingPlane;
+    halfFarPlane.width  = halfFarPlane.height * mAspectRatio;
+
+    // Center positions on the near/far planes
+    Vector3 nearPlaneCenter( cameraPosition - ( cameraZ * mNearClippingPlane) );
+    Vector3 farPlaneCenter ( cameraPosition - ( cameraZ * mFarClippingPlane) );
+
+    // 4 corners on the near plane
+    Vector3 nearTopLeft    ( nearPlaneCenter + ( cameraY * halfNearPlane.height ) - ( cameraX * halfNearPlane.width ) );
+    Vector3 nearTopRight   ( nearPlaneCenter + ( cameraY * halfNearPlane.height ) + ( cameraX * halfNearPlane.width ) );
+    Vector3 nearBottomLeft ( nearPlaneCenter - ( cameraY * halfNearPlane.height ) - ( cameraX * halfNearPlane.width ) );
+    Vector3 nearBottomRight( nearPlaneCenter - ( cameraY * halfNearPlane.height ) + ( cameraX * halfNearPlane.width ) );
+
+    // 4 corners on the far plane
+    Vector3 farTopLeft    ( farPlaneCenter + ( cameraY * halfFarPlane.height ) - ( cameraX * halfFarPlane.width ) );
+    Vector3 farTopRight   ( farPlaneCenter + ( cameraY * halfFarPlane.height ) + ( cameraX * halfFarPlane.width ) );
+    Vector3 farBottomLeft ( farPlaneCenter - ( cameraY * halfFarPlane.height ) - ( cameraX * halfFarPlane.width ) );
+    Vector3 farBottomRight( farPlaneCenter - ( cameraY * halfFarPlane.height ) + ( cameraX * halfFarPlane.width ) );
+
+    mFrustum[ LEFT_PLANE   ].Set( nearTopLeft,    nearBottomLeft, farBottomLeft  );
+    mFrustum[ RIGHT_PLANE  ].Set( nearTopRight,   farTopRight,    farBottomRight );
+    mFrustum[ TOP_PLANE    ].Set( nearTopRight,   nearTopLeft,    farTopLeft     );
+    mFrustum[ BOTTOM_PLANE ].Set( farBottomRight, farBottomLeft,  nearBottomLeft );
+  }
 }
 
 void CameraAttachment::UpdateProjection( BufferIndex updateBufferIndex )

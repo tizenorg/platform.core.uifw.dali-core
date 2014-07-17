@@ -51,6 +51,20 @@ public:
    */
   virtual const Vector4& GetRenderColor( unsigned int bufferId ) = 0;
 
+  /**
+   * Get the half extent.  Used for determining if the renderer should be culled.
+   *
+   * @return The half extent of this node and children.
+   */
+  virtual Vector3 GetHalfExtent() = 0;
+
+  /**
+   * Get the center of the bounding box.  Used for determining if the renderer should be culled.
+   *
+   * @return The center of this node's axis aligned bounding box
+   */
+  virtual Vector3 GetCenter() = 0;
+
 protected:
 
   /**

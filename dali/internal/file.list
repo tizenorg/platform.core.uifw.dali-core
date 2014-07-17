@@ -142,6 +142,7 @@ internal_src_files = \
   $(internal_src_dir)/render/renderers/render-material.cpp \
   $(internal_src_dir)/render/renderers/scene-graph-image-renderer.cpp \
   $(internal_src_dir)/render/renderers/scene-graph-mesh-renderer.cpp \
+  $(internal_src_dir)/render/renderers/scene-graph-renderer-debug.cpp \
   $(internal_src_dir)/render/renderers/scene-graph-renderer.cpp \
   $(internal_src_dir)/render/renderers/scene-graph-text-renderer.cpp \
   $(internal_src_dir)/render/shaders/custom-uniform.cpp \

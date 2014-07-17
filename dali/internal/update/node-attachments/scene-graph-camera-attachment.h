@@ -27,6 +27,8 @@
 #include <dali/internal/update/node-attachments/node-attachment.h>
 #include <dali/internal/update/common/animatable-property.h>
 #include <dali/internal/update/common/inherited-property.h>
+#include <dali/internal/update/manager/update-algorithms.h>
+#include <dali/internal/update/common/frustum.h>
 
 namespace Dali
 {
@@ -208,6 +210,15 @@ public:
    */
   bool ViewMatrixUpdated();
 
+  /**
+   * Return reference to camera attachment's frustum planes
+   * @return Reference to the frustum planes
+   */
+  const Frustum& GetFrustum() const
+  {
+    return mFrustum;
+  }
+
 protected:
 
   /**
@@ -222,6 +233,12 @@ private:
 
   // Undefined
   CameraAttachment& operator=(const CameraAttachment& rhs);
+
+  /**
+   * Recalculates the frustum planes.
+   * @param[in] bufferIndex The buffer to read from.
+   */
+  void UpdateFrustum( int updateBufferIndex );
 
   /**
    * Recalculates the view & projection matrices.
@@ -260,6 +277,7 @@ public:  // PROPERTIES
 
   DoubleBuffered< Matrix >      mInverseViewProjection;///< Inverted viewprojection; double buffered for input handling
 
+  Frustum                       mFrustum;        ///< For the left, right, top, and bottom planes respectively; useful for frustum culling
 };
 
 // Messages for CameraAttachment

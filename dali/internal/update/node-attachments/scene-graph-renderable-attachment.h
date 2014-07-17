@@ -25,11 +25,13 @@
 #include <dali/internal/common/internal-constants.h>
 #include <dali/internal/common/type-abstraction-enums.h>
 #include <dali/internal/update/controllers/scene-controller.h>
+#include <dali/internal/update/manager/update-algorithms.h>
 #include <dali/internal/update/nodes/node.h>
 #include <dali/internal/update/node-attachments/node-attachment.h>
 #include <dali/internal/update/common/double-buffered.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/render/renderers/scene-graph-renderer-declarations.h>
+#include <dali/internal/common/type-abstraction-enums.h>
 
 namespace Dali
 {
@@ -192,6 +194,20 @@ public: // For use during in the update algorithm only
    */
   void PrepareRender( BufferIndex updateBufferIndex );
 
+  /**
+   * Called to notify that the size has been changed
+   * @param[in] updateBufferIndex The current update buffer index.
+   */
+  void SizeChanged( BufferIndex updateBufferIndex );
+
+  /**
+   * Called to notify if the size has been changed and the bounding box
+   * requires updating.
+   * @pre the parent node's world matrix has been calculated
+   * @param[in] updateBufferIndex The current update buffer index.
+   */
+  void UpdateBoundingBox( BufferIndex updateBufferIndex );
+
 public: // API for derived classes
 
   /**
@@ -227,6 +243,12 @@ public: // API for derived classes
   void FollowTracker( Integration::ResourceId id );
 
   /**
+   * Called to notify that the size has been changed
+   * @param[in] updateBufferIndex The current update buffer index.
+   */
+  virtual void DoSizeChanged( BufferIndex updateBufferIndex ) = 0;
+
+  /**
    * @copydoc RenderableAttachment::PrepareRender()
    */
   virtual void DoPrepareRender( BufferIndex updateBufferIndex ) = 0;
@@ -246,13 +268,6 @@ public: // API for derived classes
    * @return Return true if the geometry changed.
    */
   virtual void ShaderChanged( BufferIndex updateBufferIndex ) = 0;
-
-  /**
-   * Called to notify that the size has been changed
-   * The implementation may tell the renderer to recalculate geometry and scale based on the new size
-   * @param[in] updateBufferIndex The current update buffer index.
-   */
-  virtual void SizeChanged( BufferIndex updateBufferIndex ) = 0;
 
   /**
    * Chained from NodeAttachment::ConnectToSceneGraph()

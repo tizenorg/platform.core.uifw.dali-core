@@ -64,6 +64,7 @@ Node::Node()
   mChildren(),
   mGeometryScale( Vector3::ONE ),
   mInitialVolume( Vector3::ONE ),
+  mHalfExtent( Vector3::ZERO ),
   mDirtyFlags(AllFlags),
   mIsRoot( false ),
   mInheritShader( true ),

@@ -132,9 +132,9 @@ public:
   virtual void ShaderChanged( BufferIndex updateBufferIndex );
 
   /**
-   * @copydoc RenderableAttachment::SizeChanged()
+   * @copydoc RenderableAttachment::DoSizeChanged()
    */
-  virtual void SizeChanged( BufferIndex updateBufferIndex );
+  virtual void DoSizeChanged( BufferIndex updateBufferIndex );
 
   /**
    * @copydoc RenderableAttachment::DoPrepareRender()

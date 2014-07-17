@@ -142,7 +142,7 @@ void MeshAttachment::ShaderChanged( BufferIndex updateBufferIndex )
   }
 }
 
-void MeshAttachment::SizeChanged( BufferIndex updateBufferIndex )
+void MeshAttachment::DoSizeChanged( BufferIndex updateBufferIndex )
 {
   SetRecalculateScaleForSize();
 }

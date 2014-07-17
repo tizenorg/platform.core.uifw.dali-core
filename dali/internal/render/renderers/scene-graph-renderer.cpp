@@ -20,11 +20,14 @@
 #include <dali/internal/render/renderers/scene-graph-renderer-declarations.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/geometry/mesh-data.h>
 #include <dali/internal/render/gl-resources/context.h>
 #include <dali/internal/render/shaders/shader.h>
 #include <dali/internal/render/shaders/program.h>
+#include <dali/internal/render/renderers/scene-graph-renderer-debug.h>
 #include <dali/internal/render/renderers/render-data-provider.h>
 #include <dali/public-api/actors/blending.h>
+#include <dali/internal/render/gl-resources/gpu-buffer.h>
 
 namespace Dali
 {
@@ -34,6 +37,8 @@ namespace Internal
 
 namespace
 {
+
+
 static Matrix gModelViewProjectionMatrix( false ); ///< a shared matrix to calculate the MVP matrix, dont want to store it locally to reduce storage overhead
 static Matrix3 gNormalMatrix; ///< a shared matrix to calculate normal matrix, dont want to store it locally to reduce storage overhead
 
@@ -98,6 +103,7 @@ inline void SetMatrices( Program& program,
     program.SetUniformMatrix3fv( loc, 1, gNormalMatrix.AsFloat() );
   }
 }
+
 }
 
 namespace SceneGraph
@@ -139,12 +145,14 @@ void Renderer::SetCullFace( CullFaceMode mode )
   mCullFaceMode = mode;
 }
 
+
+
 void Renderer::Render( BufferIndex bufferIndex,
                        const Matrix& modelViewMatrix,
                        const Matrix& viewMatrix,
                        const Matrix& projectionMatrix,
                        float frametime,
-                       bool cull )
+                       const Frustum* frustum)
 {
   DALI_ASSERT_DEBUG( mContext && "Renderer::Render. Renderer not initialised!! (mContext == NULL)." );
   DALI_ASSERT_DEBUG( mShader && "Renderer::Render. Shader not set!!" );
@@ -169,14 +177,17 @@ void Renderer::Render( BufferIndex bufferIndex,
 
   // Check culling (does not need the program to be in use)
   bool areVerticesFixed = program.AreVerticesFixed();
-  if( cull && areVerticesFixed )
+  if( frustum != NULL && areVerticesFixed )
   {
-    if( IsOutsideClipSpace( modelMatrix, gModelViewProjectionMatrix ) )
+    if( IsOutsideClipSpace( *frustum, modelMatrix, gModelViewProjectionMatrix ) )
     {
       // don't do any further gl state changes as this renderer is not visible
+      DEBUG_BOUNDING_BOX( *mContext, mDataProvider, modelMatrix, viewMatrix, projectionMatrix );
+
       return;
     }
   }
+
   // Take the program into use so we can send uniforms to it
   program.Use();
 
@@ -229,11 +240,14 @@ void Renderer::Render( BufferIndex bufferIndex,
 
   // subclass rendering and actual draw call
   DoRender( bufferIndex, program, modelViewMatrix, viewMatrix );
+
+  DEBUG_BOUNDING_BOX( *mContext, mDataProvider, modelMatrix, viewMatrix, projectionMatrix );
 }
 
 Renderer::Renderer( RenderDataProvider& dataprovider )
 : mDataProvider( dataprovider ),
   mContext( NULL ),
+
   mTextureCache( NULL ),
   mShader( NULL ),
   mUseBlend( false ),

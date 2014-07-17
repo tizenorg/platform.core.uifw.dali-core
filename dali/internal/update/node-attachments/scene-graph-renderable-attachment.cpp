@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/update/node-attachments/scene-graph-renderable-attachment.h>
 
+// EXTERNAL INCLUDES
+#include <math.h>
+
 // INTERNAL INCLUDES
 #include <dali/integration-api/resource-declarations.h>
 #include <dali/public-api/actors/renderable-actor.h>
@@ -266,7 +269,76 @@ void RenderableAttachment::PrepareRender( BufferIndex updateBufferIndex )
   ChangeBlending( updateBufferIndex, blend );
 }
 
-RenderableAttachment::RenderableAttachment( bool usesGeometryScaling )
+void RenderableAttachment::UpdateBoundingBox( BufferIndex updateBufferIndex )
+{
+  // Calculate extent vector of AABB:
+  const Vector3& actorSize = GetParent().GetSize( updateBufferIndex );
+
+  Vector4 topLeftCorner(-0.5f*actorSize.x, -0.5f*actorSize.y, 1.0f, 1.0f);
+  Vector4 topRightCorner( 0.5f*actorSize.x, -0.5f*actorSize.y, 1.0f, 1.0f);
+  Vector4 bottomLeftCorner(-0.5f*actorSize.x, 0.5f*actorSize.y, 1.0f, 1.0f);
+  Vector4 bottomRightCorner( 0.5f*actorSize.x, 0.5f*actorSize.y, 1.0f, 1.0f);
+
+  // transform to absolute oriented bounding box
+  const Matrix& worldMatrix = GetParent().GetWorldMatrix(updateBufferIndex);
+  topLeftCorner = worldMatrix * topLeftCorner;
+  topRightCorner = worldMatrix * topRightCorner;
+  bottomLeftCorner = worldMatrix * bottomLeftCorner;
+  bottomRightCorner = worldMatrix * bottomRightCorner;
+
+  Vector3 AABBmax( std::max(
+                     topLeftCorner.x,
+                     std::max(
+                       topRightCorner.x,
+                       std::max(
+                         bottomLeftCorner.x,
+                         bottomRightCorner.x ))),
+
+                   std::max(
+                     topLeftCorner.y,
+                     std::max(
+                       topRightCorner.y,
+                       std::max(
+                         bottomLeftCorner.y,
+                         bottomRightCorner.y ))),
+
+                   std::max(
+                     topLeftCorner.z,
+                     std::max(
+                       topRightCorner.z,
+                       std::max(
+                         bottomLeftCorner.z,
+                         bottomRightCorner.z ))));
+
+  Vector3 AABBmin( std::min(
+                     topLeftCorner.x,
+                     std::min(
+                       topRightCorner.x,
+                       std::min(
+                         bottomLeftCorner.x,
+                         bottomRightCorner.x ))),
+
+                   std::min(
+                     topLeftCorner.y,
+                     std::min(
+                       topRightCorner.y,
+                       std::min(
+                         bottomLeftCorner.y,
+                         bottomRightCorner.y ))),
+
+                   std::min(
+                     topLeftCorner.z,
+                     std::min(
+                       topRightCorner.z,
+                       std::min(
+                         bottomLeftCorner.z,
+                         bottomRightCorner.z ))) );
+
+  GetParent().SetHalfExtent( (AABBmax - AABBmin) * 0.5f );
+  GetParent().SetCenter( ( AABBmin + AABBmax ) * 0.5f );
+}
+
+RenderableAttachment::RenderableAttachment(bool usesGeometryScaling)
 : mSceneController(NULL),
   mBlendingMode( Dali::RenderableActor::DEFAULT_BLENDING_MODE ),
   mUsesGeometryScaling( usesGeometryScaling ),

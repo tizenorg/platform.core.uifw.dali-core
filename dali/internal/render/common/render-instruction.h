@@ -23,6 +23,7 @@
 #include <dali/public-api/math/viewport.h>
 #include <dali/internal/update/node-attachments/scene-graph-camera-attachment.h>
 #include <dali/internal/render/common/render-list.h>
+#include <dali/internal/update/common/frustum.h>
 
 namespace Dali
 {
@@ -130,6 +131,7 @@ private:
 public: // Data, TODO hide these
 
   RenderTracker* mRenderTracker;        ///< Pointer to an optional tracker object (not owned)
+  const Frustum* mFrustum;              ///< Pointer to an optional frustum for culling
 
   Viewport mViewport;                   ///< Optional viewport
   Vector4  mClearColor;                 ///< Optional color to clear with

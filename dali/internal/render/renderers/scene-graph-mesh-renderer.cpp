@@ -172,7 +172,7 @@ void MeshRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& 
   }
 }
 
-bool MeshRenderer::IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
+bool MeshRenderer::IsOutsideClipSpace( const Frustum& frustum, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
 {
   return false; // @todo add implementation
 }

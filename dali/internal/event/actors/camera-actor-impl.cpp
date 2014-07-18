@@ -335,6 +335,10 @@ void CameraActor::SetPerspectiveProjection( const Size& size, float stereoBias /
   SetAspectRatio( aspectRatio );
   mCameraAttachment->SetStereoBias( stereoBias );
   SetZ( cameraZ );
+
+  // By default Actors face in the positive Z direction in world space
+  // CameraActors should face in the negative Z direction, towards the other actors
+  SetRotation( Quaternion( Math::PI, Vector3::YAXIS ) );
 }
 
 

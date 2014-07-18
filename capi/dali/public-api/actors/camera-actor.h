@@ -61,13 +61,14 @@ enum ProjectionMode
  *
  * Allows the developer to use actor semantics to control a camera.
  *
- * There are two types of camera actor, LookAt and FreeLook. A LookAt
- * camera actor ignores the actor rotation, and instead points towards
- * TargetPosition in world coordinates. This is the default behaviour.
+ * There are two types of camera actor, FreeLook and LookAt. By default
+ * the camera actor will be FreeLook.
  *
- * A FreeLook camera uses the camera actor's world rotation to control
- * where the camera is looking. If no rotation is specified, then the camera
- * looks along the negative Z axis.
+ * A FreeLook camera uses actor's rotation to control where the camera is looking.
+ * If no additional rotations are specified, the camera looks in the negative Z direction.
+ *
+ * A LookAt camera actor ignores the actor rotation, and instead points towards a
+ * target position in world coordinates.
  *
  */
 class CameraActor : public Actor

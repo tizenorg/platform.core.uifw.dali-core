@@ -175,6 +175,10 @@ CameraActorPtr CameraActor::New( const Size& size )
 
   actor->SetName("DefaultCamera");
 
+  // By default Actors face in the positive Z direction in world space
+  // CameraActors should face in the negative Z direction, towards the other actors
+  actor->SetRotation( Quaternion( Math::PI, Vector3::YAXIS ) );
+
   // Create the attachment
   actor->mCameraAttachment = CameraAttachment::New( *actor->mNode );
 

@@ -178,6 +178,19 @@ void RenderableAttachment::SetCullFace( BufferIndex updateBufferIndex, CullFaceM
   new (slot) DerivedType( &GetRenderer(), &Renderer::SetCullFace, mode );
 }
 
+void RenderableAttachment::SetSampler( BufferIndex updateBufferIndex, unsigned int samplerBitfield )
+{
+  DALI_ASSERT_DEBUG(mSceneController);
+
+  typedef MessageValue1< Renderer, unsigned int > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &GetRenderer(), &Renderer::SetSampler, samplerBitfield );
+}
+
 void RenderableAttachment::SetRecalculateScaleForSize()
 {
   mScaleForSizeDirty = true;

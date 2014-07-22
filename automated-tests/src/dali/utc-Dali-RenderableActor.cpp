@@ -502,3 +502,163 @@ int UtcDaliRenderableActorCreateDestroy(void)
   delete ractor;
   END_TEST;
 }
+
+int UtcDaliRenderableActorSetGetFilterModes(void)
+{
+  TestApplication application;
+
+  tet_infoline("Testing Dali::RenderableActor::SetFilterMode() / Dali::RenderableActor::GetFilterMode()");
+
+  TextActor actor = TextActor::New(TestTextHelloWorld);
+
+  FilterMode::Type minifyFilter = FilterMode::NEAREST;
+  FilterMode::Type magnifyFilter = FilterMode::NEAREST;
+
+  // Default test
+  actor.GetBlendMode( minifyFilter, magnifyFilter );
+  DALI_TEST_CHECK( FilterMode::DEFAULT == minifyFilter );
+  DALI_TEST_CHECK( FilterMode::DEFAULT == magnifyFilter );
+
+  // Default/Default
+  actor.SetFilterMode( FilterMode::DEFAULT, FilterMode::DEFAULT );
+  actor.GetBlendMode( minifyFilter, magnifyFilter );
+  DALI_TEST_CHECK( FilterMode::DEFAULT == minifyFilter );
+  DALI_TEST_CHECK( FilterMode::DEFAULT == magnifyFilter );
+
+  // Nearest/Nearest
+  actor.SetFilterMode( FilterMode::NEAREST, FilterMode::NEAREST );
+  actor.GetBlendMode( minifyFilter, magnifyFilter );
+  DALI_TEST_CHECK( FilterMode::NEAREST == minifyFilter );
+  DALI_TEST_CHECK( FilterMode::NEAREST == magnifyFilter );
+
+  // Linear/Linear
+  actor.SetFilterMode( FilterMode::LINEAR, FilterMode::LINEAR );
+  actor.GetBlendMode( minifyFilter, magnifyFilter );
+  DALI_TEST_CHECK( FilterMode::LINEAR == minifyFilter );
+  DALI_TEST_CHECK( FilterMode::LINEAR == magnifyFilter );
+
+  // Nearest/Linear
+  actor.SetFilterMode( FilterMode::NEAREST, FilterMode::LINEAR );
+  actor.GetBlendMode( minifyFilter, magnifyFilter );
+  DALI_TEST_CHECK( FilterMode::NEAREST == minifyFilter );
+  DALI_TEST_CHECK( FilterMode::LINEAR == magnifyFilter );
+
+  // Linear/Nearest
+  actor.SetFilterMode( FilterMode::LINEAR, FilterMode::NEAREST );
+  actor.GetBlendMode( minifyFilter, magnifyFilter );
+  DALI_TEST_CHECK( FilterMode::LINEAR == minifyFilter );
+  DALI_TEST_CHECK( FilterMode::NEAREST == magnifyFilter );
+
+  END_TEST;
+}
+
+int UtcDaliRenderableActorSetFilterMode(void)
+{
+  TestApplication application;
+
+  tet_infoline("Testing Dali::RenderableActor::SetFilterMode()");
+
+  BitmapImage img = BitmapImage::New( 1,1 );
+  ImageActor actor = ImageActor::New( img );
+  ImageActor actor2 = ImageActor::New( img );
+
+  actor.SetSize(100.0f, 100.0f);
+  actor.SetParentOrigin(ParentOrigin::CENTER);
+  actor.SetAnchorPoint(AnchorPoint::CENTER);
+
+  actor2.SetSize(100.0f, 100.0f);
+  actor2.SetParentOrigin(ParentOrigin::CENTER);
+  actor2.SetAnchorPoint(AnchorPoint::CENTER);
+
+  Stage::GetCurrent().Add(actor);
+  Stage::GetCurrent().Add(actor2);
+
+  //Verify whether the correct GL calls are made when actor is face culled in front and back, and
+  // face culling is disabled for actor2
+  TraceCallStack& texParameterTrace = application.GetGlAbstraction().GetTexParameterTrace();
+  texParameterTrace.Enable( true );
+
+  actor.SetFilterMode( FilterMode::DEFAULT, FilterMode::DEFAULT );
+
+  // flush the queue and render once
+  application.SendNotification();
+  application.Render();
+
+  texParameterTrace.Enable( false );
+
+  std::stringstream out;
+
+  //Verify actor gl state
+
+  out.str("");
+  out << GL_TEXTURE_2D << ", " << GL_TEXTURE_MIN_FILTER << ", " << GL_LINEAR;
+  DALI_TEST_EQUALS( texParameterTrace.TestMethodAndParams(0, "TexParameteri", out.str()), true, TEST_LOCATION);
+
+  out.str("");
+  out << GL_TEXTURE_2D << ", " << GL_TEXTURE_MIN_FILTER << ", " << GL_LINEAR;
+  DALI_TEST_EQUALS( texParameterTrace.TestMethodAndParams(1, "TexParameteri", out.str()), true, TEST_LOCATION);
+
+  //Verify state through the actor api
+  DALI_TEST_CHECK( CullFrontAndBack == actor.GetCullFace() );
+  DALI_TEST_CHECK( CullNone == actor2.GetCullFace() );
+
+  /**************************************************************/
+
+  //Verify whether the correct GL calls are made when actor2 is face culled in the front
+  cullFaceTrace.Reset();
+  cullFaceTrace.Enable(true);
+  actor2.SetCullFace( CullFront );
+
+  // flush the queue and render once
+  application.SendNotification();
+  application.Render();
+
+  cullFaceTrace.Enable(false);
+
+  //Verify actor gl state
+  out.str("");
+  out << GL_CULL_FACE;
+  DALI_TEST_EQUALS( cullFaceTrace.TestMethodAndParams(0, "Enable", out.str()), true, TEST_LOCATION);
+
+  out.str("");
+  out << GL_FRONT_AND_BACK;
+  DALI_TEST_EQUALS( cullFaceTrace.TestMethodAndParams(1, "CullFace", out.str()), true, TEST_LOCATION);
+
+  //Verify actor2 gl state
+  out.str("");
+  out << GL_CULL_FACE;
+  DALI_TEST_EQUALS( cullFaceTrace.TestMethodAndParams(2, "Enable", out.str()), true, TEST_LOCATION);
+
+  out.str("");
+  out << GL_FRONT;
+  DALI_TEST_EQUALS( cullFaceTrace.TestMethodAndParams(3, "CullFace", out.str()), true, TEST_LOCATION);
+
+  //Verify state through the actor api
+  DALI_TEST_CHECK( CullFrontAndBack == actor.GetCullFace() );
+  DALI_TEST_CHECK( CullFront == actor2.GetCullFace() );
+
+  /**************************************************************/
+  //Verify whether the correct GL calls are made when face culling is disabled for both actors
+  cullFaceTrace.Reset();
+  cullFaceTrace.Enable(true);
+  actor.SetCullFace( CullNone );
+  actor2.SetCullFace( CullNone );
+
+  // flush the queue and render once
+  application.SendNotification();
+  application.Render();
+
+  cullFaceTrace.Enable(false);
+
+  out.str("");
+  out << GL_CULL_FACE;
+  DALI_TEST_EQUALS( cullFaceTrace.TestMethodAndParams(0, "Disable", out.str()), true, TEST_LOCATION);
+
+  //Verify state through the actor api
+  DALI_TEST_CHECK( CullNone == actor.GetCullFace() );
+  DALI_TEST_CHECK( CullNone == actor2.GetCullFace() );
+
+  Stage::GetCurrent().Remove(actor);
+  Stage::GetCurrent().Remove(actor2);
+  END_TEST;
+}

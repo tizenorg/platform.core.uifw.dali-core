@@ -253,7 +253,7 @@ void RenderMaterial::BindTexture( Program& program, ResourceId id, Texture* text
   }
 }
 
-void RenderMaterial::BindTextures( Program& program )
+void RenderMaterial::BindTextures( Program& program, unsigned int diffuseTextureSampler )
 {
   DALI_ASSERT_DEBUG( NULL != mTextureCache );
 
@@ -282,6 +282,8 @@ void RenderMaterial::BindTextures( Program& program )
   }
 
   BindTexture( program, mDiffuseTextureId,mDiffuseTexture, 0, Program::UNIFORM_SAMPLER );
+  mDiffuseTexture->ApplySampler( diffuseTextureSampler );
+
   // GL_TEXTURE1 is used by shader effect texture
   BindTexture( program, mOpacityTextureId, mOpacityTexture, 2, Program::UNIFORM_SAMPLER_OPACITY );
   BindTexture( program, mNormalMapTextureId, mNormalMapTexture, 3, Program::UNIFORM_SAMPLER_NORMAL_MAP );

@@ -164,8 +164,9 @@ public:
   /**
    * Bind all the valid textures. Will also store valid texture pointer
    * @param[in] program The shader program with which to bind the textures
+   * @param[in] diffuseTextureSampler The texture sampling parameters for the diffuse texture
    */
-  void BindTextures( Program& program );
+  void BindTextures( Program& program, unsigned int diffuseTextureSampler );
 
 protected: // TextureObserver implementation
   /**

@@ -229,7 +229,8 @@ ShaderEffect::ShaderEffect( UpdateManager& updateManager, ShaderFactory& shaderF
 : mUpdateManager( updateManager ),
   mShaderFactory( shaderFactory ),
   mSceneObject( &sceneObject ),
-  mConnectionCount (0)
+  mConnectionCount (0),
+  mGeometryHints( sceneObject.GetGeometryHints() )
 {
   // Transfer shader ownership to a scene message
   AddShaderMessage( mUpdateManager, *mSceneObject );
@@ -303,19 +304,19 @@ const Dali::ShaderEffect::Extension& ShaderEffect::GetExtension() const
 
 void ShaderEffect::SetProgram( GeometryType geometryType, ShaderSubTypes subType,
                                const string& vertexSource, const string& fragmentSource,
-                               ShaderEffect::FixedVertexShader fixedShader )
+                               GeometryState modifiesGeometry )
 {
-  SetProgramImpl(geometryType, subType, vertexSource, fragmentSource, fixedShader);
+  SetProgramImpl(geometryType, subType, vertexSource, fragmentSource, modifiesGeometry);
 }
 
 void ShaderEffect::SetProgram( GeometryType geometryType, ShaderSubTypes subType,
                                const std::string& vertexPrefix, const std::string& fragmentPrefix,
                                const std::string& vertexSource, const std::string& fragmentSource,
-                               ShaderEffect::FixedVertexShader fixedShader )
+                               GeometryState modifiesGeometry )
 {
   const std::string vertex( vertexPrefix + vertexSource );
   const std::string fragment( fragmentPrefix + fragmentSource );
-  SetProgramImpl( geometryType, subType, vertex, fragment, fixedShader );
+  SetProgramImpl( geometryType, subType, vertex, fragment, modifiesGeometry );
 }
 
 void ShaderEffect::Connect()
@@ -524,6 +525,10 @@ void ShaderEffect::SetDefaultProperty( Property::Index index, const Property::Va
       {
         hint = Dali::ShaderEffect::HINT_BLENDING;
       }
+      else if(s == "HINT_MODIFIES_GEOMETRY")
+      {
+        hint = Dali::ShaderEffect::HINT_MODIFIES_GEOMETRY;
+      }
       else
       {
         DALI_ASSERT_ALWAYS(!"Geometry hint unknown" );
@@ -692,12 +697,25 @@ void ShaderEffect::SetWrappedProgram( GeometryType geometryType, ShaderSubTypes 
   }
 
   // Add the program
-  SetProgramImpl( geometryType, subType, vertexSource, fragmentSource, ShaderEffect::FLEXIBLE );
+  SetProgramImpl( geometryType, subType, vertexSource, fragmentSource );
+}
+
+void ShaderEffect::SetProgramImpl( GeometryType geometryType, ShaderSubTypes subType,
+                                   const string& vertexSource, const string& fragmentSource )
+{
+  GeometryState modifiesGeometry = UNMODIFIED_GEOMETRY;
+
+  if( (mGeometryHints & Dali::ShaderEffect::HINT_MODIFIES_GEOMETRY ) != 0 )
+  {
+    modifiesGeometry = MODIFIES_GEOMETRY;
+  }
+
+  SetProgramImpl( geometryType, subType, vertexSource, fragmentSource, modifiesGeometry );
 }
 
 void ShaderEffect::SetProgramImpl( GeometryType geometryType, ShaderSubTypes subType,
                                    const string& vertexSource, const string& fragmentSource,
-                                   ShaderEffect::FixedVertexShader fixedShader )
+                                   GeometryState modifiesGeometry )
 {
   // Load done asynchronously in update thread. SetProgram message below must be processed afterwards.
   // Therefore, resource manager cannot farm out the loading to the adaptor resource threads,
@@ -707,10 +725,8 @@ void ShaderEffect::SetProgramImpl( GeometryType geometryType, ShaderSubTypes sub
 
   DALI_LOG_INFO( Debug::Filter::gShader, Debug::General, "ShaderEffect: SetProgram(geometryType %d subType:%d ticket.id:%d)\n", geometryType, subType, ticket->GetId() );
 
-  bool areVerticesFixed = (fixedShader == ShaderEffect::FIXED);
-
   // Add shader program to scene-object using a message to the UpdateManager
-  SetShaderProgramMessage( mUpdateManager, *mSceneObject, geometryType, subType, ticket->GetId(), shaderHash, areVerticesFixed );
+  SetShaderProgramMessage( mUpdateManager, *mSceneObject, geometryType, subType, ticket->GetId(), shaderHash, modifiesGeometry );
 
   mTickets.push_back(ticket);       // add ticket to collection to keep it alive.
 }

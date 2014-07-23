@@ -151,15 +151,30 @@ size_t Text::GetLength() const
 
 void Text::Append( const std::string& text )
 {
-  Append( Text( text ) );
+  Insert( GetLength(), Text( text ) );
 }
 
 void Text::Append( const Character& character )
 {
-  Append( Text( character ) );
+  Insert( GetLength(), Text( character ) );
 }
 
 void Text::Append( const Text& text )
+{
+  Insert( GetLength(), text );
+}
+
+void Text::Insert( const std::size_t position, const std::string& text )
+{
+  Insert( position, Text( text ) );
+}
+
+void Text::Insert( const std::size_t position, const Character& character )
+{
+  Insert( position, Text( character ) );
+}
+
+void Text::Insert( const std::size_t position, const Text& text )
 {
   if( NULL != text.mImpl )
   {
@@ -169,7 +184,7 @@ void Text::Append( const Text& text )
     }
     else
     {
-      mImpl->Append( text );
+      mImpl->Insert( position, text );
     }
   }
 }

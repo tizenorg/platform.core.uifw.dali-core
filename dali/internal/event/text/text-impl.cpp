@@ -110,11 +110,11 @@ size_t Text::GetLength() const
   return mString.size();
 }
 
-void Text::Append( const Dali::Text& text )
+void Text::Insert( const std::size_t position, const Dali::Text& text )
 {
   const TextArray& utfCodes = text.GetImplementation().GetTextArray();
 
-  mString.insert( mString.end(), utfCodes.begin(), utfCodes.end() );
+  mString.insert( mString.begin() + position, utfCodes.begin(), utfCodes.end() );
 }
 
 void Text::Remove( size_t position, size_t numberOfCharacters )

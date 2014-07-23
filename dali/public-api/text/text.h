@@ -166,6 +166,31 @@ public:
   void Append( const Text& text );
 
   /**
+   * @brief Inserts characters into the given position.
+   *
+   * @pre position must be a positive value less or equal to Text::GetLength()
+   *
+   * @param[in] position The position from where characters are going to be added.
+   * @param [in] text The characters to be inserted.
+   */
+  void Insert( std::size_t position, const std::string& text );
+
+  /**
+   * @brief Inserts a character into the given position.
+   *
+   * @pre position must be a positive value less or equal to Text::GetLength()
+   *
+   * @param[in] position The position from where characters are going to be added.
+   * @param [in] character The character to be inserted.
+   */
+  void Insert( std::size_t position, const Character& character );
+
+  /**
+   * @copydoc Insert( const std::string& text )
+   */
+  void Insert( std::size_t position, const Text& text );
+
+  /**
    * @brief Removes a number of characters starting from a given position.
    *
    * @pre The given \e position plus \e numberOfCharacters must be a positive value less or equal than the total length of the text.

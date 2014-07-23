@@ -98,7 +98,7 @@ public:
   /**
    * @copydoc Dali::Text::Append( const Text& text )
    */
-  void Append( const Dali::Text& text );
+  void Insert( const std::size_t position, const Dali::Text& text );
 
   /**
    * @copydoc Dali::Text::Remove()

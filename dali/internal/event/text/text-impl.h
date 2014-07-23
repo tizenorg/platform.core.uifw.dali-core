@@ -96,9 +96,9 @@ public:
   size_t GetLength() const;
 
   /**
-   * @copydoc Dali::Text::Append( const Text& text )
+   * @copydoc Dali::Text::Insert( std::size_t position, const Text& text )
    */
-  void Append( const Dali::Text& text );
+  void Insert( std::size_t position, const Dali::Text& text );
 
   /**
    * @copydoc Dali::Text::Remove()

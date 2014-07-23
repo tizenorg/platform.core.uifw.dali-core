@@ -107,7 +107,41 @@ int UtcDaliTextGetTextArray(void)
 
   Text text( std::string( "Hello world" ) );
 
-  DALI_TEST_EQUALS( text.GetImplementation().GetTextArray().size(), 11u, TEST_LOCATION );
+  const TextArray& textArray1 = text.GetImplementation().GetTextArray();
+
+  DALI_TEST_EQUALS( textArray1.size(), 11u, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( textArray1[0u], 72u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray1[1u], 101u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray1[2u], 108u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray1[3u], 108u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray1[4u], 111u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray1[5u], 32u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray1[6u], 119u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray1[7u], 111u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray1[8u], 114u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray1[9u], 108u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray1[10u], 100u, TEST_LOCATION );
+
+  const TextArray& textArray2 = Internal::GetTextArray( text );
+
+  DALI_TEST_EQUALS( textArray2.size(), 11u, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( textArray2[0u], 72u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray2[1u], 101u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray2[2u], 108u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray2[3u], 108u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray2[4u], 111u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray2[5u], 32u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray2[6u], 119u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray2[7u], 111u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray2[8u], 114u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray2[9u], 108u, TEST_LOCATION );
+  DALI_TEST_EQUALS( textArray2[10u], 100u, TEST_LOCATION );
+
+  const TextArray& textArray3 = Internal::GetTextArray( Text() );
+
+  DALI_TEST_CHECK( textArray3.empty() );
 
   END_TEST;
 }

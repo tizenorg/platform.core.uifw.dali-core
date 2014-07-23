@@ -151,7 +151,7 @@ private:
   virtual void ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& outType, ShaderSubTypes& outSubType ) = 0;
 
   /**
-   * Checks if renderer's is culled.
+   * Checks if renderer is culled.
    * @param[in] modelMatrix The model matrix.
    * @param[in] modelViewProjectionMatrix The MVP matrix.
    * @return \e true if it is. Otherwise \e false.
@@ -179,7 +179,6 @@ private:
   BlendingOptions mBlendingOptions;
   bool mUseBlend:1;                 ///< True if blending should be enabled, 1 bit is enough
   CullFaceMode mCullFaceMode:3;     ///< cullface enum, 3 bits is enough
-
 };
 
 } // namespace SceneGraph

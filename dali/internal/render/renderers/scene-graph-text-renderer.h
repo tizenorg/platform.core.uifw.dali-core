@@ -186,11 +186,12 @@ private:
   OwnerPointer< TextParameters > mTextParameters; ///< Optional text parameters
 
   Vector2    mInvTextSize;                        ///< 1.0 / (2D size of Vertices in vertex buffer (max extent - min extent))
+  Rect<float> mBoundingBox;                       ///< Bounding box of vertex data
+
   ResourceId mTextureId;
 
   float   mSmoothing;
   float   mPixelSize;
-
 };
 
 } // namespace SceneGraph

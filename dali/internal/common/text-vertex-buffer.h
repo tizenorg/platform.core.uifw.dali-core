@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/vector2.h>
+#include <dali/public-api/math/rect.h>
 #include <dali/internal/common/text-vertex-2d.h>
 
 namespace Dali
@@ -39,6 +40,8 @@ struct TextVertexBuffer
   std::vector<TextVertex2D> mVertices;    ///< List of vertices (coordinates and texture coordinates)
   unsigned int mTextureId;                ///< Texture id
   Vector2 mVertexMax;                     ///< Maximum extent of 2d vertex array
+
+  Rect<float> mBoundingBox;               ///< Bounding box of geometry
 };
 
 } // namespace Internal

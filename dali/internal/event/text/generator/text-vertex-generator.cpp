@@ -22,6 +22,7 @@
 #include <dali/public-api/common/constants.h>
 #include <dali/internal/event/text/glyph-status/glyph-status.h>
 #include <dali/internal/event/text/special-characters.h>
+#include <dali/integration-api/debug.h>
 
 // EXTERNAL INCLUDES
 #include <cmath>  // for std::sin
@@ -35,9 +36,13 @@ namespace Internal
 namespace // unnamed namespace
 {
 
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gTextVertsLogFilter = Debug::Filter::New( Debug::Concise, false, "LOG_TEXT_VERTEX_FILTER" );
+#endif
+
 typedef std::vector<TextVertex2D> VertexBuffer;
 
-void RepositionData( VertexBuffer& buffer, Vector2 offset )
+void RepositionData( TextVertexBuffer& buffer )
 {
   /*
    *
@@ -67,14 +72,35 @@ void RepositionData( VertexBuffer& buffer, Vector2 offset )
    */
 
   // move the vertices so 0,0 is the centre of the text string.
-  offset.x/=2.0f;
-  offset.y/=2.0f;
+  float minX=1e8f, maxX=-1e8f;
+  float minY=1e8f, maxY=-1e8f;
+  std::vector<TextVertex2D>& vertices = buffer.mVertices;
 
-  for (std::size_t i=0, size = buffer.size() ; i< size; ++i)
+  for (std::size_t i=0, size = vertices.size() ; i < size; ++i)
   {
-      buffer[i].mX -= offset.x;
-      buffer[i].mY -= offset.y;
+    TextVertex2D& vertex = vertices[i];
+    minX = std::min(minX, vertex.mX);
+    maxX = std::max(maxX, vertex.mX);
+
+    minY = std::min(minY, vertex.mY);
+    maxY = std::max(maxY, vertex.mY);
   }
+
+  Vector2 offset;
+  offset.x = ( maxX + minX ) * 0.5f;
+  offset.y = ( maxY + minY ) * 0.5f;
+
+  for (std::size_t i=0, size = vertices.size() ; i< size; ++i)
+  {
+    TextVertex2D& vertex = vertices[i];
+    vertex.mX -= offset.x;
+    vertex.mY -= offset.y;
+  }
+
+  buffer.mBoundingBox.width = maxX - minX;
+  buffer.mBoundingBox.height = maxY - minY;
+  buffer.mBoundingBox.x = offset.x;
+  buffer.mBoundingBox.y = offset.y;
 }
 
 void AddVertex( VertexBuffer& vertexBuffer,
@@ -384,13 +410,18 @@ TextVertexBuffer* TextVertexGenerator::Generate( const TextArray& text,
     }
   }
 
-  textVertexBuffer->mVertexMax = Vector2(totalWidth,lineHeight);
-
-  RepositionData( vertexBuffer, textVertexBuffer->mVertexMax );
+  textVertexBuffer->mVertexMax = Vector2( totalWidth, lineHeight );
+  RepositionData( *textVertexBuffer );
 
 #ifdef DEBUG_VERTS
   DebugVertexBuffer( vertexBuffer );
 #endif
+
+  DALI_LOG_INFO(gTextVertsLogFilter, Debug::General, "TextVertexBuffer for %c%c%c...: Extents:(%5.2f, %5.2f)\n  BoundingBox:( %5.2f, %5.2f; %5.2f, %5.2f )\n",
+                textSize>0?(char)text[0]:' ', textSize>1?(char)text[1]:' ', textSize>2?(char)text[2]:' ',
+                textVertexBuffer->mVertexMax.x,textVertexBuffer->mVertexMax.y,
+                textVertexBuffer->mBoundingBox.x,textVertexBuffer->mBoundingBox.y,
+                textVertexBuffer->mBoundingBox.width,textVertexBuffer->mBoundingBox.height);
 
   return textVertexBuffer;
 }

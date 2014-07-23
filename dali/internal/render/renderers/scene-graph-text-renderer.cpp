@@ -25,13 +25,15 @@
 #include <dali/internal/common/text-vertex-2d.h>
 #include <dali/internal/event/text/font-impl.h>
 #include <dali/internal/render/gl-resources/context.h>
+#include <dali/internal/render/common/culling-algorithms.h>
 #include <dali/internal/render/common/performance-monitor.h>
-#include <dali/internal/render/shaders/program.h>
 #include <dali/internal/render/common/vertex.h>
+#include <dali/internal/render/renderers/scene-graph-renderer-debug.h>
+#include <dali/internal/render/shaders/program.h>
 #include <dali/internal/render/shaders/shader.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
-#include <dali/internal/update/controllers/scene-controller.h>
 #include <dali/internal/render/gl-resources/texture.h>
+#include <dali/internal/update/controllers/scene-controller.h>
 
 using namespace std;
 
@@ -183,6 +185,8 @@ void TextRenderer::SetVertexData( TextVertexBuffer* vertexData )
     mInvTextSize = vertexData->mVertexMax;
     mInvTextSize.x = mInvTextSize.x > Math::MACHINE_EPSILON_1 ? 1.0f / mInvTextSize.x : 1.0f;
     mInvTextSize.y = mInvTextSize.y > Math::MACHINE_EPSILON_1 ? 1.0f / mInvTextSize.y : 1.0f;
+
+    mBoundingBox = vertexData->mBoundingBox;
   }
   else
   {
@@ -334,7 +338,16 @@ void TextRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& 
 
 bool TextRenderer::IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
 {
-  return false; // @todo add implementation
+  mContext->IncrementRendererCount();
+
+  DEBUG_BOUNDING_BOX( *mContext, mBoundingBox, modelViewProjectionMatrix );
+
+  if(Is2dBoxOutsideClipSpace( modelMatrix, modelViewProjectionMatrix, mBoundingBox ) )
+  {
+    mContext->IncrementCulledCount();
+    return true;
+  }
+  return false;
 }
 
 void TextRenderer::DoRender( BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )

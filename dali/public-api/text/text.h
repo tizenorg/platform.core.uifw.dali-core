@@ -147,6 +147,14 @@ public:
   void Append( const Text& text );
 
   /**
+   * @brief Inserts text into the given position.
+   *
+   * @param[in] position The position from where the text is going to be inserted.
+   * @param [in] text The text to be inserted.
+   */
+  void Insert( std::size_t position, const Text& text );
+
+  /**
    * @brief Removes a number of characters starting from a given position.
    *
    * @pre The given \e position plus \e numberOfCharacters must be a positive value less or equal than the total length of the text.

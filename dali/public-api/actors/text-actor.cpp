@@ -19,8 +19,10 @@
 #include <dali/public-api/actors/text-actor.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/text/text-actor-parameters.h>
 #include <dali/internal/event/actors/text-actor-impl.h>
 #include <dali/internal/event/text/font-impl.h>
+#include <dali/internal/event/text/text-impl.h>
 
 namespace Dali
 {
@@ -35,78 +37,104 @@ TextActor::TextActor()
 
 TextActor TextActor::New()
 {
-  return New( Text( "" ) );
+  TextActorParameters parameters;
+  Internal::TextActorPtr internal = Internal::TextActor::New( Internal::TextArray(), parameters );
+
+  return TextActor( internal.Get() );
 }
 
-TextActor TextActor::New(const string& text)
+TextActor TextActor::New( const Text& text )
 {
-  return New( Text( text ) );
+  TextActorParameters parameters( TextStyle(), true /*font detection*/ );
+  return New( text, parameters );
 }
 
-TextActor TextActor::New(const Text& text)
+TextActor TextActor::New( const Text& text, const TextActorParameters& parameters )
 {
-  return New( text, true /*fontDetection*/, true /*isLeftToRight*/ );
-}
+  Internal::TextActorPtr internal = Internal::TextActor::New( Internal::GetTextArray( text ), parameters );
 
-TextActor TextActor::New(const string& text, bool fontDetection)
-{
-  return New( Text( text ), fontDetection );
+  return TextActor( internal.Get() );
 }
 
 TextActor TextActor::New(const Text& text, bool fontDetection)
 {
-  return New( text, fontDetection, true /*isLeftToRight*/ );
-}
-
-TextActor TextActor::New(const string& text, bool fontDetection, bool isLeftToRight )
-{
-  return New( Text( text ), fontDetection, isLeftToRight );
+  ///< @deprecated
+  TextActorParameters parameters( TextStyle(), fontDetection );
+  return New( text, parameters );
 }
 
 TextActor TextActor::New(const Text& text, bool fontDetection, bool isLeftToRight )
 {
-  Internal::TextActorPtr internal( Internal::TextActor::New( text, fontDetection, isLeftToRight) );
-
-  return TextActor( internal.Get() );
-}
-
-TextActor TextActor::New(const string& text, Font font)
-{
-  return New( Text( text ), font, true /*fontDetection*/, true /*isLeftToRight*/ );
+  ///< @deprecated
+  TextActorParameters parameters( TextStyle(), fontDetection );
+  return New( text, parameters );
 }
 
 TextActor TextActor::New(const Text& text, Font font)
 {
-  return New( text, font, true /*fontDetection*/, true /*isLeftToRight*/ );
-}
+  ///< @deprecated
+  TextStyle style;
 
-TextActor TextActor::New(const string& text, Font font, bool fontDetection)
-{
-  return New( Text( text ), font, fontDetection, true /*isLeftToRight*/ );
+  if( !font.IsDefaultSystemFont() )
+  {
+    style.SetFontName( font.GetName() );
+    style.SetFontStyle( font.GetStyle() );
+  }
+
+  if( !font.IsDefaultSystemSize() )
+  {
+    style.SetFontPointSize( PointSize( font.GetPointSize() ) );
+  }
+
+  TextActorParameters parameters( style, true );
+  return New( text, parameters );
 }
 
 TextActor TextActor::New(const Text& text, Font font, bool fontDetection)
 {
-  return New( text, font, fontDetection, true /*isLeftToRight*/ );
-}
+  ///< @deprecated
+  TextStyle style;
 
-TextActor TextActor::New(const string& text, Font font, bool fontDetection, bool isLeftToRight )
-{
-  return New( Text( text ), font, fontDetection, isLeftToRight );
+  if( !font.IsDefaultSystemFont() )
+  {
+    style.SetFontName( font.GetName() );
+    style.SetFontStyle( font.GetStyle() );
+  }
+
+  if( !font.IsDefaultSystemSize() )
+  {
+    style.SetFontPointSize( PointSize( font.GetPointSize() ) );
+  }
+
+  TextActorParameters parameters( style, fontDetection );
+  return New( text, parameters );
 }
 
 TextActor TextActor::New(const Text& text, Font font, bool fontDetection, bool isLeftToRight )
 {
-  Internal::TextActorPtr internal( Internal::TextActor::New( text, fontDetection, isLeftToRight, GetImplementation(font) ) );
+  ///< @deprecated
+  TextStyle style;
 
-  return TextActor( internal.Get() );
+  if( !font.IsDefaultSystemFont() )
+  {
+    style.SetFontName( font.GetName() );
+    style.SetFontStyle( font.GetStyle() );
+  }
+
+  if( !font.IsDefaultSystemSize() )
+  {
+    style.SetFontPointSize( PointSize( font.GetPointSize() ) );
+  }
+
+  TextActorParameters parameters( style, fontDetection );
+  return New( text, parameters );
 }
 
 TextActor TextActor::New(const Text& text, const TextStyle& style, bool fontDetection, bool isLeftToRight)
 {
-  Internal::TextActorPtr internal = Internal::TextActor::New( text, fontDetection, isLeftToRight, style );
-
-  return TextActor(internal.Get());
+  ///< @deprecated
+  TextActorParameters parameters( style, fontDetection );
+  return New( text, parameters );
 }
 
 TextActor TextActor::DownCast( BaseHandle handle )
@@ -123,14 +151,9 @@ string TextActor::GetText() const
   return GetImplementation(*this).GetText();
 }
 
-void TextActor::SetText(const string& text)
-{
-  GetImplementation(*this).SetText(text);
-}
-
 void TextActor::SetText(const Text& text)
 {
-  GetImplementation(*this).SetText(text);
+  GetImplementation(*this).SetText( Internal::GetTextArray( text ) );
 }
 
 void TextActor::SetToNaturalSize()

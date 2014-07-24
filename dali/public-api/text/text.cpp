@@ -31,6 +31,11 @@ Text::Text()
 {
 }
 
+Text::Text( const char* text )
+: mImpl( ( NULL == text ) ? NULL : new Internal::Text( std::string( text ) ) )
+{
+}
+
 Text::Text( const std::string& text )
 : mImpl( text.empty() ? NULL : new Internal::Text( text ) )
 {
@@ -88,11 +93,6 @@ std::string Text::GetText() const
    return text;
 }
 
-void Text::SetText( const std::string& text )
-{
-  SetText( Text( text ) );
-}
-
 void Text::SetText( const Character& character )
 {
   SetText( Text( character ) );
@@ -147,11 +147,6 @@ size_t Text::GetLength() const
   }
 
   return length;
-}
-
-void Text::Append( const std::string& text )
-{
-  Append( Text( text ) );
 }
 
 void Text::Append( const Character& character )

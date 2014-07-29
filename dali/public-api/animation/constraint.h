@@ -40,6 +40,64 @@ class Constraint;
 }
 
 /**
+ * @brief Dispatcher to delete an object.
+ */
+template< class FunctorType >
+struct CopyCallbackFunctor0
+{
+  /**
+   * @brief Dispatcher to delete an object.
+   */
+  static void Copy( const CallbackBase& base )
+  {
+    const FunctorType* functor( NULL );
+    if( base.Impl )
+    {
+      functor = reinterpret_cast<const FunctorType*>( base.Impl->mObjectPointer );
+    }
+    DALI_ASSERT_ALWAYS( functor && "Failed to copy functor" );
+
+    return new CallbackFunctor0<FunctorType>( *functor );
+  }
+};
+
+template<class PropertyType>
+class ConstraintFunctor0
+{
+public:
+
+  /**
+   * @brief Used to copy the ConstraintFunctor
+   */
+  typedef CallbackBase* (*CopyFunction)( const CallbackBase& base );
+
+  template <class FunctorType>
+  ConstraintFunctor( const FunctorType& func )
+  : mCallback( new CallbackFunctor0<FunctorType>( func ) ),
+    mCopyFunction( CopyCallbackFunctor0<FunctorType>() 
+  {
+  }
+
+  PropertyType operator()( const PropertyType& current )
+  {
+    CallbackBase::ExecuteReturn<PropertyType>( *mCallback );
+  }
+
+  ConstraintFunctor0( const ConstraintFunctor0& copyMe )
+  : mCallback( mCopyFunction( *copyMe.mCallback ) )
+  {
+  }
+
+  // Undefined assignment operator
+  ConstraintFunctor0& operator=( const ConstraintFunctor0& rhs );
+
+private:
+
+  CallbackBase* mCallback;
+  CopyFunction* mCopyFunction;
+};
+
+/**
  * @brief An abstract base class for Constraints.
  * This can be used to constrain a property of an actor, after animations have been applied.
  * Constraints are applied in the following order:
@@ -88,6 +146,25 @@ public:
   template <class P>
   static Constraint New( Property::Index target,
                          boost::function<P (const P& current)> func )
+  {
+    return New( target,
+                PropertyTypes::Get<P>(),
+                func,
+                GetDefaultInterpolator( PropertyTypes::Get<P>() ) );
+  }
+
+  /**
+   * @brief Create a constraint which targets a property.
+   *
+   * The templated parameter P, is the type of the property to constrain.
+   * Animation will be performed using the default interpolator.
+   * @param [in] target The index of the property to constrain.
+   * @param [in] func A function which returns the constrained property value.
+   * @return The new constraint.
+   */
+  template <class P>
+  static Constraint NewV2( Property::Index target,
+                           ConstraintFunctor<P> func )
   {
     return New( target,
                 PropertyTypes::Get<P>(),

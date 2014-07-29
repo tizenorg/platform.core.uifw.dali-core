@@ -45,6 +45,13 @@ public:
   ~CallbackBase();
 
   /**
+   * @brief Copy constructor
+   *
+   * @param[in] rhs The callback to copy.
+   */
+  CallbackBase( const CallbackBase& rhs );
+
+  /**
    * @brief Resets the object pointer so that we know not to call methods of this object any more.
    */
   void Reset();
@@ -308,12 +315,13 @@ protected: // Constructors for deriving classes
   /**
    * @brief Used to destroy mObjectPointer (NULL if not mObjectPointer is not owned)
    */
-  typedef void(*Destructor)(void* object);
+  typedef void (*Destructor)( void* object );
 
   /**
-   * @brief Copy constructor operator not declared.
+   * @brief Used to copy mObjectPointer which is potentially owned.
    */
-  CallbackBase( const CallbackBase& rhs );
+  typedef void* (*ObjectCopier)( CallbackBase& base );
+
   /**
    * @brief assignment operator not declared.
    */
@@ -356,7 +364,8 @@ public: // Data for deriving classes & Dispatchers
 
     void* mObjectPointer;                 ///< Object whose member function will be called. Not owned if mDestructorDispatcher is NULL.
     Dispatcher mMemberFunctionDispatcher; ///< Dispatcher for member functions
-    Destructor mDestructorDispatcher;     ///< Destructor for owned objects. NULL if mDestructorDispatcher is not owned.
+    Destructor mDestructorDispatcher;     ///< Destructor for owned objects. NULL if mObjectPointer is not owned.
+    ObjectCopier mCopyDispatcher;         ///< Used to copy mObjectPointer which is potentially owned.
   };
   Impl* mImpl;                            ///< Implementation pointer
 

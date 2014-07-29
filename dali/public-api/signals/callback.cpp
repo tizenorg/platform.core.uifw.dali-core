@@ -35,6 +35,25 @@ CallbackBase::~CallbackBase()
   Reset();
 }
 
+CallbackBase( const CallbackBase& rhs )
+: mImpl( NULL ),
+  mFunction( rhs.mFunction )
+{
+  if( rhs.mImpl )
+  {
+    mImpl = new CallbackBase::Impl;
+
+    if( rhs->mDestructorDispatcher )
+    {
+      // mObjectPointer is owned, take a copy
+      mImpl->mObjectPointer = rhs->mObjectPointer;
+    }
+
+    mImpl->mMemberFunctionDispatcher = rhs->mMemberFunctionDispatcher;
+    mImpl->mDestructorDispatcher     = rhs->mDestructorDispatcher;
+  }
+}
+
 CallbackBase::CallbackBase( Function function )
 : mImpl( NULL ),
   mFunction( function )

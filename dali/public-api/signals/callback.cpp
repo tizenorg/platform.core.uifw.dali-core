@@ -35,6 +35,30 @@ CallbackBase::~CallbackBase()
   Reset();
 }
 
+CallbackBase( const CallbackBase& rhs )
+: mImpl( NULL ),
+  mFunction( rhs.mFunction )
+{
+  if( rhs.mImpl )
+  {
+    mImpl = new CallbackBase::Impl;
+
+    if( rhs.mImpl->mCopyDispatcher )
+    {
+      // rhs.mImpl->mObjectPointer is owned, take a copy
+      mImpl->mObjectPointer = (*rhs.mImpl->mCopyDispatcher)( rhs.mImpl->mObjectPointer );
+    }
+    else
+    {
+      mImpl->mObjectPointer = rhs.mImpl->mObjectPointer;
+    }
+
+    mImpl->mMemberFunctionDispatcher = rhs->mMemberFunctionDispatcher;
+    mImpl->mDestructorDispatcher     = rhs->mDestructorDispatcher;
+    mImpl->mCopyDispatcher           = rhs->mCopyDispatcher;
+  }
+}
+
 CallbackBase::CallbackBase( Function function )
 : mImpl( NULL ),
   mFunction( function )
@@ -50,13 +74,14 @@ CallbackBase::CallbackBase( void* object, MemberFunction function, Dispatcher di
   mImpl->mDestructorDispatcher = NULL; // object is not owned
 }
 
-CallbackBase::CallbackBase( void* object, MemberFunction function, Dispatcher dispatcher, Destructor destructor )
+CallbackBase::CallbackBase( void* object, MemberFunction function, Dispatcher dispatcher, Destructor destructor, ObjectCopier copier )
 : mMemberFunction( function )
 {
   mImpl = new CallbackBase::Impl;
   mImpl->mObjectPointer = object;
   mImpl->mMemberFunctionDispatcher = dispatcher;
   mImpl->mDestructorDispatcher = destructor; // object is owned
+  mImpl->mCopyDispatcher = copier;
 }
 
 void CallbackBase::Reset()

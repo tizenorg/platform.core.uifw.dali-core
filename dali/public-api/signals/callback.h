@@ -25,8 +25,6 @@
 namespace Dali DALI_IMPORT_API
 {
 
-class CallbackBase;
-
 /**
  * @brief Callback base class to hold the data for callback function and member function calls.
  */
@@ -43,6 +41,13 @@ public:
    * @brief Destructor
    */
   ~CallbackBase();
+
+  /**
+   * @brief Copy constructor
+   *
+   * @param[in] rhs The callback to copy.
+   */
+  CallbackBase( const CallbackBase& rhs );
 
   /**
    * @brief Resets the object pointer so that we know not to call methods of this object any more.
@@ -308,12 +313,13 @@ protected: // Constructors for deriving classes
   /**
    * @brief Used to destroy mObjectPointer (NULL if not mObjectPointer is not owned)
    */
-  typedef void(*Destructor)(void* object);
+  typedef void (*Destructor)( void* object );
 
   /**
-   * @brief Copy constructor operator not declared.
+   * @brief Used to copy mObjectPointer which is potentially owned.
    */
-  CallbackBase( const CallbackBase& rhs );
+  typedef void* (*ObjectCopier)( void* object );
+
   /**
    * @brief assignment operator not declared.
    */
@@ -342,8 +348,9 @@ protected: // Constructors for deriving classes
    * @param[in] function The member function of the object.
    * @param dispatcher Used to call the actual object.
    * @param destructor Used to delete the owned object.
+   * @param copier Used to copy the owned object.
    */
-  CallbackBase( void* object, MemberFunction function, Dispatcher dispatcher, Destructor destructor );
+  CallbackBase( void* object, MemberFunction function, Dispatcher dispatcher, Destructor destructor, ObjectCopier copier );
 
 public: // Data for deriving classes & Dispatchers
 
@@ -356,7 +363,8 @@ public: // Data for deriving classes & Dispatchers
 
     void* mObjectPointer;                 ///< Object whose member function will be called. Not owned if mDestructorDispatcher is NULL.
     Dispatcher mMemberFunctionDispatcher; ///< Dispatcher for member functions
-    Destructor mDestructorDispatcher;     ///< Destructor for owned objects. NULL if mDestructorDispatcher is not owned.
+    Destructor mDestructorDispatcher;     ///< Destructor for owned objects. NULL if mObjectPointer is not owned.
+    ObjectCopier mCopyDispatcher;         ///< Used to copy mObjectPointer which is potentially owned.
   };
   Impl* mImpl;                            ///< Implementation pointer
 
@@ -371,6 +379,22 @@ public: // Data for deriving classes & Dispatchers
  * @brief Non-member equality operator
  */
 bool operator==( const CallbackBase& lhs, const CallbackBase& rhs );
+
+/**
+ * @brief Function to copy an owned object (creates new copy).
+ */
+template< class T >
+struct OwnedObjectCopier
+{
+  /**
+   * @brief Function to copy an owned object (creates new copy).
+   */
+  static void* Copy( const void* object )
+  {
+    T* copy = new T( *reinterpret_cast< const T* >( object ) );
+    return reinterpret_cast< void* >( copy );
+  }
+};
 
 /**
  * @brief Dispatcher to delete an object.
@@ -1083,7 +1107,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( new T( object ) ), // copy the object
                   NULL, // uses operator() instead of member function
                   reinterpret_cast< CallbackBase::Dispatcher >( &FunctorDispatcher0<T>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1103,7 +1128,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( object ), // transfer ownership
                   reinterpret_cast< CallbackBase::MemberFunction >( &FunctorDelegate::Execute ),
                   reinterpret_cast< CallbackBase::Dispatcher >( &VoidFunctorDispatcher0<FunctorDelegate>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1123,7 +1149,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( new T( object ) ), // copy the object
                   NULL, // uses operator() instead of member function
                   reinterpret_cast< CallbackBase::Dispatcher >( &FunctorDispatcher1<T,P1>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1144,7 +1171,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( object ), // transfer ownership
                   reinterpret_cast< CallbackBase::MemberFunction >( &FunctorDelegate::Execute ),
                   reinterpret_cast< CallbackBase::Dispatcher >( &VoidFunctorDispatcher1<FunctorDelegate,P1>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1164,7 +1192,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( new T( object ) ), // copy the object
                   NULL, // uses operator() instead of member function
                   reinterpret_cast< CallbackBase::Dispatcher >( &FunctorDispatcher2<T,P1,P2>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1185,7 +1214,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( object ), // transfer ownership
                   reinterpret_cast< CallbackBase::MemberFunction >( &FunctorDelegate::Execute ),
                   reinterpret_cast< CallbackBase::Dispatcher >( &VoidFunctorDispatcher2<FunctorDelegate,P1,P2>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1205,7 +1235,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( new T( object ) ), // copy the object
                   NULL, // uses operator() instead of member function
                   reinterpret_cast< CallbackBase::Dispatcher >( &FunctorDispatcher3<T,P1,P2,P3>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1227,7 +1258,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( object ), // transfer ownership
                   reinterpret_cast< CallbackBase::MemberFunction >( &FunctorDelegate::Execute ),
                   reinterpret_cast< CallbackBase::Dispatcher >( &VoidFunctorDispatcher3<FunctorDelegate,P1,P2,P3>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1247,7 +1279,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( new T( object ) ), // copy the object
                   NULL, // uses operator() instead of member function
                   reinterpret_cast< CallbackBase::Dispatcher >( &FunctorDispatcherReturn0<T,R>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1268,7 +1301,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( object ), // transfer ownership
                   reinterpret_cast< CallbackBase::MemberFunction >( &FunctorDelegate::Execute ),
                   reinterpret_cast< CallbackBase::Dispatcher >( &VoidFunctorDispatcherReturn0<FunctorDelegate,R>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1288,7 +1322,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( new T( object ) ), // copy the object
                   NULL, // uses operator() instead of member function
                   reinterpret_cast< CallbackBase::Dispatcher >( &FunctorDispatcherReturn1<T,R,P1>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1309,7 +1344,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( object ), // transfer ownership
                   reinterpret_cast< CallbackBase::MemberFunction >( &FunctorDelegate::Execute ),
                   reinterpret_cast< CallbackBase::Dispatcher >( &VoidFunctorDispatcherReturn1<FunctorDelegate,R,P1>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1329,7 +1365,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( new T( object ) ), // copy the object
                   NULL, // uses operator() instead of member function
                   reinterpret_cast< CallbackBase::Dispatcher >( &FunctorDispatcherReturn2<T,R,P1,P2>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1350,7 +1387,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( object ), // transfer ownership
                   reinterpret_cast< CallbackBase::MemberFunction >( &FunctorDelegate::Execute ),
                   reinterpret_cast< CallbackBase::Dispatcher >( &VoidFunctorDispatcherReturn2<FunctorDelegate,R,P1,P2>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1370,7 +1408,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( new T( object ) ), // copy the object
                   NULL, // uses operator() instead of member function
                   reinterpret_cast< CallbackBase::Dispatcher >( &FunctorDispatcherReturn3<T,R,P1,P2,P3>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<T>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 /**
@@ -1391,7 +1430,8 @@ public:
   : CallbackBase( reinterpret_cast< void* >( object ), // transfer ownership
                   reinterpret_cast< CallbackBase::MemberFunction >( &FunctorDelegate::Execute ),
                   reinterpret_cast< CallbackBase::Dispatcher >( &VoidFunctorDispatcherReturn3<FunctorDelegate,R,P1,P2,P3>::Dispatch ),
-                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ) ) { }
+                  reinterpret_cast< CallbackBase::Destructor >( &Destroyer<FunctorDelegate>::Delete ),
+                  reinterpret_cast< CallbackBase::ObjectCopier >( &OwnedObjectCopier<T>::Copy ) ) { }
 };
 
 // Callback creation thin templates

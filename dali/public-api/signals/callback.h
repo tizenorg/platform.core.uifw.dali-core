@@ -25,8 +25,6 @@
 namespace Dali DALI_IMPORT_API
 {
 
-class CallbackBase;
-
 /**
  * @brief Callback base class to hold the data for callback function and member function calls.
  */
@@ -43,6 +41,13 @@ public:
    * @brief Destructor
    */
   ~CallbackBase();
+
+  /**
+   * @brief Copy constructor
+   *
+   * @param[in] rhs The callback to copy.
+   */
+  CallbackBase( const CallbackBase& rhs );
 
   /**
    * @brief Resets the object pointer so that we know not to call methods of this object any more.
@@ -308,12 +313,13 @@ protected: // Constructors for deriving classes
   /**
    * @brief Used to destroy mObjectPointer (NULL if not mObjectPointer is not owned)
    */
-  typedef void(*Destructor)(void* object);
+  typedef void (*Destructor)( void* object );
 
   /**
-   * @brief Copy constructor operator not declared.
+   * @brief Used to copy mObjectPointer which is potentially owned.
    */
-  CallbackBase( const CallbackBase& rhs );
+  typedef void* (*ObjectCopier)( void* object );
+
   /**
    * @brief assignment operator not declared.
    */
@@ -356,7 +362,8 @@ public: // Data for deriving classes & Dispatchers
 
     void* mObjectPointer;                 ///< Object whose member function will be called. Not owned if mDestructorDispatcher is NULL.
     Dispatcher mMemberFunctionDispatcher; ///< Dispatcher for member functions
-    Destructor mDestructorDispatcher;     ///< Destructor for owned objects. NULL if mDestructorDispatcher is not owned.
+    Destructor mDestructorDispatcher;     ///< Destructor for owned objects. NULL if mObjectPointer is not owned.
+    ObjectCopier mCopyDispatcher;         ///< Used to copy mObjectPointer which is potentially owned.
   };
   Impl* mImpl;                            ///< Implementation pointer
 
@@ -371,6 +378,36 @@ public: // Data for deriving classes & Dispatchers
  * @brief Non-member equality operator
  */
 bool operator==( const CallbackBase& lhs, const CallbackBase& rhs );
+
+/**
+ * @brief Function to copy a pointer to an unowned object.
+ */
+struct PointerCopier
+{
+  /**
+   * @brief Function to copy a pointer to an unowned object.
+   */
+  static void* Copy( const void* object )
+  {
+    return object;
+  }
+};
+
+/**
+ * @brief Function to copy an owned object (creates new copy).
+ */
+template< class T >
+struct OwnedObjectCopier
+{
+  /**
+   * @brief Function to copy an owned object (creates new copy).
+   */
+  static void* Copy( const void* object )
+  {
+    T* copy = new T( *reinterpret_cast< const T* >( object ) );
+    return reinterpret_cast< void* >( copy );
+  }
+};
 
 /**
  * @brief Dispatcher to delete an object.

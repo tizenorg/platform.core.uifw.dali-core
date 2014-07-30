@@ -110,6 +110,7 @@ unsigned int DefaultOptions()
   // Only initialise min filter as mag filter will use the system default
   unsigned int bitfield = 0;
   StoreFilterMode( bitfield, DEFAULT_MINIFY, MINIFY_BIT_SHIFT );
+  StoreFilterMode( bitfield, DEFAULT_MAGNIFY, MAGNIFY_BIT_SHIFT );
   return bitfield;
 }
 

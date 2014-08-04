@@ -32,7 +32,8 @@ namespace FilterMode
  */
 enum Type
 {
-  DEFAULT,
+  NONE,       ///< No filter mode
+  DEFAULT,    ///< Use defaults
   NEAREST,    ///< Filter nearest
   LINEAR      ///< Filter linear
 };

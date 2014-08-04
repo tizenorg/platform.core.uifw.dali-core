@@ -52,6 +52,7 @@ GLint FilterModeToGL( FilterMode::Type filterMode )
     {
       return GL_LINEAR;
     }
+    case FilterMode::NONE:
     case FilterMode::DEFAULT:
     {
       // Do nothing
@@ -246,26 +247,36 @@ void Texture::ApplySampler( unsigned int samplerBitfield )
   if( mSamplerBitfield != samplerBitfield )
   {
     // Only set the tex parameters if they have been set in the sampler bitfield
-    FilterMode::Type filterMode = ImageSampler::GetMinifyFilterMode( samplerBitfield );
-    if( filterMode != FilterMode::DEFAULT )
+    FilterMode::Type newFilterMode = ImageSampler::GetMinifyFilterMode( samplerBitfield );
+    FilterMode::Type currentFilterMode = ImageSampler::GetMinifyFilterMode( mSamplerBitfield );
+
+    if( newFilterMode != FilterMode::NONE && newFilterMode != currentFilterMode )
     {
-      mContext.TexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilterModeToGL( filterMode ) );
-    }
-    else  // We don't want to use the GL default
-    {
-      // Reset to system default option
-      mContext.TexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilterModeToGL( ImageSampler::GetMinifyFilterMode( ImageSampler::DefaultOptions() ) ) );
+      if( newFilterMode != FilterMode::DEFAULT )
+      {
+        mContext.TexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilterModeToGL( newFilterMode ) );
+      }
+      else  // We don't want to use the GL default
+      {
+        // Reset to system default option
+        mContext.TexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilterModeToGL( ImageSampler::GetMinifyFilterMode( ImageSampler::DefaultOptions() ) ) );
+      }
     }
 
-    filterMode = ImageSampler::GetMagnifyFilterMode( samplerBitfield );
-    if( filterMode != FilterMode::DEFAULT )
+    newFilterMode = ImageSampler::GetMagnifyFilterMode( samplerBitfield );
+    currentFilterMode = ImageSampler::GetMagnifyFilterMode( mSamplerBitfield );
+
+    if( newFilterMode != FilterMode::NONE && newFilterMode != currentFilterMode )
     {
-      mContext.TexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilterModeToGL( filterMode ) );
-    }
-    else if( ImageSampler::IsMagnifyAssigned( mSamplerBitfield ) )   // We want to use the GL default
-    {
-      // Reset to system default option
-      mContext.TexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilterModeToGL( ImageSampler::GetMagnifyFilterMode( ImageSampler::DefaultOptions() ) ) );
+      if( newFilterMode != FilterMode::DEFAULT )
+      {
+        mContext.TexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilterModeToGL( newFilterMode ) );
+      }
+      else if( currentFilterMode != FilterMode::NONE )   // We want to use the GL default
+      {
+        // Reset to system default option
+        mContext.TexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilterModeToGL( ImageSampler::GetMagnifyFilterMode( ImageSampler::DefaultOptions() ) ) );
+      }
     }
 
     mSamplerBitfield = samplerBitfield;

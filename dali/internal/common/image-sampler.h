@@ -34,22 +34,6 @@ namespace ImageSampler
 {
 
   /**
-   * Determine if the minify component of the bitfield is assigned.
-   *
-   * @param[in] bitfield The packed sampler bitfield pattern.
-   * @return Return if the minify component is assigned or not.
-   */
-  bool IsMinifyAssigned( unsigned int bitfield );
-
-  /**
-   * Determine if the magnify component of the bitfield is assigned.
-   *
-   * @param[in] bitfield The packed sampler bitfield pattern.
-   * @return Return if the magnify component is assigned or not.
-   */
-  bool IsMagnifyAssigned( unsigned int bitfield );
-
-  /**
    * @brief Return a sampler bitfield with default settings.
    *
    * @return Return the default sampler bit pattern.

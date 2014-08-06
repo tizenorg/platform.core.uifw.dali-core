@@ -15,6 +15,7 @@
  */
 
 #include "culling-algorithms.h"
+#include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali
 {
@@ -154,6 +155,189 @@ bool Is2dBoxOutsideClipSpace(const Matrix& modelMatrix,
 
   return true;
 }
+
+
+bool IsPointInsideClipSpace( Vector4 point )
+{
+  return( -point.w <= point.x && point.x <= point.w &&
+          -point.w <= point.y && point.y <= point.w &&
+          -point.w <= point.z && point.z <= point.w );
+}
+
+/**
+ * Adds a clip vertex to the vector if it is outside clip space.
+ * Returns true if added (i.e. outside clip space)
+ */
+bool AddClipVertex( const Matrix& mvp, std::vector<Vector4>& vertices, const BoundingBox& boundingBox, int index )
+{
+  Vector4 vertex;
+  switch( index )
+  {
+    case 0:
+    {
+      vertex = Vector4( boundingBox.minVertex.x, boundingBox.minVertex.y, boundingBox.minVertex.z, 1.0f);
+    }
+    break;
+
+    case 1:
+    {
+      vertex = Vector4( boundingBox.maxVertex.x, boundingBox.minVertex.y, boundingBox.minVertex.z, 1.0f);
+    }
+    break;
+
+    case 2:
+    {
+      vertex = Vector4( boundingBox.minVertex.x, boundingBox.maxVertex.y, boundingBox.minVertex.z, 1.0f);
+    }
+    break;
+
+    case 3:
+    {
+      vertex = Vector4( boundingBox.maxVertex.x, boundingBox.maxVertex.y, boundingBox.minVertex.z, 1.0f);
+    }
+    break;
+
+    case 4:
+    {
+      vertex = Vector4( boundingBox.minVertex.x, boundingBox.minVertex.y, boundingBox.maxVertex.z, 1.0f);
+    }
+    break;
+
+    case 5:
+    {
+      vertex = Vector4( boundingBox.maxVertex.x, boundingBox.minVertex.y, boundingBox.maxVertex.z, 1.0f);
+    }
+    break;
+
+    case 6:
+    {
+      vertex = Vector4( boundingBox.minVertex.x, boundingBox.maxVertex.y, boundingBox.maxVertex.z, 1.0f);
+    }
+    break;
+
+    case 7:
+    {
+      vertex = Vector4( boundingBox.maxVertex.x, boundingBox.maxVertex.y, boundingBox.maxVertex.z, 1.0f);
+    }
+    break;
+  }
+
+  Vector4 clipVertex = mvp * vertex;
+  if( IsPointInsideClipSpace( clipVertex ) )
+  {
+    return false;
+  }
+  vertices.push_back(clipVertex);
+  return true;
+}
+
+
+bool Is3dBoxOutsideClipSpace(const Matrix& modelMatrix,
+                             const Matrix& modelViewProjectionMatrix,
+                             const BoundingBox& boundingBox )
+{
+  // Downside is mvp matrix calc per renderer per frame
+  // and up to 8 matrix * vector calls.
+  // Upside is point test is very simple:
+
+  const Matrix& mvp = modelViewProjectionMatrix;
+  const Vector4 translation = mvp.GetTranslation();
+
+  // First, calculate if the center is inside clip space:
+  if( -translation.w <= translation.x  &&  translation.x <= translation.w &&
+      -translation.w <= translation.y  &&  translation.y <= translation.w &&
+      -translation.w <= translation.z  &&  translation.z <= translation.w)
+  {
+    // Definitely inside clip space - don't do any more processing
+    return false;
+  }
+
+  // Transform oriented bounding box to clip space:
+  std::vector<Vector4> clipSpaceVertices;
+  clipSpaceVertices.reserve(8);
+  for( int i=0; i<8; ++i)
+  {
+    if( ! AddClipVertex( mvp, clipSpaceVertices, boundingBox, i ) )
+    {
+      return false;
+    }
+  }
+
+  unsigned int insideLeftPlaneCount=0;
+  for( int i=0; i<8; ++i )
+  {
+    if( -clipSpaceVertices[i].w <= clipSpaceVertices[i].x )
+    {
+      insideLeftPlaneCount++;
+    }
+  }
+  if( insideLeftPlaneCount == 0 )
+  {
+    return true;
+  }
+
+  unsigned int insideRightPlaneCount=0;
+  for( int i=0; i<8; ++i )
+  {
+    if( clipSpaceVertices[i].x <= clipSpaceVertices[i].w )
+    {
+      insideRightPlaneCount++;
+    }
+  }
+  if( insideRightPlaneCount == 0 )
+  {
+    return true;
+  }
+
+  unsigned int insideTopPlaneCount=0;
+  for( int i=0; i<8; ++i )
+  {
+    if( -clipSpaceVertices[i].w <= clipSpaceVertices[i].y )
+    {
+      insideTopPlaneCount++;
+    }
+  }
+  if( insideTopPlaneCount == 0 )
+  {
+    return true;
+  }
+
+  unsigned int insideBottomPlaneCount=0;
+  for( int i=0; i<8; ++i )
+  {
+    if( clipSpaceVertices[i].y <= clipSpaceVertices[i].w )
+    {
+      insideBottomPlaneCount++;
+    }
+  }
+  if( insideBottomPlaneCount == 0 )
+  {
+    return true;
+  }
+
+  // Test if any planes are bisected, if they are, then there is likely to
+  // be an intersection into clip space.
+
+  if( insideLeftPlaneCount < 8 )
+  {
+    return false;
+  }
+  if( insideRightPlaneCount < 8 )
+  {
+    return false;
+  }
+  if( insideTopPlaneCount < 8 )
+  {
+    return false;
+  }
+  if( insideBottomPlaneCount < 8 )
+  {
+    return false;
+  }
+
+  return true;
+}
+
 
 
 } // SceneGraph

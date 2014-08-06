@@ -433,7 +433,7 @@ void ResourceManager::HandleUpdateMeshRequest( BufferIndex updateBufferIndex, Re
   DALI_ASSERT_DEBUG(mesh);
 
   // Update the mesh data
-  mesh->SetMeshData( meshData );
+  mesh->SetMeshData( updateBufferIndex, meshData );
 
   // Update the GL buffers in the next Render
   typedef MessageDoubleBuffered2< SceneGraph::Mesh, SceneGraph::Mesh::ThreadBuffer, OwnerPointer<MeshData> > DerivedType;

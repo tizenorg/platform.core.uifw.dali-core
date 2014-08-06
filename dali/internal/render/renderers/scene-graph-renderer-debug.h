@@ -19,9 +19,10 @@
 
 #include <dali/public-api/math/matrix.h>
 #include <dali/public-api/math/rect.h>
+#include <dali/internal/common/bounding-box.h>
 
 // Uncomment to debug bounding boxes of objects
-//#define DEBUG_DISPLAY_BOUNDING_BOX 1
+#define DEBUG_DISPLAY_BOUNDING_BOX 1
 
 namespace Dali
 {
@@ -34,6 +35,8 @@ namespace SceneGraph
 class RenderDataProvider;
 
 void DebugBoundingBox(Context& context, Rect<float> boundingBox, const Matrix& mvp);
+
+void DebugBoundingBox(Context& context, const BoundingBox& boundingBox, const Matrix& mvp);
 
 #if defined(DEBUG_ENABLED) && defined(DEBUG_DISPLAY_BOUNDING_BOX)
 #define DEBUG_BOUNDING_BOX( context, boundingBox, mvp )                     \

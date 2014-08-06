@@ -112,6 +112,9 @@ MeshActorPtr MeshActor::New(ModelDataPtr modelData, Dali::Entity entity)
   actor->SetRotation(rotation);
   actor->SetScale(scale);
 
+  // @todo: Copy mesh's min/max to actor's bounding box. Or, SetMesh should copy it...
+  // Note, mesh bounding box does not need to be central.
+
   return actor;
 }
 

@@ -15,6 +15,7 @@
  */
 
 #include "scene-graph-renderer-debug.h"
+
 #include <dali/integration-api/shader-data.h>
 #include <dali/integration-api/resource-declarations.h>
 #include <dali/internal/render/shaders/program.h>
@@ -54,35 +55,21 @@ static Program* gDebugProgram(NULL); ///< a simple debug shader
 #endif
 } // anonymous namespace
 
-void DebugBoundingBox(Context& context, Rect<float> boundingBox, const Matrix& mvp)
+
+#if defined(DEBUG_ENABLED)
+
+void RenderBoxOutline( Context& context, const Matrix& mvp, GLfloat* vertices, unsigned int numPoints)
 {
-#if defined ( DEBUG_ENABLED )
   if( gDebugProgram == NULL )
   {
     Integration::ShaderDataPtr shaderData( new Integration::ShaderData( DEBUG_DRAW_VERTEX_SHADER, DEBUG_DRAW_FRAGMENT_SHADER ) );
     const Integration::ResourceId dummyId(99999999);
     gDebugProgram = Program::New( dummyId, shaderData.Get(), context, true );
   }
+  gDebugProgram->Use();
 
   context.SetBlend( false );
   context.CullFace( CullNone );
-
-  const unsigned int numPoints=8;
-  GLfloat vertices[numPoints*3] = {
-    boundingBox.x,                      boundingBox.y, 0.0f,
-    boundingBox.x,                      boundingBox.y + boundingBox.height, 0.0f,
-
-    boundingBox.x,                      boundingBox.y + boundingBox.height, 0.0f,
-    boundingBox.x + boundingBox.width,  boundingBox.y + boundingBox.height, 0.0f,
-
-    boundingBox.x + boundingBox.width,  boundingBox.y + boundingBox.height, 0.0f,
-    boundingBox.x + boundingBox.width,  boundingBox.y, 0.0f,
-
-    boundingBox.x + boundingBox.width,  boundingBox.y, 0.0f,
-    boundingBox.x,                      boundingBox.y, 0.0f,
-  };
-
-  gDebugProgram->Use();
 
   GpuBuffer vertexBuffer(context,GpuBuffer::ARRAY_BUFFER, GpuBuffer::STATIC_DRAW);
   vertexBuffer.UpdateDataBuffer(numPoints * 3 * sizeof(float), &vertices[0]);
@@ -106,9 +93,67 @@ void DebugBoundingBox(Context& context, Rect<float> boundingBox, const Matrix& m
   context.DrawArrays(GL_LINES, 0, numPoints);
 
   context.DisableVertexAttributeArray( positionLoc );
-#endif
 }
 
+void DebugBoundingBox(Context& context, Rect<float> boundingBox, const Matrix& mvp)
+{
+  const unsigned int numPoints=8;
+  GLfloat vertices[numPoints*3] = {
+    boundingBox.x,                      boundingBox.y, 0.0f,
+    boundingBox.x,                      boundingBox.y + boundingBox.height, 0.0f,
+
+    boundingBox.x,                      boundingBox.y + boundingBox.height, 0.0f,
+    boundingBox.x + boundingBox.width,  boundingBox.y + boundingBox.height, 0.0f,
+
+    boundingBox.x + boundingBox.width,  boundingBox.y + boundingBox.height, 0.0f,
+    boundingBox.x + boundingBox.width,  boundingBox.y, 0.0f,
+
+    boundingBox.x + boundingBox.width,  boundingBox.y, 0.0f,
+    boundingBox.x,                      boundingBox.y, 0.0f,
+  };
+  RenderBoxOutline( context, mvp, vertices, numPoints);
+}
+
+
+void DebugBoundingBox(Context& context, const BoundingBox& boundingBox, const Matrix& mvp)
+{
+  const unsigned int numPoints=24;
+  GLfloat vertices[numPoints*3] = {
+    // Front to back lines
+    boundingBox.minVertex.x, boundingBox.minVertex.y, boundingBox.minVertex.z,
+    boundingBox.minVertex.x, boundingBox.minVertex.y, boundingBox.maxVertex.z,
+    boundingBox.maxVertex.x, boundingBox.minVertex.y, boundingBox.minVertex.z,
+    boundingBox.maxVertex.x, boundingBox.minVertex.y, boundingBox.maxVertex.z,
+    boundingBox.minVertex.x, boundingBox.maxVertex.y, boundingBox.minVertex.z,
+    boundingBox.minVertex.x, boundingBox.maxVertex.y, boundingBox.maxVertex.z,
+    boundingBox.maxVertex.x, boundingBox.maxVertex.y, boundingBox.minVertex.z,
+    boundingBox.maxVertex.x, boundingBox.maxVertex.y, boundingBox.maxVertex.z,
+
+    // Left to right lines
+    boundingBox.minVertex.x, boundingBox.minVertex.y, boundingBox.minVertex.z,
+    boundingBox.maxVertex.x, boundingBox.minVertex.y, boundingBox.minVertex.z,
+    boundingBox.minVertex.x, boundingBox.maxVertex.y, boundingBox.minVertex.z,
+    boundingBox.maxVertex.x, boundingBox.maxVertex.y, boundingBox.minVertex.z,
+    boundingBox.minVertex.x, boundingBox.minVertex.y, boundingBox.maxVertex.z,
+    boundingBox.maxVertex.x, boundingBox.minVertex.y, boundingBox.maxVertex.z,
+    boundingBox.minVertex.x, boundingBox.maxVertex.y, boundingBox.maxVertex.z,
+    boundingBox.maxVertex.x, boundingBox.maxVertex.y, boundingBox.maxVertex.z,
+
+    // Vertical lines
+    boundingBox.minVertex.x, boundingBox.minVertex.y, boundingBox.minVertex.z,
+    boundingBox.minVertex.x, boundingBox.maxVertex.y, boundingBox.minVertex.z,
+    boundingBox.maxVertex.x, boundingBox.minVertex.y, boundingBox.minVertex.z,
+    boundingBox.maxVertex.x, boundingBox.maxVertex.y, boundingBox.minVertex.z,
+    boundingBox.minVertex.x, boundingBox.minVertex.y, boundingBox.maxVertex.z,
+    boundingBox.minVertex.x, boundingBox.maxVertex.y, boundingBox.maxVertex.z,
+    boundingBox.maxVertex.x, boundingBox.minVertex.y, boundingBox.maxVertex.z,
+    boundingBox.maxVertex.x, boundingBox.maxVertex.y, boundingBox.maxVertex.z,
+  };
+
+  RenderBoxOutline( context, mvp, vertices, numPoints);
+}
+
+#endif // defined(DEBUG_ENABLED)
 
 } // SceneGraph
 } // Internal

@@ -332,7 +332,7 @@ void TextRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& 
   }
 }
 
-bool TextRenderer::IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
+bool TextRenderer::IsOutsideClipSpace( BufferIndex bufferIndex, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
 {
   mContext->IncrementRendererCount();
 

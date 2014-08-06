@@ -180,7 +180,7 @@ void Renderer::Render( BufferIndex bufferIndex,
   // Check culling (does not need the program to be in use)
   if( cull && ! program.ModifiesGeometry() )
   {
-    if( IsOutsideClipSpace( modelMatrix, gModelViewProjectionMatrix ) )
+    if( IsOutsideClipSpace( bufferIndex, modelMatrix, gModelViewProjectionMatrix ) )
     {
       // don't do any further gl state changes as this renderer is not visible
       return;

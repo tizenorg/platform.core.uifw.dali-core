@@ -121,7 +121,7 @@ public:
   /**
    * @copydoc Dali::Internal::SceneGraph::Renderer::IsOutsideClipSpace()
    */
-  virtual bool IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix );
+  virtual bool IsOutsideClipSpace( BufferIndex bufferIndex, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix );
 
   /**
    * @copydoc Dali::Internal::SceneGraph::Renderer::DoRender()

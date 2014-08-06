@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/ref-object.h>
 #include <dali/internal/common/buffer-index.h>
+#include <dali/internal/common/bounding-box.h>
 #include <dali/internal/common/message.h>
 #include <dali/internal/update/nodes/node.h>
 #include <dali/internal/update/modeling/internal-mesh-data.h>
@@ -77,9 +78,10 @@ public:
   /**
    * Set the mesh data
    * @pre Should only be called in the update thread
+   * @param[in] bufferIndex to be used in double buffered values.
    * @param[in] meshData The mesh data
    */
-  void SetMeshData( MeshData* meshData );
+  void SetMeshData( BufferIndex bufferIndex, MeshData* meshData );
 
   /**
    * Get the mesh data.
@@ -129,11 +131,20 @@ public:
   size_t GetFaceIndexCount( ThreadBuffer threadBuffer ) const;
 
   /**
-   * Returns a new
+   * Returns true if there is any geometry
    * @param[in] threadBuffer indicates what buffer should be used
    * @return true if there is any geometry
    **/
   bool HasGeometry( ThreadBuffer threadBuffer ) const;
+
+  /**
+   * Get the bounding box of the mesh.
+   * @pre This function should be called only from the render thread.
+   *
+   * @param[in] bufferIndex The current buffer index
+   * @return boundingBox The bounding box of the mesh
+   */
+  const BoundingBox& GetBoundingBox(BufferIndex bufferIndex);
 
 public: // from GlResourceOwner
 
@@ -152,6 +163,11 @@ private:
    * Method to set if the vertex buffer should be refreshed in the render thread
    */
   void RefreshVertexBuffer();
+
+  /**
+   * Calculate the bounding box of the given mesh
+   */
+  void CalculateBoundingBox(BufferIndex bufferIndex, MeshData* meshData);
 
   /**
    * Private constructor; see also Mesh::New()
@@ -178,8 +194,11 @@ protected:
   OwnerPointer<MeshData> mRenderMeshData; ///< Owner of the MeshData Object
   OwnerPointer<GpuBuffer> mVertexBuffer;  ///< Vertex buffer
   OwnerPointer<GpuBuffer> mIndicesBuffer; ///< Index buffer
-  size_t     mNumberOfVertices;    ///< Number of vertices
-  size_t     mNumberOfFaces;       ///< Number of faces
+
+  BoundingBox mBoundingBox[2];            ///< BoundingBox, double buffered
+
+  size_t     mNumberOfVertices;           ///< Number of vertices
+  size_t     mNumberOfFaces;              ///< Number of faces
   ResourceId mResourceId;
   bool mRefreshVertexBuffer;              ///< True when GpuBuffers need updating
 };

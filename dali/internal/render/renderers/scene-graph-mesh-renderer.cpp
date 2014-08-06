@@ -22,14 +22,17 @@
 #include <dali/public-api/math/matrix3.h>
 #include <dali/public-api/math/matrix.h>
 #include <dali/internal/common/internal-constants.h>
+#include <dali/internal/common/bounding-box.h>
 #include <dali/internal/update/modeling/scene-graph-mesh.h>
 #include <dali/internal/update/modeling/scene-graph-material.h>
 #include <dali/internal/update/node-attachments/scene-graph-light-attachment.h>
 #include <dali/internal/update/controllers/light-controller.h>
 #include <dali/internal/update/controllers/scene-controller.h>
+#include <dali/internal/render/common/culling-algorithms.h>
+#include <dali/internal/render/renderers/render-material.h>
+#include <dali/internal/render/renderers/scene-graph-renderer-debug.h>
 #include <dali/internal/render/shaders/program.h>
 #include <dali/internal/render/shaders/shader.h>
-#include <dali/internal/render/renderers/render-material.h>
 
 using namespace std;
 
@@ -172,9 +175,20 @@ void MeshRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& 
   }
 }
 
-bool MeshRenderer::IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
+bool MeshRenderer::IsOutsideClipSpace( BufferIndex bufferIndex, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
 {
-  return false; // @todo add implementation
+  MeshInfo& meshInfo = mMeshInfo[bufferIndex];
+  Mesh* mesh = meshInfo.mesh;
+  BoundingBox boundingBox = mesh->GetBoundingBox(bufferIndex);
+
+  DEBUG_BOUNDING_BOX( *mContext, boundingBox, modelViewProjectionMatrix );
+
+  if( Is3dBoxOutsideClipSpace( modelMatrix, modelViewProjectionMatrix, boundingBox ) )
+  {
+    mContext->IncrementCulledCount();
+    return true;
+  }
+  return false;
 }
 
 void MeshRenderer::DoRender( BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )

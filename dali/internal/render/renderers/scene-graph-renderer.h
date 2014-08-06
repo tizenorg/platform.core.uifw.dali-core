@@ -158,11 +158,12 @@ private:
 
   /**
    * Checks if renderer is culled.
+   * @param[in] bufferIndex The index of the previous update buffer.
    * @param[in] modelMatrix The model matrix.
    * @param[in] modelViewProjectionMatrix The MVP matrix.
    * @return \e true if it is. Otherwise \e false.
    */
-  virtual bool IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix ) = 0;
+  virtual bool IsOutsideClipSpace( BufferIndex bufferIndex, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix ) = 0;
 
   /**
    * Called from Render; implemented in derived classes.

@@ -227,7 +227,7 @@ void ImageRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType&
   outSubType = SHADER_DEFAULT;
 }
 
-bool ImageRenderer::IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
+bool ImageRenderer::IsOutsideClipSpace( BufferIndex bufferIndex, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
 {
   mContext->IncrementRendererCount();
 

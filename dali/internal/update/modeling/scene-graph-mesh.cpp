@@ -50,15 +50,21 @@ Mesh::Mesh( ResourceId id,
   mResourceId ( id ),
   mRefreshVertexBuffer(true)
 {
+  CalculateBoundingBox(0, meshData);
+  mBoundingBox[1] = mBoundingBox[0];
 }
 
 Mesh::~Mesh()
 {
 }
 
-void Mesh::SetMeshData(MeshData* meshData)
+void Mesh::SetMeshData(BufferIndex updateBufferIndex, MeshData* meshData)
 {
+  // Called only from Update thread
   mUpdateMeshData = meshData;
+
+  CalculateBoundingBox(updateBufferIndex, meshData);
+  // MeshDataUpdated() will follow shortly in Render thread.
 }
 
 MeshData& Mesh::GetMeshData( Mesh::ThreadBuffer threadBuffer )
@@ -103,11 +109,12 @@ void Mesh::MeshDataUpdated( BufferIndex bufferIndex, Mesh::ThreadBuffer threadBu
     mRenderMeshData = meshData;
     RefreshVertexBuffer();
   }
-  else
+  else // threadBuffer == Mesh::UPDATE_THREAD
   {
-    // Dynamics and animatable meshes don't create new mesh data
+    // Dynamics and animatable meshes don't create new mesh data.
     DALI_ASSERT_DEBUG( threadBuffer == Mesh::UPDATE_THREAD );
     DALI_ASSERT_DEBUG( meshData == NULL );
+    CalculateBoundingBox(bufferIndex, mUpdateMeshData);
 
     // Send a message to self in render thread
     typedef Message< Mesh > LocalType;
@@ -201,6 +208,11 @@ bool Mesh::HasGeometry( ThreadBuffer threadBuffer ) const
   return GetMeshData(threadBuffer).GetVertexCount() > 0;
 }
 
+const BoundingBox& Mesh::GetBoundingBox(BufferIndex bufferIndex)
+{
+  return mBoundingBox[bufferIndex];
+}
+
 void Mesh::GlContextDestroyed()
 {
   if( mVertexBuffer )
@@ -217,6 +229,40 @@ void Mesh::GlCleanup()
 {
   mVertexBuffer = NULL;
   mIndicesBuffer = NULL;
+}
+
+
+
+void Mesh::CalculateBoundingBox(BufferIndex bufferIndex, MeshData* meshData)
+{
+  /// @todo Should only calculate bounding box if it's going to be used...
+  /// Though, currently no obvious way of checking this - it's in the SceneGraph::Renderer base class...
+
+  Vector3& minVertex = mBoundingBox[bufferIndex].minVertex;
+  Vector3& maxVertex = mBoundingBox[bufferIndex].maxVertex;
+
+  minVertex = Vector3::ZERO;
+  maxVertex = Vector3::ZERO;
+
+  if( meshData != NULL )
+  {
+    const MeshData::VertexContainer& vertices = meshData->GetVertices();
+    if( ! vertices.empty() )
+    {
+      minVertex = Vector3::ONE *  1e10f;
+      maxVertex = Vector3::ONE * -1e10f;
+      for( MeshData::VertexContainer::const_iterator iter = vertices.begin(), end = vertices.end() ;
+           iter != end ; ++iter )
+      {
+        minVertex.x = min( minVertex.x, iter->x );
+        minVertex.y = min( minVertex.y, iter->y );
+        minVertex.z = min( minVertex.z, iter->z );
+        maxVertex.x = max( maxVertex.x, iter->x );
+        maxVertex.y = max( maxVertex.y, iter->y );
+        maxVertex.z = max( maxVertex.z, iter->z );
+      }
+    }
+  }
 }
 
 } // namespace SceneGraph

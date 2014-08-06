@@ -20,6 +20,7 @@
 #include <dali/public-api/math/matrix.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/math/rect.h>
+#include <dali/internal/common/bounding-box.h>
 
 namespace Dali
 {
@@ -33,12 +34,25 @@ namespace SceneGraph
  * model view projection matrix).
  * @param[in] modelMatrix The world matrix of the bounding box.
  * @param[in] modelViewProjectionMatrix The clip space matrix
- * @param[in] boundingBox The bounding box of the geometry in object space
+ * @param[in] boundingBox The 2D bounding box of the geometry in object space
  * @return true if the bounding box is outside clip space
  */
 bool Is2dBoxOutsideClipSpace(const Matrix& modelMatrix,
                              const Matrix& modelViewProjectionMatrix,
                              const Rect<float>& boundingBox );
+
+/**
+ * Determine if the given bounding box is outside clip space (given by the
+ * model view projection matrix).
+ * @param[in] modelMatrix The world matrix of the bounding box.
+ * @param[in] modelViewProjectionMatrix The clip space matrix
+ * @param[in] boundingBox The 3D bounding box of the geometry in object space
+ * @return true if the bounding box is outside clip space
+ */
+bool Is3dBoxOutsideClipSpace( const Matrix& modelMatrix,
+                              const Matrix& modelViewProjectionMatrix,
+                              const BoundingBox& boundingBox );
+
 } // SceneGraph
 } // Internal
 } // Dali

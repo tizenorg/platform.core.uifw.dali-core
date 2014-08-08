@@ -65,6 +65,24 @@ TextActor::~TextActor()
 {
 }
 
+TextActor::TextActor(const TextActor& copy)
+: RenderableActor( static_cast<Dali::Internal::RenderableActor*>( copy.GetObjectPtr() ) )
+{
+}
+
+TextActor& TextActor::operator=(const TextActor& rhs)
+{
+  BaseHandle::operator=(rhs);
+  return *this;
+}
+
+TextActor& TextActor::operator=(BaseHandle::NullType* rhs)
+{
+  DALI_ASSERT_ALWAYS( (rhs == NULL) && "Can only assign NULL pointer to handle");
+  Reset();
+  return *this;
+}
+
 string TextActor::GetText() const
 {
   return GetImplementation(*this).GetText();

@@ -152,11 +152,11 @@ void UninstallLogFunction()
 #ifdef DEBUG_ENABLED
 
 /*Change false to true if trace is needed but don't commit to codeline*/
-Filter* Filter::gRender     = Filter::New(Debug::Concise, false, "LOG_RENDER");
-Filter* Filter::gResource   = Filter::New(Debug::Concise, false, "LOG_RESOURCE");
-Filter* Filter::gGLResource = Filter::New(Debug::Concise, false, "LOG_GL_RESOURCE");
+Filter* Filter::gRender     = Filter::New(Debug::General, false, "LOG_RENDER");
+Filter* Filter::gResource   = Filter::New(Debug::General, false, "LOG_RESOURCE");
+Filter* Filter::gGLResource = Filter::New(Debug::General, false, "LOG_GL_RESOURCE");
 Filter* Filter::gObject     = NULL;
-Filter* Filter::gImage      = Filter::New(Debug::Concise, false, "LOG_IMAGE");
+Filter* Filter::gImage      = Filter::New(Debug::General, false, "LOG_IMAGE");
 Filter* Filter::gModel      = Filter::New(Debug::Concise, false, "LOG_MODEL");
 Filter* Filter::gNode       = NULL;
 Filter* Filter::gElement    = NULL;

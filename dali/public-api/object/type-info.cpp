@@ -82,6 +82,11 @@ TypeInfo::NameContainer TypeInfo::GetSignals()
   return GetImplementation(*this).GetSignals();
 }
 
+TypeInfo::NameContainer TypeInfo::GetProperties()
+{
+  return GetImplementation(*this).GetProperties();
+}
+
 void TypeInfo::GetPropertyIndices( Property::IndexContainer& indices ) const
 {
   indices.clear(); // We do not want to clear the container if called internally, so only clear here

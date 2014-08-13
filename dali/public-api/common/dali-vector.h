@@ -18,9 +18,9 @@
  *
  */
 
-
 // EXTERNAL INCLUDES
 #include <cstddef>
+#include <algorithm>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -81,15 +81,14 @@ public: // API
    */
   SizeType Count() const
   {
-    SizeType items = 0;
+    SizeType items = 0u;
     if( mData )
     {
       SizeType* metadata = reinterpret_cast< SizeType* >( mData );
-      items = *(metadata - 1);
+      items = *(metadata - 1u);
     }
     return items;
   }
-
 
   /**
    * @return The count of elements in this vector.
@@ -119,6 +118,16 @@ protected: // for Derived classes
    * @param count Number of elements in the vector.
    */
   void SetCount( SizeType count );
+
+  /**
+   * @brief Inserts the given elements into the vector.
+   *
+   * @param[in] at Address where to insert the elements into the vector.
+   * @param[in] from Address to the first element to be inserted.
+   * @param[in] to Address to the last element to be inserted.
+   * @param[in] elementSize Size of one of the elements to be inserted.
+   */
+  void Insert( char* at, char* from, char* to, SizeType elementSize );
 
   /**
    * @brief Reserve space in the vector.
@@ -152,6 +161,16 @@ protected: // for Derived classes
    * @param elementSize to erase.
    */
   void Erase( char* address, SizeType elementSize );
+
+  /**
+   * @brief Erase a range of elements.
+   *
+   * Does not change capacity.
+   * @param[in] first Address to the first element to be erased.
+   * @param[in] last Address to the last element to be erased.
+   * @param[in] elementSize Size of one of the elements to be erased.
+   */
+  char* Erase( char* first, char* last, SizeType elementSize );
 
 private:
 
@@ -262,6 +281,17 @@ protected: // API for deriving classes
     VectorBase::Erase( address, elementSize );
   }
 
+  /**
+   * @brief Erase a range of elements. Does not change capacity.
+   *
+   * @param[in] first Address to the first element to be erased.
+   * @param[in] last Address to the last element to be erased.
+   * @param[in] elementSize Size of one of the elements to be erased.
+   */
+  char* Erase( char* first, char* last, SizeType elementSize )
+  {
+    return VectorBase::Erase( first, last, elementSize );
+  }
 };
 
 /**
@@ -399,11 +429,30 @@ public: // API
     if( newCount > capacity )
     {
       // need more space
-      Reserve( newCount << 1 ); // reserve double the current count
+      Reserve( newCount << 1u ); // reserve double the current count
     }
     // set new count first as otherwise the debug assert will hit us
     VectorBase::SetCount( newCount );
     operator[]( count ) = element;
+  }
+
+  /**
+   * @brief Inserts the given elements into the vector.
+   *
+   * @pre Iterator \e at must be in range.
+   * @pre Iterators \e from and \e to must be valid iterators.
+   *
+   * @param[in] at Iterator where to insert the elements into the vector.
+   * @param[in] from Iterator to the first element to be inserted.
+   * @param[in] to Iterator to the last element to be inserted.
+   */
+  void Insert( Iterator at, Iterator from, Iterator to )
+  {
+    DALI_ASSERT_VECTOR( ( at <= End() ) && ( at >= Begin() ) && "Iterator not inside vector" );
+    VectorBase::Insert( reinterpret_cast< char* >( at ),
+                        reinterpret_cast< char* >( from ),
+                        reinterpret_cast< char* >( to ),
+                        sizeof( ItemType ) );
   }
 
   /**
@@ -421,7 +470,7 @@ public: // API
    * @brief Resize the vector. Does not change capacity.
    *
    * @param count to resize to.
-   * @param item to insert to the new indeces.
+   * @param item to insert to the new indices.
    */
   void Resize( SizeType count, ItemType item = ItemType() )
   {
@@ -436,7 +485,7 @@ public: // API
       // remember how many new items get added
       SizeType newItems = count - oldCount;
       Reserve( count );
-      for( ; newItems > 0; --newItems )
+      for( ; newItems > 0u; --newItems )
       {
         PushBack( item );
       }
@@ -454,7 +503,7 @@ public: // API
   {
     DALI_ASSERT_VECTOR( VectorBase::mData && "Vector is empty" );
     DALI_ASSERT_VECTOR( (iterator < End()) && (iterator >= Begin() ) && "Iterator not inside vector" );
-    if( iterator < ( End() - 1 ) )
+    if( iterator < ( End() - 1u ) )
     {
       VectorAlgorithms<BaseType>::Erase( reinterpret_cast< char* >( iterator ), sizeof( ItemType ) );
     }
@@ -464,6 +513,40 @@ public: // API
       Remove( iterator );
     }
     return iterator;
+  }
+
+  /**
+   * @brief Erase a range of elements.
+   *
+   * Does not change capacity. Other elements get moved.
+   * @param[in] first Iterator to the first element to be erased.
+   * @param[in] last Iterator to the last element to be erased.
+   *
+   * @return Iterator pointing to the next element of the last one.
+   */
+  Iterator Erase( Iterator first, Iterator last )
+  {
+    DALI_ASSERT_VECTOR( VectorBase::mData && "Vector is empty" );
+    DALI_ASSERT_VECTOR( ( first < End() ) && ( first >= Begin() ) && "Iterator not inside vector" );
+    DALI_ASSERT_VECTOR( ( last <= End() ) && ( last > Begin() ) && "Iterator not inside vector" );
+    DALI_ASSERT_VECTOR( ( first < last ) && "first iterator greater than last" );
+
+    Iterator nextElement;
+
+    if( last == End() )
+    {
+      // Erase up to the end.
+      VectorBase::SetCount( VectorBase::Count() - ( last - first ) );
+      nextElement = End();
+    }
+    else
+    {
+      nextElement = reinterpret_cast<Iterator>( VectorAlgorithms<BaseType>::Erase( reinterpret_cast< char* >( first ),
+                                                                                   reinterpret_cast< char* >( last ),
+                                                                                   sizeof( ItemType ) ) );
+    }
+
+    return nextElement;
   }
 
   /**
@@ -480,12 +563,12 @@ public: // API
     DALI_ASSERT_VECTOR( VectorBase::mData && "Vector is empty" );
     Iterator end = End();
     DALI_ASSERT_VECTOR( (iterator < end) && (iterator >= Begin() ) && "Iterator not inside vector" );
-    Iterator last = end - 1;
+    Iterator last = end - 1u;
     if( last != iterator )
     {
       std::swap( *iterator, *last );
     }
-    VectorBase::SetCount( VectorBase::Count() - 1 );
+    VectorBase::SetCount( VectorBase::Count() - 1u );
   }
 
   /**
@@ -515,6 +598,74 @@ public: // API
   }
 
 };
+
+/**
+ * Whether elements in the range \e first1, \e last2 are equals to those beginning at \e first2.
+ *
+ * @param[in] first1 Iterator to the first element of the first range.
+ * @param[in] last1 Iterator to the last element of the last range.
+ * @param[in] first2 Iterator to the first element of the second range.
+ *
+ * @return \e true if the condition is satisfied.
+ */
+template< class Iterator1, class Iterator2 >
+bool Equal( Iterator1 first1, Iterator1 last1, Iterator2 first2 )
+{
+  return std::equal( first1, last1, first2 );
+}
+
+/**
+ * Sorts the elements in the range \e first, \e last.
+ *
+ * @param[in] first Iterator to the first element of the range.
+ * @param[in] last Iterator to the last element of the range.
+ */
+template< class Iterator >
+void Sort( Iterator first, Iterator last )
+{
+  return std::sort( first, last );
+}
+
+/**
+ * Removes consecutive equal elements except the first one from the range \e first, \e last.
+ *
+ * @param[in] first Iterator to the first element of the range.
+ * @param[in] last Iterator to the last element of the range.
+ *
+ * @return An Iterator to the next element which is not removed.
+ */
+template< class Iterator >
+Iterator Unique( Iterator first, Iterator last )
+{
+  return std::unique( first, last );
+}
+
+/**
+ * Removes all elements from the range \e first, \e last which safisfy the \e predicate.
+ *
+ * @param[in] first Iterator to the first element of the range.
+ * @param[in] last Iterator to the last element of the range.
+ * @param[in] predicate Function which receives an element and returns a bool.
+ *
+ * @return An Iterator to the next element which is not removed.
+ */
+template< class Iterator, class UnaryPredicate >
+Iterator RemoveIf( Iterator first, Iterator last, UnaryPredicate predicate )
+{
+  return std::remove_if( first, last, predicate );
+}
+
+/**
+ * Reverses the order of the elements in the range \e first, \e last.
+ *
+ * @param[in] first Iterator to the first element of the range.
+ * @param[in] last Iterator to the last element of the range.
+ */
+template< class Iterator >
+void Reverse( Iterator first, Iterator last )
+{
+  std::reverse( first, last );
+}
 
 } // namespace Dali
 

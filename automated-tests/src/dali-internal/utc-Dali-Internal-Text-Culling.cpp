@@ -532,7 +532,6 @@ int UtcDaliTextCulling_Disable(void)
   TestApplication application;
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
   TestPlatformAbstraction& platformAbstraction = application.GetPlatform();
-  TraceCallStack& platformTrace = platformAbstraction.GetTrace();
 
   TraceCallStack& drawTrace = glAbstraction.GetDrawTrace();
   drawTrace.Enable(true);

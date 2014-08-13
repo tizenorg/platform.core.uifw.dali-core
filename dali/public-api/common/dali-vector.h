@@ -18,9 +18,9 @@
  *
  */
 
-
 // EXTERNAL INCLUDES
 #include <cstddef>
+#include <algorithm>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -81,15 +81,14 @@ public: // API
    */
   SizeType Count() const
   {
-    SizeType items = 0;
+    SizeType items = 0u;
     if( mData )
     {
       SizeType* metadata = reinterpret_cast< SizeType* >( mData );
-      items = *(metadata - 1);
+      items = *(metadata - 1u);
     }
     return items;
   }
-
 
   /**
    * @return The count of elements in this vector.
@@ -119,6 +118,16 @@ protected: // for Derived classes
    * @param count Number of elements in the vector.
    */
   void SetCount( SizeType count );
+
+  /**
+   * @brief Inserts the given elements into the vector.
+   *
+   * @param[in] at Address where to insert the elements into the vector.
+   * @param[in] from Address to the first element to be inserted.
+   * @param[in] to Address to the last element to be inserted.
+   * @param[in] elementSize Size of one of the elements to be inserted.
+   */
+  void Insert( char* at, char* from, char* to, SizeType elementSize );
 
   /**
    * @brief Reserve space in the vector.
@@ -152,6 +161,16 @@ protected: // for Derived classes
    * @param elementSize to erase.
    */
   void Erase( char* address, SizeType elementSize );
+
+  /**
+   * @brief Erase a range of elements.
+   *
+   * Does not change capacity.
+   * @param[in] first Address to the first element to be erased.
+   * @param[in] last Address to the last element to be erased.
+   * @param[in] elementSize Size of one of the elements to be erased.
+   */
+  char* Erase( char* first, char* last, SizeType elementSize );
 
 private:
 
@@ -262,6 +281,17 @@ protected: // API for deriving classes
     VectorBase::Erase( address, elementSize );
   }
 
+  /**
+   * @brief Erase a range of elements. Does not change capacity.
+   *
+   * @param[in] first Address to the first element to be erased.
+   * @param[in] last Address to the last element to be erased.
+   * @param[in] elementSize Size of one of the elements to be erased.
+   */
+  char* Erase( char* first, char* last, SizeType elementSize )
+  {
+    return VectorBase::Erase( first, last, elementSize );
+  }
 };
 
 /**
@@ -389,7 +419,11 @@ public: // API
   /**
    * @brief Push back an element to the vector.
    *
-   * @param element to be added.
+   * The underlying storage may be reallocated to provide space.
+   * If this occurs, all pre-existing pointers into the vector will
+   * become invalid.
+   *
+   * @param[in] element to be added.
    */
   void PushBack( const ItemType& element )
   {
@@ -399,11 +433,59 @@ public: // API
     if( newCount > capacity )
     {
       // need more space
-      Reserve( newCount << 1 ); // reserve double the current count
+      Reserve( newCount << 1u ); // reserve double the current count
     }
     // set new count first as otherwise the debug assert will hit us
     VectorBase::SetCount( newCount );
     operator[]( count ) = element;
+  }
+
+  /**
+   *@brief Insert an element to the vector.
+   *
+   * Elements after \e at are moved one position to the right.
+   *
+   * The underlying storage may be reallocated to provide space.
+   * If this occurs, all pre-existing pointers into the vector will
+   * become invalid.
+   *
+   * @param[in] at Iterator where to insert the elements into the vector.
+   * @param[in] element to be added.
+   */
+  void Insert( Iterator at, const ItemType& element )
+  {
+    DALI_ASSERT_VECTOR( ( at <= End() ) && ( at >= Begin() ) && "Iterator not inside vector" );
+    const SizeType size = sizeof( ItemType );
+    char* address = const_cast<char*>( reinterpret_cast<const char*>( &element ) );
+    VectorBase::Insert( reinterpret_cast< char* >( at ),
+                        address,
+                        address + size,
+                        size );
+  }
+
+  /**
+   * @brief Inserts the given elements into the vector.
+   *
+   * Elements after \e at are moved the number of given elements positions to the right.
+   *
+   * The underlying storage may be reallocated to provide space.
+   * If this occurs, all pre-existing pointers into the vector will
+   * become invalid.
+   *
+   * @pre Iterator \e at must be in range (Vector::Begin(), Vector::End()).
+   * @pre Iterators \e from and \e to must be valid iterators.
+   *
+   * @param[in] at Iterator where to insert the elements into the vector.
+   * @param[in] from Iterator to the first element to be inserted.
+   * @param[in] to Iterator to the last element to be inserted.
+   */
+  void Insert( Iterator at, Iterator from, Iterator to )
+  {
+    DALI_ASSERT_VECTOR( ( at <= End() ) && ( at >= Begin() ) && "Iterator not inside vector" );
+    VectorBase::Insert( reinterpret_cast< char* >( at ),
+                        reinterpret_cast< char* >( from ),
+                        reinterpret_cast< char* >( to ),
+                        sizeof( ItemType ) );
   }
 
   /**
@@ -421,7 +503,7 @@ public: // API
    * @brief Resize the vector. Does not change capacity.
    *
    * @param count to resize to.
-   * @param item to insert to the new indeces.
+   * @param item to insert to the new indices.
    */
   void Resize( SizeType count, ItemType item = ItemType() )
   {
@@ -436,7 +518,7 @@ public: // API
       // remember how many new items get added
       SizeType newItems = count - oldCount;
       Reserve( count );
-      for( ; newItems > 0; --newItems )
+      for( ; newItems > 0u; --newItems )
       {
         PushBack( item );
       }
@@ -454,7 +536,7 @@ public: // API
   {
     DALI_ASSERT_VECTOR( VectorBase::mData && "Vector is empty" );
     DALI_ASSERT_VECTOR( (iterator < End()) && (iterator >= Begin() ) && "Iterator not inside vector" );
-    if( iterator < ( End() - 1 ) )
+    if( iterator < ( End() - 1u ) )
     {
       VectorAlgorithms<BaseType>::Erase( reinterpret_cast< char* >( iterator ), sizeof( ItemType ) );
     }
@@ -464,6 +546,40 @@ public: // API
       Remove( iterator );
     }
     return iterator;
+  }
+
+  /**
+   * @brief Erase a range of elements.
+   *
+   * Does not change capacity. Other elements get moved.
+   * @param[in] first Iterator to the first element to be erased.
+   * @param[in] last Iterator to the last element to be erased.
+   *
+   * @return Iterator pointing to the next element of the last one.
+   */
+  Iterator Erase( Iterator first, Iterator last )
+  {
+    DALI_ASSERT_VECTOR( VectorBase::mData && "Vector is empty" );
+    DALI_ASSERT_VECTOR( ( first < End() ) && ( first >= Begin() ) && "Iterator not inside vector" );
+    DALI_ASSERT_VECTOR( ( last <= End() ) && ( last > Begin() ) && "Iterator not inside vector" );
+    DALI_ASSERT_VECTOR( ( first < last ) && "first iterator greater than last" );
+
+    Iterator nextElement;
+
+    if( last == End() )
+    {
+      // Erase up to the end.
+      VectorBase::SetCount( VectorBase::Count() - ( last - first ) );
+      nextElement = End();
+    }
+    else
+    {
+      nextElement = reinterpret_cast<Iterator>( VectorAlgorithms<BaseType>::Erase( reinterpret_cast< char* >( first ),
+                                                                                   reinterpret_cast< char* >( last ),
+                                                                                   sizeof( ItemType ) ) );
+    }
+
+    return nextElement;
   }
 
   /**
@@ -480,12 +596,12 @@ public: // API
     DALI_ASSERT_VECTOR( VectorBase::mData && "Vector is empty" );
     Iterator end = End();
     DALI_ASSERT_VECTOR( (iterator < end) && (iterator >= Begin() ) && "Iterator not inside vector" );
-    Iterator last = end - 1;
+    Iterator last = end - 1u;
     if( last != iterator )
     {
       std::swap( *iterator, *last );
     }
-    VectorBase::SetCount( VectorBase::Count() - 1 );
+    VectorBase::SetCount( VectorBase::Count() - 1u );
   }
 
   /**

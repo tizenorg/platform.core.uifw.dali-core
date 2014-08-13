@@ -225,6 +225,33 @@ Dali::TypeInfo::NameContainer TypeInfo::GetSignals()
   return ret;
 }
 
+Dali::TypeInfo::NameContainer TypeInfo::GetProperties()
+{
+  Dali::TypeInfo::NameContainer ret;
+
+  Property::IndexContainer indices;
+
+  GetPropertyIndices(indices);
+
+  ret.reserve(indices.size());
+
+  typedef std::vector< Property::Index > IndexContainer; ///< A vector of property indices
+  for(Property::IndexContainer::iterator iter = indices.begin(); iter != indices.end(); ++iter)
+  {
+    const std::string& name = GetPropertyName( *iter );
+    if(name.size())
+    {
+      ret.push_back( name );
+    }
+    else
+    {
+      DALI_LOG_WARNING("Property had no name\n");
+    }
+  }
+
+  return ret;
+}
+
 void TypeInfo::GetPropertyIndices( Property::IndexContainer& indices ) const
 {
   Dali::TypeInfo base = TypeRegistry::Get()->GetTypeInfo( mBaseTypeName );

@@ -753,6 +753,334 @@ int UtcDaliVectorAcidTest(void)
   END_TEST;
 }
 
+int UtcDaliVectorInsert01(void)
+{
+  tet_infoline( "Testing Dali::Vector< int* >Insert(Iterator, Element)" );
+
+  // empty vector
+  Vector< int* > pointervector;
+
+  // Test order of array inserted-into:
+  Vector< unsigned int > orderedVector;
+  orderedVector.PushBack( 9u );
+  for( unsigned int i = 8u; i <= 8u; --i )
+  {
+    orderedVector.Insert( orderedVector.Begin(), i );
+    DALI_TEST_EQUALS( 10u - i, orderedVector.Count(), TEST_LOCATION );
+    DALI_TEST_EQUALS( i, orderedVector[0u], TEST_LOCATION );
+  }
+
+  for( unsigned int i = 0u; i < 10u; ++i )
+  {
+    DALI_TEST_EQUALS( i, orderedVector[i], TEST_LOCATION );
+  }
+
+  // Test insertion out of range in non-empty array throws:
+  try
+  {
+    orderedVector.Insert( orderedVector.Begin() + 99u, 99u );
+    tet_printf( "Assertion expected, but not occurred at %s\n", TEST_LOCATION );
+    tet_result( TET_FAIL );
+  }
+  catch( Dali::DaliException& e )
+  {
+    tet_printf( "Assertion %s test at %s\n", e.mCondition.c_str(), e.mLocation.c_str() );
+    DALI_TEST_ASSERT( e, "( at <= End() ) && ( at >= Begin() )", TEST_LOCATION );
+  }
+  catch( ... )
+  {
+    tet_printf( "Assertion test failed - wrong Exception\n" );
+    tet_result( TET_FAIL );
+  }
+
+  // Test insertion part-way through a largish array retains ordering:
+
+  // Build vector with hole in sequence:
+  Vector< unsigned int > longerVector;
+  const unsigned int insertionPoint = 131571u;
+  const unsigned int finalLength = 262143u;
+  for( unsigned int i = 0u; i < insertionPoint; ++i )
+  {
+    longerVector.PushBack( i );
+  }
+  for( unsigned int i = insertionPoint; i < finalLength; ++i )
+  {
+    longerVector.PushBack( i + 1 );
+  }
+
+  // Fill the hole in the sequence:
+  longerVector.Insert( longerVector.Begin() + insertionPoint, insertionPoint );
+
+  // Check the sequence is monotonically increasing by one every time:
+  for( unsigned int i = 0u; i <= finalLength; ++i )
+  {
+    DALI_TEST_EQUALS( i, longerVector[i], TEST_LOCATION );
+  }
+
+  END_TEST;
+}
+
+int UtcDaliVectorInsert02(void)
+{
+  tet_infoline("Testing Dali::Vector<char>::Insert(Iterator,Iterator,Iterator)");
+
+  Vector< char > vector;
+  DALI_TEST_EQUALS( ZERO, vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( ZERO, vector.Capacity(), TEST_LOCATION );
+  vector.PushBack( 1 );
+  vector.PushBack( 2 );
+  vector.PushBack( 3 );
+  vector.PushBack( 4 );
+  vector.PushBack( 5 );
+
+  Vector< char > vector2;
+  DALI_TEST_EQUALS( ZERO, vector2.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( ZERO, vector2.Capacity(), TEST_LOCATION );
+  vector2.PushBack( 6 );
+  vector2.PushBack( 7 );
+  vector2.PushBack( 8 );
+  vector2.PushBack( 9 );
+  vector2.PushBack( 10 );
+
+  // Test insert at end
+  vector.Insert( vector.End(), vector2.Begin(), vector2.Begin() + 1u );
+  DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(6), vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], 1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], 2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], 3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], 4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 5 ], 6, TEST_LOCATION );
+
+  // Test insert at begin
+  vector.Insert( vector.Begin(), vector2.Begin()+1, vector2.Begin() + 2u );
+  DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(7), vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], 7, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], 1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], 2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], 3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], 4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 5 ], 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 6 ], 6, TEST_LOCATION );
+
+  // Test insert in the middle
+  vector.Insert( vector.Begin() + 3, vector2.Begin()+3, vector2.End() );
+  DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(9), vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], 7, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], 1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], 2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], 9, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], 10, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 5 ], 3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 6 ], 4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 7 ], 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 8 ], 6, TEST_LOCATION );
+  END_TEST;
+}
+
+int UtcDaliVectorIntInsertAssert(void)
+{
+  tet_infoline("Testing Dali::Vector<char>::Insert(Iterator,Iterator,Iterator) asserts");
+
+  Vector< char > vector;
+  DALI_TEST_EQUALS( ZERO, vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( ZERO, vector.Capacity(), TEST_LOCATION );
+  vector.PushBack( 1 );
+  vector.PushBack( 2 );
+
+  Vector< char > vector2;
+  DALI_TEST_EQUALS( ZERO, vector2.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( ZERO, vector2.Capacity(), TEST_LOCATION );
+  vector2.PushBack( 6 );
+  vector2.PushBack( 7 );
+  vector2.PushBack( 8 );
+  vector2.PushBack( 9 );
+  vector2.PushBack( 10 );
+
+  try
+  {
+    vector.Insert( vector.Begin() +  3u, vector2.Begin(), vector2.End() );
+    tet_result(TET_FAIL);
+  }
+  catch( Dali::DaliException& e )
+  {
+    tet_printf("Assertion %s test at %s\n", e.mCondition.c_str(), e.mLocation.c_str());
+    DALI_TEST_ASSERT( e, "( at <= End() ) && ( at >= Begin() )", TEST_LOCATION );
+  }
+  catch( ... )
+  {
+    tet_printf("Assertion test failed - wrong Exception\n" );
+    tet_result(TET_FAIL);
+  }
+
+  END_TEST;
+ }
+
+
+int UtcDaliVectorIntEraseRange(void)
+{
+  tet_infoline("Testing Dali::Vector<char>::Erase(Iterator,Iterator)");
+
+  Vector< char > vector;
+  DALI_TEST_EQUALS( ZERO, vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( ZERO, vector.Capacity(), TEST_LOCATION );
+  vector.PushBack( 1 );
+  vector.PushBack( 2 );
+  vector.PushBack( 3 );
+  vector.PushBack( 4 );
+  vector.PushBack( 5 );
+  DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(5), vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], 1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], 2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], 3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], 4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], 5, TEST_LOCATION );
+
+  Vector< char >::Iterator ret;
+
+  ret = vector.Erase( vector.Begin() + 1u, vector.Begin() + 2u );
+  DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(4), vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], 1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], 3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], 4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( *ret, 3, TEST_LOCATION );
+
+  ret = vector.Erase( vector.Begin(), vector.Begin() + 2 );
+  DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(2), vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], 4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( *ret, 4, TEST_LOCATION );
+
+  // try erasing last
+  vector.PushBack( 99 );
+  DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(3), vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], 99, TEST_LOCATION );
+  ret = vector.Erase( vector.Begin() + 1u, vector.End() );
+  DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(1), vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], 4, TEST_LOCATION );
+  DALI_TEST_EQUALS( ret, vector.End(), TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliVectorIntEraseRangeAssert(void)
+{
+  tet_infoline("Testing Dali::Vector<char>::Erase(Iterator,Iterator) asserts");
+
+  Vector< char > vector;
+  DALI_TEST_EQUALS( ZERO, vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( ZERO, vector.Capacity(), TEST_LOCATION );
+
+  // Try to delete from empty vector.
+
+  try
+  {
+    vector.Erase( vector.Begin(), vector.End() );
+    tet_result(TET_FAIL);
+  }
+  catch( Dali::DaliException& e )
+  {
+    tet_printf("Assertion %s test at %s\n", e.mCondition.c_str(), e.mLocation.c_str());
+    DALI_TEST_ASSERT( e, "VectorBase::mData", TEST_LOCATION );
+  }
+  catch( ... )
+  {
+    tet_printf("Assertion test failed - wrong Exception\n" );
+    tet_result(TET_FAIL);
+  }
+
+  // Add some elements.
+  vector.PushBack( 1 );
+  vector.PushBack( 2 );
+
+  // first out of bounds
+  try
+  {
+    vector.Erase( vector.Begin() + 3u, vector.Begin() + 4u );
+    tet_result(TET_FAIL);
+  }
+  catch( Dali::DaliException& e )
+  {
+    tet_printf("Assertion %s test at %s\n", e.mCondition.c_str(), e.mLocation.c_str());
+    DALI_TEST_ASSERT( e, "( first < End() ) && ( first >= Begin() )", TEST_LOCATION );
+  }
+  catch( ... )
+  {
+    tet_printf("Assertion test failed - wrong Exception\n" );
+    tet_result(TET_FAIL);
+  }
+
+  try
+  {
+    vector.Erase( vector.Begin() - 1u, vector.End() );
+    tet_result(TET_FAIL);
+  }
+  catch( Dali::DaliException& e )
+  {
+    tet_printf("Assertion %s test at %s\n", e.mCondition.c_str(), e.mLocation.c_str());
+    DALI_TEST_ASSERT( e, "( first < End() ) && ( first >= Begin() )", TEST_LOCATION );
+  }
+  catch( ... )
+  {
+    tet_printf("Assertion test failed - wrong Exception\n" );
+    tet_result(TET_FAIL);
+  }
+
+  // last out of bounds
+  try
+  {
+    vector.Erase( vector.Begin(), vector.Begin() );
+    tet_result(TET_FAIL);
+  }
+  catch( Dali::DaliException& e )
+  {
+    tet_printf("Assertion %s test at %s\n", e.mCondition.c_str(), e.mLocation.c_str());
+    DALI_TEST_ASSERT( e, "( last <= End() ) && ( last > Begin() )", TEST_LOCATION );
+  }
+  catch( ... )
+  {
+    tet_printf("Assertion test failed - wrong Exception\n" );
+    tet_result(TET_FAIL);
+  }
+
+  try
+  {
+    vector.Erase( vector.Begin(), vector.Begin() + 3u );
+    tet_result(TET_FAIL);
+  }
+  catch( Dali::DaliException& e )
+  {
+    tet_printf("Assertion %s test at %s\n", e.mCondition.c_str(), e.mLocation.c_str());
+    DALI_TEST_ASSERT( e, "( last <= End() ) && ( last > Begin() )", TEST_LOCATION );
+  }
+  catch( ... )
+  {
+    tet_printf("Assertion test failed - wrong Exception\n" );
+    tet_result(TET_FAIL);
+  }
+
+  vector.PushBack( 3 );
+
+  try
+  {
+    vector.Erase( vector.Begin() + 2u, vector.Begin() + 1u );
+    tet_result(TET_FAIL);
+  }
+  catch( Dali::DaliException& e )
+  {
+    tet_printf("Assertion %s test at %s\n", e.mCondition.c_str(), e.mLocation.c_str());
+    DALI_TEST_ASSERT( e, "( first < last )", TEST_LOCATION );
+  }
+  catch( ... )
+  {
+    tet_printf("Assertion test failed - wrong Exception\n" );
+    tet_result(TET_FAIL);
+  }
+
+  END_TEST;
+}
+
 namespace
 {
 

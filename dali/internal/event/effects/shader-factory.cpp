@@ -21,7 +21,22 @@
 // EXTERNAL INCLUDES
 #include <algorithm>
 #include <sstream>
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wall"
+
+#include <set> // hash.hpp needs this?
+#include <map> // hash.hpp needs this?
+#include <list> // hash.hpp needs this?
 #include <boost/functional/hash.hpp>
+
+#pragma clang diagnostic pop
+#else
+
+#include <boost/functional/hash.hpp>
+
+#endif // __clang__
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>

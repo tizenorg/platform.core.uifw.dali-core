@@ -159,6 +159,13 @@ public:
    */
   NameContainer GetSignals();
 
+  /**
+   * @brief Retrieve the event side registered properties for this type.
+   *
+   * @return Container of property names
+   */
+  NameContainer GetProperties();
+
   // Properties
 
   /**

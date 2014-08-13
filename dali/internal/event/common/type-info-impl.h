@@ -86,6 +86,11 @@ public:
   Dali::TypeInfo::NameContainer GetSignals();
 
   /**
+   * @copydoc Dali::TypeInfo::GetProperties
+   */
+  Dali::TypeInfo::NameContainer GetProperties();
+
+  /**
    * Adds the property indices to the container specified.
    * @param[in/out] indices The container where the property indices are added.
    */

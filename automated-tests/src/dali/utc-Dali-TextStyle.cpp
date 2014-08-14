@@ -557,6 +557,71 @@ int UtcDaliTextStyleComparisonOperator(void)
   END_TEST;
 }
 
+int UtcDaliTextStyleCompare(void)
+{
+  tet_infoline(" UtcDaliTextStyleCompare ");
+
+  TestApplication application;
+
+  TextStyle style1;
+  TextStyle style2;
+
+  // Compare two defaults.
+
+  DALI_TEST_CHECK( style1.Compare( style2 ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::FONT ) );
+
+  // Compare different styles
+
+  style1.SetFontName( FONT_FAMILY );
+  style2.SetFontStyle( FONT_STYLE );
+  style1.SetFontPointSize( FONT_POINT_SIZE );
+  style2.SetTextColor( TEXT_COLOR );
+
+  style1.SetWeight( TEXT_WEIGHT );
+  style2.SetSmoothEdge( SMOOTH_EDGE );
+
+  style1.SetItalics( ITALICS, ITALICS_ANGLE );
+
+  style2.SetUnderline( UNDERLINE, UNDERLINE_THICKNESS, UNDERLINE_POSITION );
+
+  style1.SetShadow( SHADOW, SHADOW_COLOR, SHADOW_OFFSET, SHADOW_SIZE );
+  style2.SetGlow( GLOW, GLOW_COLOR, GLOW_INTENSITY );
+  style1.SetOutline( OUTLINE, OUTLINE_COLOR, OUTLINE_THICKNESS );
+  style2.SetGradient( GRADIENT, GRADIENT_COLOR, GRADIENT_START_POINT, GRADIENT_END_POINT );
+
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::WEIGHT ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::SIZE ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::ITALICS ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::SMOOTH ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::UNDERLINE ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::FONT ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::STYLE ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::COLOR ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::GLOW ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::OUTLINE ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::SHADOW ) );
+  DALI_TEST_CHECK( !style1.Compare( style2, TextStyle::GRADIENT ) );
+
+  // Compare same styles
+  style1 = style2;
+
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::WEIGHT ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::SIZE ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::ITALICS ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::SMOOTH ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::UNDERLINE ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::FONT ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::STYLE ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::COLOR ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::GLOW ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::OUTLINE ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::SHADOW ) );
+  DALI_TEST_CHECK( style1.Compare( style2, TextStyle::GRADIENT ) );
+
+  END_TEST;
+}
+
 int UtcDaliTextStyleCopy(void)
 {
   tet_infoline(" UtcDaliTextStyleCopy ");

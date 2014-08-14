@@ -518,12 +518,12 @@ TextStyle& TextStyle::operator=( const TextStyle& textStyle )
 bool TextStyle::operator==( const TextStyle& textStyle ) const
 {
   // If both Implementations are uninitialized then return equal
-  if ( mContainer == NULL && textStyle.mContainer == NULL )
+  if( ( mContainer == NULL ) && ( textStyle.mContainer == NULL ) )
   {
     return true;
   }
   // Otherwise if either one of the Implemetations are uninitialized then return not equal
-  else if ( mContainer == NULL || textStyle.mContainer == NULL )
+  else if( ( mContainer == NULL ) || ( textStyle.mContainer == NULL ) )
   {
     return false;
   }
@@ -588,6 +588,68 @@ bool TextStyle::operator==( const TextStyle& textStyle ) const
 bool TextStyle::operator!=( const TextStyle& textStyle ) const
 {
   return !( *this == textStyle );
+}
+
+bool TextStyle::Compare( const TextStyle& textStyle, Mask mask ) const
+{
+  if( mask == ALL )
+  {
+    return *this == textStyle;
+  }
+
+  // If both Implementations are uninitialized then return equal
+  if( ( mContainer == NULL ) && ( textStyle.mContainer == NULL ) )
+  {
+    return true;
+  }
+
+  if( ( ( mask & WEIGHT ) &&
+        ( GetWeight() != textStyle.GetWeight() ) ) ||
+
+      ( ( mask & SIZE ) &&
+        ( fabsf( GetFontPointSize() - textStyle.GetFontPointSize() ) > Math::MACHINE_EPSILON_1000 ) ) ||
+
+      ( ( mask & ITALICS ) &&
+        ( GetItalicsAngle() != textStyle.GetItalicsAngle() ) ) ||
+
+      ( ( mask & SMOOTH ) &&
+        ( fabsf( GetSmoothEdge() - textStyle.GetSmoothEdge() ) > Math::MACHINE_EPSILON_1000 ) ) ||
+
+      ( ( mask & UNDERLINE ) &&
+        ( ( fabsf( GetUnderlineThickness() - textStyle.GetUnderlineThickness() ) > Math::MACHINE_EPSILON_1000 ) ||
+          ( fabsf( GetUnderlinePosition() - textStyle.GetUnderlinePosition() ) > Math::MACHINE_EPSILON_1000 ) ) ) ||
+
+      ( ( mask & FONT ) &&
+        ( GetFontName() != textStyle.GetFontName() ) ) ||
+
+      ( ( mask & STYLE ) &&
+        ( GetFontStyle() != textStyle.GetFontStyle() ) ) ||
+
+      ( ( mask & COLOR ) &&
+        ( GetTextColor() != textStyle.GetTextColor() ) ) ||
+
+      ( ( mask & GLOW ) &&
+        ( ( fabsf( GetGlowIntensity() - textStyle.GetGlowIntensity() ) > Math::MACHINE_EPSILON_1000 ) ||
+          ( GetGlowColor() != textStyle.GetGlowColor() ) ) ) ||
+
+      ( ( mask & OUTLINE ) &&
+        ( ( GetOutlineThickness() != textStyle.GetOutlineThickness() ) ||
+          ( GetOutlineColor() != textStyle.GetOutlineColor() ) ) ) ||
+
+      ( ( mask & SHADOW ) &&
+        ( ( fabsf( GetShadowSize() - textStyle.GetShadowSize() ) > Math::MACHINE_EPSILON_1000 ) ||
+          ( GetShadowOffset() != textStyle.GetShadowOffset() ) ||
+          ( GetShadowColor() != textStyle.GetShadowColor() ) ) ) ||
+
+      ( ( mask & GRADIENT ) &&
+        ( ( GetGradientStartPoint() != textStyle.GetGradientStartPoint() ) ||
+          ( GetGradientEndPoint() != textStyle.GetGradientEndPoint() ) ||
+          ( GetGradientColor() != textStyle.GetGradientColor() ) ) ) )
+  {
+    return false;
+  }
+
+  return true;
 }
 
 void TextStyle::Copy( const TextStyle& textStyle, Mask mask )
@@ -767,7 +829,7 @@ void TextStyle::Copy( const TextStyle& textStyle, Mask mask )
         SetUnderline( textStyle.IsUnderlineEnabled(), textStyle.GetUnderlineThickness(), textStyle.GetUnderlinePosition() );
       }
     }
-    if ( mask & SHADOW )
+    if( mask & SHADOW )
     {
       if( textStyle.IsShadowDefault() )
       {
@@ -778,7 +840,7 @@ void TextStyle::Copy( const TextStyle& textStyle, Mask mask )
         SetShadow( textStyle.IsShadowEnabled(), textStyle.GetShadowColor(), textStyle.GetShadowOffset(), textStyle.GetShadowSize() );
       }
     }
-    if ( mask & GLOW )
+    if( mask & GLOW )
     {
       if( textStyle.IsGlowDefault() )
       {
@@ -789,7 +851,7 @@ void TextStyle::Copy( const TextStyle& textStyle, Mask mask )
         SetGlow( textStyle.IsGlowEnabled(), textStyle.GetGlowColor(), textStyle.GetGlowIntensity() );
       }
     }
-    if ( mask & OUTLINE )
+    if( mask & OUTLINE )
     {
       if( textStyle.IsOutlineDefault() )
       {
@@ -800,7 +862,7 @@ void TextStyle::Copy( const TextStyle& textStyle, Mask mask )
         SetOutline( textStyle.IsOutlineEnabled(), textStyle.GetOutlineColor(), textStyle.GetOutlineThickness() );
       }
     }
-    if ( mask & GRADIENT )
+    if( mask & GRADIENT )
     {
       if( textStyle.IsGradientDefault() )
       {

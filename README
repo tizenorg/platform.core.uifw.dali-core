@@ -37,7 +37,11 @@ T.O.C.
 2.2. Creating a DALi Environment
 -------------------------------
 
-To build for desktop first create a dali-env folder in your home folder with:
+To build for desktop first ensure ALL sources are selected:
+ - Go to Ubuntu Settings and then to Software & Updates
+ - In the Ubuntu Software tab, ensure ALL software sources are ticked.
+
+Then you can create a dali-env folder in your home folder with:
 
  dali-core/build/dali_env -c
 

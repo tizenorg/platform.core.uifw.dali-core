@@ -22,8 +22,9 @@
 #include <algorithm>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
+#include <dali/integration-api/debug.h>
 #include <dali/internal/update/animation/scene-graph-constraint-base.h>
+#include <dali/public-api/common/dali-common.h>
 
 namespace Dali
 {
@@ -33,6 +34,8 @@ namespace Internal
 
 namespace SceneGraph
 {
+
+const unsigned int MAX_ACTIVE_CONSTRAINTS_PER_ACTOR = 10;
 
 PropertyOwner* PropertyOwner::New()
 {
@@ -121,8 +124,12 @@ ConstraintOwnerContainer& PropertyOwner::GetConstraints()
 
 void PropertyOwner::ApplyConstraint( ConstraintBase* constraint )
 {
-  mConstraints.PushBack( constraint );
+  if ( mConstraints.Size() == MAX_ACTIVE_CONSTRAINTS_PER_ACTOR )
+  {
+    DALI_LOG_WARNING( "Exceeding MAX_ACTIVE_CONSTRAINTS_PER_ACTOR of %i\n", MAX_ACTIVE_CONSTRAINTS_PER_ACTOR );
+  }
 
+  mConstraints.PushBack( constraint );
   constraint->OnConnect();
 }
 

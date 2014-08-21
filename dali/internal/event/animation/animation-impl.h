@@ -983,6 +983,11 @@ protected:
 
 private:
 
+  /**
+   * Extends the duration when an animator is added with TimePeriod that exceeds current duration
+   */
+  void UpdateDuration( const TimePeriod& timePeriod );
+
   // Undefined
   Animation(const Animation&);
 

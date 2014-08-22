@@ -417,8 +417,25 @@ public:
   void Add(Actor child);
 
   /**
-   * @brief Removes a child Actor from this Actor.
+   * Inserts a child Actor to this Actor's childlist.
+   * NOTE! if the child already has a parent, it will be removed from old parent
+   * and reparented to this actor. This may change childs position, color, shader effect,
+   * scale etc as it now inherits them from this actor
+   * @pre This Actor (the parent) has been initialized.
+   * @pre The child actor has been initialized.
+   * @pre The child actor is not the same as the parent actor.
+   * @pre The actor is not the Root actor
+   * @param [in] child The child.
+   * @post The child will be referenced by its parent. This means that the child will be kept alive,
+   * even if the handle passed into this method is reset or destroyed.
+   * @post This may invalidate ActorContainer iterators.
+   */
+  void Add(Actor child, int index);
+
+  /**
+   * Removes a child Actor from this Actor.
    *
+   * @brief Removes a child Actor from this Actor.
    * If the actor was not a child of this actor, this is a no-op.
    * @pre This Actor (the parent) has been initialized.
    * @pre The child actor is not the same as the parent actor.
@@ -1104,6 +1121,12 @@ public:
    * @return true if the actor is focusable by keyboard navigation, false if not.
    */
   bool IsKeyboardFocusable() const;
+
+  /**
+   * Returns the the number of default property of the actor
+   * @return default property count
+   */
+  unsigned int GetDefaultPropertyCount() const;
 
 public: // Signals
 

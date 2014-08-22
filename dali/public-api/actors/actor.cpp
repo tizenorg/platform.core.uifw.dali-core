@@ -135,6 +135,10 @@ void Actor::Add(Actor actor)
   GetImplementation(*this).Add(GetImplementation(actor));
 }
 
+void Actor::Add(Actor actor, int index)
+{
+  GetImplementation(*this).Add(GetImplementation(actor), index);
+}
 void Actor::Remove(Actor actor)
 {
   GetImplementation(*this).Remove(GetImplementation(actor));
@@ -473,6 +477,11 @@ void Actor::SetKeyboardFocusable( bool focusable )
 bool Actor::IsKeyboardFocusable() const
 {
   return GetImplementation(*this).IsKeyboardFocusable();
+}
+
+unsigned int Actor::GetDefaultPropertyCount() const
+{
+  return GetImplementation(*this).GetDefaultPropertyCount();
 }
 
 Actor::TouchSignalV2& Actor::TouchedSignal()

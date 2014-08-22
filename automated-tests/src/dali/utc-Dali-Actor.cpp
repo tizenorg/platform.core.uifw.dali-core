@@ -405,6 +405,22 @@ int UtcDaliActorAdd(void)
   END_TEST;
 }
 
+int UtcDaliActorInsert(void)
+{
+  tet_infoline("Testing Actor::Add");
+  TestApplication application;
+
+  Actor parent = Actor::New();
+  Actor child = Actor::New();
+
+  DALI_TEST_EQUALS( parent.GetChildCount(), 0u, TEST_LOCATION );
+
+  parent.Insert(0, child);
+
+  DALI_TEST_EQUALS( parent.GetChildCount(), 1u, TEST_LOCATION );
+}
+
+
 int UtcDaliActorRemove01(void)
 {
   tet_infoline("Testing Actor::Remove");

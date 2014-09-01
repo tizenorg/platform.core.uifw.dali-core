@@ -23,23 +23,23 @@ namespace Dali
 
 FunctorDelegate::~FunctorDelegate()
 {
-  if( mObjectPointer )
+  if( mFunctorPointer )
   {
-    (*mDestructorDispatcher)( mObjectPointer );
+    (*mDestructorDispatcher)( mFunctorPointer );
   }
 }
 
 void FunctorDelegate::Execute()
 {
-  if( mObjectPointer )
+  if( mFunctorPointer )
   {
     Dispatcher dispatcher = mMemberFunctionDispatcher;
-    (*dispatcher)( mObjectPointer );
+    (*dispatcher)( mFunctorPointer );
   }
 }
 
 FunctorDelegate::FunctorDelegate( void* objectPtr, Dispatcher dispatcher, Destructor destructor )
-: mObjectPointer( objectPtr ),
+: mFunctorPointer( objectPtr ),
   mMemberFunctionDispatcher( dispatcher ),
   mDestructorDispatcher( destructor )
 {

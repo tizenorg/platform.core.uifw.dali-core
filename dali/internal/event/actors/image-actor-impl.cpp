@@ -96,31 +96,17 @@ std::string StyleString(const ImageActor::Style style)
 }
 }
 
-ImageActorPtr ImageActor::New( Image* anImage )
+ImageActorPtr ImageActor::New()
 {
-  ImageActorPtr actor( new ImageActor() );
-  ImagePtr theImage( anImage );
+  ImageActorPtr actor( new ImageActor );
 
   // Second-phase construction of base class
   actor->Initialize();
 
   // Create the attachment
-  actor->mImageAttachment = ImageAttachment::New( *actor->mNode, theImage.Get() );
+  actor->mImageAttachment = ImageAttachment::New( *actor->mNode );
   actor->Attach( *actor->mImageAttachment );
 
-  // don't call the external version as attachment already has the image
-  actor->SetImageInternal( NULL, anImage );
-
-  return actor;
-}
-
-
-ImageActorPtr ImageActor::New( Image* image, const PixelArea& pixelArea )
-{
-  // re-use basic New
-  ImageActorPtr actor = New( image );
-  // then set the pixel area
-  actor->mImageAttachment->SetPixelArea( pixelArea );
   return actor;
 }
 
@@ -138,19 +124,55 @@ void ImageActor::OnInitialize()
   }
 }
 
-void ImageActor::SetImage( Image* image )
+void ImageActor::SetImage( ImagePtr& image )
 {
-  Image* currentImage = static_cast<Image*>(mImageAttachment->GetImage().GetObjectPtr());
+  ImagePtr currentImage = mImageAttachment->GetImage();
   // early exit if it's the same image
   if ( currentImage == image || mImageNext.Get() == image )
   {
     return;
   }
 
-  SetImageInternal( currentImage, image );
+  if( currentImage )
+  {
+    // just call Disconnect as if not connected it is a no-op
+    currentImage->LoadingFinishedSignal().Disconnect( this, &ImageActor::ImageLoaded );
+  }
+
+  // NOTE! image might be pointing to NULL, which is fine as in that case app wants to just remove the image
+  ImagePtr newImage( image );
+  // if image is NULL
+  if( !image )
+  {
+    mImageAttachment->SetImage( newImage );
+  }
+  else
+  {
+    // Automatically convert nine-patch images to cropped bitmap
+    NinePatchImage* ninePatchImage = NinePatchImage::DownCast( image.Get() );
+    if( ninePatchImage )
+    {
+      newImage = ninePatchImage->CreateCroppedBitmapImage();
+      SetStyle( Dali::ImageActor::STYLE_NINE_PATCH );
+      SetNinePatchBorder( ninePatchImage->GetStretchBorders(), true );
+    }
+
+    // don't disconnect currently shown image until we made sure that the new one is loaded
+    if( Dali::ResourceLoading == newImage->GetLoadingState() && !newImage->GetFilename().empty() )
+    {
+      // observe image loading, @todo stop using signals internally!
+      image->LoadingFinishedSignal().Connect( this, &ImageActor::ImageLoaded );
+    }
+    else
+    {
+      // image already loaded, generated or 9 patch
+      ImageLoadedInternal( newImage );
+    }
+  }
+  mImageNext.Set( newImage, OnStage() );
 }
 
-Dali::Image ImageActor::GetImage()
+ImagePtr ImageActor::GetImage()
 {
   return mImageAttachment->GetImage();
 }
@@ -158,11 +180,11 @@ Dali::Image ImageActor::GetImage()
 void ImageActor::SetToNaturalSize()
 {
   mUsingNaturalSize = true;
-  Dali::Image image = mImageAttachment->GetImage();
+  ImagePtr image = mImageAttachment->GetImage();
 
   if( image )
   {
-    SetNaturalSize( GetImplementation(image) );
+    SetNaturalSize( image );
   }
 }
 
@@ -194,11 +216,11 @@ void ImageActor::ClearPixelArea()
 
   if( mUsingNaturalSize )
   {
-    Dali::Image image = mImageAttachment->GetImage();
+    ImagePtr image = mImageAttachment->GetImage();
     if( image )
     {
       mInternalSetSize = true;
-      SetSize(GetImplementation(image).GetNaturalSize());
+      SetSize( image->GetNaturalSize() );
       mInternalSetSize = false;
     }
   }
@@ -297,16 +319,16 @@ ImageActor::~ImageActor()
 {
   if( mImageAttachment )
   {
-    Dali::Image image = mImageAttachment->GetImage();
+    ImagePtr image = mImageAttachment->GetImage();
     if( image )
     {
       // just call Disconnect as if not connected it is a no-op
-      image.LoadingFinishedSignal().Disconnect( this, &ImageActor::ImageLoaded );
+      image->LoadingFinishedSignal().Disconnect( this, &ImageActor::ImageLoaded );
     }
   }
 }
 
-void ImageActor::SetNaturalSize( Image& image )
+void ImageActor::SetNaturalSize( ImagePtr& image )
 {
   if( mUsingNaturalSize )
   {
@@ -319,7 +341,7 @@ void ImageActor::SetNaturalSize( Image& image )
     }
     else
     {
-      size = image.GetNaturalSize();
+      size = image->GetNaturalSize();
     }
 
     mInternalSetSize = true;
@@ -358,32 +380,22 @@ void ImageActor::ImageLoaded( Dali::Image image )
   DALI_ASSERT_DEBUG (image && "Image handle empty!");
 
   // TODO: Handle case where image loading failed
-
-  // Need to keep mUploadedConnection connected as image may change later through Reload
   // Note: Reloaded images may have changed size.
+  Internal::ImagePtr imagePtr;
+  if( image )
+  {
+    imagePtr = &GetImplementation(image);
+  }
+  ImageLoadedInternal( imagePtr );
+}
 
+void ImageActor::ImageLoadedInternal( ImagePtr& image )
+{
   // Set the attachment's image once we know the image has loaded to prevent
   // blank frames during load / reload.
-  mImageAttachment->SetImage( &GetImplementation( image ) );
+  mImageAttachment->SetImage( image );
 
-  // If size has never been set by application
-  if( mUsingNaturalSize )
-  {
-    // If a pixel area has been set, use this size
-    if( IsPixelAreaSet() )
-    {
-      const PixelArea& area = GetPixelArea();
-      mInternalSetSize = true;
-      SetSize(area.width, area.height);
-      mInternalSetSize = false;
-    }
-    else
-    {
-      mInternalSetSize = true;
-      SetSize( GetImplementation(image).GetNaturalSize() );
-      mInternalSetSize = false;
-    }
-  }
+  SetNaturalSize( image );
 
   // fade in if required
   FadeIn();
@@ -397,12 +409,12 @@ void ImageActor::FadeIn()
     // need to set opacity immediately to 0 otherwise child actors might get rendered
     SetOpacity( 0.0f );
 
-    Dali::Image image = mImageAttachment->GetImage();
+    ImagePtr image = mImageAttachment->GetImage();
 
     // Fade-in when on-stage & the image is loaded
     if (OnStage() &&
         image &&
-        image.GetLoadingState() == Dali::ResourceLoadingSucceeded)
+        image->GetLoadingState() == Dali::ResourceLoadingSucceeded)
     {
       // fire and forget animation; will clean up after it's finished
       Dali::Animation animation = Dali::Animation::New( mFadeInDuration );
@@ -570,7 +582,8 @@ void ImageActor::SetDefaultProperty( Property::Index index, const Property::Valu
         Dali::Image img = Scripting::NewImage( propertyValue );
         if(img)
         {
-          SetImage( &GetImplementation(img) );
+          ImagePtr image( &GetImplementation(img) );
+          SetImage( image );
         }
         else
         {
@@ -628,7 +641,7 @@ Property::Value ImageActor::GetDefaultProperty( Property::Index index ) const
       case Dali::ImageActor::IMAGE:
       {
         Property::Map map;
-        Scripting::CreatePropertyMap( mImageAttachment->GetImage(), map );
+        Scripting::CreatePropertyMap( Dali::Image( mImageAttachment->GetImage().Get() ), map );
         ret = Property::Value( map );
         break;
       }
@@ -641,47 +654,6 @@ Property::Value ImageActor::GetDefaultProperty( Property::Index index ) const
   }
 
   return ret;
-}
-
-void ImageActor::SetImageInternal( Image* currentImage, Image* image )
-{
-  if( currentImage )
-  {
-    // just call Disconnect as if not connected it is a no-op
-    currentImage->LoadingFinishedSignal().Disconnect( this, &ImageActor::ImageLoaded );
-  }
-
-  ImagePtr imagePtr( image );
-  // Automatically convert nine-patch images to cropped bitmap
-  NinePatchImage* ninePatchImage = NinePatchImage::GetNinePatchImage( image );
-  if( ninePatchImage )
-  {
-    imagePtr = ninePatchImage->CreateCroppedBitmapImage();
-  }
-  mImageNext.Set( imagePtr.Get(), OnStage() );
-  if( ninePatchImage )
-  {
-    SetStyle( Dali::ImageActor::STYLE_NINE_PATCH );
-    SetNinePatchBorder( ninePatchImage->GetStretchBorders(), true );
-  }
-  if( !imagePtr )
-  {
-    mImageAttachment->SetImage( NULL );
-  }
-  else
-  {
-    // don't disconnect currently shown image until we made sure that the new one is loaded
-    if( Dali::ResourceLoading == image->GetLoadingState() && !image->GetFilename().empty() )
-    {
-      // observe image loading, @todo stop using signals internally!
-      image->LoadingFinishedSignal().Connect( this, &ImageActor::ImageLoaded );
-    }
-    else
-    {
-      // image already loaded, generated or 9 patch
-      ImageLoaded( Dali::Image( image ) );
-    }
-  }
 }
 
 } // namespace Internal

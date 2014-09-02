@@ -56,24 +56,10 @@ public:
   typedef Dali::ImageActor::PixelArea PixelArea;
 
   /**
-   * @brief Create an initialised image actor.
-   * When the image is loaded the actors size will reset to the image size,
-   * unless a custom size chosen via Actor:SetSize().
-   * @param[in] image A pointer to the image object to display or NULL not to display anything.
+   * @brief Create an image actor instance.
    * @return A smart-pointer to a newly allocated image actor.
    */
-  static ImageActorPtr New( Image* image );
-
-  /**
-   * @brief Create an initialised image actor.
-   * When the image is loaded the actors size will reset to the image size,
-   * unless a custom size chosen via Actor:SetSize().
-   * @param [in] image A pointer to the image object to display or NULL not to display anything.
-   * @param [in] pixelArea The area of the image to display.
-   * This in pixels, relative to the top-left (0,0) of the image.
-   * @return A smart-pointer to a newly allocated image actor.
-   */
-  static ImageActorPtr New( Image* image, const PixelArea& pixelArea );
+  static ImageActorPtr New();
 
   /**
    * @copydoc Dali::Internal::Actor::OnInitialize
@@ -81,19 +67,16 @@ public:
   void OnInitialize() ;
 
   /**
-   * Set the image rendered by the actor's attachment.
-   * When the image is loaded the actors size will be reset to the image size,
-   * unless a custom size is chosen via Actor:SetSize().
-   * The old image will continue to be displayed until the new image has loaded
-   * @param [in] image A pointer to the image to display or NULL not to display anything.
+   * @see Dali::ImageActor::SetImage()
+   * @param[in] ImagePtr reference to the image object to display. Reference to avoid unnecessary increment/decrement reference.
    */
-  void SetImage( Image* image );
+  void SetImage( ImagePtr& image );
 
   /**
    * Retrieve the image rendered by the actor's attachment.
-   * @return The image (uninitialized Image object in case the ImageActor does not display anything).
+   * @return smart pointer to the image or an empty one if no image is assigned
    */
-  Dali::Image GetImage();
+  ImagePtr GetImage();
 
   /**
    * @copydoc Dali::ImageActor::SetToNaturalSize()
@@ -101,38 +84,32 @@ public:
   void SetToNaturalSize();
 
   /**
-   * Set a region of the image to display, in pixels.
-   * @param [in] pixelArea The area of the image to display.
-   * This in pixels, relative to the top-left (0,0) of the image.
+   * @copydoc Dali::ImageActor::SetPixelArea()
    */
   void SetPixelArea( const PixelArea& pixelArea );
 
   /**
-   * Retrieve the region of the image to display, in pixels.
-   * @return The pixel area, or a default-constructed area if none was set.
+   * @copydoc Dali::ImageActor::GetPixelArea()
    */
   const PixelArea& GetPixelArea() const;
 
   /**
-   * Query whether a pixel area has been set.
-   * @return True if a pixel area has been set.
+   * @copydoc Dali::ImageActor::IsPixelAreaSet()
    */
   bool IsPixelAreaSet() const;
 
   /**
-   * Remove any pixel areas specified with SetPixelArea; the entire image will be displayed.
+   * @copydoc Dali::ImageActor::ClearPixelArea()
    */
   void ClearPixelArea();
 
   /**
-   * Set how the image is rendered; the default is STYLE_QUAD.
-   * @param [in] style The new style.
+   * @copydoc Dali::ImageActor::SetStyle()
    */
   void SetStyle( Style style );
 
   /**
-   * Query how the image is rendered.
-   * @return The rendering style.
+   * @copydoc Dali::ImageActor::GetStyle()
    */
   Style GetStyle() const;
 
@@ -270,7 +247,7 @@ private:
    * Helper to set the actor to the image's natural size
    * @param image that is used
    */
-  void SetNaturalSize( Image& image );
+  void SetNaturalSize( ImagePtr& image );
 
   /**
    * From Actor.
@@ -300,16 +277,15 @@ private:
   void ImageLoaded( Dali::Image image );
 
   /**
+   * @copydoc ImageLoaded( Dali::Image )
+   */
+  void ImageLoadedInternal( ImagePtr& image );
+
+  /**
    * Helper to start fade-in animations.
    */
   void FadeIn();
 
-  /**
-   * Helper to set image internally
-   * @param currentImage
-   * @param image to set
-   */
-  void SetImageInternal( Image* currentImage, Image* image );
 
 private:
 

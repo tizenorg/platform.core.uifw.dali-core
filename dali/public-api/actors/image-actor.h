@@ -223,19 +223,21 @@ public:
 
   /**
    * @brief Set the image rendered by the actor.
+   * Set the image rendered by the actor.
+   * The old image will continue to be displayed until the new image has loaded.
+   * Setting an empty image (handle) causes the image to be dropped and actor displays nothing.
+   * When the image is loaded the actors size will be reset to the image size,
+   * unless a custom size is chosen via Actor:SetSize().
    *
-   * When the image is loaded the actor's size will be reset to the image size,
-   * unless a custom size was chosen, e.g. via Actor:SetSize() or a pixel area
-   * was set.
-   * @note The old image will continue to be displayed until the given image has loaded.
-   * @pre image must be initialized.
+   * @pre imageactor must be initialized.
    * @param [in] image The image to display.
    */
   void SetImage(Image image);
 
   /**
-   * @brief Retrieve the image rendered by the actor's attachment.
+   * @brief Retrieve the image rendered by the actor.
    *
+   * If no image is assigned, an empty handle is returned
    * @return The image.
    */
   Image GetImage();

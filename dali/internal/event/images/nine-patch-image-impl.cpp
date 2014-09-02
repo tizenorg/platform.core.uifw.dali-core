@@ -173,7 +173,7 @@ NinePatchImage::NinePatchImage( const std::string& filename, const Dali::ImageAt
   }
 }
 
-NinePatchImage* NinePatchImage::GetNinePatchImage( Image* image)
+NinePatchImage* NinePatchImage::DownCast( Image* image)
 {
   return dynamic_cast<NinePatchImage*>(image);
 }

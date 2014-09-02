@@ -632,8 +632,6 @@ int UtcDaliImageActorDefaultProperties(void)
 
   std::vector<Property::Index> indices;
   indices.push_back(ImageActor::PIXEL_AREA      );
-  indices.push_back(ImageActor::FADE_IN         );
-  indices.push_back(ImageActor::FADE_IN_DURATION);
   indices.push_back(ImageActor::STYLE           );
   indices.push_back(ImageActor::BORDER          );
   indices.push_back(ImageActor::IMAGE           );
@@ -837,57 +835,6 @@ int UtcDaliImageSetNinePatchBorder(void)
   DALI_TEST_EQUALS( 2.0f, actor.GetNinePatchBorder().y, TEST_LOCATION );
   DALI_TEST_EQUALS( 3.0f, actor.GetNinePatchBorder().z, TEST_LOCATION );
   DALI_TEST_EQUALS( 4.0f, actor.GetNinePatchBorder().w, TEST_LOCATION );
-  END_TEST;
-}
-
-int UtcDaliImageSetFadeIn(void)
-{
-  TestApplication application;
-
-  Image image = Image::New(TestImageFilename);
-  ImageActor actor = ImageActor::New(image);
-
-  actor.SetFadeIn(true);
-
-  // flush the queue and render once
-  application.SendNotification();
-  application.Render();
-
-  DALI_TEST_EQUALS( true, actor.GetFadeIn(), TEST_LOCATION );
-
-  actor.SetFadeIn(false);
-
-  // flush the queue and render once
-  application.SendNotification();
-  application.Render();
-
-  DALI_TEST_EQUALS( false, actor.GetFadeIn(), TEST_LOCATION );
-  END_TEST;
-}
-
-
-int UtcDaliImageSetFadeInDuration(void)
-{
-  TestApplication application;
-
-  Image image = Image::New(TestImageFilename);
-  ImageActor actor = ImageActor::New(image);
-
-  actor.SetFadeInDuration( 1.0f );
-
-  // flush the queue and render once
-  application.SendNotification();
-  application.Render();
-
-  DALI_TEST_EQUALS( 1.0f, actor.GetFadeInDuration(), TEST_LOCATION );
-
-  actor.SetFadeInDuration( 3.0f );
-
-  // flush the queue and render once
-  application.SendNotification();
-  application.Render();
-
-  DALI_TEST_EQUALS( 3.0f, actor.GetFadeInDuration(), TEST_LOCATION );
   END_TEST;
 }
 

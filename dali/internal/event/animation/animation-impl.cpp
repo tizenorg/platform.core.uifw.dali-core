@@ -102,6 +102,7 @@ Animation::Animation( UpdateManager& updateManager, AnimationPlaylist& playlist,
   mFinishedCallbackObject( NULL ),
   mDurationSeconds( durationSeconds ),
   mIsLooping( false ),
+  mIsBackward( false ),
   mEndAction( endAction ),
   mDestroyAction( destroyAction ),
   mDefaultAlpha( defaultAlpha )
@@ -137,7 +138,7 @@ void Animation::CreateSceneObject()
   DALI_ASSERT_DEBUG( mAnimation == NULL );
 
   // Create a new animation, temporarily owned
-  SceneGraph::Animation* animation = SceneGraph::Animation::New( mDurationSeconds, mIsLooping, mEndAction, mDestroyAction );
+  SceneGraph::Animation* animation = SceneGraph::Animation::New( mDurationSeconds, mIsLooping, mIsBackward, mEndAction, mDestroyAction );
 
   // Keep a const pointer to the animation.
   mAnimation = animation;
@@ -214,6 +215,20 @@ Dali::Animation::EndAction Animation::GetDestroyAction() const
 {
   // This is not animatable; the cached value is up-to-date.
   return mDestroyAction;
+}
+
+void Animation::SetBackward(bool backward)
+{
+  // Cache for public getters
+  mIsBackward = backward;
+
+  // mAnimation is being used in a separate thread; queue a message to set the value
+  SetBackwardMessage( mUpdateManager.GetEventToUpdate(), *mAnimation, backward );
+}
+
+bool Animation::IsBackward() const
+{
+  return mIsBackward;
 }
 
 void Animation::Play()

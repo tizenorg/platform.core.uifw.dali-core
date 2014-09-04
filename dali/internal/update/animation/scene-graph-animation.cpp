@@ -40,9 +40,10 @@ float DefaultAlphaFunc(float progress)
   return progress; // linear
 }
 
-Animation::Animation(float durationSeconds, bool isLooping, Dali::Animation::EndAction endAction, Dali::Animation::EndAction destroyAction)
+Animation::Animation(float durationSeconds, bool isLooping, bool isBackward, Dali::Animation::EndAction endAction, Dali::Animation::EndAction destroyAction)
 : mDurationSeconds(durationSeconds),
   mLooping(isLooping),
+  mBackward(isBackward),
   mEndAction(endAction),
   mDestroyAction(destroyAction),
   mState(Stopped),
@@ -65,6 +66,20 @@ void Animation::SetDuration(float durationSeconds)
 void Animation::SetLooping(bool looping)
 {
   mLooping = looping;
+}
+
+void Animation::SetBackward(bool backward)
+{
+  if( backward != mBackward )
+  {
+    if( mElapsedSeconds > 0.0f )
+    {
+      //If the animation has done any progress, recalculate mElapsedSeconds.
+      mElapsedSeconds = mDurationSeconds - mElapsedSeconds;
+    }
+
+    mBackward = backward;
+  }
 }
 
 void Animation::SetEndAction(Dali::Animation::EndAction action)
@@ -114,6 +129,7 @@ bool Animation::Stop(BufferIndex bufferIndex)
       {
         mElapsedSeconds = mDurationSeconds + Math::MACHINE_EPSILON_1; // Force animation to reach it's end
       }
+
       UpdateAnimators(bufferIndex, true/*bake the final result*/);
     }
 
@@ -133,7 +149,7 @@ void Animation::OnDestroy(BufferIndex bufferIndex)
   {
     if (mDestroyAction != Dali::Animation::Discard)
     {
-      UpdateAnimators(bufferIndex, true/*bake the final result*/);
+      UpdateAnimators(bufferIndex, true/*bake the final result*/ );
     }
   }
 
@@ -171,7 +187,7 @@ bool Animation::Update(BufferIndex bufferIndex, float elapsedSeconds)
 
   const bool animationFinished(mState == Playing && mElapsedSeconds > mDurationSeconds);
 
-  UpdateAnimators(bufferIndex, animationFinished && (mEndAction != Dali::Animation::Discard));
+  UpdateAnimators(bufferIndex, animationFinished && (mEndAction != Dali::Animation::Discard) );
 
   if (animationFinished)
   {
@@ -185,7 +201,7 @@ bool Animation::Update(BufferIndex bufferIndex, float elapsedSeconds)
   return animationFinished;
 }
 
-void Animation::UpdateAnimators(BufferIndex bufferIndex, bool bake)
+void Animation::UpdateAnimators(BufferIndex bufferIndex, bool bake )
 {
   for ( AnimatorIter iter = mAnimators.Begin(); iter != mAnimators.End(); )
   {
@@ -195,19 +211,38 @@ void Animation::UpdateAnimators(BufferIndex bufferIndex, bool bake)
     AnimatorBase *animator = *iter;
     const float initialDelay(animator->GetInitialDelay());
 
-    if (mElapsedSeconds >= initialDelay)
+    if( mBackward )
     {
-      // Calculate a progress specific to each individual animator
-      float progress(1.0f);
+      //Calculate elapsed time from the end
+      float elapsedInverse( mDurationSeconds - mElapsedSeconds );
+
       const float animatorDuration = animator->GetDuration();
-      if (animatorDuration > 0.0f) // animators can be "immediate"
+      if( elapsedInverse <= animatorDuration + initialDelay )
       {
-        progress = min(1.0f, (mElapsedSeconds - initialDelay) / animatorDuration);
+        float progress(0.0f);
+        if (animatorDuration > 0.0f ) // animators can be "immediate"
+        {
+          progress = max(0.0f, (elapsedInverse - initialDelay) / animatorDuration );
+        }
+
+        applied = animator->Update(bufferIndex, progress, bake);
       }
-
-      applied = animator->Update(bufferIndex, progress, bake);
     }
+    else
+    {
+      if (mElapsedSeconds >= initialDelay)
+      {
+        // Calculate a progress specific to each individual animator
+        float progress(1.0f);
+        const float animatorDuration = animator->GetDuration();
+        if (animatorDuration > 0.0f) // animators can be "immediate"
+        {
+          progress = min(1.0f, (mElapsedSeconds - initialDelay) / animatorDuration);
+        }
 
+        applied = animator->Update(bufferIndex, progress, bake);
+      }
+    }
     // Animators are automatically removed, when orphaned from animatable scene objects.
     if (!applied)
     {

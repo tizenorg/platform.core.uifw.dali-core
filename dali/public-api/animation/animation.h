@@ -290,6 +290,20 @@ public:
   void SetCurrentProgress( float progress );
 
   /**
+   * @brief Set whether the animation has to play backwards.
+   *
+   * @param[in] backward True if the animation has to play backwards.
+   */
+  void SetBackward(bool backward);
+
+  /**
+   * @brief Query whether the animation will play backwards.
+   *
+   * @return True if the animation will loop.
+   */
+  bool IsBackward() const;
+
+  /**
    * @brief Play the animation.
    */
   void Play();

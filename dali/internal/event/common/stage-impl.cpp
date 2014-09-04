@@ -318,18 +318,14 @@ void Stage::SetViewMode( ViewMode viewMode )
 
         //Calculate separation in pixels along vertical axis ( mStereoBase is defined in millimetres )
         const float stereoBase( ( (mStereoBase / 25.4f) * GetDpi().y ) * 0.5f );
+        mDefaultCamera->SetZ( 2.0f *  std::max( mSize.x*2.0f, mSize.y*2.0f ) );
 
-        //Calculate aspect ratio
-        float aspect = mSize.width / (mSize.height * 0.5f);
-
-        mLeftCamera->SetPerspectiveProjection( mSize, Vector2( 0.0f,stereoBase) );
-        mLeftCamera->SetAspectRatio( aspect );
+        mLeftCamera->SetPerspectiveProjection( Size( mSize.x*2.0f, mSize.y ), Vector2( 0.0f,stereoBase) );
         mLeftCamera->SetRotation( Degree(-90.0f), Vector3::ZAXIS );
         mLeftCamera->SetPosition( Vector3( stereoBase, 0.0f, 0.0f ) );
         mLeftRenderTask.SetViewport( Viewport(0, mSize.height * 0.5f, mSize.width, mSize.height * 0.5f) );
 
-        mRightCamera->SetPerspectiveProjection( mSize, Vector2( 0.0,  -stereoBase) );
-        mRightCamera->SetAspectRatio( aspect );
+        mRightCamera->SetPerspectiveProjection( Size( mSize.x*2.0f, mSize.y ), Vector2( 0.0,  -stereoBase) );
         mRightCamera->SetRotation( Degree(-90.0f), Vector3::ZAXIS );
         mRightCamera->SetPosition( Vector3(-stereoBase, 0.0f, 0.0f ) );
         mRightRenderTask.SetViewport( Viewport(0, 0, mSize.width, mSize.height * 0.5f ) );
@@ -341,17 +337,15 @@ void Stage::SetViewMode( ViewMode viewMode )
         //Calculate separation in pixels along horizontal axis
         const float stereoBase( ( (mStereoBase / 25.4f) * GetDpi().x ) * 0.5f );
 
-        //Recalculate fov based on viewport size
-        const float fov = 2.0f * std::atan(  mSize.y / (2.0f * std::max( mSize.x*0.5f, mSize.y )) );
+        //Recalculate parent camera Z position
+        mDefaultCamera->SetZ( 2.0f *  std::max( mSize.x, mSize.y*2.0f ) );
 
-        mLeftCamera->SetPerspectiveProjection( Size( mSize.x * 0.5f, mSize.y ), Vector2(stereoBase,0.0f) );
-        mLeftCamera->SetFieldOfView( fov );
+        mLeftCamera->SetPerspectiveProjection( Size( mSize.x, mSize.y*2.0f ), Vector2(stereoBase,0.0f) );
         mLeftCamera->SetRotation( Degree(0.0f), Vector3::ZAXIS );
         mLeftCamera->SetPosition( Vector3( stereoBase, 0.0f, 0.0f ) );
         mLeftRenderTask.SetViewport( Viewport(0, 0, mSize.width * 0.5f, mSize.height ) );
 
-        mRightCamera->SetPerspectiveProjection( Size( mSize.x * 0.5f, mSize.y ), Vector2(-stereoBase,0.0f) );
-        mRightCamera->SetFieldOfView( fov );
+        mRightCamera->SetPerspectiveProjection( Size( mSize.x, mSize.y*2.0f ), Vector2(-stereoBase,0.0f) );
         mRightCamera->SetRotation( Degree(0.0f), Vector3::ZAXIS );
         mRightCamera->SetPosition( Vector3( -stereoBase, 0.0f, 0.0f ) );
         mRightRenderTask.SetViewport( Viewport(mSize.width * 0.5f, 0, mSize.width * 0.5f, mSize.height ) );
@@ -383,14 +377,11 @@ void Stage::SetStereoBase( float stereoBase )
       case STEREO_HORIZONTAL:
       {
         stereoBase = mStereoBase / 25.4f * GetDpi().y * 0.5f;
-        float aspect = mSize.width / (mSize.height * 0.5f);
 
-        mLeftCamera->SetPerspectiveProjection( mSize, Vector2( 0.0, stereoBase) );
-        mLeftCamera->SetAspectRatio( aspect );
+        mLeftCamera->SetPerspectiveProjection( Size( mSize.x*2.0f, mSize.y ), Vector2( 0.0f,stereoBase) );
         mLeftCamera->SetPosition( Vector3( stereoBase, 0.0f, 0.0f ) );
 
-        mRightCamera->SetPerspectiveProjection( mSize, Vector2( 0.0, -stereoBase) );
-        mRightCamera->SetAspectRatio( aspect );
+        mRightCamera->SetPerspectiveProjection( Size( mSize.x*2.0f, mSize.y ), Vector2( 0.0,  -stereoBase) );
         mRightCamera->SetPosition( Vector3(-stereoBase, 0.0f, 0.0f ) );
 
         break;
@@ -398,15 +389,12 @@ void Stage::SetStereoBase( float stereoBase )
       case STEREO_VERTICAL:
       {
         stereoBase = mStereoBase / 25.4f * GetDpi().x * 0.5f;
-        const float fov = 2.0f * std::atan(  mSize.y / (2.0f * std::max( mSize.x*0.5f, mSize.y )) );
 
-        mLeftCamera->SetPerspectiveProjection( Size( mSize.x * 0.5f, mSize.y ), Vector2(stereoBase,0.0f) );
-        mLeftCamera->SetFieldOfView( fov );
+        mLeftCamera->SetPerspectiveProjection( Size( mSize.x, mSize.y*2.0f ), Vector2(stereoBase,0.0f) );
         mLeftCamera->SetPosition( Vector3( stereoBase, 0.0f, 0.0f ) );
 
-        mRightCamera->SetPerspectiveProjection( Size( mSize.x * 0.5f, mSize.y ), Vector2(-stereoBase,0.0f) );
-        mRightCamera->SetFieldOfView( fov );
-        mRightCamera->SetPosition( Vector3(-stereoBase, 0.0f, 0.0f ) );
+        mRightCamera->SetPerspectiveProjection( Size( mSize.x, mSize.y*2.0f ), Vector2(-stereoBase,0.0f) );
+        mRightCamera->SetPosition( Vector3( -stereoBase, 0.0f, 0.0f ) );
 
         break;
       }

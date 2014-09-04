@@ -68,9 +68,9 @@ public:
    * @param[in] destroyAction The action to perform when the animation is destroyed.
    * @return A new Animation
    */
-  static Animation* New( float durationSeconds, bool isLooping, EndAction endAction, EndAction destroyAction )
+  static Animation* New( float durationSeconds, bool isLooping, bool isBackward, EndAction endAction, EndAction destroyAction )
   {
-    return new Animation( durationSeconds, isLooping, endAction, destroyAction );
+    return new Animation( durationSeconds, isLooping, isBackward, endAction, destroyAction );
   }
 
   /**
@@ -131,6 +131,12 @@ public:
   {
     return mLooping;
   }
+
+  /**
+   * Set whether the animation has play backward.
+   * @param[in] backward True if the animation has to play backwards.
+   */
+  void SetBackward(bool backward);
 
   /**
    * Set the end action of the animation.
@@ -245,7 +251,7 @@ protected:
   /**
    * Protected constructor. See New()
    */
-  Animation( float durationSeconds, bool isLooping, EndAction endAction, EndAction destroyAction );
+  Animation( float durationSeconds, bool isLooping, bool isBackward, EndAction endAction, EndAction destroyAction );
 
 
 private:
@@ -254,8 +260,9 @@ private:
    * Helper for Update, also used to bake when the animation is stopped or destroyed.
    * @param[in] bufferIndex The buffer to update.
    * @param[in] bake True if the final result should be baked.
+   * @param[in] deltaTime Elapsed time since last call. Needed for backward playing
    */
-  void UpdateAnimators(BufferIndex bufferIndex, bool bake);
+  void UpdateAnimators(BufferIndex bufferIndex, bool bake, float deltaTime );
 
   // Undefined
   Animation(const Animation&);
@@ -267,6 +274,7 @@ protected:
 
   float mDurationSeconds;
   bool mLooping;
+  bool mBackward;
   EndAction mEndAction;
   EndAction mDestroyAction;
 
@@ -307,6 +315,17 @@ inline void SetLoopingMessage( EventToUpdate& eventToUpdate, const Animation& an
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetLooping, looping );
+}
+
+inline void SetBackwardMessage( EventToUpdate& eventToUpdate, const Animation& animation, bool backward )
+{
+  typedef MessageValue1< Animation, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &animation, &Animation::SetBackward, backward );
 }
 
 inline void SetEndActionMessage( EventToUpdate& eventToUpdate, const Animation& animation, Dali::Animation::EndAction action )

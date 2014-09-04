@@ -238,6 +238,11 @@ public:
   void ContextToBeDestroyed();
 
   /**
+   * Request the core to reload resources. This should be called from the even thread only.
+   */
+  void RequestReloadResources();
+
+  /**
    * Notify the Core that the GL surface has been resized.
    * This should be done at least once i.e. after the first call to ContextCreated().
    * The Core will use the surface size for camera calculations, and to set the GL viewport.

@@ -207,6 +207,11 @@ void Core::ContextCreated()
   mRenderManager->ContextCreated();
 }
 
+void Core::RequestReloadResources()
+{
+  mImageFactory->ReloadAll();
+}
+
 void Core::ContextToBeDestroyed()
 {
   mRenderManager->ContextDestroyed();

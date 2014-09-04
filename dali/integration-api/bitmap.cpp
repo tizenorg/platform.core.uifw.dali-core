@@ -299,7 +299,10 @@ PixelBuffer* Bitmap::ReleaseBuffer()
 Bitmap::~Bitmap()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
-  DeletePixelBuffer();
+  if ( mDiscardable )
+  {
+    DeletePixelBuffer();
+  }
 }
 
 /**

@@ -23,6 +23,7 @@
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/images/bitmap-image.h>
 #include <dali/public-api/math/rect.h>
+#include <dali/integration-api/bitmap.h>
 
 namespace Dali DALI_IMPORT_API
 {

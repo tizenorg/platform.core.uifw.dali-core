@@ -67,7 +67,7 @@ bool NativeTexture::Bind(GLenum target, GLenum textureunit )
 
   // Bind the texture id
   mContext.ActiveTexture( textureunit );
-  mContext.Bind2dTexture( mId );
+  mContext.Bind2dTextureExternal(mId);
 
   mNativeImage->PrepareTexture();
 
@@ -96,7 +96,7 @@ bool NativeTexture::CreateGlTexture()
   {
     mContext.GenTextures( 1, &mId );
     mContext.ActiveTexture( GL_TEXTURE7 );  // bind in unused unit so rebind works the first time
-    mContext.Bind2dTexture( mId );
+    mContext.Bind2dTextureExternal( mId );
 
     mContext.PixelStorei( GL_UNPACK_ALIGNMENT, 1 ); // We always use tightly packed data
 
@@ -104,6 +104,7 @@ bool NativeTexture::CreateGlTexture()
     mContext.TexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
     // platform specific implementation decides on what GL extension to use
+    mNativeImage->TextureCreated(mId);
     mNativeImage->TargetTexture();
   }
   else
@@ -121,6 +122,7 @@ void NativeTexture::GlCleanup()
   DALI_ASSERT_DEBUG(mNativeImage);
 
   mNativeImage->GlExtensionDestroy();
+  mNativeImage->DoCleanUpOnContextDestroyed();
 
   mNativeImage.Reset();
 }

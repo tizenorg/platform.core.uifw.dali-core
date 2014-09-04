@@ -138,6 +138,18 @@ public:
   EndAction GetDestroyAction() const;
 
   /**
+   * Set whether the animation has to play backwards.
+   * @param[in] backward True if the animation has to play backwards.
+   */
+  void SetBackward(bool backward);
+
+  /**
+   * Query whether the animation will play backwards.
+   * @return True if the animation will loop.
+   */
+  bool IsBackward() const;
+
+  /**
    * Set the default alpha function for an animation.
    * This is applied to individual property animations, if no further alpha functions are supplied.
    * @param[in] alpha The default alpha function.
@@ -894,6 +906,7 @@ private:
   // Cached for public getters
   float mDurationSeconds;
   bool mIsLooping;
+  bool mIsBackward;
   EndAction mEndAction;
   EndAction mDestroyAction;
   AlphaFunction mDefaultAlpha;

@@ -130,6 +130,16 @@ AlphaFunction Animation::GetDefaultAlphaFunction() const
   return GetImplementation(*this).GetDefaultAlphaFunction();
 }
 
+void Animation::SetBackward(bool backward)
+{
+  GetImplementation(*this).SetBackward(backward);
+}
+
+bool Animation::IsBackward() const
+{
+  return GetImplementation(*this).IsBackward();
+}
+
 void Animation::Play()
 {
   GetImplementation(*this).Play();

@@ -130,6 +130,16 @@ AlphaFunction Animation::GetDefaultAlphaFunction() const
   return GetImplementation(*this).GetDefaultAlphaFunction();
 }
 
+void Animation::SetPlayDirection(PlayDirection direction )
+{
+  GetImplementation(*this).SetPlayDirection(direction);
+}
+
+Dali::Animation::PlayDirection Animation::GetPlayDirection() const
+{
+  return GetImplementation(*this).GetPlayDirection();
+}
+
 void Animation::Play()
 {
   GetImplementation(*this).Play();

@@ -262,6 +262,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
 
       // Set update trackers to complete, or get render trackers to pass onto render thread
       RenderTracker* renderTracker = NULL;
+//      // TODO - MERGE: workaround for resources not being loaded
+//      resourcesFinished = renderTask.ReadyToRender(updateBufferIndex);
       if( resourcesFinished )
       {
         Integration::ResourceId id = renderTask.GetFrameBufferId();
@@ -286,7 +288,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 instructions );
     }
 
-    renderTask.SetResourcesFinished( resourcesFinished );
+    renderTask.UpdateState(resourcesFinished);
   }
 
   DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "ProcessRenderTasks() Onscreen\n");
@@ -343,7 +345,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 instructions );
     }
 
-    renderTask.SetResourcesFinished( resourcesFinished );
+    renderTask.UpdateState(resourcesFinished);
   }
 }
 

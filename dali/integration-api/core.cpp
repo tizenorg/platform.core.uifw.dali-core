@@ -75,6 +75,11 @@ void Core::ContextToBeDestroyed()
   mImpl->ContextToBeDestroyed();
 }
 
+void Core::RequestReloadResources()
+{
+  mImpl->RequestReloadResources();
+}
+
 void Core::SurfaceResized(unsigned int width, unsigned int height)
 {
   mImpl->SurfaceResized(width, height);

@@ -101,6 +101,11 @@ public:
   void ContextToBeDestroyed();
 
   /**
+   * @copydoc Dali::Integration::Core::RequestReloadResources()
+   */
+  void RequestReloadResources();
+
+  /**
    * @copydoc Dali::Integration::Core::SurfaceResized(unsigned int, unsigned int)
    */
   void SurfaceResized(unsigned int width, unsigned int height);

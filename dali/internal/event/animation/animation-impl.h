@@ -61,6 +61,7 @@ public:
 
   typedef Dali::Animation::AnyFunction AnyFunction;
   typedef Dali::Animation::EndAction EndAction;
+  typedef Dali::Animation::PlayDirection PlayDirection;
 
   typedef void (*FinishedCallback)(Object* object);
 
@@ -136,6 +137,18 @@ public:
    * Returns the destroy action of the animation.
    */
   EndAction GetDestroyAction() const;
+
+  /**
+   * Set whether the animation has to play forward or backwards.
+   * @param[in] direction The play direction [ PlayDirectionForward, PlayDirectionBackward ]
+   */
+  void SetPlayDirection(PlayDirection direction);
+
+  /**
+   * Retrieve the current play direction.
+   * @return The current play direction
+   */
+  PlayDirection GetPlayDirection() const;
 
   /**
    * Set the default alpha function for an animation.
@@ -894,6 +907,7 @@ private:
   // Cached for public getters
   float mDurationSeconds;
   bool mIsLooping;
+  PlayDirection mPlayDirection;
   EndAction mEndAction;
   EndAction mDestroyAction;
   AlphaFunction mDefaultAlpha;

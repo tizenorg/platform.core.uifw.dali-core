@@ -66,6 +66,12 @@ NinePatchImage NinePatchImage::New( const std::string& filename )
   return NinePatchImage(internal.Get());
 }
 
+NinePatchImage NinePatchImage::New(const uint8_t* data, const int width, const int height, const int stride, const Pixel::Format pixelFormat)
+{
+  ImageAttributes defaultAttrs;
+  Internal::NinePatchImagePtr internal = Internal::NinePatchImage::New(data, width, height, stride, pixelFormat, defaultAttrs, Image::Immediate, Image::Never);
+  return NinePatchImage(internal.Get());
+}
 NinePatchImage NinePatchImage::DownCast( BaseHandle handle )
 {
   return NinePatchImage( dynamic_cast<Dali::Internal::NinePatchImage*>(handle.GetObjectPtr()) );

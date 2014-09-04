@@ -84,6 +84,15 @@ public:
   ResourceTicketPtr Reload( ImageFactoryCache::Request* req );
 
   /**
+   * Tells ResourceManager to reload image from filesystem.
+   * Also sends message to render thread.
+   * This operation uses the originally requested attributes when reloading the image.
+   * @pre req must be registered with ImageFactory
+   * @note if image is still loading, no new load request will be issued
+   */
+  void ReloadAll();
+
+  /**
    * Get resource path used in request.
    * @param [in] req request pointer
    * @return     resource path

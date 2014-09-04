@@ -142,6 +142,28 @@ NinePatchImagePtr NinePatchImage::New( const std::string& filename, const Dali::
   return internal;
 }
 
+NinePatchImagePtr NinePatchImage::New( const uint8_t* data, const int width, const int height, const int stride, Pixel::Format format, const Dali::ImageAttributes& attributes, LoadPolicy loadPol, ReleasePolicy releasePol )
+{
+  // TODO: Make sure the bitmap does not need a different stride than the data. For now, this is assumed to be the case.
+  const unsigned int bpp = Pixel::GetBytesPerPixel(format);
+  Integration::Bitmap::Profile profile = Integration::Bitmap::BITMAP_2D_PACKED_PIXELS;
+  Integration::BitmapPtr bitmap = Integration::Bitmap::New(profile, true);
+  unsigned char *bitmapBuffer = bitmap->GetPackedPixelsProfile()->ReserveBuffer(format, width, height, width, height);
+
+  // copy memory area from y and x to bitmap buffer line-by-line
+  unsigned char *bufptr = bitmapBuffer;
+  const uint8_t *lptr = data;
+  for (int i = 0; i < height; ++i)
+  {
+    memcpy (bufptr, lptr, stride);
+    bufptr += width * bpp;
+    lptr += stride;
+  }
+
+  Internal::NinePatchImagePtr internal( new NinePatchImage( bitmap, attributes, loadPol, releasePol ) );
+  internal->Initialize();
+  return internal;
+}
 NinePatchImage::NinePatchImage( const std::string& filename, const Dali::ImageAttributes& attributes, LoadPolicy loadPol, ReleasePolicy releasePol)
 : Image(Dali::Image::Immediate, Dali::Image::Never),
   mParsedBorder(false)
@@ -173,6 +195,14 @@ NinePatchImage::NinePatchImage( const std::string& filename, const Dali::ImageAt
   }
 }
 
+NinePatchImage::NinePatchImage( Integration::BitmapPtr image, const Dali::ImageAttributes& attributes, LoadPolicy loadPol, ReleasePolicy releasePol)
+: Image(Dali::Image::Immediate, Dali::Image::Never),
+  mParsedBorder(false)
+{
+  mWidth = image->GetImageWidth();
+  mHeight = image->GetImageHeight();
+  mBitmap = image;
+}
 NinePatchImage* NinePatchImage::GetNinePatchImage( Image* image)
 {
   return dynamic_cast<NinePatchImage*>(image);

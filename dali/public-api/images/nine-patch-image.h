@@ -23,6 +23,7 @@
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/images/bitmap-image.h>
 #include <dali/public-api/math/rect.h>
+#include <dali/integration-api/bitmap.h>
 
 namespace Dali DALI_IMPORT_API
 {
@@ -68,6 +69,21 @@ public:
    * @return a handle to a new instance of NinePatchImage
    */
   static NinePatchImage New( const std::string& filename );
+  /**
+   * @brief Create a new NinePatchImage.
+   *
+   * A pixel buffer for image data is allocated and copied from the provided image.
+   * Dali has ownership of the buffer.
+   * @note: default resource management policies are Immediate and Never
+   *
+   * @param [in] data    Raw RGBA8 Image containing the 9-patch source image.
+   * @param [in] width   width of the image
+   * @param [in] height  height of the image
+   * @param [in] stride  stride of the image in bytes (bytes per row)
+   * @param [in] format  pixel format of the image data
+   * @return a handle to a new instance of NinePatchImage
+   */
+  static NinePatchImage New( const uint8_t* data, const int width, const int height, const int stride, const Pixel::Format format);
 
   /**
    * @brief Downcast an Object handle to NinePatchImage.

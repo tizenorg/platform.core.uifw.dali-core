@@ -46,6 +46,7 @@ BitmapExternal::BitmapExternal(Dali::Integration::PixelBuffer* pixBuf,
   mBytesPerPixel = Pixel::GetBytesPerPixel(pixelFormat);
   mHasAlphaChannel = Pixel::HasAlpha(pixelFormat);
   mAlphaChannelUsed = mHasAlphaChannel;
+  mData = pixBuf;
 
   DALI_ASSERT_DEBUG(mBufferWidth >= mImageWidth && mBufferHeight >= mImageHeight);
 }

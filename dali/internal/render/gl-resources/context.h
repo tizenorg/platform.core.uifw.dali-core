@@ -25,6 +25,7 @@
 #include <dali/public-api/actors/renderable-actor.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
+#include <dali/integration-api/gl-defines.h>
 #include <dali/internal/render/common/performance-monitor.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/math/rect.h>
@@ -283,6 +284,22 @@ public:
 
       LOG_GL("BindTexture GL_TEXTURE_2D %d\n", texture);
       CHECK_GL( *this, mGlAbstraction.BindTexture(GL_TEXTURE_2D, texture) );
+
+      INCREASE_COUNTER(PerformanceMonitor::TEXTURE_STATE_CHANGES);
+    }
+  }
+
+  /**
+   * Wrapper for OpenGL ES 2.0 glBindTexture(GL_TEXTURE_2D)
+   */
+  void Bind2dTextureExternal( GLuint texture )
+  {
+    if (mBound2dTextureId[ mActiveTextureUnit ] != texture)
+    {
+      mBound2dTextureId[ mActiveTextureUnit ] = texture;
+
+      LOG_GL("BindTexture GL_TEXTURE_EXTERNAL_OES %d\n", texture);
+      CHECK_GL( *this, mGlAbstraction.BindTexture(GL_TEXTURE_EXTERNAL_OES, texture) );
 
       INCREASE_COUNTER(PerformanceMonitor::TEXTURE_STATE_CHANGES);
     }

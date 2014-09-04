@@ -137,7 +137,7 @@ public:
    */
   virtual PixelBuffer* GetBuffer()
   {
-    DALI_ASSERT_DEBUG(mData != NULL);
+    // DALI_ASSERT_DEBUG(mData != NULL);
     return mData;
   }
 

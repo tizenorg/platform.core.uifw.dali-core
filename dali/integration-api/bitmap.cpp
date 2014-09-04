@@ -280,10 +280,12 @@ Bitmap::Bitmap( bool discardable, Dali::Integration::PixelBuffer* pixBuf)
 
 void Bitmap::DiscardBuffer()
 {
+#if 0
   if ( mDiscardable )
   {
     DeletePixelBuffer();
   }
+#endif
 }
 
 PixelBuffer* Bitmap::ReleaseBuffer()
@@ -299,7 +301,10 @@ PixelBuffer* Bitmap::ReleaseBuffer()
 Bitmap::~Bitmap()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
-  DeletePixelBuffer();
+  if ( mDiscardable )
+  {
+    DeletePixelBuffer();
+  }
 }
 
 /**

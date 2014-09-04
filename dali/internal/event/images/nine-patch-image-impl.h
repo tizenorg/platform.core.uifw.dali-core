@@ -63,6 +63,28 @@ public:
                                 ReleasePolicy releasePol = ImageReleasePolicyDefault );
 
   /**
+   * Create a new NinePatchImage.
+   * Also a pixel buffer for image data is allocated.
+   * Dali has ownership of the buffer.
+   * @param [in] data    Raw RGBA8 Image containing the 9-patch source image.
+   * @param [in] width   width of the image
+   * @param [in] height  height of the image
+   * @param [in] stride  stride of the image in bytes (bytes per row)
+   * @param [in] format  pixel format of the image data
+   * @param [in] attributes  Image attributes of the file
+   * @param [in] loadPol     controls time of loading a resource from the filesystem (default: load when Image is created).
+   * @param [in] releasePol  optionally relase memory when image is not visible on screen (default: keep image data until Image object is alive).
+   */
+  static NinePatchImagePtr New( const uint8_t* data,
+                                const int width,
+                                const int height,
+                                const int stride,
+                                const Pixel::Format format,
+                                const ImageAttributes& attributes,
+                                LoadPolicy    loadPol    = ImageLoadPolicyDefault,
+                                ReleasePolicy releasePol = ImageReleasePolicyDefault );
+
+  /**
    * Create a new NinePatchImage
    * For better performance and portability use power of two dimensions.
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
@@ -72,6 +94,20 @@ public:
    * @param [in] releasePol  optionally relase memory when image is not visible on screen (default: keep image data until Image object is alive).
    */
   NinePatchImage( const std::string& filename,
+                  const ImageAttributes& attributes,
+                  LoadPolicy    loadPol    = ImageLoadPolicyDefault,
+                  ReleasePolicy releasePol = ImageReleasePolicyDefault );
+
+  /**
+   * Create a new NinePatchImage
+   * For better performance and portability use power of two dimensions.
+   * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
+   * @param [in] filename    File to load synchronously into buffer
+   * @param [in] attributes  Image attributes of the file
+   * @param [in] loadPol     controls time of loading a resource from the filesystem (default: load when Image is created).
+   * @param [in] releasePol  optionally relase memory when image is not visible on screen (default: keep image data until Image object is alive).
+   */
+  NinePatchImage( Integration::BitmapPtr image,
                   const ImageAttributes& attributes,
                   LoadPolicy    loadPol    = ImageLoadPolicyDefault,
                   ReleasePolicy releasePol = ImageReleasePolicyDefault );

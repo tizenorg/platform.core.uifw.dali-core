@@ -429,6 +429,114 @@ int UtcDaliAnimationIsLooping(void)
   END_TEST;
 }
 
+int UtcDaliAnimationSetBackward(void)
+{
+  TestApplication application;
+
+  Actor actor = Actor::New();
+  Stage::GetCurrent().Add(actor);
+
+  // Build the animation
+    float durationSeconds(1.0f);
+    Animation animation = Animation::New(durationSeconds);
+    animation.SetBackward(true);
+    Vector3 initalPosition(0.0f, 0.0f, 0.0f);
+    Vector3 targetPosition(100.0f, 100.0f, 100.0f);
+    animation.MoveTo(actor, targetPosition, AlphaFunctions::Linear);
+
+    // Start the animation
+    animation.Play();
+
+    bool signalReceived(false);
+    AnimationFinishCheck finishCheck(signalReceived);
+    animation.FinishedSignal().Connect(&application, finishCheck);
+
+    application.SendNotification();
+    application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 80% progress */);
+
+    // We didn't expect the animation to finish yet
+    application.SendNotification();
+    finishCheck.CheckSignalNotReceived();
+    DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.8f), TEST_LOCATION );
+
+    animation.Play(); // Test that calling play has no effect, when animation is already playing
+    application.SendNotification();
+    application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 60% progress */);
+
+    // We didn't expect the animation to finish yet
+    application.SendNotification();
+    finishCheck.CheckSignalNotReceived();
+    DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.6f), TEST_LOCATION );
+
+    animation.Play(); // Test that calling play has no effect, when animation is already playing
+    application.SendNotification();
+    application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 40% progress */);
+
+    // We didn't expect the animation to finish yet
+    application.SendNotification();
+    finishCheck.CheckSignalNotReceived();
+    DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.4f), TEST_LOCATION );
+
+    //Change to forward playing
+    animation.SetBackward(false);
+    animation.Play(); // Test that calling play has no effect, when animation is already playing
+    application.SendNotification();
+    application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 60% progress */);
+
+    // We didn't expect the animation to finish yet
+    application.SendNotification();
+    finishCheck.CheckSignalNotReceived();
+    DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.6f), TEST_LOCATION );
+
+    //Change to backward again
+    animation.SetBackward(true);
+    animation.Play(); // Test that calling play has no effect, when animation is already playing
+    application.SendNotification();
+    application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 40% progress */);
+
+    // We didn't expect the animation to finish yet
+    application.SendNotification();
+    finishCheck.CheckSignalNotReceived();
+    DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.4f), TEST_LOCATION );
+
+    animation.Play(); // Test that calling play has no effect, when animation is already playing
+    application.SendNotification();
+    application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 20% progress */);
+
+    // We didn't expect the animation to finish yet
+    application.SendNotification();
+    finishCheck.CheckSignalNotReceived();
+    DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.2f), TEST_LOCATION );
+
+    animation.Play(); // Test that calling play has no effect, when animation is already playing
+    application.SendNotification();
+    application.Render(static_cast<unsigned int>(durationSeconds*200.0f) + 1u/*just beyond the animation duration*/);
+
+    // We did expect the animation to finish
+    application.SendNotification();
+    finishCheck.CheckSignalReceived();
+    DALI_TEST_EQUALS( actor.GetCurrentPosition(), initalPosition, TEST_LOCATION );
+
+    // Check that nothing has changed after a couple of buffer swaps
+    application.Render(0);
+    DALI_TEST_EQUALS( initalPosition, actor.GetCurrentPosition(), TEST_LOCATION );
+    application.Render(0);
+    DALI_TEST_EQUALS( initalPosition, actor.GetCurrentPosition(), TEST_LOCATION );
+    END_TEST;
+}
+
+int UtcDaliAnimationIsBackward(void)
+{
+  TestApplication application;
+
+  Animation animation = Animation::New(1.0f);
+  DALI_TEST_CHECK(!animation.IsBackward());
+
+  animation.SetBackward(true);
+  DALI_TEST_CHECK(animation.IsBackward());
+  END_TEST;
+}
+
 int UtcDaliAnimationSetEndAction(void)
 {
   TestApplication application;

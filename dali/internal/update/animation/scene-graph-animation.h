@@ -51,6 +51,8 @@ class Animation
 public:
 
   typedef Dali::Animation::EndAction EndAction;
+  typedef Dali::Animation::PlayDirection PlayDirection;
+
 
   enum State
   {
@@ -68,9 +70,9 @@ public:
    * @param[in] destroyAction The action to perform when the animation is destroyed.
    * @return A new Animation
    */
-  static Animation* New( float durationSeconds, bool isLooping, EndAction endAction, EndAction destroyAction )
+  static Animation* New( float durationSeconds, bool isLooping, PlayDirection direction, EndAction endAction, EndAction destroyAction )
   {
-    return new Animation( durationSeconds, isLooping, endAction, destroyAction );
+    return new Animation( durationSeconds, isLooping, direction, endAction, destroyAction );
   }
 
   /**
@@ -131,6 +133,12 @@ public:
   {
     return mLooping;
   }
+
+  /**
+   * Set whether the animation has to play forward or backwards.
+   * @param[in] direction The play direction [ PlayDirectionForward, PlayDirectionBackward ]
+   */
+  void SetPlayDirection(PlayDirection direction);
 
   /**
    * Set the end action of the animation.
@@ -245,7 +253,7 @@ protected:
   /**
    * Protected constructor. See New()
    */
-  Animation( float durationSeconds, bool isLooping, EndAction endAction, EndAction destroyAction );
+  Animation( float durationSeconds, bool isLooping, PlayDirection direction, EndAction endAction, EndAction destroyAction );
 
 
 private:
@@ -255,7 +263,7 @@ private:
    * @param[in] bufferIndex The buffer to update.
    * @param[in] bake True if the final result should be baked.
    */
-  void UpdateAnimators(BufferIndex bufferIndex, bool bake);
+  void UpdateAnimators(BufferIndex bufferIndex, bool bake );
 
   // Undefined
   Animation(const Animation&);
@@ -267,6 +275,7 @@ protected:
 
   float mDurationSeconds;
   bool mLooping;
+  PlayDirection mPlayDirection;
   EndAction mEndAction;
   EndAction mDestroyAction;
 
@@ -281,6 +290,7 @@ protected:
 
 // value types used by messages
 template <> struct ParameterType< Dali::Animation::EndAction > : public BasicType< Dali::Animation::EndAction > {};
+template <> struct ParameterType< Dali::Animation::PlayDirection > : public BasicType< Dali::Animation::PlayDirection > {};
 
 namespace SceneGraph
 {
@@ -307,6 +317,17 @@ inline void SetLoopingMessage( EventToUpdate& eventToUpdate, const Animation& an
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetLooping, looping );
+}
+
+inline void SetPlayDirectionMessage( EventToUpdate& eventToUpdate, const Animation& animation, Dali::Animation::PlayDirection direction )
+{
+  typedef MessageValue1< Animation, Dali::Animation::PlayDirection > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &animation, &Animation::SetPlayDirection, direction );
 }
 
 inline void SetEndActionMessage( EventToUpdate& eventToUpdate, const Animation& animation, Dali::Animation::EndAction action )

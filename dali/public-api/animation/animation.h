@@ -128,6 +128,15 @@ public:
     BakeFinal ///< If the animation is stopped, the animated property values are saved as if the animation had run to completion, otherwise behaves like Bake.
   };
 
+  /**
+   * @brief Specifies the progress direction of an animation
+   */
+  enum PlayDirection
+  {
+    PlayDirectionForward,
+    PlayDirectionBackward
+  };
+
   //Signal Names
   static const char* const SIGNAL_FINISHED; ///< name "finished"
 
@@ -288,6 +297,22 @@ public:
    * @param[in] progress The new progress as a normalized value between [0,1].
    */
   void SetCurrentProgress( float progress );
+
+  /**
+   * @brief Set whether the animation has to play forward or backwards.
+   * The finish signal will be emitted when the animation has been played through the whole duration
+   * of the animation regardless of the direction.
+   *
+   * @param[in] direction The play direction [ PlayDirectionForward, PlayDirectionBackward ]
+   */
+  void SetPlayDirection(PlayDirection direction);
+
+  /**
+   * @brief Retrieve the current play direction.
+   *
+   * @return The current play direction
+   */
+  PlayDirection GetPlayDirection() const;
 
   /**
    * @brief Play the animation.

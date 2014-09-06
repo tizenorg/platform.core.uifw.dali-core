@@ -1,0 +1,58 @@
+T.O.C.
+======
+
+Skeleton instructions for the moment ...
+
+
+1. Building for Android
+==============================
+
+1.1. Minimum Requirements
+------------------------
+
+ - Ubuntu 14.04 or OSX 10.9 (can build on mos
+
+1.2 Create Cross compiler for android
+-------------------------------------
+
+Download android NDK latest version (version 10 at the moment)
+
+build/tools/make-standalone-toolchain.sh --toolchain=arm-linux-androideabi-4.8 --platform=android-19
+unzip the new toolchain and put it in your path
+mkdir ~/dali-env-android
+export ANDROID_PREFIX=~/dali-env-android
+
+get the following pakages
+boost_1_56_0
+needs special config
+
+
+for the most part, these can be built as follows
+./configure --prefix=$ANDROID_PREFIX --host=arm-linux-androideabi
+make -j8 install
+
+fontconfig
+freetype
+glib
+libexif
+libiconv
+libjpeg-turbo
+libpng
+libxml2
+pkg-config
+
+
+1.3. Building the Repository
+----------------------------
+
+To build the repository enter the 'build/android' folder:
+
+ cd dali-core/build/android
+
+Then run the following commands:
+
+ autoreconf --install
+ ./configure --prefix=$ANDROID_PREFIX
+ make install -j8
+
+

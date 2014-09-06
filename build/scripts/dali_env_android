@@ -1,0 +1,56 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DEFAULT_PACKAGES="\
+libpng \
+freetype \
+glib \
+libexif \
+libiconv \
+libjpeg-turbo \
+libxml2 \
+expat \
+fontconfig \
+boost
+"
+
+#choose default package list if one has not been set
+PACKAGES=${PACKAGES:="$DEFAULT_PACKAGES"}
+
+source $DIR/androidsetup.sh
+
+export CURRDIR=`pwd`
+
+TEMPDIR=/tmp/dali_env_android
+rm -rf $TEMPDIR
+mkdir $TEMPDIR    
+
+for p in $PACKAGES
+do
+	cd $TEMPDIR 
+	echo "Downloading and building: "$p
+	case $p in 	
+	"freetype") 
+		wget http://download.savannah.gnu.org/releases/freetype/freetype-2.5.3.tar.bz2
+		tar xfj freetype-2.5.3.tar.bz2
+		rm freetype*.bz2
+		cd $p*
+		./configure --prefix=$ANDROID_PREFIX --host=$HOST
+		make -j9 install
+		;;
+	"boost")
+		wget http://sourceforge.net/projects/boost/files/boost/1.56.0/boost_1_56_0.tar.bz2/download -O boost.tar.bz2
+		tar xf boost.tar.bz2
+		cd $p* 
+		./bootstrap.sh
+		cp $DIR/android-boost-config.jam ./project-config.jam
+		./b2 --prefix=$ANDROID_PREFIX toolset=gcc-android --exec-prefix=$ANDROID_PREFIX --with-thread --with-system link=static runtime-link=static target-os=linux threadapi=pthread install
+		;;
+	*)
+		apt-get source $p
+		cd $p*
+		./configure --prefix=$ANDROID_PREFIX --host=$HOST
+		make -j9 install
+		;;
+	esac
+done
+cd $CURRDIR

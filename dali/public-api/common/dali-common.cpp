@@ -22,7 +22,12 @@
 #include <stdlib.h>
 #include <string>
 #include <cstdio>
+
+#ifdef BACKTRACE
 #include <execinfo.h>
+#else
+#define EMSCRIPTEN // also remove the cxxabi stuff - temporary 
+#endif
 
 #ifndef EMSCRIPTEN // cxxabi not supported
 # include <cxxabi.h>

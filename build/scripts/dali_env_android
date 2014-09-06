@@ -1,0 +1,21 @@
+#!/bin/bash
+PACKAGES="fontconfig \
+freetype \
+glib \
+libexif \
+libiconv \
+libjpeg-turbo \
+libpng \
+libxml2 \
+pkg-config"
+
+source ./android-setup.sh
+
+for p in $PACKAGES
+do
+	echo "Downloading and building: "$p
+	apt-get source $p
+	cd $p*
+	./configure --prefix=$ANDROID_PREFIX --host=$HOST
+	make -j9 install
+done

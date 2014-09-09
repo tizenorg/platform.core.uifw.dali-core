@@ -140,6 +140,10 @@ void Animation::PlayFrom(float progress)
   GetImplementation(*this).PlayFrom(progress);
 }
 
+void Animation::PlayTo(float progress)
+{
+  GetImplementation(*this).PlayTo(progress);
+}
 
 void Animation::Pause()
 {

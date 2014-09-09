@@ -300,6 +300,15 @@ public:
    */
   void PlayFrom( float progress );
 
+  /*
+   * @brief Play the animation from the current progress to a given progress.
+   * If the given progress is less than current progress, animation will play backwards
+   * until it reaches that progress. When the given progress is meet the finish signal is emmited.
+   *
+   * @param[in] progress A value between [0,1] where the animation should stop playing.
+   */
+  void PlayTo( float progress );
+
   /**
    * @brief Pause the animation.
    */

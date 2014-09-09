@@ -237,6 +237,18 @@ void Animation::PlayFrom( float progress )
   }
 }
 
+void Animation::PlayTo( float progress )
+{
+  if( progress >= 0.0f && progress <= 1.0f )
+  {
+    // Update the current playlist
+    mPlaylist.OnPlay( *this );
+
+    // mAnimation is being used in a separate thread; queue a Play message
+    PlayAnimationToMessage( mUpdateManager.GetEventToUpdate(), *mAnimation, progress );
+  }
+}
+
 void Animation::Pause()
 {
   // mAnimation is being used in a separate thread; queue a Pause message

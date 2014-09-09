@@ -61,7 +61,6 @@ ProxyObject::ProxyObject()
   mCustomProperties( NULL ),
   mTypeInfo( NULL ),
   mConstraints( NULL ),
-  mRemovedConstraints( NULL ),
   mPropertyNotifications( NULL )
 {
 }
@@ -92,6 +91,17 @@ void ProxyObject::RemoveObserver(Observer& observer)
 
 void ProxyObject::OnSceneObjectAdd()
 {
+  // Notification for this object's constraints
+  if( mConstraints )
+  {
+    const ActiveConstraintConstIter endIter = mConstraints->end();
+    for ( ActiveConstraintIter iter = mConstraints->begin(); endIter != iter; ++iter )
+    {
+      ActiveConstraintBase& baseConstraint = GetImplementation( *iter );
+      baseConstraint.OnParentSceneObjectAdded();
+    }
+  }
+
   // Notification for observers
   for( ConstObserverIter iter = mObservers.Begin(),  endIter =  mObservers.End(); iter != endIter; ++iter)
   {
@@ -104,6 +114,17 @@ void ProxyObject::OnSceneObjectAdd()
 
 void ProxyObject::OnSceneObjectRemove()
 {
+  // Notification for this object's constraints
+  if( mConstraints )
+  {
+    const ActiveConstraintConstIter endIter = mConstraints->end();
+    for ( ActiveConstraintIter iter = mConstraints->begin(); endIter != iter; ++iter )
+    {
+      ActiveConstraintBase& baseConstraint = GetImplementation( *iter );
+      baseConstraint.OnParentSceneObjectRemoved();
+    }
+  }
+
   // Notification for observers
   for( ConstObserverIter iter = mObservers.Begin(), endIter = mObservers.End(); iter != endIter; ++iter )
   {
@@ -776,30 +797,9 @@ ActiveConstraintBase* ProxyObject::DoApplyConstraint( Constraint& constraint, Da
   }
   mConstraints->push_back( activeConstraint );
 
-  activeConstraintImpl->FirstApply( *this, constraint.GetApplyTime() );
+  activeConstraintImpl->OnFirstApply( *this, constraint.GetApplyTime() );
 
   return activeConstraintImpl;
-}
-
-void ProxyObject::DeleteRemovedConstraints()
-{
-  if( ! mRemovedConstraints )
-  {
-    return;
-  }
-
-  // Discard constraints which are fully removed
-  for ( ActiveConstraintIter iter = mRemovedConstraints->begin(); mRemovedConstraints->end() != iter ;)
-  {
-    if ( !( GetImplementation( *iter ).IsRemoving() ) )
-    {
-      iter = mRemovedConstraints->erase( iter );
-    }
-    else
-    {
-      ++iter;
-    }
-  }
 }
 
 void ProxyObject::SetCustomProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value )
@@ -931,50 +931,12 @@ TypeInfo* ProxyObject::GetTypeInfo() const
   return mTypeInfo;
 }
 
-void ProxyObject::RemoveConstraint( ActiveConstraint& constraint, bool isInScenegraph )
+void ProxyObject::RemoveConstraint( ActiveConstraintBase& baseConstraint )
 {
   // guard against constraint sending messages during core destruction
   if ( Stage::IsInstalled() )
   {
-    if( isInScenegraph )
-    {
-      ActiveConstraintBase& baseConstraint = GetImplementation( constraint );
-      baseConstraint.BeginRemove();
-      if ( baseConstraint.IsRemoving() )
-      {
-        if( !mRemovedConstraints )
-        {
-          mRemovedConstraints = new ActiveConstraintContainer;
-        }
-        // Wait for remove animation before destroying active-constraints
-        mRemovedConstraints->push_back( constraint );
-      }
-    }
-    else if( mRemovedConstraints )
-    {
-      delete mRemovedConstraints;
-      mRemovedConstraints = NULL;
-    }
-  }
-}
-
-void ProxyObject::RemoveConstraint( Dali::ActiveConstraint activeConstraint )
-{
-  // guard against constraint sending messages during core destruction
-  if( mConstraints && Stage::IsInstalled() )
-  {
-    bool isInSceneGraph( NULL != GetSceneObject() );
-    if( isInSceneGraph )
-    {
-      DeleteRemovedConstraints();
-    }
-
-    ActiveConstraintIter it( std::find( mConstraints->begin(), mConstraints->end(), activeConstraint ) );
-    if( it !=  mConstraints->end() )
-    {
-      RemoveConstraint( *it, isInSceneGraph );
-      mConstraints->erase( it );
-    }
+    baseConstraint.OnRemove();
   }
 }
 
@@ -983,19 +945,13 @@ void ProxyObject::RemoveConstraints( unsigned int tag )
   // guard against constraint sending messages during core destruction
   if( mConstraints && Stage::IsInstalled() )
   {
-    bool isInSceneGraph( NULL != GetSceneObject() );
-    if( isInSceneGraph )
-    {
-      DeleteRemovedConstraints();
-    }
-
     ActiveConstraintIter iter( mConstraints->begin() );
     while(iter != mConstraints->end() )
     {
       ActiveConstraintBase& constraint = GetImplementation( *iter );
       if( constraint.GetTag() == tag )
       {
-        RemoveConstraint( *iter, isInSceneGraph );
+        RemoveConstraint( GetImplementation( *iter ) );
         iter = mConstraints->erase( iter );
       }
       else
@@ -1011,23 +967,10 @@ void ProxyObject::RemoveConstraints()
   // guard against constraint sending messages during core destruction
   if( mConstraints && Stage::IsInstalled() )
   {
-    // If we have nothing in the scene-graph, just clear constraint containers
-    const SceneGraph::PropertyOwner* propertyOwner = GetSceneObject();
-    if ( NULL == propertyOwner )
+    const ActiveConstraintConstIter endIter = mConstraints->end();
+    for ( ActiveConstraintIter iter = mConstraints->begin(); endIter != iter; ++iter )
     {
-      delete mRemovedConstraints;
-      mRemovedConstraints = NULL;
-    }
-    else
-    {
-      // Discard constraints which are fully removed
-      DeleteRemovedConstraints();
-
-      const ActiveConstraintConstIter endIter = mConstraints->end();
-      for ( ActiveConstraintIter iter = mConstraints->begin(); endIter != iter; ++iter )
-      {
-        RemoveConstraint( *iter, true );
-      }
+      RemoveConstraint( GetImplementation( *iter ) );
     }
 
     delete mConstraints;
@@ -1042,15 +985,26 @@ void ProxyObject::SetTypeInfo( TypeInfo* typeInfo )
 
 ProxyObject::~ProxyObject()
 {
+  // Notification for this object's constraints
+  // (note that the ActiveConstraint handles may outlive the ProxyObject)
+  if( mConstraints )
+  {
+    const ActiveConstraintConstIter endIter = mConstraints->end();
+    for ( ActiveConstraintIter iter = mConstraints->begin(); endIter != iter; ++iter )
+    {
+      ActiveConstraintBase& baseConstraint = GetImplementation( *iter );
+      baseConstraint.OnParentDestroyed();
+    }
+  }
+
   // Notification for observers
-  for( ConstObserverIter iter = mObservers.Begin(), endIter =  mObservers.End(); iter != endIter; ++iter)
+  for( ConstObserverIter iter = mObservers.Begin(), endIter = mObservers.End(); iter != endIter; ++iter)
   {
     (*iter)->ProxyDestroyed(*this);
   }
 
   delete mCustomProperties;
   delete mConstraints;
-  delete mRemovedConstraints;
   delete mPropertyNotifications;
 }
 

@@ -23,6 +23,7 @@
 #include <dali/public-api/animation/constraint.h>
 #include <dali/public-api/animation/active-constraint.h>
 #include <dali/internal/event/common/proxy-object.h>
+#include <dali/internal/event/animation/active-constraint-base.h>
 #include <dali/internal/event/animation/constraint-impl.h>
 #include <dali/internal/event/object/custom-object-internal.h>
 
@@ -82,7 +83,7 @@ ActiveConstraint Constrainable::ApplyConstraint( Constraint constraint, Constrai
 
 void Constrainable::RemoveConstraint(ActiveConstraint activeConstraint)
 {
-  GetImplementation(*this).RemoveConstraint( activeConstraint );
+  GetImplementation(*this).RemoveConstraint( GetImplementation(activeConstraint) );
 }
 
 void Constrainable::RemoveConstraints()

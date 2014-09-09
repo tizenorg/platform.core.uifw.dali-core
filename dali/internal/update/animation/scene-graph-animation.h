@@ -175,6 +175,14 @@ public:
    */
   void PlayFrom( float progress );
 
+  /*
+   * Play the animation from the current progress to a given progress.
+   * If the given progress is less than current progress, animation will play backwards
+   * until it reaches that progress.
+   * @param[in] progress A value between [0,1] where the animation should stop
+   */
+  void PlayTo( float progress );
+
   /**
    * Pause the animation.
    */
@@ -257,6 +265,12 @@ private:
    */
   void UpdateAnimators(BufferIndex bufferIndex, bool bake);
 
+  /**
+   * Helper to specify play direction and recalculate mElapsedSeconds if necessary
+   * @param[in] forward True if it has to play forward
+   */
+  void PlayForward( bool forward );
+
   // Undefined
   Animation(const Animation&);
 
@@ -266,6 +280,8 @@ private:
 protected:
 
   float mDurationSeconds;
+  float mPlayTo;
+  bool mForward;
   bool mLooping;
   EndAction mEndAction;
   EndAction mDestroyAction;
@@ -362,6 +378,17 @@ inline void PlayAnimationFromMessage( EventToUpdate& eventToUpdate, const Animat
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::PlayFrom, progress );
+}
+
+inline void PlayAnimationToMessage( EventToUpdate& eventToUpdate, const Animation& animation, float progress )
+{
+  typedef MessageValue1< Animation,float > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &animation, &Animation::PlayTo, progress );
 }
 
 inline void PauseAnimationMessage( EventToUpdate& eventToUpdate, const Animation& animation )

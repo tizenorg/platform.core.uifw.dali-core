@@ -930,6 +930,81 @@ int UtcDaliAnimationPlayFrom(void)
   END_TEST;
 }
 
+int UtcDaliAnimationPlayTo(void)
+{
+  TestApplication application;
+
+  Actor actor = Actor::New();
+  Stage::GetCurrent().Add(actor);
+
+  // Build the animation
+  float durationSeconds(1.0f);
+  Animation animation = Animation::New(durationSeconds);
+  Vector3 targetPosition(100.0f, 100.0f, 100.0f);
+  KeyFrames keyFrames = KeyFrames::New();
+  keyFrames.Add( 0.0f, Vector3(0.0f,0.0f,0.0f) );
+  keyFrames.Add( 1.0f, Vector3(100.0f,100.0f,100.0f) );
+  animation.AnimateBetween( Property(actor, Actor::POSITION), keyFrames );
+  //animation.MoveTo(actor, targetPosition, AlphaFunctions::Linear);
+
+  //PlayTo with an argument outside the range [0..1] will be ignored
+  animation.PlayTo(-1.0f);
+  application.SendNotification();
+  DALI_TEST_EQUALS(0.0f, animation.GetCurrentProgress(), TEST_LOCATION );
+
+  animation.PlayTo(100.0f);
+  application.SendNotification();
+  DALI_TEST_EQUALS(0.0f, animation.GetCurrentProgress(), TEST_LOCATION );
+
+  // Play to 40% the animation
+  animation.PlayTo( 0.4f );
+
+  bool signalReceived(false);
+  AnimationFinishCheck finishCheck(signalReceived);
+  animation.FinishedSignal().Connect(&application, finishCheck);
+
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 20% progress */);
+
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.2f), TEST_LOCATION );
+
+  animation.PlayTo(1.0f); // Test that calling playTo has no effect, when animation is already playing
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f) + 1u/* Just beyond 40% progress */);
+
+  // We did expect the animation to finish
+  application.SendNotification();
+  finishCheck.CheckSignalReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.4f), TEST_LOCATION );
+
+  //Play from 60% of the animation to 20%
+  finishCheck.Reset();
+  animation.SetCurrentProgress(0.6f);
+  animation.PlayTo( 0.2f );
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f) /*40% progress*/);
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.4f), TEST_LOCATION );
+
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f) + 1u /*Just beyond 20% progress*/);
+  // We did expect the animation to finish
+  application.SendNotification();
+  finishCheck.CheckSignalReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition*0.2f), TEST_LOCATION );
+
+  // Check that nothing has changed after a couple of buffer swaps
+  application.Render(0);
+  DALI_TEST_EQUALS( (targetPosition*0.2f), actor.GetCurrentPosition(), TEST_LOCATION );
+  application.Render(0);
+  DALI_TEST_EQUALS( (targetPosition*0.2f), actor.GetCurrentPosition(), TEST_LOCATION );
+    END_TEST;
+}
+
 int UtcDaliAnimationSetCurrentProgress(void)
 {
   TestApplication application;

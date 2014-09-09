@@ -268,9 +268,9 @@ public: // Constraints
 
   /**
    * Remove one constraint from a ProxyObject.
-   * @param[in] activeConstraint The active constraint to remove.
+   * @param[in] baseConstraint The active constraint to remove.
    */
-  void RemoveConstraint( Dali::ActiveConstraint activeConstraint );
+  void RemoveConstraint( ActiveConstraintBase& baseConstraint );
 
   /**
    * Remove all constraints from a ProxyObject.
@@ -322,17 +322,6 @@ private:
    * @return The new active-constraint which is owned by ProxyObject.
    */
   ActiveConstraintBase* DoApplyConstraint( Constraint& constraint, Dali::Constrainable weightObject );
-
-  /**
-   * Helper to delete removed constraints
-   */
-  void DeleteRemovedConstraints();
-
-  /**
-   * Helper to remove active constraints
-   */
-  void RemoveConstraint( ActiveConstraint& constraint, bool isInScenegraph );
-
 
 private: // Default property extensions for derived classes
 
@@ -449,7 +438,6 @@ private:
   Dali::Vector<Observer*> mObservers;
 
   ActiveConstraintContainer* mConstraints;               ///< Container of owned active-constraints.
-  ActiveConstraintContainer* mRemovedConstraints;        ///< Container of owned active-constraints, which are being removed.
 
   typedef std::vector< Dali::PropertyNotification >     PropertyNotificationContainer;
   typedef PropertyNotificationContainer::iterator       PropertyNotificationContainerIter;

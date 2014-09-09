@@ -74,34 +74,40 @@ const Property::Type DEFAULT_PROPERTY_TYPES[DEFAULT_PROPERTY_COUNT] =
 
 } // unnamed namespace
 
-ActiveConstraintBase::ActiveConstraintBase( EventToUpdate& eventToUpdate, Property::Index targetPropertyIndex )
+ActiveConstraintBase::ActiveConstraintBase( EventToUpdate& eventToUpdate, Property::Index targetPropertyIndex, SourceContainer& sources )
 : mEventToUpdate( eventToUpdate ),
   mTargetPropertyIndex( targetPropertyIndex ),
+  mSources( sources ),
   mTargetProxy( NULL ),
+  mObservedProxies(),
   mSceneGraphConstraint( NULL ),
   mCustomWeight( NULL ),
   mOffstageWeight( Dali::ActiveConstraint::DEFAULT_WEIGHT ),
-  mRemoveTime( 0.0f ),
   mAlphaFunction( Dali::Constraint::DEFAULT_ALPHA_FUNCTION ),
   mRemoveAction( Dali::Constraint::DEFAULT_REMOVE_ACTION ),
   mTag(0),
-  mApplyAnimation(),
-  mRemoveAnimation()
+  mApplyAnimation()
 {
+  // Observe the objects providing properties
+  for ( SourceIter iter = mSources.begin(); mSources.end() != iter; ++iter )
+  {
+    if ( OBJECT_PROPERTY == iter->sourceType )
+    {
+      DALI_ASSERT_ALWAYS( NULL != iter->object && "ActiveConstraint source object not found" );
+
+      ObserveProxy( *(iter->object) );
+    }
+  }
 }
 
 ActiveConstraintBase::~ActiveConstraintBase()
 {
-  // Disconnect from internal animation signals
+  StopObservation();
 
+  // Disconnect from internal animation signals
   if ( mApplyAnimation )
   {
     GetImplementation(mApplyAnimation).SetFinishedCallback( NULL, NULL );
-  }
-
-  if( mRemoveAnimation )
-  {
-    GetImplementation(mRemoveAnimation).SetFinishedCallback( NULL, NULL );
   }
 }
 
@@ -114,14 +120,18 @@ void ActiveConstraintBase::SetCustomWeightObject( ProxyObject& weightObject, Pro
   {
     mCustomWeight = sceneProperty;
 
-    OnCustomWeightSet( weightObject );
+    ObserveProxy( weightObject );
   }
 }
 
-void ActiveConstraintBase::FirstApply( ProxyObject& parent, TimePeriod applyTime )
+void ActiveConstraintBase::OnFirstApply( ProxyObject& parent, TimePeriod applyTime )
 {
-  // Notify derived classes
-  OnFirstApply( parent );
+  DALI_ASSERT_ALWAYS( NULL == mTargetProxy && "Parent of ActiveConstraint already set" );
+
+  mTargetProxy = &parent;
+
+  // Create and connect a constraint for a scene-object
+  ConnectConstraint();
 
   if ( applyTime.durationSeconds > 0.0f )
   {
@@ -141,45 +151,53 @@ void ActiveConstraintBase::FirstApply( ProxyObject& parent, TimePeriod applyTime
   }
 }
 
-void ActiveConstraintBase::BeginRemove()
+void ActiveConstraintBase::OnRemove()
 {
-  // Notify derived classes
-  OnBeginRemove();
+  const SceneGraph::PropertyOwner* propertyOwner = mTargetProxy ? mTargetProxy->GetSceneObject() : NULL;
 
-  // Remove gradually by animating weight down to zero
-  if ( mRemoveTime.durationSeconds > 0.0f )
+  if ( propertyOwner &&
+       mSceneGraphConstraint )
   {
-    // Stop baking behaviour from interfering with remove animation
-    if ( mSceneGraphConstraint )
-    {
-      // Immediately remove from scene-graph
-      SetRemoveActionMessage( mEventToUpdate, *mSceneGraphConstraint, Dali::Constraint::Discard );
-    }
+    // Notify base class that the scene-graph constraint is being removed
+    OnSceneObjectRemove();
 
-    // Interrupt ongoing apply-animations
-    if ( mApplyAnimation )
-    {
-      mApplyAnimation.Stop();
-    }
+    // Remove from scene-graph
+    RemoveConstraintMessage( mEventToUpdate, *propertyOwner, *mSceneGraphConstraint );
 
-    // Reduce the weight to zero
-    mRemoveAnimation = Dali::Animation::New( mRemoveTime.delaySeconds + mRemoveTime.durationSeconds );
-    Dali::ActiveConstraint self( this );
-    mRemoveAnimation.AnimateTo( Property( self, Dali::ActiveConstraint::WEIGHT ), 0.0f, mAlphaFunction, mRemoveTime );
-    mRemoveAnimation.Play();
-
-    // Finish removal when animation ends
-    GetImplementation(mRemoveAnimation).SetFinishedCallback( &ActiveConstraintBase::OnRemoveFinished, this );
-  }
-  else
-  {
-    OnRemoveFinished( this );
+    // mSceneGraphConstraint will be deleted in update-thread, remove dangling pointer
+    mSceneGraphConstraint = NULL;
   }
 }
 
-bool ActiveConstraintBase::IsRemoving()
+void ActiveConstraintBase::OnParentDestroyed()
 {
-  return mRemoveAnimation;
+  // Stop observing the remaining proxies
+  StopObservation();
+
+  // Discard all proxy pointers
+  mTargetProxy = NULL;
+  mSources.clear();
+}
+
+void ActiveConstraintBase::OnParentSceneObjectAdded()
+{
+  if ( NULL == mSceneGraphConstraint &&
+       mTargetProxy )
+  {
+    ConnectConstraint();
+  }
+}
+
+void ActiveConstraintBase::OnParentSceneObjectRemoved()
+{
+  if ( mSceneGraphConstraint )
+  {
+    // Notify base class that the scene-graph constraint is being removed
+    OnSceneObjectRemove();
+
+    // mSceneGraphConstraint will be deleted in update-thread, remove dangling pointer
+    mSceneGraphConstraint = NULL;
+  }
 }
 
 ProxyObject* ActiveConstraintBase::GetParent()
@@ -249,16 +267,6 @@ bool ActiveConstraintBase::DoConnectSignal( BaseObject* object, ConnectionTracke
   return connected;
 }
 
-void ActiveConstraintBase::SetRemoveTime( TimePeriod removeTime )
-{
-  mRemoveTime = removeTime;
-}
-
-TimePeriod ActiveConstraintBase::GetRemoveTime() const
-{
-  return mRemoveTime;
-}
-
 void ActiveConstraintBase::SetAlphaFunction( AlphaFunction alphaFunc )
 {
   mAlphaFunction = alphaFunc;
@@ -288,7 +296,6 @@ unsigned int ActiveConstraintBase::GetTag() const
 {
   return mTag;
 }
-
 
 bool ActiveConstraintBase::IsSceneObjectRemovable() const
 {
@@ -446,6 +453,58 @@ const PropertyInputImpl* ActiveConstraintBase::GetSceneObjectInputProperty( Prop
   return &mSceneGraphConstraint->mWeight;
 }
 
+void ActiveConstraintBase::SceneObjectAdded( ProxyObject& proxy )
+{
+  if ( NULL == mSceneGraphConstraint &&
+       mTargetProxy )
+  {
+    ConnectConstraint();
+  }
+}
+
+void ActiveConstraintBase::SceneObjectRemoved( ProxyObject& proxy )
+{
+  // Remove the scene-graph constraint
+  OnRemove();
+}
+
+void ActiveConstraintBase::ProxyDestroyed( ProxyObject& proxy )
+{
+  // Remove proxy pointer from observation set
+  ProxyObjectIter iter = mObservedProxies.find( &proxy );
+  DALI_ASSERT_DEBUG( mObservedProxies.end() != iter );
+  mObservedProxies.erase( iter );
+
+  // Stop observing the remaining proxies
+  StopObservation();
+
+  // Remove the scene-graph constraint
+  OnRemove();
+
+  // Discard all proxy pointers
+  mTargetProxy = NULL;
+  mSources.clear();
+}
+
+void ActiveConstraintBase::ObserveProxy( ProxyObject& proxy )
+{
+  if ( mObservedProxies.end() == mObservedProxies.find(&proxy) )
+  {
+    proxy.AddObserver( *this );
+    mObservedProxies.insert( &proxy );
+  }
+}
+
+void ActiveConstraintBase::StopObservation()
+{
+  for( ProxyObjectIter iter = mObservedProxies.begin(); mObservedProxies.end() != iter; ++iter )
+  {
+    (*iter)->RemoveObserver( *this );
+  }
+
+  mObservedProxies.clear();
+}
+
 void ActiveConstraintBase::FirstApplyFinished( Object* object )
 {
   ActiveConstraintBase& self = dynamic_cast<ActiveConstraintBase&>( *object );
@@ -467,29 +526,6 @@ void ActiveConstraintBase::FirstApplyFinished( Object* object )
   }
 
   // WARNING - this constraint may now have been deleted; don't do anything else here
-}
-
-void ActiveConstraintBase::OnRemoveFinished( Object* object )
-{
-  ActiveConstraintBase& self = dynamic_cast<ActiveConstraintBase&>( *object );
-
-  const SceneGraph::PropertyOwner* propertyOwner = self.mTargetProxy ? self.mTargetProxy->GetSceneObject() : NULL;
-
-  if ( propertyOwner &&
-       self.mSceneGraphConstraint )
-  {
-    // Notify base class that the scene-graph constraint is being removed
-    self.OnSceneObjectRemove();
-
-    // Remove from scene-graph
-    RemoveConstraintMessage( self.mEventToUpdate, *propertyOwner, *(self.mSceneGraphConstraint) );
-
-    // mSceneGraphConstraint will be deleted in update-thread, remove dangling pointer
-    self.mSceneGraphConstraint = NULL;
-  }
-
-  // The animation is no longer needed
-  self.mRemoveAnimation.Reset();
 }
 
 } // namespace Internal

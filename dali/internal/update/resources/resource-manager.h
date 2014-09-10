@@ -34,6 +34,7 @@
 
 #include <dali/internal/common/event-to-update.h>
 #include <dali/internal/common/message.h>
+#include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/common/bitmap-upload.h>
 #include <dali/internal/event/text/font-impl.h>
 #include <dali/internal/event/modeling/model-data-impl.h>
@@ -633,12 +634,14 @@ inline void RequestUpdateMeshMessage( EventToUpdate& eventToUpdate,
                                       ResourceId id,
                                       const Dali::MeshData& meshData )
 {
-  typedef MessageDoubleBuffered2< ResourceManager, ResourceId, OwnerPointer< MeshData > > LocalType;
+  Integration::PlatformAbstraction& platform = ThreadLocalStorage::Get().GetPlatformAbstraction();
+  ResourcePolicy::Discardable discardable = (platform.GetResourceDataRetentionPolicy() == Integration::DALI_DISCARDS_DATA ) ? ResourcePolicy::DISCARD : ResourcePolicy::RETAIN;
 
+  typedef MessageDoubleBuffered2< ResourceManager, ResourceId, OwnerPointer< MeshData > > LocalType;
   // Reserve some memory inside the message queue
   unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
-  MeshData* internalMeshData = new MeshData( meshData, true, false );
+  MeshData* internalMeshData = new MeshData( meshData, discardable, false );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &manager, &ResourceManager::HandleUpdateMeshRequest, id, internalMeshData );

@@ -66,13 +66,15 @@ public:
    * Construct a new Animation.
    * @param[in] durationSeconds The duration of the animation in seconds.
    * @param[in] isLooping Whether the animation will loop.
+   * @param[in] direction Whether the animation will play forward or backwards
+   * @param[in] playRange The minimum and maximum cursor between which the animation would play
    * @param[in] endAction The action to perform when the animation ends.
    * @param[in] destroyAction The action to perform when the animation is destroyed.
    * @return A new Animation
    */
-  static Animation* New( float durationSeconds, bool isLooping, PlayDirection direction, EndAction endAction, EndAction destroyAction )
+  static Animation* New( float durationSeconds, bool isLooping, PlayDirection direction, const Vector2& playRange, EndAction endAction, EndAction destroyAction )
   {
-    return new Animation( durationSeconds, isLooping, direction, endAction, destroyAction );
+    return new Animation( durationSeconds, isLooping, direction, playRange, endAction, destroyAction );
   }
 
   /**
@@ -116,7 +118,10 @@ public:
    */
   void SetCurrentProgress( float progress )
   {
-    mElapsedSeconds = mDurationSeconds * progress;
+    if( progress >= mPlayRange.x/mDurationSeconds && progress <= mPlayRange.y / mDurationSeconds )
+    {
+      mElapsedSeconds = mDurationSeconds * progress;
+    }
   }
 
   /**
@@ -171,6 +176,14 @@ public:
   {
     return mDestroyAction;
   }
+
+  /**
+   * Set the playing range. The animation will only play between the minimum
+   * and maximum progress specified.
+   * param[in] range Two values between [0,1] to specify minimum and maximum progress. The
+   * animation will play between those values.
+   */
+  void SetPlayRange( const Vector2& range );
 
   /**
    * Play the animation.
@@ -253,7 +266,7 @@ protected:
   /**
    * Protected constructor. See New()
    */
-  Animation( float durationSeconds, bool isLooping, PlayDirection direction, EndAction endAction, EndAction destroyAction );
+  Animation( float durationSeconds, bool isLooping, PlayDirection direction, const Vector2& playRange, EndAction endAction, EndAction destroyAction );
 
 
 private:
@@ -283,6 +296,7 @@ protected:
   float mElapsedSeconds;
   int mPlayCount;
 
+  Vector2 mPlayRange;
   AnimatorContainer mAnimators;
 };
 
@@ -328,6 +342,17 @@ inline void SetPlayDirectionMessage( EventToUpdate& eventToUpdate, const Animati
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetPlayDirection, direction );
+}
+
+inline void SetPlayRangeMessage( EventToUpdate& eventToUpdate, const Animation& animation, const Vector2& range )
+{
+  typedef MessageValue1< Animation, Vector2 > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &animation, &Animation::SetPlayRange, range );
 }
 
 inline void SetEndActionMessage( EventToUpdate& eventToUpdate, const Animation& animation, Dali::Animation::EndAction action )

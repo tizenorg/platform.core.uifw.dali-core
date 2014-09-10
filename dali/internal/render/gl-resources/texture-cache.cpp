@@ -357,11 +357,18 @@ void TextureCache::RemoveObserver( ResourceId id, TextureObserver* observer )
 
 void TextureCache::GlContextDestroyed()
 {
-  TextureIter end = mTextures.end();
+  const TextureIter end = mTextures.end();
   TextureIter iter = mTextures.begin();
   for( ; iter != end; ++iter )
   {
     (*iter->second).GlContextDestroyed(); // map holds intrusive pointers
+  }
+
+  const TextureIter end2 = mFramebufferTextures.end();
+  TextureIter iter2 = mFramebufferTextures.begin();
+  for( ; iter2 != end2; ++iter )
+  {
+    (*iter2->second).GlContextDestroyed(); // map holds intrusive pointers
   }
 }
 

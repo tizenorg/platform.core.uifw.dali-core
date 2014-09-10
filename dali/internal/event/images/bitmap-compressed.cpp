@@ -33,8 +33,11 @@ namespace Internal
 {
 using namespace Dali::Pixel;
 
-BitmapCompressed::BitmapCompressed( const bool bitmapOwnsBuffer ) : Bitmap(bitmapOwnsBuffer), mBufferSize(0)
-{}
+BitmapCompressed::BitmapCompressed( const Bitmap::Discardable discardable )
+: Bitmap( discardable ),
+  mBufferSize(0)
+{
+}
 
 BitmapCompressed::~BitmapCompressed()
 {

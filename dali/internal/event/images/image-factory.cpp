@@ -181,6 +181,15 @@ ResourceTicketPtr ImageFactory::Reload( Request* request )
   return ticket;
 }
 
+void ImageFactory::ReloadAll()
+{
+  for( RequestIdMap::iterator it = mRequestCache.begin(); it != mRequestCache.end(); ++it )
+  {
+    Reload((*it).second);
+  }
+}
+
+
 const std::string& ImageFactory::GetRequestPath( const Request* request ) const
 {
   if( request )

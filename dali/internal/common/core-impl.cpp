@@ -113,6 +113,11 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
 
   RenderQueue& renderQueue = mRenderManager->GetRenderQueue();
   TextureCache& textureCache = mRenderManager->GetTextureCache();
+  Integration::DataRetentionPolicy policy = platform.GetResourceDataRetentionPolicy();
+  SceneGraph::TextureCache::DiscardPolicy discardPolicy = (policy == Integration::DALI_RETAINS_DATA ? SceneGraph::TextureCache::RETAIN : SceneGraph::TextureCache::DISCARD );
+
+  textureCache.SetDiscardBitmapsPolicy(discardPolicy);
+
   mDiscardQueue = new DiscardQueue( renderQueue );
 
   mResourceManager = new ResourceManager(  mPlatform,
@@ -208,6 +213,11 @@ void Core::ContextToBeDestroyed()
   mRenderManager->ContextDestroyed();
 }
 
+void Core::ContextRecreated()
+{
+  mImageFactory->ReloadAll();
+}
+
 void Core::SurfaceResized(unsigned int width, unsigned int height)
 {
   mStage->SetSize(width, height);
@@ -215,7 +225,7 @@ void Core::SurfaceResized(unsigned int width, unsigned int height)
 
 void Core::SetDpi(unsigned int dpiHorizontal, unsigned int dpiVertical)
 {
-  mPlatform.SetDpi( dpiHorizontal, dpiVertical  );
+  mPlatform.SetDpi( dpiHorizontal, dpiVertical );
   mFontFactory->SetDpi( dpiHorizontal, dpiVertical);
   mStage->SetDpi( Vector2( dpiHorizontal , dpiVertical) );
 }

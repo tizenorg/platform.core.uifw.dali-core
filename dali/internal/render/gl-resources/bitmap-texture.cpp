@@ -36,32 +36,39 @@ namespace Dali
 namespace Internal
 {
 
-BitmapTexture::BitmapTexture(Integration::Bitmap* const bitmap, const Integration::Bitmap::PackedPixelsProfile * const bitmapPackedPixelsProfile, Context& context)
-: Texture(context,
-          bitmapPackedPixelsProfile->GetBufferWidth(),
-          bitmapPackedPixelsProfile->GetBufferHeight(),
-          bitmap->GetImageWidth(),
-          bitmap->GetImageHeight(),
-          bitmap->GetPixelFormat()),
+BitmapTexture::BitmapTexture(
+  Integration::Bitmap* const bitmap,
+  const Integration::Bitmap::PackedPixelsProfile * const bitmapPackedPixelsProfile,
+  Context& context,
+  SceneGraph::TextureCache::DiscardPolicy policy)
+: Texture( context,
+           bitmapPackedPixelsProfile->GetBufferWidth(),
+           bitmapPackedPixelsProfile->GetBufferHeight(),
+           bitmap->GetImageWidth(),
+           bitmap->GetImageHeight(),
+           bitmap->GetPixelFormat()),
   mBitmap(bitmap),
-  mClearPixels(false)
+  mClearPixels(false),
+  mDiscardPolicy(policy)
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
   DALI_LOG_SET_OBJECT_STRING(this, DALI_LOG_GET_OBJECT_STRING(bitmap));
 }
 
 BitmapTexture::BitmapTexture(
-  unsigned int  width,
-  unsigned int  height,
+  unsigned int width,
+  unsigned int height,
   Pixel::Format pixelFormat,
-  bool          clearPixels,
-  Context&      context)
-: Texture(context,
-          width, height,
-          width, height,
-          pixelFormat),
+  bool clearPixels,
+  Context& context,
+  SceneGraph::TextureCache::DiscardPolicy policy)
+: Texture( context,
+           width, height,
+           width, height,
+           pixelFormat),
   mBitmap(NULL),
-  mClearPixels(clearPixels)
+  mClearPixels(clearPixels),
+  mDiscardPolicy(policy)
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
 }
@@ -69,6 +76,7 @@ BitmapTexture::BitmapTexture(
 BitmapTexture::~BitmapTexture()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
+
   // GlCleanup() should already have been called by TextureCache ensuring the resource is destroyed
   // on the render thread. (And avoiding a potentially problematic virtual call in the destructor)
 }
@@ -248,14 +256,9 @@ void BitmapTexture::Update( Integration::Bitmap* bitmap )
 
   const unsigned char* pixels = mBitmap->GetBuffer();
 
-  DALI_ASSERT_DEBUG( pixels != NULL );
+  // Pixel data could be null if we've uploaded to GL and discarded the data.
 
-  if ( NULL == pixels )
-  {
-    DALI_LOG_ERROR("bitmap has no data\n");
-    GlCleanup(); // Note, We suicide here in the case of bad input.
-  }
-  else
+  if ( pixels != NULL)
   {
     if( mImageWidth == mBitmap->GetImageWidth() &&
         mImageHeight == mBitmap->GetImageHeight() &&
@@ -267,7 +270,11 @@ void BitmapTexture::Update( Integration::Bitmap* bitmap )
       {
         RectArea area(0, 0, mImageWidth, mImageHeight);  // just update whole texture
         AreaUpdated( area, pixels );
-        mBitmap->DiscardBuffer();
+
+        if( mDiscardPolicy == SceneGraph::TextureCache::DISCARD )
+        {
+          mBitmap->DiscardBuffer();
+        }
       }
     }
     else
@@ -281,7 +288,11 @@ void BitmapTexture::Update( Integration::Bitmap* bitmap )
       if ( mId ) // If the texture is already bound
       {
         AssignBitmap( false, pixels );
-        mBitmap->DiscardBuffer();
+
+        if( mDiscardPolicy == SceneGraph::TextureCache::DISCARD )
+        {
+          mBitmap->DiscardBuffer();
+        }
       }
     }
   }
@@ -294,12 +305,10 @@ void BitmapTexture::UpdateArea( const RectArea& updateArea )
   if( mBitmap != 0 )
   {
     const unsigned char* pixels = mBitmap->GetBuffer();
-    if ( NULL == pixels )
-    {
-      DALI_LOG_ERROR("bitmap has no data\n");
-      GlCleanup(); ///!ToDo: Why do we suicide in the case of bad input?
-    }
-    else
+
+    // Pixel data could be null if we've uploaded to GL and discarded the data.
+
+    if ( pixels != NULL )
     {
       if ( mId ) // If the texture is already bound
       {
@@ -382,12 +391,18 @@ bool BitmapTexture::CreateGlTexture()
   {
     const unsigned char* pixels = mBitmap->GetBuffer();
 
-    DALI_ASSERT_DEBUG(pixels != NULL);
+    // pixel data could be NULL here if we've had a context loss and we previously discarded
+    // the pixel data on the previous upload. If it is null, then we shouldn't generate a
+    // new GL Texture; leaving mId as zero.
 
     if( NULL != pixels )
     {
       AssignBitmap( true, pixels );
-      mBitmap->DiscardBuffer();
+
+      if( mDiscardPolicy == SceneGraph::TextureCache::DISCARD )
+      {
+        mBitmap->DiscardBuffer();
+      }
     }
   }
   else

@@ -45,6 +45,12 @@ public:
   typedef Dali::MeshData::FaceIndices FaceIndices;
   typedef Dali::BoneContainer BoneContainer;
 
+  enum Discardable
+  {
+    DISCARD,
+    RETAIN
+  };
+
   /**
    * Create a new MeshData from a Dali::MeshData object.
    * This constructor is explicit to prevent accidental copies.
@@ -52,7 +58,7 @@ public:
    * @param[in] discardable if true, the vertex and index data will be discarded after they are uploaded to gl
    * @param[in] scalingRequired - True if this Mesh should be scaled to fit actor size
    */
-  explicit MeshData( const Dali::MeshData& meshData, bool discardable, bool scalingRequired );
+  explicit MeshData( const Dali::MeshData& meshData, Discardable discardable, bool scalingRequired );
 
   /**
    * @copydoc Dali::MeshData::GetVertexCount

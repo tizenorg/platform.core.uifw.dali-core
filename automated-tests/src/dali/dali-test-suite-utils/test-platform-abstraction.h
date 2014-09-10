@@ -239,6 +239,8 @@ public:
 
   virtual Integration::BitmapPtr GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const;
 
+  virtual Integration::DataRetentionPolicy GetResourceDataRetentionPolicy() const;
+
 public: // TEST FUNCTIONS
 
   // Enumeration of Platform Abstraction methods
@@ -326,6 +328,7 @@ public: // TEST FUNCTIONS
 
   void SetReadMetricsResult( bool success, std::vector<Integration::GlyphMetrics>& glyphMetricsContainer );
 
+  void SetResourceDataRetentionPolicy( Integration::DataRetentionPolicy policy );
 
 private:
   mutable TraceCallStack        mTrace;
@@ -347,6 +350,7 @@ private:
   LoadFileResult                mLoadFileResult;
   bool                          mSaveFileResult;
   mutable FontListMode          mFontListMode;
+  Integration::DataRetentionPolicy mDataRetentionPolicy;
 };
 
 } // Dali

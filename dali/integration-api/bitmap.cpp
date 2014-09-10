@@ -22,6 +22,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/platform-abstraction.h>
+#include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/images/bitmap-packed-pixel.h>
 #include <dali/internal/event/images/bitmap-compressed.h>
 #include <dali/internal/event/images/bitmap-external.h>
@@ -246,6 +248,8 @@ Bitmap* Bitmap::New(const Profile profile = BITMAP_2D_PACKED_PIXELS, const bool 
 {
   DALI_ASSERT_DEBUG(profile == BITMAP_2D_PACKED_PIXELS || profile == BITMAP_COMPRESSED);
 
+  Bitmap::Discardable discardable = managePixelBuffer ? Bitmap::DISCARD : Bitmap::RETAIN;
+
   switch( profile )
   {
     /** A 2D array of pixels where each pixel is a whole number of bytes
@@ -254,20 +258,21 @@ Bitmap* Bitmap::New(const Profile profile = BITMAP_2D_PACKED_PIXELS, const bool 
      * scanlines past the bottom of the image in the buffer if requested.*/
     case BITMAP_2D_PACKED_PIXELS:
     {
-      Bitmap * const bitmap = new Dali::Internal::BitmapPackedPixel(managePixelBuffer);
+      Bitmap * const bitmap = new Dali::Internal::BitmapPackedPixel( discardable );
       return bitmap;
     }
 
     /** The data for the bitmap is buffered in an opaque form.*/
     case BITMAP_COMPRESSED:
     {
-      return new Dali::Internal::BitmapCompressed(managePixelBuffer);
+      return new Dali::Internal::BitmapCompressed( discardable );
     }
   }
   return 0;
 }
 
-Bitmap::Bitmap( bool discardable, Dali::Integration::PixelBuffer* pixBuf)
+
+Bitmap::Bitmap( Bitmap::Discardable discardable, Dali::Integration::PixelBuffer* pixBuf)
 : mImageWidth(0),
   mImageHeight(0),
   mPixelFormat(Pixel::RGBA8888),
@@ -280,7 +285,7 @@ Bitmap::Bitmap( bool discardable, Dali::Integration::PixelBuffer* pixBuf)
 
 void Bitmap::DiscardBuffer()
 {
-  if ( mDiscardable )
+  if( mDiscardable == Bitmap::DISCARD )
   {
     DeletePixelBuffer();
   }
@@ -299,7 +304,10 @@ PixelBuffer* Bitmap::ReleaseBuffer()
 Bitmap::~Bitmap()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
-  DeletePixelBuffer();
+  if( mDiscardable == Bitmap::DISCARD )
+  {
+    DeletePixelBuffer();
+  }
 }
 
 /**
@@ -330,4 +338,3 @@ void Bitmap::Initialize( Pixel::Format pixelFormat,
 } //namespace Integration
 
 } //namespace Dali
-

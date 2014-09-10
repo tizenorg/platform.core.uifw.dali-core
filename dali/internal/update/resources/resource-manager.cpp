@@ -452,6 +452,8 @@ void ResourceManager::HandleReloadResourceRequest( ResourceId id, const Resource
 
   bool resourceIsAlreadyLoading = true;
 
+  // @todo Consider removing from Complete sets for Context loss
+
   // ID might be in the loading set
   LiveRequestIter iter = mImpl->loadingRequests.find( id );
   if ( iter == mImpl->loadingRequests.end() )

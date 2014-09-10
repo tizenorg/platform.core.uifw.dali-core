@@ -54,6 +54,7 @@ public:
   typedef SignalV2< void (const KeyEvent&)> KeyEventSignalV2;  ///< Key event signal type
   typedef SignalV2< void () > EventProcessingFinishedSignalV2; ///< Event Processing finished signal type
   typedef SignalV2< void (const TouchEvent&)> TouchedSignalV2; ///< Touched signal type
+  typedef SignalV2< void () > ContextStatusSignal; // Context status signal type
 
   static const Vector4 DEFAULT_BACKGROUND_COLOR; ///< Default black background.
   static const Vector4 DEBUG_BACKGROUND_COLOR;   ///< Green background, useful when debugging.
@@ -62,6 +63,8 @@ public:
   static const char* const SIGNAL_KEY_EVENT; ///< name "key-event"
   static const char* const SIGNAL_EVENT_PROCESSING_FINISHED; ///< name "event-processing-finished"
   static const char* const SIGNAL_TOUCHED; ///< name "touched"
+  static const char* const SIGNAL_CONTEXT_LOST; ///< name "context-lost"
+  static const char* const SIGNAL_CONTEXT_REGAINED; ///< name "context-regained"
 
   /**
    * @brief Allows the creation of an empty stage handle.
@@ -288,6 +291,9 @@ public:
    * @return The touch signal to connect to.
    */
   TouchedSignalV2& TouchedSignal();
+
+  ContextStatusSignal& ContextLostSignal();
+  ContextStatusSignal& ContextRegainedSignal();
 
 public: // Not intended for application developers
 

@@ -32,6 +32,14 @@ namespace Integration
 class Bitmap;
 class DynamicsFactory;
 
+enum DataRetentionPolicy
+{
+  DALI_RETAINS_ALL_DATA,  // retains Meshes and bitmaps
+  DALI_RETAINS_MESH_DATA, // retains meshes, but discards bitmaps loaded from files
+  DALI_DISCARDS_ALL_DATA, // discards all data (expects application to regenerate UI on context loss)
+};
+
+
 /**
  * PlatformAbstraction is an abstract interface, used by Dali to access platform specific services.
  * A concrete implementation must be created for each platform, and provided when creating the
@@ -398,6 +406,15 @@ public:
    * @return A bitmap representing the character.
    */
   virtual Integration::BitmapPtr GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const = 0;
+
+  /**
+   * Gets the data retention policy of Dali. This depends on whether the application
+   * supports context loss/regain. Dali should honour this policy when deciding to
+   * discard bitmap data or mesh data.
+   *
+   * @return The data retention policy
+   */
+  virtual Integration::DataRetentionPolicy GetResourceDataRetentionPolicy() const = 0;
 
 }; // class PlatformAbstraction
 

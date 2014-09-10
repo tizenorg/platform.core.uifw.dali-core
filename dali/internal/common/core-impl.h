@@ -100,6 +100,11 @@ public:
   void ContextToBeDestroyed();
 
   /**
+   * @copydoc Dali::Integration::Core::RecoverFromContextLoss()
+   */
+  void RecoverFromContextLoss();
+
+  /**
    * @copydoc Dali::Integration::Core::SurfaceResized(unsigned int, unsigned int)
    */
   void SurfaceResized(unsigned int width, unsigned int height);

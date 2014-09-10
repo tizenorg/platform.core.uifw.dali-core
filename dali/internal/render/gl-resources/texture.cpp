@@ -98,8 +98,7 @@ Texture::Texture(Context&      context,
   mHeight(height),
   mImageWidth(imageWidth),
   mImageHeight(imageHeight),
-  mPixelFormat(pixelFormat),
-  mDiscarded(false)
+  mPixelFormat(pixelFormat)
 {
 }
 

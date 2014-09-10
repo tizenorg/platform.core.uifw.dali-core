@@ -75,6 +75,11 @@ void Core::ContextToBeDestroyed()
   mImpl->ContextToBeDestroyed();
 }
 
+void Core::RecoverFromContextLoss()
+{
+  mImpl->RecoverFromContextLoss();
+}
+
 void Core::SurfaceResized(unsigned int width, unsigned int height)
 {
   mImpl->SurfaceResized(width, height);

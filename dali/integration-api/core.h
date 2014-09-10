@@ -238,6 +238,17 @@ public:
   void ContextToBeDestroyed();
 
   /**
+   * Notify the Core that the GL context has been re-created, e.g. after ReplaceSurface
+   * or Context loss.
+   *
+   * In the case of ReplaceSurface, both ContextToBeDestroyed() and ContextCreated() will have
+   * been called on the render thread before this is called on the event thread.
+   *
+   * Multi-threading note: this method should be called from the main thread
+   */
+  void RecoverFromContextLoss();
+
+  /**
    * Notify the Core that the GL surface has been resized.
    * This should be done at least once i.e. after the first call to ContextCreated().
    * The Core will use the surface size for camera calculations, and to set the GL viewport.

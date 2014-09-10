@@ -24,7 +24,8 @@ namespace Dali
 TestApplication::TestApplication( size_t surfaceWidth,
                                   size_t surfaceHeight,
                                   float  horizontalDpi,
-                                  float  verticalDpi)
+                                  float  verticalDpi,
+                                  ResourcePolicy::DataRetention policy)
 : mCore( NULL ),
   mSurfaceWidth( surfaceWidth ),
   mSurfaceHeight( surfaceHeight ),
@@ -39,12 +40,14 @@ TestApplication::TestApplication( bool   initialize,
                                   size_t surfaceWidth,
                                   size_t surfaceHeight,
                                   float  horizontalDpi,
-                                  float  verticalDpi )
+                                  float  verticalDpi,
+                                  ResourcePolicy::DataRetention policy)
 : mCore( NULL ),
   mSurfaceWidth( surfaceWidth ),
   mSurfaceHeight( surfaceHeight ),
   mFrame( 0u ),
-  mDpi( horizontalDpi, verticalDpi )
+  mDpi( horizontalDpi, verticalDpi ),
+  mDataRetentionPolicy( policy )
 {
   if ( initialize )
   {
@@ -59,7 +62,8 @@ void TestApplication::Initialize()
     mPlatformAbstraction,
     mGlAbstraction,
     mGlSyncAbstraction,
-    mGestureManager );
+    mGestureManager,
+    mDataRetentionPolicy);
 
   mCore->ContextCreated();
   mCore->SurfaceResized( mSurfaceWidth, mSurfaceHeight );
@@ -190,7 +194,7 @@ bool TestApplication::RenderOnly( )
 
 void TestApplication::ResetContext()
 {
-  mCore->ContextToBeDestroyed();
+  mCore->ContextDestroyed();
   mCore->ContextCreated();
 }
 

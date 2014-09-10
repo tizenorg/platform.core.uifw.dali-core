@@ -72,6 +72,7 @@ const unsigned int UNINITIALIZED_TEXTURE_UNIT = std::numeric_limits<unsigned int
 
 #ifdef DEBUG_ENABLED
 Debug::Filter* Context::gGlLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_CONTEXT");
+Debug::Filter* gContextLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_CONTEXT_META");
 #endif
 
 Context::Context(Integration::GlAbstraction& glAbstraction)
@@ -118,6 +119,8 @@ Context::~Context()
 
 void Context::GlContextCreated()
 {
+  DALI_LOG_INFO(gContextLogFilter, Debug::Verbose, "Context::GlContextCreated()\n");
+
   DALI_ASSERT_DEBUG(!mGlContextCreated);
 
   mGlContextCreated = true;
@@ -134,6 +137,8 @@ void Context::GlContextCreated()
 
 void Context::GlContextDestroyed()
 {
+  DALI_LOG_INFO(gContextLogFilter, Debug::Verbose, "Context::GlContextDestroyed()\n");
+
   const ProgramContainer::iterator endp = mProgramCache.end();
   for ( ProgramContainer::iterator itp = mProgramCache.begin(); itp != endp; ++itp )
   {
@@ -252,6 +257,7 @@ void Context::ResetVertexAttributeState()
 
 void Context::ResetGlState()
 {
+  DALI_LOG_INFO(gContextLogFilter, Debug::Verbose, "Context::ResetGlState()\n");
   DALI_ASSERT_DEBUG(mGlContextCreated);
 
   mClearColorSet = false;

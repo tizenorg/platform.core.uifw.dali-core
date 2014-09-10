@@ -349,7 +349,7 @@ private:
   /**
    * Resets caches
    */
-  void ResetAttribsUniforms();
+  void ResetAttribsUniformCache();
 
 private:  // Data
 

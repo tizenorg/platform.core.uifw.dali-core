@@ -140,6 +140,20 @@ void RenderTaskList::NotifyFinished()
   }
 }
 
+void RenderTaskList::RefreshTasks()
+{
+  for ( RenderTaskContainer::iterator iter = mTasks.begin(); mTasks.end() != iter; ++iter )
+  {
+    Dali::RenderTask task = *iter;
+
+    // If the render target renders only once to an offscreen, re-render the render task
+    if( task.GetRefreshRate() == Dali::RenderTask::REFRESH_ONCE && task.GetTargetFrameBuffer() )
+    {
+      task.SetRefreshRate( Dali::RenderTask::REFRESH_ONCE );
+    }
+  }
+}
+
 RenderTaskList::RenderTaskList( EventToUpdate& eventToUpdate, RenderTaskDefaults& defaults, bool systemLevel )
 : mEventToUpdate( eventToUpdate ),
   mDefaults( defaults ),

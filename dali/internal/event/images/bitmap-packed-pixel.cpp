@@ -31,7 +31,7 @@ namespace Internal
 using namespace Dali::Pixel;
 
 
-BitmapPackedPixel::BitmapPackedPixel( bool discardable, Dali::Integration::PixelBuffer* pixBuf )
+BitmapPackedPixel::BitmapPackedPixel( Bitmap::Discardable discardable, Dali::Integration::PixelBuffer* pixBuf )
 : Bitmap( discardable, pixBuf ),
   mBufferWidth(0),
   mBufferHeight(0),

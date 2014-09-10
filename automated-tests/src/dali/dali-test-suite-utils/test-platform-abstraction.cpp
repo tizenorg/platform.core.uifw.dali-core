@@ -26,7 +26,8 @@ namespace Dali
  * Constructor
  */
 TestPlatformAbstraction::TestPlatformAbstraction()
-: mRequest(0)
+: mRequest(0),
+  mDataRetentionPolicy(Integration::DALI_DISCARDS_DATA)
 {
   Initialize();
 }
@@ -463,6 +464,11 @@ Integration::BitmapPtr TestPlatformAbstraction::GetGlyphImage( const std::string
   return image;
 }
 
+Integration::DataRetentionPolicy TestPlatformAbstraction::GetResourceDataRetentionPolicy() const
+{
+  return mDataRetentionPolicy;
+}
+
 
 /** Call this every test */
 void TestPlatformAbstraction::Initialize()
@@ -479,6 +485,7 @@ void TestPlatformAbstraction::Initialize()
   mGetFontPathResult="helvetica-12";
   mReadMetricsResult=false;
   mReadGlobalMetricsResult=false;
+  mDataRetentionPolicy = Integration::DALI_DISCARDS_DATA;
 
   if(mRequest)
   {
@@ -644,5 +651,11 @@ void TestPlatformAbstraction::SetReadMetricsResult( bool success, std::vector<In
   mReadMetricsResult = success;
   mReadMetrics = glyphMetricsContainer; // copy
 }
+
+void TestPlatformAbstraction::SetResourceDataRetentionPolicy( Integration::DataRetentionPolicy policy )
+{
+  mDataRetentionPolicy = policy;
+}
+
 
 } // namespace Dali

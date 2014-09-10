@@ -36,32 +36,39 @@ namespace Dali
 namespace Internal
 {
 
-BitmapTexture::BitmapTexture(Integration::Bitmap* const bitmap, const Integration::Bitmap::PackedPixelsProfile * const bitmapPackedPixelsProfile, Context& context)
-: Texture(context,
-          bitmapPackedPixelsProfile->GetBufferWidth(),
-          bitmapPackedPixelsProfile->GetBufferHeight(),
-          bitmap->GetImageWidth(),
-          bitmap->GetImageHeight(),
-          bitmap->GetPixelFormat()),
+BitmapTexture::BitmapTexture(
+  Integration::Bitmap* const bitmap,
+  const Integration::Bitmap::PackedPixelsProfile * const bitmapPackedPixelsProfile,
+  Context& context,
+  SceneGraph::TextureCache::DiscardPolicy policy)
+: Texture( context,
+           bitmapPackedPixelsProfile->GetBufferWidth(),
+           bitmapPackedPixelsProfile->GetBufferHeight(),
+           bitmap->GetImageWidth(),
+           bitmap->GetImageHeight(),
+           bitmap->GetPixelFormat()),
   mBitmap(bitmap),
-  mClearPixels(false)
+  mClearPixels(false),
+  mDiscardPolicy(policy)
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
   DALI_LOG_SET_OBJECT_STRING(this, DALI_LOG_GET_OBJECT_STRING(bitmap));
 }
 
 BitmapTexture::BitmapTexture(
-  unsigned int  width,
-  unsigned int  height,
+  unsigned int width,
+  unsigned int height,
   Pixel::Format pixelFormat,
-  bool          clearPixels,
-  Context&      context)
-: Texture(context,
-          width, height,
-          width, height,
-          pixelFormat),
+  bool clearPixels,
+  Context& context,
+  SceneGraph::TextureCache::DiscardPolicy policy)
+: Texture( context,
+           width, height,
+           width, height,
+           pixelFormat),
   mBitmap(NULL),
-  mClearPixels(clearPixels)
+  mClearPixels(clearPixels),
+  mDiscardPolicy(policy)
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
 }
@@ -69,12 +76,15 @@ BitmapTexture::BitmapTexture(
 BitmapTexture::~BitmapTexture()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
+
   // GlCleanup() should already have been called by TextureCache ensuring the resource is destroyed
   // on the render thread. (And avoiding a potentially problematic virtual call in the destructor)
 }
 
 void BitmapTexture::UploadBitmapArray( const BitmapUploadArray& bitmapArray )
 {
+  DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
+
   if( mId == 0 )
   {
     CreateGlTexture();
@@ -110,20 +120,20 @@ void BitmapTexture::UploadBitmapArray( const BitmapUploadArray& bitmapArray )
                             bitmapWidth,
                             bitmapHeight);
 
-     mContext.TexSubImage2D(GL_TEXTURE_2D,
-                            0,                   /* mip map level */
-                            bitmapItem.mXpos,    /* X pos */
-                            bitmapItem.mYpos,    /* Y pos */
-                            bitmapWidth,         /* width */
-                            bitmapHeight,        /* height */
-                            pixelFormat,         /* our bitmap format (should match internal format) */
-                            pixelDataType,       /* pixel data type */
-                            pixels);             /* texture data */
+    mContext.TexSubImage2D(GL_TEXTURE_2D,
+                           0,                   /* mip map level */
+                           bitmapItem.mXpos,    /* X pos */
+                           bitmapItem.mYpos,    /* Y pos */
+                           bitmapWidth,         /* width */
+                           bitmapHeight,        /* height */
+                           pixelFormat,         /* our bitmap format (should match internal format) */
+                           pixelDataType,       /* pixel data type */
+                           pixels);             /* texture data */
 
-     if( BitmapUpload::DISCARD_PIXEL_DATA == bitmapItem.mDiscard)
-     {
-       delete [] bitmapItem.mPixelData;
-     }
+    if( BitmapUpload::DISCARD_PIXEL_DATA == bitmapItem.mDiscard)
+    {
+      delete [] bitmapItem.mPixelData;
+    }
   }
 }
 
@@ -248,14 +258,9 @@ void BitmapTexture::Update( Integration::Bitmap* bitmap )
 
   const unsigned char* pixels = mBitmap->GetBuffer();
 
-  DALI_ASSERT_DEBUG( pixels != NULL );
+  // Pixel data could be null if we've uploaded to GL and discarded the data.
 
-  if ( NULL == pixels )
-  {
-    DALI_LOG_ERROR("bitmap has no data\n");
-    GlCleanup(); // Note, We suicide here in the case of bad input.
-  }
-  else
+  if ( pixels != NULL)
   {
     if( mImageWidth == mBitmap->GetImageWidth() &&
         mImageHeight == mBitmap->GetImageHeight() &&
@@ -267,7 +272,8 @@ void BitmapTexture::Update( Integration::Bitmap* bitmap )
       {
         RectArea area(0, 0, mImageWidth, mImageHeight);  // just update whole texture
         AreaUpdated( area, pixels );
-        mBitmap->DiscardBuffer();
+
+        DiscardBitmapBuffer();
       }
     }
     else
@@ -281,7 +287,8 @@ void BitmapTexture::Update( Integration::Bitmap* bitmap )
       if ( mId ) // If the texture is already bound
       {
         AssignBitmap( false, pixels );
-        mBitmap->DiscardBuffer();
+
+        DiscardBitmapBuffer();
       }
     }
   }
@@ -294,12 +301,10 @@ void BitmapTexture::UpdateArea( const RectArea& updateArea )
   if( mBitmap != 0 )
   {
     const unsigned char* pixels = mBitmap->GetBuffer();
-    if ( NULL == pixels )
-    {
-      DALI_LOG_ERROR("bitmap has no data\n");
-      GlCleanup(); ///!ToDo: Why do we suicide in the case of bad input?
-    }
-    else
+
+    // Pixel data could be null if we've uploaded to GL and discarded the data.
+
+    if ( pixels != NULL )
     {
       if ( mId ) // If the texture is already bound
       {
@@ -382,12 +387,14 @@ bool BitmapTexture::CreateGlTexture()
   {
     const unsigned char* pixels = mBitmap->GetBuffer();
 
-    DALI_ASSERT_DEBUG(pixels != NULL);
+    // pixel data could be NULL here if we've had a context loss and we previously discarded
+    // the pixel data on the previous upload. If it is null, then we shouldn't generate a
+    // new GL Texture; leaving mId as zero.
 
     if( NULL != pixels )
     {
       AssignBitmap( true, pixels );
-      mBitmap->DiscardBuffer();
+      DiscardBitmapBuffer();
     }
   }
   else
@@ -432,6 +439,18 @@ unsigned int BitmapTexture::GetHeight() const
   }
   return height;
 }
+
+void BitmapTexture::DiscardBitmapBuffer()
+{
+  DALI_LOG_INFO(Debug::Filter::gImage, Debug::General, "BitmapTexture::DiscardBitmapBuffer() DiscardPolicy: %s\n", mDiscardPolicy == SceneGraph::TextureCache::DISCARD?"DISCARD":"RETAIN");
+
+  if( mDiscardPolicy == SceneGraph::TextureCache::DISCARD )
+  {
+    DALI_LOG_INFO(Debug::Filter::gImage, Debug::General, "  Discarding bitmap\n");
+    mBitmap->DiscardBuffer();
+  }
+}
+
 
 } //namespace Internal
 

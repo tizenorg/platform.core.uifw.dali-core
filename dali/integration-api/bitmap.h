@@ -53,13 +53,20 @@ typedef unsigned char                 PixelBuffer;  ///< Pixel data buffers are 
 class DALI_IMPORT_API Bitmap : public Dali::RefObject
 {
 protected:
+
+  enum Discardable
+  {
+    RETAIN,
+    DISCARD
+  };
+
   /**
    * Constructor
    * Use the static function Bitmap::Create() to create instances.
    * @param[in] discardable Flag to tell the bitmap if it can delete the buffer with the pixel data.
    * @param[in] pixBuf External buffer of pixel data or null.
    */
-  Bitmap( bool discardable = false, Dali::Integration::PixelBuffer* pixBuf = 0 );
+  Bitmap( Discardable discardable = RETAIN, Dali::Integration::PixelBuffer* pixBuf = 0 );
 
   /**
    * Initializes internal class members
@@ -131,13 +138,13 @@ public:
   }
 
   /**
-   * Get the pixel buffer
-   * @return The buffer. You can modify its contents.
+   * Get the pixel buffer if it's present.
+   * @return The buffer if present, or NULL if there is no pixel buffer.
+   * You can modify its contents.
    * @sa ReserveBuffer GetBufferSize
    */
   virtual PixelBuffer* GetBuffer()
   {
-    DALI_ASSERT_DEBUG(mData != NULL);
     return mData;
   }
 
@@ -304,7 +311,7 @@ public:
    */
   bool IsDiscardable() const
   {
-    return mDiscardable;
+    return mDiscardable == Bitmap::DISCARD;
   }
 
  /**
@@ -334,7 +341,7 @@ protected:
 
 private:
 
-  bool mDiscardable; ///< Should delete the buffer when discard buffer is called.
+  Discardable mDiscardable; ///< Should delete the buffer when discard buffer is called.
 
   Bitmap(const Bitmap& other);  ///< defined private to prevent use
   Bitmap& operator = (const Bitmap& other); ///< defined private to prevent use

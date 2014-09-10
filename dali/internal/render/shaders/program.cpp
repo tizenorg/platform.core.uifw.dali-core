@@ -169,9 +169,9 @@ GLint Program::GetAttribLocation( AttribType type )
 
   if( mAttribLocations[ type ] == ATTRIB_UNKNOWN )
   {
-    LOG_GL( "GetAttribLocation(program=%d,%s) = %d\n", mProgramId, gStdAttribs[type], mAttribLocations[type] );
     GLint loc = CHECK_GL( mContext, mGlAbstraction.GetAttribLocation( mProgramId, gStdAttribs[type] ) );
     mAttribLocations[ type ] = loc;
+    LOG_GL( "GetAttribLocation(program=%d,%s) = %d\n", mProgramId, gStdAttribs[type], mAttribLocations[type] );
   }
 
   return mAttribLocations[type];
@@ -204,10 +204,10 @@ GLint Program::GetUniformLocation( unsigned int uniformIndex )
 
   if( location == UNIFORM_NOT_QUERIED )
   {
-    LOG_GL( "GetUniformLocation(program=%d,%s) = %d\n", mProgramId, mUniformLocations[ uniformIndex ].first.c_str(), mUniformLocations[ uniformIndex ].second );
     location = CHECK_GL( mContext, mGlAbstraction.GetUniformLocation( mProgramId, mUniformLocations[ uniformIndex ].first.c_str() ) );
 
     mUniformLocations[ uniformIndex ].second = location;
+    LOG_GL( "GetUniformLocation(program=%d,%s) = %d\n", mProgramId, mUniformLocations[ uniformIndex ].first.c_str(), mUniformLocations[ uniformIndex ].second );
   }
 
   return location;

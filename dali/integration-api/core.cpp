@@ -52,10 +52,10 @@ const unsigned int RENDER_TASK_SYNC       = 0x80;  ///< The refresh once render 
 } // namespace KeepUpdating
 
 Core* Core::New(RenderController& renderController, PlatformAbstraction& platformAbstraction,
-                GlAbstraction& glAbstraction, GlSyncAbstraction& glSyncAbstraction, GestureManager& gestureManager)
+                GlAbstraction& glAbstraction, GlSyncAbstraction& glSyncAbstraction, GestureManager& gestureManager, ResourcePolicy::DataRetention policy )
 {
   Core* instance = new Core;
-  instance->mImpl = new Internal::Core( renderController, platformAbstraction, glAbstraction, glSyncAbstraction, gestureManager );
+  instance->mImpl = new Internal::Core( renderController, platformAbstraction, glAbstraction, glSyncAbstraction, gestureManager, policy );
 
   return instance;
 }
@@ -73,6 +73,11 @@ void Core::ContextCreated()
 void Core::ContextToBeDestroyed()
 {
   mImpl->ContextToBeDestroyed();
+}
+
+void Core::RecoverFromContextLoss()
+{
+  mImpl->RecoverFromContextLoss();
 }
 
 void Core::SurfaceResized(unsigned int width, unsigned int height)

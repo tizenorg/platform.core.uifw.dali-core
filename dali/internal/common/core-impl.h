@@ -25,6 +25,7 @@
 #include <dali/internal/event/common/stage-def.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/public-api/common/view-mode.h>
+#include <dali/integration-api/resource-policies.h>
 
 namespace Dali
 {
@@ -82,7 +83,8 @@ public:
         Integration::PlatformAbstraction& platform,
         Integration::GlAbstraction& glAbstraction,
         Integration::GlSyncAbstraction& glSyncAbstraction,
-        Integration::GestureManager& gestureManager );
+        Integration::GestureManager& gestureManager,
+        ResourcePolicy::DataRetention dataRetentionPolicy );
 
   /**
    * Destructor
@@ -98,6 +100,11 @@ public:
    * @copydoc Dali::Integration::Core::ContextToBeDestroyed()
    */
   void ContextToBeDestroyed();
+
+  /**
+   * @copydoc Dali::Integration::Core::RecoverFromContextLoss()
+   */
+  void RecoverFromContextLoss();
 
   /**
    * @copydoc Dali::Integration::Core::SurfaceResized(unsigned int, unsigned int)

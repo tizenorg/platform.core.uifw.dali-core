@@ -274,7 +274,6 @@ protected:
   unsigned int  mImageHeight;  ///< height of the original image (may be smaller than texture height)
 
   Pixel::Format mPixelFormat;  ///< Pixel format of the contained image data.
-  bool          mDiscarded;    ///< True if texture was added to the DiscardQueue
 
 };
 

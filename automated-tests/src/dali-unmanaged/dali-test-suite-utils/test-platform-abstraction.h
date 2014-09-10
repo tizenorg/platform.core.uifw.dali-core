@@ -235,6 +235,7 @@ public:
 
   virtual Integration::BitmapPtr GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const;
 
+  virtual Integration::DataRetentionPolicy GetResourceDataRetentionPolicy() const;
 
 public: // TEST FUNCTIONS
 
@@ -322,6 +323,7 @@ public: // TEST FUNCTIONS
   void SetReadGlobalMetricsResult( bool success, Integration::GlobalMetrics& globalMetrics );
 
   void SetReadMetricsResult( bool success, std::vector<Integration::GlyphMetrics>& glyphMetricsContainer );
+  void SetResourceDataRetentionPolicy( Integration::DataRetentionPolicy policy );
 
 
 private:
@@ -345,6 +347,7 @@ private:
   bool                          mSaveFileResult;
   mutable FontListMode          mFontListMode;
   TestDynamicsFactory*          mDynamicsFactory;
+  Integration::DataRetentionPolicy mDataRetentionPolicy;
 };
 
 } // Dali

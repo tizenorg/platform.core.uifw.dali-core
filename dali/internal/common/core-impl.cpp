@@ -46,6 +46,7 @@
 #include <dali/internal/event/effects/shader-factory.h>
 #include <dali/internal/update/touch/touch-resampler.h>
 #include <dali/internal/event/common/type-registry-impl.h>
+#include <dali/internal/event/render-tasks/render-task-list-impl.h>
 
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/gl-resources/context.h>
@@ -113,6 +114,16 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
 
   RenderQueue& renderQueue = mRenderManager->GetRenderQueue();
   TextureCache& textureCache = mRenderManager->GetTextureCache();
+
+  Integration::DataRetentionPolicy policy = platform.GetResourceDataRetentionPolicy();
+
+  SceneGraph::TextureCache::DiscardPolicy discardPolicy = SceneGraph::TextureCache::DISCARD;
+  if( policy == Integration::DALI_RETAINS_ALL_DATA )
+  {
+    discardPolicy = SceneGraph::TextureCache::RETAIN;
+  }
+  textureCache.SetDiscardBitmapsPolicy(discardPolicy);
+
   mDiscardQueue = new DiscardQueue( renderQueue );
 
   mResourceManager = new ResourceManager(  mPlatform,
@@ -208,6 +219,16 @@ void Core::ContextToBeDestroyed()
   mRenderManager->ContextDestroyed();
 }
 
+void Core::ContextRecreated()
+{
+  mImageFactory->ReloadAll();
+
+  // If we are reloading images automatically, don't need to keep the bitmaps around.
+
+  mFontFactory->ReloadGlyphs();
+  mStage->GetRenderTaskList().RecoverFromContextLoss();
+}
+
 void Core::SurfaceResized(unsigned int width, unsigned int height)
 {
   mStage->SetSize(width, height);
@@ -215,7 +236,7 @@ void Core::SurfaceResized(unsigned int width, unsigned int height)
 
 void Core::SetDpi(unsigned int dpiHorizontal, unsigned int dpiVertical)
 {
-  mPlatform.SetDpi( dpiHorizontal, dpiVertical  );
+  mPlatform.SetDpi( dpiHorizontal, dpiVertical );
   mFontFactory->SetDpi( dpiHorizontal, dpiVertical);
   mStage->SetDpi( Vector2( dpiHorizontal , dpiVertical) );
 }

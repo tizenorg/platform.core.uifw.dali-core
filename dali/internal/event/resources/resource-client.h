@@ -134,10 +134,11 @@ public: // Used by application-side objects e.g. Dali::Image
    * ResourceLoadingFailed()
    *
    * @param[in] id resource id
+   * @param[in] resetFinishedStatus True if the finished status of the current image should be reset.
    * @param[in] priority The priority of the request. This is ignored if the resource is already being refreshed.
    * @return true if successful, false if resource doesn't exist
    */
-  bool ReloadResource( ResourceId id, Integration::LoadResourcePriority priority = Integration::LoadPriorityNormal );
+  bool ReloadResource( ResourceId id, bool resetFinishedStatus = false, Integration::LoadResourcePriority priority = Integration::LoadPriorityNormal );
 
   /**
    * Save a resource to the given url.

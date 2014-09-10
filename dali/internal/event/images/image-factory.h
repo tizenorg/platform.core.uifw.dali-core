@@ -78,10 +78,20 @@ public:
    * This operation uses the originally requested attributes when reloading the image.
    * @pre req must be registered with ImageFactory
    * @note if image is still loading, no new load request will be issued
-   * @param [in]  req Request pointer
-   * @return[out] the ResourceTicket mapped to the request
+   * @param[in]  requestPtr Request pointer
+   * @param[in]  resetFinishedStatus Whether to reset the finished status of the image. If set to
+   * true, this will prevent any actor from rendering the current image again.
+   * @return the ResourceTicket mapped to the request
    */
-  ResourceTicketPtr Reload( ImageFactoryCache::Request* req );
+  ResourceTicketPtr Reload( ImageFactoryCache::Request* requestPtr, bool resetFinishedStatus = false );
+
+  /**
+   * Ensures all filesystem images are reloaded into textures.
+   * This operation uses the originally requested attributes when reloading the image.
+   * @pre requests must be registered with ImageFactory
+   * @note If an image is still loading, no new load request will be issued.
+   */
+  void ReloadAll();
 
   /**
    * Get resource path used in request.

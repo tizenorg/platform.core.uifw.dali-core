@@ -26,7 +26,8 @@ namespace Dali
  * Constructor
  */
 TestPlatformAbstraction::TestPlatformAbstraction()
-: mRequest(0)
+: mRequest(0),
+  mDataRetentionPolicy(Integration::DALI_DISCARDS_ALL_DATA)
 {
   Initialize();
 }
@@ -227,7 +228,7 @@ Integration::GlyphSet* TestPlatformAbstraction::GetGlyphData ( const Integration
 
       if( getBitmap )
       {
-        bitmapData = Integration::Bitmap::New(Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, true);
+        bitmapData = Integration::Bitmap::New(Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD);
         bitmapData->GetPackedPixelsProfile()->ReserveBuffer(Pixel::A8, 64, 64);
         PixelBuffer* pixelBuffer = bitmapData->GetBuffer();
         memset( pixelBuffer, it->character, 64*64 );
@@ -268,7 +269,7 @@ Integration::GlyphSet* TestPlatformAbstraction::GetCachedGlyphData( const Integr
       characters.insert( it->character );
       Integration::GlyphMetrics character = {it->character, Integration::GlyphMetrics::HIGH_QUALITY,  10.0f,  10.0f, 9.0f, 1.0f, 10.0f, it->xPosition, it->yPosition };
 
-      bitmapData = Integration::Bitmap::New(Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, true);
+      bitmapData = Integration::Bitmap::New(Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD);
       bitmapData->GetPackedPixelsProfile()->ReserveBuffer(Pixel::A8, 64, 64);
       PixelBuffer* pixelBuffer = bitmapData->GetBuffer();
       memset( pixelBuffer, it->character, 64*64 );
@@ -455,12 +456,17 @@ void TestPlatformAbstraction::GetFileNamesFromDirectory( const std::string& dire
 
 Integration::BitmapPtr TestPlatformAbstraction::GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const
 {
-  Integration::BitmapPtr image = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, true );
+  Integration::BitmapPtr image = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
   image->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 1, 1 );
 
   mTrace.PushCall("GetGlyphImage", "");
 
   return image;
+}
+
+Integration::DataRetentionPolicy TestPlatformAbstraction::GetResourceDataRetentionPolicy() const
+{
+  return mDataRetentionPolicy;
 }
 
 
@@ -479,6 +485,7 @@ void TestPlatformAbstraction::Initialize()
   mGetFontPathResult="helvetica-12";
   mReadMetricsResult=false;
   mReadGlobalMetricsResult=false;
+  mDataRetentionPolicy = Integration::DALI_DISCARDS_ALL_DATA;
 
   if(mRequest)
   {
@@ -644,5 +651,11 @@ void TestPlatformAbstraction::SetReadMetricsResult( bool success, std::vector<In
   mReadMetricsResult = success;
   mReadMetrics = glyphMetricsContainer; // copy
 }
+
+void TestPlatformAbstraction::SetResourceDataRetentionPolicy( Integration::DataRetentionPolicy policy )
+{
+  mDataRetentionPolicy = policy;
+}
+
 
 } // namespace Dali

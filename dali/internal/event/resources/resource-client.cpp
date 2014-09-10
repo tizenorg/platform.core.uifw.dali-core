@@ -202,7 +202,7 @@ ResourceTicketPtr ResourceClient::LoadShader( ShaderResourceType& type,
   return newTicket;
 }
 
-bool ResourceClient::ReloadResource( ResourceId id, LoadResourcePriority priority )
+bool ResourceClient::ReloadResource( ResourceId id, bool resetFinishedStatus, LoadResourcePriority priority )
 {
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceClient: ReloadResource(Id: %u)\n", id);
 
@@ -218,7 +218,7 @@ bool ResourceClient::ReloadResource( ResourceId id, LoadResourcePriority priorit
     DALI_ASSERT_DEBUG(ticket && "Null ticket for tracked resource request." );
     const ResourceTypePath * const typePathPtr = &ticket->GetTypePath();
     DALI_ASSERT_DEBUG( typePathPtr );
-    RequestReloadResourceMessage( mUpdateManager.GetEventToUpdate(), mResourceManager, id, *typePathPtr, priority );
+    RequestReloadResourceMessage( mUpdateManager.GetEventToUpdate(), mResourceManager, id, *typePathPtr, priority, resetFinishedStatus );
   }
   else
   {
@@ -271,7 +271,8 @@ ImageTicketPtr ResourceClient::AllocateBitmapImage( unsigned int width,
                                                     unsigned int bufferHeight,
                                                     Pixel::Format pixelformat )
 {
-  Bitmap* const bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, false/*buffer is available via public-api, therefore not discardable*/ );
+  /* buffer is available via public-api, therefore not discardable */
+  Bitmap* const bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
   Bitmap::PackedPixelsProfile* const packedBitmap = bitmap->GetPackedPixelsProfile();
   DALI_ASSERT_DEBUG(packedBitmap);
 

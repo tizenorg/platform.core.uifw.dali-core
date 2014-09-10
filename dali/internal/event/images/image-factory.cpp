@@ -131,7 +131,7 @@ ResourceTicketPtr ImageFactory::Load( Request *req )
 // In this case both requests will be associated with the resource of size (40, 40)
 // If image changes on filesystem to size (96, 96) -> now after reloading Req2 would load a
 // new resource of size (96, 96), but reloading Req1 would load a scaled down version
-ResourceTicketPtr ImageFactory::Reload( Request* request )
+ResourceTicketPtr ImageFactory::Reload( Request* request, bool resetFinishedStatus )
 {
   DALI_ASSERT_ALWAYS( request );
 
@@ -171,7 +171,7 @@ ResourceTicketPtr ImageFactory::Reload( Request* request )
 
     if( size == attrib.GetSize() )
     {
-      mResourceClient.ReloadResource( ticket->GetId() );
+      mResourceClient.ReloadResource( ticket->GetId(), resetFinishedStatus );
     }
     else
     {
@@ -182,6 +182,15 @@ ResourceTicketPtr ImageFactory::Reload( Request* request )
   }
   return ticket;
 }
+
+void ImageFactory::RecoverFromContextLoss()
+{
+  for( RequestIdMap::iterator it = mRequestCache.begin(); it != mRequestCache.end(); ++it )
+  {
+    Reload((*it).second, true); // Ensure the finished status is reset in the case of Context Regain
+  }
+}
+
 
 const std::string& ImageFactory::GetRequestPath( const ImageFactoryCache::RequestPtr& request ) const
 {

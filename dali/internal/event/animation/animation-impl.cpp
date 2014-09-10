@@ -1239,6 +1239,28 @@ void Animation::SetCurrentProgress(float progress)
   }
 }
 
+void Animation::SetPlayRange( const Vector2& range)
+{
+  Vector2 orderedRange( range );
+  if( range.x > range.y )
+  {
+    orderedRange = Vector2(range.y, range.x);
+  }
+
+  SetPlayRangeMessage( mUpdateManager.GetEventToUpdate(), *mAnimation, orderedRange );
+}
+
+Vector2 Animation::GetPlayRange() const
+{
+  Vector2 result(0.0f,0.0f);
+  if( mAnimation )
+  {
+    result = mAnimation->GetPlayRange();
+  }
+
+  return result;
+}
+
 void Animation::ExtendDuration( const TimePeriod& timePeriod )
 {
   float duration = timePeriod.delaySeconds + timePeriod.durationSeconds;

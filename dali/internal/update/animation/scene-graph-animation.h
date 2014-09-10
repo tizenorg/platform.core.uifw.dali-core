@@ -173,6 +173,28 @@ public:
   }
 
   /**
+   * Set the playing range. The animation will only play between the minimum
+   * and maximum progress specified.
+   * param[in] range Two values between [0,1] to specify minimum and maximum progress. The
+   * animation will play between those values.
+   */
+  void SetPlayRange( const Vector2& range );
+
+  /*
+   * @brief Get the playing range
+   * @return The play range defined for the animation.
+   */
+  Vector2 GetPlayRange() const
+  {
+    Vector2 range( 0.0f, 0.0f );
+    if( mDurationSeconds > 0.0f )
+    {
+      range = mPlayRange / mDurationSeconds;
+    }
+
+    return range;
+  }
+  /**
    * Play the animation.
    */
   void Play();
@@ -283,6 +305,7 @@ protected:
   float mElapsedSeconds;
   int mPlayCount;
 
+  Vector2 mPlayRange;
   AnimatorContainer mAnimators;
 };
 
@@ -328,6 +351,17 @@ inline void SetPlayDirectionMessage( EventToUpdate& eventToUpdate, const Animati
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetPlayDirection, direction );
+}
+
+inline void SetPlayRangeMessage( EventToUpdate& eventToUpdate, const Animation& animation, const Vector2& range )
+{
+  typedef MessageValue1< Animation, Vector2 > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &animation, &Animation::SetPlayRange, range );
 }
 
 inline void SetEndActionMessage( EventToUpdate& eventToUpdate, const Animation& animation, Dali::Animation::EndAction action )

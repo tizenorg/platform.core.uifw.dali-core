@@ -48,7 +48,8 @@ Animation::Animation(float durationSeconds, bool isLooping, PlayDirection direct
   mDestroyAction(destroyAction),
   mState(Stopped),
   mElapsedSeconds(0.0f),
-  mPlayCount(0)
+  mPlayCount(0),
+  mPlayRange( 0.0f, durationSeconds )
 {
 }
 
@@ -60,6 +61,8 @@ void Animation::SetDuration(float durationSeconds)
 {
   DALI_ASSERT_DEBUG(durationSeconds > 0.0f);
 
+  //Update mPlayRange
+  mPlayRange = ( mPlayRange / mDurationSeconds ) * durationSeconds;
   mDurationSeconds = durationSeconds;
 }
 
@@ -75,7 +78,7 @@ void Animation::SetPlayDirection(PlayDirection direction)
     if( mElapsedSeconds > 0.0f )
     {
       //If the animation has done any progress, recalculate mElapsedSeconds.
-      mElapsedSeconds = mDurationSeconds - mElapsedSeconds;
+      mElapsedSeconds = mPlayRange.y - mPlayRange.x - mElapsedSeconds;
     }
 
     mPlayDirection = direction;
@@ -90,6 +93,12 @@ void Animation::SetEndAction(Dali::Animation::EndAction action)
 void Animation::SetDestroyAction(Dali::Animation::EndAction action)
 {
   mDestroyAction = action;
+}
+
+void Animation::SetPlayRange( const Vector2& range )
+{
+  mPlayRange = range * mDurationSeconds;
+  mElapsedSeconds = mPlayRange.x;
 }
 
 void Animation::Play()
@@ -137,7 +146,7 @@ bool Animation::Stop(BufferIndex bufferIndex)
     ++mPlayCount;
   }
 
-  mElapsedSeconds = 0.0f;
+  mElapsedSeconds = mPlayRange.x;
   mState = Stopped;
 
   return animationFinished;
@@ -179,13 +188,13 @@ bool Animation::Update(BufferIndex bufferIndex, float elapsedSeconds)
 
   if (mLooping)
   {
-    if (mElapsedSeconds > mDurationSeconds)
+    if (mElapsedSeconds > mPlayRange.y )
     {
-      mElapsedSeconds = fmod(mElapsedSeconds, mDurationSeconds);
+      mElapsedSeconds = fmod(mElapsedSeconds, mPlayRange.y) + mPlayRange.x;
     }
   }
 
-  const bool animationFinished(mState == Playing && mElapsedSeconds > mDurationSeconds);
+  const bool animationFinished(mState == Playing && mElapsedSeconds > mPlayRange.y );
 
   UpdateAnimators(bufferIndex, animationFinished && (mEndAction != Dali::Animation::Discard) );
 
@@ -194,7 +203,7 @@ bool Animation::Update(BufferIndex bufferIndex, float elapsedSeconds)
     // The animation has now been played to completion
     ++mPlayCount;
 
-    mElapsedSeconds = 0.0f;
+    mElapsedSeconds = mPlayRange.x;
     mState = Stopped;
   }
 
@@ -203,6 +212,7 @@ bool Animation::Update(BufferIndex bufferIndex, float elapsedSeconds)
 
 void Animation::UpdateAnimators(BufferIndex bufferIndex, bool bake )
 {
+  float elapsedSeconds = min( mElapsedSeconds, mPlayRange.y );
   for ( AnimatorIter iter = mAnimators.Begin(); iter != mAnimators.End(); )
   {
     // If an animator is not successfully applied, then it has been orphaned
@@ -213,14 +223,14 @@ void Animation::UpdateAnimators(BufferIndex bufferIndex, bool bake )
 
     if( mPlayDirection == Dali::Animation::PlayDirectionForward )
     {
-      if (mElapsedSeconds >= initialDelay)
+      if (elapsedSeconds >= initialDelay)
       {
         // Calculate a progress specific to each individual animator
         float progress(1.0f);
         const float animatorDuration = animator->GetDuration();
         if (animatorDuration > 0.0f) // animators can be "immediate"
         {
-          progress = min(1.0f, (mElapsedSeconds - initialDelay) / animatorDuration);
+          progress = min(1.0f, (elapsedSeconds - initialDelay) / animatorDuration);
         }
 
         applied = animator->Update(bufferIndex, progress, bake);
@@ -229,7 +239,7 @@ void Animation::UpdateAnimators(BufferIndex bufferIndex, bool bake )
     else  //Play backward
     {
       //Calculate elapsed time from the end
-      float elapsedInverse( mDurationSeconds - mElapsedSeconds );
+      float elapsedInverse( mPlayRange.y - mPlayRange.x - elapsedSeconds );
 
       const float animatorDuration = animator->GetDuration();
       if( elapsedInverse <= animatorDuration + initialDelay )

@@ -140,6 +140,16 @@ Dali::Animation::PlayDirection Animation::GetPlayDirection() const
   return GetImplementation(*this).GetPlayDirection();
 }
 
+void Animation::SetPlayRange( const Vector2& range)
+{
+  GetImplementation(*this).SetPlayRange(range);
+}
+
+Vector2 Animation::GetPlayRange() const
+{
+  return GetImplementation(*this).GetPlayRange();
+}
+
 void Animation::Play()
 {
   GetImplementation(*this).Play();

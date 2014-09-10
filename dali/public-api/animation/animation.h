@@ -315,6 +315,22 @@ public:
   PlayDirection GetPlayDirection() const;
 
   /**
+   * @brief Set the playing range.
+   * Animation will play between the values specified
+   *
+   * @param[in] range Two values between [0,1] to specify minimum and maximum progress. The
+   * animation will play between those values.
+   */
+  void SetPlayRange( const Vector2& range );
+
+  /*
+   * @brief Get the playing range
+   *
+   * @return The play range defined for the animation.
+   */
+  Vector2 GetPlayRange() const;
+
+  /**
    * @brief Play the animation.
    */
   void Play();

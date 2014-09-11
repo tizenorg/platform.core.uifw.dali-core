@@ -125,6 +125,14 @@ void NativeTexture::GlCleanup()
   mNativeImage.Reset();
 }
 
+void NativeTexture::GlContextDestroyed()
+{
+  DALI_ASSERT_DEBUG(mNativeImage);
+
+  mNativeImage->DoCleanUpOnContextDestroyed();
+  Texture::GlContextDestroyed();
+}
+
 bool NativeTexture::Init()
 {
   return true;

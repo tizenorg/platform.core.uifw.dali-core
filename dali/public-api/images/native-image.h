@@ -52,6 +52,13 @@ public:
   virtual void GlExtensionDestroy() = 0;
 
   /**
+   * @brief Called to notify implementation of GL Context loss.
+   *
+   * Use to process the loss of a GL context in a derived class
+   */
+  virtual void GlContextDestroyed() = 0;
+
+  /**
    * @brief Use the NativeImage as a texture for rendering.
    *
    * @pre There is a GL context for the current thread.
@@ -68,7 +75,17 @@ public:
   virtual void PrepareTexture() = 0;
 
   /**
-   * @brief Returns the width of the NativeImage.
+   * @brief Notify implementation of new texture creation
+   *
+   * Called in each NativeTexture::Bind() call after the texture has been created
+   * to allow implementation specific operations.
+   * @param[in] textureId the opengl texture id for the new created texture
+   * @pre glAbstraction is being used by context in current thread
+   */
+  virtual void TextureCreated(unsigned int textureId) = 0;
+
+  /**
+   * @brief Returns the width of the NativeImage
    *
    * @return width
    */

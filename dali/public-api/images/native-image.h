@@ -68,8 +68,15 @@ public:
   virtual void PrepareTexture() = 0;
 
   /**
-   * @brief Returns the width of the NativeImage.
-   *
+   * Called in each NativeTexture::Bind() call after the texture has been created
+   * to allow implementation specific operations.
+   * @param[in] textureId the opengl texture id for the new created texture
+   * @pre glAbstraction is being used by context in current thread
+   */
+  virtual void TextureCreated(unsigned int textureId) = 0;
+
+  /**
+   * Returns the width of the NativeImage
    * @return width
    */
   virtual unsigned int GetWidth() const = 0;
@@ -87,6 +94,10 @@ public:
    * @return pixel format
    */
   virtual Pixel::Format GetPixelFormat() const = 0;
+  /**
+   * Use to process the loss of a GL context in a derived class
+   */
+  virtual void GlContextDestroyed() = 0;
 
 protected:
 

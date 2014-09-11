@@ -90,6 +90,8 @@ protected:
    */
   virtual void GlCleanup();
 
+  virtual void GlContextDestroyed();
+
 
 private:
 

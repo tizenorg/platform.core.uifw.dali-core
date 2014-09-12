@@ -69,9 +69,9 @@ public:
    * @param[in] destroyAction The action to perform when the animation is destroyed.
    * @return A new Animation
    */
-  static Animation* New( float durationSeconds, float speedFactor, bool isLooping, EndAction endAction, EndAction destroyAction )
+  static Animation* New( float durationSeconds, float speedFactor, const Vector2& playRange, bool isLooping, EndAction endAction, EndAction destroyAction )
   {
-    return new Animation( durationSeconds, speedFactor, isLooping, endAction, destroyAction );
+    return new Animation( durationSeconds, speedFactor, playRange, isLooping, endAction, destroyAction );
   }
 
   /**
@@ -171,6 +171,14 @@ public:
   }
 
   /**
+   * Set the playing range. The animation will only play between the minimum and maximum progress
+   * speficied.
+   *
+   * @param[in] range Two values between [0,1] to specify minimum and maximum progress.
+   */
+  void SetPlayRange( const Vector2& range );
+
+  /**
    * Play the animation.
    */
   void Play();
@@ -251,7 +259,7 @@ protected:
   /**
    * Protected constructor. See New()
    */
-  Animation( float durationSeconds, float speedFactor, bool isLooping, EndAction endAction, EndAction destroyAction );
+  Animation( float durationSeconds, float speedFactor, const Vector2& playRange, bool isLooping, EndAction endAction, EndAction destroyAction );
 
 
 private:
@@ -281,6 +289,7 @@ protected:
   float mElapsedSeconds;
   int mPlayCount;
 
+  Vector2 mPlayRange;
   AnimatorContainer mAnimators;
 };
 
@@ -358,6 +367,17 @@ inline void SetSpeedFactorMessage( EventToUpdate& eventToUpdate, const Animation
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetSpeedFactor, factor );
+}
+
+inline void SetPlayRangeMessage( EventToUpdate& eventToUpdate, const Animation& animation, const Vector2& range )
+{
+  typedef MessageValue1< Animation, Vector2 > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &animation, &Animation::SetPlayRange, range );
 }
 
 inline void PlayAnimationMessage( EventToUpdate& eventToUpdate, const Animation& animation )

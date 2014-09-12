@@ -807,6 +807,16 @@ public:
    */
   float GetSpeedFactor() const;
 
+  /*
+   * @copydoc Dali::Animation::SetPlayRange()
+   */
+  void SetPlayRange( const Vector2& range );
+
+  /*
+   * @copydoc Dali::Animation::GetPlayRange
+   */
+  Vector2 GetPlayRange() const;
+
 public: // For connecting animators to animations
 
   /**
@@ -905,6 +915,7 @@ private:
   float mDurationSeconds;
   float mSpeedFactor;
   bool mIsLooping;
+  Vector2 mPlayRange;
   EndAction mEndAction;
   EndAction mDestroyAction;
   AlphaFunction mDefaultAlpha;

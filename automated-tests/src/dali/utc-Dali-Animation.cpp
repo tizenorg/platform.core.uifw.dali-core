@@ -643,6 +643,137 @@ int UtcDaliAnimationPlay(void)
   END_TEST;
 }
 
+int UtcDaliAnimationSetSpeedFactor(void)
+{
+  TestApplication application;
+
+  Actor actor = Actor::New();
+  Stage::GetCurrent().Add(actor);
+
+  // Build the animation
+  float durationSeconds(1.0f);
+  Animation animation = Animation::New(durationSeconds);
+  animation.SetSpeedFactor(2.0f);
+  Vector3 targetPosition(100.0f, 100.0f, 100.0f);
+  KeyFrames keyframes = KeyFrames::New();
+  keyframes.Add( 0.0f, Vector3(0.0f,0.0f,0.0f ));
+  keyframes.Add( 1.0f, targetPosition );
+
+  animation.AnimateBetween( Property(actor, Actor::POSITION), keyframes, AlphaFunctions::Linear);
+
+  // Start the animation
+  animation.Play();
+
+  bool signalReceived(false);
+  AnimationFinishCheck finishCheck(signalReceived);
+  animation.FinishedSignal().Connect(&application, finishCheck);
+
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 40% progress */);
+
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.4f), TEST_LOCATION );
+
+  animation.Play(); // Test that calling play has no effect, when animation is already playing
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 80% progress */);
+
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.8f), TEST_LOCATION );
+
+  animation.Play(); // Test that calling play has no effect, when animation is already playing
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*100.0f) + 1u/*just beyond half the duration*/);
+
+  // We did expect the animation to finish
+  application.SendNotification();
+  finishCheck.CheckSignalReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), targetPosition, TEST_LOCATION );
+
+  // Check that nothing has changed after a couple of buffer swaps
+  application.Render(0);
+  DALI_TEST_EQUALS( targetPosition, actor.GetCurrentPosition(), TEST_LOCATION );
+  application.Render(0);
+  DALI_TEST_EQUALS( targetPosition, actor.GetCurrentPosition(), TEST_LOCATION );
+
+
+  //Test negative speed factor
+  finishCheck.Reset();
+
+  animation.SetSpeedFactor( -1.0f );
+  // Start the animation
+  animation.Play();
+
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 80% progress */);
+
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.8f), TEST_LOCATION );
+
+  animation.Play(); // Test that calling play has no effect, when animation is already playing
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 60% progress */);
+
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.6f), TEST_LOCATION );
+
+  animation.Play(); // Test that calling play has no effect, when animation is already playing
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 40% progress */);
+
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.4f), TEST_LOCATION );
+
+  animation.Play(); // Test that calling play has no effect, when animation is already playing
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f)/* 20% progress */);
+
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), (targetPosition * 0.2f), TEST_LOCATION );
+
+  animation.Play(); // Test that calling play has no effect, when animation is already playing
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*200.0f) + 1u/*just beyond the animation duration*/);
+
+  // We did expect the animation to finish
+  application.SendNotification();
+  finishCheck.CheckSignalReceived();
+  DALI_TEST_EQUALS( actor.GetCurrentPosition(), Vector3(0.0f,0.0f,0.0f), TEST_LOCATION );
+
+  // Check that nothing has changed after a couple of buffer swaps
+  application.Render(0);
+  DALI_TEST_EQUALS( Vector3(0.0f,0.0f,0.0f), actor.GetCurrentPosition(), TEST_LOCATION );
+  application.Render(0);
+  DALI_TEST_EQUALS( Vector3(0.0f,0.0f,0.0f), actor.GetCurrentPosition(), TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliAnimationGetSpeedFactor(void)
+{
+  TestApplication application;
+
+  Animation animation = Animation::New(1.0f);
+  animation.SetSpeedFactor(0.5f);
+  DALI_TEST_EQUALS(animation.GetSpeedFactor(), 0.5f, TEST_LOCATION);
+
+  animation.SetSpeedFactor(-2.5f);
+  DALI_TEST_EQUALS(animation.GetSpeedFactor(), -2.5f, TEST_LOCATION);
+  END_TEST;
+}
+
 int UtcDaliAnimationPlayOffStage(void)
 {
   // Test that an animation can be played, when the actor is off-stage.

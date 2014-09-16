@@ -237,8 +237,8 @@ public:
    * enabled. The default clipping box is empty (0,0,0,0).
    * This has the limitation that it only applies to rectangles on a window.
    * For other kinds of clipping, @see Dali::Actor::SetDrawMode().
-   * @param [in] x The X-coordinate of the lower-left corner.
-   * @param [in] y The Y-coordinate of the lower-left corner.
+   * @param [in] x The X-coordinate of the top-left corner of the box.
+   * @param [in] y The Y-coordinate of the top-left corner of the box.
    * @param [in] width  The width of the box.
    * @param [in] height The height of the box.
    */

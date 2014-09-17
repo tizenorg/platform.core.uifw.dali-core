@@ -621,6 +621,13 @@ public:
   Vector3 GetCurrentSize() const;
 
   /**
+   * Return the natural size of the actor
+   *
+   * @return The actor's natural size
+   */
+  Vector3 GetNaturalSize() const;
+
+  /**
    * @brief Sets the position of the actor.
    *
    * The Actor's z position will be set to 0.0f.

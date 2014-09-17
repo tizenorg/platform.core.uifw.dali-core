@@ -1091,3 +1091,15 @@ int UtcDaliImageActorNinePatch04(void)
 
   END_TEST;
 }
+
+int UtcDaliImageActorGetNaturalSize(void)
+{
+  TestApplication application;
+
+  BitmapImage img = BitmapImage::New( 10, 10 );
+  ImageActor actor = ImageActor::New( img );
+
+  DALI_TEST_CHECK( actor.GetNaturalSize().GetVectorXY() == Vector2( 10, 10 ) );
+
+  END_TEST;
+}

@@ -508,4 +508,14 @@ float Animation::GetSpeedFactor() const
   return GetImplementation(*this).GetSpeedFactor();
 }
 
+void Animation::SetPlayRange( const Vector2& range )
+{
+  GetImplementation(*this).SetPlayRange(range);
+}
+
+Vector2 Animation::GetPlayRange() const
+{
+  return GetImplementation(*this).GetPlayRange();
+}
+
 } // namespace Dali

@@ -523,3 +523,14 @@ int UtcDaliLayerTouchConsumed(void)
   DALI_TEST_EQUALS( layer.IsTouchConsumed(), true, TEST_LOCATION );
   END_TEST;
 }
+
+int UtcDaliLayerHoverConsumed(void)
+{
+  TestApplication application;
+  Layer layer = Layer::New();
+
+  DALI_TEST_EQUALS( layer.IsHoverConsumed(), false, TEST_LOCATION );
+  layer.SetHoverConsumed( true );
+  DALI_TEST_EQUALS( layer.IsHoverConsumed(), true, TEST_LOCATION );
+  END_TEST;
+}

@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/update/touch/history.h>
 #include <dali/integration-api/events/touch-data.h>
-#include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/multi-point-event-integ.h>
 
 namespace Dali
 {

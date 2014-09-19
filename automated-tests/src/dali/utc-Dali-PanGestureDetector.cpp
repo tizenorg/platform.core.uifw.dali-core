@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <cmath>
 #include <dali/public-api/dali-core.h>
-#include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/multi-point-event-integ.h>
 #include <dali/integration-api/events/pan-gesture-event.h>
 #include <dali/integration-api/system-overlay.h>
 #include <dali/integration-api/profiling.h>

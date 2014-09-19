@@ -1,5 +1,5 @@
-#ifndef __DALI_INTEGRATION_TOUCH_EVENT_H__
-#define __DALI_INTEGRATION_TOUCH_EVENT_H__
+#ifndef __DALI_INTEGRATION_MULTI_POINT_EVENT_H__
+#define __DALI_INTEGRATION_MULTI_POINT_EVENT_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -22,6 +22,7 @@
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/events/event.h>
 #include <dali/public-api/events/touch-event.h>
+#include <dali/public-api/events/hover-event.h>
 #include <dali/public-api/events/touch-point.h>
 
 namespace Dali DALI_IMPORT_API
@@ -31,12 +32,70 @@ namespace Integration
 {
 
 /**
- * An instance of this structure should be used by the adaptor to send a touch event to Dali core.
+ * An instance of this structure should be used by the adaptor to send a multi-point event to Dali core.
  *
- * This class can contain one or many touch points. It also contains the time at which the
+ * This class can contain one or multiple touch points. It also contains the time at which the
  * event occurred.
  */
-struct TouchEvent : public Event
+struct MultiPointEvent : public Event
+{
+  // Construction & Destruction
+
+protected:
+  /**
+   * Default Constructor
+   */
+  MultiPointEvent(Type eventType);
+
+  /**
+   * Constructor
+   * @param[in]  time  The time the event occurred.
+   */
+  MultiPointEvent(Type eventType, unsigned long time);
+
+public:
+  /**
+   * Virtual destructor
+   */
+  virtual ~MultiPointEvent();
+
+  // Data
+
+  /**
+   * @copydoc Dali::MultiPointEvent::points
+   */
+  std::vector<TouchPoint> points;
+
+  /**
+   * @copydoc Dali::MultiPointEvent::time
+   */
+  unsigned long time;
+
+  // Convenience Methods
+
+  /**
+   * Adds a point to the MultiPointEvent.
+   * @param[in]  point  The point to add.
+   */
+  void AddPoint(const TouchPoint& point);
+
+  /**
+   * @copydoc Dali::MultiPointEvent::GetPoint()
+   */
+  TouchPoint& GetPoint(unsigned int point);
+
+  /**
+   * @copydoc Dali::MultiPointEvent::GetPoint()
+   */
+  const TouchPoint& GetPoint(unsigned int point) const;
+
+  /**
+   * @copydoc Dali::MultiPointEvent::GetPointCount() const
+   */
+  unsigned int GetPointCount() const;
+};
+
+struct TouchEvent : public MultiPointEvent
 {
   // Construction & Destruction
 
@@ -55,45 +114,31 @@ struct TouchEvent : public Event
    * Virtual destructor
    */
   virtual ~TouchEvent();
+};
 
-  // Data
-
-  /**
-   * @copydoc Dali::TouchEvent::points
-   */
-  std::vector<TouchPoint> points;
+struct HoverEvent : public MultiPointEvent
+{
+  // Construction & Destruction
 
   /**
-   * @copydoc Dali::TouchEvent::time
+   * Default Constructor
    */
-  unsigned long time;
-
-  // Convenience Methods
+  HoverEvent();
 
   /**
-   * Adds a point to the TouchEvent.
-   * @param[in]  point  The point to add.
+   * Constructor
+   * @param[in]  time  The time the event occurred.
    */
-  void AddPoint(const TouchPoint& point);
+  HoverEvent(unsigned long time);
 
   /**
-   * @copydoc Dali::TouchEvent::GetPoint()
+   * Virtual destructor
    */
-  TouchPoint& GetPoint(unsigned int point);
-
-  /**
-   * @copydoc Dali::TouchEvent::GetPoint()
-   */
-  const TouchPoint& GetPoint(unsigned int point) const;
-
-  /**
-   * @copydoc Dali::TouchEvent::GetPointCount() const
-   */
-  unsigned int GetPointCount() const;
+  virtual ~HoverEvent();
 };
 
 } // namespace Integration
 
 } // namespace Dali
 
-#endif // __DALI_INTEGRATION_TOUCH_EVENT_H__
+#endif // __DALI_INTEGRATION_MULTI_POINT_EVENT_H__

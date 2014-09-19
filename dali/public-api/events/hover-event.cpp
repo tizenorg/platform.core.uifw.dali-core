@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/public-api/events/hover-event.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -24,47 +24,29 @@
 namespace Dali
 {
 
-namespace Integration
-{
-
-TouchEvent::TouchEvent()
-: Event(Touch),
-  time(0)
+HoverEvent::HoverEvent()
+: time(0)
 {
 }
 
-TouchEvent::TouchEvent(unsigned long time)
-: Event(Touch),
-  time(time)
+HoverEvent::HoverEvent(unsigned long time)
+: time(time)
 {
 }
 
-TouchEvent::~TouchEvent()
+HoverEvent::~HoverEvent()
 {
 }
 
-void TouchEvent::AddPoint(const TouchPoint& point)
-{
-  points.push_back(point);
-}
-
-TouchPoint& TouchEvent::GetPoint(unsigned int point)
-{
-  DALI_ASSERT_ALWAYS(point < points.size() && "TouchEvent: Point index out of bounds");
-  return points[point];
-}
-
-const TouchPoint& TouchEvent::GetPoint(unsigned int point) const
-{
-  DALI_ASSERT_ALWAYS(point < points.size() && "TouchEvent: Point index out of bounds");
-  return points[point];
-}
-
-unsigned int TouchEvent::GetPointCount() const
+unsigned int HoverEvent::GetPointCount() const
 {
   return points.size();
 }
 
-} // namespace Integration
+const TouchPoint& HoverEvent::GetPoint(unsigned int point) const
+{
+  DALI_ASSERT_ALWAYS( point < points.size() && "No point at index" );
+  return points[point];
+}
 
 } // namespace Dali

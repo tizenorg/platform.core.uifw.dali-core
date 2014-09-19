@@ -19,7 +19,7 @@
 
 #include <stdlib.h>
 #include <dali/public-api/dali-core.h>
-#include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/multi-point-event-integ.h>
 
 #include "dali-test-suite-utils/dali-test-suite-utils.h"
 

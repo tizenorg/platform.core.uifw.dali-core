@@ -40,6 +40,7 @@ CustomActor::CustomActor(CustomActorImpl& extension)
   mImpl( &extension )
 {
   mDerivedRequiresTouch = extension.RequiresTouchEvents();
+  mDerivedRequiresHover = extension.RequiresHoverEvents();
   mDerivedRequiresMouseWheelEvent = extension.RequiresMouseWheelEvents();
 }
 

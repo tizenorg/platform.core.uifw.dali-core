@@ -25,6 +25,7 @@
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/mouse-wheel-event-integ.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/pinch-gesture-event.h>
 #include <dali/integration-api/events/pan-gesture-event.h>
 #include <dali/integration-api/events/tap-gesture-event.h>
@@ -56,6 +57,7 @@ static const std::size_t INITIAL_BUFFER_SIZE = MAX_MESSAGE_SIZE * INITIAL_MIN_CA
 
 EventProcessor::EventProcessor(Stage& stage, NotificationManager& /* notificationManager */, GestureEventProcessor& gestureEventProcessor)
 : mTouchEventProcessor(stage),
+  mHoverEventProcessor(stage),
   mGestureEventProcessor(gestureEventProcessor),
   mKeyEventProcessor(stage),
   mMouseWheelEventProcessor(stage),
@@ -89,6 +91,19 @@ void EventProcessor::QueueEvent( const Event& event )
     case Event::Touch:
     {
       typedef Integration::TouchEvent DerivedType;
+
+      // Reserve some memory inside the message queue
+      unsigned int* slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
+
+      // Construct message in the message queue memory; note that delete should not be called on the return value
+      new (slot) DerivedType( static_cast<const DerivedType&>(event) );
+
+      break;
+    }
+
+    case Event::Hover:
+    {
+      typedef Integration::HoverEvent DerivedType;
 
       // Reserve some memory inside the message queue
       unsigned int* slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
@@ -207,7 +222,17 @@ void EventProcessor::ProcessEvents()
     {
       case Event::Touch:
       {
+//        Integration::TouchEvent& touchEvent = static_cast<Integration::TouchEvent&>(*event);
+//        printf("Event::Touch: state: %d\n", touchEvent.points[0].state);
         mTouchEventProcessor.ProcessTouchEvent( static_cast<const Integration::TouchEvent&>(*event) );
+        break;
+      }
+
+      case Event::Hover:
+      {
+        Integration::HoverEvent& hoverEvent = static_cast<Integration::HoverEvent&>(*event);
+        printf("Event::Hover: state: %d, x: %f, y: %f\n", hoverEvent.points[0].state, hoverEvent.points[0].screen.x, hoverEvent.points[0].screen.y);
+        mHoverEventProcessor.ProcessHoverEvent( static_cast<const Integration::HoverEvent&>(*event) );
         break;
       }
 

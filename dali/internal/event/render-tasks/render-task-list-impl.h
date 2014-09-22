@@ -92,8 +92,9 @@ public:
    * Provide notification signals for a "Finished" render task.
    * This method should be called in the event-thread
    * Queue NotifyFinishedMessage() from update-thread
+   * @param object pointer to this class instance
    */
-  void NotifyFinished();
+  static void NotifyFinished( void* object );
 
 protected:
 
@@ -126,15 +127,6 @@ private:
 
   RenderTaskContainer mTasks; ///< Reference counted render-tasks
 };
-
-/**
- * Notification message for when 1+ render tasks have finished
- * @param[in] renderTaskList This will provide the notification signals.
- */
-inline MessageBase* NotifyFinishedMessage( RenderTaskList& renderTaskList )
-{
-  return new Message< RenderTaskList >( &renderTaskList, &RenderTaskList::NotifyFinished );
-}
 
 } // namespace Internal
 

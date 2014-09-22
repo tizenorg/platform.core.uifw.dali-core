@@ -113,30 +113,36 @@ Dali::RenderTask RenderTaskList::GetTask( unsigned int index ) const
   return mTasks[index];
 }
 
-void RenderTaskList::NotifyFinished()
+void RenderTaskList::NotifyFinished( void* object )
 {
-  DALI_LOG_TRACE_METHOD(gLogRenderList);
-
-  std::vector< Dali::RenderTask > finishedRenderTasks;
-
-  // Since render tasks can be unreferenced during the signal emissions, iterators into render tasks pointers may be invalidated.
-  // First copy the finished render tasks, then emit signals
-  for ( std::vector<Dali::RenderTask>::iterator it = mTasks.begin(), endIt = mTasks.end(); it != endIt; ++it )
+  if( object )
   {
-    Dali::RenderTask& renderTask( *it );
+    // we passed the object pointer ourself so we can trust it to be us
+    RenderTaskList* self = reinterpret_cast<RenderTaskList*>( object );
 
-    if( GetImplementation( renderTask ).HasFinished() )
+    DALI_LOG_TRACE_METHOD(gLogRenderList);
+
+    std::vector< Dali::RenderTask > finishedRenderTasks;
+
+    // Since render tasks can be unreferenced during the signal emissions, iterators into render tasks pointers may be invalidated.
+    // First copy the finished render tasks, then emit signals
+    for ( std::vector<Dali::RenderTask>::iterator it = self->mTasks.begin(), endIt = self->mTasks.end(); it != endIt; ++it )
     {
-      finishedRenderTasks.push_back( Dali::RenderTask( renderTask ) );
+      Dali::RenderTask& renderTask( *it );
+
+      if( GetImplementation( renderTask ).HasFinished() )
+      {
+        finishedRenderTasks.push_back( Dali::RenderTask( renderTask ) );
+      }
     }
-  }
 
-  // Now it's safe to emit the signals
-  for ( std::vector<Dali::RenderTask>::iterator it = finishedRenderTasks.begin(), endIt = finishedRenderTasks.end(); it != endIt; ++it )
-  {
-    Dali::RenderTask& handle( *it );
+    // Now it's safe to emit the signals
+    for ( std::vector<Dali::RenderTask>::iterator it = finishedRenderTasks.begin(), endIt = finishedRenderTasks.end(); it != endIt; ++it )
+    {
+      Dali::RenderTask& handle( *it );
 
-    GetImplementation(handle).EmitSignalFinish();
+      GetImplementation(handle).EmitSignalFinish();
+    }
   }
 }
 
@@ -159,6 +165,8 @@ void RenderTaskList::Initialize( UpdateManager& updateManager )
 
   // Get raw-pointer to render task list
   mSceneObject = updateManager.GetRenderTaskList( mIsSystemLevel );
+  // set the callback to call us back when tasks are completed
+  mSceneObject->SetCompleteNotificationFunction( &NotifyFinished, this );
 }
 
 } // namespace Internal

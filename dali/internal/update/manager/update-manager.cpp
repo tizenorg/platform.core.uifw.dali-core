@@ -35,7 +35,6 @@
 #include <dali/internal/event/common/property-notification-impl.h>
 #include <dali/internal/event/common/property-notifier.h>
 #include <dali/internal/event/animation/animation-finished-notifier.h>
-#include <dali/internal/event/render-tasks/render-task-list-impl.h>
 
 #include <dali/internal/update/animation/scene-graph-animator.h>
 #include <dali/internal/update/animation/scene-graph-animation.h>
@@ -190,7 +189,6 @@ struct UpdateManager::Impl
     previousUpdateScene( false ),
     frameCounter( 0 ),
     renderSortingHelper(),
-    renderTaskList( NULL ),
     renderTaskWaiting( false )
   {
     sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue, textureCache, completeStatusManager, defaultShader );
@@ -293,7 +291,6 @@ struct UpdateManager::Impl
   int                                 frameCounter;                  ///< Frame counter used in debugging to choose which frame to debug and which to ignore.
   RendererSortingHelper               renderSortingHelper;           ///< helper used to sort transparent renderers
 
-  Internal::RenderTaskList*           renderTaskList;                ///< Stores a pointer to the internal implementation to the render task list.
   GestureContainer                    gestures;                      ///< A container of owned gesture detectors
   bool                                renderTaskWaiting;             ///< A REFRESH_ONCE render task is waiting to be rendered
 };
@@ -330,11 +327,6 @@ UpdateManager::UpdateManager( NotificationManager& notificationManager,
 UpdateManager::~UpdateManager()
 {
   delete mImpl;
-}
-
-void UpdateManager::SetRenderTaskList( Internal::RenderTaskList* renderTaskList )
-{
-  mImpl->renderTaskList = renderTaskList;
 }
 
 EventToUpdate& UpdateManager::GetEventToUpdate()
@@ -1118,7 +1110,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
     }
   }
 
-  // check the countdown and notify
+  // check the countdown and notify (note, at the moment this is only done for normal tasks, not for systemlevel tasks)
   bool doRenderOnceNotify = false;
   mImpl->renderTaskWaiting = false;
   const RenderTaskList::RenderTaskContainer& tasks = mImpl->taskList.GetTasks();
@@ -1144,7 +1136,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   if( doRenderOnceNotify )
   {
     DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "Notify a render task has finished\n");
-    mImpl->notificationManager.QueueMessage( NotifyFinishedMessage( *mImpl->renderTaskList ) );
+    mImpl->notificationManager.QueueMessage( mImpl->taskList.NotifyFinishedMessage() );
   }
 
   PERF_MONITOR_END(PerformanceMonitor::PROCESS_RENDER_TASKS);

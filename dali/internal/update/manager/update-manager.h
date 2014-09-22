@@ -56,7 +56,6 @@ class EventToUpdate;
 struct DynamicsWorldSettings;
 class NotificationManager;
 class ResourceManager;
-class RenderTaskList;
 class TouchResampler;
 
 // value types used by messages
@@ -118,15 +117,6 @@ public:
    * Destructor. Not virtual as this is not a base class
    */
   ~UpdateManager();
-
-  /**
-   * Sets a pointer to the internal render task list.
-   *
-   * The render task list is used to notify which render tasks with refresh rate REFRESH_ONCE have finished.
-   *
-   * @param[in] renderTaskList A pointer to the internal render task list.
-   */
-  void SetRenderTaskList( Internal::RenderTaskList* renderTaskList );
 
   /**
    * The event-thread uses this interface to queue messages for the next update.

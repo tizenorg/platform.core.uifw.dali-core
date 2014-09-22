@@ -78,6 +78,19 @@ public:
    */
   const RenderTaskContainer& GetTasks() const;
 
+  /**
+   * Set the notification method to package in the NotifyFinishedMessage
+   * @param function to call
+   * @param object to pass in
+   */
+  void SetCompleteNotificationFunction( void (*function)(void*), void* object );
+
+  /**
+   * Notification message for when 1+ render tasks have finished
+   * @param[in] renderTaskList This will provide the notification signals.
+   */
+  MessageBase* NotifyFinishedMessage();
+
 private:
 
   // Undefined
@@ -87,8 +100,12 @@ private:
   RenderTaskList& operator=(const RenderTaskList&);
 
 private:
+
+  void (*mNotificationFunction)(void*); ///< function to package in the complete notification message
+  void* mNotificationObject; ///< object to pass in to the complete notification method
   RenderTaskContainer mRenderTasks; ///< A container of owned RenderTasks
   CompleteStatusManager& mCompleteStatusManager; ///< The complete status tracker (render tasks need this)
+
 };
 
 // Messages for RenderTaskList

@@ -111,6 +111,54 @@ private:
 };
 
 /**
+ * Templated message which calls a static function.
+ * This overload passes one pointer parameter.
+ */
+template< typename P >
+class MessageFunction1 : public MessageBase
+{
+public:
+
+  typedef void(*Function)( typename ParameterType< P >::PassingType );
+
+  /**
+   * Create a message.
+   * @note The object is expected to be const in the thread which sends this message.
+   * However it can be modified when Process() is called in a different thread.
+   * @param[in] obj The object.
+   * @param[in] member The member function of the object.
+   * @param[in] p1 The first value-type parameter to pass to the member function.
+   */
+  MessageFunction1( Function member, typename ParameterType< P >::PassingType p1 )
+  : MessageBase(),
+    mFunction( member ),
+    mValue( p1 )
+  {
+  }
+
+  /**
+   * Virtual destructor
+   */
+  virtual ~MessageFunction1()
+  {
+  }
+
+  /**
+   * @copydoc MessageBase::Process
+   */
+  virtual void Process( BufferIndex /*bufferIndex*/ )
+  {
+    (*mFunction)( mValue );
+  }
+
+private:
+
+  Function mFunction;
+  typename ParameterType< P >::HolderType mValue;
+
+};
+
+/**
  * Templated message which calls a member function of an object.
  * This overload passes one value-type parameter.
  * Template parameters need to match the MemberFunction!

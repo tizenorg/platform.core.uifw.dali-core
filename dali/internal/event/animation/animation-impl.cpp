@@ -469,7 +469,7 @@ void Animation::AnimateTo(ProxyObject& targetObject, Property::Index targetPrope
         if ( maybeActor )
         {
           // Notify the actor that its size is being animated
-          maybeActor->OnSizeAnimation( *this, destinationValue.Get<Vector3>() );
+          maybeActor->NotifyOnSizeAnimation( *this, destinationValue.Get<Vector3>() );
         }
       }
 
@@ -1139,7 +1139,7 @@ void Animation::Resize(Actor& actor, float width, float height, AlphaFunction al
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   // notify the actor impl that its size is being animated
-  actor.OnSizeAnimation( *this, targetSize );
+  actor.NotifyOnSizeAnimation( *this, targetSize );
 
   AddAnimatorConnector( AnimatorConnector<Vector3>::New( actor,
                                                          Dali::Actor::SIZE,
@@ -1164,7 +1164,7 @@ void Animation::Resize(Actor& actor, const Vector3& size, AlphaFunction alpha, f
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   // notify the actor impl that its size is being animated
-  actor.OnSizeAnimation( *this, size );
+  actor.NotifyOnSizeAnimation( *this, size );
 
   AddAnimatorConnector( AnimatorConnector<Vector3>::New( actor,
                                                          Dali::Actor::SIZE,

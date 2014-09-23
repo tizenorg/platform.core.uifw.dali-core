@@ -301,6 +301,12 @@ public:
   const Vector3& GetCurrentSize() const;
 
   /**
+   * Sets the natural size of an actor.
+   * @param [in] size The new natural size.
+   */
+  void SetNaturalSize(const Vector3& size);
+
+  /**
    * Return the natural size of the actor
    *
    * @return The actor's natural size
@@ -1104,6 +1110,14 @@ protected:
    */
   float CalculateSizeZ( const Vector2& size ) const;
 
+  /**
+   * Return true if the user has set a natural size
+   *
+   * @return Return true if a natural size has been specified
+   */
+  bool IsNaturalSizeSet() const;
+
+
 public: // Default property extensions from ProxyObject
 
   /**
@@ -1315,6 +1329,7 @@ protected:
   const SceneGraph::Node* mNode;         ///< Not owned
   Vector3*                mParentOrigin; // NULL means ParentOrigin::DEFAULT. ParentOrigin is non-animatable
   Vector3*                mAnchorPoint;  // NULL means AnchorPoint::DEFAULT. AnchorPoint is non-animatable
+  Vector3*                mNaturalSize;  //< The size of the natural size if set
 
 #ifdef DYNAMICS_SUPPORT
   DynamicsData*           mDynamicsData; ///< optional physics data

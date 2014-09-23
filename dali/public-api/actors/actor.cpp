@@ -230,6 +230,11 @@ Vector3 Actor::GetCurrentSize() const
   return GetImplementation(*this).GetCurrentSize();
 }
 
+void Actor::SetNaturalSize(const Vector3& size)
+{
+  GetImplementation(*this).SetNaturalSize(size);
+}
+
 Vector3 Actor::GetNaturalSize() const
 {
   return GetImplementation(*this).GetNaturalSize();

@@ -1099,6 +1099,11 @@ float Actor::CalculateSizeZ( const Vector2& size ) const
   return std::min( size.width, size.height );
 }
 
+bool Actor::IsNaturalSizeSet() const
+{
+  return mNaturalSize != NULL;
+}
+
 void Actor::SetSize(const Vector3& size)
 {
   if( NULL != mNode )
@@ -1157,10 +1162,29 @@ const Vector3& Actor::GetCurrentSize() const
   return Vector3::ZERO;
 }
 
+void Actor::SetNaturalSize(const Vector3& size)
+{
+  if( !mNaturalSize )
+  {
+    mNaturalSize = new Vector3( size );
+  }
+  else
+  {
+    *mNaturalSize = size;
+  }
+}
+
 Vector3 Actor::GetNaturalSize() const
 {
-  // It is up to deriving classes to return the appropriate natural size
-  return Vector3( 0.0f, 0.0f, 0.0f );
+  if( mNaturalSize )
+  {
+    return *mNaturalSize;
+  }
+  else
+  {
+    // Deriving classes to return a sensible value
+    return Vector3( 0.0f, 0.0f, 0.0f );
+  }
 }
 
 
@@ -1981,6 +2005,7 @@ Actor::Actor( DerivedType derivedType )
   mNode( NULL ),
   mParentOrigin( NULL ),
   mAnchorPoint( NULL ),
+  mNaturalSize( NULL ),
 #ifdef DYNAMICS_SUPPORT
   mDynamicsData( NULL ),
 #endif
@@ -2070,6 +2095,8 @@ Actor::~Actor()
   // Cleanup optional parent origin and anchor
   delete mParentOrigin;
   delete mAnchorPoint;
+
+  delete mNaturalSize;
 }
 
 void Actor::ConnectToStage( Stage& stage, int index )

@@ -1108,5 +1108,10 @@ int UtcDaliImageActorGetNaturalSize(void)
 
   DALI_TEST_CHECK( actor.GetNaturalSize().GetVectorXY() == Vector2( 3, 4 ) );
 
+  Vector3 vector2( 1.0f, 2.0f, 3.0f );
+  actor.SetNaturalSize( vector2 );
+
+  DALI_TEST_CHECK( actor.GetNaturalSize() == vector2 );
+
   END_TEST;
 }

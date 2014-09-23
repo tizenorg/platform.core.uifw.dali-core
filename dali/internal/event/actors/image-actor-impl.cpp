@@ -245,8 +245,16 @@ void ImageActor::SetNaturalSize()
 
 Vector3 ImageActor::GetNaturalSize() const
 {
-  Vector2 naturalSize( CalculateNaturalSize() );
-  return Vector3( naturalSize.width, naturalSize.height, CalculateSizeZ( naturalSize ) );
+  // Give precedence to natural size that user has set
+  if( IsNaturalSizeSet() )
+  {
+    return Actor::GetNaturalSize();
+  }
+  else
+  {
+    Vector2 naturalSize( CalculateNaturalSize() );
+    return Vector3( naturalSize.width, naturalSize.height, CalculateSizeZ( naturalSize ) );
+  }
 }
 
 Vector2 ImageActor::CalculateNaturalSize() const

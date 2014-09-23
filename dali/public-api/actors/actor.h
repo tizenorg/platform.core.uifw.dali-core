@@ -621,6 +621,16 @@ public:
   Vector3 GetCurrentSize() const;
 
   /**
+   * @brief Sets the natural size of an actor.
+   *
+   * Natural size is preferred in layout containers and size negotiation when resizing children, its not used to render or hit test the actor.
+   *
+   * @pre The actor has been initialized.
+   * @param [in] size The new natural size.
+   */
+  void SetNaturalSize(const Vector3& size);
+
+  /**
    * Return the natural size of the actor.
    *
    * Deriving classes stipulate the natural size and by default an actor has a ZERO natural size.

@@ -806,7 +806,7 @@ int UtcDaliActorGetCurrentSize(void)
   END_TEST;
 }
 
-int UtcDaliActorGetNaturalSize(void)
+int UtcDaliActorNaturalSize(void)
 {
   TestApplication application;
 
@@ -814,6 +814,11 @@ int UtcDaliActorGetNaturalSize(void)
   Vector3 vector( 0.0f, 0.0f, 0.0f );
 
   DALI_TEST_CHECK( actor.GetNaturalSize() == vector );
+
+  Vector3 vector2( 1.0f, 2.0f, 3.0f );
+  actor.SetNaturalSize( vector2 );
+
+  DALI_TEST_CHECK( actor.GetNaturalSize() == vector2 );
 
   END_TEST;
 }

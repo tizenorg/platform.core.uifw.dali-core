@@ -343,6 +343,8 @@ public:
                               Quaternion& rotation,
                               Vector3& scale) const;
 
+  float* getMatrix() {return mMatrix;}
+
 private:
 
   float mMatrix[16]; ///< The elements of the matrix

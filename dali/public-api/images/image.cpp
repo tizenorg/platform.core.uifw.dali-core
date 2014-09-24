@@ -191,4 +191,9 @@ Image::ImageSignalV2& Image::UploadedSignal()
   return GetImplementation(*this).UploadedSignal();
 }
 
+Integration::ResourceId Image::GetResourceId() const
+{
+  return GetImplementation(*this).GetResourceId();
+}
+
 } // namespace Dali

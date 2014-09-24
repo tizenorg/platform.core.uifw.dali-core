@@ -26,6 +26,7 @@
 #include <dali/public-api/images/pixel.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/integration-api/resource-declarations.h>
 
 namespace Dali DALI_IMPORT_API
 {
@@ -363,6 +364,8 @@ public:
    * @return a copy of the attributes
    */
   ImageAttributes GetAttributes() const;
+
+  Dali::Integration::ResourceId GetResourceId() const;
 
 public: // Signals
 

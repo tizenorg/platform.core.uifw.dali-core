@@ -252,7 +252,7 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std
   }
 
   // Animators, Constraints etc. should be disconnected from the child's properties.
-  PropertyOwner::DisconnectFromSceneGraph();
+  PropertyOwner::DisconnectFromSceneGraph( updateBufferIndex );
 
   // Remove back-pointer to parent
   mParent = NULL;

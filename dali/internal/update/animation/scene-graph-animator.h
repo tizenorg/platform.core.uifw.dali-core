@@ -66,7 +66,7 @@ public:
   : mDurationSeconds(1.0f),
     mInitialDelaySeconds(0.0f),
     mAlphaFunc(AlphaFunctions::Linear),
-    mRelative(false)
+    mBakeOnDisconnect(true)
   {
   }
 
@@ -136,6 +136,14 @@ public:
   }
 
   /**
+   * Whether to bake the animation if attached property owner is disconnected.
+   */
+  void SetBakeOnDisconnect( bool bake )
+  {
+    mBakeOnDisconnect = bake;
+  }
+
+  /**
    * This must be called when the animator is attached to the scene-graph.
    * @pre The animatable scene object must also be attached to the scene-graph.
    * @param[in] propertyOwner The scene-object that owns the animatable property.
@@ -165,7 +173,7 @@ protected:
 
   AlphaFunc mAlphaFunc;
 
-  bool mRelative;
+  bool mBakeOnDisconnect:1;
 };
 
 /**
@@ -269,6 +277,9 @@ public:
    */
   virtual void PropertyOwnerDisconnected( BufferIndex bufferIndex, PropertyOwner& owner )
   {
+    // Bake the animation to the end if required
+    Update( bufferIndex, ( mBakeOnDisconnect ? 1.0f : 0.0f ), mBakeOnDisconnect );
+
     mPropertyOwner = NULL;
     mPropertyAccessor.Reset();
   }

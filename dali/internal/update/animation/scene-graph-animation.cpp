@@ -72,6 +72,14 @@ void Animation::SetLooping(bool looping)
 void Animation::SetEndAction(Dali::Animation::EndAction action)
 {
   mEndAction = action;
+
+  bool bake( action != Dali::Animation::Discard );
+
+  // Set animators' bake action if property owner is disconnected
+  for ( AnimatorIter iter = mAnimators.Begin(), endIter = mAnimators.End(); iter != endIter; ++iter)
+  {
+    (*iter)->SetBakeOnDisconnect( bake );
+  }
 }
 
 void Animation::SetDestroyAction(Dali::Animation::EndAction action)
@@ -171,6 +179,7 @@ void Animation::OnDestroy(BufferIndex bufferIndex)
 void Animation::AddAnimator( AnimatorBase* animator, PropertyOwner* propertyOwner )
 {
   animator->Attach( propertyOwner );
+  animator->SetBakeOnDisconnect( mEndAction != Dali::Animation::Discard );
 
   mAnimators.PushBack( animator );
 }

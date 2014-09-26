@@ -240,6 +240,8 @@ public:
    * @brief Returns the end action of the animation.
    *
    * @return The end action.
+   *
+   * @note If any of the animated property's owners are disconnected from the stage, then this action is performed.
    */
   EndAction GetEndAction() const;
 

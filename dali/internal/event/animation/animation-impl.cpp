@@ -70,22 +70,22 @@ TypeAction action3( mType, Dali::Animation::ACTION_PAUSE, &Animation::DoAction )
 
 AnimationPtr Animation::New(float durationSeconds)
 {
-  return New(durationSeconds, Dali::Animation::Bake, Dali::Animation::Bake, Dali::AlphaFunctions::Linear);
+  return New(durationSeconds, Dali::Animation::Bake, Dali::Animation::BakeFinal, Dali::AlphaFunctions::Linear);
 }
 
-AnimationPtr Animation::New(float durationSeconds, EndAction endAction, EndAction destroyAction)
+AnimationPtr Animation::New(float durationSeconds, EndAction endAction, EndAction disconnectAction)
 {
-  return New(durationSeconds, endAction, destroyAction, Dali::AlphaFunctions::Linear);
+  return New(durationSeconds, endAction, disconnectAction, Dali::AlphaFunctions::Linear);
 }
 
-AnimationPtr Animation::New(float durationSeconds, EndAction endAction, EndAction destroyAction, AlphaFunction alpha)
+AnimationPtr Animation::New(float durationSeconds, EndAction endAction, EndAction disconnectAction, AlphaFunction alpha)
 {
   ThreadLocalStorage& tls = ThreadLocalStorage::Get();
   UpdateManager& updateManager = tls.GetUpdateManager();
 
   AnimationPlaylist& playlist = Stage::GetCurrent()->GetAnimationPlaylist();
 
-  AnimationPtr progress = new Animation( updateManager, playlist, durationSeconds, endAction, destroyAction, alpha );
+  AnimationPtr progress = new Animation( updateManager, playlist, durationSeconds, endAction, disconnectAction, alpha );
 
   // Second-phase construction
   progress->Initialize();
@@ -93,7 +93,7 @@ AnimationPtr Animation::New(float durationSeconds, EndAction endAction, EndActio
   return progress;
 }
 
-Animation::Animation( UpdateManager& updateManager, AnimationPlaylist& playlist, float durationSeconds, EndAction endAction, EndAction destroyAction, AlphaFunction defaultAlpha )
+Animation::Animation( UpdateManager& updateManager, AnimationPlaylist& playlist, float durationSeconds, EndAction endAction, EndAction disconnectAction, AlphaFunction defaultAlpha )
 : mUpdateManager( updateManager ),
   mPlaylist( playlist ),
   mAnimation( NULL ),
@@ -105,7 +105,7 @@ Animation::Animation( UpdateManager& updateManager, AnimationPlaylist& playlist,
   mIsLooping( false ),
   mPlayRange( Vector2(0.0f,1.0f)),
   mEndAction( endAction ),
-  mDestroyAction( destroyAction ),
+  mDisconnectAction( disconnectAction ),
   mDefaultAlpha( defaultAlpha )
 {
 }
@@ -139,7 +139,7 @@ void Animation::CreateSceneObject()
   DALI_ASSERT_DEBUG( mAnimation == NULL );
 
   // Create a new animation, temporarily owned
-  SceneGraph::Animation* animation = SceneGraph::Animation::New( mDurationSeconds, mSpeedFactor, mPlayRange, mIsLooping, mEndAction, mDestroyAction );
+  SceneGraph::Animation* animation = SceneGraph::Animation::New( mDurationSeconds, mSpeedFactor, mPlayRange, mIsLooping, mEndAction, mDisconnectAction );
 
   // Keep a const pointer to the animation.
   mAnimation = animation;
@@ -203,19 +203,19 @@ Dali::Animation::EndAction Animation::GetEndAction() const
   return mEndAction;
 }
 
-void Animation::SetDestroyAction(EndAction action)
+void Animation::SetDisconnectAction(EndAction action)
 {
   // Cache for public getters
-  mDestroyAction = action;
+  mDisconnectAction = action;
 
   // mAnimation is being used in a separate thread; queue a message to set the value
-  SetDestroyActionMessage( mUpdateManager.GetEventToUpdate(), *mAnimation, action );
+  SetDisconnectActionMessage( mUpdateManager.GetEventToUpdate(), *mAnimation, action );
 }
 
-Dali::Animation::EndAction Animation::GetDestroyAction() const
+Dali::Animation::EndAction Animation::GetDisconnectAction() const
 {
   // This is not animatable; the cached value is up-to-date.
-  return mDestroyAction;
+  return mDisconnectAction;
 }
 
 void Animation::Play()

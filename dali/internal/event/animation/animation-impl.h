@@ -138,6 +138,17 @@ public:
   EndAction GetDestroyAction() const;
 
   /**
+   * Set the disconnect action of the animation.
+   * @param[in] action The disconnect action.
+   */
+  void SetDisconnectAction(EndAction action);
+
+  /**
+   * Returns the disconnect action of the animation.
+   */
+  EndAction GetDisconnectAction() const;
+
+  /**
    * Set the default alpha function for an animation.
    * This is applied to individual property animations, if no further alpha functions are supplied.
    * @param[in] alpha The default alpha function.
@@ -918,6 +929,7 @@ private:
   Vector2 mPlayRange;
   EndAction mEndAction;
   EndAction mDestroyAction;
+  EndAction mDisconnectAction;
   AlphaFunction mDefaultAlpha;
 
 };

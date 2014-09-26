@@ -260,6 +260,22 @@ public:
   EndAction GetDestroyAction() const;
 
   /**
+   * @brief Set the disconnect action.
+   *
+   * If any of the animated property's owners are disconnected from the stage, then this action is performed.
+   * Default action is to BakeFinal.
+   * @param[in] action The disconnect action.
+   */
+  void SetDisconnectAction( EndAction disconnectAction );
+
+  /**
+   * @brief Returns the disconnect action.
+   *
+   * @return The disconnect action.
+   */
+  EndAction GetDisconnectAction() const;
+
+  /**
    * @brief Set the default alpha function for an animation.
    *
    * This is applied to individual property animations, if no further alpha functions are supplied.

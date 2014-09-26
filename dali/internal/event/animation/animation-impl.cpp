@@ -106,6 +106,7 @@ Animation::Animation( UpdateManager& updateManager, AnimationPlaylist& playlist,
   mPlayRange( Vector2(0.0f,1.0f)),
   mEndAction( endAction ),
   mDestroyAction( destroyAction ),
+  mDisconnectAction( Dali::Animation::BakeFinal ),
   mDefaultAlpha( defaultAlpha )
 {
 }
@@ -139,7 +140,7 @@ void Animation::CreateSceneObject()
   DALI_ASSERT_DEBUG( mAnimation == NULL );
 
   // Create a new animation, temporarily owned
-  SceneGraph::Animation* animation = SceneGraph::Animation::New( mDurationSeconds, mSpeedFactor, mPlayRange, mIsLooping, mEndAction, mDestroyAction );
+  SceneGraph::Animation* animation = SceneGraph::Animation::New( mDurationSeconds, mSpeedFactor, mPlayRange, mIsLooping, mEndAction, mDestroyAction, mDisconnectAction );
 
   // Keep a const pointer to the animation.
   mAnimation = animation;
@@ -216,6 +217,21 @@ Dali::Animation::EndAction Animation::GetDestroyAction() const
 {
   // This is not animatable; the cached value is up-to-date.
   return mDestroyAction;
+}
+
+void Animation::SetDisconnectAction(EndAction action)
+{
+  // Cache for public getters
+  mDisconnectAction = action;
+
+  // mAnimation is being used in a separate thread; queue a message to set the value
+  SetDisconnectActionMessage( mUpdateManager.GetEventToUpdate(), *mAnimation, action );
+}
+
+Dali::Animation::EndAction Animation::GetDisconnectAction() const
+{
+  // This is not animatable; the cached value is up-to-date.
+  return mDisconnectAction;
 }
 
 void Animation::Play()

@@ -68,11 +68,12 @@ public:
    * @param[in] isLooping Whether the animation will loop.
    * @param[in] endAction The action to perform when the animation ends.
    * @param[in] destroyAction The action to perform when the animation is destroyed.
+   * @param[in] disconnectAction The action to perform when an object connected to an animator is disconnected from the stage.
    * @return A new Animation
    */
-  static Animation* New( float durationSeconds, float speedFactor, const Vector2& playRange, bool isLooping, EndAction endAction, EndAction destroyAction )
+  static Animation* New( float durationSeconds, float speedFactor, const Vector2& playRange, bool isLooping, EndAction endAction, EndAction destroyAction, EndAction disconnectAction )
   {
-    return new Animation( durationSeconds, speedFactor, playRange, isLooping, endAction, destroyAction );
+    return new Animation( durationSeconds, speedFactor, playRange, isLooping, endAction, destroyAction, disconnectAction );
   }
 
   /**
@@ -172,6 +173,23 @@ public:
   }
 
   /**
+   * Set the disconnect action of the animation when connected objects are disconnected.
+   * This action is performed during the next update when
+   * the connected object is disconnected.
+   * @param[in] action The disconnect action.
+   */
+  void SetDisconnectAction(EndAction action);
+
+  /**
+   * Retrieve the action performed when the animation is destroyed.
+   * @return The destroy action.
+   */
+  EndAction GetDisconnectAction()
+  {
+    return mDisconnectAction;
+  }
+
+  /**
    * Set the playing range. The animation will only play between the minimum and maximum progress
    * speficied.
    *
@@ -260,7 +278,7 @@ protected:
   /**
    * Protected constructor. See New()
    */
-  Animation( float durationSeconds, float speedFactor, const Vector2& playRange, bool isLooping, EndAction endAction, EndAction destroyAction );
+  Animation( float durationSeconds, float speedFactor, const Vector2& playRange, bool isLooping, EndAction endAction, EndAction destroyAction, EndAction disconnectAction );
 
 
 private:
@@ -293,6 +311,7 @@ protected:
   bool mLooping;
   EndAction mEndAction;
   EndAction mDestroyAction;
+  EndAction mDisconnectAction;
 
   State mState;
   float mElapsedSeconds;
@@ -354,6 +373,17 @@ inline void SetDestroyActionMessage( EventToUpdate& eventToUpdate, const Animati
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetDestroyAction, action );
+}
+
+inline void SetDisconnectActionMessage( EventToUpdate& eventToUpdate, const Animation& animation, Dali::Animation::EndAction action )
+{
+  typedef MessageValue1< Animation, Dali::Animation::EndAction > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &animation, &Animation::SetDisconnectAction, action );
 }
 
 inline void SetCurrentProgressMessage( EventToUpdate& eventToUpdate, const Animation& animation, float progress )

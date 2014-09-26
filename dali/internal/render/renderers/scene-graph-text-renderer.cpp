@@ -367,22 +367,16 @@ void TextRenderer::DoRender( BufferIndex bufferIndex, Program& program, const Ma
   }
 
   const float SMOOTHING_ADJUSTMENT( 12.0f );
-  const float SMOOTHING_ADJUSTMENT_PIXEL_SIZE( 32.0f );
+  const float SMOOTHING_ADJUSTMENT_PIXEL_SIZE( 1.0f );
 
   float smoothWidth = SMOOTHING_ADJUSTMENT / mPixelSize;
+  smoothWidth = min( min(mSmoothing, 1.0f - mSmoothing), smoothWidth );
   float smoothing = mSmoothing;
 
   const GLint smoothingLoc = program.GetUniformLocation( Program::UNIFORM_SMOOTHING );
   if( Program::UNIFORM_UNKNOWN != smoothingLoc )
   {
-    smoothWidth = min( min(mSmoothing, 1.0f - mSmoothing), smoothWidth );
-
-    if( mPixelSize < SMOOTHING_ADJUSTMENT_PIXEL_SIZE )
-    {
-      smoothing *= Lerp( mPixelSize / SMOOTHING_ADJUSTMENT_PIXEL_SIZE, 0.5f, 1.0f );
-    }
-
-    program.SetUniform2f( smoothingLoc, std::max(0.0f, smoothing - smoothWidth), std::min(1.0f, smoothing + smoothWidth) );
+    program.SetUniform2f( smoothingLoc, smoothing, SMOOTHING_ADJUSTMENT_PIXEL_SIZE );
   }
 
   if( mTextParameters )

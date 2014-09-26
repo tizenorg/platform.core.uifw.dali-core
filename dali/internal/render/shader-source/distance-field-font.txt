@@ -59,12 +59,15 @@
     lowp vec4 color = uTextColor;
 #endif
 
-    // adjust fragment alpha by sampled distance
-    mediump float distance = distanceL * .5 + distanceR *.5;
-    mediump vec3 attenuation = vec3( distanceL, distance, distanceR );
-    attenuation = smoothstep(uSmoothing[0], uSmoothing[1], attenuation );
+    // adjust sub-pixel color by sampled distance
+    highp float distanceC = .5*(distanceL+distanceR);
+    highp vec3 attenuation = vec3( distanceL, distanceC, distanceR );
+    highp float smoothingWidth = uSmoothing[1] * max(max(abs(dFdx(distanceL)), abs(dFdx(distanceR))),max(abs(dFdy(distanceL)), abs(dFdy(distanceR))));
+    highp float smoothing = uSmoothing[0];
+    attenuation = smoothstep(smoothing-smoothingWidth, smoothing+smoothingWidth, attenuation );
 
-    color.a *= smoothstep(uSmoothing[0], uSmoothing[1], distance );
+    // Set the alpha based on the attenuation
+    color.a *= length(attenuation);
 
     // color multiplied by Actor color
     color = uColor * color;

@@ -34,6 +34,7 @@
 </VertexShader>
 
 <FragmentShader>
+#extension GL_OES_standard_derivatives : enable
 
   uniform mediump sampler2D sTexture;
   uniform highp   vec4      sTextureRect;
@@ -59,11 +60,18 @@
     lowp vec4 color = uTextColor;
 #endif
 
-    // adjust fragment alpha by sampled distance
-    color.a *= smoothstep(uSmoothing[0], uSmoothing[1], distance );
+    // adjust sub-pixel color by sampled distance
+    highp float smoothingWidth = uSmoothing[1] * fwidth(distance);
+    highp float smoothing = uSmoothing[0];
+    smoothing = smoothstep(smoothing-smoothingWidth, smoothing+smoothingWidth, smoothing );
 
-    // final color multiplied by Actor color
-    gl_FragColor = uColor * color;
+    // color multiplied by Actor color
+    color = uColor * color;
+
+    // apply smoothing
+    color.a *= smoothing;
+
+    gl_FragColor = color;
   }
 
 </FragmentShader>

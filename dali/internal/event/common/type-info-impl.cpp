@@ -332,6 +332,44 @@ const std::string& TypeInfo::GetPropertyName( Property::Index index ) const
   DALI_ASSERT_ALWAYS( ! "Cannot find property index" ); // use the same assert as Object
 }
 
+void TypeInfo::GetBases(Dali::Vector<std::string>& vector) const
+{
+  Dali::TypeRegistry registry = Dali::TypeRegistry::Get();
+
+  Dali::TypeInfo base = registry.GetTypeInfo( mBaseTypeName );
+
+  while(base)
+  {
+    base = registry.GetTypeInfo( base.GetBaseName() );
+    vector.PushBack(base.GetName());
+  }
+}
+
+// bool TypeInfo::InheritsFrom(const std::string& basename) const
+// {
+//   bool inherits = false;
+
+//   Dali::TypeRegistry registry = Dali::TypeRegistry::Get();
+
+//   Dali::TypeInfo base = registry.GetTypeInfo( mBaseTypeName );
+
+//   inherits = (base.GetName() == basename);
+//   while(!inherits)
+//   {
+//     base = registry.GetTypeInfo( base.GetBaseName() );
+//     if(base)
+//     {
+//       inherits = (base.GetName() == basename);
+//     }
+//     else
+//     {
+//       break;
+//     }
+//   }
+
+//   return inherits;
+// }
+
 void TypeInfo::AddActionFunction( const std::string &actionName, Dali::TypeInfo::ActionFunction function )
 {
   if( NULL == function)

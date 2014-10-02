@@ -116,6 +116,16 @@ public:
    */
   const std::string& GetPropertyName( Property::Index index ) const;
 
+  /* /\** */
+  /*  * @copydoc Dali::TypeInfo::InheritsFrom */
+  /*  *\/ */
+  /* bool InheritsFrom(const std::string& basename) const */
+
+  /**
+   * @copydoc Dali::TypeInfo::Bases
+   */
+  void GetBases(Dali::Vector<std::string>& vector) const;
+
   /*
    * Add an action function
    */

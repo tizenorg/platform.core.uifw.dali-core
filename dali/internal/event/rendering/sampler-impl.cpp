@@ -38,11 +38,12 @@ namespace
  *            |name                    |type     |writable|animatable|constraint-input|enum for index-checking|
  */
 DALI_PROPERTY_TABLE_BEGIN
-DALI_PROPERTY( "minification-filter",   STRING,   true, false,  true, Dali::Sampler::Property::MINIFICATION_FILTER )
-DALI_PROPERTY( "magnification-filter",  STRING,   true, false,  true, Dali::Sampler::Property::MAGNIGICATION_FILTER )
-DALI_PROPERTY( "u-wrap",                STRING,   true, false,  true, Dali::Sampler::Property::U_WRAP )
-DALI_PROPERTY( "v-wrap",                STRING,   true, false,  true, Dali::Sampler::Property::V_WRAP )
+DALI_PROPERTY( "minification-filter",   INTEGER,   true, false,  true, Dali::Sampler::Property::MINIFICATION_FILTER )
+DALI_PROPERTY( "magnification-filter",  INTEGER,   true, false,  true, Dali::Sampler::Property::MAGNIGICATION_FILTER )
+DALI_PROPERTY( "u-wrap",                INTEGER,   true, false,  true, Dali::Sampler::Property::U_WRAP )
+DALI_PROPERTY( "v-wrap",                INTEGER,   true, false,  true, Dali::Sampler::Property::V_WRAP )
 DALI_PROPERTY( "affects-transparency",  BOOLEAN,  true, false,  true, Dali::Sampler::Property::AFFECTS_TRANSPARENCY )
+DALI_PROPERTY( "uniform-name",  STRING,  true, false,  true, Dali::Sampler::Property::UNIFORM_NAME )
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> SAMPLER_IMPL = { DEFAULT_PROPERTY_DETAILS };
@@ -186,6 +187,11 @@ void Sampler::SetDefaultProperty( Property::Index index,
     case Dali::Sampler::Property::AFFECTS_TRANSPARENCY:
     {
       SceneGraph::DoubleBufferedPropertyMessage<bool>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mAffectsTransparency, &SceneGraph::DoubleBufferedProperty<bool>::Set, propertyValue.Get<bool>() );
+      break;
+    }
+    case Dali::Sampler::Property::UNIFORM_NAME:
+    {
+      SetTextureUnitUniformName(propertyValue.Get<std::string>());
       break;
     }
   }

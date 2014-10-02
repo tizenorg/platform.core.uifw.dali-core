@@ -144,6 +144,15 @@ public:
   Value* Find( const std::string& key, Property::Type type ) const;
 
   /**
+   * @brief Retrieve the position of the key.
+   *
+   * @return The position of the item
+   *
+   * @note Will assert if position >= Count()
+   */
+  SizeType Position( const std::string& key ) const;
+
+  /**
    * @brief Clears the map.
    */
   void Clear();

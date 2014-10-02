@@ -196,7 +196,7 @@ struct ObjectImplHelper
   {
     const SceneGraph::PropertyOwner* sceneObject = object->GetSceneObject();
 
-    switch ( entry.type )
+    switch ( entry.value.GetType() )
     {
       case Property::BOOLEAN:
       {

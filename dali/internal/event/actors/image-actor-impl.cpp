@@ -19,7 +19,7 @@
 #include <dali/internal/event/actors/image-actor-impl.h>
 
 // EXTERNAL INCLUDES
-#include <cstring> // for strcmp
+#include <cstring>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>

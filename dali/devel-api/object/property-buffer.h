@@ -169,6 +169,13 @@ public:
    */
   void SetData( const void* data );
 
+  /**
+   * @brief Gets the buffer format
+   *
+   * @return The buffer format
+   */
+  const Dali::Property::Map& GetFormat();
+
 public:
   /**
    * @brief The constructor

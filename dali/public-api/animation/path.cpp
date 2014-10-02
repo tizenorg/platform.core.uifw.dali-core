@@ -74,10 +74,14 @@ void Path::GenerateControlPoints( float curvature )
   GetImplementation(*this).GenerateControlPoints( curvature );
 }
 
-
 void Path::Sample( float progress, Vector3& position, Vector3& tangent ) const
 {
-  GetImplementation(*this).Sample( progress, position, tangent );
+  static_cast<void>(GetImplementation(*this).Sample( progress, position, tangent ));
+}
+
+bool Path::SampleAt( float progress, Vector3& position, Vector3& tangent ) const
+{
+  return GetImplementation(*this).Sample( progress, position, tangent );
 }
 
 Vector3& Path::GetPoint( size_t index )

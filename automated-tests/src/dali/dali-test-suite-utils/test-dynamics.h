@@ -216,8 +216,6 @@ public: // From Dali::Integration::DynamicsBody
 
 private:
   Dali::Integration::DynamicsBodySettings* mSettings;
-  bool mConserveVolume:1;
-  bool mConserveShape:1;
   bool mKinematic:1;
   bool mActivationState:1;
 
@@ -288,7 +286,6 @@ public:
   }
 
 private:
-  Dali::Integration::DynamicsWorldSettings* mSettings;
   Dali::Integration::DynamicsDebugVertexContainer mDebugVertices;
 
   TraceCallStack& mTrace;

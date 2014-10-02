@@ -107,8 +107,6 @@ void TestDynamicsShape::Initialize( int type, const MeshData::VertexContainer& v
 
 TestDynamicsBody::TestDynamicsBody( TraceCallStack& trace )
 : mSettings( NULL ),
-  mConserveVolume( false ),
-  mConserveShape( false ),
   mKinematic( false ),
   mActivationState( true ),
   mCollisionGroup( 0 ),
@@ -124,8 +122,7 @@ TestDynamicsBody::~TestDynamicsBody()
 }
 
 TestDynamicsWorld::TestDynamicsWorld( TraceCallStack& trace )
-: mSettings( NULL ),
-  mTrace( trace )
+: mTrace( trace )
 {
   mTrace.PushCall( "DynamicsWorld::DynamicsWorld", "" );
 }

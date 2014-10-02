@@ -19,7 +19,7 @@
 #include <dali/internal/event/events/pan-gesture-detector-impl.h>
 
 // EXTERNAL INCLUDES
-#include <cstring> // for strcmp
+#include <cstring>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/events/pan-gesture.h>

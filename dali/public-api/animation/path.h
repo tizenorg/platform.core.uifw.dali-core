@@ -139,11 +139,22 @@ public:
   /**
    * @brief Sample path at a given progress. Calculates position and tangent at that point of the curve
    *
+   * @deprecated DALi 1.1.7 (Use SampleAt)
    * @param[in]  progress  A floating point value between 0.0 and 1.0.
    * @param[out] position The interpolated position at that progress.
    * @param[out] tangent The interpolated tangent at that progress.
    */
   void Sample( float progress, Vector3& position, Vector3& tangent ) const;
+
+  /**
+   * @brief Sample path at a given progress. Calculates position and tangent at that point of the curve
+   *
+   * @param[in]  progress  A floating point value between 0.0 and 1.0.
+   * @param[out] position The interpolated position at that progress.
+   * @param[out] tangent The interpolated tangent at that progress.
+   * @return if calculation was possible
+   */
+  bool SampleAt( float progress, Vector3& position, Vector3& tangent ) const;
 
   /**
    * @brief Accessor for the interpolation points.

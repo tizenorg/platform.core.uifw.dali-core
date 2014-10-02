@@ -402,6 +402,28 @@ public:
    */
   unsigned int GetRefreshRate() const;
 
+  /*
+   * @brief Get screen coordinates for given world position
+   *
+   * @param[in] position The world position.
+   * @param[out] screenX The screen x position.
+   * @param[out] screenY The screen y position.
+   * @return true if the position has a screen coordinate
+   */
+  bool WorldToScreen(const Vector3 &position, float& screenX, float& screenY) const;
+
+  /*
+   * @brief Get actor local coordinates for a screen position
+   *
+   * @param[in] actor The actor describing local coordinate system.
+   * @param[in] screenX The screen x position.
+   * @param[in] screenY The screen y position.
+   * @param[out] localX The local x position.
+   * @param[out] localY The local y position.
+   * @return true if the screen position has a local coordinate
+   */
+  bool ScreenToLocal(Actor actor, float screenX, float screenY, float &localX, float &localY) const;
+
 public: // Signals
 
   /**

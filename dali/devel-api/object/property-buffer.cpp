@@ -75,6 +75,11 @@ void PropertyBuffer::SetData( const void* data )
   GetImplementation(*this).SetData( data );
 }
 
+const Dali::Property::Map& PropertyBuffer::GetFormat()
+{
+  return GetImplementation(*this).GetFormat();
+}
+
 PropertyBuffer::PropertyBuffer( Internal::PropertyBuffer* pointer )
 : Handle( pointer )
 {

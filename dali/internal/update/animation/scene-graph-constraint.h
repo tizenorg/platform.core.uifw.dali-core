@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/active-constraint.h>
@@ -50,7 +50,7 @@ class Constraint : public ConstraintBase
 public:
 
   typedef typename PropertyConstraintPtr< PropertyType >::Type ConstraintFunctionPtr;
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyType&, float progress) > InterpolatorFunc;
+  typedef Dali::function< PropertyType (const PropertyType&, const PropertyType&, float progress) > InterpolatorFunc;
 
   /**
    * Create a new scene-graph constraint.

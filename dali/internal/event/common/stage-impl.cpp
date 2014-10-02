@@ -46,7 +46,6 @@
 #endif
 
 using namespace std;
-using namespace boost;
 
 using Dali::Internal::SceneGraph::Node;
 

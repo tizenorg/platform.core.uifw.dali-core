@@ -426,8 +426,6 @@ Property::Index Layer::GetDefaultPropertyIndex(const std::string& name) const
 {
   Property::Index index = Property::INVALID_INDEX;
 
-  DALI_ASSERT_DEBUG( NULL != mDefaultLayerPropertyLookup );
-
   // Look for name in current class' default properties
   DefaultPropertyLookup::const_iterator result = mDefaultLayerPropertyLookup->find( name );
   if ( mDefaultLayerPropertyLookup->end() != result )

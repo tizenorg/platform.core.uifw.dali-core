@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/event/common/proxy-object.h>
@@ -51,7 +51,7 @@ class AnimatorConnector : public AnimatorConnectorBase, public ProxyObject::Obse
 {
 public:
 
-  typedef boost::function< PropertyType (float, const PropertyType&) > AnimatorFunction;
+  typedef Dali::function< PropertyType (float, const PropertyType&) > AnimatorFunction;
   typedef SceneGraph::Animator< PropertyType, PropertyAccessor<PropertyType> > AnimatorType;
   typedef SceneGraph::AnimatableProperty< PropertyType > PropertyInterfaceType;
 
@@ -216,7 +216,7 @@ class AnimatorConnector<float> : public AnimatorConnectorBase, public ProxyObjec
 {
 public:
 
-  typedef boost::function< float (float, const float&) > AnimatorFunction;
+  typedef Dali::function< float (float, const float&) > AnimatorFunction;
   typedef SceneGraph::Animator< float, PropertyAccessor<float> > AnimatorType;
 
   /**

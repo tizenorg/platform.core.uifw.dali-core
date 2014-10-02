@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 namespace Dali
 {
@@ -46,11 +46,11 @@ namespace LocalConstraint DALI_IMPORT_API
  * @param[in] color    The actor's current color.
  * @return The constrained property value.
  */
-typedef boost::function<Vector3 (const Vector3&    size,
-                                 const Vector3&    position,
-                                 const Quaternion& rotation,
-                                 const Vector3&    scale,
-                                 const Vector4&    color)> Vector3Function;
+typedef Dali::function<Vector3 (const Vector3&    size,
+                                  const Vector3&    position,
+                                  const Quaternion& rotation,
+                                  const Vector3&    scale,
+                                  const Vector4&    color)> Vector3Function;
 
 /**
  * @brief A function which constrains a Vector4 property, based on the local properties of an Actor.
@@ -62,11 +62,11 @@ typedef boost::function<Vector3 (const Vector3&    size,
  * @param[in] color    The actor's current color.
  * @return The constrained property value.
  */
-typedef boost::function<Vector4 (const Vector3&    size,
-                                 const Vector3&    position,
-                                 const Quaternion& rotation,
-                                 const Vector3&    scale,
-                                 const Vector4&    color)> Vector4Function;
+typedef Dali::function<Vector4 (const Vector3&    size,
+                                  const Vector3&    position,
+                                  const Quaternion& rotation,
+                                  const Vector3&    scale,
+                                  const Vector4&    color)> Vector4Function;
 
 /**
  * @brief A function which constrains a Quaternion property, based on the local properties of an Actor.
@@ -78,11 +78,11 @@ typedef boost::function<Vector4 (const Vector3&    size,
  * @param[in] color    The actor's current color.
  * @return The constrained property value.
  */
-typedef boost::function<Quaternion (const Vector3&    size,
-                                    const Vector3&    position,
-                                    const Quaternion& rotation,
-                                    const Vector3&    scale,
-                                    const Vector4&    color)> QuaternionFunction;
+typedef Dali::function<Quaternion (const Vector3&    size,
+                                     const Vector3&    position,
+                                     const Quaternion& rotation,
+                                     const Vector3&    scale,
+                                     const Vector4&    color)> QuaternionFunction;
 
 /**
  * @brief A function which constrains a boolean property, based on the local properties of an Actor.
@@ -94,11 +94,11 @@ typedef boost::function<Quaternion (const Vector3&    size,
  * @param[in] color    The actor's current color.
  * @return The constrained property value.
  */
-typedef boost::function<bool (const Vector3&    size,
-                              const Vector3&    position,
-                              const Quaternion& rotation,
-                              const Vector3&    scale,
-                              const Vector4&    color)> BoolFunction;
+typedef Dali::function<bool (const Vector3&    size,
+                               const Vector3&    position,
+                               const Quaternion& rotation,
+                               const Vector3&    scale,
+                               const Vector4&    color)> BoolFunction;
 
 } // LocalConstraint
 
@@ -120,13 +120,13 @@ namespace ParentConstraint DALI_IMPORT_API
  * @param[in] parentScale The parent's current scale.
  * @return The constrained property value.
  */
-typedef boost::function<Vector3 (const Vector3&    current,
-                                 const Vector3&    parentOrigin,
-                                 const Vector3&    anchorPoint,
-                                 const Vector3&    parentSize,
-                                 const Vector3&    parentPosition,
-                                 const Quaternion& parentRotation,
-                                 const Vector3&    parentScale)> Vector3Function;
+typedef Dali::function<Vector3 (const Vector3&    current,
+                                  const Vector3&    parentOrigin,
+                                  const Vector3&    anchorPoint,
+                                  const Vector3&    parentSize,
+                                  const Vector3&    parentPosition,
+                                  const Quaternion& parentRotation,
+                                  const Vector3&    parentScale)> Vector3Function;
 
 /**
  * @brief A function which constrains a Vector4 property, based on properties related to the Actor's parent.
@@ -140,13 +140,13 @@ typedef boost::function<Vector3 (const Vector3&    current,
  * @param[in] parentScale The parent's current scale.
  * @return The constrained property value.
  */
-typedef boost::function<Vector4 (const Vector4&    current,
-                                 const Vector3&    parentOrigin,
-                                 const Vector3&    anchorPoint,
-                                 const Vector3&    parentSize,
-                                 const Vector3&    parentPosition,
-                                 const Quaternion& parentRotation,
-                                 const Vector3&    parentScale)> Vector4Function;
+typedef Dali::function<Vector4 (const Vector4&    current,
+                                const Vector3&    parentOrigin,
+                                const Vector3&    anchorPoint,
+                                const Vector3&    parentSize,
+                                const Vector3&    parentPosition,
+                                const Quaternion& parentRotation,
+                                const Vector3&    parentScale)> Vector4Function;
 
 /**
  * @brief A function which constrains a Quaternion property, based on properties related to the Actor's parent.
@@ -159,13 +159,13 @@ typedef boost::function<Vector4 (const Vector4&    current,
  * @param[in] parentScale The parent's current scale.
  * @return The constrained property value.
  */
-typedef boost::function<Quaternion (const Quaternion& current,
-                                    const Vector3&    parentOrigin,
-                                    const Vector3&    anchorPoint,
-                                    const Vector3&    parentSize,
-                                    const Vector3&    parentPosition,
-                                    const Quaternion& parentRotation,
-                                    const Vector3&    parentScale)> QuaternionFunction;
+typedef Dali::function<Quaternion (const Quaternion& current,
+                                   const Vector3&    parentOrigin,
+                                   const Vector3&    anchorPoint,
+                                   const Vector3&    parentSize,
+                                   const Vector3&    parentPosition,
+                                   const Quaternion& parentRotation,
+                                   const Vector3&    parentScale)> QuaternionFunction;
 
 /**
  * @brief A function which constrains a boolean property, based on properties related to the Actor's parent.
@@ -179,13 +179,13 @@ typedef boost::function<Quaternion (const Quaternion& current,
  * @param[in] parentScale The parent's current scale.
  * @return The constrained property value.
  */
-typedef boost::function<bool (const bool&       current,
-                              const Vector3&    parentOrigin,
-                              const Vector3&    anchorPoint,
-                              const Vector3&    parentSize,
-                              const Vector3&    parentPosition,
-                              const Quaternion& parentRotation,
-                              const Vector3&    parentScale)> BoolFunction;
+typedef Dali::function<bool (const bool&       current,
+                             const Vector3&    parentOrigin,
+                             const Vector3&    anchorPoint,
+                             const Vector3&    parentSize,
+                             const Vector3&    parentPosition,
+                             const Quaternion& parentRotation,
+                             const Vector3&    parentScale)> BoolFunction;
 
 } // ParentConstraint
 

@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
@@ -38,7 +38,7 @@ typedef SignalV2< void (PropertyNotification& source) > PropertyNotifySignalV2;
 /**
  * @brief Function signature for Dali::PropertyNotification::NotifySignal() signal callbacks.
  */
-typedef boost::function<void (PropertyNotification& source)> PropertyNotifyCallbackType;
+typedef Dali::function<void (PropertyNotification& source)> PropertyNotifyCallbackType;
 
 } // namespace Dali
 

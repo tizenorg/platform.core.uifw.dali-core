@@ -18,6 +18,8 @@
  *
  */
 
+// EXTERNAL INCLUDES
+
 // INTERNAL INCLUDES
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/common/owner-container.h>

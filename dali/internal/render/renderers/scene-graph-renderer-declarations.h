@@ -18,7 +18,10 @@
  *
  */
 
+// EXTERNAL INCLUDES
+
 // INTERNAL INCLUDES
+#include <dali/public-api/common/dali-functional.h>
 #include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali

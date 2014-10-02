@@ -353,7 +353,7 @@ void Actor::Insert(unsigned int index, Actor& child)
   if ( !child.mParent )
   {
     // Do this first, since user callbacks from within SetParent() may need to remove child
-    if (index < child.GetChildCount())
+    if (index < GetChildCount())
     {
       ActorIter it = mChildren->begin();
       std::advance(it, index);
@@ -1589,7 +1589,7 @@ bool Actor::ScreenToLocal( float& localX,
   return false;
 }
 
-bool Actor::ScreenToLocal( RenderTask& renderTask,
+bool Actor::ScreenToLocal( const RenderTask& renderTask,
                            float& localX,
                            float& localY,
                            float screenX,
@@ -2602,7 +2602,7 @@ void Actor::SetCustomProperty( Property::Index index, const CustomProperty& entr
   {
     // TODO: ADD MATRIX & MATRIX3 types
 
-    switch ( entry.type )
+    switch ( entry.value.GetType() )
     {
       case Property::BOOLEAN:
       {

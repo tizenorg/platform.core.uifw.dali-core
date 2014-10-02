@@ -19,7 +19,7 @@
 #include <dali/internal/event/animation/constraint-impl.h>
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/event/animation/active-constraint-impl.h>
@@ -45,20 +45,20 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
   {
     case 0u:
     {
-      propertyConstraint = new PropertyConstraint0<P>( AnyCast<boost::function<P (const P&)> >( func ) );
+      propertyConstraint = new PropertyConstraint0<P>( AnyCast<Dali::function<P (const P&)> >( func ) );
       break;
     }
 
     case 1u:
     {
-      propertyConstraint = new PropertyConstraint1<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint1<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&)> >( func ) );
       break;
     }
 
     case 2u:
     {
-      propertyConstraint = new PropertyConstraint2<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint2<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&)> >( func ) );
       break;
@@ -66,7 +66,7 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
 
     case 3u:
     {
-      propertyConstraint = new PropertyConstraint3<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint3<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&)> >( func ) );
@@ -75,7 +75,7 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
 
     case 4u:
     {
-      propertyConstraint = new PropertyConstraint4<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint4<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
@@ -85,7 +85,7 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
 
     case 5u:
     {
-      propertyConstraint = new PropertyConstraint5<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint5<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
@@ -96,7 +96,7 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
 
     case 6u:
     {
-      propertyConstraint = new PropertyConstraint6<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint6<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,

@@ -25,6 +25,8 @@
 #include <dali/internal/update/resources/resource-manager.h>
 #include <dali/integration-api/debug.h>
 
+#include "emscripten/emscripten.h"
+
 using namespace std;
 
 namespace // unnamed namespace

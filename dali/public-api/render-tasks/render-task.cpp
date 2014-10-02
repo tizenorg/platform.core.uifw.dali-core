@@ -249,6 +249,25 @@ bool RenderTask::GetInputEnabled() const
   return GetImplementation(*this).GetInputEnabled();
 }
 
+bool RenderTask::WorldToScreen(const Vector3 &position, float& screenX, float& screenY) const
+{
+  return GetImplementation(*this).WorldToScreen(position, screenX, screenY);
+}
+
+bool RenderTask::ScreenToLocal(Actor actor, float screenX, float screenY, float &localX, float &localY) const
+{
+  if( actor )
+  {
+    Internal::Actor* actorImpl( &GetImplementation( actor ) );
+    return GetImplementation(*this).ScreenToLocal( actorImpl, screenX, screenY, localX, localY );
+  }
+  else
+  {
+    return false;
+  }
+}
+
+
 RenderTask::RenderTask( Internal::RenderTask* internal )
 : Constrainable(internal)
 {

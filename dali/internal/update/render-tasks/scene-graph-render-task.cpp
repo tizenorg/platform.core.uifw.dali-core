@@ -28,6 +28,8 @@
 
 #include <dali/internal/update/render-tasks/scene-graph-render-task-debug.h>
 
+#include "emscripten/emscripten.h"
+
 namespace
 {
 const unsigned int NUM_FRAMES_BEFORE_NOTIFY_FINISHED(3);

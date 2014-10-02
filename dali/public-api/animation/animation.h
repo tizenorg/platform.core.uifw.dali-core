@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/alpha-functions.h>
@@ -43,13 +43,13 @@ struct Vector2;
 struct Vector3;
 struct Vector4;
 
-typedef boost::function<bool       (float alpha, const bool& current)>       AnimatorFunctionBool;      ///< Animator function signature for boolean properties.
-typedef boost::function<float      (float alpha, const float& current)>      AnimatorFunctionFloat;     ///< Animator function signature for float properties.
-typedef boost::function<int        (float alpha, const int& current)>        AnimatorFunctionInteger;   ///< Animator function signature for integer properties.
-typedef boost::function<Vector2    (float alpha, const Vector2& current)>    AnimatorFunctionVector2;   ///< Animator function signature for Vector2 properties.
-typedef boost::function<Vector3    (float alpha, const Vector3& current)>    AnimatorFunctionVector3;   ///< Animator function signature for Vector3 properties.
-typedef boost::function<Vector4    (float alpha, const Vector4& current)>    AnimatorFunctionVector4;   ///< Animator function signature for Vector4 properties.
-typedef boost::function<Quaternion (float alpha, const Quaternion& current)> AnimatorFunctionQuaternion;///< Animator function signature for Quaternion properties.
+typedef Dali::function<bool       (float alpha, const bool& current)>       AnimatorFunctionBool;      ///< Animator function signature for boolean properties.
+typedef Dali::function<float      (float alpha, const float& current)>      AnimatorFunctionFloat;     ///< Animator function signature for float properties.
+typedef Dali::function<int        (float alpha, const int& current)>        AnimatorFunctionInteger;   ///< Animator function signature for integer properties.
+typedef Dali::function<Vector2    (float alpha, const Vector2& current)>    AnimatorFunctionVector2;   ///< Animator function signature for Vector2 properties.
+typedef Dali::function<Vector3    (float alpha, const Vector3& current)>    AnimatorFunctionVector3;   ///< Animator function signature for Vector3 properties.
+typedef Dali::function<Vector4    (float alpha, const Vector4& current)>    AnimatorFunctionVector4;   ///< Animator function signature for Vector4 properties.
+typedef Dali::function<Quaternion (float alpha, const Quaternion& current)> AnimatorFunctionQuaternion;///< Animator function signature for Quaternion properties.
 
 namespace Internal DALI_INTERNAL
 {
@@ -115,8 +115,8 @@ public:
   typedef SignalV2< void (Animation&) > AnimationSignalV2; ///< Animation finished signal type
 
   typedef Any AnyFunction; ///< Interpolation function
-  typedef boost::function<Vector3 (float alpha, const Vector3& current)> Vector3AnimatorFunc; ///< Interpolation function
-  typedef boost::function<Quaternion (float alpha, const Quaternion& current)> QuaternionAnimatorFunc; ///< Interpolation function
+  typedef Dali::function<Vector3 (float alpha, const Vector3& current)> Vector3AnimatorFunc; ///< Interpolation function
+  typedef Dali::function<Quaternion (float alpha, const Quaternion& current)> QuaternionAnimatorFunc; ///< Interpolation function
 
   /**
    * @brief What to do when the animation ends, is stopped or is destroyed
@@ -467,7 +467,7 @@ public:
    * @param [in] animatorFunc The function to call during the animation.
    */
   template <class P>
-  void Animate( Property target, boost::function<P (float alpha, const P& current)> animatorFunc )
+  void Animate( Property target, Dali::function<P (float alpha, const P& current)> animatorFunc )
   {
     Animate( target, PropertyTypes::Get<P>(), animatorFunc );
   }
@@ -482,7 +482,7 @@ public:
    * @param [in] alpha The alpha function to apply.
    */
   template <class P>
-  void Animate( Property target, boost::function<P (float alpha, const P& current)> animatorFunc, AlphaFunction alpha )
+  void Animate( Property target, Dali::function<P (float alpha, const P& current)> animatorFunc, AlphaFunction alpha )
   {
     Animate( target, PropertyTypes::Get<P>(), animatorFunc, alpha );
   }
@@ -497,7 +497,7 @@ public:
    * @param [in] period The effect will occur during this time period.
    */
   template <class P>
-  void Animate( Property target, boost::function<P (float alpha, const P& current)> animatorFunc, TimePeriod period )
+  void Animate( Property target, Dali::function<P (float alpha, const P& current)> animatorFunc, TimePeriod period )
   {
     Animate( target, PropertyTypes::Get<P>(), animatorFunc, period );
   }
@@ -513,7 +513,7 @@ public:
    * @param [in] period The effect will occur during this time period.
    */
   template <class P>
-  void Animate( Property target, boost::function<P (float alpha, const P& current)> animatorFunc, AlphaFunction alpha, TimePeriod period )
+  void Animate( Property target, Dali::function<P (float alpha, const P& current)> animatorFunc, AlphaFunction alpha, TimePeriod period )
   {
     Animate( target, PropertyTypes::Get<P>(), animatorFunc, alpha, period );
   }

@@ -21,18 +21,7 @@
 #include <dali/internal/common/message.h>
 
 // EXTERNAL INCLUDES
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-
-#include <boost/thread/mutex.hpp>
-
-#pragma clang diagnostic pop
-#else
-
-#include <boost/thread/mutex.hpp>
-
-#endif // __clang__
+#include <dali/internal/common/dali-mutex.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -44,7 +33,6 @@ namespace Dali
 namespace Internal
 {
 
-typedef boost::mutex MessageQueueMutex;
 typedef OwnerContainer< MessageBase* > MessageContainer;
 
 struct NotificationManager::Impl

@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/object/handle.h>

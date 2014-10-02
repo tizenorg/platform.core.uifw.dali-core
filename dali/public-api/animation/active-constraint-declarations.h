@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
@@ -32,7 +32,7 @@ class ActiveConstraint;
 
 typedef SignalV2< void (ActiveConstraint& constraint) > ActiveConstraintSignalV2;
 
-typedef boost::function<void (ActiveConstraint& constraint)> ActiveConstraintCallbackType;
+typedef Dali::function<void (ActiveConstraint& constraint)> ActiveConstraintCallbackType;
 
 } // namespace Dali
 

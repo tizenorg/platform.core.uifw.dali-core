@@ -89,7 +89,7 @@ bool NewRenderer::IsOutsideClipSpace( Context& context, const Matrix& modelMatri
   return false;
 }
 
-void NewRenderer::DoSetUniforms( Context& context, BufferIndex bufferIndex, Shader* shader, Program* program, unsigned int programIndex )
+void NewRenderer::DoSetUniforms( Context& context, BufferIndex bufferIndex, Shader* shader, Program* program )
 {
   // Do nothing, we're going to set up the uniforms with our own code instead
 }
@@ -169,8 +169,8 @@ void NewRenderer::SetUniforms( BufferIndex bufferIndex, Program& program )
 
   // Set uniforms in local map
   for( UniformIndexMappings::Iterator iter = mUniformIndexMap.Begin(),
-         end = mUniformIndexMap.End() ;
-       iter != end ;
+         end = mUniformIndexMap.End();
+       iter != end;
        ++iter )
   {
     SetUniformFromProperty( bufferIndex, program, *iter );

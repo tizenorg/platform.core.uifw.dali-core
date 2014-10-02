@@ -48,6 +48,17 @@ DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> SHADER_IMPL = { DEFAULT_PROPERTY_DETAILS };
 
+Dali::Scripting::StringEnum ShaderHintsTable[] =
+  { { "HINT_NONE",                     Dali::Shader::HINT_NONE},
+    { "HINT_REQUIRES_SELF_DEPTH_TEST", Dali::Shader::HINT_REQUIRES_SELF_DEPTH_TEST},
+    { "HINT_OUTPUT_IS_TRANSPARENT",    Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT},
+    { "HINT_OUTPUT_IS_OPAQUE",         Dali::Shader::HINT_OUTPUT_IS_OPAQUE},
+    { "HINT_MODIFIES_GEOMETRY",        Dali::Shader::HINT_MODIFIES_GEOMETRY}
+  };
+
+const unsigned int ShaderHintsTableSize = sizeof( ShaderHintsTable ) / sizeof( ShaderHintsTable[0] );
+
+
 BaseHandle Create()
 {
   return Dali::BaseHandle();
@@ -119,8 +130,49 @@ void Shader::SetDefaultProperty( Property::Index index,
   {
     case Dali::Shader::Property::PROGRAM:
     {
-      // @todo MESH_REWORK Set program again?
-      DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
+      DALI_ASSERT_ALWAYS(propertyValue.GetType() == Property::MAP);
+      Dali::Property::Map* map = propertyValue.GetMap();
+      std::string vertex;
+      std::string fragment;
+      int hints = static_cast<int>(Dali::Shader::HINT_NONE);
+
+      if( Property::Value* value = map->Find("vertex") )
+      {
+        vertex = value->Get<std::string>();
+      }
+
+      if( Property::Value* value = map->Find("fragment") )
+      {
+        fragment = value->Get<std::string>();
+      }
+
+      if( Property::Value* value = map->Find("hints") ) // @todo hints here for now
+      {
+        std::string hintString = value->Get<std::string>();
+        if( hintString.size() )
+        {
+          size_t start = 0;
+          size_t pos = hintString.find(' ', 0);
+          if(pos == std::string::npos)
+          {
+            pos = hintString.size() - 1;
+          }
+          do
+          {
+            unsigned int i = FindEnumIndex( hintString.substr(start,pos).c_str(), ShaderHintsTable, ShaderHintsTableSize );
+            if( i < ShaderHintsTableSize )
+            {
+              hints |= ShaderHintsTable[i].value;
+            }
+            start = pos + 1;
+            pos = hintString.find(' ', pos - start);
+          }
+          while(pos != std::string::npos);
+        }
+      }
+
+      Initialize(vertex, fragment, static_cast<Dali::Shader::ShaderHints>(hints) );
+
       break;
     }
     case Dali::Shader::Property::SHADER_HINTS:

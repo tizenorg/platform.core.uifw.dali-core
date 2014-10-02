@@ -98,7 +98,13 @@ struct LinearConstraintFunctor
         }
         else if( tLocation >= valueCount-1 )
         {
-          min = max = valueCount-1;
+          min = static_cast<size_t>(t/step);
+          max = min+1;
+          if( min >= valueCount-1)
+          {
+            min = max = valueCount-1;
+          }
+
         }
         else
         {
@@ -106,7 +112,7 @@ struct LinearConstraintFunctor
           max = min+1;
         }
 
-        tLocal =(t - min*step) / step;
+        tLocal = (t - min*step) / step;
       }
       else
       {

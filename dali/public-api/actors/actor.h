@@ -296,6 +296,7 @@ public:
       PADDING,                                            ///< name "padding",               type Vector4
       MINIMUM_SIZE,                                       ///< name "minimum-size",          type Vector2
       MAXIMUM_SIZE,                                       ///< name "maximum-size",          type Vector2
+      RELAYOUT_ENABLED,                                   ///< name "relayout-enabled",      type Boolean
     };
   };
 

@@ -2659,6 +2659,7 @@ const PropertyStringIndex PROPERTY_TABLE[] =
   { "padding",                  Actor::Property::PADDING,                  Property::VECTOR4     },
   { "minimum-size",             Actor::Property::MINIMUM_SIZE,             Property::VECTOR2     },
   { "maximum-size",             Actor::Property::MAXIMUM_SIZE,             Property::VECTOR2     },
+  { "relayout-enabled",         Actor::Property::RELAYOUT_ENABLED,         Property::BOOLEAN     },
 };
 const unsigned int PROPERTY_TABLE_COUNT = sizeof( PROPERTY_TABLE ) / sizeof( PROPERTY_TABLE[0] );
 } // unnamed namespace

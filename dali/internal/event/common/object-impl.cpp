@@ -355,7 +355,7 @@ Property::Type Object::GetPropertyType( Property::Index index ) const
   CustomPropertyMetadata* custom = FindCustomProperty( index );
   if( custom )
   {
-    return custom->type;
+    return custom->value.GetType();
   }
   return Property::NONE;
 }
@@ -773,7 +773,7 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
   {
     BufferIndex bufferIndex( GetEventThreadServices().GetEventBufferIndex() );
 
-    switch ( entry->type )
+    switch ( entry->value.GetType() )
     {
       case Property::BOOLEAN:
       {
@@ -923,7 +923,7 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
 
 void Object::SetSceneGraphProperty( Property::Index index, const PropertyMetadata& entry, const Property::Value& value )
 {
-  switch ( entry.type )
+  switch ( entry.value.GetType() )
   {
     case Property::BOOLEAN:
     {
@@ -1242,7 +1242,7 @@ AnimatablePropertyMetadata* Object::RegisterAnimatableProperty(Property::Index i
         }
 
         // Create the metadata for the property component.
-        mAnimatableProperties.PushBack( new AnimatablePropertyMetadata( index, typeInfo->GetComponentIndex(index), animatableProperty->type, animatableProperty->GetSceneGraphProperty() ) );
+        mAnimatableProperties.PushBack( new AnimatablePropertyMetadata( index, typeInfo->GetComponentIndex(index), animatableProperty->value.GetType(), animatableProperty->GetSceneGraphProperty() ) );
       }
 
       // The metadata has just been added and therefore should be in the end of the vector.

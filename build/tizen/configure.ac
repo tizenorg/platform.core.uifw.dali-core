@@ -60,6 +60,12 @@ AC_ARG_ENABLE([dynamics],
               [dynamics_support=$enableval],
               [dynamics_support=no])
 
+AC_ARG_ENABLE([enable_mutex_locks],
+              [AC_HELP_STRING([--enable-mutex-locks],
+                              [Mutex locks are enabled])],
+              [enable_mutex_locks=$enableval],
+              [enable_mutex_locks=yes])
+
 if test "x$enable_debug" = "xyes"; then
   DALI_CFLAGS="$DALI_CFLAGS -DDEBUG_ENABLED"
 fi
@@ -69,9 +75,10 @@ if test "x$enable_debug" = "xno" -a "x$enable_exportall" = "xno"; then
 fi
 
 if test "x$enable_emscripten" = "xyes"; then
-  DALI_CFLAGS="$DALI_CFLAGS -DEMSCRIPTEN -std=c++11"
-  # Automatically turn off backtrace support
+  DALI_CFLAGS="$DALI_CFLAGS -DEMSCRIPTEN -std=c++11 -DBOOST_ERROR_CODE_HEADER_ONLY"
+  # Automatically turn off backtrace support and mutex locks
   enable_backtrace="no"
+  enable_mutex_locks="no"
 fi
 
 DYNAMICS_SUPPORT=
@@ -84,6 +91,10 @@ AC_SUBST(DYNAMICS_SUPPORT)
 # Must come after Emscripten feature test
 if test "x$enable_backtrace" = "xyes"; then
   DALI_CFLAGS="$DALI_CFLAGS -DBACKTRACE_ENABLED"
+fi
+
+if test "x$enable_mutex_locks" = "xyes"; then
+  DALI_CFLAGS="$DALI_CFLAGS -DMUTEX_LOCKS_ENABLED"
 fi
 
 AM_CONDITIONAL([DYNAMICS_SUPPORT], [test x$dynamics_support = xyes])
@@ -112,6 +123,13 @@ AC_SUBST(DALI_LDFLAGS)
 devincludepath=${includedir}
 AC_SUBST(devincludepath)
 
+AC_LANG_PUSH([C++])
+CPPFLAGS="$DALI_CFLAGS"
+LDFLAGS="$DALI_LDFLAGS"
+AC_CHECK_HEADER(tr1/functional,[AC_DEFINE([HAVE_TR1_FUNCTIONAL],[],["Have tr1 functional"])],[])
+AC_CHECK_HEADER(boost/function.hpp,[AC_DEFINE([HAVE_BOOST_FUNCTIONAL_HPP],[],["Have boost functional"])],[])
+AC_LANG_POP([C++])
+
 AC_CONFIG_FILES([
  Makefile
  dali-core/Makefile
@@ -131,4 +149,5 @@ Configuration
   Emscripten:                       $enable_emscripten
   Backtrace:                        $enable_backtrace
   Dynamics:                         $dynamics_support
+  Mutex Locks:                      $enable_mutex_locks
 "

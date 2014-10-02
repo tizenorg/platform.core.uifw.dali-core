@@ -90,19 +90,24 @@ struct LinearConstraintFunctor
       if( mProgress.Size() < valueCount )
       {
         float step = 1.0f / (valueCount-1.0f);
-        min = static_cast<int>(t/step);
-        max = min+1;
-        if( min < 0)
+
+        if( t < 0.f )
         {
           min = 0;
           max = 1;
         }
-        else if( min >= valueCount-1)
+        else
         {
-          min = max = valueCount-1;
+          min = static_cast<size_t>(t/step);
+          max = min+1;
+          if( min >= valueCount-1)
+          {
+            min = max = valueCount-1;
+          }
+
         }
 
-        tLocal =(t - min*step) / step;
+        tLocal = (t - min*step) / step;
       }
       else
       {

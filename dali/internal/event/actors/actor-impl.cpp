@@ -71,7 +71,8 @@ namespace ResizePolicy
 
 namespace
 {
-DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )DALI_ENUM_TO_STRING( FIXED )
+DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )
+DALI_ENUM_TO_STRING( FIXED )
 DALI_ENUM_TO_STRING( USE_NATURAL_SIZE )
 DALI_ENUM_TO_STRING( FILL_TO_PARENT )
 DALI_ENUM_TO_STRING( SIZE_RELATIVE_TO_PARENT )
@@ -89,7 +90,8 @@ namespace SizeScalePolicy
 namespace
 {
 // Enumeration to / from string conversion tables
-DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )DALI_ENUM_TO_STRING( USE_SIZE_SET )
+DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )
+DALI_ENUM_TO_STRING( USE_SIZE_SET )
 DALI_ENUM_TO_STRING( FIT_WITH_ASPECT_RATIO )
 DALI_ENUM_TO_STRING( FILL_WITH_ASPECT_RATIO )
 DALI_ENUM_TO_STRING_TABLE_END( Type )
@@ -180,58 +182,59 @@ namespace // unnamed namespace
  *              Name                Type   writable animatable constraint-input  enum for index-checking
  */
 DALI_PROPERTY_TABLE_BEGIN
-DALI_PROPERTY( "parent-origin",     VECTOR3,  true,  false, true,  Dali::Actor::Property::PARENT_ORIGIN )
-DALI_PROPERTY( "parent-origin-x",   FLOAT,    true,  false, true,  Dali::Actor::Property::PARENT_ORIGIN_X )
-DALI_PROPERTY( "parent-origin-y",   FLOAT,    true,  false, true,  Dali::Actor::Property::PARENT_ORIGIN_Y )
-DALI_PROPERTY( "parent-origin-z",   FLOAT,    true,  false, true,  Dali::Actor::Property::PARENT_ORIGIN_Z )
-DALI_PROPERTY( "anchor-point",      VECTOR3,  true,  false, true,  Dali::Actor::Property::ANCHOR_POINT )
-DALI_PROPERTY( "anchor-point-x",    FLOAT,    true,  false, true,  Dali::Actor::Property::ANCHOR_POINT_X )
-DALI_PROPERTY( "anchor-point-y",    FLOAT,    true,  false, true,  Dali::Actor::Property::ANCHOR_POINT_Y )
-DALI_PROPERTY( "anchor-point-z",    FLOAT,    true,  false, true,  Dali::Actor::Property::ANCHOR_POINT_Z )
-DALI_PROPERTY( "size",              VECTOR3,  true,  true,  true,  Dali::Actor::Property::SIZE )
-DALI_PROPERTY( "size-width",        FLOAT,    true,  true,  true,  Dali::Actor::Property::SIZE_WIDTH )
-DALI_PROPERTY( "size-height",       FLOAT,    true,  true,  true,  Dali::Actor::Property::SIZE_HEIGHT )
-DALI_PROPERTY( "size-depth",        FLOAT,    true,  true,  true,  Dali::Actor::Property::SIZE_DEPTH )
-DALI_PROPERTY( "position",          VECTOR3,  true,  true,  true,  Dali::Actor::Property::POSITION )
-DALI_PROPERTY( "position-x",        FLOAT,    true,  true,  true,  Dali::Actor::Property::POSITION_X )
-DALI_PROPERTY( "position-y",        FLOAT,    true,  true,  true,  Dali::Actor::Property::POSITION_Y )
-DALI_PROPERTY( "position-z",        FLOAT,    true,  true,  true,  Dali::Actor::Property::POSITION_Z )
-DALI_PROPERTY( "world-position",    VECTOR3,  false, false, true,  Dali::Actor::Property::WORLD_POSITION )
-DALI_PROPERTY( "world-position-x",  FLOAT,    false, false, true,  Dali::Actor::Property::WORLD_POSITION_X )
-DALI_PROPERTY( "world-position-y",  FLOAT,    false, false, true,  Dali::Actor::Property::WORLD_POSITION_Y )
-DALI_PROPERTY( "world-position-z",  FLOAT,    false, false, true,  Dali::Actor::Property::WORLD_POSITION_Z )
-DALI_PROPERTY( "orientation",       ROTATION, true,  true,  true,  Dali::Actor::Property::ORIENTATION )
-DALI_PROPERTY( "world-orientation", ROTATION, false, false, true,  Dali::Actor::Property::WORLD_ORIENTATION )
-DALI_PROPERTY( "scale",             VECTOR3,  true,  true,  true,  Dali::Actor::Property::SCALE )
-DALI_PROPERTY( "scale-x",           FLOAT,    true,  true,  true,  Dali::Actor::Property::SCALE_X )
-DALI_PROPERTY( "scale-y",           FLOAT,    true,  true,  true,  Dali::Actor::Property::SCALE_Y )
-DALI_PROPERTY( "scale-z",           FLOAT,    true,  true,  true,  Dali::Actor::Property::SCALE_Z )
-DALI_PROPERTY( "world-scale",       VECTOR3,  false, false, true,  Dali::Actor::Property::WORLD_SCALE )
-DALI_PROPERTY( "visible",           BOOLEAN,  true,  true,  true,  Dali::Actor::Property::VISIBLE )
-DALI_PROPERTY( "color",             VECTOR4,  true,  true,  true,  Dali::Actor::Property::COLOR )
-DALI_PROPERTY( "color-red",         FLOAT,    true,  true,  true,  Dali::Actor::Property::COLOR_RED )
-DALI_PROPERTY( "color-green",       FLOAT,    true,  true,  true,  Dali::Actor::Property::COLOR_GREEN )
-DALI_PROPERTY( "color-blue",        FLOAT,    true,  true,  true,  Dali::Actor::Property::COLOR_BLUE )
-DALI_PROPERTY( "color-alpha",       FLOAT,    true,  true,  true,  Dali::Actor::Property::COLOR_ALPHA )
-DALI_PROPERTY( "world-color",       VECTOR4,  false, false, true,  Dali::Actor::Property::WORLD_COLOR )
-DALI_PROPERTY( "world-matrix",      MATRIX,   false, false, true,  Dali::Actor::Property::WORLD_MATRIX )
-DALI_PROPERTY( "name",              STRING,   true,  false, false, Dali::Actor::Property::NAME )
-DALI_PROPERTY( "sensitive",         BOOLEAN,  true,  false, false, Dali::Actor::Property::SENSITIVE )
-DALI_PROPERTY( "leave-required",    BOOLEAN,  true,  false, false, Dali::Actor::Property::LEAVE_REQUIRED )
-DALI_PROPERTY( "inherit-orientation",BOOLEAN, true,  false, false, Dali::Actor::Property::INHERIT_ORIENTATION )
-DALI_PROPERTY( "inherit-scale",     BOOLEAN,  true,  false, false, Dali::Actor::Property::INHERIT_SCALE )
-DALI_PROPERTY( "color-mode",        STRING,   true,  false, false, Dali::Actor::Property::COLOR_MODE )
-DALI_PROPERTY( "position-inheritance",STRING, true,  false, false, Dali::Actor::Property::POSITION_INHERITANCE )
-DALI_PROPERTY( "draw-mode",         STRING,   true,  false, false, Dali::Actor::Property::DRAW_MODE )
-DALI_PROPERTY( "size-mode-factor",  VECTOR3,  true,  false, false, Dali::Actor::Property::SIZE_MODE_FACTOR )
-DALI_PROPERTY( "width-resize-policy",STRING,  true,  false, false, Dali::Actor::Property::WIDTH_RESIZE_POLICY )
-DALI_PROPERTY( "height-resize-policy",STRING, true,  false, false, Dali::Actor::Property::HEIGHT_RESIZE_POLICY )
-DALI_PROPERTY( "size-scale-policy", STRING,   true,  false, false, Dali::Actor::Property::SIZE_SCALE_POLICY )
-DALI_PROPERTY( "width-for-height",  BOOLEAN,  true,  false, false, Dali::Actor::Property::WIDTH_FOR_HEIGHT )
-DALI_PROPERTY( "height-for-width",  BOOLEAN,  true,  false, false, Dali::Actor::Property::HEIGHT_FOR_WIDTH )
-DALI_PROPERTY( "padding",           VECTOR4,  true,  false, false, Dali::Actor::Property::PADDING )
-DALI_PROPERTY( "minimum-size",      VECTOR2,  true,  false, false, Dali::Actor::Property::MINIMUM_SIZE )
-DALI_PROPERTY( "maximum-size",      VECTOR2,  true,  false, false, Dali::Actor::Property::MAXIMUM_SIZE )
+DALI_PROPERTY( "parent-origin", VECTOR3, true, false, true, Dali::Actor::Property::PARENT_ORIGIN )
+DALI_PROPERTY( "parent-origin-x", FLOAT, true, false, true, Dali::Actor::Property::PARENT_ORIGIN_X )
+DALI_PROPERTY( "parent-origin-y", FLOAT, true, false, true, Dali::Actor::Property::PARENT_ORIGIN_Y )
+DALI_PROPERTY( "parent-origin-z", FLOAT, true, false, true, Dali::Actor::Property::PARENT_ORIGIN_Z )
+DALI_PROPERTY( "anchor-point", VECTOR3, true, false, true, Dali::Actor::Property::ANCHOR_POINT )
+DALI_PROPERTY( "anchor-point-x", FLOAT, true, false, true, Dali::Actor::Property::ANCHOR_POINT_X )
+DALI_PROPERTY( "anchor-point-y", FLOAT, true, false, true, Dali::Actor::Property::ANCHOR_POINT_Y )
+DALI_PROPERTY( "anchor-point-z", FLOAT, true, false, true, Dali::Actor::Property::ANCHOR_POINT_Z )
+DALI_PROPERTY( "size", VECTOR3, true, true, true, Dali::Actor::Property::SIZE )
+DALI_PROPERTY( "size-width", FLOAT, true, true, true, Dali::Actor::Property::SIZE_WIDTH )
+DALI_PROPERTY( "size-height", FLOAT, true, true, true, Dali::Actor::Property::SIZE_HEIGHT )
+DALI_PROPERTY( "size-depth", FLOAT, true, true, true, Dali::Actor::Property::SIZE_DEPTH )
+DALI_PROPERTY( "position", VECTOR3, true, true, true, Dali::Actor::Property::POSITION )
+DALI_PROPERTY( "position-x", FLOAT, true, true, true, Dali::Actor::Property::POSITION_X )
+DALI_PROPERTY( "position-y", FLOAT, true, true, true, Dali::Actor::Property::POSITION_Y )
+DALI_PROPERTY( "position-z", FLOAT, true, true, true, Dali::Actor::Property::POSITION_Z )
+DALI_PROPERTY( "world-position", VECTOR3, false, false, true, Dali::Actor::Property::WORLD_POSITION )
+DALI_PROPERTY( "world-position-x", FLOAT, false, false, true, Dali::Actor::Property::WORLD_POSITION_X )
+DALI_PROPERTY( "world-position-y", FLOAT, false, false, true, Dali::Actor::Property::WORLD_POSITION_Y )
+DALI_PROPERTY( "world-position-z", FLOAT, false, false, true, Dali::Actor::Property::WORLD_POSITION_Z )
+DALI_PROPERTY( "orientation", ROTATION, true, true, true, Dali::Actor::Property::ORIENTATION )
+DALI_PROPERTY( "world-orientation", ROTATION, false, false, true, Dali::Actor::Property::WORLD_ORIENTATION )
+DALI_PROPERTY( "scale", VECTOR3, true, true, true, Dali::Actor::Property::SCALE )
+DALI_PROPERTY( "scale-x", FLOAT, true, true, true, Dali::Actor::Property::SCALE_X )
+DALI_PROPERTY( "scale-y", FLOAT, true, true, true, Dali::Actor::Property::SCALE_Y )
+DALI_PROPERTY( "scale-z", FLOAT, true, true, true, Dali::Actor::Property::SCALE_Z )
+DALI_PROPERTY( "world-scale", VECTOR3, false, false, true, Dali::Actor::Property::WORLD_SCALE )
+DALI_PROPERTY( "visible", BOOLEAN, true, true, true, Dali::Actor::Property::VISIBLE )
+DALI_PROPERTY( "color", VECTOR4, true, true, true, Dali::Actor::Property::COLOR )
+DALI_PROPERTY( "color-red", FLOAT, true, true, true, Dali::Actor::Property::COLOR_RED )
+DALI_PROPERTY( "color-green", FLOAT, true, true, true, Dali::Actor::Property::COLOR_GREEN )
+DALI_PROPERTY( "color-blue", FLOAT, true, true, true, Dali::Actor::Property::COLOR_BLUE )
+DALI_PROPERTY( "color-alpha", FLOAT, true, true, true, Dali::Actor::Property::COLOR_ALPHA )
+DALI_PROPERTY( "world-color", VECTOR4, false, false, true, Dali::Actor::Property::WORLD_COLOR )
+DALI_PROPERTY( "world-matrix", MATRIX, false, false, true, Dali::Actor::Property::WORLD_MATRIX )
+DALI_PROPERTY( "name", STRING, true, false, false, Dali::Actor::Property::NAME )
+DALI_PROPERTY( "sensitive", BOOLEAN, true, false, false, Dali::Actor::Property::SENSITIVE )
+DALI_PROPERTY( "leave-required", BOOLEAN, true, false, false, Dali::Actor::Property::LEAVE_REQUIRED )
+DALI_PROPERTY( "inherit-orientation", BOOLEAN, true, false, false, Dali::Actor::Property::INHERIT_ORIENTATION )
+DALI_PROPERTY( "inherit-scale", BOOLEAN, true, false, false, Dali::Actor::Property::INHERIT_SCALE )
+DALI_PROPERTY( "color-mode", STRING, true, false, false, Dali::Actor::Property::COLOR_MODE )
+DALI_PROPERTY( "position-inheritance", STRING, true, false, false, Dali::Actor::Property::POSITION_INHERITANCE )
+DALI_PROPERTY( "draw-mode", STRING, true, false, false, Dali::Actor::Property::DRAW_MODE )
+DALI_PROPERTY( "size-mode-factor", VECTOR3, true, false, false, Dali::Actor::Property::SIZE_MODE_FACTOR )
+DALI_PROPERTY( "width-resize-policy", STRING, true, false, false, Dali::Actor::Property::WIDTH_RESIZE_POLICY )
+DALI_PROPERTY( "height-resize-policy", STRING, true, false, false, Dali::Actor::Property::HEIGHT_RESIZE_POLICY )
+DALI_PROPERTY( "size-scale-policy", STRING, true, false, false, Dali::Actor::Property::SIZE_SCALE_POLICY )
+DALI_PROPERTY( "width-for-height", BOOLEAN, true, false, false, Dali::Actor::Property::WIDTH_FOR_HEIGHT )
+DALI_PROPERTY( "height-for-width", BOOLEAN, true, false, false, Dali::Actor::Property::HEIGHT_FOR_WIDTH )
+DALI_PROPERTY( "padding", VECTOR4, true, false, false, Dali::Actor::Property::PADDING )
+DALI_PROPERTY( "minimum-size", VECTOR2, true, false, false, Dali::Actor::Property::MINIMUM_SIZE )
+DALI_PROPERTY( "maximum-size", VECTOR2, true, false, false, Dali::Actor::Property::MAXIMUM_SIZE )
+DALI_PROPERTY( "relayout-enabled", BOOLEAN, true, false, false, Dali::Actor::Property::RELAYOUT_ENABLED )
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 // Signals
@@ -1876,7 +1879,11 @@ bool Actor::ScreenToLocal( float& localX, float& localY, float screenX, float sc
   return false;
 }
 
-bool Actor::ScreenToLocal( RenderTask& renderTask, float& localX, float& localY, float screenX, float screenY ) const
+bool Actor::ScreenToLocal( const RenderTask& renderTask,
+                           float& localX,
+                           float& localY,
+                           float screenX,
+                           float screenY ) const
 {
   bool retval = false;
   // only valid when on-stage
@@ -2938,6 +2945,13 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
       break;
     }
 
+    case Dali::Actor::Property::RELAYOUT_ENABLED:
+    {
+      bool enabled = property.Get< bool >();
+      SetRelayoutEnabled( enabled );
+      break;
+    }
+
     default:
     {
       // this can happen in the case of a non-animatable default property so just do nothing
@@ -2949,56 +2963,60 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
 // TODO: This method needs to be removed
 void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata& entry, const Property::Value& value )
 {
-  switch( entry.type )
+  OnPropertySet( index, value );
+
+  if(entry.IsAnimatable())
   {
-    case Property::BOOLEAN:
+    switch ( entry.value.GetType()  )
     {
-      const AnimatableProperty< bool >* property = dynamic_cast< const AnimatableProperty< bool >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::BOOLEAN:
+      {
+        const AnimatableProperty< bool >* property = dynamic_cast< const AnimatableProperty< bool >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<bool>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<bool>::Bake, value.Get<bool>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<bool>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<bool>::Bake, value.Get<bool>() );
 
-      break;
-    }
+        break;
+      }
 
-    case Property::INTEGER:
-    {
-      const AnimatableProperty< int >* property = dynamic_cast< const AnimatableProperty< int >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::FLOAT:
+      {
+        const AnimatableProperty< float >* property = dynamic_cast< const AnimatableProperty< float >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<int>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<int>::Bake, value.Get<int>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<float>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<float>::Bake, value.Get<float>() );
 
-      break;
-    }
+        break;
+      }
 
-    case Property::UNSIGNED_INTEGER:
-    {
-      const AnimatableProperty< unsigned int >* property = dynamic_cast< const AnimatableProperty< unsigned int >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::INTEGER:
+      {
+        const AnimatableProperty< int >* property = dynamic_cast< const AnimatableProperty< int >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<unsigned int>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<unsigned int>::Bake, value.Get<unsigned int>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<int>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<int>::Bake, value.Get<int>() );
 
-      break;
-    }
+        break;
+      }
 
-    case Property::FLOAT:
-    {
-      const AnimatableProperty< float >* property = dynamic_cast< const AnimatableProperty< float >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::UNSIGNED_INTEGER:
+      {
+        const AnimatableProperty< unsigned int >* property = dynamic_cast< const AnimatableProperty< unsigned int >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<float>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<float>::Bake, value.Get<float>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<unsigned int>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<unsigned int>::Bake, value.Get<unsigned int>() );
 
-      break;
-    }
+        break;
+      }
 
-    case Property::VECTOR2:
-    {
-      const AnimatableProperty< Vector2 >* property = dynamic_cast< const AnimatableProperty< Vector2 >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::VECTOR2:
+      {
+        const AnimatableProperty< Vector2 >* property = dynamic_cast< const AnimatableProperty< Vector2 >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
       if(entry.componentIndex == 0)
@@ -3014,13 +3032,13 @@ void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata
         SceneGraph::NodePropertyMessage<Vector2>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<Vector2>::Bake, value.Get<Vector2>() );
       }
 
-      break;
-    }
+        break;
+      }
 
-    case Property::VECTOR3:
-    {
-      const AnimatableProperty< Vector3 >* property = dynamic_cast< const AnimatableProperty< Vector3 >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::VECTOR3:
+      {
+        const AnimatableProperty< Vector3 >* property = dynamic_cast< const AnimatableProperty< Vector3 >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
       if(entry.componentIndex == 0)
@@ -3040,13 +3058,13 @@ void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata
         SceneGraph::NodePropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<Vector3>::Bake, value.Get<Vector3>() );
       }
 
-      break;
-    }
+        break;
+      }
 
-    case Property::VECTOR4:
-    {
-      const AnimatableProperty< Vector4 >* property = dynamic_cast< const AnimatableProperty< Vector4 >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::VECTOR4:
+      {
+        const AnimatableProperty< Vector4 >* property = dynamic_cast< const AnimatableProperty< Vector4 >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
       if(entry.componentIndex == 0)
@@ -3070,48 +3088,49 @@ void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata
         SceneGraph::NodePropertyMessage<Vector4>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<Vector4>::Bake, value.Get<Vector4>() );
       }
 
-      break;
-    }
+        break;
+      }
 
-    case Property::ROTATION:
-    {
-      const AnimatableProperty< Quaternion >* property = dynamic_cast< const AnimatableProperty< Quaternion >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::ROTATION:
+      {
+        const AnimatableProperty< Quaternion >* property = dynamic_cast< const AnimatableProperty< Quaternion >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Quaternion>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Quaternion>::Bake,  value.Get<Quaternion>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<Quaternion>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Quaternion>::Bake,  value.Get<Quaternion>() );
 
-      break;
-    }
+        break;
+      }
 
-    case Property::MATRIX:
-    {
-      const AnimatableProperty< Matrix >* property = dynamic_cast< const AnimatableProperty< Matrix >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::MATRIX:
+      {
+        const AnimatableProperty< Matrix >* property = dynamic_cast< const AnimatableProperty< Matrix >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Matrix>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Matrix>::Bake,  value.Get<Matrix>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<Matrix>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Matrix>::Bake,  value.Get<Matrix>() );
 
-      break;
-    }
+        break;
+      }
 
-    case Property::MATRIX3:
-    {
-      const AnimatableProperty< Matrix3 >* property = dynamic_cast< const AnimatableProperty< Matrix3 >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::MATRIX3:
+      {
+        const AnimatableProperty< Matrix3 >* property = dynamic_cast< const AnimatableProperty< Matrix3 >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Matrix3>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Matrix3>::Bake,  value.Get<Matrix3>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<Matrix3>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Matrix3>::Bake,  value.Get<Matrix3>() );
 
-      break;
-    }
+        break;
+      }
 
-    default:
-    {
-      DALI_ASSERT_ALWAYS( false && "Property type enumeration out of bounds" ); // should not come here
-      break;
-    }
-  }
+      default:
+      {
+        DALI_ASSERT_ALWAYS( false && "Property type enumeration out of bounds" ); // should not come here
+        break;
+      }
+    } // entry.GetType
+  } // entry.IsAnimatable
 }
 
 Property::Value Actor::GetDefaultProperty( Property::Index index ) const
@@ -3431,6 +3450,12 @@ Property::Value Actor::GetDefaultProperty( Property::Index index ) const
     case Dali::Actor::Property::MAXIMUM_SIZE:
     {
       value = Vector2( GetMaximumSize( Dimension::WIDTH ), GetMaximumSize( Dimension::HEIGHT ) );
+      break;
+    }
+
+    case Dali::Actor::Property::RELAYOUT_ENABLED:
+    {
+      value = IsRelayoutEnabled();
       break;
     }
 

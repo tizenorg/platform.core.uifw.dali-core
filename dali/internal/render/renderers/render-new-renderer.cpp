@@ -201,8 +201,8 @@ void NewRenderer::SetUniforms( BufferIndex bufferIndex, const SceneGraph::NodeDa
 
   // Set uniforms in local map
   for( UniformIndexMappings::Iterator iter = mUniformIndexMap.Begin(),
-         end = mUniformIndexMap.End() ;
-       iter != end ;
+         end = mUniformIndexMap.End();
+       iter != end;
        ++iter )
   {
     SetUniformFromProperty( bufferIndex, program, *iter );

@@ -24,7 +24,7 @@ namespace Dali
 {
 namespace Internal
 {
-class BlendingOptions;
+struct BlendingOptions;
 
 namespace SceneGraph
 {

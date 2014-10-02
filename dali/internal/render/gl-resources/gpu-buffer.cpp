@@ -29,34 +29,6 @@ namespace Internal
 
 namespace
 {
-/**
- * Helper to get our type enum as GL enum
- * @param type to convert
- * @return the corresponding GL enum or -1
- */
-inline GLenum TypeAsGlEnum( GpuBuffer::Target type )
-{
-  GLenum retval( -1 );
-  switch( type )
-  {
-    case GpuBuffer::ARRAY_BUFFER :
-    {
-      retval = GL_ARRAY_BUFFER;
-      break;
-    }
-    case GpuBuffer::ELEMENT_ARRAY_BUFFER :
-    {
-      retval = GL_ELEMENT_ARRAY_BUFFER;
-      break;
-    }
-    case GpuBuffer::TRANSFORM_FEEDBACK_BUFFER :
-    {
-      retval = GL_TRANSFORM_FEEDBACK_BUFFER;
-      break;
-    }
-  }
-  return retval;
-}
 
 /**
  * Helper to get our drawmode enum as GL enum

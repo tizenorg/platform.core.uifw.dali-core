@@ -19,7 +19,7 @@
 #include <dali/internal/event/images/nine-patch-image-impl.h>
 
 // EXTERNAL INCLUDES
-#include <cstring> // for memcmp
+#include <cstring>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>

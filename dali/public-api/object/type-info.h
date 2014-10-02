@@ -147,7 +147,7 @@ public:
    * @param[in] index Index to lookup
    * @return action name or empty string where index is invalid
    */
-  std::string GetActionName(size_t index);
+  std::string GetActionName(size_t index) const;
 
   /**
    * @brief Retrieve the number of signals for this type.
@@ -162,7 +162,7 @@ public:
    * @param[in] index Index to lookup
    * @return signal name or empty string where index is invalid
    */
-  std::string GetSignalName(size_t index);
+  std::string GetSignalName(size_t index) const;
 
   /**
    * @brief Retrieve the number of event side type registered properties for this type.
@@ -171,6 +171,14 @@ public:
    * @return The count
    */
   size_t GetPropertyCount() const;
+
+  /**
+   * @brief Retrieve the property name for the index.
+   *
+   * @param[in] index Index to lookup
+   * @return property name or empty string where index is invalid
+   */
+  std::string GetPropertyName(size_t index) const;
 
   // Properties
 

@@ -70,7 +70,7 @@ size_t TypeInfo::GetActionCount() const
   return GetImplementation(*this).GetActionCount();
 }
 
-std::string TypeInfo::GetActionName(size_t index)
+std::string TypeInfo::GetActionName(size_t index) const
 {
   return GetImplementation(*this).GetActionName(index);
 }
@@ -80,7 +80,7 @@ size_t TypeInfo::GetSignalCount() const
   return GetImplementation(*this).GetSignalCount();
 }
 
-std::string TypeInfo::GetSignalName(size_t index)
+std::string TypeInfo::GetSignalName(size_t index) const
 {
   return GetImplementation(*this).GetSignalName(index);
 }
@@ -89,6 +89,12 @@ size_t TypeInfo::GetPropertyCount() const
 {
   return GetImplementation(*this).GetPropertyCount();
 }
+
+std::string TypeInfo::GetPropertyName(size_t index) const
+{
+  return GetImplementation(*this).GetPropertyName(index);
+}
+
 
 void TypeInfo::GetPropertyIndices( Property::IndexContainer& indices ) const
 {

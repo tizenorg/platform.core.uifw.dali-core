@@ -54,6 +54,12 @@ AC_ARG_ENABLE([backtrace],
               [enable_backtrace=$enableval],
               [enable_backtrace=yes])
 
+AC_ARG_ENABLE([enable_mutex_locks],
+              [AC_HELP_STRING([--enable-mutex-locks],
+                              [Mutex locks are enabled])],
+              [enable_mutex_locks=$enableval],
+              [enable_mutex_locks=yes])
+
 if test "x$enable_debug" = "xyes"; then
   DALI_CFLAGS="$DALI_CFLAGS -DDEBUG_ENABLED"
 fi
@@ -64,8 +70,9 @@ fi
 
 if test "x$enable_emscripten" = "xyes"; then
   DALI_CFLAGS="$DALI_CFLAGS -DEMSCRIPTEN -std=c++11"
-  # Automatically turn off backtrace support
+  # Automatically turn off backtrace support and mutex locks
   enable_backtrace="no"
+  enable_mutex_locks="no"
 fi
 
 # Must come after Emscripten feature test
@@ -97,6 +104,13 @@ AC_SUBST(DALI_LDFLAGS)
 devincludepath=${includedir}
 AC_SUBST(devincludepath)
 
+AC_LANG_PUSH([C++])
+CPPFLAGS="$DALI_CFLAGS"
+LDFLAGS="$DALI_LDFLAGS"
+AC_CHECK_HEADER(tr1/functional,[AC_DEFINE([HAVE_TR1_FUNCTIONAL],[],["Have tr1 functional"])],[])
+AC_CHECK_HEADER(boost/function.hpp,[AC_DEFINE([HAVE_BOOST_FUNCTIONAL_HPP],[],["Have boost functional"])],[])
+AC_LANG_POP([C++])
+
 AC_CONFIG_FILES([
  Makefile
  dali-core/Makefile
@@ -114,4 +128,5 @@ Configuration
   Data Dir (Read Only):             $dataReadOnlyDir
   Emscripten:                       $enable_emscripten
   Backtrace:                        $enable_backtrace
+  Mutex Locks:                      $enable_mutex_locks
 "

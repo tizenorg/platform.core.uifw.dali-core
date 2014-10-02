@@ -18,7 +18,6 @@
  *
  */
 
-
 // INTERNAL INCLUDES
 #include <dali/public-api/signals/dali-signal.h>
 
@@ -31,6 +30,7 @@ class PropertyNotification;
  * @brief Signal type for Dali::PropertyNotification::NotifySignal().
  */
 typedef Signal< void (PropertyNotification& source) > PropertyNotifySignalType;
+
 
 } // namespace Dali
 

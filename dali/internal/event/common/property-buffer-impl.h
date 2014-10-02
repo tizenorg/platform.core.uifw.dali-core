@@ -77,11 +77,6 @@ public:
   void SetData( const void* data );
 
   /**
-   * @copydoc PropertBuffer::GetPropertyIndex()
-   */
-  Dali::Property::Index GetPropertyIndex( const std::string name, std::size_t index );
-
-  /**
    * @brief Get the propertyBuffer scene object
    *
    * @return the propertyBuffer scene object

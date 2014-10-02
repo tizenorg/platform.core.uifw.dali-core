@@ -193,6 +193,13 @@ void Filter::DisableGlobalTrace()
 
 void Filter::Log(LogLevel level, const char* format, ...)
 {
+  // va_list arg;
+  // va_start(arg, format);
+  // char *buffer = NULL;
+  // std::string message = ArgListToString( buffer, arg );
+  // EM_ASM( console.log( message.c_str() ) );
+  // va_end(arg);
+
   if(level <= mLoggingLevel)
   {
     va_list arg;

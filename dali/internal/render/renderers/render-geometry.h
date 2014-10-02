@@ -156,7 +156,8 @@ private:
 
   // Booleans
   bool mRequiresDepthTest : 1;
-  bool mHasBeenUpdated : 1;
+  bool mIndexHasBeenUpdated : 1;
+  bool mVertexHasBeenUpdated : 1;
   bool mAttributesChanged : 1;
 
 };

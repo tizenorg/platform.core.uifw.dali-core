@@ -70,7 +70,7 @@ fi
 
 if test "x$enable_emscripten" = "xyes"; then
   DALI_CFLAGS="$DALI_CFLAGS -DEMSCRIPTEN -std=c++11"
-  # Automatically turn off backtrace support
+  # Automatically turn off backtrace support and mutex locks
   enable_backtrace="no"
   enable_lock_backtrace="no"
 fi

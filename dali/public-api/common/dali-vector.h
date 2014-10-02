@@ -564,7 +564,13 @@ public: // API
    * @param count to resize to.
    * @param item to insert to the new indices.
    */
-  void Resize( SizeType count, ItemType item = ItemType() )
+  void Resize( SizeType count )
+  {
+    ItemType item = ItemType();
+    Resize(count, item);
+  }
+
+  void Resize( SizeType count, const ItemType& item )
   {
     const SizeType oldCount = VectorBase::Count();
     if( count <= oldCount )

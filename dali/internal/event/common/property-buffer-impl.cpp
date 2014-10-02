@@ -202,6 +202,11 @@ void PropertyBuffer::SetFormat( Dali::Property::Map& format )
   FormatChanged();
 }
 
+const Dali::Property::Map& PropertyBuffer::GetFormat()
+{
+  return mFormat;
+}
+
 unsigned int PropertyBuffer::GetDefaultPropertyCount() const
 {
   return PROPERTY_BUFFER_IMPL.GetDefaultPropertyCount();

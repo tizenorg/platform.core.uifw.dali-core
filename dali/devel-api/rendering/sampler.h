@@ -76,6 +76,7 @@ public:
       U_WRAP,                                                     ///< name "u-wrap",               type STRING
       V_WRAP,                                                     ///< name "v-wrap",               type STRING
       AFFECTS_TRANSPARENCY,                                       ///< name "affects-transparency", type BOOLEAN
+      UNIFORM_NAME,                                               ///< name "uniform-name", type STRING
     };
   };
 

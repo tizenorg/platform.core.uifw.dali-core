@@ -32,7 +32,8 @@ RenderGeometry::RenderGeometry( GeometryType type, bool requiresDepthTest )
 : mIndexBuffer(0),
   mGeometryType( type ),
   mRequiresDepthTest(requiresDepthTest ),
-  mHasBeenUpdated(false),
+  mIndexHasBeenUpdated(false),
+  mVertexHasBeenUpdated(false),
   mAttributesChanged(true)
 {
 }
@@ -109,7 +110,8 @@ void RenderGeometry::GetAttributeLocationFromProgram( Vector<GLint>& attributeLo
 
 void RenderGeometry::OnRenderFinished()
 {
-  mHasBeenUpdated = false;
+  mIndexHasBeenUpdated = false;
+  mVertexHasBeenUpdated = false;
   mAttributesChanged = false;
 }
 
@@ -118,7 +120,9 @@ void RenderGeometry::UploadAndDraw(
     BufferIndex bufferIndex,
     Vector<GLint>& attributeLocation )
 {
-  if( !mHasBeenUpdated )
+
+  //Update buffers
+  if( mIndexBuffer )
   {
     // Update buffers
     if( mIndexBuffer )
@@ -128,6 +132,7 @@ void RenderGeometry::UploadAndDraw(
         //Index buffer is not ready ( Size, data or format has not been specified yet )
         return;
       }
+      mIndexHasBeenUpdated = true;
     }
 
     for( unsigned int i = 0; i < mVertexBuffers.Count(); ++i )

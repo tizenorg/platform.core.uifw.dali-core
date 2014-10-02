@@ -19,7 +19,7 @@
 #include <dali/internal/event/render-tasks/render-task-impl.h>
 
 // EXTERNAL INCLUDES
-#include <cstring> // for strcmp
+#include <cstring>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -29,6 +29,7 @@
 #include <dali/internal/event/actors/camera-actor-impl.h>
 #include <dali/internal/event/common/property-helper.h>
 #include <dali/internal/event/common/stage-impl.h>
+#include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/common/projection.h>
 #include <dali/internal/event/images/frame-buffer-image-impl.h>
 #include <dali/internal/update/nodes/node.h>

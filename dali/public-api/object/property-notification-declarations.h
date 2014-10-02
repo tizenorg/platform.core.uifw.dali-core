@@ -18,7 +18,6 @@
  *
  */
 
-
 // INTERNAL INCLUDES
 #include <dali/public-api/signals/dali-signal.h>
 

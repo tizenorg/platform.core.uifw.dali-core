@@ -169,6 +169,8 @@ public:
    */
   void SetData( void* data );
 
+  const Dali::Property::Map& GetFormat();
+
 public:
   /**
    * @brief The constructor

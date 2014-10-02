@@ -230,6 +230,7 @@ DALI_PROPERTY( "height-for-width",  BOOLEAN,  true,  false, false, Dali::Actor::
 DALI_PROPERTY( "padding",           VECTOR4,  true,  false, false, Dali::Actor::Property::PADDING )
 DALI_PROPERTY( "minimum-size",      VECTOR2,  true,  false, false, Dali::Actor::Property::MINIMUM_SIZE )
 DALI_PROPERTY( "maximum-size",      VECTOR2,  true,  false, false, Dali::Actor::Property::MAXIMUM_SIZE )
+DALI_PROPERTY( "relayout-enabled", BOOLEAN, true, false, false, Dali::Actor::Property::RELAYOUT_ENABLED )
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 // Signals
@@ -1454,7 +1455,11 @@ bool Actor::ScreenToLocal( float& localX, float& localY, float screenX, float sc
   return false;
 }
 
-bool Actor::ScreenToLocal( RenderTask& renderTask, float& localX, float& localY, float screenX, float screenY ) const
+bool Actor::ScreenToLocal( const RenderTask& renderTask,
+                           float& localX,
+                           float& localY,
+                           float screenX,
+                           float screenY ) const
 {
   bool retval = false;
   // only valid when on-stage
@@ -2498,6 +2503,13 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
       break;
     }
 
+    case Dali::Actor::Property::RELAYOUT_ENABLED:
+    {
+      bool enabled = property.Get< bool >();
+      SetRelayoutEnabled( enabled );
+      break;
+    }
+
     default:
     {
       // this can happen in the case of a non-animatable default property so just do nothing
@@ -2509,45 +2521,38 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
 // TODO: This method needs to be removed
 void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata& entry, const Property::Value& value )
 {
-  switch( entry.type )
+  OnPropertySet( index, value );
+
+  if(entry.IsAnimatable())
   {
-    case Property::BOOLEAN:
+    switch ( entry.value.GetType()  )
     {
-      const AnimatableProperty< bool >* property = dynamic_cast< const AnimatableProperty< bool >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::BOOLEAN:
+      {
+        const AnimatableProperty< bool >* property = dynamic_cast< const AnimatableProperty< bool >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<bool>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<bool>::Bake, value.Get<bool>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<bool>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<bool>::Bake, value.Get<bool>() );
 
-      break;
-    }
+        break;
+      }
 
-    case Property::INTEGER:
-    {
-      const AnimatableProperty< int >* property = dynamic_cast< const AnimatableProperty< int >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::FLOAT:
+      {
+        const AnimatableProperty< float >* property = dynamic_cast< const AnimatableProperty< float >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<int>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<int>::Bake, value.Get<int>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<float>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<float>::Bake, value.Get<float>() );
 
-      break;
-    }
+        break;
+      }
 
-    case Property::FLOAT:
-    {
-      const AnimatableProperty< float >* property = dynamic_cast< const AnimatableProperty< float >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
-
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<float>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<float>::Bake, value.Get<float>() );
-
-      break;
-    }
-
-    case Property::VECTOR2:
-    {
-      const AnimatableProperty< Vector2 >* property = dynamic_cast< const AnimatableProperty< Vector2 >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::VECTOR2:
+      {
+        const AnimatableProperty< Vector2 >* property = dynamic_cast< const AnimatableProperty< Vector2 >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
       if(entry.componentIndex == 0)
@@ -2563,13 +2568,13 @@ void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata
         SceneGraph::NodePropertyMessage<Vector2>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<Vector2>::Bake, value.Get<Vector2>() );
       }
 
-      break;
-    }
+        break;
+      }
 
-    case Property::VECTOR3:
-    {
-      const AnimatableProperty< Vector3 >* property = dynamic_cast< const AnimatableProperty< Vector3 >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::VECTOR3:
+      {
+        const AnimatableProperty< Vector3 >* property = dynamic_cast< const AnimatableProperty< Vector3 >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
       if(entry.componentIndex == 0)
@@ -2589,13 +2594,13 @@ void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata
         SceneGraph::NodePropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<Vector3>::Bake, value.Get<Vector3>() );
       }
 
-      break;
-    }
+        break;
+      }
 
-    case Property::VECTOR4:
-    {
-      const AnimatableProperty< Vector4 >* property = dynamic_cast< const AnimatableProperty< Vector4 >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::VECTOR4:
+      {
+        const AnimatableProperty< Vector4 >* property = dynamic_cast< const AnimatableProperty< Vector4 >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
       if(entry.componentIndex == 0)
@@ -2619,48 +2624,49 @@ void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata
         SceneGraph::NodePropertyMessage<Vector4>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<Vector4>::Bake, value.Get<Vector4>() );
       }
 
-      break;
-    }
+        break;
+      }
 
-    case Property::ROTATION:
-    {
-      const AnimatableProperty< Quaternion >* property = dynamic_cast< const AnimatableProperty< Quaternion >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::ROTATION:
+      {
+        const AnimatableProperty< Quaternion >* property = dynamic_cast< const AnimatableProperty< Quaternion >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Quaternion>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Quaternion>::Bake,  value.Get<Quaternion>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<Quaternion>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Quaternion>::Bake,  value.Get<Quaternion>() );
 
-      break;
-    }
+        break;
+      }
 
-    case Property::MATRIX:
-    {
-      const AnimatableProperty< Matrix >* property = dynamic_cast< const AnimatableProperty< Matrix >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::MATRIX:
+      {
+        const AnimatableProperty< Matrix >* property = dynamic_cast< const AnimatableProperty< Matrix >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Matrix>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Matrix>::Bake,  value.Get<Matrix>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<Matrix>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Matrix>::Bake,  value.Get<Matrix>() );
 
-      break;
-    }
+        break;
+      }
 
-    case Property::MATRIX3:
-    {
-      const AnimatableProperty< Matrix3 >* property = dynamic_cast< const AnimatableProperty< Matrix3 >* >( entry.GetSceneGraphProperty() );
-      DALI_ASSERT_DEBUG( NULL != property );
+      case Property::MATRIX3:
+      {
+        const AnimatableProperty< Matrix3 >* property = dynamic_cast< const AnimatableProperty< Matrix3 >* >( entry.GetSceneGraphProperty() );
+        DALI_ASSERT_DEBUG( NULL != property );
 
-      // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Matrix3>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Matrix3>::Bake,  value.Get<Matrix3>() );
+        // property is being used in a separate thread; queue a message to set the property
+        SceneGraph::NodePropertyMessage<Matrix3>::Send( GetEventThreadServices(), mNode, property,&AnimatableProperty<Matrix3>::Bake,  value.Get<Matrix3>() );
 
-      break;
-    }
+        break;
+      }
 
-    default:
-    {
-      DALI_ASSERT_ALWAYS( false && "Property type enumeration out of bounds" ); // should not come here
-      break;
-    }
-  }
+      default:
+      {
+        DALI_ASSERT_ALWAYS( false && "Property type enumeration out of bounds" ); // should not come here
+        break;
+      }
+    } // entry.GetType
+  } // entry.IsAnimatable
 }
 
 Property::Value Actor::GetDefaultProperty( Property::Index index ) const
@@ -2980,6 +2986,12 @@ Property::Value Actor::GetDefaultProperty( Property::Index index ) const
     case Dali::Actor::Property::MAXIMUM_SIZE:
     {
       value = Vector2( GetMaximumSize( Dimension::WIDTH ), GetMaximumSize( Dimension::HEIGHT ) );
+      break;
+    }
+
+    case Dali::Actor::Property::RELAYOUT_ENABLED:
+    {
+      value = IsRelayoutEnabled();
       break;
     }
 

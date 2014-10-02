@@ -460,6 +460,8 @@ void RelayoutController::Relayout()
 
     mDirtyLayoutSubTrees.Clear();
 
+    printf("RelayoutController::Relayout().stackSize=%d\n", mRelayoutStack->Size() );
+
     // 2. Iterate through the stack until it's empty.
     if( mRelayoutStack->Size() > 0 )
     {
@@ -472,6 +474,8 @@ void RelayoutController::Relayout()
         mRelayoutStack->Get( mRelayoutStack->Size() - 1, actor, size );
         Actor& actorImpl = GetImplementation( actor );
         mRelayoutStack->PopBack();
+
+        printf("RelayoutController::Relayout() actorImpl.RelayoutRequired()=%d\n", actorImpl.RelayoutRequired() );
 
         if( actorImpl.RelayoutRequired() )
         {

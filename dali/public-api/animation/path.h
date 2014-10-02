@@ -142,8 +142,9 @@ public:
    * @param[in]  progress  A floating point value between 0.0 and 1.0.
    * @param[out] position The interpolated position at that progress.
    * @param[out] tangent The interpolated tangent at that progress.
+   * @return if calculation was possible
    */
-  void Sample( float progress, Vector3& position, Vector3& tangent ) const;
+  bool Sample( float progress, Vector3& position, Vector3& tangent ) const;
 
   /**
    * @brief Accessor for the interpolation points.

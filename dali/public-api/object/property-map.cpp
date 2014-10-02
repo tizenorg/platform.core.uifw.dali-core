@@ -122,6 +122,23 @@ Property::Value* Property::Map::Find( const std::string& key, Property::Type typ
   return NULL; // Not found
 }
 
+Property::Map::SizeType Property::Map::Position( const std::string& key ) const
+{
+  SizeType position = 0;
+
+  for ( Container::iterator iter = mImpl->mContainer.begin(), endIter = mImpl->mContainer.end(); iter != endIter; ++iter )
+  {
+    if ( iter->first == key )
+    {
+      return position;
+    }
+    position++;
+  }
+
+  // else
+  DALI_ASSERT_ALWAYS( !"key out-of-bounds" );
+}
+
 void Property::Map::Clear()
 {
   mImpl->mContainer.clear();

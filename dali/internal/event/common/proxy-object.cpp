@@ -328,7 +328,7 @@ Property::Type ProxyObject::GetPropertyType( Property::Index index ) const
   CustomProperty* custom = FindCustomProperty( index );
   if( custom )
   {
-    return custom->type;
+    return custom->value.GetType();
   }
   return Property::NONE;
 }
@@ -403,7 +403,7 @@ Property::Value ProxyObject::GetProperty(Property::Index index) const
     {
       BufferIndex bufferIndex( Stage::GetCurrent()->GetEventBufferIndex() );
 
-      switch ( custom->type )
+      switch ( custom->value.GetType() )
       {
         case Property::BOOLEAN:
         {
@@ -777,7 +777,7 @@ void ProxyObject::SetCustomProperty( Property::Index index, const CustomProperty
 {
   if( entry.IsAnimatable() )
   {
-    switch ( entry.type )
+    switch ( entry.value.GetType() )
     {
       case Property::BOOLEAN:
       {

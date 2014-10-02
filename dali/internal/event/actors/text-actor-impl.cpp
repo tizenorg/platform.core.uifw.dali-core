@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/event/actors/text-actor-impl.h>
 
+// EXTERNAL INCLUDES
+#include <cstring>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/text/text-actor-parameters.h>
@@ -651,7 +654,7 @@ const char* TextActor::GetDefaultPropertyName( Property::Index index ) const
 {
   if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
   {
-    return RenderableActor::GetDefaultPropertyName(index) ;
+    return RenderableActor::GetDefaultPropertyName(index);
   }
   else
   {
@@ -695,7 +698,7 @@ bool TextActor::IsDefaultPropertyWritable( Property::Index index ) const
 {
   if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
   {
-    return RenderableActor::IsDefaultPropertyWritable(index) ;
+    return RenderableActor::IsDefaultPropertyWritable(index);
   }
   else
   {
@@ -707,7 +710,7 @@ bool TextActor::IsDefaultPropertyAnimatable( Property::Index index ) const
 {
   if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
   {
-    return RenderableActor::IsDefaultPropertyAnimatable(index) ;
+    return RenderableActor::IsDefaultPropertyAnimatable(index);
   }
   else
   {
@@ -728,7 +731,7 @@ Property::Type TextActor::GetDefaultPropertyType( Property::Index index ) const
 {
   if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
   {
-    return RenderableActor::GetDefaultPropertyType(index) ;
+    return RenderableActor::GetDefaultPropertyType(index);
   }
   else
   {
@@ -750,7 +753,7 @@ void TextActor::SetDefaultProperty( Property::Index index, const Property::Value
 {
   if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
   {
-    RenderableActor::SetDefaultProperty(index, propertyValue) ;
+    RenderableActor::SetDefaultProperty(index, propertyValue);
   }
   else
   {
@@ -866,22 +869,22 @@ void TextActor::SetDefaultProperty( Property::Index index, const Property::Value
       }
       case Dali::TextActor::ITALICS_ANGLE:
       {
-        SetItalics(Radian(propertyValue.Get<float>())) ;
+        SetItalics(Radian(propertyValue.Get<float>()));
         break;
       }
       case Dali::TextActor::UNDERLINE:
       {
-        SetUnderline(propertyValue.Get<bool>(), 0.f, 0.f ) ;
+        SetUnderline(propertyValue.Get<bool>(), 0.f, 0.f );
         break;
       }
       case Dali::TextActor::WEIGHT:
       {
-        mTextAttachment->SetWeight(static_cast<TextStyle::Weight>(propertyValue.Get<int>())) ;
+        mTextAttachment->SetWeight(static_cast<TextStyle::Weight>(propertyValue.Get<int>()));
         break;
       }
       case Dali::TextActor::FONT_DETECTION_AUTOMATIC:
       {
-        mFontDetection = propertyValue.Get<bool>()  ;
+        mFontDetection = propertyValue.Get<bool>();
         break;
       }
       case Dali::TextActor::GRADIENT_COLOR:
@@ -916,10 +919,10 @@ void TextActor::SetDefaultProperty( Property::Index index, const Property::Value
 
 Property::Value TextActor::GetDefaultProperty( Property::Index index ) const
 {
-  Property::Value ret ;
+  Property::Value ret;
   if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
   {
-    ret = RenderableActor::GetDefaultProperty(index) ;
+    ret = RenderableActor::GetDefaultProperty(index);
   }
   else
   {
@@ -1021,12 +1024,12 @@ Property::Value TextActor::GetDefaultProperty( Property::Index index ) const
       }
       case Dali::TextActor::ITALICS_ANGLE:
       {
-        ret = static_cast<float>(mTextAttachment->GetItalics()) ;
+        ret = static_cast<float>(mTextAttachment->GetItalics());
         break;
       }
       case Dali::TextActor::UNDERLINE:
       {
-        ret = mTextAttachment->GetUnderline() ;
+        ret = mTextAttachment->GetUnderline();
         break;
       }
       case Dali::TextActor::WEIGHT:
@@ -1067,7 +1070,7 @@ Property::Value TextActor::GetDefaultProperty( Property::Index index ) const
     } // switch(index)
   } // if from base class
 
-  return ret ;
+  return ret;
 }
 
 } // namespace Internal

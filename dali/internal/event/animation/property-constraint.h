@@ -145,7 +145,7 @@ class PropertyConstraint0 : public PropertyConstraintBase< PropertyType >
 {
 public:
 
-  typedef boost::function< PropertyType (const PropertyType&)> ConstraintFunction;
+  typedef Dali::function< PropertyType (const PropertyType&)> ConstraintFunction;
 
   /**
    * Constructor.
@@ -225,7 +225,7 @@ class PropertyConstraint1 : public PropertyConstraintBase< PropertyType >
 {
 public:
 
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyInput&) > ConstraintFunction;
+  typedef Dali::function< PropertyType (const PropertyType&, const PropertyInput&) > ConstraintFunction;
 
   /**
    * Constructor.
@@ -329,7 +329,7 @@ class PropertyConstraint2 : public PropertyConstraintBase< PropertyType >
 {
 public:
 
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&) > ConstraintFunction;
+  typedef Dali::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&) > ConstraintFunction;
 
   /**
    * Constructor.
@@ -452,7 +452,7 @@ class PropertyConstraint3 : public PropertyConstraintBase< PropertyType >
 {
 public:
 
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&, const PropertyInput&)> ConstraintFunction;
+  typedef Dali::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&, const PropertyInput&)> ConstraintFunction;
 
   /**
    * Constructor.
@@ -590,7 +590,7 @@ class PropertyConstraint4 : public PropertyConstraintBase< PropertyType >
 {
 public:
 
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&) > ConstraintFunction;
+  typedef Dali::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&) > ConstraintFunction;
 
   /**
    * Constructor.
@@ -753,7 +753,7 @@ class PropertyConstraint5 : public PropertyConstraintBase< PropertyType >
 {
 public:
 
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&) > ConstraintFunction;
+  typedef Dali::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&) > ConstraintFunction;
 
   /**
    * Constructor.
@@ -921,7 +921,7 @@ class PropertyConstraint6 : public PropertyConstraintBase< PropertyType >
 {
 public:
 
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&)> ConstraintFunction;
+  typedef Dali::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&, const PropertyInput&)> ConstraintFunction;
 
   /**
    * Constructor.

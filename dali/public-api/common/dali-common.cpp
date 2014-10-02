@@ -33,10 +33,13 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
+
+#if defined(BACKTRACE_ENABLED)
 namespace
 {
 const int MAX_NUM_STACK_FRAMES = 25;
 }
+#endif
 
 namespace Dali
 {

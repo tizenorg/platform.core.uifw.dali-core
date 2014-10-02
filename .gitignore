@@ -37,3 +37,4 @@ BROWSE
 /build/tizen/.cov
 /build/desktop
 /packaging/home*
+/automated-tests/CMakeLists.txt

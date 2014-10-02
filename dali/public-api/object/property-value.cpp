@@ -911,7 +911,7 @@ void Property::Value::SetItem(const int index, const Property::Value &value)
 
 int Property::Value::AppendItem(const Property::Value &value)
 {
-  DALI_ASSERT_DEBUG(Property::ARRAY == GetType() && "Property type invalid");
+  DALI_ASSERT_ALWAYS(Property::ARRAY == GetType() && "Property type invalid");
 
   Property::Array *container = AnyCast<Property::Array>(&(mImpl->mValue));
 

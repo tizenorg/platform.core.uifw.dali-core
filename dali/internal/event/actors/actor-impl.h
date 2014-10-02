@@ -24,6 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/ref-object.h>
+#include <dali/public-api/actors/actor-enumerations.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/events/gesture.h>
@@ -34,7 +35,6 @@
 #include <dali/internal/event/actors/actor-declarations.h>
 #include <dali/internal/event/actor-attachments/actor-attachment-declarations.h>
 #include <dali/internal/update/nodes/node-declarations.h>
-
 #ifdef DYNAMICS_SUPPORT
 #include <dali/internal/event/dynamics/dynamics-declarations.h>
 #endif
@@ -1331,7 +1331,7 @@ public:
    * @param[in] screenY The screen Y-coordinate.
    * @return True if the conversion succeeded.
    */
-  bool ScreenToLocal( RenderTask& renderTask, float& localX, float& localY, float screenX, float screenY ) const;
+  bool ScreenToLocal(const RenderTask& renderTask, float& localX, float& localY, float screenX, float screenY) const;
 
   /**
    * Converts from the actor's coordinate system to screen coordinates.

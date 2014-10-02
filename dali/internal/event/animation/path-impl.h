@@ -162,23 +162,25 @@ public:
   /**
    * @copydoc Dali::Path::Sample
    */
-  void Sample( float t, Vector3& position, Vector3& tangent ) const;
+  bool Sample( float t, Vector3& position, Vector3& tangent ) const;
 
   /**
    * Sample position at point t.
    *
    * @param[in] progress  A floating point value between 0.0 and 1.0.
    * @param[out] position The interpolated position at that progress.
+   * @return true if calculation done
    */
-  Vector3 SamplePosition( float t ) const;
+  bool SamplePosition( float t, Vector3& position ) const;
 
   /**
    * @brief Sample tangent at point t.
    *
    * @param[in] progress  A floating point value between 0.0 and 1.0.
    * @param[out] tangent The interpolated tangent at that progress.
+   * @return true if calculation done
    */
-  Vector3 SampleTangent( float t ) const;
+  bool SampleTangent( float t, Vector3& tangent ) const;
 
   /**
    * @copydoc Dali::Path::GetPoint

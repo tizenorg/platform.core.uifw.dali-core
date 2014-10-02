@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-functional.h>
+
 // INTERNAL INCLUDES
 #include <dali/internal/common/owner-container.h>
 #include <dali/internal/event/animation/key-frames-impl.h>
@@ -221,6 +224,8 @@ template < typename PropertyType, typename PropertyAccessorType >
 class Animator : public AnimatorBase, public PropertyOwner::Observer
 {
 public:
+
+  typedef Dali::function< PropertyType (float, const PropertyType&) > AnimatorFunction;
 
   /**
    * Construct a new property animator.

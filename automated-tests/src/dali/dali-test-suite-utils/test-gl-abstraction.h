@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <sstream>
 #include <string>
+#include <cstring>
 #include <map>
 
 // INTERNAL INCLUDES
@@ -320,11 +321,11 @@ public:
   inline void DeleteTextures(GLsizei n, const GLuint* textures)
   {
     std::stringstream out;
-    out << n << ", " << textures << " = [" ;
+    out << n << ", " << textures << " = [";
 
     for(GLsizei i=0; i<n; i++)
     {
-      out << textures[i] << ", " ;
+      out << textures[i] << ", ";
       mDeletedTextureIds.push_back(textures[i]);
     }
     out << "]";

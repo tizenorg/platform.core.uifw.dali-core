@@ -671,7 +671,7 @@ void TextStyle::Copy( const TextStyle& textStyle, Mask mask )
       }
       else
       {
-        SetTextColor( textStyle.GetTextColor() ) ;
+        SetTextColor( textStyle.GetTextColor() );
       }
     }
     if( mask & WEIGHT )
@@ -807,7 +807,7 @@ void TextStyle::Merge( const TextStyle& textStyle, Mask mask )
   {
     if( !textStyle.IsTextColorDefault() )
     {
-      SetTextColor( textStyle.GetTextColor() ) ;
+      SetTextColor( textStyle.GetTextColor() );
     }
   }
   if( mask & WEIGHT )

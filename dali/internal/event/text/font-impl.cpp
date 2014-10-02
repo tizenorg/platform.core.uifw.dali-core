@@ -103,7 +103,7 @@ void Font::GetInstalledFonts( Dali::Font::FontListMode mode, std::vector<std::st
 {
   Integration::PlatformAbstraction& platform = Internal::ThreadLocalStorage::Get().GetPlatformAbstraction();
 
-  Integration::PlatformAbstraction::FontListMode listMode ;
+  Integration::PlatformAbstraction::FontListMode listMode;
   switch( mode )
   {
     case Dali::Font::LIST_SYSTEM_FONTS:

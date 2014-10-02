@@ -77,11 +77,6 @@ public:
   void SetData( const void* data );
 
   /**
-   * @copydoc PropertBuffer::GetPropertyIndex()
-   */
-  Dali::Property::Index GetPropertyIndex( const std::string name, std::size_t index );
-
-  /**
    * @brief Get the propertyBuffer scene object
    *
    * @return the propertyBuffer scene object
@@ -96,6 +91,11 @@ public:
    * @param[in] format of the PropertyBuffer
    */
   void SetFormat( Dali::Property::Map& format );
+
+  /**
+   * @copydoc PropertBuffer::GetFormat()
+   */
+  const Dali::Property::Map& GetFormat();
 
 public: // Default property extensions from Object
 

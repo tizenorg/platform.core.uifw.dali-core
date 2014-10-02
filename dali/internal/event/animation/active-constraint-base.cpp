@@ -65,7 +65,7 @@ const char* DEFAULT_PROPERTY_NAMES[] =
 {
   "weight"
 };
-const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_NAMES ) / sizeof( std::string );
+const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_NAMES ) / sizeof(DEFAULT_PROPERTY_NAMES[0]);
 
 const Property::Type DEFAULT_PROPERTY_TYPES[DEFAULT_PROPERTY_COUNT] =
 {

@@ -327,9 +327,9 @@ int UtcDaliStageGetRootLayer(void)
   Layer rootLayer = stage.GetLayer(0);
   DALI_TEST_CHECK( rootLayer );
 
-  Layer layer = Layer::New();
-  stage.Add( layer );
-  layer.LowerToBottom();
+  // Layer layer = Layer::New();
+  // stage.Add( layer );
+  // layer.LowerToBottom();
 
   DALI_TEST_CHECK( stage.GetRootLayer() == rootLayer );
   END_TEST;

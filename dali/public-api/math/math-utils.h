@@ -19,7 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <algorithm> // std::min & max
+/* #include <stddef.h> */
+
+/* #include <algorithm> // std::min & max */
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>

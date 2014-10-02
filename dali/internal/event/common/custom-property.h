@@ -60,7 +60,7 @@ public:
    * Default constructor.
    */
   CustomProperty()
-  : type(Property::NONE),
+    : value(Property::Value(Property::NONE)),
     mProperty(NULL),
     mAccessMode(Property::READ_ONLY)
   {
@@ -76,11 +76,11 @@ public:
                   Property::Type newType,
                   const SceneGraph::PropertyBase* newProperty)
   : name(newName),
-    type(newType),
+    value(Property::Type(newType)),
     mProperty(newProperty),
     mAccessMode(Property::ANIMATABLE)
   {
-    DALI_ASSERT_DEBUG(mProperty && "Uninitialized scenegraph property") ;
+    DALI_ASSERT_DEBUG(mProperty && "Uninitialized scenegraph property");
   }
 
   CustomProperty(const std::string& newName,
@@ -91,30 +91,27 @@ public:
     mProperty(NULL),
     mAccessMode(accessMode)
   {
-    type = value.GetType() ;
-    DALI_ASSERT_DEBUG(accessMode != Property::ANIMATABLE && "Animatable must have scenegraph property") ;
+    DALI_ASSERT_DEBUG(accessMode != Property::ANIMATABLE && "Animatable must have scenegraph property");
   }
 
   bool IsAnimatable(void) const
   {
-    return NULL != mProperty ;
+    return NULL != mProperty;
   }
 
   bool IsWritable(void) const
   {
-    return (mAccessMode == Property::ANIMATABLE) || (mAccessMode == Property::READ_WRITE) ;
+    return (mAccessMode == Property::ANIMATABLE) || (mAccessMode == Property::READ_WRITE);
   }
 
   std::string name; ///< The name of the property
-
-  Property::Type type; ///< The type of the property
 
   Property::Value value ; ///< The property value for a non animatable and custom property
 
   const SceneGraph::PropertyBase* GetSceneGraphProperty() const
   {
-    DALI_ASSERT_DEBUG(mProperty && "Get on uninitialized SceneGraph property") ;
-    return mProperty ;
+    DALI_ASSERT_DEBUG(mProperty && "Get on uninitialized SceneGraph property");
+    return mProperty;
   }
 
 private:

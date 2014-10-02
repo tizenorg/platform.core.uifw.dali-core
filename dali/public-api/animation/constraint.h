@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/alpha-functions.h>
@@ -87,7 +87,7 @@ public:
    */
   template <class P>
   static Constraint New( Property::Index target,
-                         boost::function<P (const P& current)> func )
+                         Dali::function<P (const P& current)> func )
   {
     return New( target,
                 PropertyTypes::Get<P>(),
@@ -106,8 +106,8 @@ public:
    */
   template <class P>
   static Constraint NewWithInterpolator( Property::Index target,
-                                         boost::function<P (const P& current)> func,
-                                         boost::function<P (const P&, const P&, float)> interpolator )
+                                         Dali::function<P (const P& current)> func,
+                                         Dali::function<P (const P&, const P&, float)> interpolator )
   {
     return New( target,
                 PropertyTypes::Get<P>(),
@@ -128,7 +128,7 @@ public:
   template <class P>
   static Constraint New( Property::Index target,
                          ConstraintSource source1,
-                         boost::function<P (const P& current, const PropertyInput& input1)> func )
+                         Dali::function<P (const P& current, const PropertyInput& input1)> func )
   {
     return New( target,
                 PropertyTypes::Get<P>(),
@@ -150,8 +150,8 @@ public:
   template <class P>
   static Constraint NewWithInterpolator( Property::Index target,
                                          ConstraintSource source1,
-                                         boost::function<P (const P& current, const PropertyInput& input1)> func,
-                                         boost::function<P (const P&, const P&, float)> interpolator )
+                                         Dali::function<P (const P& current, const PropertyInput& input1)> func,
+                                         Dali::function<P (const P&, const P&, float)> interpolator )
   {
     return New( target,
                 PropertyTypes::Get<P>(),
@@ -175,7 +175,7 @@ public:
   static Constraint New( Property::Index target,
                          ConstraintSource source1,
                          ConstraintSource source2,
-                         boost::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2)> func )
+                         Dali::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2)> func )
   {
     return New( target,
                 PropertyTypes::Get<P>(),
@@ -200,8 +200,8 @@ public:
   static Constraint NewWithInterpolator( Property::Index target,
                                          ConstraintSource source1,
                                          ConstraintSource source2,
-                                         boost::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2)> func,
-                                         boost::function<P (const P&, const P&, float)> interpolator )
+                                         Dali::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2)> func,
+                                         Dali::function<P (const P&, const P&, float)> interpolator )
   {
     return New( target,
                 PropertyTypes::Get<P>(),
@@ -228,7 +228,7 @@ public:
                          ConstraintSource source1,
                          ConstraintSource source2,
                          ConstraintSource source3,
-                         boost::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2, const PropertyInput& input3)> func )
+                         Dali::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2, const PropertyInput& input3)> func )
   {
     return New( target,
                 PropertyTypes::Get<P>(),
@@ -256,8 +256,8 @@ public:
                                          ConstraintSource source1,
                                          ConstraintSource source2,
                                          ConstraintSource source3,
-                                         boost::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2, const PropertyInput& input3)> func,
-                                         boost::function<P (const P&, const P&, float)> interpolator )
+                                         Dali::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2, const PropertyInput& input3)> func,
+                                         Dali::function<P (const P&, const P&, float)> interpolator )
   {
     return New( target,
                 PropertyTypes::Get<P>(),
@@ -287,7 +287,7 @@ public:
                          ConstraintSource source2,
                          ConstraintSource source3,
                          ConstraintSource source4,
-                         boost::function<P (const P& current,
+                         Dali::function<P (const P& current,
                                             const PropertyInput& input1,
                                             const PropertyInput& input2,
                                             const PropertyInput& input3,
@@ -322,12 +322,12 @@ public:
                                          ConstraintSource source2,
                                          ConstraintSource source3,
                                          ConstraintSource source4,
-                                         boost::function<P (const P& current,
+                                         Dali::function<P (const P& current,
                                                             const PropertyInput& input1,
                                                             const PropertyInput& input2,
                                                             const PropertyInput& input3,
                                                             const PropertyInput& input4)> func,
-                                         boost::function<P (const P&, const P&, float)> interpolator )
+                                         Dali::function<P (const P&, const P&, float)> interpolator )
   {
     return New( target,
                 PropertyTypes::Get<P>(),
@@ -360,7 +360,7 @@ public:
                          ConstraintSource source3,
                          ConstraintSource source4,
                          ConstraintSource source5,
-                         boost::function<P (const P& current,
+                         Dali::function<P (const P& current,
                                             const PropertyInput& input1,
                                             const PropertyInput& input2,
                                             const PropertyInput& input3,
@@ -399,13 +399,13 @@ public:
                                          ConstraintSource source3,
                                          ConstraintSource source4,
                                          ConstraintSource source5,
-                                         boost::function<P (const P& current,
+                                         Dali::function<P (const P& current,
                                                             const PropertyInput& input1,
                                                             const PropertyInput& input2,
                                                             const PropertyInput& input3,
                                                             const PropertyInput& input4,
                                                             const PropertyInput& input5)> func,
-                                         boost::function<P (const P&, const P&, float)> interpolator )
+                                         Dali::function<P (const P&, const P&, float)> interpolator )
   {
     return New( target,
                 PropertyTypes::Get<P>(),
@@ -441,7 +441,7 @@ public:
                          ConstraintSource source4,
                          ConstraintSource source5,
                          ConstraintSource source6,
-                         boost::function<P (const P& current,
+                         Dali::function<P (const P& current,
                                             const PropertyInput& input1,
                                             const PropertyInput& input2,
                                             const PropertyInput& input3,
@@ -484,14 +484,14 @@ public:
                                          ConstraintSource source4,
                                          ConstraintSource source5,
                                          ConstraintSource source6,
-                                         boost::function<P (const P& current,
+                                         Dali::function<P (const P& current,
                                                             const PropertyInput& input1,
                                                             const PropertyInput& input2,
                                                             const PropertyInput& input3,
                                                             const PropertyInput& input4,
                                                             const PropertyInput& input5,
                                                             const PropertyInput& input6)> func,
-                                         boost::function<P (const P&, const P&, float)> interpolator )
+                                         Dali::function<P (const P&, const P&, float)> interpolator )
   {
     return New( target,
                 PropertyTypes::Get<P>(),

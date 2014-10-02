@@ -25,6 +25,7 @@
 #include <dali/internal/event/actors/camera-actor-impl.h>
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/common/thread-local-storage.h>
+#include <dali/internal/event/common/projection.h>
 #include <dali/internal/event/images/frame-buffer-image-impl.h>
 #include <dali/internal/update/render-tasks/scene-graph-render-task.h>
 #include <dali/internal/update/nodes/node.h>
@@ -396,6 +397,40 @@ bool RenderTask::TranslateCoordinates( Vector2& screenCoords ) const
 bool RenderTask::IsSystemLevel() const
 {
   return mIsSystemLevel;
+}
+
+bool RenderTask::WorldToScreen(const Vector3 &position, float& screenX, float& screenY) const
+{
+  CameraActor* cam = GetCameraActor();
+
+  Vector4 pos(position);
+  pos.w = 1.0;
+
+  Vector4 screenPosition;
+
+  Viewport viewport;
+  GetViewport( viewport );
+
+  bool ok = ProjectFull(pos,
+                        cam->GetViewMatrix(),
+                        cam->GetProjectionMatrix(),
+                        viewport.x,
+                        viewport.y,
+                        viewport.width,
+                        viewport.height,
+                        screenPosition);
+  if(ok)
+  {
+    screenX = screenPosition.x;
+    screenY = screenPosition.y;
+  }
+
+  return ok;
+}
+
+bool RenderTask::ScreenToLocal(Actor* actor, float screenX, float screenY, float &localX, float &localY) const
+{
+  return actor->ScreenToLocal( *this, localX, localY, screenX, screenY );
 }
 
 SceneGraph::RenderTask* RenderTask::CreateSceneObject()

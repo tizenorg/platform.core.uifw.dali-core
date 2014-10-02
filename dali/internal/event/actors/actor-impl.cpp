@@ -1611,7 +1611,7 @@ bool Actor::ScreenToLocal( float& localX,
   return false;
 }
 
-bool Actor::ScreenToLocal( RenderTask& renderTask,
+bool Actor::ScreenToLocal( const RenderTask& renderTask,
                            float& localX,
                            float& localY,
                            float screenX,
@@ -2648,7 +2648,7 @@ void Actor::SetCustomProperty( Property::Index index, const CustomProperty& entr
 
   if(entry.IsAnimatable())
   {
-    switch ( entry.type )
+    switch ( entry.value.GetType()  )
     {
       case Property::BOOLEAN:
       {

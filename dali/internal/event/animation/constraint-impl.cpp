@@ -19,7 +19,7 @@
 #include <dali/internal/event/animation/constraint-impl.h>
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/event/animation/active-constraint-impl.h>
@@ -36,15 +36,15 @@
 namespace
 {
 // Constraint Interpolation function prototypes
-typedef boost::function<bool (const bool& start, const bool& target, float progress)> BoolInterpolator;
-typedef boost::function<float (const float& start, const float& target, float progress)> FloatInterpolator;
-typedef boost::function<int (const int& start, const int& target, float progress)> IntegerInterpolator;
-typedef boost::function<Dali::Vector2 (const Dali::Vector2& current, const Dali::Vector2& target, float progress)> Vector2Interpolator;
-typedef boost::function<Dali::Vector3 (const Dali::Vector3& current, const Dali::Vector3& target, float progress)> Vector3Interpolator;
-typedef boost::function<Dali::Vector4 (const Dali::Vector4& current, const Dali::Vector4& target, float progress)> Vector4Interpolator;
-typedef boost::function<Dali::Quaternion (const Dali::Quaternion& current, const Dali::Quaternion& target, float progress)> QuaternionInterpolator;
-typedef boost::function<Dali::Matrix3 (const Dali::Matrix3& current, const Dali::Matrix3& target, float progress)> Matrix3Interpolator;
-typedef boost::function<Dali::Matrix (const Dali::Matrix& current, const Dali::Matrix& target, float progress)> MatrixInterpolator;
+typedef Dali::function<bool (const bool& start, const bool& target, float progress)> BoolInterpolator;
+typedef Dali::function<float (const float& start, const float& target, float progress)> FloatInterpolator;
+typedef Dali::function<int (const int& start, const int& target, float progress)> IntegerInterpolator;
+typedef Dali::function<Dali::Vector2 (const Dali::Vector2& current, const Dali::Vector2& target, float progress)> Vector2Interpolator;
+typedef Dali::function<Dali::Vector3 (const Dali::Vector3& current, const Dali::Vector3& target, float progress)> Vector3Interpolator;
+typedef Dali::function<Dali::Vector4 (const Dali::Vector4& current, const Dali::Vector4& target, float progress)> Vector4Interpolator;
+typedef Dali::function<Dali::Quaternion (const Dali::Quaternion& current, const Dali::Quaternion& target, float progress)> QuaternionInterpolator;
+typedef Dali::function<Dali::Matrix3 (const Dali::Matrix3& current, const Dali::Matrix3& target, float progress)> Matrix3Interpolator;
+typedef Dali::function<Dali::Matrix (const Dali::Matrix& current, const Dali::Matrix& target, float progress)> MatrixInterpolator;
 
 }
 
@@ -66,20 +66,20 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
   {
     case 0u:
     {
-      propertyConstraint = new PropertyConstraint0<P>( AnyCast<boost::function<P (const P&)> >( func ) );
+      propertyConstraint = new PropertyConstraint0<P>( AnyCast<Dali::function<P (const P&)> >( func ) );
       break;
     }
 
     case 1u:
     {
-      propertyConstraint = new PropertyConstraint1<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint1<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&)> >( func ) );
       break;
     }
 
     case 2u:
     {
-      propertyConstraint = new PropertyConstraint2<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint2<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&)> >( func ) );
       break;
@@ -87,7 +87,7 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
 
     case 3u:
     {
-      propertyConstraint = new PropertyConstraint3<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint3<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&)> >( func ) );
@@ -96,7 +96,7 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
 
     case 4u:
     {
-      propertyConstraint = new PropertyConstraint4<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint4<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
@@ -106,7 +106,7 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
 
     case 5u:
     {
-      propertyConstraint = new PropertyConstraint5<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint5<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
@@ -117,7 +117,7 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
 
     case 6u:
     {
-      propertyConstraint = new PropertyConstraint6<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
+      propertyConstraint = new PropertyConstraint6<P, PropertyInputAccessor>( AnyCast< Dali::function<P (const P&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,
                                                                                                                   const PropertyInput&,

@@ -19,16 +19,9 @@
 #include <dali/internal/update/queue/update-message-queue.h>
 
 // EXTERNAL INCLUDES
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#include <boost/thread/mutex.hpp>
-#pragma clang diagnostic pop
-#else
-#include <boost/thread/mutex.hpp>
-#endif // ifdef __clang
 
 // INTERNAL INCLUDES
+#include <dali/internal/common/dali-mutex.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/render-controller.h>
 #include <dali/internal/common/message-buffer.h>
@@ -57,8 +50,6 @@ static const std::size_t MAX_FREE_BUFFER_COUNT = 3; // Allow this number of buff
 // A queue of message buffers
 typedef vector< MessageBuffer* > MessageBufferQueue;
 typedef MessageBufferQueue::iterator MessageBufferIter;
-
-typedef boost::mutex MessageQueueMutex;
 
 } // unnamed namespace
 

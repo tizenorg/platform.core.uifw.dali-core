@@ -22,7 +22,10 @@
 #include <math.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/math/math-utils.h>
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
+
+/* #include <dali/public-api/math/math-utils.h> */
 
 namespace Dali
 {
@@ -235,34 +238,34 @@ inline bool operator!=( const Rect<T>& lhs, const Rect<T>& rhs )
   return !(lhs == rhs);
 }
 
-/**
- * @brief Equality operator specialization for float.
- *
- * @param[in] lhs The first rectangle
- * @param[in] rhs The second rectangle
- * @return true if rectangles are exactly same
- */
-template<>
-inline bool operator==( const Rect<float>& lhs, const Rect<float>& rhs )
-{
-  return ( fabsf( lhs.x - rhs.x ) < GetRangedEpsilon(lhs.x, rhs.x) )&&
-    ( fabsf( lhs.y - rhs.y ) < GetRangedEpsilon(lhs.y, rhs.y) )&&
-    ( fabsf( lhs.width - rhs.width ) < GetRangedEpsilon(lhs.width, rhs.width) )&&
-    ( fabsf( lhs.height - rhs.height ) < GetRangedEpsilon(lhs.height, rhs.height) );
-}
+/* /\** */
+/*  * @brief Equality operator specialization for float. */
+/*  * */
+/*  * @param[in] lhs The first rectangle */
+/*  * @param[in] rhs The second rectangle */
+/*  * @return true if rectangles are exactly same */
+/*  *\/ */
+/* template<> */
+/* inline bool operator==( const Rect<float>& lhs, const Rect<float>& rhs ) */
+/* { */
+/*   return ( fabsf( lhs.x - rhs.x ) < GetRangedEpsilon(lhs.x, rhs.x) )&& */
+/*     ( fabsf( lhs.y - rhs.y ) < GetRangedEpsilon(lhs.y, rhs.y) )&& */
+/*     ( fabsf( lhs.width - rhs.width ) < GetRangedEpsilon(lhs.width, rhs.width) )&& */
+/*     ( fabsf( lhs.height - rhs.height ) < GetRangedEpsilon(lhs.height, rhs.height) ); */
+/* } */
 
-/**
- * @brief IsEmpty specialization for float.
- *
- * @return true if the rectangle has zero size.
- */
-template<>
-inline bool Rect<float>::IsEmpty() const
-{
-  return (fabsf(width)  <= GetRangedEpsilon(width, width)
-          ||
-          fabsf(height) <= GetRangedEpsilon(height, height));
-}
+/* /\** */
+/*  * @brief IsEmpty specialization for float. */
+/*  * */
+/*  * @return true if the rectangle has zero size. */
+/*  *\/ */
+/* template<> */
+/* inline bool Rect<float>::IsEmpty() const */
+/* { */
+/*   return (fabsf(width)  <= GetRangedEpsilon(width, width) */
+/*           || */
+/*           fabsf(height) <= GetRangedEpsilon(height, height)); */
+/* } */
 
 } // namespace Dali
 

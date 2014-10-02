@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/event/animation/path-impl.h>
 
+// EXTERNAL INCLUDES
+#include <cstring>
+
 namespace
 {
 /**

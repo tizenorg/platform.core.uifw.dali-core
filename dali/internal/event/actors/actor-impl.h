@@ -847,7 +847,7 @@ public:
    * @param[in] screenY The screen Y-coordinate.
    * @return True if the conversion succeeded.
    */
-  bool ScreenToLocal(RenderTask& renderTask, float& localX, float& localY, float screenX, float screenY) const;
+  bool ScreenToLocal(const RenderTask& renderTask, float& localX, float& localY, float screenX, float screenY) const;
 
   /**
    * Converts from the actor's coordinate system to screen coordinates.

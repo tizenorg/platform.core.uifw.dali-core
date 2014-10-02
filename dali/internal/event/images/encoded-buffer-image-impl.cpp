@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/event/images/encoded-buffer-image-impl.h>
 
+// EXTERNAL INCLUDES
+#include <cstring>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
 #include <dali/internal/event/common/thread-local-storage.h>

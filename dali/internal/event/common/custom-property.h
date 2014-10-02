@@ -55,6 +55,15 @@ class PropertyBase;
 class CustomProperty
 {
 public:
+  /**
+   * Default constructor.
+   */
+  CustomProperty()
+    : value(Property::Value(Property::NONE)),
+    mProperty(NULL),
+    mAccessMode(Property::READ_ONLY)
+  {
+  }
 
   /**
    * Constructor for scene graph based properties
@@ -66,12 +75,11 @@ public:
                   Property::Type newType,
                   const SceneGraph::PropertyBase* newProperty)
   : name(newName),
-    type(newType),
-    value(), // value is held by newProperty
+    value(Property::Type(newType)),
     mProperty(newProperty),
     mAccessMode(Property::ANIMATABLE)
   {
-    DALI_ASSERT_DEBUG(mProperty && "Uninitialized scenegraph property") ;
+    DALI_ASSERT_DEBUG(mProperty && "Uninitialized scenegraph property");
   }
 
   /**
@@ -85,12 +93,11 @@ public:
                   Property::Value newValue,
                   Property::AccessMode accessMode )
   : name(newName),
-    type(newValue.GetType()),
     value(newValue),
     mProperty(NULL),
     mAccessMode(accessMode)
   {
-    DALI_ASSERT_DEBUG(accessMode != Property::ANIMATABLE && "Animatable must have scenegraph property") ;
+    DALI_ASSERT_DEBUG(accessMode != Property::ANIMATABLE && "Animatable must have scenegraph property");
   }
 
   /**
@@ -106,26 +113,21 @@ public:
    */
   bool IsWritable(void) const
   {
-    return (mAccessMode == Property::ANIMATABLE) || (mAccessMode == Property::READ_WRITE) ;
+    return (mAccessMode == Property::ANIMATABLE) || (mAccessMode == Property::READ_WRITE);
   }
 
-  /**
-   * @return the scene graph property
-   */
   const SceneGraph::PropertyBase* GetSceneGraphProperty() const
   {
-    DALI_ASSERT_DEBUG(mProperty && "Get on uninitialized SceneGraph property") ;
-    return mProperty ;
+    DALI_ASSERT_DEBUG(mProperty && "Get on uninitialized SceneGraph property");
+    return mProperty;
   }
 
   std::string name;       ///< The name of the property
-  Property::Type type;    ///< The type of the property
   Property::Value value;  ///< The property value for a non animatable and custom property
 
 private:
 
   // Not implemented
-  CustomProperty();
   CustomProperty( const CustomProperty& );
   CustomProperty& operator=( const CustomProperty& );
 

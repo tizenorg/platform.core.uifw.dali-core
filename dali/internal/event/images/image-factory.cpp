@@ -32,6 +32,7 @@
 
 // EXTERNAL INCLUDES
 #include <float.h>
+#include <cstdlib> // abs<int>
 
 using namespace Dali::Integration;
 using namespace Dali::Internal::ImageFactoryCache;
@@ -261,8 +262,8 @@ bool ImageFactory::CompareAttributes( const Dali::ImageAttributes& requested,
           (requested.GetFieldBorder() ==  actual.GetFieldBorder()) &&
           (fabs(actual.GetFieldRadius() - requested.GetFieldRadius()) <= FLT_EPSILON) &&
           (requested.IsDistanceField() == actual.IsDistanceField()) &&
-          (fabsf(requested.GetWidth()  -  actual.GetWidth())  <= actual.GetWidth()  * mMaxScale) &&
-          (fabsf(requested.GetHeight() -  actual.GetHeight()) <= actual.GetHeight() * mMaxScale);
+          (std::abs(static_cast<int>(requested.GetWidth()  -  actual.GetWidth()))  < actual.GetWidth()  * mMaxScale) &&
+          (std::abs(static_cast<int>(requested.GetHeight() -  actual.GetHeight())) < actual.GetHeight() * mMaxScale);
 }
 
 Request* ImageFactory::InsertNewRequest( ResourceId resourceId, const std::string& filename, std::size_t urlHash, const ImageAttributes* attr )

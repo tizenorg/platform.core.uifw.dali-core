@@ -87,10 +87,10 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
      dali-core
 )
 
-SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror=return-type")
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror=return-type" CACHE STRING "compile flags" FORCE)
 
 FOREACH(directory ${${CAPI_LIB}_LIBRARY_DIRS})
-    SET(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -L${directory}")
+    SET(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -L${directory}" CACHE STRING "compile flags" FORCE)
 ENDFOREACH(directory ${CAPI_LIB_LIBRARY_DIRS})
 
 INCLUDE_DIRECTORIES(

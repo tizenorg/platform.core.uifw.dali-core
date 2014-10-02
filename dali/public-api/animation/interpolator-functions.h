@@ -110,7 +110,7 @@ Quaternion SlerpQuaternion( const Quaternion& current, const Quaternion& target,
  * @param[in] progress The current progress (between 0 and 1).
  * @return The interpolated value.
  */
-typedef boost::function<bool (const bool& start, const bool& target, float progress)> BoolInterpolator;
+typedef Dali::function<bool (const bool& start, const bool& target, float progress)> BoolInterpolator;
 
 /**
  * @brief A function which interpolates between a start and target value.
@@ -120,7 +120,7 @@ typedef boost::function<bool (const bool& start, const bool& target, float progr
  * @param[in] progress The current progress (between 0 and 1).
  * @return The interpolated value.
  */
-typedef boost::function<float (const float& start, const float& target, float progress)> FloatInterpolator;
+typedef Dali::function<float (const float& start, const float& target, float progress)> FloatInterpolator;
 
 /**
  * @brief A function which interpolates between a start and target value.
@@ -130,7 +130,7 @@ typedef boost::function<float (const float& start, const float& target, float pr
  * @param[in] progress The current progress (between 0 and 1).
  * @return The interpolated value.
  */
-typedef boost::function<int (const int& start, const int& target, float progress)> IntegerInterpolator;
+typedef Dali::function<int (const int& start, const int& target, float progress)> IntegerInterpolator;
 
 /**
  * @brief A function which interpolates between a start and target value.
@@ -140,7 +140,7 @@ typedef boost::function<int (const int& start, const int& target, float progress
  * @param[in] progress The current progress (between 0 and 1).
  * @return The interpolated value.
  */
-typedef boost::function<Vector2 (const Vector2& current, const Vector2& target, float progress)> Vector2Interpolator;
+typedef Dali::function<Vector2 (const Vector2& current, const Vector2& target, float progress)> Vector2Interpolator;
 
 /**
  * @brief A function which interpolates between a start and target value.
@@ -150,7 +150,7 @@ typedef boost::function<Vector2 (const Vector2& current, const Vector2& target, 
  * @param[in] progress The current progress (between 0 and 1).
  * @return The interpolated value.
  */
-typedef boost::function<Vector3 (const Vector3& current, const Vector3& target, float progress)> Vector3Interpolator;
+typedef Dali::function<Vector3 (const Vector3& current, const Vector3& target, float progress)> Vector3Interpolator;
 
 /**
  * @brief A function which interpolates between a start and target value.
@@ -160,7 +160,7 @@ typedef boost::function<Vector3 (const Vector3& current, const Vector3& target, 
  * @param[in] progress The current progress (between 0 and 1).
  * @return The interpolated value.
  */
-typedef boost::function<Vector4 (const Vector4& current, const Vector4& target, float progress)> Vector4Interpolator;
+typedef Dali::function<Vector4 (const Vector4& current, const Vector4& target, float progress)> Vector4Interpolator;
 
 /**
  * @brief A function which interpolates between a start and target value.
@@ -170,7 +170,7 @@ typedef boost::function<Vector4 (const Vector4& current, const Vector4& target, 
  * @param[in] progress The current progress (between 0 and 1).
  * @return The interpolated value.
  */
-typedef boost::function<Quaternion (const Quaternion& current, const Quaternion& target, float progress)> QuaternionInterpolator;
+typedef Dali::function<Quaternion (const Quaternion& current, const Quaternion& target, float progress)> QuaternionInterpolator;
 
 /**
  * @brief A function which interpolates between a start and target value.
@@ -180,7 +180,7 @@ typedef boost::function<Quaternion (const Quaternion& current, const Quaternion&
  * @param[in] progress The current progress (between 0 and 1).
  * @return The interpolated value.
  */
-typedef boost::function<Matrix3 (const Matrix3& current, const Matrix3& target, float progress)> Matrix3Interpolator;
+typedef Dali::function<Matrix3 (const Matrix3& current, const Matrix3& target, float progress)> Matrix3Interpolator;
 
 /**
  * @brief A function which interpolates between a start and target value.
@@ -190,7 +190,7 @@ typedef boost::function<Matrix3 (const Matrix3& current, const Matrix3& target, 
  * @param[in] progress The current progress (between 0 and 1).
  * @return The interpolated value.
  */
-typedef boost::function<Matrix (const Matrix& current, const Matrix& target, float progress)> MatrixInterpolator;
+typedef Dali::function<Matrix (const Matrix& current, const Matrix& target, float progress)> MatrixInterpolator;
 
 /**
  * @brief Any interpolator function.
@@ -200,7 +200,7 @@ typedef Any AnyInterpolator;
 /**
  * @brief Retrieve an interpolator function for a property.
  *
- * This can be cast to boost::function<P (const P&, const P&, float)> where P corresponds to the property type.
+ * This can be cast to Dali::function<P (const P&, const P&, float)> where P corresponds to the property type.
  * @param[in] type The property type for which to get an interpolator
  * @return The interpolator function.
  */

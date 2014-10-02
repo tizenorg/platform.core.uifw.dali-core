@@ -28,6 +28,8 @@
 
 #include <dali/internal/update/render-tasks/scene-graph-render-task-debug.h>
 
+#include "emscripten/emscripten.h"
+
 namespace
 {
 const unsigned int NUM_FRAMES_BEFORE_NOTIFY_FINISHED(3);
@@ -114,6 +116,13 @@ void RenderTask::SetCameraNode( Node* cameraNode )
   {
     if( cameraNode )
     {
+
+
+      int x = EM_ASM_INT({
+          console.log('SetCameraNode: ' + [$0,$1]);
+        }, (long)cameraNode, (long)mCameraNode);
+      (void)x;
+
       // get attachment. when camera node is changed we will get a message from event thread object
       // so no need to observe the node here
       mCameraAttachment = dynamic_cast< CameraAttachment* >( &cameraNode->GetAttachment() );

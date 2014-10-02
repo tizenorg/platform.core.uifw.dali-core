@@ -25,6 +25,8 @@
 #include <dali/internal/update/resources/resource-manager.h>
 #include <dali/integration-api/debug.h>
 
+#include "emscripten/emscripten.h"
+
 using namespace std;
 
 namespace // unnamed namespace
@@ -317,6 +319,12 @@ void CameraAttachment::Update( BufferIndex updateBufferIndex, const Node& owning
   }
   if( 0u != mUpdateViewFlag )
   {
+
+     int x = EM_ASM_INT({
+         console.log('CameraAttachment::Update: ' + [$0,$1]);
+       }, updateBufferIndex, (long)(&owningNode));
+     (void)x;
+
     --mUpdateViewFlag;
     switch ( mType )
     {

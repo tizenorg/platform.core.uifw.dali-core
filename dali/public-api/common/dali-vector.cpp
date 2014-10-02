@@ -53,7 +53,7 @@ void VectorBase::Release()
     SizeType* metadata = reinterpret_cast< SizeType* >( mData );
     // TODO would be nice to memset to a bitpattern to catch illegal use of container after release
     // but that would require knowledge of the itemsize
-    free( metadata - 2u );
+    delete [] ( metadata - 2u );
     mData = 0u;
   }
 }
@@ -75,7 +75,7 @@ void VectorBase::Reserve( SizeType capacity, SizeType elementSize )
   if( capacity > oldCapacity )
   {
     const SizeType wholeAllocation = sizeof(SizeType) * 2u + capacity * elementSize;
-    void* wholeData = (void*)malloc( wholeAllocation );
+    void* wholeData = (void*) new unsigned char[ wholeAllocation ];
 #if defined( DEBUG_ENABLED )
     // in debug build this will help identify a vector of uninitialized data
     memset( wholeData, 0xaa, wholeAllocation );

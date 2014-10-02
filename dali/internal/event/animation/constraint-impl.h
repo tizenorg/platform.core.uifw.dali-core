@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-functional.h>
+
 // INTERNAL INCLUDES
 #include <dali/internal/common/message.h>
 #include <dali/internal/event/common/event-thread-services.h>
@@ -66,6 +69,7 @@ public:
   typedef SceneGraph::Constraint< PropertyType, PropertyAccessor<PropertyType> > SceneGraphConstraint;
   typedef const SceneGraph::AnimatableProperty<PropertyType>* ScenePropertyPtr;
   typedef typename PropertyConstraintPtr<PropertyType>::Type ConstraintFunctionPtr;
+  typedef Dali::function< PropertyType (const PropertyType&, const PropertyType&, float) > InterpolatorFunction;
 
   /**
    * Construct a new constraint.
@@ -285,6 +289,7 @@ class Constraint<float> : public ConstraintBase
 public:
 
   typedef typename PropertyConstraintPtr<float>::Type ConstraintFunctionPtr;
+  typedef Dali::function< float (const float&, const float&, float) > InterpolatorFunction;
 
   /**
    * Construct a new constraint.

@@ -18,6 +18,8 @@
 // CLASS HEADER
 #include <dali/internal/event/common/notification-manager.h>
 
+// EXTERNAL INCLUDES
+
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/mutex.h>

@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-functional.h>
+
 // INTERNAL INCLUDES
 #include <dali/internal/event/common/object-impl.h>
 #include <dali/internal/event/animation/animator-connector-base.h>

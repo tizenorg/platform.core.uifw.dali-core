@@ -16,7 +16,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/interpolator-functions.h>
@@ -104,55 +104,55 @@ AnyInterpolator GetDefaultInterpolator( Property::Type type )
   {
     case Property::BOOLEAN:
     {
-      function = boost::function<bool (const bool&, const bool&, float)>( &LerpBoolean );
+      function = Dali::function<bool (const bool&, const bool&, float)>( &LerpBoolean );
       break;
     }
 
     case Property::FLOAT:
     {
-      function = boost::function<float (const float&, const float&, float)>( &LerpFloat );
+      function = Dali::function<float (const float&, const float&, float)>( &LerpFloat );
       break;
     }
 
     case Property::INTEGER:
     {
-      function = boost::function<int (const int&, const int&, float)>( &LerpInteger );
+      function = Dali::function<int (const int&, const int&, float)>( &LerpInteger );
       break;
     }
 
     case Property::VECTOR2:
     {
-      function = boost::function<Vector2 (const Vector2&, const Vector2&, float)>( &LerpVector2 );
+      function = Dali::function<Vector2 (const Vector2&, const Vector2&, float)>( &LerpVector2 );
       break;
     }
 
     case Property::VECTOR3:
     {
-      function = boost::function<Vector3 (const Vector3&, const Vector3&, float)>( &LerpVector3 );
+      function = Dali::function<Vector3 (const Vector3&, const Vector3&, float)>( &LerpVector3 );
       break;
     }
 
     case Property::VECTOR4:
     {
-      function = boost::function<Vector4 (const Vector4&, const Vector4&, float)>( &LerpVector4 );
+      function = Dali::function<Vector4 (const Vector4&, const Vector4&, float)>( &LerpVector4 );
       break;
     }
 
     case Property::ROTATION:
     {
-      function = boost::function<Quaternion (const Quaternion&, const Quaternion&, float)>( &SlerpQuaternion );
+      function = Dali::function<Quaternion (const Quaternion&, const Quaternion&, float)>( &SlerpQuaternion );
       break;
     }
 
     case Property::MATRIX3:
     {
-      function = boost::function<Matrix3 (const Matrix3&, const Matrix3&, float)>(&LerpMatrix3);
+      function = Dali::function<Matrix3 (const Matrix3&, const Matrix3&, float)>(&LerpMatrix3);
       break;
     }
 
     case Property::MATRIX:
     {
-      function = boost::function<Matrix (const Matrix&, const Matrix&, float)>(&LerpMatrix);
+      function = Dali::function<Matrix (const Matrix&, const Matrix&, float)>(&LerpMatrix);
       break;
     }
 

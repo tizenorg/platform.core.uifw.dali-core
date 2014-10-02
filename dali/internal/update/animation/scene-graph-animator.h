@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/owner-container.h>
@@ -218,7 +218,7 @@ class Animator : public AnimatorBase, public PropertyOwner::Observer
 {
 public:
 
-  typedef boost::function< PropertyType (float, const PropertyType&) > AnimatorFunction;
+  typedef Dali::function< PropertyType (float, const PropertyType&) > AnimatorFunction;
 
   /**
    * Construct a new property animator.

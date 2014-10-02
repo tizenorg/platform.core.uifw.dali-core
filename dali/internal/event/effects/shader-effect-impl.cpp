@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/event/effects/shader-effect-impl.h>
 
+// EXTERNAL INCLUDES
+#include <cstring>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/math/matrix.h>

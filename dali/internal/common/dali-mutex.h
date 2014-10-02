@@ -1,5 +1,5 @@
-#ifndef __DALI_ACTIVE_CONSTRAINT_DECLARATIONS_H__
-#define __DALI_ACTIVE_CONSTRAINT_DECLARATIONS_H__
+#ifndef __DALI_MUTEX_H__
+#define __DALI_MUTEX_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -18,22 +18,43 @@
  *
  */
 
-// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
 
-// INTERNAL INCLUDES
-#include <dali/public-api/common/dali-functional.h>
-#include <dali/public-api/common/vector-wrapper.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#if defined(MUTEX_LOCKS_ENABLED)
+
+#include <boost/thread/mutex.hpp>
 
 namespace Dali
 {
+namespace Internal
+{
 
-class ActiveConstraint;
+typedef boost::mutex MessageQueueMutex;
 
-typedef SignalV2< void (ActiveConstraint& constraint) > ActiveConstraintSignalV2;
-
-typedef Dali::function<void (ActiveConstraint& constraint)> ActiveConstraintCallbackType;
-
+} // namespace Internal
 } // namespace Dali
 
-#endif // __DALI_ACTIVE_CONSTRAINT_DECLARATIONS_H__
+#else
+
+namespace Dali
+{
+namespace Internal
+{
+
+struct MessageQueueMutex
+{
+  struct scoped_lock
+  {
+    scoped_lock(MessageQueueMutex& /* mutex */)
+    {
+    }
+  };
+};
+
+} // namespace Internal
+} // namespace Dali
+
+#endif
+
+
+#endif // header

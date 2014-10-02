@@ -346,7 +346,7 @@ Property::Type ProxyObject::GetPropertyType( Property::Index index ) const
     CustomPropertyLookup::const_iterator entry = mCustomProperties->find( index );
     DALI_ASSERT_ALWAYS( mCustomProperties->end() != entry && "Cannot find Property index" );
 
-    return entry->second.type;
+    return entry->second.value.GetType();
   }
   return Property::NONE;
 }
@@ -424,7 +424,7 @@ Property::Value ProxyObject::GetProperty(Property::Index index) const
     {
       BufferIndex bufferIndex( Stage::GetCurrent()->GetEventBufferIndex() );
 
-      switch ( entry->second.type )
+      switch ( entry->second.value.GetType() )
       {
         case Property::BOOLEAN:
         {
@@ -817,7 +817,7 @@ void ProxyObject::SetCustomProperty( Property::Index index, const CustomProperty
 {
   if( entry.IsAnimatable() )
   {
-    switch ( entry.type )
+    switch ( entry.value.GetType() )
     {
       case Property::BOOLEAN:
       {

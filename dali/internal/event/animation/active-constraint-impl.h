@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/event-to-update.h>
@@ -69,7 +69,7 @@ public:
   typedef SceneGraph::Constraint< PropertyType, PropertyAccessor<PropertyType> > SceneGraphConstraint;
   typedef const SceneGraph::AnimatableProperty<PropertyType>* ScenePropertyPtr;
   typedef typename PropertyConstraintPtr<PropertyType>::Type ConstraintFunctionPtr;
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyType&, float) > InterpolatorFunction;
+  typedef Dali::function< PropertyType (const PropertyType&, const PropertyType&, float) > InterpolatorFunction;
 
   /**
    * Construct a new active-constraint.
@@ -316,7 +316,7 @@ class ActiveConstraint<float> : public ActiveConstraintBase
 public:
 
   typedef typename PropertyConstraintPtr<float>::Type ConstraintFunctionPtr;
-  typedef boost::function< float (const float&, const float&, float) > InterpolatorFunction;
+  typedef Dali::function< float (const float&, const float&, float) > InterpolatorFunction;
 
   /**
    * Construct a new active-constraint.

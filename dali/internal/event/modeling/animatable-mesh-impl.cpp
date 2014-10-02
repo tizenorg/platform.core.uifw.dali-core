@@ -15,6 +15,11 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <string>
+#include <cstring>
+
+// INTERNAL INCLUDES
 #include <dali/internal/event/common/property-index-ranges.h>
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/common/thread-local-storage.h>

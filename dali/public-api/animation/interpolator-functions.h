@@ -33,7 +33,7 @@ typedef Any AnyInterpolator;
 /**
  * @brief Retrieve an interpolator function for a property.
  *
- * This can be cast to boost::function<P (const P&, const P&, float)> where P corresponds to the property type.
+ * This can be cast to Dali::function<P (const P&, const P&, float)> where P corresponds to the property type.
  * @param[in] type The property type for which to get an interpolator
  * @return The interpolator function.
  */

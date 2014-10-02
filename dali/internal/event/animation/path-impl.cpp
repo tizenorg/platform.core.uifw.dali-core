@@ -18,6 +18,12 @@
 // CLASS HEADER
 #include <dali/internal/event/animation/path-impl.h>
 
+// EXTERNAL INCLUDES
+#include <cstring>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/object/type-registry.h>
+
 namespace
 {
 /**
@@ -43,9 +49,18 @@ const Dali::Internal::PropertyDetails DEFAULT_PROPERTY_DETAILS[] =
 {
   { "points",         Dali::Property::ARRAY, true, false, false },
   { "control-points", Dali::Property::ARRAY, true, false, false },
+  { "curvature",      Dali::Property::FLOAT, true, false, false },
 };
 
 const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( DEFAULT_PROPERTY_DETAILS[0] );
+
+
+Dali::BaseHandle Create()
+{
+  return Dali::Path::New();
+}
+
+Dali::TypeRegistration mType( typeid(Dali::Path), typeid(Dali::Handle), Create );
 
 }//Unnamed namespace
 
@@ -53,6 +68,7 @@ namespace Dali
 {
 const Property::Index Path::POINTS              = 0;
 const Property::Index Path::CONTROL_POINTS      = 1;
+const Property::Index Path::CURVATURE           = 2;
 
 namespace Internal
 {
@@ -145,6 +161,7 @@ Property::Value Path::GetDefaultProperty( Property::Index index ) const
   {
     case Dali::Path::POINTS:
     {
+      value = Property::Value(Property::ARRAY);
       size_t pointCount( mPoint.Size() );
       for( size_t i(0); i!=pointCount; ++i )
       {
@@ -154,11 +171,17 @@ Property::Value Path::GetDefaultProperty( Property::Index index ) const
     }
     case Dali::Path::CONTROL_POINTS:
     {
+      value = Property::Value(Property::ARRAY);
       size_t controlpointCount( mControlPoint.Size() );
       for( size_t i(0); i!=controlpointCount; ++i )
       {
         value.AppendItem( mControlPoint[i] );
       }
+      break;
+    }
+    case Dali::Path::CURVATURE:
+    {
+      DALI_ASSERT_ALWAYS(!"Property is not readable");
       break;
     }
     default:
@@ -201,9 +224,15 @@ void Path::SetDefaultProperty(Property::Index index, const Property::Value& prop
       }
       break;
     }
+    case Dali::Path::CURVATURE:
+    {
+      mControlPoint.Clear();
+      GenerateControlPoints( propertyValue.Get<float>() );
+      break;
+    }
     default:
     {
-      DALI_ASSERT_ALWAYS(false && "Path::Property is out of bounds");
+      // no read only properties
       break;
     }
   }

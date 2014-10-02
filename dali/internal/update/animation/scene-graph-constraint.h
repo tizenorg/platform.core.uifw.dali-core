@@ -19,12 +19,12 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/active-constraint.h>
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/dali-functional.h>
 #include <dali/internal/event/animation/property-constraint-ptr.h>
 #include <dali/internal/update/common/animatable-property.h>
 #include <dali/internal/update/common/property-owner.h>
@@ -50,7 +50,7 @@ class Constraint : public ConstraintBase
 public:
 
   typedef typename PropertyConstraintPtr< PropertyType >::Type ConstraintFunctionPtr;
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyType&, float progress) > InterpolatorFunc;
+  typedef Dali::function< PropertyType (const PropertyType&, const PropertyType&, float progress) > InterpolatorFunc;
 
   /**
    * Create a new scene-graph constraint.

@@ -19,7 +19,9 @@
 #include <dali/internal/event/common/thread-local-storage.h>
 
 // EXTERNAL INCLUDES
+#if !defined(EMSCRIPTEN)
 #include <boost/thread/tss.hpp>
+#endif
 #include <memory>
 
 // INTERNAL INCLUDES
@@ -38,7 +40,7 @@ namespace Internal
 
 namespace
 {
-#ifdef EMSCRIPTEN
+#if defined(EMSCRIPTEN)
   std::auto_ptr<ThreadLocalStorage> threadLocal;
 #else
   boost::thread_specific_ptr<ThreadLocalStorage> threadLocal;

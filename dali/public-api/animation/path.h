@@ -40,6 +40,8 @@ public:
 
   static const Property::Index POINTS;               ///< name "points",          type ARRAY of Vector3
   static const Property::Index CONTROL_POINTS;       ///< name "control-points",  type ARRAY of Vector3
+  static const Property::Index CURVATURE;            ///< name "curvature",       type FLOAT of Vector3, overwrites CONTROL_POINTS
+
   /**
    * @brief Create an initialized Path handle.
    *

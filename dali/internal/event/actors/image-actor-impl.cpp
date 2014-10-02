@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/event/actors/image-actor-impl.h>
 
+// EXTERNAL INCLUDES
+#include <cstring>
+
 // INTERNAL INCLUDES
 #include <dali/internal/event/images/nine-patch-image-impl.h>
 #include <dali/public-api/object/type-registry.h>

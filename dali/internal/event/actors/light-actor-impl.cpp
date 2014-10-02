@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/event/actors/light-actor-impl.h>
 
+// EXTERNAL INCLUDES
+#include <cstring>
+
 // INTERNAL HEADER
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
@@ -202,7 +205,7 @@ bool LightActor::IsDefaultPropertyWritable( Property::Index index ) const
 {
   if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
   {
-    return Actor::IsDefaultPropertyWritable(index) ;
+    return Actor::IsDefaultPropertyWritable(index);
   }
   else
   {
@@ -214,7 +217,7 @@ bool LightActor::IsDefaultPropertyAnimatable( Property::Index index ) const
 {
   if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
   {
-    return Actor::IsDefaultPropertyAnimatable(index) ;
+    return Actor::IsDefaultPropertyAnimatable(index);
   }
   else
   {
@@ -235,7 +238,7 @@ Property::Type LightActor::GetDefaultPropertyType( Property::Index index ) const
 {
   if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
   {
-    return Actor::GetDefaultPropertyType(index) ;
+    return Actor::GetDefaultPropertyType(index);
   }
   else
   {
@@ -257,7 +260,7 @@ const char* LightActor::GetDefaultPropertyName( Property::Index index ) const
 {
   if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
   {
-    return Actor::GetDefaultPropertyName(index) ;
+    return Actor::GetDefaultPropertyName(index);
   }
   else
   {
@@ -302,7 +305,7 @@ void LightActor::SetDefaultProperty( Property::Index index, const Property::Valu
 {
   if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
   {
-    Actor::SetDefaultProperty(index, propertyValue) ;
+    Actor::SetDefaultProperty(index, propertyValue);
   }
   else
   {
@@ -360,10 +363,10 @@ void LightActor::SetDefaultProperty( Property::Index index, const Property::Valu
 
 Property::Value LightActor::GetDefaultProperty( Property::Index index ) const
 {
-  Property::Value ret ;
+  Property::Value ret;
   if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
   {
-    ret = Actor::GetDefaultProperty(index) ;
+    ret = Actor::GetDefaultProperty(index);
   }
   else
   {
@@ -417,7 +420,7 @@ Property::Value LightActor::GetDefaultProperty( Property::Index index ) const
     } // switch(index)
   }
 
-  return ret ;
+  return ret;
 }
 
 

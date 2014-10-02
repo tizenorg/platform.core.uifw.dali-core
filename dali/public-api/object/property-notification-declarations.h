@@ -18,6 +18,8 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-functional.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
@@ -32,6 +34,7 @@ class PropertyNotification;
  * @brief Signal type for Dali::PropertyNotification::NotifySignal().
  */
 typedef Signal< void (PropertyNotification& source) > PropertyNotifySignalType;
+
 
 } // namespace Dali
 

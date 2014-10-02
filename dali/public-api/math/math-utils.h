@@ -18,6 +18,8 @@
  *
  */
 
+// EXTERNAL INCLUDES
+
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/constants.h>

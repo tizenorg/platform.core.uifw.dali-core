@@ -37,7 +37,7 @@ namespace // unnamed namespace
 
 typedef std::vector<TextVertex2D> VertexBuffer;
 
-void RepositionData( TextVertexBuffer& buffer )
+void RepositionData( VertexBuffer& buffer, Vector2 offset )
 {
   /*
    *
@@ -67,29 +67,13 @@ void RepositionData( TextVertexBuffer& buffer )
    */
 
   // move the vertices so 0,0 is the centre of the text string.
-  float minX=1e8f, maxX=-1e8f;
-  float minY=1e8f, maxY=-1e8f;
-  std::vector<TextVertex2D>& vertices = buffer.mVertices;
+  offset.x/=2.0f;
+  offset.y/=2.0f;
 
-  for (std::size_t i=0, size = vertices.size() ; i < size; ++i)
+  for (std::size_t i=0, size = buffer.size() ; i< size; ++i)
   {
-    TextVertex2D& vertex = vertices[i];
-    minX = std::min(minX, vertex.mX);
-    maxX = std::max(maxX, vertex.mX);
-
-    minY = std::min(minY, vertex.mY);
-    maxY = std::max(maxY, vertex.mY);
-  }
-
-  Vector2 offset;
-  offset.x = ( maxX + minX ) * 0.5f;
-  offset.y = ( maxY + minY ) * 0.5f;
-
-  for (std::size_t i=0, size = vertices.size() ; i< size; ++i)
-  {
-    TextVertex2D& vertex = vertices[i];
-    vertex.mX -= offset.x;
-    vertex.mY -= offset.y;
+      buffer[i].mX -= offset.x;
+      buffer[i].mY -= offset.y;
   }
 }
 
@@ -400,8 +384,9 @@ TextVertexBuffer* TextVertexGenerator::Generate( const TextArray& text,
     }
   }
 
-  textVertexBuffer->mVertexMax = Vector2( totalWidth, lineHeight );
-  RepositionData( *textVertexBuffer );
+  textVertexBuffer->mVertexMax = Vector2(totalWidth,lineHeight);
+
+  RepositionData( vertexBuffer, textVertexBuffer->mVertexMax );
 
 #ifdef DEBUG_VERTS
   DebugVertexBuffer( vertexBuffer );

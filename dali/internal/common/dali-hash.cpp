@@ -39,4 +39,37 @@ unsigned long StringHash::operator()(const std::string& toHash)
   return hash;
 }
 
+unsigned long StringHashShaderCode::operator()(const std::string& fragment, const std::string& vertex)
+{
+  unsigned long hash = 5381;
+
+  const char *fragStr = fragment.c_str();
+
+  // hash fragment code
+  while( int c = *fragStr++ )
+  {
+    if((  c == ' ') || ( c == '\n') || ( c== '\t') )
+    {
+      continue;
+    }
+    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+  }
+
+  // hash vertex code
+  const char *vertStr = vertex.c_str();
+  while( int c = *vertStr++ )
+  {
+    if((  c == ' ') || ( c == '\n') || ( c== '\t') )
+    {
+      continue;
+    }
+    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+  }
+
+  return hash;
+}
+
+
+
+
 } // namespace Dali

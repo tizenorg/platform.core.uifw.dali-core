@@ -27,6 +27,17 @@ struct StringHash
   unsigned long operator()(const std::string& toHash);
 };
 
+/**
+ * Ignores white spaces, tabs and carriage returns, and hashes both fragment and vertex shader code
+ */
+struct StringHashShaderCode
+{
+  unsigned long operator()(const std::string& fragment, const std::string& vertex);
+};
+
+
+
+
 } // namespace Dali
 
 #endif // header

@@ -206,6 +206,13 @@ public:
    */
   virtual Vector3 GetNaturalSize() = 0;
 
+  /**
+   * @copydoc Dali::Actor::OnRelaidOut()
+   *
+   * Can be overriden by deriving classes for custom behaviour
+   */
+  virtual void OnRelaidOut( const Vector3& size ) = 0;
+
 protected: // For derived classes
 
   /**

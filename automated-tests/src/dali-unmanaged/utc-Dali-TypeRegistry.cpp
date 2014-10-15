@@ -252,6 +252,11 @@ struct MyTestCustomActor : public CustomActorImpl
     return Vector3( 0.0f, 0.0f, 0.0f );
   }
 
+  virtual void OnRelaidOut( const Vector3& size )
+  {
+    // Nothing to do...
+  }
+
 public:
 
   SignalType mSignal;

@@ -304,6 +304,22 @@ public:
   static const char* const ACTION_HIDE;               ///< name "hide",   @see SetVisible()
   /** @} */
 
+public:
+
+  /**
+   * Size negotiation resize policies
+   */
+  enum ResizePolicy
+  {
+    Fixed,              // Do not resize
+    UseNaturalSize,     // Use the natural size of the actor
+    FillToParent,       // Resize up to parent dimension
+    FitToChildren,      // Resize parent around child sizes
+    DimensionDependent  // Resize based on extra rules: keep aspect or dimension dependency (width for height or height for width)
+  };
+
+public:
+
   // Creation
 
   /**
@@ -1165,6 +1181,31 @@ public:
    * @return true if the actor is focusable by keyboard navigation, false if not.
    */
   bool IsKeyboardFocusable() const;
+
+  /**
+   * Set the resize policy to be used
+   *
+   * @param[in] widthPolicy The resize policy to use for width
+   * @param[in] heightPolicy The resize policy to use for height
+   */
+  void SetResizePolicy( ResizePolicy widthPolicy, ResizePolicy heightPolicy );
+
+  /**
+   * Return the resize policy used
+   *
+   * @param[out] widthPolicyOut The width policy used
+   * @param[out] heightPolicyOut The height policy used
+   */
+  void GetResizePolicy( ResizePolicy& widthPolicyOut, ResizePolicy& heightPolicyOut ) const;
+
+  /**
+   * Request to relayout.
+   *
+   * This flags the actor and all actors dependent on it for relayout. The actual
+   * relayout is performed at the end of the frame. This means that multiple calls to relayout
+   * will not cause multiple relayouts to occur.
+   */
+  void RequestRelayout();
 
 public: // Signals
 

@@ -1179,6 +1179,445 @@ Vector3 Actor::GetNaturalSize() const
   return Vector3( 0.0f, 0.0f, 0.0f );
 }
 
+void Actor::NegotiateSize( const SizeBounds& bounds )
+{
+  // Do the negotiation
+  if( NegotiateDimensions( bounds ) )
+  {
+    // Do the set actor size
+    SetNegotiatedSize();
+
+    // Negotiate down to children
+    SizeBounds newBounds;
+    CalculateBounds( GetSize(), bounds, newBounds );
+
+    ActorContainer children;
+    CollectChildrenForRelayout( children );
+
+    for( ActorContainer::iterator it = children.begin(), itEnd = children.end(); it != itEnd; ++it )
+    {
+      Dali::Actor child = *it;
+
+      GetImplementation( child ).NegotiateSize( newBounds );
+    }
+  }
+}
+
+void Actor::CalculateBounds( const Vector3& size, const SizeBounds& parentBounds, SizeBounds& boundsOut )
+{
+  boundsOut = parentBounds;
+  boundsOut.max = size;
+}
+
+void Actor::SetNegotiatedSize()
+{
+  // Do the set actor size
+  const float negotiatedWidth = ( IsLayoutDimensionNegotiated( Width ) ) ? GetNegotiatedDimension( Width ) : GetSize().width;
+  const float negotiatedHeight = ( IsLayoutDimensionNegotiated( Height ) ) ? GetNegotiatedDimension( Height ) : GetSize().height;
+
+  SetSize( negotiatedWidth, negotiatedHeight );
+
+  // Notify deriving classes
+  OnRelaidOut( GetSize() );
+
+  // Clear flags
+  SetLayoutDimensionDirty( Width, false );
+  SetLayoutDimensionDirty( Height, false );
+}
+
+bool Actor::NegotiateDimensions( const SizeBounds& bounds )
+{
+  bool negotiated = false;
+
+  // Negotiate if at least one dimension is dirty
+  const bool widthDirty = IsLayoutDimensionDirty( Width );
+  const bool heightDirty = IsLayoutDimensionDirty( Height );
+
+  if( widthDirty || heightDirty )
+  {
+    const bool widthNegotiated = IsLayoutDimensionNegotiated( Width );
+    const bool heightNegotiated = IsLayoutDimensionNegotiated( Height );
+
+    if( !widthNegotiated || !heightNegotiated )
+    {
+      if( widthDirty && !widthNegotiated )
+      {
+        // Negotiate width
+        NegotiateDimension( Width, bounds );
+      }
+
+      if( heightDirty && !heightNegotiated )
+      {
+        // Negotiate height
+        NegotiateDimension( Height, bounds );
+      }
+    }
+
+    negotiated = true;
+  }
+
+  return negotiated;
+}
+
+void Actor::NegotiateDimension( Dimension dimension, const SizeBounds& bounds )
+{
+  if( IsLayoutDimensionDirty( dimension) && !IsLayoutDimensionNegotiated( dimension ) )
+  {
+    float dimensionSize = 0.0f;
+
+    switch( GetResizePolicy( dimension ) )
+    {
+      case Dali::Actor::FillToParent:
+      {
+        dimensionSize = NegotiateFromParent( dimension );
+        break;
+      }
+
+      default:
+      {
+        // TEMP
+        dimensionSize = (dimension == Width) ? GetSize().width : GetSize().height;
+        break;
+      }
+    }
+
+    SetNegotiatedDimension( dimension, dimensionSize );
+    SetLayoutDimensionNegotiated( dimension, true );
+  }
+}
+
+float Actor::NegotiateFromParent( Dimension dimension )
+{
+  Actor* parent = GetParent();
+  if( parent )
+  {
+    return parent->GetSize( dimension );
+  }
+
+  return 0.0f;
+}
+
+void Actor::RequestRelayout( unsigned int dimensionBitfield )
+{
+  if( ( dimensionBitfield & Width ) )
+  {
+    PropagateRelayoutDimension( Width );
+  }
+
+  if( ( dimensionBitfield & Height ) )
+  {
+    PropagateRelayoutDimension( Height );
+  }
+}
+
+void Actor::PropagateRelayoutDimension( Dimension dimension )
+{
+  if( !IsLayoutDimensionDirty( dimension ) )
+  {
+    ActorStack parentStack;
+    parentStack.push_back( Dali::Actor( this ) );     // Push this actor now as PropagateRelayoutFlag will only push parents
+
+    PropagateRelayoutFlag( dimension, parentStack );
+
+    Internal::Stage::GetCurrent()->RequestRelayout( parentStack.back() );
+  }
+}
+
+void Actor::PropagateRelayoutFlag( Dimension dimension, ActorStack& parentStack )
+{
+  if( DoesRelayout() )
+  {
+    SetLayoutDimensionDirty( dimension, true );
+    SetLayoutDimensionNegotiated( dimension, false );
+
+    // Propagate if dimensional dependency
+    // The LayoutDimensionDirty flag will prevent any infinite loops occurring
+    if( GetResizePolicy( dimension ) == Dali::Actor::DimensionDependent )
+    {
+      const Dimension otherDimension = SwapDimension( dimension );
+      if ( !IsLayoutDimensionDirty( otherDimension ) )
+      {
+        PropagateRelayoutFlag( otherDimension, parentStack );
+      }
+    }
+
+    // Propagate up to parent
+    Actor* parent = GetParent();
+    if( parent && parent->IsRelayoutDependentOnChildren( dimension ) && !parent->IsLayoutDimensionDirty( dimension ) )
+    {
+      // Check if parent is not already on the stack e.g. when a dimension swap occurs
+      if( std::find( parentStack.begin(), parentStack.end(), Dali::Actor( parent ) ) == parentStack.end() )
+      {
+        // Record parents to find root of sub tree
+        parentStack.push_back( Dali::Actor( parent ) );
+      }
+
+      parent->PropagateRelayoutFlag( dimension, parentStack );
+    }
+
+    // Propagate down to children
+    ActorContainer children;
+    CollectChildrenForRelayout( children );
+
+    for( ActorContainer::iterator it = children.begin(), itEnd = children.end(); it != itEnd; ++it )
+    {
+      Actor& child = GetImplementation( *it );
+      if( child.IsRelayoutDependentOnParent( dimension ) && !child.IsLayoutDimensionDirty( dimension ) )
+      {
+        child.PropagateRelayoutFlag( dimension, parentStack );
+      }
+    }
+  }
+}
+
+void Actor::SetLayoutDimensionDirty( Dimension dimension, bool dirty )
+{
+  if( dirty )
+  {
+    mLayoutDimensionsDirty |= dimension;
+  }
+  else
+  {
+    mLayoutDimensionsDirty &= ~dimension;
+  }
+}
+
+bool Actor::IsLayoutDimensionDirty( Dimension dimension ) const
+{
+  return ( mLayoutDimensionsDirty & dimension ) != 0;
+}
+
+void Actor::SetLayoutDimensionNegotiated( Dimension dimension, bool negotiated )
+{
+  if( negotiated )
+  {
+    mLayoutDimensionsNegotiated |= dimension;
+  }
+  else
+  {
+    mLayoutDimensionsNegotiated &= ~dimension;
+  }
+}
+
+bool Actor::IsLayoutDimensionNegotiated( Dimension dimension ) const
+{
+  return ( mLayoutDimensionsNegotiated & dimension ) != 0;
+}
+
+void Actor::SetDoesRelayout( bool doesRelayout )
+{
+  mDoesRelayout = doesRelayout;
+}
+
+bool Actor::DoesRelayout() const
+{
+  return mDoesRelayout;
+}
+
+void Actor::SetResizePolicy( Dimension dimension, Dali::Actor::ResizePolicy policy )
+{
+  switch( dimension )
+  {
+    case Width:
+    {
+      mWidthResizePolicy = policy;
+      break;
+    }
+
+    case Height:
+    {
+      mHeightResizePolicy = policy;
+      break;
+    }
+
+    default:
+    {
+      break;
+    }
+  }
+
+  RequestRelayout( dimension );
+}
+
+Dali::Actor::ResizePolicy Actor::GetResizePolicy( Dimension dimension ) const
+{
+  switch( dimension )
+  {
+    case Width:
+    {
+      return mWidthResizePolicy;
+    }
+
+    case Height:
+    {
+      return mHeightResizePolicy;
+    }
+
+    default:
+    {
+      return Dali::Actor::UseNaturalSize;   // Default to something sensible
+    }
+  }
+}
+
+/**
+ * Helper function to determine if a resize policy is dependent on its children.
+ */
+static bool ResizePolicyDependentOnChildren( Dali::Actor::ResizePolicy policy )
+{
+  return policy == Dali::Actor::FitToChildren;
+}
+
+bool Actor::IsRelayoutDependentOnChildren( Dimension dimension ) const
+{
+  switch( dimension )
+  {
+    case Width:
+    {
+      return ResizePolicyDependentOnChildren( mWidthResizePolicy );
+    }
+
+    case Height:
+    {
+      return ResizePolicyDependentOnChildren( mHeightResizePolicy );
+    }
+
+    default:
+    {
+      return false;
+    }
+  }
+}
+
+/**
+ * Helper function to determine if a resize policy is dependent on its parent.
+ */
+static bool ResizePolicyDependentOnParent( Dali::Actor::ResizePolicy policy )
+{
+  return policy == Dali::Actor::FillToParent;
+}
+
+bool Actor::IsRelayoutDependentOnParent( Dimension dimension ) const
+{
+  switch( dimension )
+  {
+    case Width:
+    {
+      return ResizePolicyDependentOnParent( mWidthResizePolicy );
+    }
+
+    case Height:
+    {
+      return ResizePolicyDependentOnParent( mHeightResizePolicy );
+    }
+
+    default:
+    {
+      return false;
+    }
+  }
+}
+
+void Actor::CollectChildrenForRelayout( ActorContainer& childrenOut ) const
+{
+  // Default implementation: just collect all children
+  for( unsigned int i = 0; i < GetChildCount(); ++i )
+  {
+    childrenOut.push_back( GetChildAt( i ) );
+  }
+}
+
+Internal::Actor::Dimension Actor::SwapDimension( Dimension dimension ) const
+{
+  switch( dimension )
+  {
+    case Width:
+    {
+      return Height;
+    }
+
+    case Height:
+    {
+      return Width;
+    }
+
+    default:
+    {
+      return NoDimension;
+    }
+  }
+}
+
+void Actor::SetNegotiatedDimension( Dimension dimension, float value )
+{
+  switch( dimension )
+  {
+    case Width:
+    {
+      mNegotiatedWidth = value;
+      break;
+    }
+
+    case Height:
+    {
+      mNegotiatedHeight = value;
+      break;
+    }
+
+    default:
+    {
+      break;
+    }
+  }
+}
+
+float Actor::GetNegotiatedDimension( Dimension dimension ) const
+{
+  switch( dimension )
+  {
+    case Width:
+    {
+      return mNegotiatedWidth;
+    }
+
+    case Height:
+    {
+      return mNegotiatedHeight;
+    }
+
+    default:
+    {
+      return 0.0f;
+    }
+  }
+}
+
+float Actor::GetSize( Dimension dimension ) const
+{
+  switch( dimension )
+  {
+    case Width:
+    {
+      return GetSize().width;
+    }
+
+    case Height:
+    {
+      return GetSize().height;
+    }
+
+    default:
+    {
+      return 0.0f;
+    }
+  }
+}
+
+void Actor::OnRelaidOut( const Vector3& size )
+{
+  // Nothing to do here... to be used by deriving classes.
+}
+
 
 #ifdef DYNAMICS_SUPPORT
 
@@ -2038,6 +2477,8 @@ Actor::Actor( DerivedType derivedType )
   mSize( 0.0f, 0.0f, 0.0f ),
   mName(),
   mId( ++mActorCounter ), // actor ID is initialised to start from 1, and 0 is reserved
+  mNegotiatedWidth( 0.0f ),
+  mNegotiatedHeight( 0.0f ),
   mIsRoot( ROOT_LAYER == derivedType ),
   mIsRenderable( RENDERABLE == derivedType ),
   mIsLayer( LAYER == derivedType || ROOT_LAYER == derivedType ),
@@ -2052,9 +2493,14 @@ Actor::Actor( DerivedType derivedType )
   mOnStageSignalled( false ),
   mInheritRotation( true ),
   mInheritScale( true ),
+  mDoesRelayout( true ),
+  mLayoutDimensionsDirty( 0 ),
+  mLayoutDimensionsNegotiated( 0 ),
   mDrawMode( DrawMode::NORMAL ),
   mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ),
-  mColorMode( Node::DEFAULT_COLOR_MODE )
+  mColorMode( Node::DEFAULT_COLOR_MODE ),
+  mWidthResizePolicy( Dali::Actor::UseNaturalSize ),
+  mHeightResizePolicy( Dali::Actor::UseNaturalSize )
 {
 }
 

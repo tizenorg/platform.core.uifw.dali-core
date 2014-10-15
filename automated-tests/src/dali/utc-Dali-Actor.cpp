@@ -3029,3 +3029,27 @@ int UtcDaliActorProperties(void)
   }
   END_TEST;
 }
+
+int UtcDaliActorSetGetResizePolicy(void)
+{
+  TestApplication app;
+  tet_infoline(" UtcDaliActorSetGetResizePolicy");
+
+  Actor actor = Actor::New();
+
+  Actor::ResizePolicy widthPolicy, heightPolicy;
+
+  // Default
+  actor.GetResizePolicy( widthPolicy, heightPolicy );
+  DALI_TEST_CHECK( widthPolicy == Actor::UseNaturalSize );
+  DALI_TEST_CHECK( heightPolicy == Actor::UseNaturalSize );
+
+  // Swap to something else
+  actor.SetResizePolicy( Actor::Fixed, Actor::FitToChildren );
+
+  actor.GetResizePolicy( widthPolicy, heightPolicy );
+  DALI_TEST_CHECK( widthPolicy == Actor::Fixed );
+  DALI_TEST_CHECK( heightPolicy == Actor::FitToChildren );
+
+  END_TEST;
+}

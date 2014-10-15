@@ -60,6 +60,10 @@ typedef Dali::ActorContainer                  ActorContainer; // Store handles t
 typedef ActorContainer::iterator              ActorIter;
 typedef ActorContainer::const_iterator        ActorConstIter;
 
+typedef Dali::ActorContainer                  ActorStack;
+typedef ActorContainer::iterator              ActorStackIter;
+typedef ActorContainer::const_iterator        ActorStackConstIter;
+
 /**
  * Actor is the primary object which Dali applications interact with.
  * UI controls can be built by combining multiple actors.
@@ -72,6 +76,26 @@ typedef ActorContainer::const_iterator        ActorConstIter;
  */
 class Actor : public ProxyObject
 {
+public:
+
+  // Enums
+
+  enum Dimension
+  {
+    NoDimension   = 0,      // No dimension specified
+    Width         = 0x1,    // The width dimension
+    Height        = 0x2,    // The height dimension
+    AllDimensions = 0x3     // Mask all
+  };
+
+  struct SizeBounds
+  {
+    Vector3 min;
+    Vector3 max;
+
+    SizeBounds() : min( 0.0f, 0.0f, 0.0f ), max( 0.0f, 0.0f, 0.0f ) {}
+  };
+
 public:
 
   /**
@@ -739,6 +763,218 @@ public:
    */
   const Vector4& GetCurrentWorldColor() const;
 
+  // SIZE NEGOTIATION
+
+  /**
+   * Set the resize policy to be used for the given dimension
+   *
+   * @param[in] dimension The dimension to set policy for
+   * @param[in] policy The resize policy to use
+   */
+  void SetResizePolicy( Dimension dimension, Dali::Actor::ResizePolicy policy );
+
+  /**
+   * Return the resize policy used for the given dimension
+   *
+   * @param[in] dimension The dimension to get policy for
+   * @return Return the width resize policy
+   */
+  Dali::Actor::ResizePolicy GetResizePolicy( Dimension dimension ) const;
+
+  /**
+   * Request to relayout.
+   *
+   * This flags the actor and all actors dependent on it for relayout. The actual
+   * relayout is performed at the end of the frame. This means that multiple calls to relayout
+   * will not cause multiple relayouts to occur.
+   *
+   * @param[in] dimensionBitfield A bitfield specifying which dimensions to process. E.g. width or height or both
+   */
+  void RequestRelayout( unsigned int dimensionBitfield = AllDimensions );
+
+  /**
+   * Propagate the dirty layout flag for the given dimensions into the actor and any actor
+   * that is dependent on this one.
+   *
+   * @param[in] dimension The dimension for which to propagate the flag
+   * @param[in] parentStack The stack to add parents to. When the function returns the top of the stack will be root of the sub tree.
+   */
+  void PropagateRelayoutFlag( Dimension dimension, ActorStack& parentStack );
+
+  /**
+   * Negotiate size for a given root actor
+   *
+   * The algorithm will work in a top-down fashion.
+   *
+   * @param[in] bounds The size constraints that the actor must respect
+   */
+  void NegotiateSize( const SizeBounds& bounds );
+
+  /**
+   * Negotiate sizes for an actor in all dimensions
+   *
+   * @param[in] bounds The size constraints that the actor must respect
+   * @return Return true if any dimension has been negotiated
+   */
+  bool NegotiateDimensions( const SizeBounds& bounds );
+
+  /**
+   * Negotiate size for a given root actor and specific dimension
+   *
+   * The algorithm adopts a recursive dependency checking approach. Meaning, that wherever dependencies
+   * are found, e.g. an actor dependent on its parent, the dependency will be calculated first with NegotiatedDimension and
+   * LayoutDimensionNegotiated flags being filled in on the actor.
+   *
+   * @post All actors that exist in the dependency chain connected to the given actor will have had their NegotiatedDimensions
+   * calculated and set as well as the LayoutDimensionNegotiated flags.
+   *
+   * @param[in] dimension The dimension to negotiate on
+   * @param[in] bounds The size constraints that the actor must respect
+   */
+  void NegotiateDimension( Dimension dimension, const SizeBounds& bounds );
+
+  /**
+   * Negotiate a dimension based on the size of the parent
+   *
+   * @param[in] dimension The dimension to negotiate on
+   * @return Return the negotiated size
+   */
+  float NegotiateFromParent( Dimension dimension );
+
+  /**
+   * Set the negotiated size on an actor
+   */
+  void SetNegotiatedSize();
+
+  /**
+   * Calculate new bounds given size and parent bounds
+   *
+   * @param[in] size The size of the actor
+   * @param[in] parentBounds The bounds of the parent
+   * @param[in] boundsOut The calcualted bounds
+   */
+  void CalculateBounds( const Vector3& size, const SizeBounds& parentBounds, SizeBounds& boundsOut );
+
+  /**
+   * Propagate the dirty layout flag for given dimension, saving the root of the dirty
+   * sub tree
+   *
+   * @param[in] dimension The dimension for which to propagate the flag
+   */
+  void PropagateRelayoutDimension( Dimension dimension );
+
+  /**
+   * Flag the given dimension as being dirty.
+   *
+   * @param[in] dimension The dimension to flag as dirty.
+   * @param[in] dirty The status of the flag to set.
+   */
+  void SetLayoutDimensionDirty( Dimension dimension, bool dirty );
+
+  /**
+   * Test whether the given dimension is dirty or not.
+   *
+   * @param[in] dimension The dimension to test if it is dirty.
+   * @return Return if the dimension is dirty or not.
+   */
+  bool IsLayoutDimensionDirty( Dimension dimension ) const;
+
+  /**
+   * Flag the given dimension as being negotiated.
+   *
+   * @param[in] dimension The dimension to flag as negotiated.
+   * @param[in] negotiated The status of the flag to set.
+   */
+  void SetLayoutDimensionNegotiated( Dimension dimension, bool negotiated );
+
+  /**
+   * Test whether the given dimension has been negotiated or not.
+   *
+   * @param[in] dimension The dimension to test if it is negotiated.
+   * @return Return if the dimension is negotiated or not.
+   */
+  bool IsLayoutDimensionNegotiated( Dimension dimension ) const;
+
+  /**
+   * Set if the actor should do relayout in size negotiation or not.
+   *
+   * @param[in] doesRelayout Flag to specify if actor should do relayout or not.
+   */
+  void SetDoesRelayout( bool doesRelayout );
+
+  /**
+   * Is the actor included in relayout or not.
+   *
+   * @return Return if the actor is involved in size negotiation or not.
+   */
+  bool DoesRelayout() const;
+
+  /**
+   * Does this actor have a size negotiation dependency on its children for the given dimension.
+   *
+   * @param[in] dimension The dimension to check the dependency for.
+   * @return Return if there is a relayout dependency for the given dimension.
+   */
+  bool IsRelayoutDependentOnChildren( Dimension dimension ) const;
+
+  /**
+   * Does this actor have a size negotiation dependency on its parent for the given dimension.
+   *
+   * @param[in] dimension The dimension to check the dependency for.
+   * @return Return if there is a relayout dependency for the given dimension.
+   */
+  bool IsRelayoutDependentOnParent( Dimension dimension ) const;
+
+  /**
+   * Return a list of children that participate in size negotiation
+   *
+   * @param[in,out] childrenOut A list to populate with children
+   */
+  virtual void CollectChildrenForRelayout( ActorContainer& childrenOut ) const;
+
+  /**
+   * Return the opposite dimension from the input one
+   *
+   * @param[in] dimension The dimension to swap
+   * @return Return the oppsoite dimension
+   */
+  Dimension SwapDimension( Dimension dimension ) const;
+
+  /**
+   * Set a value for the negotiated dimension
+   *
+   * @param[in] dimension The dimension to set
+   * @param[in] value The value to set for the dimension
+   */
+  void SetNegotiatedDimension( Dimension dimension, float value );
+
+  /**
+   * Return the value set for the given dimension
+   *
+   * @param[in] dimension The dimension to get
+   * @return Return the value set for the given dimension
+   */
+  float GetNegotiatedDimension( Dimension dimension ) const;
+
+  /**
+   * Return the size value set for the given dimension
+   *
+   * @param[in] dimension The dimension to get
+   * @return Return the size value set for the given dimension
+   */
+  float GetSize( Dimension dimension ) const;
+
+  /**
+   * Called when the size for this actor has been set from size negotiation.
+   *
+   * Should be overridden by derived classes if they need to layout
+   * actors differently after certain operations like add or remove
+   * actors, resize or after changing especific properties.
+   *
+   * @param[in] size The allocated size.
+   */
+  virtual void OnRelaidOut( const Vector3& size );
+
 #ifdef DYNAMICS_SUPPORT
 
   // Dynamics
@@ -1381,6 +1617,9 @@ protected:
   std::string     mName;      ///< Name of the actor
   unsigned int    mId;        ///< A unique ID to identify the actor starting from 1, and 0 is reserved
 
+  float mNegotiatedWidth;     ///< The width that has been negotiated for this actor
+  float mNegotiatedHeight;    ///< The height that has been negotiated for this actor
+
   const bool mIsRoot                               : 1; ///< Flag to identify the root actor
   const bool mIsRenderable                         : 1; ///< Flag to identify that this is a renderable actor
   const bool mIsLayer                              : 1; ///< Flag to identify that this is a layer
@@ -1395,9 +1634,16 @@ protected:
   bool mOnStageSignalled                           : 1; ///< Set to true before OnStageConnection signal is emitted, and false before OnStageDisconnection
   bool mInheritRotation                            : 1; ///< Cached: Whether the parent's rotation should be inherited.
   bool mInheritScale                               : 1; ///< Cached: Whether the parent's scale should be inherited.
+  bool mDoesRelayout                               : 1; ///< Flag to specify if this actor should be included in size negotiation or not (defaults to true)
+  bool mWidthNegotiated                            : 1; ///< Has the width been negotiated
+  bool mHeightNegotiated                           : 1; ///< Has the height been negotiated
+  unsigned int mLayoutDimensionsDirty              : 2; ///< Bitfield of flags indicating whether a layout dimension is dirty or not
+  unsigned int mLayoutDimensionsNegotiated         : 2; ///< Bitfield of flags indicating whether a layout dimension has been negotiated or not
   DrawMode::Type mDrawMode                         : 2; ///< Cached: How the actor and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode : 2; ///< Cached: Determines how position is inherited
   ColorMode mColorMode                             : 2; ///< Cached: Determines whether mWorldColor is inherited
+  Dali::Actor::ResizePolicy mWidthResizePolicy     : 3; ///< The resize policy in effect for width
+  Dali::Actor::ResizePolicy mHeightResizePolicy    : 3; ///< The resize policy in effect for height
 
   // Default properties
   typedef std::map<std::string, Property::Index> DefaultPropertyLookup;

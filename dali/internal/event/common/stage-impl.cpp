@@ -492,6 +492,48 @@ void Stage::KeepRendering( float durationSeconds )
   KeepRenderingMessage( mUpdateManager, durationSeconds );
 }
 
+void Stage::RequestRelayout( Dali::Actor actor )
+{
+  // Only add the rootActor if it is not already recorded
+  if( std::find( mDirtyLayoutSubTrees.begin(), mDirtyLayoutSubTrees.end(), actor ) == mDirtyLayoutSubTrees.end() )
+  {
+    mDirtyLayoutSubTrees.push_back( actor );
+  }
+
+  mRelayoutFlag = true;
+
+  // Setup the connection to call relayout at end of frame.
+  if( !mRelayoutConnection )
+  {
+    EventProcessingFinishedSignal().Connect( this, &Stage::Relayout );
+    mRelayoutConnection = true;
+  }
+}
+
+void Stage::Relayout()
+{
+  // Only do something when requested
+  if( mRelayoutFlag )
+  {
+    // Clear the flag as we're now doing the relayout
+    mRelayoutFlag = false;
+
+    // Work down from each sub tree root
+    for( ActorContainer::iterator it = mDirtyLayoutSubTrees.begin(), itEnd = mDirtyLayoutSubTrees.end(); it != itEnd; ++it )
+    {
+      Dali::Actor actor = *it;
+
+      Dali::Actor parent = actor.GetParent();
+      Internal::Actor::SizeBounds bounds;
+      bounds.max = ( parent ) ? parent.GetSize() : actor.GetSize(); // TODO: What if parent has no size?
+
+      GetImplementation( actor ).NegotiateSize( bounds );
+    }
+
+    mDirtyLayoutSubTrees.clear();
+  }
+}
+
 void Stage::EmitKeyEventSignal(const KeyEvent& event)
 {
   // Emit the key event signal when no actor in the stage has gained the key input focus
@@ -539,8 +581,12 @@ Stage::Stage( AnimationPlaylist& playlist,
 #ifdef DYNAMICS_SUPPORT
   mDynamicsFactory(NULL),
 #endif
-  mSystemOverlay(NULL)
+  mSystemOverlay(NULL),
+  mRelayoutConnection( false ),
+  mRelayoutFlag( false )
 {
+  // Start it off with some memory already allocated
+  mDirtyLayoutSubTrees.reserve( 32 );
 }
 
 Stage::~Stage()

@@ -174,6 +174,14 @@ private:
   }
 
   /**
+   * @copydoc Internal::Actor::OnRelaidOut()
+   */
+  virtual void OnRelaidOut( const Vector3& size )
+  {
+    mImpl->OnRelaidOut( size );
+  }
+
+  /**
    * Private constructor; see also CustomActor::New()
    */
   CustomActor(CustomActorImpl& extension);

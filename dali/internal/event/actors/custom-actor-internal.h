@@ -174,6 +174,22 @@ private:
   }
 
   /**
+   * @copydoc Internal::Actor::OnRelaidOut()
+   */
+  virtual void OnRelaidOut( const Vector3& size )
+  {
+    mImpl->OnRelaidOut( size );
+  }
+
+  /**
+   * @copydoc Internal::Actor::GetMaximumChildSize()
+   */
+  virtual Vector3 GetMaximumChildSize( Dali::Actor child )
+  {
+    return mImpl->GetMaximumChildSize( child );
+  }
+
+  /**
    * Private constructor; see also CustomActor::New()
    */
   CustomActor(CustomActorImpl& extension);

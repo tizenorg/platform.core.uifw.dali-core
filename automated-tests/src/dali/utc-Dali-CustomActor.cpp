@@ -188,6 +188,11 @@ struct TestCustomActor : public CustomActorImpl
     return Vector3( 0.0f, 0.0f, 0.0f );
   }
 
+  virtual void OnRelaidOut( const Vector3& size )
+  {
+    // Nothing to do...
+  }
+
   void SetDaliProperty(std::string s)
   {
     Self().SetProperty(mDaliProperty, s) ;
@@ -490,6 +495,11 @@ public:
   virtual Vector3 GetNaturalSize()
   {
     return Vector3( 0.0f, 0.0f, 0.0f );
+  }
+
+  virtual void OnRelaidOut( const Vector3& size )
+  {
+    // Nothing to do...
   }
 };
 

@@ -491,6 +491,23 @@ bool Actor::IsKeyboardFocusable() const
   return GetImplementation(*this).IsKeyboardFocusable();
 }
 
+void Actor::SetResizePolicy( ResizePolicy widthPolicy, ResizePolicy heightPolicy )
+{
+  GetImplementation(*this).SetResizePolicy( Internal::Actor::Width, widthPolicy );
+  GetImplementation(*this).SetResizePolicy( Internal::Actor::Height, heightPolicy );
+}
+
+void Actor::GetResizePolicy( ResizePolicy& widthPolicyOut, ResizePolicy& heightPolicyOut ) const
+{
+  widthPolicyOut = GetImplementation(*this).GetResizePolicy( Internal::Actor::Width );
+  heightPolicyOut = GetImplementation(*this).GetResizePolicy( Internal::Actor::Height );
+}
+
+void Actor::RequestRelayout()
+{
+  GetImplementation(*this).RequestRelayout();
+}
+
 Actor::TouchSignalV2& Actor::TouchedSignal()
 {
   return GetImplementation(*this).TouchedSignal();

@@ -69,7 +69,7 @@ class RenderTaskList;
 /**
  * Implementation of Stage
  */
-class Stage : public BaseObject, public RenderTaskDefaults
+class Stage : public BaseObject, public RenderTaskDefaults, public ConnectionTracker
 {
 public:
 
@@ -332,6 +332,18 @@ public:
   }
 
   /**
+   * Add root of dirty layout sub tree to list for relayout at end of frame
+   *
+   * @param[in] actor The root of the sub tree to add
+   */
+  void RequestRelayout( Dali::Actor actor );
+
+  /**
+   * Perform size negotiation on the stage
+   */
+  void Relayout();
+
+  /**
    * @copydoc Dali::Stage::KeepRendering()
    */
   void KeepRendering( float durationSeconds );
@@ -436,6 +448,11 @@ private:
   IntrusivePtr<CameraActor> mLeftCamera;
 
   Integration::SystemOverlay* mSystemOverlay; ///< SystemOverlay stage access
+
+  // Size negotiation
+  ActorContainer mDirtyLayoutSubTrees;     ///< List of roots of sub trees that are dirty
+  bool mRelayoutConnection    : 1;         ///< Whether EventProcessingFinishedSignal signal is connected.
+  bool mRelayoutFlag          : 1;         ///< Whether a relayout is required this frame
 
   // The key event signal
   Dali::Stage::KeyEventSignalV2                 mKeyEventSignalV2;

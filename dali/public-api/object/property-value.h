@@ -50,7 +50,7 @@ public:
   /**
    * @brief Default constructor.
    *
-   * This creates a property with type Property::INVALID.
+   * This creates a property with type Property::NONE.
    */
   Value();
 

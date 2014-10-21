@@ -35,6 +35,7 @@ my @system_packages = (
     "pkg-config",
     "libtool",
     "ccache",
+    "libassimp-dev",
     "libboost-dev",
     "libboost-thread-dev",
     "libelementary-dev",

@@ -28,29 +28,6 @@
 namespace Dali
 {
 
-unsigned int NextPowerOfTwo(unsigned int i)
-{
-  DALI_ASSERT_DEBUG(i <= 1U << (sizeof(unsigned) * 8 - 1) && "Return type cannot represent the next power of two greater than the argument.");
-  if(i==0)
-  {
-    return 1;
-  }
-
-  i--;
-  i |= i >> 1;
-  i |= i >> 2;
-  i |= i >> 4;
-  i |= i >> 8;
-  i |= i >> 16;
-  i++;
-  return i;
-}
-
-bool IsPowerOfTwo(unsigned int i)
-{
-  return (i != 0) && ((i & (i - 1)) == 0);
-}
-
 float GetRangedEpsilon(float a, float b)
 {
   float abs_f = std::max(fabsf(a), fabsf(b));
@@ -78,33 +55,6 @@ float GetRangedEpsilon(float a, float b)
     return Math::MACHINE_EPSILON_1000;
   }
   return epsilon;
-}
-
-// TODO: Change this to use #pragma GCC diagnostic push / pop when the compiler is updated to 4.6.0+
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-bool EqualsZero( float value )
-{
-  return value == 0.0f;
-}
-#pragma GCC diagnostic error "-Wfloat-equal"
-
-bool Equals( float a, float b )
-{
-  return ( fabsf( a - b ) <= GetRangedEpsilon( a, b ) );
-}
-
-bool Equals( float a, float b, float epsilon )
-{
-  return ( fabsf( a - b ) <= epsilon );
-}
-
-float Round(float value, int pos)
-{
-  float temp;
-  temp = value * powf( 10, pos );
-  temp = floorf( temp + 0.5 );
-  temp *= powf( 10, -pos );
-  return temp;
 }
 
 float WrapInDomain(float x, float start, float end)

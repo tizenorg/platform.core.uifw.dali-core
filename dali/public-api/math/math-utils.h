@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/constants.h>
 
 namespace Dali
 {
@@ -35,7 +36,23 @@ namespace Dali
  * @param[in] i input number
  * @return    next power of two or i itself in case it's a power of two
  */
-DALI_IMPORT_API unsigned int NextPowerOfTwo( unsigned int i );
+inline unsigned int NextPowerOfTwo( unsigned int i )
+{
+  DALI_ASSERT_DEBUG(i <= 1U << (sizeof(unsigned) * 8 - 1) && "Return type cannot represent the next power of two greater than the argument.");
+  if(i==0)
+  {
+    return 1;
+  }
+
+  i--;
+  i |= i >> 1;
+  i |= i >> 2;
+  i |= i >> 4;
+  i |= i >> 8;
+  i |= i >> 16;
+  i++;
+  return i;
+}
 
 /**
  * @brief Whether a number is power of two.
@@ -43,7 +60,10 @@ DALI_IMPORT_API unsigned int NextPowerOfTwo( unsigned int i );
  * @param[in] i input number
  * @return    true if i is power of two
  */
-DALI_IMPORT_API bool IsPowerOfTwo( unsigned int i );
+inline bool IsPowerOfTwo( unsigned int i )
+{
+  return (i != 0) && ((i & (i - 1)) == 0);
+}
 
 /**
  * @brief Clamp a value.
@@ -54,7 +74,7 @@ DALI_IMPORT_API bool IsPowerOfTwo( unsigned int i );
  * @return T the clamped value
  */
 template< typename T >
-const T& Clamp( const T& value, const T& min, const T& max )
+inline const T& Clamp( const T& value, const T& min, const T& max )
 {
   return std::max( std::min( value, max ), min );
 }
@@ -67,7 +87,7 @@ const T& Clamp( const T& value, const T& min, const T& max )
  * @param[in] max The maximum allowed value.
  */
 template< typename T >
-void ClampInPlace( T& value, const T& min, const T& max )
+inline void ClampInPlace( T& value, const T& min, const T& max )
 {
   value =  std::max( std::min( value, max ), min );
 }
@@ -103,7 +123,13 @@ DALI_IMPORT_API float GetRangedEpsilon(float a, float b);
  * @param[in] value the value to compare
  * @return true if the value is equal to zero
  */
-DALI_IMPORT_API bool EqualsZero( float value );
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+inline bool EqualsZero( float value )
+{
+  return value == 0.0f;
+}
+#pragma GCC diagnostic pop
 
 /**
  * @brief Helper function to compare equality of two floating point values.
@@ -112,7 +138,10 @@ DALI_IMPORT_API bool EqualsZero( float value );
  * @param[in] b the second value to compare
  * @return true if the values are equal within a minimal epsilon for their values
  */
-DALI_IMPORT_API bool Equals( float a, float b );
+inline bool Equals( float a, float b )
+{
+  return ( fabsf( a - b ) <= GetRangedEpsilon( a, b ) );
+}
 
 /**
  * @brief Helper function to compare equality of two floating point values.
@@ -122,7 +151,10 @@ DALI_IMPORT_API bool Equals( float a, float b );
  * @param[in] epsilon the minimum epsilon value that will be used to consider the values different
  * @return true if the difference between the values is less than the epsilon
  */
-DALI_IMPORT_API bool Equals( float a, float b, float epsilon );
+inline bool Equals( float a, float b, float epsilon )
+{
+  return ( fabsf( a - b ) <= epsilon );
+}
 
 /**
  * @brief Get an float that is rounded at specified place of decimals.
@@ -131,7 +163,14 @@ DALI_IMPORT_API bool Equals( float a, float b, float epsilon );
  * @param[in] pos decimal place
  * @return a rounded float
  */
-DALI_IMPORT_API float Round( float value, int pos );
+inline float Round(float value, int pos)
+{
+  float temp;
+  temp = value * powf( 10, pos );
+  temp = floorf( temp + 0.5 );
+  temp *= powf( 10, -pos );
+  return temp;
+}
 
 /**
  * @brief Wrap x in domain (start) to (end).

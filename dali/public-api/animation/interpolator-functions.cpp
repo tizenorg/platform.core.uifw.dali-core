@@ -20,6 +20,12 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/interpolator-functions.h>
+#include <dali/public-api/math/vector2.h>
+#include <dali/public-api/math/vector3.h>
+#include <dali/public-api/math/vector4.h>
+#include <dali/public-api/math/quaternion.h>
+#include <dali/public-api/math/matrix.h>
+#include <dali/public-api/math/matrix3.h>
 
 namespace Dali
 {

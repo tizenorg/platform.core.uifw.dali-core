@@ -20,6 +20,7 @@
 </VertexShader>
 
 <FragmentShader>
+#extension GL_OES_standard_derivatives : enable
   precision mediump float;
 
   struct Material

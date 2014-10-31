@@ -135,7 +135,7 @@ struct DALI_IMPORT_API ScaleToFillXYKeepAspectRatioConstraint
  * @brief Shrinks source size inside the target size maintaining aspect ratio of source.
  * If source is smaller than target it returns source
  */
-struct ShrinkInsideKeepAspectRatioConstraint
+struct DALI_IMPORT_API ShrinkInsideKeepAspectRatioConstraint
 {
   /**
    * @brief Constructor.

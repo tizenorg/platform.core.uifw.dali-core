@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <math.h> // M_PI
+#include <cmath> // M_PI
 
 // INTERNAL INCLUDES
 #include <dali/public-api/math/vector3.h>

@@ -19,7 +19,7 @@
 #include <dali/internal/render/gl-resources/bitmap-texture.h>
 
 // EXTERNAL INCLUDES
-#include <math.h>
+#include <cmath>
 #include <memory.h>
 
 // INTERNAL INCLUDES

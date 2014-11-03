@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <stdio.h>
 #include <time.h>
 

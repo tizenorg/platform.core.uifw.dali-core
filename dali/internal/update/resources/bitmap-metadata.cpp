@@ -19,7 +19,7 @@
 #include <dali/internal/update/resources/bitmap-metadata.h>
 
 // EXTERNAL INCLUDES
-#include <math.h>
+#include <cmath>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>

@@ -19,7 +19,7 @@
 #include <dali/public-api/math/matrix.h>
 
 // EXTERNAL INCLUDES
-#include <math.h>
+#include <cmath>
 #include <string.h>
 
 // INTERNAL INCLUDES

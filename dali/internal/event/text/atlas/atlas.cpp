@@ -24,7 +24,7 @@
 #include <dali/internal/event/text/atlas/debug/atlas-debug.h>
 
 // EXTERNAL INCLUDES
-#include <math.h>
+#include <cmath>
 
 namespace Dali
 {

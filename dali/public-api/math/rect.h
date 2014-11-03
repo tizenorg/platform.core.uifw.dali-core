@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <math.h>
+#include <cmath>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/math/math-utils.h>

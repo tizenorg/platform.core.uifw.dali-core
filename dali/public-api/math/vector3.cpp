@@ -20,7 +20,7 @@
 #include <dali/public-api/math/quaternion.h>
 
 // EXTERNAL INCLUDES
-#include <math.h>
+#include <cmath>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>

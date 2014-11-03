@@ -19,7 +19,7 @@
 #include <dali/public-api/math/vector2.h>
 
 // EXTERNAL INCLUDES
-#include <math.h>
+#include <cmath>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>

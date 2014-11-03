@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <algorithm>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>

@@ -1122,7 +1122,7 @@ void Actor::SetSize(const Vector3& size)
   }
 }
 
-void Actor::NotifySizeAnimation(Animation& animation, const Vector3& targetSize)
+void Actor::NotifySizeAnimation(Dali::Internal::Animation& animation, const Vector3& targetSize)
 {
   mSize = targetSize;
 

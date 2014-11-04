@@ -57,6 +57,7 @@ TextAttachmentPtr TextAttachment::New( const SceneGraph::Node& parentNode, const
 
 TextAttachment::TextAttachment( Stage& stage )
 : RenderableAttachment( stage ),
+  mSceneObject( NULL ),
   mTextRequestHelper( *this ),
   mTextColor( NULL ),
   mTextChanged( true ),

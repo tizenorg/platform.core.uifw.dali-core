@@ -176,10 +176,6 @@ void TextRenderer::SetVertexData( TextVertexBuffer* vertexData )
     mVertexBuffer->UpdateDataBuffer( vertexData->mVertices.size() * sizeof(TextVertex2D), &vertexData->mVertices[0] );
 
     UpdateIndexBuffer( vertexData->mVertices.size() ); // Used in DoRender()
-
-    // Get inverted text size, as this is faster for the shader to operate on,
-    // and shader won't throw any errors performing a multiplication rather than a divide by zero
-    // on a bad size value.
     mGeometryExtent = vertexData->mGeometryExtent;
   }
   else
@@ -334,7 +330,7 @@ bool TextRenderer::IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& 
 {
   mContext->IncrementRendererCount();
 
-  Rect<float> boundingBox(mGeometryExtent.width*-0.5f, mGeometryExtent.height*-0.5f, mGeometryExtent.width, mGeometryExtent.height);
+  Rect<float> boundingBox( mGeometryExtent.x, mGeometryExtent.y, mGeometryExtent.z, mGeometryExtent.w );
   DEBUG_BOUNDING_BOX( *mContext, boundingBox, modelViewProjectionMatrix );
 
   if(Is2dBoxOutsideClipSpace( modelMatrix, modelViewProjectionMatrix, boundingBox ) )

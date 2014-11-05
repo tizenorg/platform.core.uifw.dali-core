@@ -40,7 +40,7 @@ struct TextVertexBuffer
   std::vector<TextVertex2D> mVertices;    ///< List of vertices (coordinates and texture coordinates)
   unsigned int mTextureId;                ///< Texture id
   Vector2 mVertexMax;                     ///< Calculated unskewed geometry size
-  Vector2 mGeometryExtent;                ///< Actual extents of geometry
+  Vector4 mGeometryExtent;                ///< Actual extents of final geometry
 };
 
 } // namespace Internal

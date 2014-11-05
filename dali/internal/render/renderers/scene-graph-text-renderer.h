@@ -185,7 +185,7 @@ private:
   OwnerPointer< GpuBuffer > mIndexBuffer;         ///< GPU Buffer containing Index information
   OwnerPointer< TextParameters > mTextParameters; ///< Optional text parameters
 
-  Vector2    mGeometryExtent; // actual geometry extent
+  Vector4    mGeometryExtent; // actual geometry extent
 
   ResourceId mTextureId;
 

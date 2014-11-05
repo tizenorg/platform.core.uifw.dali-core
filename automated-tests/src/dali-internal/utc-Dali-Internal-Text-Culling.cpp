@@ -232,7 +232,7 @@ void OBBTestTextAtBoundary( TestApplication& application, int width, int height 
     }
   }
   DALI_TEST_EQUALS(successCount, totalCount, TEST_LOCATION);
-  tet_printf( "Test succeeded with %d passes out of %d tests\n", successCount, totalCount);
+  tet_printf( "Test completed with %d passes out of %d tests\n", successCount, totalCount);
 }
 
 
@@ -277,7 +277,7 @@ void OBBTestTextOutsideBoundary( TestApplication& application, int width, int he
     }
   }
   DALI_TEST_EQUALS(successCount, totalCount, TEST_LOCATION);
-  tet_printf( "Test succeeded with %d passes out of %d tests\n", successCount, totalCount);
+  tet_printf( "Test completed with %d passes out of %d tests\n", successCount, totalCount);
 }
 
 

@@ -42,7 +42,7 @@ Debug::Filter* gTextVertsLogFilter = Debug::Filter::New( Debug::Concise, false, 
 
 typedef std::vector<TextVertex2D> VertexBuffer;
 
-void RepositionData( TextVertexBuffer& buffer )
+void RepositionData( TextVertexBuffer& textVertexBuffer )
 {
   /*
    *
@@ -72,13 +72,23 @@ void RepositionData( TextVertexBuffer& buffer )
    */
 
   // move the vertices so 0,0 is the centre of the text string.
+  Vector2 offset = textVertexBuffer.mVertexMax;
+  offset.x/=2.0f;
+  offset.y/=2.0f;
+
+  // Determine size of final vertex geometry
   float minX=1e8f, maxX=-1e8f;
   float minY=1e8f, maxY=-1e8f;
-  std::vector<TextVertex2D>& vertices = buffer.mVertices;
+  std::vector<TextVertex2D>& vertices = textVertexBuffer.mVertices;
 
   for (std::size_t i=0, size = vertices.size() ; i < size; ++i)
   {
+    // Move vertex
     TextVertex2D& vertex = vertices[i];
+    vertex.mX -= offset.x;
+    vertex.mY -= offset.y;
+
+    // Determine min/max x & y
     minX = std::min(minX, vertex.mX);
     maxX = std::max(maxX, vertex.mX);
 
@@ -86,19 +96,7 @@ void RepositionData( TextVertexBuffer& buffer )
     maxY = std::max(maxY, vertex.mY);
   }
 
-  Vector2 offset;
-  offset.x = ( maxX + minX ) * 0.5f;
-  offset.y = ( maxY + minY ) * 0.5f;
-
-  for (std::size_t i=0, size = vertices.size() ; i< size; ++i)
-  {
-    TextVertex2D& vertex = vertices[i];
-    vertex.mX -= offset.x;
-    vertex.mY -= offset.y;
-  }
-
-  buffer.mGeometryExtent.width = maxX - minX;
-  buffer.mGeometryExtent.height = maxY - minY;
+  textVertexBuffer.mGeometryExtent = Vector4(minX, minY, maxX - minX, maxY - minY );
 }
 
 void AddVertex( VertexBuffer& vertexBuffer,
@@ -408,7 +406,8 @@ TextVertexBuffer* TextVertexGenerator::Generate( const Integration::TextArray& t
     }
   }
 
-  textVertexBuffer->mVertexMax = Vector2( totalWidth, lineHeight );
+  textVertexBuffer->mVertexMax = Vector2(totalWidth,lineHeight);
+
   RepositionData( *textVertexBuffer );
 
 #ifdef DEBUG_VERTS
@@ -417,8 +416,8 @@ TextVertexBuffer* TextVertexGenerator::Generate( const Integration::TextArray& t
 
   DALI_LOG_INFO(gTextVertsLogFilter, Debug::General, "TextVertexBuffer for %c%c%c...: Calculated Extents:(%5.2f, %5.2f)\n  Geometry Extents:(%5.2f, %5.2f )\n",
                 text.Count()>0?(char)text[0]:' ', text.Count()>1?(char)text[1]:' ', text.Count()>2?(char)text[2]:' ',
-                textVertexBuffer->mVertexMax.x,textVertexBuffer->mVertexMax.y,
-                textVertexBuffer->mGeometryExtent.width,textVertexBuffer->mGeometryExtent.height);
+                textVertexBuffer->mVertexMax.x, textVertexBuffer->mVertexMax.y,
+                textVertexBuffer->mGeometryExtent.z, textVertexBuffer->mGeometryExtent.w );
 
   return textVertexBuffer;
 }

@@ -2661,7 +2661,7 @@ void Actor::SetCustomProperty( Property::Index index, const CustomProperty& entr
 
   if(entry.IsAnimatable())
   {
-    switch ( entry.type )
+    switch ( entry.value.GetType() )
     {
       case Property::BOOLEAN:
       {

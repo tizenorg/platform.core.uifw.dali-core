@@ -61,6 +61,7 @@ public:
 
   typedef Dali::Animation::AnyFunction AnyFunction;
   typedef Dali::Animation::EndAction EndAction;
+  typedef Dali::Animation::Interpolation Interpolation;
 
   typedef void (*FinishedCallback)(Object* object);
 
@@ -275,9 +276,26 @@ public:
    * Animate a property between the keyframe time / value pairs.
    * @param[in] target The target object + property to animate
    * @param[in] keyFrames The set of time / value pairs between which to animate.
+   * @param[in] interpolation The method used to interpolate between values.
+   */
+  void AnimateBetween(Property target, const KeyFrames& keyFrames, Interpolation interpolation );
+
+  /**
+   * Animate a property between the keyframe time / value pairs.
+   * @param[in] target The target object + property to animate
+   * @param[in] keyFrames The set of time / value pairs between which to animate.
    * @param[in] period The effect will occur duing this time period.
    */
   void AnimateBetween(Property target, const KeyFrames& keyFrames, TimePeriod period);
+
+  /**
+   * Animate a property between the keyframe time / value pairs.
+   * @param[in] target The target object + property to animate
+   * @param[in] keyFrames The set of time / value pairs between which to animate.
+   * @param[in] period The effect will occur duing this time period.
+   * @param[in] interpolation The method used to interpolate between values.
+   */
+  void AnimateBetween(Property target, const KeyFrames& keyFrames, TimePeriod period, Interpolation interpolation);
 
   /**
    * Animate a property between the keyframe time / value pairs.
@@ -292,9 +310,28 @@ public:
    * @param[in] target The target object + property to animate
    * @param[in] keyFrames The set of time / value pairs between which to animate.
    * @param[in] alpha The alpha function to apply to the overall progress.
+   * @param[in] interpolation The method used to interpolate between values.
+   */
+  void AnimateBetween(Property target, const KeyFrames& keyFrames, AlphaFunction alpha, Interpolation interpolation);
+
+  /**
+   * Animate a property between the keyframe time / value pairs.
+   * @param[in] target The target object + property to animate
+   * @param[in] keyFrames The set of time / value pairs between which to animate.
+   * @param[in] alpha The alpha function to apply to the overall progress.
    * @param[in] period The effect will occur duing this time period.
    */
-  void AnimateBetween(Property target, const KeyFrames& keyFrames, AlphaFunction alpha, TimePeriod period);
+  void AnimateBetween(Property target, const KeyFrames& keyFrames, AlphaFunction alpha, TimePeriod period );
+
+  /**
+   * Animate a property between the keyframe time / value pairs.
+   * @param[in] target The target object + property to animate
+   * @param[in] keyFrames The set of time / value pairs between which to animate.
+   * @param[in] alpha The alpha function to apply to the overall progress.
+   * @param[in] period The effect will occur duing this time period.
+   * @param[in] interpolation The method used to interpolate between values.
+   */
+  void AnimateBetween(Property target, const KeyFrames& keyFrames, AlphaFunction alpha, TimePeriod period, Interpolation interpolation );
 
   /**
    * @copydoc Dali::Animation::Animate( Property target, Property::Type targetType, AnyFunction func )

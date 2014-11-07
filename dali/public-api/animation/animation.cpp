@@ -199,9 +199,19 @@ void Animation::AnimateBetween(Property target, KeyFrames& keyFrames)
   GetImplementation(*this).AnimateBetween(target, GetImplementation(keyFrames));
 }
 
+void Animation::AnimateBetween(Property target, KeyFrames& keyFrames, Interpolation interpolation)
+{
+  GetImplementation(*this).AnimateBetween(target, GetImplementation(keyFrames), interpolation );
+}
+
 void Animation::AnimateBetween(Property target, KeyFrames& keyFrames, TimePeriod period)
 {
   GetImplementation(*this).AnimateBetween(target, GetImplementation(keyFrames), period);
+}
+
+void Animation::AnimateBetween(Property target, KeyFrames& keyFrames, TimePeriod period, Interpolation interpolation)
+{
+  GetImplementation(*this).AnimateBetween(target, GetImplementation(keyFrames), period, interpolation );
 }
 
 void Animation::AnimateBetween(Property target, KeyFrames& keyFrames, AlphaFunction alpha)
@@ -209,9 +219,20 @@ void Animation::AnimateBetween(Property target, KeyFrames& keyFrames, AlphaFunct
   GetImplementation(*this).AnimateBetween(target, GetImplementation(keyFrames), alpha);
 }
 
+void Animation::AnimateBetween(Property target, KeyFrames& keyFrames, AlphaFunction alpha, Interpolation interpolation)
+{
+  GetImplementation(*this).AnimateBetween(target, GetImplementation(keyFrames), alpha, interpolation);
+}
+
+
 void Animation::AnimateBetween(Property target, KeyFrames& keyFrames, AlphaFunction alpha, TimePeriod period)
 {
   GetImplementation(*this).AnimateBetween(target, GetImplementation(keyFrames), alpha, period);
+}
+
+void Animation::AnimateBetween(Property target, KeyFrames& keyFrames, AlphaFunction alpha, TimePeriod period, Interpolation interpolation)
+{
+  GetImplementation(*this).AnimateBetween(target, GetImplementation(keyFrames), alpha, period, interpolation);
 }
 
 void Animation::Animate( Property target, Property::Type targetType, AnyFunction func )

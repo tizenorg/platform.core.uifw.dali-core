@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/constraint.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/set-wrapper.h>
 #include <dali/internal/common/message.h>
 #include <dali/internal/common/event-to-update.h>
 #include <dali/internal/update/common/animatable-property.h>
@@ -40,6 +41,9 @@ template <> struct ParameterType< Dali::Constraint::RemoveAction >
 
 namespace SceneGraph
 {
+
+typedef Dali::Vector<PropertyOwner*>   PropertyOwnerSet;
+typedef PropertyOwnerSet::Iterator PropertyOwnerIter;
 
 /**
  * An abstract base class for Constraints.
@@ -143,7 +147,8 @@ private:
    */
   void StartObservation()
   {
-    for( PropertyOwnerIter iter = mObservedOwners.begin(); mObservedOwners.end() != iter; ++iter )
+    const PropertyOwnerIter end =  mObservedOwners.End();
+    for( PropertyOwnerIter iter = mObservedOwners.Begin(); end != iter; ++iter )
     {
       (*iter)->AddObserver( *this );
     }
@@ -154,12 +159,13 @@ private:
    */
   void StopObservation()
   {
-    for( PropertyOwnerIter iter = mObservedOwners.begin(); mObservedOwners.end() != iter; ++iter )
+    const PropertyOwnerIter end =  mObservedOwners.End();
+    for( PropertyOwnerIter iter = mObservedOwners.Begin(); end != iter; ++iter )
     {
       (*iter)->RemoveObserver( *this );
     }
 
-    mObservedOwners.clear();
+    mObservedOwners.Clear();
   }
 
   /**
@@ -178,10 +184,10 @@ private:
     if ( !mDisconnected )
     {
       // Discard pointer to disconnected property owner
-      PropertyOwnerIter iter = mObservedOwners.find( &owner );
-      if( mObservedOwners.end() != iter )
+      PropertyOwnerIter iter = std::find( mObservedOwners.Begin(), mObservedOwners.End(), &owner );
+      if( mObservedOwners.End() != iter )
       {
-        mObservedOwners.erase( iter );
+        mObservedOwners.Erase( iter );
 
         // Stop observing the remaining property owners
         StopObservation();

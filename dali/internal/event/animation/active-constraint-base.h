@@ -37,8 +37,8 @@ namespace Internal
 {
 
 class EventToUpdate;
-typedef std::set<ProxyObject*>         ProxyObjectContainer;
-typedef ProxyObjectContainer::iterator ProxyObjectIter;
+typedef Dali::Vector<ProxyObject*>     ProxyObjectContainer;
+typedef ProxyObjectContainer::Iterator ProxyObjectIter;
 
 namespace SceneGraph
 {

@@ -108,6 +108,32 @@ Matrix::Matrix(const float* array)
   memcpy( mMatrix, array, NUM_BYTES_IN_MATRIX );
 }
 
+Matrix::Matrix( float c00, float c10, float c20, float c30,
+                float c01, float c11, float c21, float c31,
+                float c02, float c12, float c22, float c32,
+                float c03, float c13, float c23, float c33 )
+{
+  mMatrix[0] = c00;
+  mMatrix[1] = c10;
+  mMatrix[2] = c20;
+  mMatrix[3] = c30;
+
+  mMatrix[4] = c01;
+  mMatrix[5] = c11;
+  mMatrix[6] = c21;
+  mMatrix[7] = c31;
+
+  mMatrix[8] =  c02;
+  mMatrix[9] =  c12;
+  mMatrix[10] = c22;
+  mMatrix[11] = c32;
+
+  mMatrix[12] = c03;
+  mMatrix[13] = c13;
+  mMatrix[14] = c23;
+  mMatrix[15] = c33;
+}
+
 Matrix::Matrix( const Quaternion& rotation )
 {
   MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,18);

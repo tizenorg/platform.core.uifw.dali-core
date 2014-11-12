@@ -69,6 +69,32 @@ public:
   explicit Matrix(const float* array);
 
   /**
+   * @brief Constructor
+   *
+   * @param [in] c00 Element 0,0 of the matrix
+   * @param [in] c10 Element 1,0 of the matrix
+   * @param [in] c20 Element 2,0 of the matrix
+   * @param [in] c30 Element 3,0 of the matrix
+   * @param [in] c01 Element 0,1 of the matrix
+   * @param [in] c11 Element 1,1 of the matrix
+   * @param [in] c21 Element 2,1 of the matrix
+   * @param [in] c31 Element 3,1 of the matrix
+   * @param [in] c02 Element 0,2 of the matrix
+   * @param [in] c12 Element 1,2 of the matrix
+   * @param [in] c22 Element 2,2 of the matrix
+   * @param [in] c32 Element 3,2 of the matrix
+   * @param [in] c03 Element 0,3 of the matrix
+   * @param [in] c13 Element 1,3 of the matrix
+   * @param [in] c23 Element 2,3 of the matrix
+   * @param [in] c33 Element 3,3 of the matrix
+   *
+   */
+  Matrix( float c00, float c10, float c20, float c30,
+          float c01, float c11, float c21, float c31,
+          float c02, float c12, float c22, float c32,
+          float c03, float c13, float c23, float c33 );
+
+  /**
    * @brief Constructs a matrix from quaternion.
    *
    * @param rotation as quaternion

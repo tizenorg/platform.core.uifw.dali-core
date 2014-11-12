@@ -104,6 +104,14 @@ public:
   explicit Quaternion( const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis );
 
   /**
+   * @brief Construct quaternion which describes minimum rotation to align v0 with v1
+   *
+   * @param[in] v0 First vector
+   * @param[in] v1 Second vector
+   */
+  explicit Quaternion( const Vector3& v0, const Vector3& v1 );
+
+  /**
    * @brief Converts an axis + angle pair rotation to a Quaternion.
    *
    * @param[in] axis

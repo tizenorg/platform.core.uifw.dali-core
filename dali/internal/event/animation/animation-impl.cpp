@@ -698,6 +698,25 @@ void Animation::AddAnimatorConnector( AnimatorConnectorBase* connector )
   mConnectors.PushBack( connector );
 }
 
+void Animation::Animate( Actor& actor, const Path& path, const Vector3& forward )
+{
+  PathPtr pathCopy = Path::Clone(path);
+
+  AddAnimatorConnector( AnimatorConnector<Vector3>::New( actor,
+                                                         Dali::Actor::POSITION,
+                                                         Property::INVALID_COMPONENT_INDEX,
+                                                         PathPositionFunctor( pathCopy ),
+                                                         mDefaultAlpha,
+                                                         TimePeriod(0.0f, GetDuration()) ) );
+
+  AddAnimatorConnector( AnimatorConnector<Quaternion>::New( actor,
+                                                           Dali::Actor::ROTATION,
+                                                           Property::INVALID_COMPONENT_INDEX,
+                                                           PathRotationFunctor( pathCopy, forward ),
+                                                           mDefaultAlpha,
+                                                           TimePeriod(0.0f, GetDuration()) ) );
+}
+
 void Animation::MoveBy(Actor& actor, float x, float y, float z)
 {
   MoveBy(actor, Vector3(x, y, z), mDefaultAlpha, 0.0f, GetDuration());

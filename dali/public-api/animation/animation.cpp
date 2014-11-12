@@ -216,6 +216,11 @@ void Animation::AnimateBetween(Property target, KeyFrames& keyFrames, AlphaFunct
 
 // Actor specific animations
 
+void Animation::Animate( Actor actor, Path path, const Vector3& forward )
+{
+  GetImplementation(*this).Animate(GetImplementation(actor), GetImplementation( path ), forward );
+}
+
 void Animation::MoveBy(Actor actor, float x, float y, float z)
 {
   GetImplementation(*this).MoveBy(GetImplementation(actor), x, y, z);

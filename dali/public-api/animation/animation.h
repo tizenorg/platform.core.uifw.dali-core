@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/animation/key-frames.h>
+#include <dali/public-api/animation/path.h>
 #include <dali/public-api/animation/time-period.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/handle.h>
@@ -460,6 +461,7 @@ public:
 
   // Actor-specific convenience methods
 
+  void Animate( Actor actor, Path path, const Vector3& forward );
   /**
    * @brief Move an actor relative to its position.
    *

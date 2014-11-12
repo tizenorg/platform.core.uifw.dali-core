@@ -25,6 +25,7 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/internal/event/animation/animator-connector-base.h>
 #include <dali/internal/event/animation/key-frames-impl.h>
+#include <dali/internal/event/animation/path-impl.h>
 
 namespace Dali
 {
@@ -297,6 +298,8 @@ public:
 
   // Action-specific convenience functions
 
+  void Animate( Actor& actor, const Path& path, const Vector3& forward );
+  
   /**
    * Translate an actor.
    * The default alpha function will be used.

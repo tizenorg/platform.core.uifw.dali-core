@@ -25,6 +25,7 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/internal/event/animation/animator-connector-base.h>
 #include <dali/internal/event/animation/key-frames-impl.h>
+#include <dali/internal/event/animation/path-impl.h>
 
 namespace Dali
 {
@@ -295,7 +296,43 @@ public:
    */
   void AnimateBetween(Property target, const KeyFrames& keyFrames, AlphaFunction alpha, TimePeriod period);
 
-  // Action-specific convenience functions
+  // Actor-specific convenience functions
+
+  /**
+   * Animate an actor's position and orientation through a predefined path
+   * @param[in] actor The actor to animate
+   * @param[in] path The path. It defines position and orientation
+   * param[in] forward The vector (in local space coordinate system) that will be oriented with the path's tangent direction
+   */
+  void Animate( Actor& actor, const Path& path, const Vector3& forward );
+  
+  /**
+   * Animate an actor's position and orientation through a predefined path
+   * @param[in] actor The actor to animate
+   * @param[in] path The path. It defines position and orientation
+   * param[in] forward The vector (in local space coordinate system) that will be oriented with the path's tangent direction
+   * @param [in] alpha The alpha function to apply.
+   */
+  void Animate( Actor& actor, const Path& path, const Vector3& forward, AlphaFunction alpha );
+
+  /**
+   * Animate an actor's position and orientation through a predefined path
+   * @param[in] actor The actor to animate
+   * @param[in] path The path. It defines position and orientation
+   * param[in] forward The vector (in local space coordinate system) that will be oriented with the path's tangent direction
+   * @param [in] period The effect will occur during this time period.
+   */
+  void Animate( Actor& actor, const Path& path, const Vector3& forward, TimePeriod period );
+
+  /**
+   * Animate an actor's position and orientation through a predefined path
+   * @param[in] actor The actor to animate
+   * @param[in] path The path. It defines position and orientation
+   * param[in] forward The vector (in local space coordinate system) that will be oriented with the path's tangent direction
+   * @param [in] alpha The alpha function to apply.
+   * @param [in] period The effect will occur during this time period.
+   */
+  void Animate( Actor& actor, const Path& path, const Vector3& forward, AlphaFunction alpha, TimePeriod period);
 
   /**
    * Translate an actor.

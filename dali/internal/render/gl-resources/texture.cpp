@@ -143,8 +143,7 @@ bool Texture::Bind(GLenum target, GLenum textureunit )
   }
 
   // Bind the texture id
-  mContext.ActiveTexture(textureunit);
-  mContext.Bind2dTexture(mId);
+  mContext.BindTextureForRender(textureunit, mId );
 
   return created;
 }

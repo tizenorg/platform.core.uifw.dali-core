@@ -823,11 +823,11 @@ public:
 
   ~TestBasicConnectionTrackerInterface()
   {
-    if( mCallback )
+    if( mSlotObserver && mCallback )
     {
       // Notify signal since the slot has been destroyed
       mSlotObserver->SlotDisconnected( mCallback );
-      delete mCallback;
+      // mCallback and mSlotObserver are not owned
     }
   }
 

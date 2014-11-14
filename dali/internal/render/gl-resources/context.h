@@ -64,7 +64,7 @@ public:
    */
   static const unsigned int MAX_ATTRIBUTE_CACHE_SIZE = 8;
 
-  static const unsigned int MAX_TEXTURE_UNITS = 8; // for GLES 2.0 its 8, which is more than DALi uses anyways
+  static const unsigned int MAX_TEXTURE_UNITS = 8; // for GLES 2.0 8 is guaranteed, which is more than DALi uses anyways
 
   /**
    * Creates the Dali Context object.
@@ -271,8 +271,21 @@ public:
   }
 
   /**
-   * The wrapper for OpenGL ES 2.0 glBindTexture() has been replaced by Bind2dTexture and BindCubeMapTexture.
+   * Helper to bind texture for rendering. If given texture is
+   * already bound in the given textureunit, does nothing. Otherwise
+   * changes the active texture unit and binds the texture.
+   * Note! after this method you cannot guarantee
    */
+  void BindTextureForRender( GLenum textureunit, GLuint texture )
+  {
+    // GL texture units are #defines in growing order to converting that to index
+    unsigned int unit = textureunit - GL_TEXTURE0;
+    if( mBound2dTextureId[ unit ] != texture )
+    {
+      ActiveTexture( textureunit );
+      Bind2dTexture( texture );
+    }
+  }
 
   /**
    * Wrapper for OpenGL ES 2.0 glBindTexture(GL_TEXTURE_2D)

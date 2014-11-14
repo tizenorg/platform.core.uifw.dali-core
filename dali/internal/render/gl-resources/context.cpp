@@ -332,13 +332,12 @@ void Context::ResetGlState()
   mGlAbstraction.FrontFace(GL_CCW);
   mGlAbstraction.CullFace(GL_BACK);
 
-  // rebind texture units
+  // rebind texture units to 0
   for( unsigned int i=0; i < MAX_TEXTURE_UNITS; ++i )
   {
     mBound2dTextureId[ i ] = 0;
     // set active texture
     mGlAbstraction.ActiveTexture( GL_TEXTURE0 + i );
-    // bind the previous texture
     mGlAbstraction.BindTexture(GL_TEXTURE_2D, mBound2dTextureId[ i ] );
   }
 

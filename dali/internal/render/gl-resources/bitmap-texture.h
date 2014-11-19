@@ -77,6 +77,15 @@ public:
 public: // Message interface
 
   /**
+   * Reset this texture to use the new bitmap. It must be the same size
+   * and pixel format as the existing texture. If a bitmap is provided,
+   * then the bitmap will be uploaded to the texture on the next bind call.
+   * @param[in] bitmap Pointer to the new bitmap. May be NULL.
+   * @param[in] clearPixels Whether the pixel data is cleared.
+   */
+  void Reset( Integration::Bitmap* const bitmap, bool clearPixels );
+
+  /**
    * Upload an array of bitmaps
    * @param bitmapArray array of bitmap items
    */
@@ -131,15 +140,21 @@ public:
   virtual void UpdateArea( const RectArea& area );
 
   /**
-   * @return Return true if the texture should be updated on GL texture creation.
+   * @return Return true if the texture should be uploaded when the Texture object is
+   * first bound.
    */
-  virtual bool UpdateOnCreate();
+  virtual bool UploadOnBind();
+
+  /**
+   * @copydoc Texture::UploadGlTexture
+   */
+  virtual void UploadGlTexture();
 
 protected:
   /**
    * @copydoc Texture::CreateGlTexture
    */
-  virtual bool CreateGlTexture();
+  virtual void CreateGlTexture();
 
 private:
 

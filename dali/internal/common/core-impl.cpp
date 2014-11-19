@@ -454,6 +454,11 @@ EmojiFactory& Core::GetEmojiFactory()
   return *mEmojiFactory;
 }
 
+TextureRecyclingConfiguration& Core::GetTextureRecyclingConfiguration()
+{
+  return mTextureRecyclingConfiguration;
+}
+
 void Core::CreateThreadLocalStorage()
 {
   // a pointer to the ThreadLocalStorage object will be stored in TLS

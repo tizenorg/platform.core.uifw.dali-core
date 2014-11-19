@@ -76,6 +76,17 @@ BitmapTexture::~BitmapTexture()
   // on the render thread. (And avoiding a potentially problematic virtual call in the destructor)
 }
 
+void BitmapTexture::Reset( Integration::Bitmap* const bitmap, bool clearPixels )
+{
+  DALI_ASSERT_DEBUG( mId != 0 && "Resetting texture that isn't created" );
+
+  mBitmap = bitmap;
+  mClearPixels = clearPixels;
+  mUploaded = false; // Ensure that the bitmap will get uploaded on the next texture bind.
+  // Don't reset sampler bitfield. If the next sampler is identical, then it
+  // generates un-necessary calls.
+}
+
 void BitmapTexture::UploadBitmapArray( const BitmapUploadArray& bitmapArray )
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
@@ -130,6 +141,7 @@ void BitmapTexture::UploadBitmapArray( const BitmapUploadArray& bitmapArray )
       delete [] bitmapItem.mPixelData;
     }
   }
+  mUploaded = true;
 }
 
 bool BitmapTexture::HasAlphaChannel() const
@@ -198,7 +210,9 @@ void BitmapTexture::AreaUpdated( const RectArea& updateArea, const unsigned char
       }
     }
 
-    INCREASE_BY( PerformanceMonitor::TEXTURE_DATA_UPLOADED,
+    mUploaded = true;
+
+    INCREASE_BY( PerformanceMonitor::TEXTURE_DATA_PLOADED,
                  updateArea.Area()* GetBytesPerPixel( mPixelFormat ));
   }
 }
@@ -228,6 +242,8 @@ void BitmapTexture::AssignBitmap( bool generateTexture, const unsigned char* pix
   mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
   INCREASE_BY( PerformanceMonitor::TEXTURE_DATA_UPLOADED, GetBytesPerPixel(mPixelFormat) * mWidth * mHeight );
+
+  mUploaded = true;
 }
 
 void BitmapTexture::Update( Integration::Bitmap* bitmap )
@@ -365,12 +381,31 @@ void BitmapTexture::ClearAreas( const BitmapClearArray& areaArray, std::size_t b
   }
 }
 
-bool BitmapTexture::UpdateOnCreate()
+bool BitmapTexture::UploadOnBind()
 {
   return true;
 }
 
-bool BitmapTexture::CreateGlTexture()
+void BitmapTexture::UploadGlTexture()
+{
+  if( mBitmap != NULL )
+  {
+    Update(mBitmap.Get());
+  }
+  else if( mClearPixels )
+  {
+    std::vector<unsigned char> pixelData;
+    unsigned int size = mWidth * mHeight * Pixel::GetBytesPerPixel(mPixelFormat);
+    pixelData.resize(size, 0);
+    const unsigned char* pixels = &pixelData[0];
+    RectArea updateArea(0, 0, mImageWidth, mImageHeight);  // just update whole texture
+    AreaUpdated( updateArea, pixels );
+  }
+
+  mUploaded = true;
+}
+
+void BitmapTexture::CreateGlTexture()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
   DALI_LOG_INFO(Debug::Filter::gImage, Debug::Verbose, "BitmapTexture::CreateGlTexture() Bitmap: %s\n", DALI_LOG_GET_OBJECT_C_STR(this));
@@ -402,8 +437,6 @@ bool BitmapTexture::CreateGlTexture()
     }
     AssignBitmap( true, pixels );
   }
-
-  return mId != 0;
 }
 
 bool BitmapTexture::Init()

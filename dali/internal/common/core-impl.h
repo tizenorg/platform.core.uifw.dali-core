@@ -24,6 +24,7 @@
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/event/animation/animation-playlist-declarations.h>
 #include <dali/internal/event/common/stage-def.h>
+#include <dali/internal/update/common/texture-recycling-configuration.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/public-api/common/view-mode.h>
 #include <dali/integration-api/resource-policies.h>
@@ -274,6 +275,12 @@ private:  // for use by ThreadLocalStorage
    */
   EmojiFactory& GetEmojiFactory();
 
+  /**
+   * Returns the texture recycling configuration data
+   * @return a reference to the configuration data
+   */
+  TextureRecyclingConfiguration& GetTextureRecyclingConfiguration();
+
 private:
 
   /**
@@ -310,6 +317,7 @@ private:
   ResourceManager*                          mResourceManager;             ///< Asynchronous Resource Loading
   TouchResampler*                           mTouchResampler;              ///< Resamples touches to correct frame rate.
   EmojiFactory*                             mEmojiFactory;                ///< Emoji resource factory.
+  TextureRecyclingConfiguration             mTextureRecyclingConfiguration; ///< Texture recycling configuration
 
   bool                                      mIsActive         : 1;        ///< Whether Core is active or suspended
   bool                                      mProcessingEvent  : 1;        ///< True during ProcessEvents()

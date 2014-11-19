@@ -102,6 +102,11 @@ Texture::Texture(Context&      context,
 {
 }
 
+void Texture::UploadGlTexture()
+{
+  DALI_ASSERT_DEBUG( ! UploadOnBind() && "Attempting to upload during Bind() when not required");
+}
+
 Texture::~Texture()
 {
   // GlCleanup() should already have been called by TextureCache ensuring the resource is destroyed
@@ -123,7 +128,7 @@ void Texture::UpdateArea( const RectArea& area )
   DALI_ASSERT_DEBUG( "Updating incorrect texture type" == NULL );
 }
 
-bool Texture::UpdateOnCreate()
+bool Texture::UploadOnBind()
 {
   return false;
 }
@@ -132,20 +137,21 @@ bool Texture::Bind(GLenum target, TextureUnit textureunit )
 {
   // This is the only supported type at the moment
   DALI_ASSERT_DEBUG( target == GL_TEXTURE_2D );
-  bool created = false;
 
   if( mId == 0 )
   {
-    if( CreateGlTexture() )
-    {
-      created = true;
-    }
+    CreateGlTexture();
+  }
+
+  if( ! mUploaded && UploadOnBind() )
+  {
+    UploadGlTexture();
   }
 
   // Bind the texture id
   mContext.BindTextureForUnit(textureunit, mId );
 
-  return created;
+  return mUploaded;
 }
 
 void Texture::GlContextDestroyed()
@@ -154,6 +160,7 @@ void Texture::GlContextDestroyed()
   mId = 0;
   // reset sampler state as well
   mSamplerBitfield = 0;
+  mUploaded = false;
 }
 
 void Texture::GlCleanup()

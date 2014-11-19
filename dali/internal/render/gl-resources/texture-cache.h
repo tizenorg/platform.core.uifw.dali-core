@@ -32,6 +32,7 @@
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/update/common/scene-graph-buffers.h>
+#include <dali/internal/update/common/texture-recycling-configuration.h>
 #include <dali/internal/render/common/texture-cache-dispatcher.h>
 #include <dali/internal/render/gl-resources/texture-declarations.h>
 #include <dali/internal/render/gl-resources/texture-units.h>
@@ -60,6 +61,7 @@ namespace SceneGraph
 class RenderQueue;
 class PostProcessResourceDispatcher;
 
+typedef std::vector< TexturePointer >           TextureVector;
 typedef std::map<ResourceId, TexturePointer >   TextureContainer;
 typedef std::pair<ResourceId, TexturePointer >  TexturePair;
 typedef TextureContainer::iterator              TextureIter;
@@ -71,7 +73,7 @@ typedef TextureContainer::const_iterator        TextureConstIter;
 class TextureCache : public TextureCacheDispatcher
 {
 public:
- /**
+  /**
    * Constructor
    * @param[in] renderQueue Queue to use for dispatching messages to this object
    * @param[in] postProcessDispatcher Dispatcher for resource post processing requests
@@ -169,6 +171,12 @@ public:
   void DiscardTexture( ResourceId id );
 
   /**
+   * Update the recycle list configuration
+   * @param[in] config The recycle configuration
+   */
+  void UpdateConfiguration( const TextureRecyclingConfiguration& config );
+
+  /**
    * Bind a texture. On the first call, the texture will copy it's
    * pixel data to an OpenGL texture.  If it's a BitmapTexture, then
    * it will also trigger SignalUpdated to be sent on the event thread
@@ -230,6 +238,37 @@ public:
    */
   ResourcePolicy::Discardable GetDiscardBitmapsPolicy();
 
+  /**
+   * Checks if the bitmap matches the recycle criteria (size and pixel format)
+   * and if there are textures in the recycle list
+   */
+  bool IsRecycledTextureAvailable( Integration::BitmapPtr bitmap );
+
+  /**
+   * Checks if the parameters match the recycle criteria (size and pixel format)
+   * and if there are textures in the recycle list
+   */
+  bool IsRecycledTextureAvailable( unsigned int width, unsigned int height, Pixel::Format pixelFormat );
+
+  /**
+   * Checks if the texture can be recycled (it matches the size and pixel format)
+   * and if there is space in the recycle list.
+   */
+  bool IsRecyclable( TexturePointer texture );
+
+  /**
+   * Assign a recycled texture to the given bitmap. If no bitmap is provided,
+   * then clearPixels determines whether the texture should be cleared.
+   */
+  TexturePointer AssignRecycledTexture( Integration::BitmapPtr bitmap, bool clearPixels );
+
+  /**
+   * Add the texture to the recycle vector. There should be space somewhere in
+   * the vector.
+   */
+  void RecycleTexture( TexturePointer texture );
+
+
 protected: // Implements TextureCacheDispatcher
 
   /**
@@ -286,12 +325,18 @@ protected: // Implements TextureCacheDispatcher
    */
   virtual void DispatchDiscardTexture( ResourceId id );
 
+  /**
+   * @copydoc TextureCacheDispatcher::DispatchUpdateConfiguration()
+   */
+  virtual void DispatchUpdateConfiguration( TextureRecyclingConfiguration config );
+
 private:
 
   PostProcessResourceDispatcher& mPostProcessResourceDispatcher;
   Context&         mContext;
   TextureContainer mTextures;
   TextureContainer mFramebufferTextures;
+  TextureVector    mRecycledTextures;
 
   typedef std::vector< TextureObserver* > TextureObservers;
   typedef TextureObservers::iterator      TextureObserversIter;
@@ -301,6 +346,8 @@ private:
 
   TextureResourceObservers mObservers;
   ResourcePolicy::Discardable mDiscardBitmapsPolicy;
+
+  TextureRecyclingConfiguration mRecycleConfiguration;
 };
 
 

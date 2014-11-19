@@ -100,15 +100,16 @@ public:
   virtual void Update( Integration::Bitmap* bitmap );
 
   /**
-   * @return Return true if the texture should be updated on GL texture creation.
+   * @return Return true if the texture should be updated when the texture is
+   * first bound.
    */
-  virtual bool UpdateOnCreate();
+  virtual bool UploadOnBind();
 
 protected:
   /**
    * @copydoc Texture::CreateGlTexture
    */
-  virtual bool CreateGlTexture();
+  virtual void CreateGlTexture();
 
 private:
 

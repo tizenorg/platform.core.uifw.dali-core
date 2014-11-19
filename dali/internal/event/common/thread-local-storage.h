@@ -167,6 +167,12 @@ public:
    */
   EmojiFactory& GetEmojiFactory();
 
+  /**
+   * Returns the texture recycling configuration data
+   * @return a reference to the configuration data
+   */
+  TextureRecyclingConfiguration& GetTextureRecyclingConfiguration();
+
 private:
 
   Core* mCore;                            ///< reference to core

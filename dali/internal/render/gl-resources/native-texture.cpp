@@ -85,7 +85,7 @@ Pixel::Format NativeTexture::GetPixelFormat() const
   return mNativeImage->GetPixelFormat();
 }
 
-bool NativeTexture::CreateGlTexture()
+void NativeTexture::CreateGlTexture()
 {
   if( mNativeImage->GlExtensionCreate() )
   {
@@ -105,8 +105,6 @@ bool NativeTexture::CreateGlTexture()
   {
     DALI_LOG_ERROR( "Error creating native image!" );
   }
-
-  return mId != 0;
 }
 
 void NativeTexture::GlCleanup()

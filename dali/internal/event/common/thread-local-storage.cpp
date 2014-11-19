@@ -24,6 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/core-impl.h>
+#include <dali/internal/update/common/texture-recycling-configuration.h>
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/internal/render/common/render-manager.h>
 #include <dali/integration-api/platform-abstraction.h>
@@ -142,6 +143,11 @@ GestureEventProcessor& ThreadLocalStorage::GetGestureEventProcessor()
 EmojiFactory& ThreadLocalStorage::GetEmojiFactory()
 {
   return mCore->GetEmojiFactory();
+}
+
+TextureRecyclingConfiguration& ThreadLocalStorage::GetTextureRecyclingConfiguration()
+{
+  return mCore->GetTextureRecyclingConfiguration();
 }
 
 } // namespace Internal

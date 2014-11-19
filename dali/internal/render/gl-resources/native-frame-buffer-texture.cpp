@@ -61,16 +61,15 @@ bool NativeFrameBufferTexture::Init()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
 
-  bool status( true ); // assume success
   if( mFrameBufferName == 0 )
   {
-    status = CreateGlTexture();
+    CreateGlTexture();
   }
 
-  return status;
+  return mId != 0;
 }
 
-bool NativeFrameBufferTexture::CreateGlTexture()
+void NativeFrameBufferTexture::CreateGlTexture()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
 
@@ -100,8 +99,6 @@ bool NativeFrameBufferTexture::CreateGlTexture()
   {
     DALI_LOG_ERROR( "Error creating native image!" );
   }
-
-  return mId != 0;
 }
 
 void NativeFrameBufferTexture::GlCleanup()

@@ -40,6 +40,7 @@ using namespace Dali;
 #include <dali/internal/update/modeling/scene-graph-material.h>
 #include <dali/internal/render/renderers/render-material.h>
 #include <dali/internal/render/gl-resources/context.h>
+#include <dali/internal/render/gl-resources/texture-units.h>
 #include <dali/internal/render/shaders/program.h>
 #include <dali/internal/common/image-sampler.h>
 
@@ -525,7 +526,7 @@ int UtcDaliMaterialSetTextureWhilstStaged(void)
   application.Render(); // Process render Q
 
   renderMaterial->BindTextures( testProgram.GetProgram(), Internal::ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) );
-  DALI_TEST_CHECK( boundTextures.CheckFirstTextureBound( GL_TEXTURE0 ) );
+  DALI_TEST_CHECK( boundTextures.CheckFirstTextureBound( TextureUnitAsGLenum(Internal::TEXTURE_UNIT_MATERIAL_DIFFUSE) ) );
   END_TEST;
 }
 
@@ -577,7 +578,7 @@ int UtcDaliMaterialSetUnreadyTextureWhilstStaged(void)
   application.SendNotification(); // Process event messages
 
   renderMaterial->BindTextures( testProgram.GetProgram(), Internal::ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) );
-  DALI_TEST_CHECK( boundTextures.CheckFirstTextureBound( GL_TEXTURE0 ) );
+  DALI_TEST_CHECK( boundTextures.CheckFirstTextureBound( TextureUnitAsGLenum(Internal::TEXTURE_UNIT_MATERIAL_DIFFUSE) ) );
   END_TEST;
 }
 
@@ -718,7 +719,7 @@ int UtcDaliMaterialRender(void)
     DALI_TEST_CHECK(application.GetGlAbstraction().CheckUniformValue("uMaterial.mSpecular",  TEST_PROPS.mSpecularColor ) );
     DALI_TEST_CHECK(application.GetGlAbstraction().CheckUniformValue("uMaterial.mEmissive",  TEST_PROPS.mEmissiveColor ) );
 
-    DALI_TEST_CHECK(boundTextures.CheckFirstTextureBound( GL_TEXTURE0 ));
+    DALI_TEST_CHECK( boundTextures.CheckFirstTextureBound( TextureUnitAsGLenum(Internal::TEXTURE_UNIT_MATERIAL_DIFFUSE) ) );
 
     Stage::GetCurrent().Remove(actor);
     application.SendNotification();

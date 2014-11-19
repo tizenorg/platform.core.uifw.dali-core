@@ -26,8 +26,9 @@
 #include <dali/public-api/images/bitmap-image.h>
 #include <dali/public-api/images/pixel.h>
 #include <dali/internal/common/message.h>
-#include <dali/internal/update/common/scene-graph-buffers.h>
 #include <dali/internal/common/bitmap-upload.h>
+#include <dali/internal/update/common/scene-graph-buffers.h>
+#include <dali/internal/update/common/texture-recycling-configuration.h>
 #include <dali/integration-api/resource-declarations.h>
 #include <dali/integration-api/bitmap.h>
 
@@ -158,6 +159,13 @@ public:
    * @param[in] id Resource Id of the texture
    */
   virtual void DispatchDiscardTexture( ResourceId id ) = 0;
+
+  /**
+   * Dispatch a message to update the recycle configuration.
+   * May be called from Update Thread.
+   * @param[in] config The updated recycle configuration
+   */
+  virtual void DispatchUpdateConfiguration( Internal::TextureRecyclingConfiguration config ) = 0;
 
 protected:
 

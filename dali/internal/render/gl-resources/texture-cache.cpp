@@ -61,8 +61,13 @@ TextureCache::TextureCache( RenderQueue& renderQueue,
 : TextureCacheDispatcher(renderQueue),
   mPostProcessResourceDispatcher(postProcessResourceDispatcher),
   mContext(context),
-  mDiscardBitmapsPolicy(ResourcePolicy::DISCARD)
+  mDiscardBitmapsPolicy(ResourcePolicy::DISCARD),
+  mRecycleConfiguration( DEFAULT_MAX_NUMBER_OF_RECYCLABLE_TEXTURES,
+                         DEFAULT_WIDTH_OF_RECYCLABLE_TEXTURES,
+                         DEFAULT_HEIGHT_OF_RECYCLABLE_TEXTURES,
+                         DEFAULT_FORMAT_OF_RECYCLABLE_TEXTURES )
 {
+  mRecycledTextures.reserve( mRecycleConfiguration.maxNumberOfTextures );
 }
 
 TextureCache::~TextureCache()
@@ -77,7 +82,17 @@ void TextureCache::CreateTexture( ResourceId        id,
 {
   DALI_LOG_INFO(Debug::Filter::gGLResource, Debug::General, "TextureCache::CreateTexture(id=%i width:%u height:%u)\n", id, width, height);
 
-  Texture* texture = TextureFactory::NewBitmapTexture(width, height, pixelFormat, clearPixels, mContext, GetDiscardBitmapsPolicy() );
+  TexturePointer texture;
+
+  if( IsRecycledTextureAvailable( width, height, pixelFormat ) )
+  {
+    texture = AssignRecycledTexture(Integration::BitmapPtr(), clearPixels);
+  }
+  else
+  {
+    texture = TextureFactory::NewBitmapTexture(width, height, pixelFormat, clearPixels, mContext, GetDiscardBitmapsPolicy() );
+  }
+
   mTextures.insert(TexturePair(id, texture));
 }
 
@@ -85,7 +100,17 @@ void TextureCache::AddBitmap(ResourceId id, Integration::BitmapPtr bitmap)
 {
   DALI_LOG_INFO(Debug::Filter::gGLResource, Debug::General, "TextureCache::AddBitmap(id=%i Bitmap:%p)\n", id, bitmap.Get());
 
-  Texture* texture = TextureFactory::NewBitmapTexture(bitmap.Get(), mContext, GetDiscardBitmapsPolicy());
+  TexturePointer texture;
+
+  if( IsRecycledTextureAvailable( bitmap ) )
+  {
+    texture = AssignRecycledTexture( bitmap, false );
+  }
+  else
+  {
+    texture = TextureFactory::NewBitmapTexture(bitmap.Get(), mContext, GetDiscardBitmapsPolicy());
+  }
+
   mTextures.insert(TexturePair(id, texture));
 }
 
@@ -195,6 +220,7 @@ void TextureCache::ClearAreas( ResourceId id,
 void TextureCache::DiscardTexture( ResourceId id )
 {
   bool deleted = false;
+  bool recycled = false;
 
   DALI_LOG_INFO(Debug::Filter::gGLResource, Debug::General, "TextureCache::DiscardTexture(id:%u)\n", id);
 
@@ -206,8 +232,15 @@ void TextureCache::DiscardTexture( ResourceId id )
       TexturePointer texturePtr = iter->second;
       if( texturePtr )
       {
-        // if valid texture pointer, cleanup GL resources
-        texturePtr->GlCleanup();
+        if( IsRecyclable(texturePtr) )
+        {
+          RecycleTexture(texturePtr);
+        }
+        else
+        {
+          // if valid texture pointer, cleanup GL resources
+          texturePtr->GlCleanup();
+        }
       }
       mTextures.erase(iter);
       deleted = true;
@@ -230,7 +263,7 @@ void TextureCache::DiscardTexture( ResourceId id )
     }
   }
 
-  if(deleted)
+  if( deleted || recycled )
   {
     if( mObservers.size() > 0 )
     {
@@ -254,16 +287,53 @@ void TextureCache::DiscardTexture( ResourceId id )
   }
 }
 
+void TextureCache::UpdateConfiguration( const TextureRecyclingConfiguration& recycleConfiguration)
+{
+  if( mRecycleConfiguration.width != recycleConfiguration.width ||
+      mRecycleConfiguration.height != recycleConfiguration.height ||
+      mRecycleConfiguration.pixelFormat != recycleConfiguration.pixelFormat )
+  {
+    TextureVector::iterator end = mRecycledTextures.end();
+    TextureVector::iterator iter = mRecycledTextures.begin();
+    for( ; iter != end; ++iter )
+    {
+      (*iter)->GlCleanup();    // Ensure recyclable GL textures are destroyed first
+    }
+
+    mRecycledTextures.clear(); // Destroy all texture objects in the recycle list
+  }
+
+  if( mRecycleConfiguration.maxNumberOfTextures < recycleConfiguration.maxNumberOfTextures )
+  {
+    // Increase number of recyclable textures
+    mRecycledTextures.reserve(recycleConfiguration.maxNumberOfTextures);
+  }
+  else if( mRecycleConfiguration.maxNumberOfTextures > recycleConfiguration.maxNumberOfTextures )
+  {
+    // Delete excess recycled textures
+    int excessTextures = mRecycledTextures.size() - recycleConfiguration.maxNumberOfTextures;
+    if( excessTextures > 0 )
+    {
+      for( int i=0; i<excessTextures; ++i )
+      {
+        mRecycledTextures.back()->GlCleanup();
+        mRecycledTextures.pop_back();
+      }
+    }
+  }
+
+  mRecycleConfiguration = recycleConfiguration;
+}
+
 void TextureCache::BindTexture( Texture *texture, ResourceId id, GLenum target, TextureUnit textureunit )
 {
-  bool created = texture->Bind(target, textureunit);
-  if( created && texture->UpdateOnCreate() ) // i.e. the pixel data was sent to GL
+  bool uploaded = texture->Bind(target, textureunit);
+  if( uploaded )
   {
     ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
     mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
   }
 }
-
 
 Texture* TextureCache::GetTexture(ResourceId id)
 {
@@ -379,6 +449,8 @@ void TextureCache::GlContextDestroyed()
   {
     (*iter->second).GlContextDestroyed(); // map holds intrusive pointers
   }
+
+  mRecycledTextures.clear();
 }
 
 void TextureCache::SetDiscardBitmapsPolicy( ResourcePolicy::Discardable policy )
@@ -393,6 +465,76 @@ ResourcePolicy::Discardable TextureCache::GetDiscardBitmapsPolicy()
   return mDiscardBitmapsPolicy;
 }
 
+bool TextureCache::IsRecycledTextureAvailable( Integration::BitmapPtr bitmap )
+{
+  bool textureAvailable = false;
+
+  if( mRecycledTextures.size() > 0 )
+  {
+    Integration::Bitmap::PackedPixelsProfile* profile = bitmap->GetPackedPixelsProfile();
+
+    if( profile &&
+        profile->GetBufferWidth() == mRecycleConfiguration.width &&
+        profile->GetBufferHeight() == mRecycleConfiguration.height &&
+        bitmap->GetPixelFormat() == mRecycleConfiguration.pixelFormat )
+    {
+      textureAvailable = true;
+    }
+  }
+  return textureAvailable;
+}
+
+bool TextureCache::IsRecycledTextureAvailable( unsigned int width, unsigned int height, Pixel::Format pixelFormat )
+{
+  bool textureAvailable = false;
+
+  if( mRecycledTextures.size() > 0 )
+  {
+    if( width == mRecycleConfiguration.width &&
+        height == mRecycleConfiguration.height &&
+        pixelFormat == mRecycleConfiguration.pixelFormat )
+    {
+      textureAvailable = true;
+    }
+  }
+  return textureAvailable;
+}
+
+bool TextureCache::IsRecyclable( TexturePointer texture )
+{
+  bool recyclable = false;
+
+  BitmapTexture* bitmapTexture = dynamic_cast<BitmapTexture*>(texture.Get());
+
+  if( mRecycledTextures.size() < mRecycleConfiguration.maxNumberOfTextures &&
+      bitmapTexture &&
+      bitmapTexture->GetWidth() == mRecycleConfiguration.width &&
+      bitmapTexture->GetHeight() == mRecycleConfiguration.height &&
+      bitmapTexture->GetPixelFormat() == mRecycleConfiguration.pixelFormat )
+  {
+    recyclable = true;
+  }
+  return recyclable;
+}
+
+TexturePointer TextureCache::AssignRecycledTexture( Integration::BitmapPtr bitmap, bool clearPixels )
+{
+  TexturePointer last = mRecycledTextures.back();
+  BitmapTexture* bitmapTexture = dynamic_cast<BitmapTexture*>(last.Get());
+  if( bitmapTexture != NULL )
+  {
+    // Reset sampler, Reset image width/height to texture width/height
+    bitmapTexture->Reset(bitmap.Get(), clearPixels);
+  }
+  mRecycledTextures.pop_back();
+
+  return last;
+}
+
+void TextureCache::RecycleTexture( TexturePointer texture )
+{
+  mRecycledTextures.push_back( texture );
+}
 
 /********************************************************************************
  **********************  Implements TextureCacheDispatcher  *********************
@@ -550,6 +692,13 @@ void TextureCache::DispatchDiscardTexture( ResourceId id )
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::DiscardTexture, id );
   }
+}
+
+void TextureCache::DispatchUpdateConfiguration( TextureRecyclingConfiguration config )
+{
+  typedef MessageValue1< TextureCache, TextureRecyclingConfiguration > DerivedType;
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof(DerivedType));
+  new (slot) DerivedType( this, &TextureCache::UpdateConfiguration, config );
 }
 
 } // SceneGraph

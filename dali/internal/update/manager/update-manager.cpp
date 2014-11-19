@@ -1245,6 +1245,12 @@ void UpdateManager::SetLayerDepths( const SortedLayerPointers& layers, bool syst
   }
 }
 
+void UpdateManager::UpdateTextureCacheConfiguration( const Internal::TextureRecyclingConfiguration& config )
+{
+  TextureCacheDispatcher& textureCacheDispatcher = mImpl->sceneController->GetTextureCache();
+  textureCacheDispatcher.DispatchUpdateConfiguration( config );
+}
+
 #ifdef DYNAMICS_SUPPORT
 
 void UpdateManager::InitializeDynamicsWorld( SceneGraph::DynamicsWorld* dynamicsWorld, Integration::DynamicsWorldSettings* worldSettings )

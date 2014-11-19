@@ -80,9 +80,9 @@ public:
   virtual void UpdateArea( const RectArea& area );
 
   /**
-   * @return Return true if the texture should be updated on GL texture creation.
+   * @return Return true if the texture should be uploaded on bind.
    */
-  virtual bool UpdateOnCreate();
+  virtual bool UploadOnBind();
 
   /**
    * Binds the texture for use.
@@ -90,8 +90,7 @@ public:
    *
    * @param target (e.g. GL_TEXTURE_2D)
    * @param textureunit to bind to
-   * @return True if the opengl texture was created, false if there was already a texture
-   * or no texture could be created yet ( e.g. no bitmap data after context loss )
+   * @return True if the source texture was uploaded to the opengl texture.
    */
   virtual bool Bind(GLenum target, TextureUnit textureunit);
 
@@ -211,9 +210,14 @@ protected:
 
   /**
    * Initialize texture for rendering.
-   * @return true on success
    */
-  virtual bool CreateGlTexture() = 0;
+  virtual void CreateGlTexture() = 0;
+
+  /**
+   * Try and upload the source texture to GL.
+   * @post mUploaded is set appropriately
+   */
+  virtual void UploadGlTexture();
 
 public:
   /**
@@ -279,6 +283,7 @@ protected:
 
   Pixel::Format mPixelFormat;  ///< Pixel format of the contained image data.
 
+  bool          mUploaded;     ///< True if the source has been uploaded to the texture
 };
 
 } // namespace Internal

@@ -140,16 +140,17 @@ void CompressedBitmapTexture::Update( Integration::Bitmap* bitmap )
       {
         mBitmap->DiscardBuffer();
       }
+      mUploaded = true;
     }
   }
 }
 
-bool CompressedBitmapTexture::UpdateOnCreate()
+bool CompressedBitmapTexture::UploadOnBind()
 {
-  return true;
+  return false;
 }
 
-bool CompressedBitmapTexture::CreateGlTexture()
+void CompressedBitmapTexture::CreateGlTexture()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
   DALI_LOG_INFO(Debug::Filter::gImage, Debug::Verbose, "Bitmap: %s\n", DALI_LOG_GET_OBJECT_C_STR(this));
@@ -171,7 +172,7 @@ bool CompressedBitmapTexture::CreateGlTexture()
     AssignBitmap( true, NULL, 0 );
   }
 
-  return mId != 0;
+  mUploaded = true;
 }
 
 bool CompressedBitmapTexture::Init()

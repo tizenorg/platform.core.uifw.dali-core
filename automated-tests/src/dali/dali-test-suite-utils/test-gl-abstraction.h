@@ -117,6 +117,10 @@ public:
 
     for( unsigned int i=0; i<MIN_TEXTURE_UNIT_LIMIT; ++i )
     {
+      for( unsigned int j=0; j<mActiveTextures[ i ].mBoundTextures.size(); ++j )
+      {
+        mActiveTextures[ i ].mBoundTextures[j] = 0xFF;
+      }
       mActiveTextures[ i ].mBoundTextures.clear();
     }
   }

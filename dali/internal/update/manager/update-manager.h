@@ -370,6 +370,12 @@ public:
    */
   void SetLayerDepths( const std::vector< Layer* >& layers, bool systemLevel );
 
+  /**
+   * Updates the texture cache configuration.
+   * @param[in] config The texture cache configuration
+   */
+  void UpdateTextureCacheConfiguration( const Internal::TextureRecyclingConfiguration& config );
+
 #ifdef DYNAMICS_SUPPORT
 
   /**
@@ -829,6 +835,17 @@ inline void RemoveGestureMessage( UpdateManager& manager, PanGesture* gesture )
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &manager, &UpdateManager::RemoveGesture, gesture );
+}
+
+inline void UpdateTextureCacheConfigurationMessage( UpdateManager& manager, TextureRecyclingConfiguration config )
+{
+  typedef MessageValue1< UpdateManager, TextureRecyclingConfiguration > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.GetEventToUpdate().ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::UpdateTextureCacheConfiguration, config );
 }
 
 #ifdef DYNAMICS_SUPPORT

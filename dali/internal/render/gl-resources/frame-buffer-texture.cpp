@@ -94,35 +94,38 @@ bool FrameBufferTexture::Prepare()
   return false;
 }
 
-bool FrameBufferTexture::CreateGlTexture()
+void FrameBufferTexture::CreateGlTexture()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
 
   mContext.GenTextures(1, &mId);
-  mContext.ActiveTexture( TEXTURE_UNIT_UPLOAD );  // bind in unused unit so rebind works the first time
-  mContext.Bind2dTexture(mId);
 
-  // set texture parameters
-  mContext.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  if( mId != 0 )
+  {
+    mContext.ActiveTexture( TEXTURE_UNIT_UPLOAD );  // bind in unused unit so rebind works the first time
+    mContext.Bind2dTexture(mId);
 
-  // Assign memory for texture in GL memory space
-  GLenum pixelFormat = GL_RGBA;
-  GLenum pixelDataType = GL_UNSIGNED_BYTE;
-  Integration::ConvertToGlFormat(mPixelFormat, pixelDataType, pixelFormat);
+    // set texture parameters
+    mContext.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-  mContext.TexImage2D(GL_TEXTURE_2D, 0, pixelFormat,mWidth, mHeight, 0, pixelFormat, pixelDataType, NULL);
+    // Assign memory for texture in GL memory space
+    GLenum pixelFormat = GL_RGBA;
+    GLenum pixelDataType = GL_UNSIGNED_BYTE;
+    Integration::ConvertToGlFormat(mPixelFormat, pixelDataType, pixelFormat);
 
-  // generate frame and render buffer names
-  mContext.GenFramebuffers(1, &mFrameBufferName);
-  mContext.GenRenderbuffers(1, &mRenderBufferName);
+    mContext.TexImage2D(GL_TEXTURE_2D, 0, pixelFormat,mWidth, mHeight, 0, pixelFormat, pixelDataType, NULL);
+    mUploaded = true;
 
-  // Bind render buffer and create 16 depth buffer
-  mContext.BindRenderbuffer(GL_RENDERBUFFER, mRenderBufferName);
-  mContext.RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, mWidth, mHeight);
+    // generate frame and render buffer names
+    mContext.GenFramebuffers(1, &mFrameBufferName);
+    mContext.GenRenderbuffers(1, &mRenderBufferName);
 
-  return mId != 0;
+    // Bind render buffer and create 16 depth buffer
+    mContext.BindRenderbuffer(GL_RENDERBUFFER, mRenderBufferName);
+    mContext.RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, mWidth, mHeight);
+  }
 }
 
 void FrameBufferTexture::GlCleanup()

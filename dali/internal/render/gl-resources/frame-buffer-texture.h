@@ -81,7 +81,7 @@ protected:
   /**
    * @copydoc Texture::CreateGlTexture
    */
-  virtual bool CreateGlTexture();
+  virtual void CreateGlTexture();
 
   /**
    * @copydoc Texture::GlCleanup
@@ -94,4 +94,3 @@ protected:
 
 } //namespace Dali
 #endif //__DALI_INTERNAL_FRAME_BUFFER_TEXTURE_H__
-

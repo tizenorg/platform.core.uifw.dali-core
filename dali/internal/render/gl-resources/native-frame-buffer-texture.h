@@ -71,7 +71,7 @@ protected:
   /**
    * @copydoc Texture::CreateGlTexture
    */
-  virtual bool CreateGlTexture();
+  virtual void CreateGlTexture();
 
   /**
    * @copydoc Texture::GlCleanup
@@ -88,4 +88,3 @@ private:
 } //namespace Dali
 
 #endif // header
-

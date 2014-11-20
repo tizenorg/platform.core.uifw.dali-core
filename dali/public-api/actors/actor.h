@@ -299,6 +299,18 @@ public:
       DRAW_MODE,                                          ///< name "draw-mode",             type std::string
       SIZE_MODE,                                          ///< name "size-mode",             type std::string
       SIZE_MODE_FACTOR,                                   ///< name "size-mode-factor",      type Vector3
+      RELAYOUT_ENABLED,                                   ///< name "relayout-enabled",      type Boolean
+      RESIZE_POLICY_WIDTH,                                ///< name "resize-policy-width",   type String
+      RESIZE_POLICY_HEIGHT,                               ///< name "resize-policy-height",  type String
+      SIZE_SCALE_POLICY,                                  ///< name "size-scale-policy",     type String
+      WIDTH_FOR_HEIGHT,                                   ///< name "width-for-height",      type Boolean
+      HEIGHT_FOR_WIDTH,                                   ///< name "height-for-width",      type Boolean
+      PADDING,                                            ///< name "padding",               type Vector4
+      PADDING_WIDTH,                                      ///< name "padding-width",         type Vector2
+      PADDING_HEIGHT,                                     ///< name "padding-height",        type Vector2
+      RELAYOUT_SIZE_FACTOR,                               ///< name "relayout-size-factor",  type Vector3
+      MINIMUM_SIZE,                                       ///< name "minimum-size",          type Vector2
+      MAXIMUM_SIZE,                                       ///< name "maximum-size",          type Vector2
     };
   };
 
@@ -309,6 +321,7 @@ public:
   typedef Signal< bool (Actor, const MouseWheelEvent&) > MouseWheelEventSignalType; ///< Mousewheel signal type
   typedef Signal< void (Actor) > OnStageSignalType;  ///< Stage connection signal type
   typedef Signal< void (Actor) > OffStageSignalType; ///< Stage disconnection signal type
+  typedef Signal< void (Actor) > OnRelayoutSignalType; ///< Called when the actor is relaid out
 
   // Creation
 
@@ -1202,6 +1215,185 @@ public:
    */
   bool IsKeyboardFocusable() const;
 
+  // SIZE NEGOTIATION
+
+  /**
+   * @brief Set if the actor should do relayout in size negotiation or not.
+   *
+   * @param[in] enabled Flag to specify if actor should do relayout or not.
+   */
+  void SetRelayoutEnabled( bool enabled );
+
+  /**
+   * @brief Is the actor included in relayout or not.
+   *
+   * @return Return if the actor is involved in size negotiation or not.
+   */
+  bool IsRelayoutEnabled() const;
+
+  /**
+   * Set the resize policy to be used for the given dimension(s)
+   *
+   * @param[in] policy The resize policy to use
+   * @param[in] dimension The dimension(s) to set policy for. Can be a bitfield of multiple dimensions.
+   */
+  void SetResizePolicy( ResizePolicy policy, Dimension dimension = ALL_DIMENSIONS );
+
+  /**
+   * Return the resize policy used for a single dimension
+   *
+   * @param[in] dimension The dimension to get policy for
+   * @return Return the dimension resize policy
+   */
+  ResizePolicy GetResizePolicy( Dimension dimension ) const;
+
+  /**
+   * @brief Set the policy to use when setting size with size negotiation. Defaults to USE_SIZE_SET.
+   *
+   * @param[in] policy The policy to use for when the size is set
+   */
+  void SetSizeScalePolicy( SizeSetPolicy policy );
+
+  /**
+   * @brief Return the size set policy in use
+   *
+   * @return Return the size set policy
+   */
+  SizeSetPolicy GetSizeScalePolicy() const;
+
+  /**
+   * @brief This method specifies a dependency between dimensions. Will set resize policy on the actor for
+   * the given dimension to be DIMENSION_DEPENDENCY.
+   *
+   * @param[in] dimension The dimension to set the dependency on
+   * @param[in] dependency The dependency to set on the dimension
+   */
+  void SetDimensionDependency( Dimension dimension, Dimension dependency );
+
+  /**
+   * @brief Return the dependecy for a dimension
+   *
+   * @param[in] dimension The dimension to return the dependency for
+   * @return Return the dependency
+   */
+  Dimension GetDimensionDependency( Dimension dimension );
+
+  /**
+   * @brief Calculate the height of the actor given a width
+   *
+   * @param width Width to use
+   * @return Return the height based on the width
+   */
+  float GetHeightForWidth( float width );
+
+  /**
+   * @brief Calculate the width of the actor given a height
+   *
+   * @param height Height to use
+   * @return Return the width based on the height
+   */
+  float GetWidthForHeight( float height );
+
+  /**
+   * @brief Calculate the size for a child
+   *
+   * @param[in] child The child actor to calculate the size for
+   * @param[in] dimension The dimension to calculate the size for. E.g. width or height.
+   * @return Return the calculated size for the given dimension
+   */
+  float CalculateChildSize( const Dali::Actor& child, Dimension dimension );
+
+  /**
+   * Return the value of negotiated dimension for the given dimension
+   *
+   * @param dimension The dimension to retrieve
+   * @return Return the value of the negotiated dimension
+   */
+  float GetRelayoutSize( Dimension dimension ) const;
+
+  /**
+   * @brief Signal that this actor is about to be relaid out so reset any internal flags
+   * related to this
+   */
+  void FlagToRelayout();
+
+  /**
+   * @brief Set the padding for a dimension
+   *
+   * @param[in] padding Padding for the dimension. X = start (e.g. left, bottom), y = end (e.g. right, top)
+   * @param[in] dimension The dimension to set
+   */
+  void SetPadding( const Vector2& padding, Dimension dimension = ALL_DIMENSIONS );
+
+  /**
+   * Return the value of padding for the given dimension
+   *
+   * @param dimension The dimension to retrieve
+   * @return Return the value of padding for the dimension
+   */
+  Vector2 GetPadding( Dimension dimension ) const;
+
+  /**
+   * @brief Set a factor to multiply or add to parent's size when calculating
+   * fill to parent
+   *
+   * @param[in] factor Multiplier or added
+   */
+  void SetRelayoutSizeFactor( const Vector3& factor );
+
+  /**
+   * @brief Return the relayout size factor
+   *
+   * @return Return the factor used for relayout on this actor
+   */
+  Vector3 GetRelayoutSizeFactor() const;
+
+  /**
+   * @brief Set the preferred size for size negotiation
+   *
+   * @param[in] size The preferred size to set
+   */
+  void SetPreferredSize( const Vector2& size );
+
+  /**
+   * @brief Return the preferred size used for size negotiation
+   *
+   * @return Return the preferred size
+   */
+  Vector2 GetPreferredSize() const;
+
+  /**
+   * @brief Set the minimum size an actor can be assigned in size negotiation
+   *
+   * @param[in] size The minimum size
+   * @param[in] dimension The dimension(s) the size applies to
+   */
+  void SetMinimumSize( float size, Dimension dimension = ALL_DIMENSIONS );
+
+  /**
+   * @brief Return the minimum relayout size for the given dimension
+   *
+   * @param[in] dimension The dimension to retrieve the size for
+   * @return Return the mininmum size
+   */
+  float GetMinimumSize( Dimension dimension );
+
+  /**
+   * @brief Set the maximum size an actor can be assigned in size negotiation
+   *
+   * @param[in] size The maximum size
+   * @param[in] dimension The dimension(s) the size applies to
+   */
+  void SetMaximumSize( float size, Dimension dimension = ALL_DIMENSIONS );
+
+  /**
+   * @brief Return the maximum relayout size for the given dimension
+   *
+   * @param[in] dimension The dimension to retrieve the size for
+   * @return Return the maximum size
+   */
+  float GetMaximumSize( Dimension dimension );
+
 public: // Signals
 
   /**
@@ -1286,6 +1478,13 @@ public: // Signals
    * @return The signal
    */
   OffStageSignalType& OffStageSignal();
+
+  /**
+   * @brief This signal is emitted after the size has been set on the actor during relayout
+   *
+   * @return Return the signal
+   */
+  OnRelayoutSignalType& OnRelayoutSignal();
 
 public: // Dynamics
 

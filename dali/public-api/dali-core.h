@@ -151,6 +151,9 @@
 
 #include <dali/public-api/shader-effects/shader-effect.h>
 
+#include <dali/public-api/size-negotiation/relayout-container.h>
+#include <dali/public-api/size-negotiation/relayout-controller.h>
+
 #include <dali/public-api/text/font-parameters.h>
 #include <dali/public-api/text/font.h>
 #include <dali/public-api/text/text-actor-parameters.h>

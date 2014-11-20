@@ -486,6 +486,121 @@ bool Actor::IsKeyboardFocusable() const
   return GetImplementation(*this).IsKeyboardFocusable();
 }
 
+void Actor::SetRelayoutEnabled( bool enabled )
+{
+  GetImplementation(*this).SetRelayoutEnabled( enabled );
+}
+
+bool Actor::IsRelayoutEnabled() const
+{
+  return GetImplementation(*this).IsRelayoutEnabled();
+}
+
+void Actor::SetResizePolicy( ResizePolicy policy, Dimension dimension )
+{
+  GetImplementation(*this).SetResizePolicy( policy, dimension );
+}
+
+ResizePolicy Actor::GetResizePolicy( Dimension dimension ) const
+{
+  return GetImplementation(*this).GetResizePolicy( dimension );
+}
+
+void Actor::SetSizeScalePolicy( SizeSetPolicy policy )
+{
+  GetImplementation(*this).SetSizeScalePolicy( policy );
+}
+
+SizeSetPolicy Actor::GetSizeScalePolicy() const
+{
+  return GetImplementation(*this).GetSizeScalePolicy();
+}
+
+void Actor::SetDimensionDependency( Dimension dimension, Dimension dependency )
+{
+  GetImplementation(*this).SetDimensionDependency( dimension, dependency );
+}
+
+Dimension Actor::GetDimensionDependency( Dimension dimension )
+{
+  return GetImplementation(*this).GetDimensionDependency( dimension );
+}
+
+float Actor::GetHeightForWidth( float width )
+{
+  return GetImplementation(*this).GetHeightForWidth( width );
+}
+
+float Actor::GetWidthForHeight( float height )
+{
+  return GetImplementation(*this).GetWidthForHeight( height );
+}
+
+float Actor::CalculateChildSize( const Dali::Actor& child, Dimension dimension )
+{
+  return GetImplementation(*this).CalculateChildSize( child, dimension );
+}
+
+float Actor::GetRelayoutSize( Dimension dimension ) const
+{
+  return GetImplementation(*this).GetRelayoutSize( dimension );
+}
+
+void Actor::FlagToRelayout()
+{
+  GetImplementation(*this).FlagToRelayout();
+}
+
+void Actor::SetPadding( const Vector2& padding, Dimension dimension )
+{
+  GetImplementation(*this).SetPadding( padding, dimension );
+}
+
+Vector2 Actor::GetPadding( Dimension dimension ) const
+{
+  return GetImplementation(*this).GetPadding( dimension );
+}
+
+void Actor::SetRelayoutSizeFactor(const Vector3& factor)
+{
+  GetImplementation(*this).SetRelayoutSizeFactor( factor );
+}
+
+Vector3 Actor::GetRelayoutSizeFactor() const
+{
+  return GetImplementation(*this).GetRelayoutSizeFactor();
+}
+
+void Actor::SetPreferredSize( const Vector2& size )
+{
+  GetImplementation(*this).SetPreferredSize( size );
+}
+
+Vector2 Actor::GetPreferredSize() const
+{
+  return GetImplementation(*this).GetPreferredSize();
+}
+
+void Actor::SetMinimumSize( float size, Dimension dimension )
+{
+  GetImplementation(*this).SetMinimumSize( size, dimension );
+}
+
+float Actor::GetMinimumSize( Dimension dimension )
+{
+  return GetImplementation(*this).GetMinimumSize( dimension );
+}
+
+void Actor::SetMaximumSize( float size, Dimension dimension )
+{
+  GetImplementation(*this).SetMaximumSize( size, dimension );
+}
+
+float Actor::GetMaximumSize( Dimension dimension )
+{
+  return GetImplementation(*this).GetMaximumSize( dimension );
+}
+
 Actor::TouchSignalType& Actor::TouchedSignal()
 {
   return GetImplementation(*this).TouchedSignal();
@@ -509,6 +624,11 @@ Actor::OnStageSignalType& Actor::OnStageSignal()
 Actor::OffStageSignalType& Actor::OffStageSignal()
 {
   return GetImplementation(*this).OffStageSignal();
+}
+
+Actor::OnRelayoutSignalType& Actor::OnRelayoutSignal()
+{
+  return GetImplementation(*this).OnRelayoutSignal();
 }
 
 DynamicsBody Actor::EnableDynamics(DynamicsBodyConfig bodyConfig)

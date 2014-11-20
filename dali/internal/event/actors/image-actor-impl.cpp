@@ -170,6 +170,7 @@ void ImageActor::ClearPixelArea()
     {
       mInternalSetSize = true;
       SetSize( image->GetNaturalSize() );
+      SetPreferredSize( GetSize().GetVectorXY() );
       mInternalSetSize = false;
     }
   }
@@ -211,6 +212,8 @@ ImageActor::ImageActor()
   mUsingNaturalSize(true),
   mInternalSetSize(false)
 {
+  // Size negotiate disabled by default, so turn it on for this actor
+  SetRelayoutEnabled( true );
 }
 
 ImageActor::~ImageActor()
@@ -223,6 +226,7 @@ void ImageActor::SetNaturalSize()
   {
     mInternalSetSize = true;
     SetSize( CalculateNaturalSize() );
+    SetPreferredSize( GetSize().GetVectorXY() );
     mInternalSetSize = false;
   }
 }

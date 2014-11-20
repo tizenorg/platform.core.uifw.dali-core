@@ -3159,6 +3159,18 @@ const PropertyStringIndex PROPERTY_TABLE[] =
   { "draw-mode",                Actor::Property::DRAW_MODE,                Property::STRING      },
   { "size-mode",                Actor::Property::SIZE_MODE,                Property::STRING      },
   { "size-mode-factor",         Actor::Property::SIZE_MODE_FACTOR,         Property::VECTOR3     },
+  { "relayout-enabled",         Actor::Property::RELAYOUT_ENABLED,         Property::BOOLEAN     },
+  { "resize-policy-width",      Actor::Property::RESIZE_POLICY_WIDTH,      Property::STRING      },
+  { "resize-policy-height",     Actor::Property::RESIZE_POLICY_HEIGHT,     Property::STRING      },
+  { "size-scale-policy",        Actor::Property::SIZE_SCALE_POLICY,        Property::STRING      },
+  { "width-for-height",         Actor::Property::WIDTH_FOR_HEIGHT,         Property::BOOLEAN     },
+  { "height-for-width",         Actor::Property::HEIGHT_FOR_WIDTH,         Property::BOOLEAN     },
+  { "padding",                  Actor::Property::PADDING,                  Property::VECTOR4     },
+  { "padding-width",            Actor::Property::PADDING_WIDTH,            Property::VECTOR2     },
+  { "padding-height",           Actor::Property::PADDING_HEIGHT,           Property::VECTOR2     },
+  { "relayout-size-factor",     Actor::Property::RELAYOUT_SIZE_FACTOR,     Property::VECTOR3     },
+  { "minimum-size",             Actor::Property::MINIMUM_SIZE,             Property::VECTOR2     },
+  { "maximum-size",             Actor::Property::MAXIMUM_SIZE,             Property::VECTOR2     },
 };
 const unsigned int PROPERTY_TABLE_COUNT = sizeof( PROPERTY_TABLE ) / sizeof( PROPERTY_TABLE[0] );
 } // unnamed namespace
@@ -3176,5 +3188,176 @@ int UtcDaliActorProperties(void)
     DALI_TEST_EQUALS( actor.GetPropertyIndex( PROPERTY_TABLE[i].name ), PROPERTY_TABLE[i].index, TEST_LOCATION );
     DALI_TEST_EQUALS( actor.GetPropertyType( PROPERTY_TABLE[i].index ), PROPERTY_TABLE[i].type, TEST_LOCATION );
   }
+  END_TEST;
+}
+
+int UtcDaliRelayoutProperties_RelayoutEnabled(void)
+{
+  TestApplication app;
+
+  Actor actor = Actor::New();
+
+  // Defaults
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::RELAYOUT_ENABLED ).Get< bool >(), false, TEST_LOCATION );
+
+  // Set relayout disabled
+  actor.SetProperty( Actor::Property::RELAYOUT_ENABLED, false );
+
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::RELAYOUT_ENABLED ).Get< bool >(), false, TEST_LOCATION );
+
+  // Set relayout enabled
+  actor.SetProperty( Actor::Property::RELAYOUT_ENABLED, true );
+
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::RELAYOUT_ENABLED ).Get< bool >(), true, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliRelayoutProperties_ResizePolicies(void)
+{
+  TestApplication app;
+
+  Actor actor = Actor::New();
+
+  // Defaults
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::RESIZE_POLICY_WIDTH ).Get< std::string >(), "FIXED", TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::RESIZE_POLICY_HEIGHT ).Get< std::string >(), "FIXED", TEST_LOCATION );
+
+  // Set resize policy for all dimensions
+  actor.SetResizePolicy( USE_NATURAL_SIZE );
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i)
+  {
+    DALI_TEST_EQUALS( actor.GetResizePolicy( static_cast< Dimension >( 1 << i ) ), USE_NATURAL_SIZE, TEST_LOCATION );
+  }
+
+  // Set individual dimensions
+  const char* const widthPolicy = "FILL_TO_PARENT";
+  const char* const heightPolicy = "FIXED";
+
+  actor.SetProperty( Actor::Property::RESIZE_POLICY_WIDTH, widthPolicy );
+  actor.SetProperty( Actor::Property::RESIZE_POLICY_HEIGHT, heightPolicy );
+
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::RESIZE_POLICY_WIDTH ).Get< std::string >(), widthPolicy, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::RESIZE_POLICY_HEIGHT ).Get< std::string >(), heightPolicy, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliRelayoutProperties_SizeScalePolicy(void)
+{
+  TestApplication app;
+
+  Actor actor = Actor::New();
+
+  // Defaults
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::SIZE_SCALE_POLICY ).Get< std::string >(), "USE_SIZE_SET", TEST_LOCATION );
+
+  // Set
+  const char* const policy1 = "FIT_WITH_ASPECT_RATIO";
+  const char* const policy2 = "FILL_WITH_ASPECT_RATIO";
+
+  actor.SetProperty( Actor::Property::SIZE_SCALE_POLICY, policy1 );
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::SIZE_SCALE_POLICY ).Get< std::string >(), policy1, TEST_LOCATION );
+
+  actor.SetProperty( Actor::Property::SIZE_SCALE_POLICY, policy2 );
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::SIZE_SCALE_POLICY ).Get< std::string >(), policy2, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliRelayoutProperties_DimensionDependency(void)
+{
+  TestApplication app;
+
+  Actor actor = Actor::New();
+
+  // Defaults
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::WIDTH_FOR_HEIGHT ).Get< bool >(), false, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::HEIGHT_FOR_WIDTH ).Get< bool >(), false, TEST_LOCATION );
+
+  // Set
+  actor.SetProperty( Actor::Property::WIDTH_FOR_HEIGHT, true );
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::WIDTH_FOR_HEIGHT ).Get< bool >(), true, TEST_LOCATION );
+
+  actor.SetProperty( Actor::Property::HEIGHT_FOR_WIDTH, true );
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::HEIGHT_FOR_WIDTH ).Get< bool >(), true, TEST_LOCATION );
+
+  // Test setting another resize policy
+  actor.SetProperty( Actor::Property::RESIZE_POLICY_WIDTH, "FIXED" );
+  DALI_TEST_EQUALS( actor.GetProperty( Actor::Property::WIDTH_FOR_HEIGHT ).Get< bool >(), false, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliRelayoutProperties_Padding(void)
+{
+  TestApplication app;
+
+  Actor actor = Actor::New();
+
+  // Data
+  Vector4 padding( 1.0f, 2.0f, 3.0f, 4.0f );
+
+  // PADDING
+  actor.SetProperty( Actor::Property::PADDING, padding );
+  Vector4 paddingResult = actor.GetProperty( Actor::Property::PADDING ).Get< Vector4 >();
+
+  DALI_TEST_EQUALS( paddingResult, padding, Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  // PADDING_WIDTH
+  Vector2 paddingWidth( padding.x, padding.y );
+  actor.SetProperty( Actor::Property::PADDING_WIDTH, paddingWidth );
+  Vector2 paddingWidthResult = actor.GetProperty( Actor::Property::PADDING_WIDTH ).Get< Vector2 >();
+
+  DALI_TEST_EQUALS( paddingWidthResult, paddingWidth, Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  // PADDING_HEIGHT
+  Vector2 paddingHeight( padding.z, padding.w );
+  actor.SetProperty( Actor::Property::PADDING_HEIGHT, paddingHeight );
+  Vector2 paddingHeightResult = actor.GetProperty( Actor::Property::PADDING_HEIGHT ).Get< Vector2 >();
+
+  DALI_TEST_EQUALS( paddingHeightResult, paddingHeight, Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliRelayoutProperties_RelayoutSizeFactor(void)
+{
+  TestApplication app;
+
+  Actor actor = Actor::New();
+
+  // Data
+  Vector3 sizeFactor( 1.0f, 2.0f, 3.0f );
+
+  actor.SetProperty( Actor::Property::RELAYOUT_SIZE_FACTOR, sizeFactor );
+  Vector3 result = actor.GetProperty( Actor::Property::RELAYOUT_SIZE_FACTOR ).Get< Vector3 >();
+
+  DALI_TEST_EQUALS( result, sizeFactor, Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliRelayoutProperties_MinimumMaximumSize(void)
+{
+  TestApplication app;
+
+  Actor actor = Actor::New();
+
+  // Data
+  Vector2 minSize( 1.0f, 2.0f );
+
+  actor.SetProperty( Actor::Property::MINIMUM_SIZE, minSize );
+  Vector2 resultMin = actor.GetProperty( Actor::Property::MINIMUM_SIZE ).Get< Vector2 >();
+
+  DALI_TEST_EQUALS( resultMin, minSize, Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  Vector2 maxSize( 3.0f, 4.0f );
+
+  actor.SetProperty( Actor::Property::MAXIMUM_SIZE, maxSize );
+  Vector2 resultMax = actor.GetProperty( Actor::Property::MAXIMUM_SIZE ).Get< Vector2 >();
+
+  DALI_TEST_EQUALS( resultMax, maxSize, Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
   END_TEST;
 }

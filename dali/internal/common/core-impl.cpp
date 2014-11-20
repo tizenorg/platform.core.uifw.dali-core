@@ -47,6 +47,7 @@
 #include <dali/internal/update/touch/touch-resampler.h>
 #include <dali/internal/event/common/type-registry-impl.h>
 #include <dali/internal/event/render-tasks/render-task-list-impl.h>
+#include <dali/internal/event/size-negotiation/relayout-controller-impl.h>
 
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/gl-resources/context.h>
@@ -154,7 +155,12 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
 
   mResourceClient = new ResourceClient( *mResourceManager, *mUpdateManager, dataRetentionPolicy );
 
+
+
   mStage = IntrusivePtr<Stage>( Stage::New( *mAnimationPlaylist, *mPropertyNotificationManager, *mUpdateManager, *mNotificationManager ) );
+
+  // This must be called after stage is created but before stage initialization
+  mRelayoutController = IntrusivePtr< RelayoutController >( new RelayoutController() );
 
   mStage->Initialize();
 
@@ -186,6 +192,9 @@ Core::~Core()
   // allows core to be created / deleted many times in the same thread (how TET cases work).
   // Do this before mStage.Reset() so Stage::IsInstalled() returns false
   ThreadLocalStorage::Get().Remove();
+
+  // Stop relayout requests being raised on stage destruction
+  mRelayoutController.Reset();
 
   // Clean-up stage - remove default camera and root layer
   mStage->Uninitialize();
@@ -297,6 +306,8 @@ void Core::Resume()
 void Core::SceneCreated()
 {
   mStage->EmitSceneCreatedSignal();
+
+  mRelayoutController->OnApplicationSceneCreated();
 }
 
 void Core::QueueEvent( const Integration::Event& event )
@@ -330,6 +341,9 @@ void Core::ProcessEvents()
   {
     // Emit signal here to start size negotiation and control relayout.
     mStage->EmitEventProcessingFinishedSignal();
+
+    // Run the size negotiation after event processing finished signal
+    mRelayoutController->Relayout();
 
     // Flush discard queue for image factory
     mImageFactory->FlushReleaseQueue();
@@ -448,6 +462,11 @@ GestureEventProcessor& Core::GetGestureEventProcessor()
 EmojiFactory& Core::GetEmojiFactory()
 {
   return *mEmojiFactory;
+}
+
+RelayoutController& Core::GetRelayoutController()
+{
+  return *(mRelayoutController.Get());
 }
 
 void Core::CreateThreadLocalStorage()

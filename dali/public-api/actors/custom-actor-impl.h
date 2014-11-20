@@ -22,6 +22,7 @@
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/property.h>
 #include <dali/public-api/object/ref-object.h>
+#include <dali/public-api/actors/actor-enumerations.h>
 
 namespace Dali
 {
@@ -40,6 +41,8 @@ struct TouchEvent;
 struct HoverEvent;
 struct MouseWheelEvent;
 struct Vector3;
+
+typedef std::vector<Actor> ActorContainer;
 
 /**
  * @brief Pointer to Dali::CustomActorImpl object.
@@ -194,6 +197,13 @@ public:
    * @return The actor's natural size
    */
   virtual Vector3 GetNaturalSize() = 0;
+
+  /**
+   * Return a list of children that participate in size negotiation
+   *
+   * @param[in,out] childrenOut A list to populate with children
+   */
+  virtual void CollectChildrenForRelayout( ActorContainer& childrenOut ) const = 0;
 
 protected: // For derived classes
 

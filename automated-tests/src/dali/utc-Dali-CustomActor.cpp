@@ -174,6 +174,34 @@ struct TestCustomActor : public CustomActorImpl
     return Vector3( 0.0f, 0.0f, 0.0f );
   }
 
+  virtual float GetHeightForWidth( float width )
+  {
+    return 0.0f;
+  }
+
+  virtual float GetWidthForHeight( float height )
+  {
+    return 0.0f;
+  }
+
+  virtual void OnRelayout( const Vector2& size, RelayoutContainer& container )
+  {
+  }
+
+  virtual void OnSetResizePolicy( ResizePolicy policy, Dimension dimension )
+  {
+  }
+
+  virtual float CalculateChildSize( const Dali::Actor& child, Dimension dimension )
+  {
+    return 0.0f;
+  }
+
+  virtual bool RelayoutDependentOnChildren( Dimension dimension = ALL_DIMENSIONS )
+  {
+    return false;
+  }
+
   void SetDaliProperty(std::string s)
   {
     Self().SetProperty(mDaliProperty, s) ;
@@ -472,6 +500,34 @@ public:
   {
     return Vector3( 0.0f, 0.0f, 0.0f );
   }
+
+  virtual float GetHeightForWidth( float width )
+  {
+    return 0.0f;
+  }
+
+  virtual float GetWidthForHeight( float height )
+  {
+    return 0.0f;
+  }
+
+  virtual void OnRelayout( const Vector2& size, RelayoutContainer& container )
+  {
+  }
+
+  virtual void OnSetResizePolicy( ResizePolicy policy, Dimension dimension )
+  {
+  }
+
+  virtual float CalculateChildSize( const Dali::Actor& child, Dimension dimension )
+  {
+    return 0.0f;
+  }
+
+  virtual bool RelayoutDependentOnChildren( Dimension dimension = ALL_DIMENSIONS )
+  {
+    return false;
+  }
 };
 
 } ; // namespace Impl
@@ -614,6 +670,20 @@ public:
   virtual Vector3 GetNaturalSize()
   {
     return Vector3( 0.0f, 0.0f, 0.0f );
+  }
+
+  virtual float GetHeightForWidth( float width )
+  {
+    return 0.0f;
+  }
+
+  virtual float GetWidthForHeight( float height )
+  {
+    return 0.0f;
+  }
+
+  virtual void OnRelayout( const Vector2& size, RelayoutContainer& container )
+  {
   }
 
 private:

@@ -38,6 +38,7 @@
 #include <dali/public-api/common/constants.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
+#include <dali/public-api/size-negotiation/relayout-controller.h>
 
 #ifdef DYNAMICS_SUPPORT
 #include <dali/internal/event/dynamics/dynamics-world-config-impl.h>
@@ -204,7 +205,7 @@ void Stage::SetSize(float width, float height)
   mDefaultCamera->SetPerspectiveProjection( mSize );
 
   // The depth of the stage gets set to the maximun of these values
-  mRootLayer->SetSize( mSize );
+  mRootLayer->SetPreferredSize( mSize );
 
   // Repeat for SystemOverlay actors
   if( mSystemOverlay )

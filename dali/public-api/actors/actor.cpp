@@ -482,6 +482,36 @@ bool Actor::IsKeyboardFocusable() const
   return GetImplementation(*this).IsKeyboardFocusable();
 }
 
+void Actor::SetRelayoutEnabled( bool relayoutEnabled )
+{
+  GetImplementation(*this).SetRelayoutEnabled( relayoutEnabled );
+}
+
+bool Actor::IsRelayoutEnabled() const
+{
+  return GetImplementation(*this).IsRelayoutEnabled();
+}
+
+void Actor::SetLayoutDirty( bool dirty )
+{
+  GetImplementation(*this).SetLayoutDirty( dirty );
+}
+
+bool Actor::IsLayoutDirty() const
+{
+  return GetImplementation(*this).IsLayoutDirty();
+}
+
+bool Actor::RelayoutPossible() const
+{
+  return GetImplementation(*this).RelayoutPossible();
+}
+
+bool Actor::RelayoutRequired() const
+{
+  return GetImplementation(*this).RelayoutRequired();
+}
+
 Actor::TouchSignalV2& Actor::TouchedSignal()
 {
   return GetImplementation(*this).TouchedSignal();

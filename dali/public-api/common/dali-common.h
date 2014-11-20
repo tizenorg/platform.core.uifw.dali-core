@@ -109,6 +109,16 @@ public:
   const char* condition;
 };
 
+/**
+ * @brief Calculate the size of a type taking alignment into account
+ */
+template<typename T>
+struct TypeSizeWithAlignment
+{
+  ///< The size of the type with alignment taken into account
+  static const size_t size = ( ( sizeof( T ) + sizeof( void* ) - 1 ) / sizeof( void* ) ) * sizeof( void* );
+};
+
 }// Dali
 
 /**

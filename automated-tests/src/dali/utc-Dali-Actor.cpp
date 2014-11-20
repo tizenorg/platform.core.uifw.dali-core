@@ -3029,3 +3029,52 @@ int UtcDaliActorProperties(void)
   }
   END_TEST;
 }
+
+int UtcDaliRelayoutProperties(void)
+{
+  TestApplication app;
+
+  Actor actor = Actor::New();
+
+  // Defaults
+  DALI_TEST_EQUALS( actor.IsRelayoutEnabled(), true, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.IsLayoutDirty(), false, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.RelayoutPossible(), true, TEST_LOCATION );
+
+  // Set relayout disabled
+  actor.SetRelayoutEnabled( false );
+
+  DALI_TEST_EQUALS( actor.IsRelayoutEnabled(), false, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.RelayoutPossible(), false, TEST_LOCATION );
+
+  // Set relayout enabled
+  actor.SetRelayoutEnabled( true );
+
+  DALI_TEST_EQUALS( actor.IsRelayoutEnabled(), true, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.RelayoutPossible(), true, TEST_LOCATION );
+
+  // Set layout dirty
+  actor.SetLayoutDirty( true );
+
+  DALI_TEST_EQUALS( actor.IsLayoutDirty(), true, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.RelayoutPossible(), false, TEST_LOCATION );
+
+  // Set layout not dirty
+  actor.SetLayoutDirty( false );
+
+  DALI_TEST_EQUALS( actor.IsLayoutDirty(), false, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.RelayoutPossible(), true, TEST_LOCATION );
+
+  // Set both relayout disabled and dirty
+  actor.SetRelayoutEnabled( false );
+  actor.SetLayoutDirty( true );
+
+  DALI_TEST_EQUALS( actor.RelayoutPossible(), false, TEST_LOCATION );
+
+  // Relayout enabled and dirty
+  actor.SetRelayoutEnabled( true );
+
+  DALI_TEST_EQUALS( actor.RelayoutPossible(), false, TEST_LOCATION );
+
+  END_TEST;
+}

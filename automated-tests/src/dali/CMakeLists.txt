@@ -39,6 +39,7 @@ SET(TC_SOURCES
         utc-Dali-Matrix.cpp
         utc-Dali-Matrix3.cpp
         utc-Dali-MeshActor.cpp
+        utc-Dali-ObjectMemoryPool.cpp
         utc-Dali-PanGesture.cpp
         utc-Dali-PanGestureDetector.cpp
         utc-Dali-Path.cpp

@@ -188,6 +188,10 @@ struct TestCustomActor : public CustomActorImpl
     return Vector3( 0.0f, 0.0f, 0.0f );
   }
 
+  virtual void CollectChildrenForRelayout( ActorContainer& childrenOut ) const
+  {
+  }
+
   void SetDaliProperty(std::string s)
   {
     Self().SetProperty(mDaliProperty, s) ;

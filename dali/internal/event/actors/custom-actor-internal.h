@@ -175,6 +175,14 @@ private:
   }
 
   /**
+   * @copydoc Internal::Actor::CollectChildrenForRelayout
+   */
+  virtual void CollectChildrenForRelayout( ActorContainer& childrenOut ) const
+  {
+    mImpl->CollectChildrenForRelayout( childrenOut );
+  }
+
+  /**
    * Private constructor; see also CustomActor::New()
    */
   CustomActor(CustomActorImpl& extension);

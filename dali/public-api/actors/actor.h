@@ -1156,6 +1156,36 @@ public:
    */
   bool IsKeyboardFocusable() const;
 
+  // SIZE NEGOTIATION
+
+  /**
+   * Set if the actor should do relayout in size negotiation or not.
+   *
+   * @param[in] relayoutEnabled Flag to specify if actor should do relayout or not.
+   */
+  void SetRelayoutEnabled( bool relayoutEnabled );
+
+  /**
+   * Is the actor included in relayout or not.
+   *
+   * @return Return if the actor is involved in size negotiation or not.
+   */
+  bool IsRelayoutEnabled() const;
+
+  /**
+   * Flag the actor as having it's layout dirty.
+   *
+   * @param[in] dirty The status of the flag to set.
+   */
+  void SetLayoutDirty( bool dirty );
+
+  /**
+   * Test whether the layout for this actor is dirty or not.
+   *
+   * @return Return if the layout is dirty or not.
+   */
+  bool IsLayoutDirty() const;
+
 public: // Signals
 
   /**

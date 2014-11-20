@@ -739,6 +739,28 @@ public:
    */
   const Vector4& GetCurrentWorldColor() const;
 
+  // SIZE NEGOTIATION
+
+  /**
+   * @copydoc Dali::Actor::SetRelayoutEnabled()
+   */
+  void SetRelayoutEnabled( bool relayoutEnabled );
+
+  /**
+   * @copydoc Dali::Actor::IsRelayoutEnabled()
+   */
+  bool IsRelayoutEnabled() const;
+
+  /**
+   * @copydoc Dali::Actor::SetLayoutDirty()
+   */
+  void SetLayoutDirty( bool dirty );
+
+  /**
+   * @copydoc Dali::Actor::IsLayoutDirty()
+   */
+  bool IsLayoutDirty() const;
+
 #ifdef DYNAMICS_SUPPORT
 
   // Dynamics
@@ -1390,6 +1412,8 @@ protected:
   bool mOnStageSignalled                           : 1; ///< Set to true before OnStageConnection signal is emitted, and false before OnStageDisconnection
   bool mInheritRotation                            : 1; ///< Cached: Whether the parent's rotation should be inherited.
   bool mInheritScale                               : 1; ///< Cached: Whether the parent's scale should be inherited.
+  bool mRelayoutEnabled                            : 1; ///< Flag to specify if this actor should be included in size negotiation or not (defaults to true)
+  bool mLayoutDirty                                : 1; ///< Flag indicating whether a layout dimension is dirty or not
   DrawMode::Type mDrawMode                         : 2; ///< Cached: How the actor and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode : 2; ///< Cached: Determines how position is inherited
   ColorMode mColorMode                             : 2; ///< Cached: Determines whether mWorldColor is inherited

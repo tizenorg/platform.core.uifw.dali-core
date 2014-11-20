@@ -159,6 +159,22 @@ private:
   }
 
   /**
+   * @copydoc Internal::Actor::OnRelayout
+   */
+  virtual void OnRelayout( const Vector2& size, RelayoutContainer& container )
+  {
+    mImpl->OnRelayout( size, container );
+  }
+
+  /**
+   * @copydoc Internal::Actor::OnSetResizePolicy
+   */
+  virtual void OnSetResizePolicy( ResizePolicy policy, Dimension dimension )
+  {
+    mImpl->OnSetResizePolicy( policy, dimension );
+  }
+
+  /**
    * @copydoc Internal::Actor::GetChildByAlias
    */
   virtual Dali::Actor GetChildByAlias(const std::string& actorAlias)
@@ -172,6 +188,38 @@ private:
   virtual Vector3 GetNaturalSize() const
   {
     return mImpl->GetNaturalSize();
+  }
+
+  /**
+   * @copydoc Internal::Actor::CalculateChildSize
+   */
+  virtual float CalculateChildSize( const Dali::Actor& child, Dimension dimension )
+  {
+    return mImpl->CalculateChildSize( child, dimension );
+  }
+
+  /**
+   * @copydoc Internal::Actor::GetHeightForWidth
+   */
+  virtual float GetHeightForWidth( float width )
+  {
+    return mImpl->GetHeightForWidth( width );
+  }
+
+  /**
+   * @copydoc Internal::Actor::GetWidthForHeight
+   */
+  virtual float GetWidthForHeight( float height )
+  {
+    return mImpl->GetWidthForHeight( height );
+  }
+
+  /**
+   * @copydoc Internal::Actor::RelayoutDependentOnChildren
+   */
+  virtual bool RelayoutDependentOnChildren( Dimension dimension = ALL_DIMENSIONS )
+  {
+    return mImpl->RelayoutDependentOnChildren( dimension );
   }
 
   /**

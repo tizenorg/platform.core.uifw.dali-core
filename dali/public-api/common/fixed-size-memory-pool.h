@@ -91,7 +91,6 @@ private:
 
 };
 
-
 } // namespace Dali
 
 #endif /* __DALI_FIXED_SIZE_MEMORY_POOL_H__ */

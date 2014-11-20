@@ -3207,3 +3207,42 @@ int UtcDaliActorProperties(void)
   }
   END_TEST;
 }
+
+int UtcDaliRelayoutProperties(void)
+{
+  TestApplication app;
+
+  Actor actor = Actor::New();
+
+  // Defaults
+  DALI_TEST_EQUALS( actor.IsRelayoutEnabled(), true, TEST_LOCATION );
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i)
+  {
+    DALI_TEST_EQUALS( actor.GetResizePolicy( static_cast< Dimension >( 1 << i ) ), FIXED, TEST_LOCATION );
+  }
+
+  // Set relayout disabled
+  actor.SetRelayoutEnabled( false );
+
+  DALI_TEST_EQUALS( actor.IsRelayoutEnabled(), false, TEST_LOCATION );
+
+  // Set relayout enabled
+  actor.SetRelayoutEnabled( true );
+
+  DALI_TEST_EQUALS( actor.IsRelayoutEnabled(), true, TEST_LOCATION );
+
+  // Set resize policy for all dimensions
+  actor.SetResizePolicy( USE_NATURAL_SIZE );
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i)
+  {
+    DALI_TEST_EQUALS( actor.GetResizePolicy( static_cast< Dimension >( 1 << i ) ), USE_NATURAL_SIZE, TEST_LOCATION );
+  }
+
+  // Set individual dimensions
+  actor.SetResizePolicy( FILL_TO_PARENT, WIDTH );
+  actor.SetResizePolicy( FIXED, HEIGHT );
+  DALI_TEST_EQUALS( actor.GetResizePolicy( WIDTH ), FILL_TO_PARENT, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetResizePolicy( HEIGHT ), FIXED, TEST_LOCATION );
+
+  END_TEST;
+}

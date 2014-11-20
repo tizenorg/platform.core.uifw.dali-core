@@ -188,6 +188,20 @@ struct TestCustomActor : public CustomActorImpl
     return Vector3( 0.0f, 0.0f, 0.0f );
   }
 
+  virtual float GetHeightForWidth( float width )
+  {
+    return 0.0f;
+  }
+
+  virtual float GetWidthForHeight( float height )
+  {
+    return 0.0f;
+  }
+
+  virtual void OnRelayout( const Vector2& size, RelayoutContainer& container )
+  {
+  }
+
   void SetDaliProperty(std::string s)
   {
     Self().SetProperty(mDaliProperty, s) ;
@@ -491,6 +505,20 @@ public:
   {
     return Vector3( 0.0f, 0.0f, 0.0f );
   }
+
+  virtual float GetHeightForWidth( float width )
+  {
+    return 0.0f;
+  }
+
+  virtual float GetWidthForHeight( float height )
+  {
+    return 0.0f;
+  }
+
+  virtual void OnRelayout( const Vector2& size, RelayoutContainer& container )
+  {
+  }
 };
 
 } ; // namespace Impl
@@ -633,6 +661,20 @@ public:
   virtual Vector3 GetNaturalSize()
   {
     return Vector3( 0.0f, 0.0f, 0.0f );
+  }
+
+  virtual float GetHeightForWidth( float width )
+  {
+    return 0.0f;
+  }
+
+  virtual float GetWidthForHeight( float height )
+  {
+    return 0.0f;
+  }
+
+  virtual void OnRelayout( const Vector2& size, RelayoutContainer& container )
+  {
   }
 
 private:

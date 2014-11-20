@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <cmath>
 #include <algorithm>
+#include <cfloat>
 
 // INTERNAL INCLUDES
 
@@ -31,6 +32,7 @@
 #include <dali/public-api/math/radian.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/scripting/scripting.h>
+#include <dali/public-api/size-negotiation/relayout-controller.h>
 
 #include <dali/internal/common/internal-constants.h>
 #include <dali/internal/event/render-tasks/render-task-impl.h>
@@ -68,6 +70,80 @@ namespace Internal
 
 unsigned int Actor::mActorCounter = 0;
 ActorContainer Actor::mNullChildren;
+
+/**
+ * Struct to collect relayout variables
+ */
+struct Actor::RelayoutData
+{
+  ResizePolicy resizePolicies[ DIMENSION_COUNT ];      ///< Resize policies
+  float negotiatedDimensions[ DIMENSION_COUNT ];       ///< Storage for when a dimension is negotiated but before set on actor
+  bool dimensionNegotiated[ DIMENSION_COUNT ];         ///< Has the dimension been negotiated
+
+  bool dimensionDirty[ DIMENSION_COUNT ];              ///< Flags indicating whether the layout dimension is dirty or not
+
+  Dimension dimensionDependencies[ DIMENSION_COUNT ];  ///< A list of dimension dependencies
+
+  Vector2 dimensionPadding[ DIMENSION_COUNT ];         ///< Padding for each dimension. X = start (e.g. left, bottom), y = end (e.g. right, top)
+
+  float minimumSize[ DIMENSION_COUNT ];                ///< The minimum size an actor can be
+  float maximumSize[ DIMENSION_COUNT ];                ///< The maximum size an actor can be
+
+  Vector3 relayoutSizeFactor;                         ///< Multiplier or adder to determine child size from parent
+
+  SizeSetPolicy sizeSetPolicy : 3;            ///< Policy to apply when setting size. Enough room for the enum.
+
+  bool relayoutEnabled : 1;                   ///< Flag to specify if this actor should be included in size negotiation or not (defaults to true)
+  bool insideRelayout : 1;                    ///< Locking flag to prevent recursive relayouts on size set
+
+  RelayoutData()
+  : relayoutSizeFactor( Vector3::ONE ),
+    sizeSetPolicy( USE_SIZE_SET ),
+    relayoutEnabled( false ),
+    insideRelayout( false )
+  {
+    // Set size negotiation defaults
+    for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+    {
+      resizePolicies[ i ] = FIXED;
+      negotiatedDimensions[ i ] = 0.0f;
+      dimensionNegotiated[ i ] = false;
+      dimensionDirty[ i ] = false;
+      dimensionDependencies[ i ] = ALL_DIMENSIONS;
+      dimensionPadding[ i ] = Vector2( 0.0f, 0.0f );
+      minimumSize[ i ] = 0.0f;
+      maximumSize[ i ] = FLT_MAX;
+    }
+  }
+};
+
+static float GetDimensionValue( const Vector2& values, Dimension dimension )
+{
+  switch( dimension )
+  {
+    case WIDTH:
+    {
+      return values.width;
+    }
+
+    case HEIGHT:
+    {
+      return values.height;
+    }
+
+    default:
+    {
+      break;
+    }
+  }
+
+  return 0.0f;
+}
+
+static float GetDimensionValue( const Vector3& values, Dimension dimension )
+{
+  return GetDimensionValue( values.GetVectorXY(), dimension );
+}
 
 #ifdef DYNAMICS_SUPPORT
 
@@ -282,6 +358,12 @@ void Actor::Add(Actor& child)
     if( oldParent )
     {
       oldParent->Remove( child ); // This causes OnChildRemove callback
+
+      // Old parent may need to readjust to missing child
+      if( oldParent->RelayoutDependentOnChildren() )
+      {
+        oldParent->RelayoutRequest();
+      }
     }
 
     // Guard against Add() during previous OnChildRemove callback
@@ -295,6 +377,17 @@ void Actor::Add(Actor& child)
 
       // Notification for derived classes
       OnChildAdd(child);
+
+      // Only put in a relayout request if there is a suitable dependency
+      if( RelayoutDependentOnChildren() )
+      {
+        RelayoutRequest();
+      }
+
+      if( child.RelayoutDependentOnParent() )
+      {
+        child.RelayoutRequest();
+      }
     }
   }
 }
@@ -315,6 +408,12 @@ void Actor::Insert(unsigned int index, Actor& child)
   if( oldParent )
   {
     oldParent->Remove( child ); // This causes OnChildRemove callback
+
+    // Old parent may need to readjust to missing child
+    if( oldParent->RelayoutDependentOnChildren() )
+    {
+      oldParent->RelayoutRequest();
+    }
   }
 
   // Guard against Add() during previous OnChildRemove callback
@@ -336,6 +435,17 @@ void Actor::Insert(unsigned int index, Actor& child)
 
     // Notification for derived classes
     OnChildAdd(child);
+
+    // Only put in a relayout request if there is a suitable dependency
+    if( RelayoutDependentOnChildren() )
+    {
+      RelayoutRequest();
+    }
+
+    if( child.RelayoutDependentOnParent() )
+    {
+      child.RelayoutRequest();
+    }
   }
 }
 
@@ -376,6 +486,12 @@ void Actor::Remove(Actor& child)
   {
     // Notification for derived classes
     OnChildRemove( GetImplementation(removed) );
+
+    // Only put in a relayout request if there is a suitable dependency
+    if( RelayoutDependentOnChildren() )
+    {
+      RelayoutRequest();
+    }
   }
 }
 
@@ -383,7 +499,10 @@ void Actor::Unparent()
 {
   if( mParent )
   {
+    // Remove this actor from the parent. The remove will put a relayout request in for
+    // the parent if required
     mParent->Remove( *this );
+    // mParent is now NULL!
   }
 }
 
@@ -1110,6 +1229,12 @@ void Actor::SetSize(const Vector3& size)
 
     // Notification for derived classes
     OnSizeSet( mSize );
+
+    // Raise a relayout request if the flag is not locked
+    if( mRelayoutData && !mRelayoutData->insideRelayout )
+    {
+      RelayoutRequest();
+    }
   }
 }
 
@@ -1170,6 +1295,144 @@ Vector3 Actor::GetNaturalSize() const
   return Vector3( 0.0f, 0.0f, 0.0f );
 }
 
+void Actor::SetResizePolicy( ResizePolicy policy, Dimension dimension  )
+{
+  EnsureRelayoutData();
+
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      mRelayoutData->resizePolicies[ i ] = policy;
+    }
+  }
+
+  OnSetResizePolicy( policy, dimension );
+
+  // Trigger relayout on this control
+  RelayoutRequest();
+}
+
+ResizePolicy Actor::GetResizePolicy( Dimension dimension ) const
+{
+  EnsureRelayoutData();
+
+  // If more than one dimension is requested, just return the first one found
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( ( dimension & ( 1 << i ) ) )
+    {
+      return mRelayoutData->resizePolicies[ i ];
+    }
+  }
+
+  return FIXED;   // Default
+}
+
+void Actor::SetSizeScalePolicy( SizeSetPolicy policy )
+{
+  EnsureRelayoutData();
+
+  mRelayoutData->sizeSetPolicy = policy;
+}
+
+SizeSetPolicy Actor::GetSizeScalePolicy() const
+{
+  EnsureRelayoutData();
+
+  return mRelayoutData->sizeSetPolicy;
+}
+
+void Actor::SetDimensionDependency( Dimension dimension, Dimension dependency )
+{
+  EnsureRelayoutData();
+
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      mRelayoutData->dimensionDependencies[ i ] = dependency;
+      mRelayoutData->resizePolicies[ i ] = DIMENSION_DEPENDENCY;
+    }
+  }
+}
+
+Dimension Actor::GetDimensionDependency( Dimension dimension )
+{
+  EnsureRelayoutData();
+
+  // If more than one dimension is requested, just return the first one found
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( ( dimension & ( 1 << i ) ) )
+    {
+      return mRelayoutData->dimensionDependencies[ i ];
+    }
+  }
+
+  return ALL_DIMENSIONS;   // Default
+}
+
+void Actor::SetRelayoutEnabled( bool relayoutEnabled )
+{
+  // If relayout data has not been allocated yet and the client is requesting
+  // to disable it, do nothing
+  if( mRelayoutData || relayoutEnabled )
+  {
+    EnsureRelayoutData();
+
+    mRelayoutData->relayoutEnabled = relayoutEnabled;
+  }
+}
+
+bool Actor::IsRelayoutEnabled() const
+{
+  // Assume that if relayout data has not been allocated yet then
+  // relayout is disabled
+  return mRelayoutData && mRelayoutData->relayoutEnabled;
+}
+
+void Actor::SetLayoutDirty( bool dirty, Dimension dimension )
+{
+  EnsureRelayoutData();
+
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      mRelayoutData->dimensionDirty[ i ] = dirty;
+    }
+  }
+}
+
+bool Actor::IsLayoutDirty( Dimension dimension ) const
+{
+  EnsureRelayoutData();
+
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( ( dimension & ( 1 << i ) ) && mRelayoutData->dimensionDirty[ i ] )
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool Actor::RelayoutPossible( Dimension dimension ) const
+{
+  EnsureRelayoutData();
+
+  return mRelayoutData->relayoutEnabled && !IsLayoutDirty( dimension );
+}
+
+bool Actor::RelayoutRequired( Dimension dimension ) const
+{
+  EnsureRelayoutData();
+
+  return mRelayoutData->relayoutEnabled && IsLayoutDirty( dimension );
+}
 
 #ifdef DYNAMICS_SUPPORT
 
@@ -1971,6 +2234,11 @@ Dali::Actor::OffStageSignalType& Actor::OffStageSignal()
   return mOffStageSignal;
 }
 
+Dali::Actor::OnRelayoutSignalType& Actor::OnRelayoutSignal()
+{
+  return mOnRelayoutSignal;
+}
+
 bool Actor::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
 {
   bool connected( true );
@@ -2012,6 +2280,7 @@ Actor::Actor( DerivedType derivedType )
   mNode( NULL ),
   mParentOrigin( NULL ),
   mAnchorPoint( NULL ),
+  mRelayoutData( NULL ),
 #ifdef DYNAMICS_SUPPORT
   mDynamicsData( NULL ),
 #endif
@@ -2096,6 +2365,12 @@ Actor::~Actor()
   // Cleanup optional parent origin and anchor
   delete mParentOrigin;
   delete mAnchorPoint;
+
+  // Delete optional relayout data
+  if( mRelayoutData )
+  {
+    delete mRelayoutData;
+  }
 }
 
 void Actor::ConnectToStage( int index )
@@ -2114,6 +2389,8 @@ void Actor::ConnectToStage( int index )
     Actor& actor = GetImplementation(*iter);
     actor.NotifyStageConnection();
   }
+
+  RelayoutRequest();
 }
 
 void Actor::RecursiveConnectToStage( ActorContainer& connectionList, int index )
@@ -3434,6 +3711,601 @@ bool Actor::DoAction( BaseObject* object, const std::string& actionName, const s
   }
 
   return done;
+}
+
+void Actor::EnsureRelayoutData() const
+{
+  // Assign relayout data.
+  if( !mRelayoutData )
+  {
+    mRelayoutData = new RelayoutData();
+  }
+}
+
+bool Actor::RelayoutDependentOnParent( Dimension dimension )
+{
+  // Check if actor is dependent on parent
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( ( dimension & ( 1 << i ) ) )
+    {
+      const ResizePolicy resizePolicy = GetResizePolicy( static_cast< Dimension >( 1 << i ) );
+      switch( resizePolicy )
+      {
+        case FILL_TO_PARENT:
+        {
+          return true;
+        }
+
+        default:
+        {
+          break;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+bool Actor::RelayoutDependentOnChildren( Dimension dimension )
+{
+  // Check if actor is dependent on children
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( ( dimension & ( 1 << i ) ) )
+    {
+      const ResizePolicy resizePolicy = GetResizePolicy( static_cast< Dimension >( 1 << i ) );
+      switch( resizePolicy )
+      {
+        case FIT_TO_CHILDREN:
+        case USE_NATURAL_SIZE:      // i.e. For things that calculate their size based on children
+        {
+          return true;
+        }
+
+        default:
+        {
+          break;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+bool Actor::RelayoutDependentOnChildrenBase( Dimension dimension )
+{
+  return Actor::RelayoutDependentOnChildren( dimension );
+}
+
+bool Actor::RelayoutDependentOnDimension( Dimension dimension, Dimension dependentDimension)
+{
+  // Check each possible dimension and see if it is dependent on the input one
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      return mRelayoutData->resizePolicies[ i ] == DIMENSION_DEPENDENCY && mRelayoutData->dimensionDependencies[ i ] == dependentDimension;
+    }
+  }
+
+  return false;
+}
+
+void Actor::SetNegotiatedDimension( float negotiatedDimension, Dimension dimension )
+{
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      mRelayoutData->negotiatedDimensions[ i ] = negotiatedDimension;
+    }
+  }
+}
+
+float Actor::GetNegotiatedDimension( Dimension dimension ) const
+{
+  // If more than one dimension is requested, just return the first one found
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( ( dimension & ( 1 << i ) ) )
+    {
+      return mRelayoutData->negotiatedDimensions[ i ];
+    }
+  }
+
+  return 0.0f;   // Default
+}
+
+void Actor::SetPadding( const Vector2& padding, Dimension dimension )
+{
+  EnsureRelayoutData();
+
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      mRelayoutData->dimensionPadding[ i ] = padding;
+    }
+  }
+}
+
+Vector2 Actor::GetPadding( Dimension dimension ) const
+{
+  EnsureRelayoutData();
+
+  // If more than one dimension is requested, just return the first one found
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( ( dimension & ( 1 << i ) ) )
+    {
+      return mRelayoutData->dimensionPadding[ i ];
+    }
+  }
+
+  return Vector2( 0.0f, 0.0f );   // Default
+}
+
+void Actor::SetRelayoutSizeFactor(const Vector3& factor)
+{
+  EnsureRelayoutData();
+
+  mRelayoutData->relayoutSizeFactor = factor;
+}
+
+Vector3 Actor::GetRelayoutSizeFactor() const
+{
+  EnsureRelayoutData();
+
+  return mRelayoutData->relayoutSizeFactor;
+}
+
+void Actor::SetLayoutNegotiated( bool negotiated, Dimension dimension )
+{
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      mRelayoutData->dimensionNegotiated[ i ] = negotiated;
+    }
+  }
+}
+
+bool Actor::IsLayoutNegotiated( Dimension dimension ) const
+{
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( ( dimension & ( 1 << i ) ) && mRelayoutData->dimensionNegotiated[ i ] )
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+float Actor::CalculateChildSize( const Dali::Actor& child, Dimension dimension )
+{
+  // Could be overridden in derived classes.
+  return CalculateChildSizeBase( child, dimension );
+}
+
+float Actor::CalculateChildSizeBase( const Dali::Actor& child, Dimension dimension )
+{
+  // Fill to parent, taking size mode factor into account
+  return GetLatestSize( dimension ) * GetDimensionValue( child.GetRelayoutSizeFactor(), dimension );
+}
+
+float Actor::GetHeightForWidth( float width )
+{
+  // Could be overridden in derived classes.
+  float height = 0.0f;
+
+  const Vector3 naturalSize = GetNaturalSize();
+  if ( naturalSize.width > 0.0f )
+  {
+    height = naturalSize.height * width / naturalSize.width;
+  }
+
+  return height;
+}
+
+float Actor::GetWidthForHeight( float height )
+{
+  // Could be overridden in derived classes.
+  float width = 0.0f;
+
+  const Vector3 naturalSize = GetNaturalSize();
+  if ( naturalSize.height > 0.0f )
+  {
+    width = naturalSize.width * height / naturalSize.height;
+  }
+
+  return width;
+}
+
+float Actor::GetLatestSize( Dimension dimension ) const
+{
+  return IsLayoutNegotiated( dimension ) ? GetNegotiatedDimension( dimension ) : GetDimensionValue( GetSize(), dimension );
+}
+
+float Actor::GetRelayoutSize( Dimension dimension ) const
+{
+  Vector2 padding = GetPadding( dimension );
+
+  return GetLatestSize( dimension ) + padding.x + padding.y;
+}
+
+float Actor::NegotiateFromParent( Dimension dimension )
+{
+  Actor* parent = GetParent();
+  if( parent )
+  {
+    Vector2 padding( GetPadding( dimension ) );
+    Vector2 parentPadding( parent->GetPadding( dimension ) );
+    return parent->CalculateChildSize( Dali::Actor( this ), dimension ) - parentPadding.x - parentPadding.y - padding.x - padding.y;
+  }
+
+  return 0.0f;
+}
+
+float Actor::NegotiateFromChildren( Dimension dimension )
+{
+  float minDimensionPoint = 0.0f;
+  float maxDimensionPoint = 0.0f;
+
+  for( unsigned int i = 0, count = GetChildCount(); i < count; ++i )
+  {
+    Dali::Actor child = GetChildAt( i );
+    Actor& childImpl = GetImplementation( child );
+
+    if( !childImpl.RelayoutDependentOnParent( dimension ) )
+    {
+      // Calculate the min and max points that the children range across
+      float childPosition = GetDimensionValue( childImpl.GetCurrentPosition(), dimension );
+      float dimensionSize = childImpl.GetRelayoutSize( dimension );
+      minDimensionPoint = std::min( minDimensionPoint, childPosition - dimensionSize * 0.5f );
+      maxDimensionPoint = std::max( maxDimensionPoint, childPosition + dimensionSize * 0.5f );
+    }
+  }
+
+  return maxDimensionPoint - minDimensionPoint;
+}
+
+float Actor::GetSize( Dimension dimension ) const
+{
+  return GetDimensionValue( GetSize(), dimension );
+}
+
+float Actor::GetNaturalSize( Dimension dimension ) const
+{
+  return GetDimensionValue( GetNaturalSize(), dimension );
+}
+
+float Actor::CalculateSize( Dimension dimension, const Vector2& maximumSize )
+{
+  switch( GetResizePolicy( dimension ) )
+  {
+    case USE_NATURAL_SIZE:
+    {
+      return GetNaturalSize( dimension );
+    }
+
+    case FIXED:
+    {
+      return GetSize( dimension );
+    }
+
+    case USE_ASSIGNED_SIZE:
+    {
+      return GetDimensionValue( maximumSize, dimension );
+    }
+
+    case FILL_TO_PARENT:
+    {
+      return NegotiateFromParent( dimension );
+    }
+
+    case FIT_TO_CHILDREN:
+    {
+      return NegotiateFromChildren( dimension );
+    }
+
+    case DIMENSION_DEPENDENCY:
+    {
+      const Dimension dimensionDependency = GetDimensionDependency( dimension );
+
+      // Custom rules
+      if( dimension == WIDTH && dimensionDependency == HEIGHT )
+      {
+        return GetWidthForHeight( GetNegotiatedDimension( HEIGHT ) );
+      }
+
+      if( dimension == HEIGHT && dimensionDependency == WIDTH )
+      {
+        return GetHeightForWidth( GetNegotiatedDimension( WIDTH ) );
+      }
+
+      break;
+    }
+
+    default:
+    {
+      break;
+    }
+  }
+
+  return 0.0f;  // Default
+}
+
+float Actor::ConstrainDimension( float size, Dimension dimension )
+{
+  const float minSize = GetMinimumSize( dimension );
+  const float maxSize = GetMaximumSize( dimension );
+
+  return std::max( minSize, std::min( size, maxSize ) );
+}
+
+void Actor::NegotiateDimension( Dimension dimension, const Vector2& allocatedSize, ActorDimensionStack& recursionStack )
+{
+  // Check if it needs to be negotiated
+  if( IsLayoutDirty( dimension ) && !IsLayoutNegotiated( dimension ) )
+  {
+    // Check that we havn't gotten into an infinite loop
+    if( std::find( recursionStack.begin(), recursionStack.end(), ActorDimensionPair( this, dimension ) ) == recursionStack.end() )
+    {
+      // Record the path that we have taken
+      recursionStack.push_back( ActorDimensionPair( this, dimension ) );
+
+      // Dimension dependency check
+      for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+      {
+        Dimension dimensionToCheck = static_cast< Dimension >( 1 << i );
+
+        if( RelayoutDependentOnDimension( dimension, dimensionToCheck ) )
+        {
+          NegotiateDimension( dimensionToCheck, allocatedSize, recursionStack );
+        }
+      }
+
+      // Parent dependency check
+      Actor* parent = GetParent();
+      if( parent && RelayoutDependentOnParent( dimension ) )
+      {
+        parent->NegotiateDimension( dimension, allocatedSize, recursionStack );
+      }
+
+      // Children dependency check
+      if( RelayoutDependentOnChildren( dimension ) )
+      {
+        for( unsigned int i = 0, count = GetChildCount(); i < count; ++i )
+        {
+          Dali::Actor child = GetChildAt( i );
+          Actor& childImpl = GetImplementation( child );
+
+          // Only relayout child first if it is not dependent on this actor
+          if( !childImpl.RelayoutDependentOnParent( dimension ) )
+          {
+            childImpl.NegotiateDimension( dimension, allocatedSize, recursionStack );
+          }
+        }
+      }
+
+      // All dependencies checked, calculate the size and set negotiated flag
+      const float newSize = ConstrainDimension( CalculateSize( dimension, allocatedSize ), dimension );
+
+      SetNegotiatedDimension( newSize, dimension );
+      SetLayoutNegotiated( true, dimension );
+
+      // This actor has been successfully processed, pop it off the recursion stack
+      recursionStack.pop_back();
+    }
+    else
+    {
+       // TODO: Break infinite loop
+       SetLayoutNegotiated( true, dimension );
+    }
+  }
+}
+
+void Actor::NegotiateDimensions( const Vector2& allocatedSize )
+{
+  // Negotiate all dimensions that require it
+  ActorDimensionStack recursionStack;
+
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    const Dimension dimension = static_cast< Dimension >( 1 << i );
+
+    // Negotiate
+    NegotiateDimension( dimension, allocatedSize, recursionStack );
+  }
+}
+
+Vector2 Actor::ApplySizeSetPolicy( const Vector2 size )
+{
+  switch( mRelayoutData->sizeSetPolicy )
+  {
+    case USE_SIZE_SET:
+    {
+      return size;
+    }
+
+    case FIT_WITH_ASPECT_RATIO:
+    {
+      // Scale size to fit within the original size bounds, keeping the natural size aspect ratio
+      const Vector3 naturalSize = GetNaturalSize();
+      if( naturalSize.width > 0.0f && naturalSize.height > 0.0f && size.width > 0.0f && size.height > 0.0f )
+      {
+        const float sizeRatio = size.width / size.height;
+        const float naturalSizeRatio = naturalSize.width / naturalSize.height;
+
+        if( naturalSizeRatio < sizeRatio )
+        {
+          return Vector2( naturalSizeRatio * size.height, size.height );
+        }
+        else if( naturalSizeRatio > sizeRatio )
+        {
+          return Vector2( size.width, size.width / naturalSizeRatio );
+        }
+        else
+        {
+          return size;
+        }
+      }
+
+      break;
+    }
+
+    case FILL_WITH_ASPECT_RATIO:
+    {
+      // Scale size to fill the original size bounds, keeping the natural size aspect ratio. Potentially exceeding the original bounds.
+      const Vector3 naturalSize = GetNaturalSize();
+      if( naturalSize.width > 0.0f && naturalSize.height > 0.0f && size.width > 0.0f && size.height > 0.0f )
+      {
+        const float sizeRatio = size.width / size.height;
+        const float naturalSizeRatio = naturalSize.width / naturalSize.height;
+
+        if( naturalSizeRatio < sizeRatio )
+        {
+          return Vector2( size.width, size.width / naturalSizeRatio );
+        }
+        else if( naturalSizeRatio > sizeRatio )
+        {
+          return Vector2( naturalSizeRatio * size.height, size.height );
+        }
+        else
+        {
+          return size;
+        }
+      }
+    }
+
+    default:
+    {
+      break;
+    }
+  }
+
+  return size;
+}
+
+void Actor::SetNegotiatedSize( RelayoutContainer& container )
+{
+  // Do the set actor size
+  Vector2 negotiatedSize( GetLatestSize( WIDTH ), GetLatestSize( HEIGHT ) );
+
+  // Adjust for size set policy
+  negotiatedSize = ApplySizeSetPolicy( negotiatedSize );
+
+  // Lock the flag to stop recursive relayouts on set size
+  mRelayoutData->insideRelayout = true;
+  SetSize( negotiatedSize );
+  mRelayoutData->insideRelayout = false;
+
+  // Clear flags for all dimensions
+  SetLayoutDirty( false );
+
+  // Give deriving classes a chance to respond
+  OnRelayout( negotiatedSize, container );
+
+  if( !mOnRelayoutSignal.Empty() )
+  {
+    Dali::Actor handle( this );
+    mOnRelayoutSignal.Emit( handle );
+  }
+}
+
+void Actor::NegotiateSize( const Vector2& allocatedSize, RelayoutContainer& container )
+{
+  // Do the negotiation
+  NegotiateDimensions( allocatedSize );
+
+  // Set the actor size
+  SetNegotiatedSize( container );
+
+  // Negotiate down to children
+  const Vector2 newBounds = GetSize().GetVectorXY();
+
+  for( unsigned int i = 0, count = GetChildCount(); i < count; ++i )
+  {
+    Dali::Actor child = GetChildAt( i );
+
+    // Only relayout if required
+    if( GetImplementation( child ).RelayoutRequired() )
+    {
+      container.Add( child, newBounds );
+    }
+  }
+}
+
+void Actor::RelayoutRequest()
+{
+  Dali::RelayoutController::RequestRelayout( Dali::Actor( this ) );
+}
+
+void Actor::FlagToRelayout()
+{
+  SetLayoutDirty( true );
+  SetLayoutNegotiated( false );
+}
+
+void Actor::SetMinimumSize( float size, Dimension dimension )
+{
+  EnsureRelayoutData();
+
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      mRelayoutData->minimumSize[ i ] = size;
+    }
+  }
+}
+
+float Actor::GetMinimumSize( Dimension dimension )
+{
+  EnsureRelayoutData();
+
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      return mRelayoutData->minimumSize[ i ];
+    }
+  }
+
+  return 0.0f;  // Default
+}
+
+void Actor::SetMaximumSize( float size, Dimension dimension )
+{
+  EnsureRelayoutData();
+
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      mRelayoutData->maximumSize[ i ] = size;
+    }
+  }
+}
+
+float Actor::GetMaximumSize( Dimension dimension )
+{
+  EnsureRelayoutData();
+
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      return mRelayoutData->maximumSize[ i ];
+    }
+  }
+
+  return 0.0f;  // Default
 }
 
 } // namespace Internal

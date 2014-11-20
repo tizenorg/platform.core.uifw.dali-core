@@ -125,8 +125,6 @@ struct FixedSizeMemoryPool::Impl
   void* mDeletedObjects;              ///< Pointer to the head of the list of deleted objects. The addresses are stored in the allocated memory blocks.
 };
 
-
-
 FixedSizeMemoryPool::FixedSizeMemoryPool( SizeType fixedSize, SizeType initialCapacity, SizeType maximumBlockCapacity )
 {
   mImpl = new Impl( fixedSize, initialCapacity, maximumBlockCapacity );

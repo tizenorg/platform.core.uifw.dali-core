@@ -1177,6 +1177,34 @@ Vector3 Actor::GetNaturalSize() const
   return Vector3( 0.0f, 0.0f, 0.0f );
 }
 
+void Actor::SetRelayoutEnabled( bool relayoutEnabled )
+{
+  mRelayoutEnabled = relayoutEnabled;
+}
+
+bool Actor::IsRelayoutEnabled() const
+{
+  return mRelayoutEnabled;
+}
+
+void Actor::SetLayoutDirty( bool dirty )
+{
+  mLayoutDirty = dirty;
+}
+
+bool Actor::IsLayoutDirty() const
+{
+  return mLayoutDirty;
+}
+
+void Actor::CollectChildrenForRelayout( ActorContainer& childrenOut ) const
+{
+  // Default implementation: collect all children
+  for( unsigned int i = 0; i < GetChildCount(); ++i )
+  {
+    childrenOut.push_back( GetChildAt( i ) );
+  }
+}
 
 #ifdef DYNAMICS_SUPPORT
 
@@ -2050,6 +2078,8 @@ Actor::Actor( DerivedType derivedType )
   mOnStageSignalled( false ),
   mInheritRotation( true ),
   mInheritScale( true ),
+  mRelayoutEnabled( true ),
+  mLayoutDirty( false ),
   mDrawMode( DrawMode::NORMAL ),
   mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ),
   mColorMode( Node::DEFAULT_COLOR_MODE )

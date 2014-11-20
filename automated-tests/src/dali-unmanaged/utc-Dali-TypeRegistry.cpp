@@ -252,6 +252,10 @@ struct MyTestCustomActor : public CustomActorImpl
     return Vector3( 0.0f, 0.0f, 0.0f );
   }
 
+  virtual void CollectChildrenForRelayout( ActorContainer& childrenOut ) const
+  {
+  }
+
 public:
 
   SignalType mSignal;

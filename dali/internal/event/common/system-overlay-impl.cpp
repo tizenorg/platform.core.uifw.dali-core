@@ -129,6 +129,7 @@ void SystemOverlay::CreateRootLayer()
   {
     mRootLayer = Layer::NewRoot( mStage, *mLayerList, mStage.GetUpdateManager(), true/*system layer*/ );
     mRootLayer->SetName("SystemOverlayRoot");
+    mRootLayer->SetRelayoutEnabled( false );   // Exclude from size negotiation
     mRootLayer->SetSize( mSize.width, mSize.height );
   }
 }

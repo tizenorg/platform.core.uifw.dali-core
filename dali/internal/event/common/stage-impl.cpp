@@ -38,6 +38,7 @@
 #include <dali/public-api/common/constants.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
+#include <dali/public-api/size-negotiation/relayout-controller.h>
 
 #ifdef DYNAMICS_SUPPORT
 #include <dali/internal/event/dynamics/dynamics-world-config-impl.h>
@@ -97,6 +98,7 @@ void Stage::Initialize()
   // The stage owns the default layer
   mRootLayer = Layer::NewRoot( *this, *mLayerList, mUpdateManager, false/*not system-level*/ );
   mRootLayer->SetName("RootLayer");
+  mRootLayer->SetRelayoutEnabled( false );   // Exclude from size negotiation
 
   // Create the default camera actor first; this is needed by the RenderTaskList
   CreateDefaultCameraActor();

@@ -83,4 +83,24 @@ void CustomActorImpl::SetRequiresMouseWheelEvents(bool requiresMouseWheelEvents)
   mRequiresMouseWheelEvents = requiresMouseWheelEvents;
 }
 
+void CustomActorImpl::PreRelayoutRequest()
+{
+  mOwner->PreRelayoutRequest();
+}
+
+void CustomActorImpl::RelayoutRequest( bool includePreRelayout )
+{
+  mOwner->RelayoutRequest( includePreRelayout );
+}
+
+float CustomActorImpl::CalculateChildSizeBase( const Dali::Actor& child, Dimension dimension )
+{
+  return mOwner->CalculateChildSizeBase( child, dimension );
+}
+
+bool CustomActorImpl::RelayoutDependentOnChildrenBase( Dimension dimension )
+{
+  return mOwner->RelayoutDependentOnChildrenBase( dimension );
+}
+
 } // namespace Dali

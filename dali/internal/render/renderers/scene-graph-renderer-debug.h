@@ -33,10 +33,9 @@ namespace SceneGraph
 {
 class RenderDataProvider;
 
-void DebugBoundingBox(Context& context, Rect<float> boundingBox, const Matrix& mvp);
-
 #if defined(DEBUG_ENABLED) && defined(DEBUG_DISPLAY_BOUNDING_BOX)
 #define DEBUG_BOUNDING_BOX( context, boundingBox, mvp )                     \
+void DebugBoundingBox(Context& context, Rect<float> boundingBox, const Matrix& mvp);
   DebugBoundingBox( context, boundingBox, mvp )
 #else
 #define DEBUG_BOUNDING_BOX( context, boundingBox, mvp )

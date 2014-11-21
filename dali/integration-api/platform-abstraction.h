@@ -31,6 +31,7 @@ namespace Integration
 
 class Bitmap;
 class DynamicsFactory;
+class File;
 
 
 /**
@@ -300,6 +301,13 @@ public:
    * @result             true if the file is loaded.
    */
   virtual bool LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const = 0;
+
+  /**
+   * Creates a file abstraction for io operations. T
+   * @param[in] filename The filename 
+   * @result             Pointer to the File instance. Caller is responsible for the object's lifetime.
+   */
+  virtual File* OpenFile(const std::string& name) const = 0;
 
   /**
    * Load a file into a buffer

@@ -34,7 +34,9 @@ TestApplication::TestApplication( size_t surfaceWidth,
   mLastVSyncTime(0u),
   mDataRetentionPolicy(policy)
 {
+
   Initialize();
+
 }
 
 TestApplication::TestApplication( bool   initialize,

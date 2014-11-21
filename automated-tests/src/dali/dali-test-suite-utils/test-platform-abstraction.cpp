@@ -16,8 +16,10 @@
  */
 
 #include "test-platform-abstraction.h"
+#include "test-file-abstraction.h"
 #include "dali-test-suite-utils.h"
 #include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/file-abstraction.h>
 
 namespace Dali
 {
@@ -376,6 +378,15 @@ bool TestPlatformAbstraction::SaveFile(const std::string& filename, std::vector<
 {
   mTrace.PushCall("SaveFile", "");
   return false;
+}
+
+/**
+ * @copydoc PlatformAbstraction::OpenFile()
+ */
+Integration::File* TestPlatformAbstraction::OpenFile(const std::string& name) const
+{
+  Integration::File* file = new TestFileAbstraction("test-data");
+  return file;
 }
 
 void TestPlatformAbstraction::JoinLoaderThreads()

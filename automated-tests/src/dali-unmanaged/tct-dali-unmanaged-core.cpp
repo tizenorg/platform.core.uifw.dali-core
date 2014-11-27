@@ -12,6 +12,11 @@ int main(int argc, const char *argv[])
         return 2;
     }
 
+    if( strcmp(argv[1], "ALL") )
+    {
+
+    }
+
     for (i = 0; tc_array[i].name; i++) {
         if (!strcmp(argv[1], tc_array[i].name)) {
             if (tc_array[i].startup)

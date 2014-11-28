@@ -309,6 +309,19 @@ inline RenderableAttachment* UpdateAttachment( NodeAttachment& attachment,
     // Size can change while node was invisible so we need to check size again if we were previously invisible
     if( nodeDirtyFlags & (SizeFlag|VisibleFlag) )
     {
+      const Vector3& size = node.GetSize( updateBufferIndex );
+      if( size.width <= 0.f || size.height <= 0.f || size.depth <= 0.f )
+      {
+        DALI_LOG_ERROR("Renderable Actor size should be bigger than 0.\n");
+        return NULL;
+      }
+      const float MAX_ACTOR_SIZE = float(1u<<30);
+      if( size.width > MAX_ACTOR_SIZE || size.height > MAX_ACTOR_SIZE || size.depth > MAX_ACTOR_SIZE )
+      {
+        DALI_LOG_ERROR("Renderable Actor size should not be bigger than %f.\n", MAX_ACTOR_SIZE );
+        return NULL;
+      }
+
       renderable->SizeChanged( updateBufferIndex );
     }
 

@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <string>
+#include <sstream>
 #include <list>
 
 // INTERNAL INCLUDES
@@ -343,6 +344,19 @@ public:
 #define DALI_LOG_OBJECT_STRING_DECLARATION \
 public: \
   std::string mDebugString;
+
+/**
+ * Print all the actor tree names
+ **/
+#define DALI_LOG_ACTOR_TREE( node ) { \
+  std::stringstream branch; \
+  Node* tempNode = node; \
+  while( tempNode ) { \
+    branch << "<" << tempNode->mDebugString << ">::"; \
+    tempNode = tempNode->GetParent(); \
+  } \
+  DALI_LOG_ERROR_NOFN("Actor tree: %s\n", branch.str().c_str()); \
+}
 
 /**
  * Allows one object to set another object's debug string

@@ -67,10 +67,10 @@ public:
   /**
    * Issue a request which has already been registered with ImageFactory.
    * If the associated Ticket is no longer alive ImageFactory issues a resource load request.
-   * @param [in] req pointer to request
+   * @param [in] request Request to be loaded.
    * @return     intrusive pointer to image ticket. If Load fails, returned pointer is invalid. (!ret)
    */
-  ResourceTicketPtr Load( ImageFactoryCache::Request* req );
+  ResourceTicketPtr Load( ImageFactoryCache::Request& request );
 
   /**
    * Tells ResourceManager to reload image from filesystem.
@@ -205,6 +205,14 @@ private:
    * @return intrusive pointer to Ticket
    */
   ResourceTicketPtr IssueLoadRequest( const std::string& filename, const ImageAttributes* attributes );
+
+  /**
+   * Looks-up the hash of the string locator of the already-registered Request
+   * passed in.
+   * @param[in] request The image load request to return a locator string hash for.
+   * @return The hash of the locator string used in the request.
+   */
+  std::size_t GetHashForCachedRequest( const ImageFactoryCache::Request& request );
 
 private:
   ResourceClient&                        mResourceClient;

@@ -206,6 +206,11 @@ private:
    */
   ResourceTicketPtr IssueLoadRequest( const std::string& filename, const ImageAttributes* attributes );
 
+  /**
+   *
+   */
+  std::size_t GetHashForCachedRequest( const ImageFactoryCache::Request& request );
+
 private:
   ResourceClient&                        mResourceClient;
   ImageFactoryCache::RequestPathHashMap  mUrlCache;         ///< A multimap of url hashes and request IDs

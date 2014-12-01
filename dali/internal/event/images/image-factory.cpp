@@ -63,7 +63,7 @@ Request* ImageFactory::RegisterRequest( const std::string &filename, const Image
   std::size_t urlHash = CalculateHash( filename );
 
   Request* foundReq( NULL );
-  foundReq = FindRequest(filename, urlHash, attr);
+  foundReq = FindRequest( filename, urlHash, attr );
 
   if( !foundReq )
   {
@@ -78,28 +78,23 @@ ResourceTicketPtr ImageFactory::Load( Request *req )
 {
   ResourceTicketPtr ticket;
   DALI_ASSERT_DEBUG( req );
+  if( !req )
+  {
+    return ticket;
+  }
 
-  ResourceId resId = req->resourceId;
+  const ResourceId resId = req->resourceId;
   if( resId == 0 )
   {
-    // not yet associated with a resource, load
-    std::size_t urlHash(0);
-    RequestPathHashMap::const_iterator it;
-    for( it = mUrlCache.begin(); it != mUrlCache.end(); ++it )
-    {
-      if( it->second == req->GetId() )
-      {
-        urlHash = it->first;
-        break;
-      }
-    }
-    DALI_ASSERT_DEBUG( it!=mUrlCache.end() );
+    // Not yet associated with a ticketed async resource transaction, so attempt to
+    // find a cached one and issue a new load if there isn't one in-flight:
 
+    const std::size_t urlHash = GetHashForCachedRequest( *req );
     ticket = FindCompatibleResource( req->url, urlHash, req->attributes );
 
     if( !ticket )
     {
-      // didn't find compatible resource
+      // Didn't find compatible resource already being loaded
       ticket = IssueLoadRequest( req->url, req->attributes );
     }
 
@@ -110,7 +105,7 @@ ResourceTicketPtr ImageFactory::Load( Request *req )
     ticket = mResourceClient.RequestResourceTicket( resId );
     if( !ticket )
     {
-      // resource has been discarded since
+      // Resource has been discarded since last load
       ticket = IssueLoadRequest( req->url, req->attributes );
       req->resourceId = ticket->GetId();
     }
@@ -300,7 +295,7 @@ Request* ImageFactory::FindRequest( const std::string& filename, size_t hash, co
 
     // get cached request
     RequestIdMap::iterator foundRequestIter = mRequestCache.find( cachedReqId );
-    DALI_ASSERT_DEBUG( foundRequestIter != mRequestCache.end() );
+    DALI_ASSERT_DEBUG( foundRequestIter != mRequestCache.end() && "Only requests that are live in mRequestCache should appear in mUrlCache which is an index to speed-up lookups into it.");
     if( foundRequestIter != mRequestCache.end() )
     {
       const Request& cachedRequest = *(foundRequestIter->second);
@@ -443,6 +438,24 @@ void ImageFactory::RequestDiscarded( const Request& req )
       break;
     }
   }
+}
+
+std::size_t ImageFactory::GetHashForCachedRequest( const Request& request )
+{
+  const RequestId requestId = request.GetId();
+  std::size_t locatorHash(0);
+  RequestPathHashMap::const_iterator it;
+
+  for( it = mUrlCache.begin(); it != mUrlCache.end(); ++it )
+  {
+    if( it->second == requestId )
+    {
+      locatorHash = it->first;
+      break;
+    }
+  }
+  DALI_ASSERT_DEBUG( it!=mUrlCache.end() && "Only already-cached requests can have their locator hashes looked-up." );
+  return locatorHash;
 }
 
 } // namespace Internal

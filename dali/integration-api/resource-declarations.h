@@ -25,8 +25,25 @@ namespace Integration
 {
 
 /**
- * Used to identify a loading operation.
- * This begins with a call to PlatformAbstraction::LoadResource().
+ * @brief Used to identify a resource loading operation.
+ *
+ * These unique ResourceId values can be used to identify a resource loading
+ * transaction in core-adaptor communication over the period in which the
+ * resource operation is scheduled against other loads, is performed, succeeds,
+ * fails, or is cancelled by the core.
+ *
+ * A resource transaction begins with a call to PlatformAbstraction::LoadResource()
+ * Later asynchronous status notifications obtained by polling
+ * PlatformAbstraction::GetResources() can be mapped to corresponding
+ * LoadResource() invocations using the ResourceId value.
+ * It is the core's responsibility to ensure that each invocation of
+ * PlatformAbstraction::LoadResource() passes in a Request object with a unique
+ * integer ResourceId.
+ *
+ * @sa Dali::Integration::PlatformAbstraction::LoadResource
+ * Dali::Integration::PlatformAbstraction::GetResources
+ * Dali::Integration::ResourceCache
+ * Dali::Internal::ImageFactoryCache::RequestId
  */
 typedef unsigned int ResourceId;
 

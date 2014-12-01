@@ -61,7 +61,7 @@ namespace // unnamed namespace
  * We want to discourage the use of property strings (minimize string comparisons),
  * particularly for the default properties.
  */
-const std::string DEFAULT_PROPERTY_NAMES[] =
+const char* DEFAULT_PROPERTY_NAMES[] =
 {
   "weight"
 };
@@ -335,7 +335,7 @@ void ActiveConstraintBase::GetDefaultPropertyIndices( Property::IndexContainer& 
   }
 }
 
-const std::string& ActiveConstraintBase::GetDefaultPropertyName( Property::Index index ) const
+const char* ActiveConstraintBase::GetDefaultPropertyName( Property::Index index ) const
 {
   if ( ( index >= 0 ) && ( index < DEFAULT_PROPERTY_COUNT ) )
   {
@@ -343,9 +343,7 @@ const std::string& ActiveConstraintBase::GetDefaultPropertyName( Property::Index
   }
   else
   {
-    // index out of range..return empty string
-    static const std::string INVALID_PROPERTY_NAME;
-    return INVALID_PROPERTY_NAME;
+    return NULL;
   }
 }
 

@@ -9,22 +9,20 @@
 #include <vector>
 #include <map>
 
-int RunTestCase( struct testcase_s& testCase )
+namespace
 {
-  int result = 1;
-  if( testCase.startup )
-  {
-    testCase.startup();
-  }
-  result = testCase.function();
-  if( testCase.cleanup )
-  {
-    testCase.cleanup();
-  }
-  return result;
-}
+enum
+{
+  E_TESTCASE_SUCCEEDED,   // 0
+  E_TESTCASE_FAILED,      // 1
+  E_TESTCASE_ABORTED,     // 2
+  E_FORK_FAILED,          // 3
+  E_WAITPID_FAILED,       // 4
+  E_BAD_ARGUMENT,         // 5
+  E_TESTCASE_NOT_FOUND    // 6
+};
 
-#define MAX_NUM_CHILDREN 16
+const int MAX_NUM_CHILDREN(16);
 
 struct TestCase
 {
@@ -56,8 +54,36 @@ struct TestCase
   }
 };
 
-
 typedef std::map<int, TestCase> RunningTestCases;
+}
+
+
+int RunTestCase( struct testcase_s& testCase )
+{
+  int result = E_TESTCASE_FAILED;
+
+  try
+  {
+    if( testCase.startup )
+    {
+      testCase.startup();
+    }
+    result = testCase.function();
+    if( testCase.cleanup )
+    {
+      testCase.cleanup();
+    }
+  }
+  catch (...)
+  {
+    printf("Caught exception in test case.\n");
+    result = E_TESTCASE_ABORTED;
+  }
+
+  return result;
+}
+
+
 
 // Constantly runs up to MAX_NUM_CHILDREN processes
 int RunAllInParallel(const char* processName, bool reRunFailed)
@@ -90,7 +116,7 @@ int RunAllInParallel(const char* processName, bool reRunFailed)
         else if(pid == -1)
         {
           perror("fork");
-          exit(2);
+          exit(E_FORK_FAILED);
         }
         else // Parent process
         {
@@ -107,7 +133,7 @@ int RunAllInParallel(const char* processName, bool reRunFailed)
     if( childPid == -1 )
     {
       perror("waitpid");
-      exit(2);
+      exit(E_WAITPID_FAILED);
     }
 
     if( WIFEXITED(status) )
@@ -157,7 +183,14 @@ int RunAllInParallel(const char* processName, bool reRunFailed)
   {
     for( unsigned int i=0; i<failedTestCases.size(); i++)
     {
-      printf("Running test case %s:\n", tc_array[failedTestCases[i]].name );
+      char* testCaseStrapline;
+      int numChars = asprintf(&testCaseStrapline, "Test case %s", tc_array[failedTestCases[i]].name );
+      printf("\n%s\n", testCaseStrapline);
+      for(int j=0; j<numChars; j++)
+      {
+        printf("=");
+      }
+      printf("\n");
       RunTestCase( tc_array[failedTestCases[i] ] );
     }
   }
@@ -167,7 +200,7 @@ int RunAllInParallel(const char* processName, bool reRunFailed)
 
 int FindAndRunTestCase(const char* testCaseName)
 {
-  int result = 2;
+  int result = E_TESTCASE_NOT_FOUND;
 
   for( int i = 0; tc_array[i].name; i++ )
   {
@@ -181,12 +214,20 @@ int FindAndRunTestCase(const char* testCaseName)
   return result;
 }
 
+void usage(const char* program)
+{
+  printf("Usage: \n"
+         "   %s <testcase name>\t\t Execute a test case\n"
+         "   %s \t\t Execute all test cases in parallel\n"
+         "   %s -r\t\t Execute all test cases in parallel, rerunning failed test cases\n",
+         program, program, program);
+}
+
 int main(int argc, char * const argv[])
 {
-  int result = -1;
+  int result = E_BAD_ARGUMENT;
 
-  const char* optString = "pr";
-  bool optParallel(false);
+  const char* optString = "r";
   bool optRerunFailed(false);
 
   int nextOpt = 0;
@@ -195,26 +236,24 @@ int main(int argc, char * const argv[])
     nextOpt = getopt( argc, argv, optString );
     switch(nextOpt)
     {
-      case 'p':
-        optParallel = true;
-        break;
       case 'r':
         optRerunFailed = true;
+        break;
+      case '?':
+        usage(argv[0]);
+        exit(E_BAD_ARGUMENT);
         break;
     }
   } while( nextOpt != -1 );
 
-  if( optParallel )
+  if( optind == argc ) // no testcase name in argument list
   {
     result = RunAllInParallel(argv[0], optRerunFailed);
   }
   else
   {
-    if (argc != 2) {
-      printf("Usage: %s <testcase name>\n", argv[0]);
-      return 2;
-    }
-    result = FindAndRunTestCase(argv[1]);
+    // optind is index of next argument - interpret as testcase name
+    result = FindAndRunTestCase(argv[optind]);
   }
   return result;
 }

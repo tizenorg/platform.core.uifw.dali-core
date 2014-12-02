@@ -86,53 +86,77 @@ typedef std::vector<ProgressVector3>                    ProgressVector3Container
 typedef ProgressValue<Vector4>                          ProgressVector4;
 typedef std::vector<ProgressVector4>                    ProgressVector4Container;
 
-inline Quaternion Interpolate (ProgressQuaternion& a, ProgressQuaternion& b, float progress)
+
+template <typename T>
+inline void Interpolate( T& result, const T& a, const T&b, float progress )
 {
-  return Quaternion::Slerp(a.GetValue(), b.GetValue(), progress);
+  result = (a + (b - a) * progress);
 }
 
-inline AngleAxis Interpolate (ProgressAngleAxis& a, ProgressAngleAxis& b, float progress)
+//Specialization for bool
+template <>
+inline void Interpolate (bool& result, const bool& a, const bool& b, float progress)
 {
-  AngleAxis av(a.GetValue());
-  AngleAxis bv(b.GetValue());
-  Quaternion q1(Radian(av.angle), av.axis);
-  Quaternion q2(Radian(bv.angle), bv.axis);
+  result = progress < 0.5f ? a : b;
+}
+
+//Specialization for int
+template <>
+inline void Interpolate(int& result, const int& a, const int& b, float progress)
+{
+  result = static_cast<int>(a + (b - a) * progress + 0.5f);
+}
+
+//Specialization for Quaternion
+template <>
+inline void Interpolate (Quaternion& result, const Quaternion& a, const Quaternion& b, float progress)
+{
+  result = Quaternion::Slerp(a, b, progress);
+}
+
+//Specialization for AngleAxis
+template <>
+inline void Interpolate ( AngleAxis& result, const AngleAxis& a, const AngleAxis& b, float progress)
+{
+  Quaternion q1(Radian(a.angle), a.axis);
+  Quaternion q2(Radian(b.angle), b.axis);
 
   Quaternion iq = Quaternion::Slerp(q1, q2, progress);
-  AngleAxis result;
   iq.ToAxisAngle(result.axis, result.angle);
-  return result;
 }
 
-
-inline bool Interpolate (ProgressBoolean& a, ProgressBoolean& b, float progress)
+/* Cubic Interpolation (Catmull-Rom spline) between values p1 and p2. p0 and p3 are prev and next values
+ * and are used as control points to calculate tangent of the curve at interpolation points.
+ *
+ * f(t) = a3*t^3 + a2*t^2 + a1*t + a0
+ * Restrictions: f(0)=p1   f(1)=p2   f'(0)=(p2-p0)*0.5   f'(1)=(p3-p1)*0.5
+ */
+template <typename T>
+inline void CubicInterpolate( T& result, const T& p0, const T& p1, const T&  p2, const T&  p3, float progress )
 {
-  return progress < 0.5f ? a.GetValue() : b.GetValue();
+  T a3 = p3*0.5f - p2*1.5f + p1*1.5f - p0*0.5f;
+  T a2 = p0 - p1*2.5f + p2*2.0f - p3*0.5f;
+  T a1 = (p2-p0)*0.5f;
+
+  result = a3*progress*progress*progress + a2*progress*progress + a1*progress + p1;
 }
 
-inline float Interpolate (ProgressNumber& a, ProgressNumber& b, float progress)
+//Specialization for int
+template <>
+inline void CubicInterpolate( int& result, const int& p0, const int& p1, const int&  p2, const int&  p3, float progress )
 {
-  return (a.GetValue() + (b.GetValue() - a.GetValue()) * progress);
+  float a3 = p3*0.5f - p2*1.5f + p1*1.5f - p0*0.5f;
+  float a2 = p0 - p1*2.5f + p2*2.0f - p3*0.5f;
+  float a1 = (p2-p0)*0.5f;
+
+  result = static_cast<int>( a3*progress*progress*progress + a2*progress*progress + a1*progress + p1 );
 }
 
-inline int Interpolate (ProgressInteger& a, ProgressInteger& b, float progress)
+//Specialization for bool
+template <>
+inline void CubicInterpolate( bool& result, const bool& p0, const bool& p1, const bool&  p2, const bool&  p3, float progress )
 {
-  return static_cast<int>(a.GetValue() + (b.GetValue() - a.GetValue()) * progress + 0.5f);
-}
-
-inline Vector2 Interpolate (ProgressVector2& a, ProgressVector2& b, float progress)
-{
-  return (a.GetValue() + (b.GetValue() - a.GetValue()) * progress);
-}
-
-inline Vector3 Interpolate (ProgressVector3& a, ProgressVector3& b, float progress)
-{
-  return (a.GetValue() + (b.GetValue() - a.GetValue()) * progress);
-}
-
-inline Vector4 Interpolate (ProgressVector4& a, ProgressVector4& b, float progress)
-{
-  return (a.GetValue() + (b.GetValue() - a.GetValue()) * progress);
+  Interpolate( result, p1, p2, progress );
 }
 
 } // namespace Internal

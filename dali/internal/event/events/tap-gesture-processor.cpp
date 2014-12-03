@@ -95,12 +95,10 @@ void TapGestureProcessor::Process( const Integration::TapGestureEvent& tapEvent 
   {
     case Gesture::Possible:
     {
-      ResetActor();
-
+      // Do a hit test and if an actor has been hit then save to see if tap event is still valid on a tap( same actor being hit )
       HitTestAlgorithm::Results hitTestResults;
-      if( HitTest( mStage, tapEvent.point, hitTestResults ) )
+      if ( HitTest( mStage, tapEvent.point, hitTestResults ) )
       {
-        // Only sets the actor if we have a hit.
         SetActor( &GetImplementation( hitTestResults.actor ) );
       }
       break;
@@ -108,20 +106,16 @@ void TapGestureProcessor::Process( const Integration::TapGestureEvent& tapEvent 
 
     case Gesture::Started:
     {
-      if ( GetCurrentGesturedActor() )
+      HitTestAlgorithm::Results hitTestResults;
+      if ( HitTest( mStage, tapEvent.point, hitTestResults ) )
       {
-        HitTestAlgorithm::Results hitTestResults;
-        HitTest( mStage, tapEvent.point, hitTestResults );
-
-        if ( hitTestResults.actor && ( GetCurrentGesturedActor() == &GetImplementation( hitTestResults.actor ) ) )
+        // Check that this actor is still the one that was used for the last touch down ?
+        if ( GetCurrentGesturedActor() == &GetImplementation( hitTestResults.actor ) )
         {
-          // Set mCurrentTapEvent to use inside overridden methods called from ProcessAndEmit()
           mCurrentTapEvent = &tapEvent;
           ProcessAndEmit( hitTestResults );
-          mCurrentTapEvent = NULL;
         }
-
-        ResetActor();
+        mCurrentTapEvent = NULL;
       }
       break;
     }

@@ -133,6 +133,7 @@ private:
   unsigned int mMinTouchesRequired;
   unsigned int mMaxTouchesRequired;
 
+  Dali::Actor mCurrentTapActor; ///< Actor associated with a test from touch down
   const Integration::TapGestureEvent* mCurrentTapEvent; ///< Pointer to current TapEvent, used when calling ProcessAndEmit()
 };
 

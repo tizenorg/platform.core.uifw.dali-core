@@ -221,6 +221,26 @@ private:
   ResourceTicketContainer                mTicketsToRelease; ///< List of ticket handles
   float                                  mMaxScale;         ///< Defines maximum size difference between compatible resources
   ImageFactoryCache::RequestId           mReqIdCurrent;     ///< Internal counter for Request IDs
+
+  // Debug counters:
+  struct DecisionCounter
+  {
+    DecisionCounter( const char * label = "") : taken(), notTaken(0), mLabel(label){}
+    unsigned taken;
+    unsigned notTaken;
+    void operator ++ () { ++taken; }
+    void operator -- () { ++notTaken; }
+    void wasTaken( bool t ) { if(t){ ++*this; } else { --*this; } }
+    ~DecisionCounter( )
+    {
+      Dali::Integration::Log::LogMessage( Dali::Integration::Log::DebugInfo, "%% taken: %.2f,\ttaken: %u\tnot taken: %u\t@ %s\n", taken != 0 || notTaken != 0 ? taken / (1.0 * taken + notTaken) * 100.0 : 0.0, taken, notTaken, mLabel );
+    }
+  private:
+    const char * mLabel;
+  };
+  DecisionCounter mRequestHasExistingResourceId;
+  DecisionCounter mRecoveredTicketForResourceId;
+  DecisionCounter mFoundCompatibleTicketForRequest;
 };
 
 } // namespace Internal

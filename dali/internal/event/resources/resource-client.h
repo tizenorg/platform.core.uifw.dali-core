@@ -89,7 +89,6 @@ public:
    */
   virtual ~ResourceClient();
 
-public:
   /**
    * Get the global data retention policy.
    * @return the global data retention policy
@@ -278,7 +277,7 @@ public:
    */
   void UpdateAtlasStatus( ResourceId id, ResourceId atlasId, Integration::LoadStatus loadStatus );
 
-public: // From ResourceTicketLifetimeObserver.
+  // From ResourceTicketLifetimeObserver:
 
   /**
    * This indicates that the previously requested resource is no longer needed.
@@ -286,7 +285,7 @@ public: // From ResourceTicketLifetimeObserver.
    */
   virtual void ResourceTicketDiscarded(const ResourceTicket& ticket);
 
-public: // Message methods
+  // Message methods:
 
   /**
    * Notify associated ticket observers that the resource has been uploaded to GL.
@@ -348,10 +347,9 @@ public: // Message methods
   void UpdateImageTicket( ResourceId id, const Dali::ImageAttributes& imageAttributes ); ///!< Issue #AHC01
 
 private:
+
   ResourceManager& mResourceManager;          ///< The resource manager
   SceneGraph::UpdateManager& mUpdateManager;  ///< update manager
-
-private:
   struct Impl;
   Impl* mImpl;
 };

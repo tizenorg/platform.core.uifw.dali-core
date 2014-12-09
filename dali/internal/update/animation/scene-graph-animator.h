@@ -18,9 +18,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <boost/function.hpp>
-
 // INTERNAL INCLUDES
 #include <dali/internal/common/owner-container.h>
 #include <dali/internal/event/animation/key-frames-impl.h>
@@ -39,6 +36,118 @@ namespace Dali
 
 namespace Internal
 {
+
+/**
+ *   Function wrapper for animator functions.
+ */
+template <typename T>
+struct AnimatorFunctionWrapper
+{
+  /*
+   * Default constructor
+   */
+  AnimatorFunctionWrapper()
+  :mFunction(0)
+  {
+  }
+
+  /**
+   * Constructor and initialization
+   */
+  template <typename FunctionType>
+  AnimatorFunctionWrapper(const FunctionType& f)
+  :mFunction(new Function<FunctionType>(f))
+  {
+  }
+
+  /**
+   * Copy constructor
+   */
+  AnimatorFunctionWrapper( const AnimatorFunctionWrapper& functionWrapper )
+  {
+    if(functionWrapper.mFunction)
+    {
+      mFunction = functionWrapper.mFunction->Clone();
+    }
+    else
+    {
+      mFunction = 0;
+    }
+  }
+
+  /**
+   * Destructor
+   */
+  ~AnimatorFunctionWrapper()
+  {
+    if( mFunction )
+    {
+      delete mFunction;
+      mFunction = 0;
+    }
+  }
+
+  T operator ()(float progress, const T& value)
+  {
+    return (*mFunction)(progress, value);
+  }
+
+  template <typename FunctionType>
+  void operator=( const FunctionType& f)
+  {
+    //Delete previous wrapped function if there is any
+    if( mFunction )
+    {
+      delete mFunction;
+    }
+
+    mFunction = new Function<FunctionType>(f);
+  }
+
+  /**
+   * Base struct for wrapped functions.
+   */
+  struct FunctionBase
+  {
+    FunctionBase(){}
+    virtual ~FunctionBase(){}
+
+    virtual T operator()(float progress, const T& value) = 0;
+    virtual FunctionBase* Clone() const = 0;
+  };
+
+  /**
+   * Wrapped function
+   */
+  template <typename FunctionType>
+  struct Function : public FunctionBase
+  {
+    Function(const FunctionType& function)
+    :FunctionBase()
+    ,mFunction(function)
+    {
+    }
+
+    Function( const Function& functionWrapper )
+    :mFunction( functionWrapper.mFunction )
+    {
+    }
+
+    virtual FunctionBase* Clone() const
+    {
+      return new Function( *this );
+    }
+
+    T operator()( float progress, const T& value )
+    {
+      return mFunction( progress, value);
+    }
+
+    FunctionType mFunction;
+  };
+
+  FunctionBase* mFunction;
+};
 
 namespace SceneGraph
 {
@@ -218,7 +327,7 @@ class Animator : public AnimatorBase, public PropertyOwner::Observer
 {
 public:
 
-  typedef boost::function< PropertyType (float, const PropertyType&) > AnimatorFunction;
+  typedef Internal::AnimatorFunctionWrapper<PropertyType> AnimatorFunction;
 
   /**
    * Construct a new property animator.

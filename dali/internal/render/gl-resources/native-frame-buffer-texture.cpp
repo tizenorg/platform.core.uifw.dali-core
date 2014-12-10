@@ -98,7 +98,7 @@ bool NativeFrameBufferTexture::CreateGlTexture()
   }
   else
   {
-    DALI_LOG_ERROR( "Error creating native image!" );
+    DALI_LOG_ERROR( "Error creating native image!\n" );
   }
 
   return mId != 0;

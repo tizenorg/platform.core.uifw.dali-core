@@ -73,7 +73,7 @@ GlyphStatusContainer::~GlyphStatusContainer()
     const GlyphStatus& status( (*iter) );
     if(status.GetRefCount())
     {
-      DALI_LOG_ERROR("glyph still referenced (leaking)");
+      DALI_LOG_ERROR("glyph still referenced (leaking)\n");
     }
   }
 #endif

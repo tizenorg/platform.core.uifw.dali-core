@@ -696,7 +696,7 @@ Property::Value& Property::Value::GetValue(const std::string& key) const
     }
   }
 
-  DALI_LOG_WARNING("Cannot find property map key %s", key.c_str());
+  DALI_LOG_WARNING("Cannot find property map key %s\n", key.c_str());
   DALI_ASSERT_ALWAYS(!"Cannot find property map key");
 }
 

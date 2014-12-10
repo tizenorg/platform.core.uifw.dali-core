@@ -104,7 +104,7 @@ void CompressedBitmapTexture::Update( Integration::Bitmap* bitmap )
 
   if( !bitmap )
   {
-    DALI_LOG_ERROR( "Passed a null bitmap to update this compressed bitmap texture." );
+    DALI_LOG_ERROR( "Passed a null bitmap to update this compressed bitmap texture.\n" );
     return;
   }
 

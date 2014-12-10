@@ -432,7 +432,7 @@ Actor NewActor( const Property::Map& map )
 
   if ( !handle )
   {
-    DALI_LOG_ERROR( "Actor type not provided, returning empty handle" );
+    DALI_LOG_ERROR( "Actor type not provided, returning empty handle\n" );
     return Actor();
   }
 
@@ -464,7 +464,7 @@ Actor NewActor( const Property::Map& map )
       }
       else if ( key == "signals" )
       {
-        DALI_LOG_ERROR( "signals not supported" );
+        DALI_LOG_ERROR( "signals not supported\n" );
       }
       else if( key ==  "parent-origin" )
       {

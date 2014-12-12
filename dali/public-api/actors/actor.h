@@ -33,6 +33,8 @@
 namespace Dali
 {
 
+asdasd
+
 namespace Internal DALI_INTERNAL
 {
 class Actor;

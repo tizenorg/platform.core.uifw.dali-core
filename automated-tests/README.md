@@ -86,6 +86,10 @@ To execute tests, cd into automated-tests and run
 
     ./execute.sh
 
+By default the tests execute in parallel, which is faster but does not produce a single output file (summary.xml).  Use this to execute the tests in series:
+
+    ./execute.sh -s
+
 This will execute dali, dali-unmanaged and dali-internal test sets. Note that the output summary for the first will be printed before running the second.
 
 To execute a subset of tests, you can run individual test sets, e.g.

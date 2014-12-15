@@ -270,14 +270,6 @@ public:
    */
   void SetGlyphLoadObserver( GlyphLoadObserver* glyphLoadedInterface );
 
-  /**
-   * Update atlas status
-   * @param id The ticket resource Id
-   * @param atlasId The atlas texture Id
-   * @param loadStatus The status update
-   */
-  void UpdateAtlasStatus( ResourceId id, ResourceId atlasId, Integration::LoadStatus loadStatus );
-
 public: // From ResourceTicketLifetimeObserver.
 
   /**

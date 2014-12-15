@@ -3,7 +3,6 @@
 platform_abstraction_src_files = \
    $(platform_abstraction_src_dir)/bitmap.cpp \
    $(platform_abstraction_src_dir)/core.cpp \
-   $(platform_abstraction_src_dir)/glyph-set.cpp \
    $(platform_abstraction_src_dir)/image-data.cpp \
    $(platform_abstraction_src_dir)/debug.cpp \
    $(platform_abstraction_src_dir)/profiling.cpp \
@@ -26,7 +25,6 @@ platform_abstraction_src_files = \
 platform_abstraction_header_files = \
    $(platform_abstraction_src_dir)/core.h \
    $(platform_abstraction_src_dir)/context-notifier.h \
-   $(platform_abstraction_src_dir)/glyph-set.h \
    $(platform_abstraction_src_dir)/debug.h \
    $(platform_abstraction_src_dir)/profiling.h \
    $(platform_abstraction_src_dir)/input-options.h \

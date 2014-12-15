@@ -94,7 +94,6 @@
 #include <dali/public-api/images/distance-field.h>
 #include <dali/public-api/images/encoded-buffer-image.h>
 #include <dali/public-api/images/frame-buffer-image.h>
-#include <dali/public-api/images/glyph-image.h>
 #include <dali/public-api/images/image-attributes.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/images/native-image.h>

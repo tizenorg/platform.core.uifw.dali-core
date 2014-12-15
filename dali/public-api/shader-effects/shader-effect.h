@@ -67,10 +67,9 @@ class ShaderEffect;
 enum GeometryType
 {
   GEOMETRY_TYPE_IMAGE = 0x01,         ///< image, with flat color or texture
-  GEOMETRY_TYPE_TEXT = 0x02,          ///< text, with flat color or texture
-  GEOMETRY_TYPE_UNTEXTURED_MESH = 0x04,///< Complex meshes, with flat color
-  GEOMETRY_TYPE_TEXTURED_MESH = 0x08, ///< Complex meshes, with texture
-  GEOMETRY_TYPE_LAST = 0x10
+  GEOMETRY_TYPE_UNTEXTURED_MESH = 0x02,///< Complex meshes, with flat color
+  GEOMETRY_TYPE_TEXTURED_MESH = 0x04, ///< Complex meshes, with texture
+  GEOMETRY_TYPE_LAST = 0x08
 };
 
 /**
@@ -256,44 +255,6 @@ public:
                                     const std::string& fragmentShader,
                                     GeometryType type = GeometryType(GEOMETRY_TYPE_IMAGE),
                                     GeometryHints hints = GeometryHints(HINT_NONE) );
-
-  /**
-   * @brief Create ShaderEffect.
-   * @param imageVertexShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param imageFragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param textVertexShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param textFragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param hints GeometryHints to define the geometry of the rendered object
-   * @return A handle to a shader effect
-   */
-  static ShaderEffect New( const std::string& imageVertexShader,
-                           const std::string& imageFragmentShader,
-                           const std::string& textVertexShader,
-                           const std::string& textFragmentShader,
-                           GeometryHints hints = GeometryHints(HINT_NONE) );
-
-  /**
-   * @brief Create ShaderEffect.
-   * @param imageVertexShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param imageFragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param textVertexShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param textFragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param texturedMeshVertexShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param texturedMeshFragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param meshVertexShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param meshFragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param hints GeometryHints to define the geometry of the rendered object
-   * @return A handle to a shader effect
-   */
-  static ShaderEffect New( const std::string& imageVertexShader,
-                           const std::string& imageFragmentShader,
-                           const std::string& textVertexShader,
-                           const std::string& textFragmentShader,
-                           const std::string& texturedMeshVertexShader,
-                           const std::string& texturedMeshFragmentShader,
-                           const std::string& meshVertexShader,
-                           const std::string& meshFragmentShader,
-                           GeometryHints hints = GeometryHints(HINT_NONE) );
 
   /**
    * @brief Downcast an Object handle to ShaderEffect.

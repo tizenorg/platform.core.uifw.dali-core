@@ -114,11 +114,6 @@ ModelFactory& ThreadLocalStorage::GetModelFactory()
   return mCore->GetModelFactory();
 }
 
-FontFactory& ThreadLocalStorage::GetFontFactory()
-{
-  return mCore->GetFontFactory();
-}
-
 ShaderFactory& ThreadLocalStorage::GetShaderFactory()
 {
   return mCore->GetShaderFactory();

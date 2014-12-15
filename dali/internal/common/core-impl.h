@@ -56,7 +56,6 @@ class EventProcessor;
 class GestureEventProcessor;
 class ResourceClient;
 class ResourceManager;
-class FontFactory;
 class ImageFactory;
 class ModelFactory;
 class ShaderFactory;
@@ -239,12 +238,6 @@ private:  // for use by ThreadLocalStorage
   ResourceClient& GetResourceClient();
 
   /**
-   * Returns the Font factory
-   * @return A reference to the Font factory.
-   */
-  FontFactory& GetFontFactory();
-
-  /**
    * Returns the Image factory
    * @return A reference to the Image factory.
    */
@@ -302,7 +295,6 @@ private:
   NotificationManager*                      mNotificationManager;         ///< Notification manager
   AnimationPlaylistOwner                    mAnimationPlaylist;           ///< For 'Fire and forget' animation support
   OwnerPointer<PropertyNotificationManager> mPropertyNotificationManager; ///< For safe signal emmision of property changed notifications
-  FontFactory*                              mFontFactory;                 ///< font resource factory
   ImageFactory*                             mImageFactory;                ///< Image resource factory
   ModelFactory*                             mModelFactory;                ///< Model resource factory
   ShaderFactory*                            mShaderFactory;               ///< Shader resource factory

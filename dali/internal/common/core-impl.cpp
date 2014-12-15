@@ -39,7 +39,6 @@
 #include <dali/internal/update/common/discard-queue.h>
 #include <dali/internal/common/event-to-update.h>
 #include <dali/internal/update/resources/resource-manager.h>
-#include <dali/internal/event/text/font-factory.h>
 #include <dali/internal/event/images/image-factory.h>
 #include <dali/internal/event/images/emoji-factory.h>
 #include <dali/internal/event/modeling/model-factory.h>
@@ -95,7 +94,6 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
   mDiscardQueue(NULL),
   mResourcePostProcessQueue(),
   mNotificationManager(NULL),
-  mFontFactory(NULL),
   mImageFactory(NULL),
   mModelFactory(NULL),
   mShaderFactory(NULL),
@@ -163,7 +161,6 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
   mGestureEventProcessor = new GestureEventProcessor(*mStage, gestureManager, mRenderController);
   mEventProcessor = new EventProcessor(*mStage, *mNotificationManager, *mGestureEventProcessor);
 
-  mFontFactory = new FontFactory(*mResourceClient);
   mImageFactory = new ImageFactory( *mResourceClient );
   mModelFactory = new ModelFactory(*mResourceClient);
   mShaderFactory = new ShaderFactory(*mResourceClient);
@@ -199,7 +196,6 @@ Core::~Core()
   delete mEventProcessor;
   delete mGestureEventProcessor;
   delete mNotificationManager;
-  delete mFontFactory;
   delete mImageFactory;
   delete mModelFactory;
   delete mShaderFactory;
@@ -223,7 +219,6 @@ void Core::RecoverFromContextLoss()
   DALI_LOG_INFO(gCoreFilter, Debug::Verbose, "Core::RecoverFromContextLoss()\n");
 
   mImageFactory->RecoverFromContextLoss(); // Reload images from files
-  mFontFactory->RecoverFromContextLoss();  // Reload glyphs from cache into new atlas
   mStage->GetRenderTaskList().RecoverFromContextLoss(); // Re-trigger render-tasks
 }
 
@@ -245,7 +240,6 @@ void Core::SurfaceResized(unsigned int width, unsigned int height)
 void Core::SetDpi(unsigned int dpiHorizontal, unsigned int dpiVertical)
 {
   mPlatform.SetDpi( dpiHorizontal, dpiVertical );
-  mFontFactory->SetDpi( dpiHorizontal, dpiVertical);
   mStage->SetDpi( Vector2( dpiHorizontal , dpiVertical) );
 }
 
@@ -333,9 +327,6 @@ void Core::ProcessEvents()
     // Flush discard queue for image factory
     mImageFactory->FlushReleaseQueue();
 
-    // send text requests if required
-    mFontFactory->SendTextRequests();
-
     // Flush any queued messages for the update-thread
     const bool messagesToProcess = eventToUpdate.FlushQueue();
 
@@ -422,11 +413,6 @@ ResourceManager& Core::GetResourceManager()
 ResourceClient& Core::GetResourceClient()
 {
   return *(mResourceClient);
-}
-
-FontFactory& Core::GetFontFactory()
-{
-  return *(mFontFactory);
 }
 
 ImageFactory& Core::GetImageFactory()

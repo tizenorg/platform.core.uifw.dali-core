@@ -40,7 +40,6 @@ class ResourceClient;
 class ResourceManager;
 class ImageFactory;
 class ModelFactory;
-class FontFactory;
 class ShaderFactory;
 class EventToUpdate;
 class GestureEventProcessor;
@@ -130,12 +129,6 @@ public:
    * @return reference to the Image Factory
    */
   ModelFactory& GetModelFactory();
-
-  /**
-   * Returns the Font Factory
-   * @return reference to the Font Factory
-   */
-  FontFactory& GetFontFactory();
 
   /**
    * Returns the Shader Factory

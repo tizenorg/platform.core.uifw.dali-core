@@ -18,9 +18,6 @@
 // CLASS HEADER
 #include <dali/internal/common/text-parameters.h>
 
-// INTERNAL INCLUDES
-#include <dali/public-api/text/text-style.h>
-
 namespace Dali
 {
 

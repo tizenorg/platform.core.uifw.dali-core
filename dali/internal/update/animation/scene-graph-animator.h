@@ -251,6 +251,7 @@ public:
    */
   virtual ~Animator()
   {
+    printf("Animator Destructor\n");
     if (mPropertyOwner)
     {
       mPropertyOwner->RemoveObserver(*this);

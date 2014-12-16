@@ -27,6 +27,7 @@
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/animation/time-period.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/internal/update/animation/scene-graph-animator.h>
 
 namespace Dali
 {
@@ -54,10 +55,9 @@ public:
   /**
    * Constructor.
    */
-  AnimatorConnectorBase(AlphaFunction alpha, const TimePeriod& period)
-  : mParent(NULL),
-    mAlphaFunction(alpha),
-    mTimePeriod(period)
+  AnimatorConnectorBase(Animation& parent)
+  : mParent(&parent),
+    mAnimator(0)
   {
   }
 
@@ -73,7 +73,7 @@ public:
    * @pre The connector does not already have a parent.
    * @param [in] parent The parent object.
    */
-  virtual void SetParent(Animation& parent) = 0;
+  //virtual void SetParent(Animation& parent) = 0;
 
   /**
    * Retrieve the parent of the AnimatorConnector.
@@ -87,9 +87,8 @@ public:
 protected:
 
   Animation* mParent; ///< The parent owns the connector.
+  SceneGraph::AnimatorBase* mAnimator;
 
-  AlphaFunction mAlphaFunction;
-  TimePeriod mTimePeriod;
 };
 
 } // namespace Internal

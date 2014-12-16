@@ -106,9 +106,6 @@ public:
    * @param[in] condition - The assertion condition
    */
   DaliException(const char *location, const char* condition);
-
-  std::string mLocation;  ///< Location in code of the assertion
-  std::string mCondition; ///< The assertion string
 };
 
 }// Dali
@@ -138,7 +135,7 @@ public:
 #define DALI_ASSERT_ALWAYS(cond)                \
   if(!(cond)) \
   { \
-    Dali::DaliAssertMessage(#cond, __FILE__, __LINE__);   \
+    Dali::DaliAssertMessage(#cond, __PRETTY_FUNCTION__, __LINE__);   \
     throw Dali::DaliException(__PRETTY_FUNCTION__, #cond);  \
     EM_ASM(print(new Error().stack)); \
   }\
@@ -148,7 +145,7 @@ public:
 #define DALI_ASSERT_ALWAYS(cond)                \
   if(!(cond)) \
   { \
-    Dali::DaliAssertMessage(#cond, __FILE__, __LINE__);   \
+    Dali::DaliAssertMessage(#cond, __PRETTY_FUNCTION__, __LINE__);   \
     throw Dali::DaliException(__PRETTY_FUNCTION__, #cond);  \
   }\
 

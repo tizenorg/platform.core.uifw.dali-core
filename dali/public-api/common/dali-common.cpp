@@ -98,14 +98,13 @@ std::string Demangle(const char* symbol)
 }
 
 DALI_EXPORT_API DaliException::DaliException(const char *location, const char* condition)
-: mLocation(location), mCondition(condition)
 {
   // Note, if a memory error has occured, then the backtrace won't work - backtrace_symbols relies on
   // allocating memory.
 
   // Initial dlog error message is output in DALI_ASSERT_ALWAYS macro
   // Also output on stderr
-  fprintf(stderr, "Exception: \n%s\n thrown at %s\nSee dlog for backtrace\n", mCondition.c_str(), mLocation.c_str());
+  fprintf(stderr, "Exception: \n%s\n thrown at %s\nSee dlog for backtrace\n", condition, location);
 
   DALI_LOG_ERROR_NOFN("Backtrace:\n");
 
@@ -125,9 +124,8 @@ DALI_EXPORT_API DaliException::DaliException(const char *location, const char* c
 
 
 DALI_EXPORT_API DaliException::DaliException(const char *location, const char* condition)
-: mLocation(location), mCondition(condition)
 {
-  printf("Exception: \n%s\n thrown at %s\nSee dlog for backtrace\n", mCondition.c_str(), mLocation.c_str());
+  printf("Exception: \n%s\n thrown at %s\nSee dlog for backtrace\n", condition, location );
 }
 
 

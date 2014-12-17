@@ -823,5 +823,13 @@
 #define GL_PROGRAM_BINARY_FORMATS_OES                           0x87FF
 #endif
 
+/* GL_EXT for TBM surface */
+#ifndef GL_OES_EGL_image_external
+#define GL_OES_EGL_image_external
+#define GL_TEXTURE_EXTERNAL_OES           0x8D65
+#define GL_TEXTURE_BINDING_EXTERNAL_OES   0x8D67
+#define GL_REQUIRED_TEXTURE_IMAGE_UNITS_OES 0x8D68
+#define GL_SAMPLER_EXTERNAL_OES           0x8D66
+#endif /* GL_OES_EGL_image_external */
 
 #endif // __DALI_INTERNAL_GL_DEFINES_H__

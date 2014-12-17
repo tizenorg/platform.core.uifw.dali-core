@@ -101,6 +101,7 @@ void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& 
       break;
     }
 
+    case Dali::Pixel::NOT_SUPPORTED:
     case Dali::Pixel::COMPRESSED_R11_EAC:
     case Dali::Pixel::COMPRESSED_SIGNED_R11_EAC:
     case Dali::Pixel::COMPRESSED_RG11_EAC:

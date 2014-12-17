@@ -241,6 +241,12 @@ void ConvertToGlFormat( Format pixelformat, unsigned& pixelDataType, unsigned& i
       internalFormat = 0x8C00; ///! < Hardcoded so we can test before we move to GLES 3.0 or greater.
       break;
     }
+
+    case NOT_SUPPORTED:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Dali can not support this format\n");
+      break;
+    }
   }
 }
 

@@ -64,8 +64,9 @@ enum Format ///< pixel format, default color depth is RGBA 32 bit with alpha
   COMPRESSED_SRGB8_ALPHA8_ETC2_EAC,         ///< ETC2 / EAC RGB using sRGB colourspace, plus separate alpha channel.
   // GLES 2 extension compressed formats:
   COMPRESSED_RGB8_ETC1,                     ///< ETC1 RGB as defined by GLES 2 extension OES_compressed_ETC1_RGB8_texture: http://www.khronos.org/registry/gles/extensions/OES/OES_compressed_ETC1_RGB8_texture.txt
-  COMPRESSED_RGB_PVRTC_4BPPV1               ///< PowerVR 4bpp RGB format (v1) as defined by extension IMG_texture_compression_pvrtc: http://www.khronos.org/registry/gles/extensions/IMG/IMG_texture_compression_pvrtc.txt
+  COMPRESSED_RGB_PVRTC_4BPPV1,               ///< PowerVR 4bpp RGB format (v1) as defined by extension IMG_texture_compression_pvrtc: http://www.khronos.org/registry/gles/extensions/IMG/IMG_texture_compression_pvrtc.txt
   ///! Update LAST_VALID_PIXEL_FORMAT below if you add an enum value here.
+  NOT_SUPPORTED
 };
 
 /**

@@ -53,6 +53,7 @@ bool Pixel::HasAlpha(Format pixelformat)
     case RGB8888: // alpha not used
     case BGR8888: // alpha not used
     case BGR565:
+    case NOT_SUPPORTED:
     case COMPRESSED_R11_EAC:
     case COMPRESSED_SIGNED_R11_EAC:
     case COMPRESSED_RG11_EAC:
@@ -102,6 +103,10 @@ unsigned int Pixel::GetBytesPerPixel(Format pixelFormat)
       return 4;
     }
 
+    case NOT_SUPPORTED:
+    {
+      return 0;
+    }
     case COMPRESSED_R11_EAC:
     case COMPRESSED_SIGNED_R11_EAC:
     case COMPRESSED_RG11_EAC:
@@ -176,6 +181,7 @@ void Pixel::GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitM
       break;
     }
 
+    case NOT_SUPPORTED:
     case COMPRESSED_R11_EAC:
     case COMPRESSED_SIGNED_R11_EAC:
     case COMPRESSED_RG11_EAC:

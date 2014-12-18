@@ -100,6 +100,7 @@
 #include <dali/public-api/images/native-image.h>
 #include <dali/public-api/images/nine-patch-image.h>
 #include <dali/public-api/images/pixel.h>
+#include <dali/public-api/images/texture-atlas.h>
 
 #include <dali/public-api/math/angle-axis.h>
 #include <dali/public-api/math/compile-time-math.h>

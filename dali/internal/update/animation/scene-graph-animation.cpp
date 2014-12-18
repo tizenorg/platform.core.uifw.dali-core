@@ -198,12 +198,27 @@ void Animation::OnDestroy(BufferIndex bufferIndex)
   mState = Destroyed;
 }
 
-void Animation::AddAnimator( AnimatorBase* animator, PropertyOwner* propertyOwner )
+void Animation::AddAnimator( AnimatorBase* animator )
 {
-  animator->Attach( propertyOwner );
+  //animator->Attach( propertyOwner );
   animator->SetDisconnectAction( mDisconnectAction );
-
   mAnimators.PushBack( animator );
+}
+
+void Animation::RemoveAnimator( AnimatorBase* animator )
+{
+
+  const AnimatorIter& first( mAnimators.Begin() );
+  const AnimatorIter& last( mAnimators.End() );
+  for ( AnimatorIter iter = first; iter != last; ++iter )
+  {
+    if( animator == *iter )
+    {
+      printf("Animator deleted\n");
+      mAnimators.Erase(iter);
+      return;
+    }
+  }
 }
 
 bool Animation::Update(BufferIndex bufferIndex, float elapsedSeconds)
@@ -255,14 +270,17 @@ bool Animation::Update(BufferIndex bufferIndex, float elapsedSeconds)
 void Animation::UpdateAnimators( BufferIndex bufferIndex, bool bake, bool animationFinished )
 {
   float elapsedSecondsClamped = Clamp( mElapsedSeconds, mPlayRange.x * mDurationSeconds,mPlayRange.y * mDurationSeconds );
-  for ( AnimatorIter iter = mAnimators.Begin(); iter != mAnimators.End(); )
+
+  int count(0);
+  //Loop through all animators
+  for ( AnimatorIter iter = mAnimators.Begin(); iter != mAnimators.End(); ++iter )
   {
     // If an animator is not successfully applied, then it has been orphaned
     bool applied(true);
 
     AnimatorBase *animator = *iter;
-    const float initialDelay(animator->GetInitialDelay());
 
+    const float initialDelay(animator->GetInitialDelay());
     if (elapsedSecondsClamped >= initialDelay || mSpeedFactor < 0.0f )
     {
       // Calculate a progress specific to each individual animator
@@ -281,18 +299,14 @@ void Animation::UpdateAnimators( BufferIndex bufferIndex, bool bake, bool animat
       animator->SetActive( false );
     }
 
-    // Animators are automatically removed, when orphaned from animatable scene objects.
-    if (!applied)
+    if (applied)
     {
-      iter = mAnimators.Erase(iter);
-    }
-    else
-    {
-      ++iter;
-
       INCREASE_COUNTER(PerformanceMonitor::ANIMATORS_APPLIED);
     }
+
+    ++count;
   }
+  printf("Updated %i animators\n", count);
 }
 
 } // namespace SceneGraph

@@ -557,12 +557,6 @@ void RenderTask::SetDefaultProperty( Property::Index index, const Property::Valu
   }
 }
 
-void RenderTask::SetCustomProperty( Property::Index /*index*/, const CustomProperty& /*entry*/, const Property::Value& /*value*/ )
-{
-  // TODO: support them, it doesn't hurt.
-  DALI_ASSERT_ALWAYS( 0 && "RenderTask does not support custom properties");
-}
-
 Property::Value RenderTask::GetDefaultProperty(Property::Index index) const
 {
   Property::Value value;

@@ -339,8 +339,6 @@ void ProxyObject::SetProperty( Property::Index index, const Property::Value& pro
 
   if ( index < DEFAULT_PROPERTY_MAX_COUNT )
   {
-    DALI_ASSERT_ALWAYS( IsDefaultPropertyWritable(index) && "Property is read-only" );
-
     SetDefaultProperty( index, propertyValue );
   }
   else if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
@@ -359,12 +357,16 @@ void ProxyObject::SetProperty( Property::Index index, const Property::Value& pro
   {
     CustomProperty* custom = FindCustomProperty( index );
     DALI_ASSERT_ALWAYS( custom && "Invalid property index" );
-    DALI_ASSERT_ALWAYS( custom->IsWritable() && "Property is read-only" );
-
-    // this is only relevant for non animatable properties, but we'll do it anyways
-    custom->value = propertyValue;
-    // set the scene graph property value
-    SetCustomProperty(index, *custom, propertyValue);
+    if( custom->GetSceneGraphProperty() )
+    {
+      // set the scene graph property value
+      SetSceneGraphProperty( index, *custom, propertyValue );
+    }
+    else if( custom->IsWritable() )
+    {
+      custom->value = propertyValue;
+    }
+    // trying to set value on read only property is no-op
   }
 }
 
@@ -528,7 +530,7 @@ void ProxyObject::GetPropertyIndices( Property::IndexContainer& indices ) const
   }
 }
 
-Property::Index ProxyObject::RegisterProperty( std::string name, const Property::Value& propertyValue)
+Property::Index ProxyObject::RegisterProperty( const std::string& name, const Property::Value& propertyValue)
 {
   // Create a new property
   Dali::Internal::OwnerPointer<PropertyBase> newProperty;
@@ -618,7 +620,7 @@ Property::Index ProxyObject::RegisterProperty( std::string name, const Property:
   return index;
 }
 
-Property::Index ProxyObject::RegisterProperty( std::string name, const Property::Value& propertyValue, Property::AccessMode accessMode)
+Property::Index ProxyObject::RegisterProperty( const std::string& name, const Property::Value& propertyValue, Property::AccessMode accessMode)
 {
   Property::Index index = Property::INVALID_INDEX;
 
@@ -773,7 +775,7 @@ ActiveConstraintBase* ProxyObject::DoApplyConstraint( Constraint& constraint, Da
   return activeConstraintImpl;
 }
 
-void ProxyObject::SetCustomProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value )
+void ProxyObject::SetSceneGraphProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value )
 {
   if( entry.IsAnimatable() )
   {
@@ -871,8 +873,7 @@ void ProxyObject::SetCustomProperty( Property::Index index, const CustomProperty
 
       default:
       {
-        DALI_ASSERT_ALWAYS(false && "Property type enumeration out of bounds"); // should not come here
-        break;
+        // non-animatable scene graph property, do nothing
       }
     }
   }

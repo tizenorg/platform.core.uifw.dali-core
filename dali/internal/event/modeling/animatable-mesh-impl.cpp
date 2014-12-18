@@ -309,11 +309,6 @@ void AnimatableMesh::SetDefaultProperty( Property::Index index, const Property::
   }
 }
 
-void AnimatableMesh::SetCustomProperty( Property::Index /*index*/, const CustomProperty& /*entry*/, const Property::Value& /*value*/ )
-{
-  DALI_ASSERT_ALWAYS( 0 && "AnimatableMesh does not support custom properties");
-}
-
 Property::Value AnimatableMesh::GetDefaultProperty(Property::Index index) const
 {
   Property::Value value;

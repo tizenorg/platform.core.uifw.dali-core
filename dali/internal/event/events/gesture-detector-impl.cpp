@@ -231,11 +231,6 @@ void GestureDetector::SetDefaultProperty( Property::Index index, const Property:
   // None of our properties should be settable from Public API
 }
 
-void GestureDetector::SetCustomProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value )
-{
-  // None of our properties should be settable from Public API
-}
-
 Property::Value GestureDetector::GetDefaultProperty(Property::Index index) const
 {
   return Property::Value();

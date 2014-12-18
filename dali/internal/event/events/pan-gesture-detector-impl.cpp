@@ -412,11 +412,6 @@ void PanGestureDetector::SetDefaultProperty( Property::Index index, const Proper
   // None of our properties should be settable from Public API
 }
 
-void PanGestureDetector::SetCustomProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value )
-{
-  // None of our properties should be settable from Public API
-}
-
 Property::Value PanGestureDetector::GetDefaultProperty(Property::Index index) const
 {
   Property::Value value;

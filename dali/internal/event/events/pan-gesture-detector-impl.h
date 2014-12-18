@@ -259,11 +259,6 @@ private:
   virtual void SetDefaultProperty(Property::Index index, const Property::Value& propertyValue);
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::SetCustomProperty()
-   */
-  virtual void SetCustomProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value );
-
-  /**
    * @copydoc Dali::Internal::ProxyObject::GetDefaultProperty()
    */
   virtual Property::Value GetDefaultProperty( Property::Index index ) const;

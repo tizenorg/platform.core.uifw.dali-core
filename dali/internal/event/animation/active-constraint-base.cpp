@@ -406,11 +406,6 @@ void ActiveConstraintBase::SetDefaultProperty( Property::Index index, const Prop
   }
 }
 
-void ActiveConstraintBase::SetCustomProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value )
-{
-  DALI_ASSERT_ALWAYS( false && "ActiveConstraintBase does not have custom properties"); // should not come here
-}
-
 Property::Value ActiveConstraintBase::GetDefaultProperty( Property::Index index ) const
 {
   Property::Value value;

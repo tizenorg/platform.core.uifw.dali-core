@@ -18,9 +18,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <boost/function.hpp>
-
 // INTERNAL INCLUDES
 #include <dali/internal/common/owner-container.h>
 #include <dali/internal/event/animation/key-frames-impl.h>
@@ -41,6 +38,8 @@ namespace Internal
 {
 
 typedef Dali::Animation::Interpolation Interpolation;
+
+struct AnimatorFunctionBase;
 
 namespace SceneGraph
 {
@@ -70,7 +69,8 @@ public:
     mInitialDelaySeconds(0.0f),
     mAlphaFunc(AlphaFunctions::Linear),
     mDisconnectAction(Dali::Animation::BakeFinal),
-    mActive(false)
+    mActive(false),
+    mEnabled(true)
   {
   }
 
@@ -160,7 +160,7 @@ public:
 
   /**
    * Whether the animator is active or not.
-   * @param [in] action The disconnect action.
+   * @param [in] active The new active state.
    * @post When the animator becomes active, it applies the disconnect-action if the property owner is then disconnected.
    * @note When the property owner is disconnected, the active state is set to false.
    */
@@ -179,11 +179,14 @@ public:
   }
 
   /**
-   * This must be called when the animator is attached to the scene-graph.
-   * @pre The animatable scene object must also be attached to the scene-graph.
-   * @param[in] propertyOwner The scene-object that owns the animatable property.
+   * Enables the animator.
+   * Update-thread animator will enable the Scenegraph::Animator whenever the ProxyObject is connected to the stage.
+   * @note When the PropertyOwner is disconnected or destroyed, mEnabled will be set to false.
    */
-  virtual void Attach( PropertyOwner* propertyOwner ) = 0;
+  virtual void Enable()
+  {
+    mEnabled = true;
+  }
 
   /**
    * Update the scene object attached to the animator.
@@ -194,13 +197,6 @@ public:
    */
   virtual bool Update(BufferIndex bufferIndex, float progress, bool bake) = 0;
 
-  /**
-   * Query whether the animator is still attached to a scene object.
-   * The attachment will be automatically severed, when the object is destroyed.
-   * @return True if the animator is attached.
-   */
-  virtual bool IsAttached() const = 0;
-
 protected:
 
   float mDurationSeconds;
@@ -208,8 +204,9 @@ protected:
 
   AlphaFunc mAlphaFunc;
 
-  Dali::Animation::EndAction mDisconnectAction;
-  bool mActive:1;
+  Dali::Animation::EndAction mDisconnectAction;     // EndAction to apply when target object gets disconnected from the stage
+  bool mActive:1;                                   // Animator is "active" while it's running
+  bool mEnabled:1;                                  // Animator is "enabled" while its target object is valid and on the stage
 };
 
 /**
@@ -220,8 +217,6 @@ class Animator : public AnimatorBase, public PropertyOwner::Observer
 {
 public:
 
-  typedef boost::function< PropertyType (float, const PropertyType&) > AnimatorFunction;
-
   /**
    * Construct a new property animator.
    * @param[in] property The animatable property; only valid while the Animator is attached.
@@ -230,15 +225,17 @@ public:
    * @param[in] timePeriod The time period of this animation.
    * @return A newly allocated animator.
    */
-  static AnimatorBase* New( const PropertyBase& property,
-                            AnimatorFunction animatorFunction,
+  static AnimatorBase* New( const PropertyOwner& propertyOwner,
+                            const PropertyBase& property,
+                            AnimatorFunctionBase* animatorFunction,
                             AlphaFunction alphaFunction,
                             const TimePeriod& timePeriod )
   {
     typedef Animator< PropertyType, PropertyAccessorType > AnimatorType;
 
     // The property was const in the actor-thread, but animators are used in the scene-graph thread.
-    AnimatorType* animator = new AnimatorType( const_cast<PropertyBase*>( &property ),
+    AnimatorType* animator = new AnimatorType( const_cast<PropertyOwner*>( &propertyOwner ),
+                                               const_cast<PropertyBase*>( &property ),
                                                animatorFunction );
 
     animator->SetAlphaFunc( alphaFunction );
@@ -253,23 +250,16 @@ public:
    */
   virtual ~Animator()
   {
+    printf("Animator destructor\n");
     if (mPropertyOwner)
     {
       mPropertyOwner->RemoveObserver(*this);
     }
-  }
 
-  /**
-   * From AnimatorBase.
-   * @param[in] propertyOwner The scene-object that owns the animatable property.
-   */
-  virtual void Attach( PropertyOwner* propertyOwner )
-  {
-    mPropertyOwner = propertyOwner;
-
-    if (mPropertyOwner)
+    if( mAnimatorFunction )
     {
-      mPropertyOwner->AddObserver(*this);
+      delete mAnimatorFunction;
+      mAnimatorFunction = 0;
     }
   }
 
@@ -278,15 +268,17 @@ public:
    */
   virtual bool Update( BufferIndex bufferIndex, float progress, bool bake )
   {
-    // If the object dies, the animator has no effect
-    if ( mPropertyOwner )
+    // If the object is not on the stage or has been destroyed, animator has no effect
+    if( !mEnabled  )
+    {
+      return false;
+    }
+    else
     {
       float alpha = mAlphaFunc( progress );
-
       const PropertyType& current = mPropertyAccessor.Get( bufferIndex );
 
-      const PropertyType result = mAnimatorFunction( alpha, current );
-
+      const PropertyType result = (*mAnimatorFunction)( alpha, current );
       if ( bake )
       {
         mPropertyAccessor.Bake( bufferIndex, result );
@@ -297,17 +289,8 @@ public:
       }
 
       mCurrentProgress = progress;
+      return true;
     }
-
-    return IsAttached(); // return false if orphaned
-  }
-
-  /**
-   * From AnimatorBase.
-   */
-  virtual bool IsAttached() const
-  {
-    return NULL != mPropertyOwner;
   }
 
   /**
@@ -323,17 +306,18 @@ public:
     }
 
     mActive = false;
-    mPropertyOwner = NULL;
-    mPropertyAccessor.Reset();
+    mEnabled = false;
   }
 
+
   /**
-   * Called shortly before mPropertyOwner is destroyed, along with its property.
+   * Called shortly before mPropertyOwner is destroyed ( only if it is on stage)
    */
   virtual void PropertyOwnerDestroyed( PropertyOwner& owner )
   {
     mPropertyOwner = NULL;
     mPropertyAccessor.Reset();
+    mEnabled = false;
   }
 
 private:
@@ -341,13 +325,15 @@ private:
   /**
    * Private constructor; see also Animator::New().
    */
-  Animator( PropertyBase* property,
-            AnimatorFunction animatorFunction )
-  : mPropertyOwner( NULL ),
+  Animator( PropertyOwner* propertyOwner,
+            PropertyBase* property,
+            AnimatorFunctionBase* animatorFunction )
+  : mPropertyOwner( propertyOwner ),
     mPropertyAccessor( property ),
     mAnimatorFunction( animatorFunction ),
     mCurrentProgress( 0.0f )
   {
+    mPropertyOwner->AddObserver(*this);
   }
 
   // Undefined
@@ -361,7 +347,7 @@ protected:
   PropertyOwner* mPropertyOwner;
   PropertyAccessorType mPropertyAccessor;
 
-  AnimatorFunction mAnimatorFunction;
+  AnimatorFunctionBase* mAnimatorFunction;
   float mCurrentProgress;
 };
 
@@ -370,7 +356,55 @@ protected:
 
 // Common Update functions
 
-struct AnimateByFloat
+struct AnimatorFunctionBase
+{
+  AnimatorFunctionBase(){}
+  virtual ~AnimatorFunctionBase(){}
+
+  virtual float operator()(float progress, const int& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual float operator()(float progress, const float& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual bool operator()(float progress, const bool& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual Vector2 operator()(float progress, const Vector2& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual Vector3 operator()(float progress, const Vector3& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual Vector4 operator()(float progress, const Vector4& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual Quaternion operator()(float progress, const Quaternion& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+};
+
+struct AnimateByFloat : public AnimatorFunctionBase
 {
   AnimateByFloat(const float& relativeValue)
   : mRelative(relativeValue)
@@ -385,7 +419,7 @@ struct AnimateByFloat
   float mRelative;
 };
 
-struct AnimateToFloat
+struct AnimateToFloat : public AnimatorFunctionBase
 {
   AnimateToFloat(const float& targetValue)
   : mTarget(targetValue)
@@ -400,7 +434,7 @@ struct AnimateToFloat
   float mTarget;
 };
 
-struct AnimateByInteger
+struct AnimateByInteger : public AnimatorFunctionBase
 {
   AnimateByInteger(const int& relativeValue)
   : mRelative(relativeValue)
@@ -415,7 +449,7 @@ struct AnimateByInteger
   int mRelative;
 };
 
-struct AnimateToInteger
+struct AnimateToInteger : public AnimatorFunctionBase
 {
   AnimateToInteger(const int& targetValue)
   : mTarget(targetValue)
@@ -430,7 +464,7 @@ struct AnimateToInteger
   int mTarget;
 };
 
-struct AnimateByVector2
+struct AnimateByVector2 : public AnimatorFunctionBase
 {
   AnimateByVector2(const Vector2& relativeValue)
   : mRelative(relativeValue)
@@ -445,7 +479,7 @@ struct AnimateByVector2
   Vector2 mRelative;
 };
 
-struct AnimateToVector2
+struct AnimateToVector2 : public AnimatorFunctionBase
 {
   AnimateToVector2(const Vector2& targetValue)
   : mTarget(targetValue)
@@ -460,7 +494,7 @@ struct AnimateToVector2
   Vector2 mTarget;
 };
 
-struct AnimateByVector3
+struct AnimateByVector3 : public AnimatorFunctionBase
 {
   AnimateByVector3(const Vector3& relativeValue)
   : mRelative(relativeValue)
@@ -475,7 +509,7 @@ struct AnimateByVector3
   Vector3 mRelative;
 };
 
-struct AnimateToVector3
+struct AnimateToVector3 : public AnimatorFunctionBase
 {
   AnimateToVector3(const Vector3& targetValue)
   : mTarget(targetValue)
@@ -490,7 +524,7 @@ struct AnimateToVector3
   Vector3 mTarget;
 };
 
-struct AnimateByVector4
+struct AnimateByVector4 : public AnimatorFunctionBase
 {
   AnimateByVector4(const Vector4& relativeValue)
   : mRelative(relativeValue)
@@ -505,7 +539,7 @@ struct AnimateByVector4
   Vector4 mRelative;
 };
 
-struct AnimateToVector4
+struct AnimateToVector4 : public AnimatorFunctionBase
 {
   AnimateToVector4(const Vector4& targetValue)
   : mTarget(targetValue)
@@ -520,7 +554,7 @@ struct AnimateToVector4
   Vector4 mTarget;
 };
 
-struct AnimateByOpacity
+struct AnimateByOpacity : public AnimatorFunctionBase
 {
   AnimateByOpacity(const float& relativeValue)
   : mRelative(relativeValue)
@@ -538,7 +572,7 @@ struct AnimateByOpacity
   float mRelative;
 };
 
-struct AnimateToOpacity
+struct AnimateToOpacity : public AnimatorFunctionBase
 {
   AnimateToOpacity(const float& targetValue)
   : mTarget(targetValue)
@@ -556,7 +590,7 @@ struct AnimateToOpacity
   float mTarget;
 };
 
-struct AnimateByBoolean
+struct AnimateByBoolean : public AnimatorFunctionBase
 {
   AnimateByBoolean(bool relativeValue)
   : mRelative(relativeValue)
@@ -572,7 +606,7 @@ struct AnimateByBoolean
   bool mRelative;
 };
 
-struct AnimateToBoolean
+struct AnimateToBoolean : public AnimatorFunctionBase
 {
   AnimateToBoolean(bool targetValue)
   : mTarget(targetValue)
@@ -588,7 +622,7 @@ struct AnimateToBoolean
   bool mTarget;
 };
 
-struct RotateByAngleAxis
+struct RotateByAngleAxis : public AnimatorFunctionBase
 {
   RotateByAngleAxis(const Radian& angleRadians, const Vector3& axis)
   : mAngleRadians(angleRadians),
@@ -610,7 +644,7 @@ struct RotateByAngleAxis
   Vector4 mAxis;
 };
 
-struct RotateToQuaternion
+struct RotateToQuaternion : public AnimatorFunctionBase
 {
   RotateToQuaternion(const Quaternion& targetValue)
   : mTarget(targetValue)
@@ -626,7 +660,7 @@ struct RotateToQuaternion
 };
 
 
-struct KeyFrameBooleanFunctor
+struct KeyFrameBooleanFunctor : public AnimatorFunctionBase
 {
   KeyFrameBooleanFunctor(KeyFrameBooleanPtr keyFrames)
   : mKeyFrames(keyFrames)
@@ -645,7 +679,7 @@ struct KeyFrameBooleanFunctor
   KeyFrameBooleanPtr mKeyFrames;
 };
 
-struct KeyFrameNumberFunctor
+struct KeyFrameNumberFunctor : public AnimatorFunctionBase
 {
   KeyFrameNumberFunctor(KeyFrameNumberPtr keyFrames, Interpolation interpolation)
   : mKeyFrames(keyFrames),mInterpolation(interpolation)
@@ -665,7 +699,7 @@ struct KeyFrameNumberFunctor
   Interpolation mInterpolation;
 };
 
-struct KeyFrameIntegerFunctor
+struct KeyFrameIntegerFunctor : public AnimatorFunctionBase
 {
   KeyFrameIntegerFunctor(KeyFrameIntegerPtr keyFrames, Interpolation interpolation)
   : mKeyFrames(keyFrames),mInterpolation(interpolation)
@@ -685,7 +719,7 @@ struct KeyFrameIntegerFunctor
   Interpolation mInterpolation;
 };
 
-struct KeyFrameVector2Functor
+struct KeyFrameVector2Functor : public AnimatorFunctionBase
 {
   KeyFrameVector2Functor(KeyFrameVector2Ptr keyFrames, Interpolation interpolation)
   : mKeyFrames(keyFrames),mInterpolation(interpolation)
@@ -706,7 +740,7 @@ struct KeyFrameVector2Functor
 };
 
 
-struct KeyFrameVector3Functor
+struct KeyFrameVector3Functor : public AnimatorFunctionBase
 {
   KeyFrameVector3Functor(KeyFrameVector3Ptr keyFrames, Interpolation interpolation)
   : mKeyFrames(keyFrames),mInterpolation(interpolation)
@@ -726,7 +760,7 @@ struct KeyFrameVector3Functor
   Interpolation mInterpolation;
 };
 
-struct KeyFrameVector4Functor
+struct KeyFrameVector4Functor : public AnimatorFunctionBase
 {
   KeyFrameVector4Functor(KeyFrameVector4Ptr keyFrames, Interpolation interpolation)
   : mKeyFrames(keyFrames),mInterpolation(interpolation)
@@ -746,7 +780,7 @@ struct KeyFrameVector4Functor
   Interpolation mInterpolation;
 };
 
-struct KeyFrameQuaternionFunctor
+struct KeyFrameQuaternionFunctor : public AnimatorFunctionBase
 {
   KeyFrameQuaternionFunctor(KeyFrameQuaternionPtr keyFrames)
   : mKeyFrames(keyFrames)
@@ -765,7 +799,7 @@ struct KeyFrameQuaternionFunctor
   KeyFrameQuaternionPtr mKeyFrames;
 };
 
-struct PathPositionFunctor
+struct PathPositionFunctor : public AnimatorFunctionBase
 {
   PathPositionFunctor( PathPtr path )
   : mPath(path)
@@ -780,7 +814,7 @@ struct PathPositionFunctor
   PathPtr mPath;
 };
 
-struct PathRotationFunctor
+struct PathRotationFunctor : public AnimatorFunctionBase
 {
   PathRotationFunctor( PathPtr path, const Vector3& forward )
   : mPath(path),

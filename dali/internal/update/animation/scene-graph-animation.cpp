@@ -206,6 +206,22 @@ void Animation::AddAnimator( AnimatorBase* animator, PropertyOwner* propertyOwne
   mAnimators.PushBack( animator );
 }
 
+void Animation::RemoveAnimator( AnimatorBase* animator )
+{
+
+  const AnimatorIter& first( mAnimators.Begin() );
+  const AnimatorIter& last( mAnimators.End() );
+  for ( AnimatorIter iter = first; iter != last; ++iter )
+  {
+    if( animator == *iter )
+    {
+      printf("Animator deleted\n");
+      mAnimators.Erase(iter);
+      return;
+    }
+  }
+}
+
 bool Animation::Update(BufferIndex bufferIndex, float elapsedSeconds)
 {
   if (mState == Stopped || mState == Destroyed)
@@ -282,16 +298,13 @@ void Animation::UpdateAnimators( BufferIndex bufferIndex, bool bake, bool animat
     }
 
     // Animators are automatically removed, when orphaned from animatable scene objects.
-    if (!applied)
+    if (applied)
     {
-      iter = mAnimators.Erase(iter);
-    }
-    else
-    {
-      ++iter;
-
       INCREASE_COUNTER(PerformanceMonitor::ANIMATORS_APPLIED);
     }
+
+    ++iter;
+
   }
 }
 

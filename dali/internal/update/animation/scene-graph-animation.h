@@ -236,6 +236,8 @@ public:
    */
   void AddAnimator( AnimatorBase* animator, PropertyOwner* propertyOwner );
 
+  void RemoveAnimator( AnimatorBase* animator );
+
   /**
    * Retrieve the animators from an animation.
    * @return The container of animators.
@@ -439,6 +441,18 @@ inline void AddAnimatorMessage( EventToUpdate& eventToUpdate, const Animation& a
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::AddAnimator, &animator, const_cast<PropertyOwner*>( &owner ) );
 }
+
+inline void RemoveAnimatorMessage( EventToUpdate& eventToUpdate, const Animation& animation, AnimatorBase& animator )
+{
+  typedef MessageValue1< Animation, OwnerPointer<AnimatorBase> > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &animation, &Animation::RemoveAnimator, &animator );
+}
+
 
 } // namespace SceneGraph
 

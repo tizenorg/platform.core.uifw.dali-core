@@ -42,6 +42,8 @@ namespace Internal
 
 typedef Dali::Animation::Interpolation Interpolation;
 
+struct AnimatorFunctionBase;
+
 namespace SceneGraph
 {
 
@@ -220,7 +222,7 @@ class Animator : public AnimatorBase, public PropertyOwner::Observer
 {
 public:
 
-  typedef boost::function< PropertyType (float, const PropertyType&) > AnimatorFunction;
+  //typedef boost::function< PropertyType (float, const PropertyType&) > AnimatorFunction;
 
   /**
    * Construct a new property animator.
@@ -231,7 +233,7 @@ public:
    * @return A newly allocated animator.
    */
   static AnimatorBase* New( const PropertyBase& property,
-                            AnimatorFunction animatorFunction,
+                            AnimatorFunctionBase* animatorFunction,
                             AlphaFunction alphaFunction,
                             const TimePeriod& timePeriod )
   {
@@ -257,6 +259,12 @@ public:
     {
       mPropertyOwner->RemoveObserver(*this);
     }
+
+    if( mAnimatorFunction )
+    {
+      delete mAnimatorFunction;
+      mAnimatorFunction = 0;
+    }
   }
 
   /**
@@ -265,10 +273,9 @@ public:
    */
   virtual void Attach( PropertyOwner* propertyOwner )
   {
-    mPropertyOwner = propertyOwner;
-
-    if (mPropertyOwner)
+    if (!mPropertyOwner)
     {
+      mPropertyOwner = propertyOwner;
       mPropertyOwner->AddObserver(*this);
     }
   }
@@ -285,7 +292,7 @@ public:
 
       const PropertyType& current = mPropertyAccessor.Get( bufferIndex );
 
-      const PropertyType result = mAnimatorFunction( alpha, current );
+      const PropertyType result = (*mAnimatorFunction)( alpha, current );
 
       if ( bake )
       {
@@ -324,7 +331,7 @@ public:
 
     mActive = false;
     mPropertyOwner = NULL;
-    mPropertyAccessor.Reset();
+    //mPropertyAccessor.Reset();
   }
 
   /**
@@ -342,7 +349,7 @@ private:
    * Private constructor; see also Animator::New().
    */
   Animator( PropertyBase* property,
-            AnimatorFunction animatorFunction )
+            AnimatorFunctionBase* animatorFunction )
   : mPropertyOwner( NULL ),
     mPropertyAccessor( property ),
     mAnimatorFunction( animatorFunction ),
@@ -361,7 +368,7 @@ protected:
   PropertyOwner* mPropertyOwner;
   PropertyAccessorType mPropertyAccessor;
 
-  AnimatorFunction mAnimatorFunction;
+  AnimatorFunctionBase* mAnimatorFunction;
   float mCurrentProgress;
 };
 
@@ -370,7 +377,55 @@ protected:
 
 // Common Update functions
 
-struct AnimateByFloat
+struct AnimatorFunctionBase
+{
+  AnimatorFunctionBase(){}
+  virtual ~AnimatorFunctionBase(){}
+
+  virtual float operator()(float progress, const int& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual float operator()(float progress, const float& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual bool operator()(float progress, const bool& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual Vector2 operator()(float progress, const Vector2& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual Vector3 operator()(float progress, const Vector3& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual Vector4 operator()(float progress, const Vector4& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+
+  virtual Quaternion operator()(float progress, const Quaternion& property)
+  {
+    DALI_ASSERT_DEBUG(0);
+    return property;
+  }
+};
+
+struct AnimateByFloat : public AnimatorFunctionBase
 {
   AnimateByFloat(const float& relativeValue)
   : mRelative(relativeValue)
@@ -385,7 +440,7 @@ struct AnimateByFloat
   float mRelative;
 };
 
-struct AnimateToFloat
+struct AnimateToFloat : public AnimatorFunctionBase
 {
   AnimateToFloat(const float& targetValue)
   : mTarget(targetValue)
@@ -400,7 +455,7 @@ struct AnimateToFloat
   float mTarget;
 };
 
-struct AnimateByInteger
+struct AnimateByInteger : public AnimatorFunctionBase
 {
   AnimateByInteger(const int& relativeValue)
   : mRelative(relativeValue)
@@ -415,7 +470,7 @@ struct AnimateByInteger
   int mRelative;
 };
 
-struct AnimateToInteger
+struct AnimateToInteger : public AnimatorFunctionBase
 {
   AnimateToInteger(const int& targetValue)
   : mTarget(targetValue)
@@ -430,7 +485,7 @@ struct AnimateToInteger
   int mTarget;
 };
 
-struct AnimateByVector2
+struct AnimateByVector2 : public AnimatorFunctionBase
 {
   AnimateByVector2(const Vector2& relativeValue)
   : mRelative(relativeValue)
@@ -445,7 +500,7 @@ struct AnimateByVector2
   Vector2 mRelative;
 };
 
-struct AnimateToVector2
+struct AnimateToVector2 : public AnimatorFunctionBase
 {
   AnimateToVector2(const Vector2& targetValue)
   : mTarget(targetValue)
@@ -460,7 +515,7 @@ struct AnimateToVector2
   Vector2 mTarget;
 };
 
-struct AnimateByVector3
+struct AnimateByVector3 : public AnimatorFunctionBase
 {
   AnimateByVector3(const Vector3& relativeValue)
   : mRelative(relativeValue)
@@ -475,7 +530,7 @@ struct AnimateByVector3
   Vector3 mRelative;
 };
 
-struct AnimateToVector3
+struct AnimateToVector3 : public AnimatorFunctionBase
 {
   AnimateToVector3(const Vector3& targetValue)
   : mTarget(targetValue)
@@ -490,7 +545,7 @@ struct AnimateToVector3
   Vector3 mTarget;
 };
 
-struct AnimateByVector4
+struct AnimateByVector4 : public AnimatorFunctionBase
 {
   AnimateByVector4(const Vector4& relativeValue)
   : mRelative(relativeValue)
@@ -505,7 +560,7 @@ struct AnimateByVector4
   Vector4 mRelative;
 };
 
-struct AnimateToVector4
+struct AnimateToVector4 : public AnimatorFunctionBase
 {
   AnimateToVector4(const Vector4& targetValue)
   : mTarget(targetValue)
@@ -520,7 +575,7 @@ struct AnimateToVector4
   Vector4 mTarget;
 };
 
-struct AnimateByOpacity
+struct AnimateByOpacity : public AnimatorFunctionBase
 {
   AnimateByOpacity(const float& relativeValue)
   : mRelative(relativeValue)
@@ -538,7 +593,7 @@ struct AnimateByOpacity
   float mRelative;
 };
 
-struct AnimateToOpacity
+struct AnimateToOpacity : public AnimatorFunctionBase
 {
   AnimateToOpacity(const float& targetValue)
   : mTarget(targetValue)
@@ -556,7 +611,7 @@ struct AnimateToOpacity
   float mTarget;
 };
 
-struct AnimateByBoolean
+struct AnimateByBoolean : public AnimatorFunctionBase
 {
   AnimateByBoolean(bool relativeValue)
   : mRelative(relativeValue)
@@ -572,7 +627,7 @@ struct AnimateByBoolean
   bool mRelative;
 };
 
-struct AnimateToBoolean
+struct AnimateToBoolean : public AnimatorFunctionBase
 {
   AnimateToBoolean(bool targetValue)
   : mTarget(targetValue)
@@ -588,7 +643,7 @@ struct AnimateToBoolean
   bool mTarget;
 };
 
-struct RotateByAngleAxis
+struct RotateByAngleAxis : public AnimatorFunctionBase
 {
   RotateByAngleAxis(const Radian& angleRadians, const Vector3& axis)
   : mAngleRadians(angleRadians),
@@ -610,7 +665,7 @@ struct RotateByAngleAxis
   Vector4 mAxis;
 };
 
-struct RotateToQuaternion
+struct RotateToQuaternion : public AnimatorFunctionBase
 {
   RotateToQuaternion(const Quaternion& targetValue)
   : mTarget(targetValue)
@@ -626,7 +681,7 @@ struct RotateToQuaternion
 };
 
 
-struct KeyFrameBooleanFunctor
+struct KeyFrameBooleanFunctor : public AnimatorFunctionBase
 {
   KeyFrameBooleanFunctor(KeyFrameBooleanPtr keyFrames)
   : mKeyFrames(keyFrames)
@@ -645,7 +700,7 @@ struct KeyFrameBooleanFunctor
   KeyFrameBooleanPtr mKeyFrames;
 };
 
-struct KeyFrameNumberFunctor
+struct KeyFrameNumberFunctor : public AnimatorFunctionBase
 {
   KeyFrameNumberFunctor(KeyFrameNumberPtr keyFrames, Interpolation interpolation)
   : mKeyFrames(keyFrames),mInterpolation(interpolation)
@@ -665,7 +720,7 @@ struct KeyFrameNumberFunctor
   Interpolation mInterpolation;
 };
 
-struct KeyFrameIntegerFunctor
+struct KeyFrameIntegerFunctor : public AnimatorFunctionBase
 {
   KeyFrameIntegerFunctor(KeyFrameIntegerPtr keyFrames, Interpolation interpolation)
   : mKeyFrames(keyFrames),mInterpolation(interpolation)
@@ -685,7 +740,7 @@ struct KeyFrameIntegerFunctor
   Interpolation mInterpolation;
 };
 
-struct KeyFrameVector2Functor
+struct KeyFrameVector2Functor : public AnimatorFunctionBase
 {
   KeyFrameVector2Functor(KeyFrameVector2Ptr keyFrames, Interpolation interpolation)
   : mKeyFrames(keyFrames),mInterpolation(interpolation)
@@ -706,7 +761,7 @@ struct KeyFrameVector2Functor
 };
 
 
-struct KeyFrameVector3Functor
+struct KeyFrameVector3Functor : public AnimatorFunctionBase
 {
   KeyFrameVector3Functor(KeyFrameVector3Ptr keyFrames, Interpolation interpolation)
   : mKeyFrames(keyFrames),mInterpolation(interpolation)
@@ -726,7 +781,7 @@ struct KeyFrameVector3Functor
   Interpolation mInterpolation;
 };
 
-struct KeyFrameVector4Functor
+struct KeyFrameVector4Functor : public AnimatorFunctionBase
 {
   KeyFrameVector4Functor(KeyFrameVector4Ptr keyFrames, Interpolation interpolation)
   : mKeyFrames(keyFrames),mInterpolation(interpolation)
@@ -746,7 +801,7 @@ struct KeyFrameVector4Functor
   Interpolation mInterpolation;
 };
 
-struct KeyFrameQuaternionFunctor
+struct KeyFrameQuaternionFunctor : public AnimatorFunctionBase
 {
   KeyFrameQuaternionFunctor(KeyFrameQuaternionPtr keyFrames)
   : mKeyFrames(keyFrames)
@@ -765,7 +820,7 @@ struct KeyFrameQuaternionFunctor
   KeyFrameQuaternionPtr mKeyFrames;
 };
 
-struct PathPositionFunctor
+struct PathPositionFunctor : public AnimatorFunctionBase
 {
   PathPositionFunctor( PathPtr path )
   : mPath(path)
@@ -780,7 +835,7 @@ struct PathPositionFunctor
   PathPtr mPath;
 };
 
-struct PathRotationFunctor
+struct PathRotationFunctor : public AnimatorFunctionBase
 {
   PathRotationFunctor( PathPtr path, const Vector3& forward )
   : mPath(path),

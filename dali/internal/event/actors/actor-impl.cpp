@@ -2319,11 +2319,6 @@ bool Actor::IsNodeConnected() const
   return connected;
 }
 
-bool Actor::IsSceneObjectRemovable() const
-{
-  return false;
-}
-
 unsigned int Actor::GetDefaultPropertyCount() const
 {
   return DEFAULT_PROPERTY_COUNT;

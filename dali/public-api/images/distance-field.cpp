@@ -84,6 +84,12 @@ const float MAX_DISTANCE( 1e20 );
  */
 void DistanceTransform( float *source, float* dest, unsigned int length )
 {
+  // Check that length is positive
+  if(length > 0u)
+  {
+    return;
+  }
+
   int parabolas[length];    // Locations of parabolas in lower envelope
   float edge[length + 1];   // Locations of boundaries between parabolas
   int rightmost(0);         // Index of rightmost parabola in lower envelope

@@ -40,7 +40,7 @@ const uint64_t ONE = 1lu;
 const uint64_t PARAMETER_MASK =              ~( -1l << PARAMETER_BITS );
 
 // Shift values for attribute indices
-const unsigned int COMMON_INDEX_SHIFT =      0u;                                     // starts at bit 0
+const unsigned int COMMON_INDEX_SHIFT =      0u;                 // starts at bit 0
 const unsigned int WEIGHT_INDEX_SHIFT =      PARAMETER_BITS * 1; // starts at bit 3
 const unsigned int ITALICS_INDEX_SHIFT =     PARAMETER_BITS * 2; // starts at bit 6
 const unsigned int UNDERLINE_INDEX_SHIFT =   PARAMETER_BITS * 3; // starts at bit 9
@@ -51,7 +51,7 @@ const unsigned int GRADIENT_INDEX_SHIFT =    PARAMETER_BITS * 7; // starts at bi
 const unsigned int PARAMETER_FLAGS =         PARAMETER_BITS * 8; // 24 == 3 x 8
 
 // Position in flags for attribute index
-const uint64_t COMMON_INDEX =                0lu;                                                                               // bits  0 ..  2
+const uint64_t COMMON_INDEX =                PARAMETER_MASK << COMMON_INDEX_SHIFT;      // bits  0 ..  2
 const uint64_t WEIGHT_INDEX =                PARAMETER_MASK << WEIGHT_INDEX_SHIFT;      // bits  3 ..  5
 const uint64_t ITALICS_INDEX =               PARAMETER_MASK << ITALICS_INDEX_SHIFT;     // bits  6 ..  8
 const uint64_t UNDERLINE_INDEX =             PARAMETER_MASK << UNDERLINE_INDEX_SHIFT;   // bits  9 .. 11

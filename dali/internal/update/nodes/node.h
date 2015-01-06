@@ -1029,6 +1029,11 @@ private:
    */
   void RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std::set<Node*>& connectedNodes, std::set<Node*>& disconnectedNodes );
 
+  /**
+   * Recursive helper to connect a Node and its children.
+   */
+  void RecursiveConnectToSceneGraph();
+
 public: // Default properties
 
   PropertyVector3                mParentOrigin;  ///< Local transform; the position is relative to this. Sets the TransformFlag dirty when changed

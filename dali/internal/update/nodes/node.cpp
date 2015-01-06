@@ -126,6 +126,9 @@ void Node::ConnectChild( Node* childNode, int index )
   {
     mChildren.Insert(mChildren.Begin()+index, childNode);
   }
+
+  //Traverse all the added node hierarchy and call ConnecToSceneGraph on each one.
+  childNode->RecursiveConnectToSceneGraph();
 }
 
 void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, std::set<Node*>& connectedNodes,  std::set<Node*>& disconnectedNodes )
@@ -264,6 +267,17 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std
   std::set<Node*>::size_type removed = connectedNodes.erase( this );
   DALI_ASSERT_ALWAYS( removed );
   disconnectedNodes.insert( this );
+}
+
+void Node::RecursiveConnectToSceneGraph()
+{
+  const NodeIter endIter = mChildren.End();
+  for ( NodeIter iter = mChildren.Begin(); iter != endIter; ++iter )
+  {
+    (*iter)->RecursiveConnectToSceneGraph();
+  }
+
+  PropertyOwner::ConnectToSceneGraph();
 }
 
 } // namespace SceneGraph

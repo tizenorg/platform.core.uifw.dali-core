@@ -96,11 +96,18 @@ void PropertyOwner::DisconnectFromSceneGraph( BufferIndex updateBufferIndex )
     (*iter)->PropertyOwnerDisconnected( updateBufferIndex, *this );
   }
 
-  // Clear observers as they are not interested in destroyed if they have received a disconnect
-  mObservers.Clear();
-
   // Remove all constraints when disconnected from scene-graph
   mConstraints.Clear();
+}
+
+void PropertyOwner::ConnectToSceneGraph()
+{
+  // Notification for observers
+  const ConstObserverIter endIter = mObservers.End();
+  for( ConstObserverIter iter = mObservers.Begin(); iter != endIter; ++iter)
+  {
+    (*iter)->PropertyOwnerConnected( *this );
+  }
 }
 
 void PropertyOwner::InstallCustomProperty(PropertyBase* property)

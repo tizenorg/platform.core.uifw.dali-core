@@ -57,10 +57,15 @@ public:
     /**
      * Called when the observable object is disconnected from the scene graph.
      * @param[in] currentBufferIndex The buffer to reset.
-     * @post The observer is automatically disconnected
-     * (observer will not receive the PropertyOwnerDestroyed callback after this)
+     * @param[in] owner A reference to the disconnected PropertyOwner
      */
     virtual void PropertyOwnerDisconnected( BufferIndex updateBufferIndex, PropertyOwner& owner ) = 0;
+
+    /**
+     * Called when the observable object is connected to the scene graph.
+     * @param[in] owner A reference to the connected PropertyOwner
+     */
+    virtual void PropertyOwnerConnected( PropertyOwner& owner ) = 0;
 
     /**
      * Called shortly before the observable object is destroyed.
@@ -110,11 +115,17 @@ public:
   void Destroy();
 
   /**
-   * Disconnect all observers and remove constraints.
+   * Notify all observers that the object has been disconnected and remove constraints.
    * This occurs when the object is disconnected from the scene-graph during UpdateManager::Update().
    * @param[in] currentBufferIndex The current update buffer.
    */
   void DisconnectFromSceneGraph( BufferIndex updateBufferIndex );
+
+  /**
+   * Notify all observers that the object has been connected
+   * This occurs when the object is connected to the scene-graph during UpdateManager::Update().
+   */
+  void ConnectToSceneGraph();
 
   /**
    * Install a custom property.

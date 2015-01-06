@@ -170,6 +170,11 @@ private:
   virtual void PropertyOwnerDisconnected( BufferIndex bufferIndex, PropertyOwner& owner );
 
   /**
+    * @copydoc PropertyOwner::Observer::PropertyOwnerConnected()
+    */
+   virtual void PropertyOwnerConnected( PropertyOwner& owner ){}
+
+  /**
    * @copydoc PropertyOwner::Observer::PropertyOwnerDestroyed()
    */
   virtual void PropertyOwnerDestroyed( PropertyOwner& owner );

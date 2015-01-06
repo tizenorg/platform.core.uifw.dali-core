@@ -176,26 +176,27 @@ private:
   }
 
   /**
+   * @copydoc PropertyOwner::Observer::PropertyOwnerConnected()
+   */
+  virtual void PropertyOwnerConnected( PropertyOwner& owner )
+  {
+  }
+
+  /**
    * @copydoc PropertyOwner::Observer::PropertyOwnerDestroyed()
    */
   virtual void PropertyOwnerDestroyed( PropertyOwner& owner )
   {
     if ( !mDisconnected )
     {
-      // Discard pointer to disconnected property owner
-      PropertyOwnerIter iter = std::find( mObservedOwners.Begin(), mObservedOwners.End(), &owner );
-      if( mObservedOwners.End() != iter )
-      {
-        mObservedOwners.Erase( iter );
+      // Stop observing property owners
+      StopObservation();
 
-        // Stop observing the remaining property owners
-        StopObservation();
+      // Notification for derived class
+      OnDisconnect();
 
-        // Notification for derived class
-        OnDisconnect();
+      mDisconnected = true;
 
-        mDisconnected = true;
-      }
     }
   }
 

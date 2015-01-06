@@ -103,10 +103,13 @@ void VectorBase::Copy( const VectorBase& vector, SizeType elementSize )
   const SizeType capacity = vector.Capacity();
   Reserve( capacity, elementSize );
   // copy over whole data
-  const SizeType wholeAllocation = sizeof(SizeType) * 2u + capacity * elementSize;
-  SizeType* srcData = reinterpret_cast< SizeType* >( vector.mData );
-  SizeType* dstData = reinterpret_cast< SizeType* >( mData );
-  memcpy( dstData - 2u, srcData - 2u, wholeAllocation );
+  if( mData )
+  {
+    const SizeType wholeAllocation = sizeof(SizeType) * 2u + capacity * elementSize;
+    SizeType* srcData = reinterpret_cast< SizeType* >( vector.mData );
+    SizeType* dstData = reinterpret_cast< SizeType* >( mData );
+    memcpy( dstData - 2u, srcData - 2u, wholeAllocation );
+  }
 }
 
 void VectorBase::Swap( VectorBase& vector )

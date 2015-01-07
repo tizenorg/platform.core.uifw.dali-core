@@ -53,27 +53,13 @@ struct Request;
  */
 typedef unsigned int RequestId;
 
-typedef std::multimap<size_t, RequestId>           RequestPathHashMap;
-typedef std::pair<size_t, RequestId>               RequestPathHashPair;
-typedef std::map<RequestId, Request*>  RequestIdMap;
-typedef std::pair<RequestId, Request*> RequestIdPair;
-
 typedef IntrusivePtr<Request> RequestPtr;
 
-/**
- * The RequestLifetimeObserver observes the lifetime of image requests.
- */
-class RequestLifetimeObserver
-{
-public:
+typedef std::multimap<size_t, RequestId>           RequestPathHashMap;
+typedef std::pair<size_t, RequestId>               RequestPathHashPair;
 
-  /**
-   * Called when an image request is discarded.
-   * This occurs during the ImageFactoryCache::Request destructor.
-   * @param[in] request The discarded request.
-   */
-  virtual void RequestDiscarded( const Request& request ) = 0;
-};
+typedef std::map<RequestId, RequestPtr>            RequestIdMap;
+typedef std::pair<RequestId, RequestPtr>           RequestIdPair;
 
 /**
 * Request is a reference counted object to control the lifetime of elements in ImageFactory's cache.
@@ -84,13 +70,12 @@ struct Request : public RefObject
   /**
    * Image request.
    * These requests are stored in ImageFactory's cache.
-   * @param [in] observer The object which observes request lifetime.
    * @param [in] reqId A unique ID for this request.
    * @param [ib] resId A unique ticket ID.
    * @param [in] path  Url of request.
    * @param [in] attr  Requested ImageAttributes.
    */
-  Request( RequestLifetimeObserver& observer, RequestId reqId, ResourceId resId, const std::string& path, const ImageAttributes *attr );
+  Request( RequestId reqId, ResourceId resId, const std::string& path, const ImageAttributes *attr );
 
   ResourceId resourceId;        ///< The Ticket ID. This can be used to acquire details of the loaded resource from ResourceClient.
   const std::string url;        ///< Path to the image resource
@@ -103,12 +88,6 @@ public:
    */
   RequestId GetId() const;
 
-  /**
-   * Called when the RequestLifetimeObserver is being destroyed.
-   * This method should only be called during destruction of the Dali core.
-   */
-  void StopLifetimeObservation();
-
 protected:
   virtual ~Request();
 
@@ -119,7 +98,6 @@ private:
 
 private:
   RequestId mId; ///< Request id assigned by ImageFactory
-  RequestLifetimeObserver* mLifetimeObserver; ///< reference to the lifetime-observer; not owned
 };
 
 typedef std::pair<RequestPathHashMap::iterator, RequestPathHashMap::iterator> RequestPathHashRange;
@@ -131,4 +109,3 @@ typedef std::pair<RequestPathHashMap::iterator, RequestPathHashMap::iterator> Re
 } // namespace Dali
 
 #endif // __DALI_INTERNAL_IMAGE_FACTORY_CACHE_H__
-

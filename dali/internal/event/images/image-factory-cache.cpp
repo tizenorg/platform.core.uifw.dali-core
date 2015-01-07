@@ -37,15 +37,13 @@ namespace Internal
 
 namespace ImageFactoryCache
 {
-  Request::Request( RequestLifetimeObserver& observer,
-                    RequestId reqId,
+  Request::Request( RequestId reqId,
                     ResourceId resId,
                     const std::string& path,
                     const ImageAttributes* attr )
   : resourceId( resId ),
     url( path ),
-    mId( reqId ),
-    mLifetimeObserver( &observer )
+    mId( reqId )
   {
     if( attr )
     {
@@ -59,10 +57,6 @@ namespace ImageFactoryCache
 
   Request::~Request()
   {
-    if( Stage::IsInstalled() && mLifetimeObserver )
-    {
-      mLifetimeObserver->RequestDiscarded( *this );
-    }
     delete attributes;
   }
 
@@ -70,12 +64,6 @@ namespace ImageFactoryCache
   {
     return mId;
   }
-
-  void Request::StopLifetimeObservation()
-  {
-    mLifetimeObserver = NULL;
-  }
-
 } // namespace ImageFactoryCache
 
 } // namespace Internal

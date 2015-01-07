@@ -56,14 +56,13 @@ ImageFactory::~ImageFactory()
   mRequestCache.clear();
 }
 
-Request* ImageFactory::RegisterRequest( const std::string &filename, const ImageAttributes *attr )
+RequestPtr ImageFactory::RegisterRequest( const std::string &filename, const ImageAttributes *attr )
 {
   // check url cache
   // check if same request exists
   std::size_t urlHash = CalculateHash( filename );
 
-  Request* foundReq( NULL );
-  foundReq = FindRequest( filename, urlHash, attr );
+  RequestPtr foundReq( FindRequest( filename, urlHash, attr ) );
 
   if( !foundReq )
   {
@@ -172,7 +171,7 @@ void ImageFactory::RecoverFromContextLoss()
   for( RequestIdMap::iterator it = mRequestCache.begin(); it != mRequestCache.end(); ++it )
   {
     // go through requests, reload with resource ticket's attributes.
-    Request* request = (*it).second;
+    RequestPtr request ( (*it).second );
     if( request->resourceId )
     {
       ResourceTicketPtr ticket = mResourceClient.RequestResourceTicket( request->resourceId );
@@ -265,16 +264,16 @@ bool ImageFactory::CompareAttributes( const Dali::ImageAttributes& requested,
           (fabsf(requested.GetHeight() -  actual.GetHeight()) <= actual.GetHeight() * mMaxScale);
 }
 
-Request* ImageFactory::InsertNewRequest( ResourceId resourceId, const std::string& filename, std::size_t urlHash, const ImageAttributes* attr )
+RequestPtr ImageFactory::InsertNewRequest( ResourceId resourceId, const std::string& filename, std::size_t urlHash, const ImageAttributes* attr )
 {
   ++mReqIdCurrent;
-  Request* request = new Request( *this, mReqIdCurrent, resourceId, filename, attr );
+  RequestPtr request( new Request( mReqIdCurrent, resourceId, filename, attr ) );
   mRequestCache.insert( RequestIdPair( mReqIdCurrent, request ) );
   mUrlCache.insert( RequestPathHashPair( urlHash, mReqIdCurrent ) );
   return request;
 }
 
-Request* ImageFactory::FindRequest( const std::string& filename, size_t hash, const ImageAttributes* attributes )
+RequestPtr ImageFactory::FindRequest( const std::string& filename, size_t hash, const ImageAttributes* attributes )
 {
   // Search for a matching resource
 
@@ -291,32 +290,35 @@ Request* ImageFactory::FindRequest( const std::string& filename, size_t hash, co
     DALI_ASSERT_DEBUG( foundRequestIter != mRequestCache.end() && "Only requests that are live in mRequestCache should appear in mUrlCache which is an index to speed-up lookups into it.");
     if( foundRequestIter != mRequestCache.end() )
     {
-      const Request& cachedRequest = *(foundRequestIter->second);
-      const ImageAttributes* storedAttributes = cachedRequest.attributes;
-
-      // compare attributes: NULL means default attributes
-      if( !attributes )
+      RequestPtr cachedRequest = foundRequestIter->second;
+      if( cachedRequest )
       {
-        attributes = &ImageAttributes::DEFAULT_ATTRIBUTES;
-      }
-      if( !storedAttributes )
-      {
-        storedAttributes = &ImageAttributes::DEFAULT_ATTRIBUTES;
-      }
+        const ImageAttributes* storedAttributes = cachedRequest->attributes;
 
-      if( *attributes != *storedAttributes )
-      {
-        continue;
-      }
+        // compare attributes: NULL means default attributes
+        if( !attributes )
+        {
+          attributes = &ImageAttributes::DEFAULT_ATTRIBUTES;
+        }
+        if( !storedAttributes )
+        {
+          storedAttributes = &ImageAttributes::DEFAULT_ATTRIBUTES;
+        }
 
-      if( filename.compare( cachedRequest.url ) )
-      {
-        // hash collision, filenames don't match
-        continue;
-      }
+        if( *attributes != *storedAttributes )
+        {
+          continue;
+        }
 
-      // we've found an exact match
-      return foundRequestIter->second;
+        if( filename.compare( cachedRequest->url ) )
+        {
+          // hash collision, filenames don't match
+          continue;
+        }
+
+        // we've found an exact match
+        return cachedRequest;
+      }
     }
   }
 
@@ -342,42 +344,45 @@ ResourceTicketPtr ImageFactory::FindCompatibleResource( const std::string& filen
       DALI_ASSERT_DEBUG( foundRequestIter != mRequestCache.end() );
       if( foundRequestIter != mRequestCache.end() )
       {
-        Request& cachedRequest = *(foundRequestIter->second);
-        if( filename.compare( cachedRequest.url ) )
+        RequestPtr cachedRequest = foundRequestIter->second;
+        if( cachedRequest )
         {
-          // hash collision, filenames don't match
-          continue;
-        }
+          if( filename.compare( cachedRequest->url ) )
+          {
+            // hash collision, filenames don't match
+            continue;
+          }
 
-        if( !cachedRequest.resourceId )
-        {
-          continue;
-        }
+          if( !cachedRequest->resourceId )
+          {
+            continue;
+          }
 
-        ticket = mResourceClient.RequestResourceTicket( cachedRequest.resourceId );
-        if( !ticket )
-        {
-          cachedRequest.resourceId = 0;
-          continue;
-        }
+          ticket = mResourceClient.RequestResourceTicket( cachedRequest->resourceId );
+          if( !ticket )
+          {
+            cachedRequest->resourceId = 0;
+            continue;
+          }
 
-        DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
-                           ticket->GetTypePath().type->id == ResourceNativeImage ||
-                           ticket->GetTypePath().type->id == ResourceTargetImage );
+          DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+                             ticket->GetTypePath().type->id == ResourceNativeImage ||
+                             ticket->GetTypePath().type->id == ResourceTargetImage );
 
-        // check for compatible ImageAttributes
-        const ImageAttributes& storedAttributes = static_cast<ImageTicket*>(ticket.Get())->GetAttributes();
-        if( !attr )
-        {
-          attr = &ImageAttributes::DEFAULT_ATTRIBUTES;
-        }
+          // check for compatible ImageAttributes
+          const ImageAttributes& storedAttributes = static_cast<ImageTicket*>(ticket.Get())->GetAttributes();
+          if( !attr )
+          {
+            attr = &ImageAttributes::DEFAULT_ATTRIBUTES;
+          }
 
-        // in case both attributes are default or they are matching custom ones
-        if( CompareAttributes( *attr, storedAttributes ) )
-        {
-          // found compatible resource
-          foundCompatible = true;
-          break;
+          // in case both attributes are default or they are matching custom ones
+          if( CompareAttributes( *attr, storedAttributes ) )
+          {
+            // found compatible resource
+            foundCompatible = true;
+            break;
+          }
         }
       }
     } // for( it ...
@@ -418,17 +423,20 @@ void ImageFactory::RequestDiscarded( const Request& req )
   RequestIdMap::iterator foundRequestIter = mRequestCache.find( id );
   DALI_ASSERT_DEBUG( foundRequestIter != mRequestCache.end() );
 
-  // memory is freed up by intrusive_ptr
-
-  mRequestCache.erase( foundRequestIter );
-
-  // find in mUrlCache
-  for( RequestPathHashMap::iterator it = mUrlCache.begin(); it != mUrlCache.end(); ++it )
+  if( !foundRequestIter->second || foundRequestIter->second.Get()->ReferenceCount() == 1 )
   {
-    if( id == it->second )
+    // This is the last ref to the request - remove it.
+
+    mRequestCache.erase( foundRequestIter ); // If holding the last ref, will delete request
+
+    // find in mUrlCache
+    for( RequestPathHashMap::iterator it = mUrlCache.begin(); it != mUrlCache.end(); ++it )
     {
-      mUrlCache.erase( it );
-      break;
+      if( id == it->second )
+      {
+        mUrlCache.erase( it );
+        break;
+      }
     }
   }
 }

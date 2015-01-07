@@ -120,16 +120,32 @@ ImagePtr Image::New( NativeImage& nativeImg )
 
 Image::~Image()
 {
+  const bool stageInstalled = Stage::IsInstalled();
+
+  if( mRequest )
+  {
+    ImageFactoryCache::Request* request = mRequest.Get();
+
+    // Note, Image factory also holds a reference, so must reset before
+    // informing Image Factory.
+    mRequest.Reset();
+
+    if( stageInstalled )
+    {
+      mImageFactory.RequestDiscarded( *request );
+    }
+  }
+
   if( mTicket )
   {
     mTicket->RemoveObserver( *this );
-    if( Stage::IsInstalled() )
+    if( stageInstalled )
     {
       mImageFactory.ReleaseTicket( mTicket.Get() );
     }
   }
 
-  if( Stage::IsInstalled() )
+  if( stageInstalled )
   {
     UnregisterObject();
   }

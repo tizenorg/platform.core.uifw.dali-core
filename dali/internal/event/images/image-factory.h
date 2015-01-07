@@ -40,7 +40,7 @@ struct Request;
  * It utilises an internal caching system where previous requests and associated
  * resources are stored to avoid accessing the file system when not necessary.
  */
-class ImageFactory : public ImageFactoryCache::RequestLifetimeObserver
+class ImageFactory
 {
 public:
 
@@ -62,7 +62,7 @@ public:
    * @param [in] attributes pointer to the ImageAttributes of the request. If NULL, default attributes are used.
    * @return     request pointer
    */
-  ImageFactoryCache::Request* RegisterRequest( const std::string& filename, const ImageAttributes *attributes );
+  ImageFactoryCache::RequestPtr RegisterRequest( const std::string& filename, const ImageAttributes *attributes );
 
   /**
    * Issue a request which has already been registered with ImageFactory.
@@ -144,11 +144,10 @@ public:
    */
   void FlushReleaseQueue();
 
-public: // From RequestLifetimeObserver
-
   /**
-   * Finds request by id in mRequestCache and mUrlCache and removes relevant entries.
-   * @param [in] id request id
+   * Finds request by id in mRequestCache and mUrlCache and removes relevant entries
+   * if it holds the last reference to the request
+   * @param [in] request The request
    */
   virtual void RequestDiscarded( const ImageFactoryCache::Request& request );
 
@@ -178,7 +177,7 @@ private:
    * @param [in] attr       Pointer to the requested attributes, NULL if default values are used.
    * @return pointer to Request
    */
-  ImageFactoryCache::Request* InsertNewRequest( ResourceId resourceId, const std::string& url, std::size_t urlHash, const ImageAttributes* attr );
+  ImageFactoryCache::RequestPtr InsertNewRequest( ResourceId resourceId, const std::string& url, std::size_t urlHash, const ImageAttributes* attr );
 
   /**
    * Searches request cache for exact match.
@@ -187,7 +186,7 @@ private:
    * @param [in] attributes  Pointer to ImageAttributes used for the request or NULL if default attributes were used.
    * @return pointer to the found request or NULL if no exact match is found.
    */
-  ImageFactoryCache::Request* FindRequest( const std::string& filename, size_t hash, const ImageAttributes *attributes );
+  ImageFactoryCache::RequestPtr FindRequest( const std::string& filename, size_t hash, const ImageAttributes *attributes );
 
   /**
    * Searches through tickets to find a compatible resource.

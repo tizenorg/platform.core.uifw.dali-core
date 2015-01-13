@@ -19,7 +19,8 @@
 #include <dali/public-api/images/atlas.h>
 
 // INTERNAL INCLUDES
-//#include <dali/internal/event/images/atlas-impl.h>
+#include <dali/internal/event/images/atlas-impl.h>
+#include <dali/internal/event/images/bitmap-image-impl.h>
 
 namespace Dali
 {
@@ -31,8 +32,7 @@ Atlas Atlas::New( std::size_t width,
   DALI_ASSERT_ALWAYS( 0u != width  && "Invalid Atlas width requested" );
   DALI_ASSERT_ALWAYS( 0u != height && "Invalid Atlas height requested" );
 
-  return Atlas();
-//  return Atlas( Internal::Atlas::New( width, height, pixelformat ) );
+  return Atlas( Internal::Atlas::New( width, height, pixelformat ) );
 }
 
 Atlas::Atlas()
@@ -43,14 +43,12 @@ bool Atlas::Upload( const BitmapImage& bitmap,
                     std::size_t xOffset,
                     std::size_t yOffset )
 {
-  return false;
-//  return GetImplementation(*this).Upload( bitmap, xOffset, yOffset );
+  return GetImplementation(*this).Upload( GetImplementation(bitmap), xOffset, yOffset );
 }
 
 Atlas Atlas::DownCast( BaseHandle handle )
 {
-  return Atlas();
-//  return Atlas( dynamic_cast<Dali::Internal::Atlas*>(handle.GetObjectPtr()) );
+  return Atlas( dynamic_cast<Dali::Internal::Atlas*>(handle.GetObjectPtr()) );
 }
 
 Atlas::~Atlas()
@@ -69,8 +67,7 @@ Atlas& Atlas::operator=( const Atlas& rhs )
 }
 
 Atlas::Atlas( Internal::Atlas* internal )
-: Image( NULL )
-//: Image( internal )
+: Image( internal )
 {
 }
 

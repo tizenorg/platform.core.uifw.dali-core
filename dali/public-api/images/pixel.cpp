@@ -61,6 +61,13 @@ bool Pixel::HasAlpha(Format pixelformat)
     case COMPRESSED_SRGB8_ETC2:
     case COMPRESSED_RGB8_ETC1:
     case COMPRESSED_RGB_PVRTC_4BPPV1:
+    // Note, Below are formats for TBM surface extension. Now dali does not used them directly.
+    case C8: // The palette includes alpha or not..
+    case RGBX8888:
+    case NV12:
+    case NV21:
+    case YUV420:
+    case YVU420:
     {
       return false;
     }
@@ -74,6 +81,7 @@ unsigned int Pixel::GetBytesPerPixel(Format pixelFormat)
   {
     case L8:
     case A8:
+    case C8:
     {
       return 1;
     }
@@ -98,6 +106,7 @@ unsigned int Pixel::GetBytesPerPixel(Format pixelFormat)
     case BGR8888:
     case RGBA8888:
     case BGRA8888:
+    case RGBX8888:
     {
       return 4;
     }
@@ -116,6 +125,15 @@ unsigned int Pixel::GetBytesPerPixel(Format pixelFormat)
     case COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
     {
       DALI_LOG_ERROR("Pixel formats for compressed images do not have meaningful integer bits per pixel values.\n");
+      return 0;
+    }
+
+    case NV12:
+    case NV21:
+    case YUV420:
+    case YVU420:
+    {
+      DALI_LOG_ERROR("This is YUV format. Bytes per one pixel should be ambiguous\n");
       return 0;
     }
   }
@@ -139,6 +157,7 @@ void Pixel::GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitM
     case RGB8888:
     case BGR8888:
     case BGR565:
+    case RGBX8888:
     {
       byteOffset=0;
       bitMask=0;
@@ -190,6 +209,18 @@ void Pixel::GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitM
     case COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
     {
       DALI_LOG_ERROR("Pixel formats for compressed images are not compatible with simple masking-out of per-pixel alpha.\n");
+      byteOffset=0;
+      bitMask=0;
+      break;
+    }
+
+    case C8:
+    case NV12:
+    case NV21:
+    case YUV420:
+    case YVU420:
+    {
+      DALI_LOG_ERROR("Pixel formats are not compatible with simple masking-out of per-pixel alpha.\n");
       byteOffset=0;
       bitMask=0;
       break;

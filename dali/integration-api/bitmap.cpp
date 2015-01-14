@@ -241,6 +241,16 @@ void ConvertToGlFormat( Format pixelformat, unsigned& pixelDataType, unsigned& i
       internalFormat = 0x8C00; ///! < Hardcoded so we can test before we move to GLES 3.0 or greater.
       break;
     }
+
+    case C8:
+    case RGBX8888:
+    case NV12:
+    case NV21:
+    case YUV420:
+    case YVU420:
+    {
+      DALI_ASSERT_ALWAYS(false && "The pixel format and type are not supported by GLES.\n");
+    }
   }
 }
 

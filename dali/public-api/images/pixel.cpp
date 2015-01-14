@@ -43,6 +43,11 @@ bool Pixel::HasAlpha(Format pixelformat)
     case COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2:
     case COMPRESSED_RGBA8_ETC2_EAC:
     case COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
+    case ARGB2101010:
+    case ABGR2101010:
+    case RGBA1010102:
+    case BGRA1010102:
+    case AYUV:
     {
       return true;
     }
@@ -61,6 +66,32 @@ bool Pixel::HasAlpha(Format pixelformat)
     case COMPRESSED_SRGB8_ETC2:
     case COMPRESSED_RGB8_ETC1:
     case COMPRESSED_RGB_PVRTC_4BPPV1:
+    case XRGB8888:
+    case XBGR8888:
+    case RGBX8888:
+    case BGRX8888:
+    case XRGB2101010:
+    case XBGR2101010:
+    case RGBX1010102:
+    case BGRX1010102:
+    case YUYV:
+    case YVYU:
+    case UYVY:
+    case VYUY:
+    case NV12:
+    case NV21:
+    case NV16:
+    case NV61:
+    case YUV410:
+    case YVU410:
+    case YUV411:
+    case YVU411:
+    case YUV420:
+    case YVU420:
+    case YUV422:
+    case YVU422:
+    case YUV444:
+    case YVU444:
     {
       return false;
     }
@@ -85,6 +116,9 @@ unsigned int Pixel::GetBytesPerPixel(Format pixelFormat)
     case BGR565:
     case BGRA4444:
     case BGRA5551:
+    case YUYV:
+    case YVYU:
+    case UYVY:
     {
       return 2;
     }
@@ -98,6 +132,19 @@ unsigned int Pixel::GetBytesPerPixel(Format pixelFormat)
     case BGR8888:
     case RGBA8888:
     case BGRA8888:
+    case XRGB8888:
+    case XBGR8888:
+    case RGBX8888:
+    case BGRX8888:
+    case XRGB2101010:
+    case XBGR2101010:
+    case RGBX1010102:
+    case BGRX1010102:
+    case ARGB2101010:
+    case ABGR2101010:
+    case RGBA1010102:
+    case BGRA1010102:
+    case AYUV:
     {
       return 4;
     }
@@ -116,6 +163,26 @@ unsigned int Pixel::GetBytesPerPixel(Format pixelFormat)
     case COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
     {
       DALI_LOG_ERROR("Pixel formats for compressed images do not have meaningful integer bits per pixel values.\n");
+      return 0;
+    }
+
+    case VYUY:
+    case NV12:
+    case NV21:
+    case NV16:
+    case NV61:
+    case YUV410:
+    case YVU410:
+    case YUV411:
+    case YVU411:
+    case YUV420:
+    case YVU420:
+    case YUV422:
+    case YVU422:
+    case YUV444:
+    case YVU444:
+    {
+      DALI_LOG_ERROR("This is YUV format. Bytes per one pixel should be ambiguous\n");
       return 0;
     }
   }
@@ -139,6 +206,14 @@ void Pixel::GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitM
     case RGB8888:
     case BGR8888:
     case BGR565:
+    case XRGB8888:
+    case XBGR8888:
+    case RGBX8888:
+    case BGRX8888:
+    case XRGB2101010:
+    case XBGR2101010:
+    case RGBX1010102:
+    case BGRX1010102:
     {
       byteOffset=0;
       bitMask=0;
@@ -176,6 +251,29 @@ void Pixel::GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitM
       break;
     }
 
+    case ARGB2101010:
+    case ABGR2101010:
+    {
+      byteOffset=0;
+      bitMask=0xc0;
+      break;
+    }
+
+    case RGBA1010102:
+    case BGRA1010102:
+    {
+      byteOffset=3;
+      bitMask=0x03;
+      break;
+    }
+
+    case AYUV:
+    {
+      byteOffset=0;
+      bitMask=0xff;
+      break;
+    }
+
     case COMPRESSED_R11_EAC:
     case COMPRESSED_SIGNED_R11_EAC:
     case COMPRESSED_RG11_EAC:
@@ -190,6 +288,30 @@ void Pixel::GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitM
     case COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
     {
       DALI_LOG_ERROR("Pixel formats for compressed images are not compatible with simple masking-out of per-pixel alpha.\n");
+      byteOffset=0;
+      bitMask=0;
+      break;
+    }
+
+    case YUYV:
+    case YVYU:
+    case UYVY:
+    case VYUY:
+    case NV12:
+    case NV21:
+    case NV16:
+    case NV61:
+    case YUV410:
+    case YVU410:
+    case YUV411:
+    case YVU411:
+    case YUV420:
+    case YVU420:
+    case YUV422:
+    case YVU422:
+    case YUV444:
+    case YVU444:
+    {
       byteOffset=0;
       bitMask=0;
       break;

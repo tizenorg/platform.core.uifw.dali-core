@@ -64,8 +64,41 @@ enum Format ///< pixel format, default color depth is RGBA 32 bit with alpha
   COMPRESSED_SRGB8_ALPHA8_ETC2_EAC,         ///< ETC2 / EAC RGB using sRGB colourspace, plus separate alpha channel.
   // GLES 2 extension compressed formats:
   COMPRESSED_RGB8_ETC1,                     ///< ETC1 RGB as defined by GLES 2 extension OES_compressed_ETC1_RGB8_texture: http://www.khronos.org/registry/gles/extensions/OES/OES_compressed_ETC1_RGB8_texture.txt
-  COMPRESSED_RGB_PVRTC_4BPPV1               ///< PowerVR 4bpp RGB format (v1) as defined by extension IMG_texture_compression_pvrtc: http://www.khronos.org/registry/gles/extensions/IMG/IMG_texture_compression_pvrtc.txt
+  COMPRESSED_RGB_PVRTC_4BPPV1,               ///< PowerVR 4bpp RGB format (v1) as defined by extension IMG_texture_compression_pvrtc: http://www.khronos.org/registry/gles/extensions/IMG/IMG_texture_compression_pvrtc.txt
   ///! Update LAST_VALID_PIXEL_FORMAT below if you add an enum value here.
+  //Additional formats
+  XRGB8888,          ///< color depth 32 bit with unused X, 8#-8-8-8
+  XBGR8888,          ///< color depth 32 bit whth unused X, 8#-8-8-8
+  RGBX8888,          ///< color depth 32 bit with unused X, 8-8-8-8#
+  BGRX8888,          ///< color depth 32 bit with unused X, 8-8-8-8#
+  XRGB2101010,       ///< color depth 32 bit with unused X, 2#-10-10-10
+  XBGR2101010,       ///< color depth 32 bit with unused X, 2#-10-10-10
+  RGBX1010102,       ///< color depth 32 bit with unused X, 10-10-10-2#
+  BGRX1010102,       ///< color depth 32 bit with unused X, 10-10-10-2#
+  ARGB2101010,       ///< color depth 32 bit with alpha, 2-10-10-10
+  ABGR2101010,       ///< color depth 32 bit with alpha, 2-10-10-10
+  RGBA1010102,       ///< color depth 32 bit with alpha, 10-10-10-2
+  BGRA1010102,       ///< color depth 32 bit with alpha, 10-10-10-2
+  // YUV formats
+  YUYV,              ///< color depth 16 bit, duplicate of YUY2
+  YVYU,              ///< color depth 16 bit, YUV 4:2:2
+  UYVY,              ///< color depth 16 bit, YUV 4:2:2
+  VYUY,              ///< color depth ? bit, ATI packed YUV data
+  AYUV,              ///< color depth 32 bit with alpha
+  NV12,              ///< color depth 12 bit, 8 bit Y plane followed by an interleaved U/V
+  NV21,              ///< color depth 12 bit, NV12 with U and V reversed
+  NV16,              ///< color depth ? bit, two-plane versions of the YUV 4:2:2 format
+  NV61,              ///< color depth ? bit, two-plane versions of the YUV 4:2:2 format
+  YUV410,            ///< color depth ? bit, planar formats, YUV 4:1:0
+  YVU410,            ///< color depth ? bit, planar formats, YUV 4:1:0
+  YUV411,            ///< color depth ? bit, planar formats, YUV 4:1:1
+  YVU411,            ///< color depth ? bit, planar formats, YUV 4:1:1
+  YUV420,            ///< color depth ? bit, planar formats, YUV 4:2:0
+  YVU420,            ///< color depth ? bit, planar formats, YUV 4:2:0
+  YUV422,            ///< color depth ? bit, planar formats, YUV 4:2:2
+  YVU422,            ///< color depth ? bit, planar formats, YUV 4:2:2
+  YUV444,            ///< color depth ? bit, planar formats, YUV 4:4:4
+  YVU444             ///< color depth ? bit, planar formats, YUV 4:4:4
 };
 
 /**

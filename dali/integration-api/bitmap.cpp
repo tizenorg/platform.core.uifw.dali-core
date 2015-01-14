@@ -241,6 +241,42 @@ void ConvertToGlFormat( Format pixelformat, unsigned& pixelDataType, unsigned& i
       internalFormat = 0x8C00; ///! < Hardcoded so we can test before we move to GLES 3.0 or greater.
       break;
     }
+
+    case XRGB8888:
+    case XBGR8888:
+    case RGBX8888:
+    case BGRX8888:
+    case XRGB2101010:
+    case XBGR2101010:
+    case RGBX1010102:
+    case BGRX1010102:
+    case ARGB2101010:
+    case ABGR2101010:
+    case RGBA1010102:
+    case BGRA1010102:
+    case YUYV:
+    case YVYU:
+    case UYVY:
+    case VYUY:
+    case AYUV:
+    case NV12:
+    case NV21:
+    case NV16:
+    case NV61:
+    case YUV410:
+    case YVU410:
+    case YUV411:
+    case YVU411:
+    case YUV420:
+    case YVU420:
+    case YUV422:
+    case YVU422:
+    case YUV444:
+    case YVU444:
+    {
+      DALI_LOG_ERROR("The pixel format and type are not supported by GLES.\n");
+      break;
+    }
   }
 }
 

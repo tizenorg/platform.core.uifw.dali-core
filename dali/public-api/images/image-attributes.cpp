@@ -83,7 +83,7 @@ struct ImageAttributes::ImageAttributesImpl
   unsigned int  height : 16;      ///< image height in pixels
   ScalingMode   scaling : 3;      ///< scaling option, ShrinkToFit is default
   FilterMode    filtering : 3;    ///< filtering option. Box is the default
-  Pixel::Format pixelformat : 5;  ///< pixel format, default is RGBA8888
+  Pixel::Format pixelformat : 6;  ///< pixel format, default is RGBA8888
   bool          mOrientationCorrection : 1; ///< If true, image pixels are reordered according to orientation metadata on load.
   bool          isDistanceField : 1;  ///< true, if the image is a distancefield. Default is false.
 };

@@ -49,6 +49,7 @@ void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& 
     case Dali::Pixel::RGB888:
     case Dali::Pixel::RGB8888:
     case Dali::Pixel::RGBA8888:
+    case Dali::Pixel::RGBX8888:
     {
       byteOffset=0;
       bitMask=0xFF;
@@ -56,6 +57,7 @@ void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& 
     }
     case Dali::Pixel::BGR8888:
     case Dali::Pixel::BGRA8888:
+    case Dali::Pixel::BGRX8888:
     {
       byteOffset=2;
       bitMask=0xff;
@@ -100,7 +102,63 @@ void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& 
       bitMask=0x1e;
       break;
     }
-
+    case Dali::Pixel::XRGB8888:
+    {
+      byteOffset=1;
+      bitMask=0xff;
+      break;
+    }
+    case Dali::Pixel::XBGR8888:
+    {
+      byteOffset=3;
+      bitMask=0xff;
+      break;
+    }
+    case Dali::Pixel::XRGB2101010:
+    case Dali::Pixel::XBGR2101010:
+    case Dali::Pixel::RGBX1010102:
+    case Dali::Pixel::BGRX1010102:
+    {
+      DALI_LOG_ERROR("R component has 10 bits. Now internal api, ParseBorders(), for NinePatchImage does not support it.\n");
+      byteOffset=0;
+      bitMask=0;
+      break; 
+    }
+    case Dali::Pixel::ARGB2101010:
+    case Dali::Pixel::ABGR2101010:
+    case Dali::Pixel::RGBA1010102:
+    case Dali::Pixel::BGRA1010102:
+    {
+      DALI_LOG_ERROR("R component has 10 bits. This should not be used in ParseBorders() for NinePatchImage now.\n");
+      byteOffset=0;
+      bitMask=0;
+      break; 
+    }
+    case Dali::Pixel::YUYV:
+    case Dali::Pixel::YVYU:
+    case Dali::Pixel::UYVY:
+    case Dali::Pixel::VYUY:
+    case Dali::Pixel::AYUV:
+    case Dali::Pixel::NV12:
+    case Dali::Pixel::NV21:
+    case Dali::Pixel::NV16:
+    case Dali::Pixel::NV61:
+    case Dali::Pixel::YUV410:
+    case Dali::Pixel::YVU410:
+    case Dali::Pixel::YUV411:
+    case Dali::Pixel::YVU411:
+    case Dali::Pixel::YUV420:
+    case Dali::Pixel::YVU420:
+    case Dali::Pixel::YUV422:
+    case Dali::Pixel::YVU422:
+    case Dali::Pixel::YUV444:
+    case Dali::Pixel::YVU444:
+    {
+      DALI_LOG_ERROR("YUV format does not have Red component.\n");
+      byteOffset=0;
+      bitMask=0;
+      break; 
+    }
     case Dali::Pixel::COMPRESSED_R11_EAC:
     case Dali::Pixel::COMPRESSED_SIGNED_R11_EAC:
     case Dali::Pixel::COMPRESSED_RG11_EAC:

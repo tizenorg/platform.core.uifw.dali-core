@@ -94,7 +94,7 @@ public:
                     typename ParameterType< P >::PassingType value )
   {
     // Reserve some memory inside the message queue
-    unsigned int* slot = updateManager.GetEventToUpdate().ReserveMessageSlot( sizeof( NodePropertyMessage ) );
+    MessageRawPtr slot = updateManager.GetEventToUpdate().ReserveMessageSlot( sizeof( NodePropertyMessage ) );
 
     // Construct message in the message queue memory; note that delete should not be called on the return value
     new (slot) NodePropertyMessage( updateManager, node, property, member, value );
@@ -181,7 +181,7 @@ public:
                     float value )
   {
     // Reserve some memory inside the message queue
-    unsigned int* slot = updateManager.GetEventToUpdate().ReserveMessageSlot( sizeof( NodePropertyComponentMessage ) );
+    MessageRawPtr slot = updateManager.GetEventToUpdate().ReserveMessageSlot( sizeof( NodePropertyComponentMessage ) );
 
     // Construct message in the message queue memory; note that delete should not be called on the return value
     new (slot) NodePropertyComponentMessage( updateManager, node, property, member, value );

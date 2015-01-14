@@ -113,7 +113,7 @@ inline void AddTaskMessage( EventToUpdate& eventToUpdate, RenderTaskList& list, 
   typedef MessageValue1< RenderTaskList, RenderTask* > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &list, &RenderTaskList::AddTask, &task );
@@ -127,7 +127,7 @@ inline void RemoveTaskMessage( EventToUpdate& eventToUpdate, RenderTaskList& lis
   typedef MessageValue1< RenderTaskList, RenderTask* > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &list, &RenderTaskList::RemoveTask, &task );

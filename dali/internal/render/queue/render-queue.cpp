@@ -75,7 +75,7 @@ RenderQueue::~RenderQueue()
   }
 }
 
-unsigned int* RenderQueue::ReserveMessageSlot( BufferIndex updateBufferIndex, std::size_t size )
+MessageRawPtr RenderQueue::ReserveMessageSlot( BufferIndex updateBufferIndex, std::size_t size )
 {
   MessageBuffer* container = GetCurrentContainer( updateBufferIndex );
 

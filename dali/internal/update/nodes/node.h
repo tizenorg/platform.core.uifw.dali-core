@@ -61,26 +61,28 @@ class UpdateManager;
  */
 enum NodePropertyFlags
 {
-  NothingFlag          = 0x000,
-  TransformFlag        = 0x001,
-  VisibleFlag          = 0x002,
-  ColorFlag            = 0x004,
-  SizeFlag             = 0x008,
-  OverlayFlag          = 0x010,
-  SortModifierFlag     = 0x020,
-  ChildDeletedFlag     = 0x040
+  NothingFlag          = 0x0,
+  TransformFlag        = (1<<0),
+  VisibleFlag          = (1<<1),
+  ColorFlag            = (1<<2),
+  SizeFlag             = (1<<3),
+  OverlayFlag          = (1<<4),
+  SortModifierFlag     = (1<<5),
+  ChildDeletedFlag     = (1<<6),
+
+  AllFlags             = (1<<7) - 1,
+
+  /**
+   * Size is not inherited.
+   * VisibleFlag is inherited so that attachments can be synchronized with nodes after they become visible
+   */
+  InheritedDirtyFlags  = (TransformFlag | VisibleFlag | ColorFlag | OverlayFlag),
+
+  // Flags which require the scene renderable lists to be updated
+  RenderableUpdateFlags = (TransformFlag | SortModifierFlag | ChildDeletedFlag)
+
 };
 
-static const int AllFlags = ( ChildDeletedFlag << 1 ) - 1; // all the flags
-
-/**
- * Size is not inherited.
- * VisibleFlag is inherited so that attachments can be synchronized with nodes after they become visible
- */
-static const int InheritedDirtyFlags = TransformFlag | VisibleFlag | ColorFlag | OverlayFlag;
-
-// Flags which require the scene renderable lists to be updated
-static const int RenderableUpdateFlags = TransformFlag | SortModifierFlag | ChildDeletedFlag;
 
 /**
  * Node is the base class for all nodes in the Scene Graph.
@@ -1061,7 +1063,7 @@ protected:
   Vector3             mInitialVolume;                ///< Initial volume... TODO - need a better name
 
   // flags, compressed to bitfield
-  int  mDirtyFlags:10;                               ///< A composite set of flags for each of the Node properties
+  unsigned int mDirtyFlags:10;                       ///< A composite set of flags for each of the Node properties
 
   bool mIsRoot:1;                                    ///< True if the node cannot have a parent
   bool mInheritRotation:1;                           ///< Whether the parent's rotation should be inherited.
@@ -1085,7 +1087,7 @@ inline void SetInheritRotationMessage( EventToUpdate& eventToUpdate, const Node&
   typedef MessageValue1< Node, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetInheritRotation, inherit );
@@ -1096,7 +1098,7 @@ inline void SetInitialVolumeMessage( EventToUpdate& eventToUpdate, const Node& n
   typedef MessageValue1< Node, Vector3 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetInitialVolume, initialVolume );
@@ -1107,7 +1109,7 @@ inline void SetTransmitGeometryScalingMessage( EventToUpdate& eventToUpdate, con
   typedef MessageValue1< Node, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetTransmitGeometryScaling, transmitGeometryScaling );
@@ -1118,7 +1120,7 @@ inline void SetParentOriginMessage( EventToUpdate& eventToUpdate, const Node& no
   typedef MessageValue1< Node, Vector3 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetParentOrigin, origin );
@@ -1129,7 +1131,7 @@ inline void SetAnchorPointMessage( EventToUpdate& eventToUpdate, const Node& nod
   typedef MessageValue1< Node, Vector3 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetAnchorPoint, anchor );
@@ -1140,7 +1142,7 @@ inline void SetPositionInheritanceModeMessage( EventToUpdate& eventToUpdate, con
   typedef MessageValue1< Node, PositionInheritanceMode > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetPositionInheritanceMode, mode );
@@ -1151,7 +1153,7 @@ inline void SetInheritScaleMessage( EventToUpdate& eventToUpdate, const Node& no
   typedef MessageValue1< Node, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetInheritScale, inherit );
@@ -1162,7 +1164,7 @@ inline void SetColorModeMessage( EventToUpdate& eventToUpdate, const Node& node,
   typedef MessageValue1< Node, ColorMode > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetColorMode, colorMode );
@@ -1173,7 +1175,7 @@ inline void SetDrawModeMessage( EventToUpdate& eventToUpdate, const Node& node, 
   typedef MessageValue1< Node, DrawMode::Type > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetDrawMode, drawMode );

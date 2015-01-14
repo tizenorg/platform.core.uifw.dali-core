@@ -260,7 +260,7 @@ Dali::TypeInfo TypeRegistry::GetTypeInfo(const Dali::BaseObject * const pBaseObj
   Dali::TypeInfo type;
 
   // test for custom actor which has another indirection to get to the type hiearchy we're after
-  const Dali::Internal::CustomActor * const pCustom = dynamic_cast<const Dali::Internal::CustomActor*>(pBaseObject);
+  const Dali::Internal::CustomActor * const pCustom = dynamic_cast<const Dali::Internal::CustomActor* const>(pBaseObject);
 
   if(pCustom)
   {

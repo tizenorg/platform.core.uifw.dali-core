@@ -2005,7 +2005,7 @@ void BakeMessage( EventToUpdate& eventToUpdate,
   typedef MessageDoubleBuffered1< SceneGraph::AnimatableProperty<T>, T > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &property,
@@ -2021,7 +2021,7 @@ void BakeRelativeMessage( EventToUpdate& eventToUpdate,
   typedef MessageDoubleBuffered1< SceneGraph::AnimatableProperty<T>, const T& > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &property,
@@ -2037,7 +2037,7 @@ void SetXComponentMessage( EventToUpdate& eventToUpdate,
   typedef MessageDoubleBuffered1< SceneGraph::AnimatableProperty<T>, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &property,
@@ -2053,7 +2053,7 @@ void SetYComponentMessage( EventToUpdate& eventToUpdate,
   typedef MessageDoubleBuffered1< SceneGraph::AnimatableProperty<T>, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &property,
@@ -2069,7 +2069,7 @@ void SetZComponentMessage( EventToUpdate& eventToUpdate,
   typedef MessageDoubleBuffered1< SceneGraph::AnimatableProperty<T>, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &property,
@@ -2085,7 +2085,7 @@ void SetWComponentMessage( EventToUpdate& eventToUpdate,
   typedef MessageDoubleBuffered1< SceneGraph::AnimatableProperty<T>, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &property,

@@ -538,7 +538,7 @@ void UpdateManager::AddShader( Shader* shader )
     typedef MessageValue1< RenderManager, Shader* > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    MessageRawPtr slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( &mImpl->renderManager, &RenderManager::SetDefaultShader, shader );
@@ -588,7 +588,7 @@ void UpdateManager::SetShaderProgram( Shader* shader, GeometryType geometryType,
     typedef MessageValue6< Shader, GeometryType, Internal::ShaderSubTypes, Integration::ResourceId, Integration::ShaderDataPtr, ProgramCache*, bool> DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    MessageRawPtr slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( shader, &Shader::SetProgram, geometryType, subType, resourceId, shaderData, mImpl->renderManager.GetProgramCache(), modifiesGeometry );
@@ -628,7 +628,7 @@ void UpdateManager::AddMaterial( Material* material )
   typedef MessageValue1< RenderManager, RenderMaterial* > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+  MessageRawPtr slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &mImpl->renderManager, &RenderManager::AddRenderMaterial, renderMaterial );
@@ -650,7 +650,7 @@ void UpdateManager::RemoveMaterial( Material* theMaterial )
       typedef MessageValue1< RenderManager, RenderMaterial* > DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+      MessageRawPtr slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( &mImpl->renderManager, &RenderManager::RemoveRenderMaterial, theMaterial->GetRenderMaterial() );
@@ -1210,7 +1210,7 @@ void UpdateManager::SetBackgroundColor( const Vector4& color )
   typedef MessageValue1< RenderManager, Vector4 > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+  MessageRawPtr slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &mImpl->renderManager, &RenderManager::SetBackgroundColor, color );
@@ -1221,7 +1221,7 @@ void UpdateManager::SetDefaultSurfaceRect( const Rect<int>& rect )
   typedef MessageValue1< RenderManager, Rect<int> > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+  MessageRawPtr slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::SetDefaultSurfaceRect, rect );

@@ -70,7 +70,7 @@ void RenderableAttachment::ChangeBlending( BufferIndex updateBufferIndex, bool u
     typedef MessageValue1< Renderer, bool > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( &GetRenderer(), &Renderer::SetUseBlend, useBlend );
@@ -83,7 +83,7 @@ void RenderableAttachment::SetBlendingOptions( BufferIndex updateBufferIndex, un
   typedef MessageValue1< Renderer, unsigned int > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &GetRenderer(), &Renderer::SetBlendingOptions, options );
@@ -95,7 +95,7 @@ void RenderableAttachment::SetBlendColor( BufferIndex updateBufferIndex, const V
   typedef MessageValue1< Renderer, Vector4 > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &GetRenderer(), &Renderer::SetBlendColor, color );
@@ -171,7 +171,7 @@ void RenderableAttachment::SetCullFace( BufferIndex updateBufferIndex, CullFaceM
   typedef MessageValue1< Renderer, CullFaceMode > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &GetRenderer(), &Renderer::SetCullFace, mode );
@@ -184,7 +184,7 @@ void RenderableAttachment::SetSampler( BufferIndex updateBufferIndex, unsigned i
   typedef MessageValue1< Renderer, unsigned int > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &GetRenderer(), &Renderer::SetSampler, samplerBitfield );
@@ -381,7 +381,7 @@ void RenderableAttachment::SendShaderChangeMessage( BufferIndex updateBufferInde
 {
   typedef MessageValue1< Renderer, Shader* > DerivedType;
   // Reserve memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
   // Construct message in the mRenderer queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &GetRenderer(), &Renderer::SetShader, mShader );
 }

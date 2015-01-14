@@ -42,9 +42,6 @@ EncodedBufferImagePtr EncodedBufferImage::New( const uint8_t * const encodedImag
   DALI_ASSERT_DEBUG( encodedImage && "Null image pointer passed-in for decoding from memory." );
   DALI_ASSERT_DEBUG( encodedImageByteCount > 0U && "Zero size passed for image resource in memory buffer." );
   DALI_ASSERT_ALWAYS( encodedImage && (encodedImageByteCount != 0) );
-  // SEGV early before we allocate anything if the caller passed in an invalid
-  // input buffer by reading both ends of it:
-  DALI_ASSERT_ALWAYS( static_cast<int>( encodedImage[0] + encodedImage[encodedImageByteCount-1] ) != -1 );
 
   EncodedBufferImagePtr image( new EncodedBufferImage( releasePol ) );
   image->Initialize(); // Second stage initialization

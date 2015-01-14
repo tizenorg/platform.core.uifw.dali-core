@@ -159,7 +159,7 @@ inline void BakeVertexPositionMessage( EventToUpdate& eventToUpdate, const Scene
   typedef MessageDoubleBuffered2< SceneGraph::AnimatableMesh, unsigned int, Vector3 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &mesh, &SceneGraph::AnimatableMesh::BakePosition, vertex, position );
@@ -170,7 +170,7 @@ inline void BakeVertexColorMessage( EventToUpdate& eventToUpdate, const SceneGra
   typedef MessageDoubleBuffered2< SceneGraph::AnimatableMesh, unsigned int, Vector4 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &mesh, &SceneGraph::AnimatableMesh::BakeColor, vertex, color );
@@ -181,7 +181,7 @@ inline void BakeVertexTextureCoordsMessage( EventToUpdate& eventToUpdate, const 
   typedef MessageDoubleBuffered2< SceneGraph::AnimatableMesh, unsigned int, Vector2 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &mesh, &SceneGraph::AnimatableMesh::BakeTextureCoords, vertex, coords );

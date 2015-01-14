@@ -188,10 +188,10 @@ private: // Data
   unsigned int mTextureId;        ///< The resource ID for a texture
 
   // bitfields to fit in single byte
-  bool mRefreshMeshData      : 1; ///< Whether the vertex/index buffers needs regenerating
-  bool mIsPixelAreaSet       : 1; ///< Whether pixel area is set, cached for image actor to be able to ask for it
-  int  mPreviousRefreshHints : 4; ///< The shader geometry hints, when the vertex buffer was last refreshed, 4 bits is enough as there's 4 flags
-  Style mStyle               : 2; ///< rendering style, 2 bits is enough as only 2 values in the enum
+  bool mRefreshMeshData                : 1; ///< Whether the vertex/index buffers needs regenerating
+  bool mIsPixelAreaSet                 : 1; ///< Whether pixel area is set, cached for image actor to be able to ask for it
+  unsigned int mPreviousRefreshHints   : 4; ///< The shader geometry hints, when the vertex buffer was last refreshed, 4 bits is enough as there's 4 flags
+  Style mStyle                         : 2; ///< rendering style, 2 bits is enough as only 2 values in the enum
 
   BitmapMetadata  mBitmapMetadata;///< The bitmap metadata
   Vector2 mGeometrySize;          ///< The size of the currently used geometry
@@ -205,7 +205,7 @@ inline void SetTextureIdMessage( EventToUpdate& eventToUpdate, const ImageAttach
   typedef MessageDoubleBuffered1< ImageAttachment, unsigned int > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &ImageAttachment::SetTextureId, id );
@@ -216,7 +216,7 @@ inline void SetPixelAreaMessage( EventToUpdate& eventToUpdate, const ImageAttach
   typedef MessageDoubleBuffered1< ImageAttachment, Dali::ImageActor::PixelArea > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &ImageAttachment::SetPixelArea, area );
@@ -227,7 +227,7 @@ inline void ClearPixelAreaMessage( EventToUpdate& eventToUpdate, const ImageAtta
   typedef Message< ImageAttachment > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &ImageAttachment::ClearPixelArea );
@@ -238,7 +238,7 @@ inline void SetStyleMessage( EventToUpdate& eventToUpdate, const ImageAttachment
   typedef MessageValue1< ImageAttachment, Dali::ImageActor::Style > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &ImageAttachment::SetStyle, style );
@@ -249,7 +249,7 @@ inline void SetNinePatchBorderMessage( EventToUpdate& eventToUpdate, const Image
   typedef MessageDoubleBuffered2< ImageAttachment, Vector4, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &ImageAttachment::SetBorder, border, inPixels );

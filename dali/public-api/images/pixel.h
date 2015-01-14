@@ -109,7 +109,7 @@ DALI_IMPORT_API unsigned int GetBytesPerPixel(Format pixelFormat);
  * @param[out] byteOffset the byte offset of the byte containing the alpha value
  * @param[out] bitMask the bitmask of the byte to get the alpha value
  */
-DALI_IMPORT_API void GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitMask);
+DALI_IMPORT_API void GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, unsigned char& bitMask);
 
 } //namespace Pixel
 

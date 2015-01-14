@@ -146,7 +146,7 @@ void Material::PrepareRender( BufferIndex bufferIndex )
       typedef MessageValue1<RenderMaterial, float> DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
+      MessageRawPtr slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mRenderMaterial, &RenderMaterial::SetOpacity, mProperties.mOpacity );
@@ -156,7 +156,7 @@ void Material::PrepareRender( BufferIndex bufferIndex )
       typedef MessageValue1<RenderMaterial, float> DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
+      MessageRawPtr slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mRenderMaterial, &RenderMaterial::SetShininess, mProperties.mShininess );
@@ -166,7 +166,7 @@ void Material::PrepareRender( BufferIndex bufferIndex )
       typedef MessageValue1<RenderMaterial, Vector4> DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
+      MessageRawPtr slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mRenderMaterial, &RenderMaterial::SetAmbientColor, mProperties.mAmbientColor );
@@ -176,7 +176,7 @@ void Material::PrepareRender( BufferIndex bufferIndex )
       typedef MessageValue1<RenderMaterial, Vector4> DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
+      MessageRawPtr slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mRenderMaterial, &RenderMaterial::SetDiffuseColor, mProperties.mDiffuseColor );
@@ -186,7 +186,7 @@ void Material::PrepareRender( BufferIndex bufferIndex )
       typedef MessageValue1<RenderMaterial, Vector4> DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
+      MessageRawPtr slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mRenderMaterial, &RenderMaterial::SetSpecularColor, mProperties.mSpecularColor );
@@ -196,7 +196,7 @@ void Material::PrepareRender( BufferIndex bufferIndex )
       typedef MessageValue1<RenderMaterial, Vector4> DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
+      MessageRawPtr slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mRenderMaterial, &RenderMaterial::SetEmissiveColor, mProperties.mEmissiveColor );
@@ -325,7 +325,7 @@ bool Material::UpdateTextureStates( RenderQueue& renderQueue, BufferIndex buffer
       typedef MessageValue1<RenderMaterial, unsigned int> DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
+      MessageRawPtr slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mRenderMaterial, &RenderMaterial::SetDiffuseTextureId, mDiffuseResourceId );
@@ -341,7 +341,7 @@ bool Material::UpdateTextureStates( RenderQueue& renderQueue, BufferIndex buffer
       typedef MessageValue1<RenderMaterial, unsigned int> DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
+      MessageRawPtr slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mRenderMaterial, &RenderMaterial::SetOpacityTextureId, mOpacityResourceId );
@@ -357,7 +357,7 @@ bool Material::UpdateTextureStates( RenderQueue& renderQueue, BufferIndex buffer
       typedef MessageValue1<RenderMaterial, unsigned int> DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
+      MessageRawPtr slot = renderQueue.ReserveMessageSlot( bufferIndex, sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mRenderMaterial, &RenderMaterial::SetNormalMapTextureId, mNormalMapResourceId );

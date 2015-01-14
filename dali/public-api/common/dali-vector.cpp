@@ -121,11 +121,16 @@ void VectorBase::Erase( char* address, SizeType elementSize )
   if( mData )
   {
     char* startAddress = address + elementSize;
-    const char* endAddress = reinterpret_cast< char* >( mData ) + Count() * elementSize;
-    SizeType numberOfBytes = endAddress - startAddress;
-    // addresses overlap so use memmove
-    memmove( address, startAddress, numberOfBytes );
-    SetCount( Count() - 1u );
+    char* endAddress = reinterpret_cast<char*>(mData);
+    endAddress += Count() * elementSize;
+    DALI_ASSERT_DEBUG( endAddress >= startAddress );
+    if( endAddress >= startAddress )
+    {
+      SizeType numberOfBytes = endAddress - startAddress;
+      // addresses overlap so use memmove
+      memmove( address, startAddress, numberOfBytes );
+      SetCount( Count() - 1u );
+    }
   }
 }
 
@@ -136,11 +141,16 @@ char* VectorBase::Erase( char* first, char* last, SizeType elementSize )
   if( mData )
   {
     char* startAddress = last;
-    const char* endAddress = reinterpret_cast< char* >( mData ) + Count() * elementSize;
-    SizeType numberOfBytes = endAddress - startAddress;
-    // addresses overlap so use memmove
-    memmove( first, startAddress, numberOfBytes );
-    SetCount( Count() - ( last - first ) / elementSize );
+    char* endAddress = reinterpret_cast< char* >( mData );
+    endAddress += Count() * elementSize;
+    DALI_ASSERT_DEBUG( endAddress >= startAddress );
+    if( endAddress >= startAddress )
+    {
+      SizeType numberOfBytes = endAddress - startAddress;
+      // addresses overlap so use memmove
+      memmove( first, startAddress, numberOfBytes );
+      SetCount( Count() - ( last - first ) / elementSize );
+    }
 
     next = first;
   }

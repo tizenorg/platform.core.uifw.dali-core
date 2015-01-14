@@ -358,7 +358,7 @@ inline void SetSortModifierMessage( EventToUpdate& eventToUpdate, const Renderab
   typedef MessageValue1< RenderableAttachment, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &RenderableAttachment::SetSortModifier, modifier );
@@ -369,7 +369,7 @@ inline void SetCullFaceMessage( EventToUpdate& eventToUpdate, const RenderableAt
   typedef MessageDoubleBuffered1< RenderableAttachment, CullFaceMode > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &RenderableAttachment::SetCullFace, mode );
@@ -380,7 +380,7 @@ inline void SetBlendingModeMessage( EventToUpdate& eventToUpdate, const Renderab
   typedef MessageValue1< RenderableAttachment, BlendingMode::Type > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &attachment, &RenderableAttachment::SetBlendingMode, mode );
 }
@@ -390,7 +390,7 @@ inline void SetBlendingOptionsMessage( EventToUpdate& eventToUpdate, const Rende
   typedef MessageDoubleBuffered1< RenderableAttachment, unsigned int > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &attachment, &RenderableAttachment::SetBlendingOptions, options );
 }
@@ -400,7 +400,7 @@ inline void SetBlendColorMessage( EventToUpdate& eventToUpdate, const Renderable
   typedef MessageDoubleBuffered1< RenderableAttachment, Vector4 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &attachment, &RenderableAttachment::SetBlendColor, color );
 }
@@ -410,7 +410,7 @@ inline void SetSamplerMessage( EventToUpdate& eventToUpdate, const RenderableAtt
   typedef MessageDoubleBuffered1< RenderableAttachment, unsigned int > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &RenderableAttachment::SetSampler, samplerBitfield );
@@ -424,7 +424,7 @@ inline void ApplyShaderMessage( EventToUpdate& eventToUpdate, const RenderableAt
   typedef MessageDoubleBuffered1< RenderableAttachment, Shader* > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &RenderableAttachment::ApplyShader, &shader );
@@ -435,7 +435,7 @@ inline void RemoveShaderMessage( EventToUpdate& eventToUpdate, const RenderableA
   typedef MessageDoubleBuffered0< RenderableAttachment > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &RenderableAttachment::RemoveShader );

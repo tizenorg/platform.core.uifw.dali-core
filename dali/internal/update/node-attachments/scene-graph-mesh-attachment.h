@@ -224,7 +224,7 @@ inline void SetMeshMessage( EventToUpdate& eventToUpdate, const MeshAttachment& 
   typedef MessageValue3< MeshAttachment, ResourceId, const Material*, std::size_t > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &MeshAttachment::SetMesh, meshId, material, boneCount );
@@ -235,7 +235,7 @@ inline void SetMaterialMessage( EventToUpdate& eventToUpdate, const MeshAttachme
   typedef MessageValue1< MeshAttachment, const Material* > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &MeshAttachment::SetMaterial, material );
@@ -246,7 +246,7 @@ inline void SetAffectedByLightingMessage( EventToUpdate& eventToUpdate, const Me
   typedef MessageValue1< MeshAttachment, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &MeshAttachment::SetAffectedByLighting, affectedByLighting );
@@ -257,7 +257,7 @@ inline void SetBoneNodeMessage( EventToUpdate& eventToUpdate, const MeshAttachme
   typedef MessageValue3< MeshAttachment, Node*, size_t, size_t > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &MeshAttachment::SetBoneNode, boneNode, boneIdx, boneCount );

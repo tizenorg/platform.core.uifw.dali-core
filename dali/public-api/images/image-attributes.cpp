@@ -78,7 +78,7 @@ struct ImageAttributes::ImageAttributesImpl
   }
 
   float         fieldRadius;      ///< The minimum search radius to check for differing pixels
-  int           fieldBorder : 16; ///< The amount of distancefield cells to add around the data (for glow/shadow effects)
+  unsigned int  fieldBorder : 16; ///< The amount of distancefield cells to add around the data (for glow/shadow effects)
   unsigned int  width : 16;       ///< image width in pixels
   unsigned int  height : 16;      ///< image height in pixels
   ScalingMode   scaling : 3;      ///< scaling option, ShrinkToFit is default
@@ -178,7 +178,7 @@ bool ImageAttributes::IsDistanceField() const
   return impl->isDistanceField;
 }
 
-int ImageAttributes::GetFieldBorder() const
+unsigned int ImageAttributes::GetFieldBorder() const
 {
   return impl->fieldBorder;
 }
@@ -216,7 +216,7 @@ ImageAttributes ImageAttributes::NewDistanceField()
   return attributes;
 }
 
-ImageAttributes ImageAttributes::NewDistanceField(float fieldRadius, int fieldBorder)
+ImageAttributes ImageAttributes::NewDistanceField(float fieldRadius, unsigned int fieldBorder)
 {
   ImageAttributes attributes;
   attributes.impl->isDistanceField = true;

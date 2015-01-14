@@ -51,7 +51,7 @@ void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& 
     case Dali::Pixel::RGBA8888:
     {
       byteOffset=0;
-      bitMask=0xFF;
+      bitMask=0xff;
       break;
     }
     case Dali::Pixel::BGR8888:
@@ -97,7 +97,7 @@ void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& 
     case Dali::Pixel::BGRA5551:
     {
       byteOffset=1;
-      bitMask=0x1e;
+      bitMask=0x3e;
       break;
     }
 

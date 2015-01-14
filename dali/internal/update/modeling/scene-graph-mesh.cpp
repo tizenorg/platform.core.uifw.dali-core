@@ -109,7 +109,7 @@ void Mesh::MeshDataUpdated( BufferIndex bufferIndex, Mesh::ThreadBuffer threadBu
 
     // Send a message to self in render thread
     typedef Message< Mesh > LocalType;
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( bufferIndex, sizeof( LocalType ) );
+    MessageRawPtr slot = mRenderQueue.ReserveMessageSlot( bufferIndex, sizeof( LocalType ) );
     new (slot) LocalType( this, &Mesh::RefreshVertexBuffer);
   }
 }

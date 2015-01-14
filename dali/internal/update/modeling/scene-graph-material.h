@@ -234,7 +234,7 @@ inline void SetPropertiesMessage( EventToUpdate& eventToUpdate, const Material& 
   typedef MessageValue1< Material, MaterialProperties > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &material, &Material::SetProperties, properties );
@@ -245,7 +245,7 @@ inline void SetDiffuseTextureMessage( EventToUpdate& eventToUpdate, const Materi
   typedef MessageValue1< Material, ResourceId > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &material, &Material::SetDiffuseTextureId, id );
@@ -256,7 +256,7 @@ inline void SetOpacityTextureMessage( EventToUpdate& eventToUpdate, const Materi
   typedef MessageValue1< Material, ResourceId > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &material, &Material::SetOpacityTextureId, id );
@@ -267,7 +267,7 @@ inline void SetNormalMapMessage( EventToUpdate& eventToUpdate, const Material& m
   typedef MessageValue1< Material, ResourceId > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &material, &Material::SetNormalMapId, id );

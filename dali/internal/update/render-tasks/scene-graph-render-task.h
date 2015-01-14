@@ -365,7 +365,7 @@ inline void SetFrameBufferIdMessage( EventToUpdate& eventToUpdate, RenderTask& t
   typedef MessageValue1< RenderTask, unsigned int > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::SetFrameBufferId, resourceId );
@@ -376,7 +376,7 @@ inline void SetClearColorMessage( EventToUpdate& eventToUpdate, RenderTask& task
   typedef MessageDoubleBuffered1< RenderTask, Vector4 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::SetClearColor, value );
@@ -387,7 +387,7 @@ inline void BakeClearColorMessage( EventToUpdate& eventToUpdate, const RenderTas
   typedef MessageDoubleBuffered1< RenderTask, Vector4 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::BakeClearColor, value );
@@ -398,7 +398,7 @@ inline void SetClearEnabledMessage( EventToUpdate& eventToUpdate, RenderTask& ta
   typedef MessageValue1< RenderTask, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::SetClearEnabled, enabled );
@@ -409,7 +409,7 @@ inline void SetCullModeMessage( EventToUpdate& eventToUpdate, RenderTask& task, 
   typedef MessageValue1< RenderTask, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::SetCullMode, mode );
@@ -420,7 +420,7 @@ inline void SetRefreshRateMessage( EventToUpdate& eventToUpdate, RenderTask& tas
   typedef MessageValue1< RenderTask, unsigned int > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::SetRefreshRate, refreshRate );
@@ -434,7 +434,7 @@ inline void SetSourceNodeMessage( EventToUpdate& eventToUpdate, RenderTask& task
   typedef MessageValue1< RenderTask, Node* > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::SetSourceNode, node );
@@ -448,7 +448,7 @@ inline void SetCameraNodeMessage( EventToUpdate& eventToUpdate, RenderTask& task
   typedef MessageValue1< RenderTask, Node* > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::SetCameraNode, node );
@@ -459,7 +459,7 @@ inline void SetExclusiveMessage( EventToUpdate& eventToUpdate, RenderTask& task,
   typedef MessageValue1< RenderTask, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::SetExclusive, exclusive );
@@ -470,7 +470,7 @@ inline void BakeViewportPositionMessage( EventToUpdate& eventToUpdate, const Ren
   typedef MessageDoubleBuffered1< RenderTask, Vector2 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::BakeViewportPosition, value );
@@ -481,7 +481,7 @@ inline void BakeViewportSizeMessage( EventToUpdate& eventToUpdate, const RenderT
   typedef MessageDoubleBuffered1< RenderTask, Vector2 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::BakeViewportSize, value );

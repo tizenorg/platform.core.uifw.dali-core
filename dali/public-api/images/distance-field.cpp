@@ -247,8 +247,8 @@ void GenerateDistanceFieldMap(const unsigned char* const imagePixels, const Size
   {
     for( int x = 0; x < scaledWidth; ++x )
     {
-      float pixel( inside[ y * scaledWidth + x ] );
-      distanceMap[y * scaledWidth + x ] = static_cast< unsigned char >(pixel * 255.0f);
+      float pixel( inside[ y * scaledWidth + x ] * 255.0f );
+      distanceMap[y * scaledWidth + x ] = static_cast< unsigned char >(pixel);
     }
   }
 }

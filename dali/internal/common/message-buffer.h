@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <cstddef>
+#include <dali/internal/common/message-types.h>
 
 namespace Dali
 {
@@ -33,7 +34,6 @@ namespace Internal
 class MessageBuffer
 {
 public:
-  typedef std::ptrdiff_t WordType;
 
   /**
    * Create a new MessageBuffer
@@ -53,7 +53,7 @@ public:
    * @param[in] size The message size with respect to the size of type "char".
    * @return A pointer to the address allocated for the message, aligned to a word boundary
    */
-  unsigned int* ReserveMessageSlot( std::size_t size );
+  MessageRawPtr ReserveMessageSlot( std::size_t size );
 
   /**
    * Query the capacity of the message buffer.
@@ -69,7 +69,7 @@ public:
   public:
 
     // Constructor
-    Iterator(WordType* current);
+    Iterator(MessageRawPtr current);
 
     // Inlined for performance
     bool IsValid()
@@ -79,7 +79,7 @@ public:
     }
 
     // Inlined for performance
-    WordType* Get()
+    MessageRawPtr Get()
     {
       return ( 0 != mMessageSize ) ? mCurrent : NULL;
     }
@@ -102,7 +102,7 @@ public:
 
   private:
 
-    WordType* mCurrent;
+    MessageRawPtr mCurrent;
     std::size_t mMessageSize;
   };
 
@@ -138,8 +138,8 @@ private:
 
   std::size_t mInitialCapacity; ///< The capacity to allocate during first call to ReserveMessageSlot
 
-  WordType* mData;     ///< The data allocated for the message buffer
-  WordType* mNextSlot; ///< The next free location in the buffer
+  MessageRawPtr mData;     ///< The data allocated for the message buffer
+  MessageRawPtr mNextSlot; ///< The next free location in the buffer
 
   std::size_t mCapacity; ///< The memory allocated with respect to sizeof(WordType)
   std::size_t mSize;     ///< The memory reserved for messages with respect to sizeof(WordType)

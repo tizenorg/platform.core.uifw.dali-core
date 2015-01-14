@@ -49,7 +49,7 @@ Internal::Texture* NewBitmapTexture( Integration::Bitmap* const bitmap, Context&
   }
   else
   {
-    Internal::BitmapCompressed * const compressedBitmap = dynamic_cast<Dali::Internal::BitmapCompressed*>( bitmap );
+    Internal::BitmapCompressed * const compressedBitmap = dynamic_cast<Dali::Internal::BitmapCompressed* const>( bitmap );
     if( compressedBitmap != 0 )
     {
       texture = new CompressedBitmapTexture( compressedBitmap, context, discardPolicy );

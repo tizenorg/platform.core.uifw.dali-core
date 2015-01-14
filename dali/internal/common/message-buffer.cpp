@@ -37,8 +37,8 @@ const unsigned int MESSAGE_END_FIELD  = 1u; // Size required to mark the end of 
 
 const unsigned int MESSAGE_SIZE_PLUS_END_FIELD = MESSAGE_SIZE_FIELD + MESSAGE_END_FIELD;
 
-const unsigned int MAX_DIVISION_BY_WORD_REMAINDER = sizeof(Dali::Internal::MessageBuffer::WordType) - 1u; // For word alignment on ARM
-const unsigned int WORD_SIZE = sizeof(Dali::Internal::MessageBuffer::WordType);
+const unsigned int MAX_DIVISION_BY_WORD_REMAINDER = sizeof(Dali::Internal::MessageRawPtrType) - 1u; // For word alignment on ARM
+const unsigned int WORD_SIZE = sizeof(Dali::Internal::MessageRawPtrType);
 
 } // unnamed namespace
 
@@ -62,7 +62,7 @@ MessageBuffer::~MessageBuffer()
   free( mData );
 }
 
-unsigned int* MessageBuffer::ReserveMessageSlot( std::size_t size )
+MessageRawPtr MessageBuffer::ReserveMessageSlot( std::size_t size )
 {
   DALI_ASSERT_DEBUG( 0 != size );
 
@@ -87,7 +87,7 @@ unsigned int* MessageBuffer::ReserveMessageSlot( std::size_t size )
   }
 
   // Now reserve the slot
-  WordType* slot = mNextSlot;
+  MessageRawPtr slot = mNextSlot;
 
   *slot++ = requestedSize; // Object size marker is stored in first word
 
@@ -97,8 +97,7 @@ unsigned int* MessageBuffer::ReserveMessageSlot( std::size_t size )
   // End marker
   *mNextSlot = 0;
 
-  // @todo Remove cast & change all messages to use WordType instead
-  return reinterpret_cast<unsigned int*>(slot);
+  return slot;
 }
 
 std::size_t MessageBuffer::GetCapacity() const
@@ -131,8 +130,8 @@ void MessageBuffer::IncreaseCapacity( std::size_t newCapacity )
   {
     // Often this avoids the need to copy memory
 
-    WordType* oldData = mData;
-    mData = reinterpret_cast<WordType*>( realloc( mData, newCapacity * WORD_SIZE ) );
+    MessageRawPtr oldData = mData;
+    mData = reinterpret_cast<MessageRawPtr>( realloc( mData, newCapacity * WORD_SIZE ) );
 
     // if realloc fails the old data is still valid
     if( !mData )
@@ -144,7 +143,7 @@ void MessageBuffer::IncreaseCapacity( std::size_t newCapacity )
   }
   else
   {
-    mData = reinterpret_cast<WordType*>( malloc( newCapacity * WORD_SIZE ) );
+    mData = reinterpret_cast<MessageRawPtr>( malloc( newCapacity * WORD_SIZE ) );
   }
   DALI_ASSERT_ALWAYS( NULL != mData );
 
@@ -152,7 +151,7 @@ void MessageBuffer::IncreaseCapacity( std::size_t newCapacity )
   mNextSlot = mData + mSize;
 }
 
-MessageBuffer::Iterator::Iterator(WordType* current)
+MessageBuffer::Iterator::Iterator(MessageRawPtr current)
 : mCurrent(current),
   mMessageSize(0)
 {

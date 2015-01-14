@@ -45,7 +45,7 @@ static void DoGlCleanup( BufferIndex updateBufferIndex, GlResourceOwner& owner, 
   typedef Message< GlResourceOwner > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = renderQueue.ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = renderQueue.ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &owner, &GlResourceOwner::GlCleanup );

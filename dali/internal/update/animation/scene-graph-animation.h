@@ -324,7 +324,7 @@ inline void SetDurationMessage( EventToUpdate& eventToUpdate, const Animation& a
   typedef MessageValue1< Animation, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetDuration, durationSeconds );
@@ -335,7 +335,7 @@ inline void SetLoopingMessage( EventToUpdate& eventToUpdate, const Animation& an
   typedef MessageValue1< Animation, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetLooping, looping );
@@ -346,7 +346,7 @@ inline void SetEndActionMessage( EventToUpdate& eventToUpdate, const Animation& 
   typedef MessageValue1< Animation, Dali::Animation::EndAction > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetEndAction, action );
@@ -357,7 +357,7 @@ inline void SetDisconnectActionMessage( EventToUpdate& eventToUpdate, const Anim
   typedef MessageValue1< Animation, Dali::Animation::EndAction > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetDisconnectAction, action );
@@ -368,7 +368,7 @@ inline void SetCurrentProgressMessage( EventToUpdate& eventToUpdate, const Anima
   typedef MessageValue1< Animation, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetCurrentProgress, progress );
@@ -379,7 +379,7 @@ inline void SetSpeedFactorMessage( EventToUpdate& eventToUpdate, const Animation
   typedef MessageValue1< Animation, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetSpeedFactor, factor );
@@ -390,7 +390,7 @@ inline void SetPlayRangeMessage( EventToUpdate& eventToUpdate, const Animation& 
   typedef MessageValue1< Animation, Vector2 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::SetPlayRange, range );
@@ -401,7 +401,7 @@ inline void PlayAnimationMessage( EventToUpdate& eventToUpdate, const Animation&
   typedef Message< Animation > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::Play );
@@ -412,7 +412,7 @@ inline void PlayAnimationFromMessage( EventToUpdate& eventToUpdate, const Animat
   typedef MessageValue1< Animation,float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::PlayFrom, progress );
@@ -423,7 +423,7 @@ inline void PauseAnimationMessage( EventToUpdate& eventToUpdate, const Animation
   typedef Message< Animation > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::Pause );
@@ -434,7 +434,7 @@ inline void AddAnimatorMessage( EventToUpdate& eventToUpdate, const Animation& a
   typedef MessageValue1< Animation, OwnerPointer<AnimatorBase> > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &animation, &Animation::AddAnimator, &animator );

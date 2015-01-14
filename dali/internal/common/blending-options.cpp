@@ -51,63 +51,63 @@ void StoreBlendingFactor( unsigned int& options, BlendingFactor::Type factor, in
   switch ( factor )
   {
     case BlendingFactor::ZERO:
-      options |= ( 0u << bitShift );
+      options |= ( 0 << bitShift );
       break;
 
     case BlendingFactor::ONE:
-      options |= ( 1u << bitShift );
+      options |= ( 1 << bitShift );
       break;
 
     case BlendingFactor::SRC_COLOR:
-      options |= ( 2u << bitShift );
+      options |= ( 2 << bitShift );
       break;
 
     case BlendingFactor::ONE_MINUS_SRC_COLOR:
-      options |= ( 3u << bitShift );
+      options |= ( 3 << bitShift );
       break;
 
     case BlendingFactor::SRC_ALPHA:
-      options |= ( 4u << bitShift );
+      options |= ( 4 << bitShift );
       break;
 
     case BlendingFactor::ONE_MINUS_SRC_ALPHA:
-      options |= ( 5u << bitShift );
+      options |= ( 5 << bitShift );
       break;
 
     case BlendingFactor::DST_ALPHA:
-      options |= ( 6u << bitShift );
+      options |= ( 6 << bitShift );
       break;
 
     case BlendingFactor::ONE_MINUS_DST_ALPHA:
-      options |= ( 7u << bitShift );
+      options |= ( 7 << bitShift );
       break;
 
     case BlendingFactor::DST_COLOR:
-      options |= ( 8u << bitShift );
+      options |= ( 8 << bitShift );
       break;
 
     case BlendingFactor::ONE_MINUS_DST_COLOR:
-      options |= ( 9u << bitShift );
+      options |= ( 9 << bitShift );
       break;
 
     case BlendingFactor::SRC_ALPHA_SATURATE:
-      options |= ( 10u << bitShift );
+      options |= ( 10 << bitShift );
       break;
 
     case BlendingFactor::CONSTANT_COLOR:
-      options |= ( 11u << bitShift );
+      options |= ( 11 << bitShift );
       break;
 
     case BlendingFactor::ONE_MINUS_CONSTANT_COLOR:
-      options |= ( 12u << bitShift );
+      options |= ( 12 << bitShift );
       break;
 
     case BlendingFactor::CONSTANT_ALPHA:
-      options |= ( 13u << bitShift );
+      options |= ( 13 << bitShift );
       break;
 
     case BlendingFactor::ONE_MINUS_CONSTANT_ALPHA:
-      options |= ( 14u << bitShift );
+      options |= ( 14 << bitShift );
       break;
   }
 }
@@ -123,15 +123,15 @@ void StoreBlendingEquation( unsigned int& options, BlendingEquation::Type factor
   switch ( factor )
   {
     case BlendingEquation::ADD:
-      options |= ( 0u << bitShift );
+      options |= ( 0 << bitShift );
       break;
 
     case BlendingEquation::SUBTRACT:
-      options |= ( 1u << bitShift );
+      options |= ( 1 << bitShift );
       break;
 
     case BlendingEquation::REVERSE_SUBTRACT:
-      options |= ( 2u << bitShift );
+      options |= ( 2 << bitShift );
       break;
   }
 }

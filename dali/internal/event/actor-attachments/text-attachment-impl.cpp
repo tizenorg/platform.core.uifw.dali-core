@@ -24,6 +24,7 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/internal/update/node-attachments/scene-graph-text-attachment.h>
 #include <dali/internal/event/common/stage-impl.h>
+#include <dali/internal/common/message-types.h>
 
 namespace Dali
 {

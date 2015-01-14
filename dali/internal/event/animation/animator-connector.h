@@ -260,50 +260,53 @@ private:
         //Dynamic cast will fail if BaseProperty is not a Vector4 AnimatableProperty
         DALI_ASSERT_DEBUG( animatableProperty != NULL && "Animating non-animatable property" );
 
-        switch( mComponentIndex )
+        if(animatableProperty)
         {
-          case 0:
+          switch( mComponentIndex )
           {
-            mAnimator = SceneGraph::Animator< float, PropertyComponentAccessorX<Vector4> >::New( *propertyOwner,
-                                                                                                 *animatableProperty,
-                                                                                                 mAnimatorFunction,
-                                                                                                 mAlphaFunction,
-                                                                                                 mTimePeriod );
-            break;
-          }
-          case 1:
-          {
-            mAnimator = SceneGraph::Animator< float, PropertyComponentAccessorY<Vector4> >::New( *propertyOwner,
-                                                                                                 *animatableProperty,
-                                                                                                 mAnimatorFunction,
-                                                                                                 mAlphaFunction,
-                                                                                                 mTimePeriod );
-            break;
-          }
-          case 2:
-          {
-            mAnimator = SceneGraph::Animator< float, PropertyComponentAccessorZ<Vector4> >::New( *propertyOwner,
-                                                                                                 *animatableProperty,
-                                                                                                 mAnimatorFunction,
-                                                                                                 mAlphaFunction,
-                                                                                                 mTimePeriod );
-            break;
-          }
-          case 3:
-          {
-            mAnimator = SceneGraph::Animator< float, PropertyComponentAccessorW<Vector4> >::New( *propertyOwner,
-                                                                                                 *animatableProperty,
-                                                                                                 mAnimatorFunction,
-                                                                                                 mAlphaFunction,
-                                                                                                 mTimePeriod );
-            break;
-          }
+            case 0:
+            {
+              mAnimator = SceneGraph::Animator< float, PropertyComponentAccessorX<Vector4> >::New( *propertyOwner,
+                                                                                                   *animatableProperty,
+                                                                                                   mAnimatorFunction,
+                                                                                                   mAlphaFunction,
+                                                                                                   mTimePeriod );
+              break;
+            }
+            case 1:
+            {
+              mAnimator = SceneGraph::Animator< float, PropertyComponentAccessorY<Vector4> >::New( *propertyOwner,
+                                                                                                   *animatableProperty,
+                                                                                                   mAnimatorFunction,
+                                                                                                   mAlphaFunction,
+                                                                                                   mTimePeriod );
+              break;
+            }
+            case 2:
+            {
+              mAnimator = SceneGraph::Animator< float, PropertyComponentAccessorZ<Vector4> >::New( *propertyOwner,
+                                                                                                   *animatableProperty,
+                                                                                                   mAnimatorFunction,
+                                                                                                   mAlphaFunction,
+                                                                                                   mTimePeriod );
+              break;
+            }
+            case 3:
+            {
+              mAnimator = SceneGraph::Animator< float, PropertyComponentAccessorW<Vector4> >::New( *propertyOwner,
+                                                                                                   *animatableProperty,
+                                                                                                   mAnimatorFunction,
+                                                                                                   mAlphaFunction,
+                                                                                                   mTimePeriod );
+              break;
+            }
 
-          default:
-          {
-            break;
+            default:
+            {
+              break;
+            }
           }
-        }
+        } // if(animatableProperty)
       }
     }
 

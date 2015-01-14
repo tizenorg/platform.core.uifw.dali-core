@@ -214,7 +214,7 @@ inline void SetSortFunctionMessage( EventToUpdate& eventToUpdate, const Layer& l
   typedef MessageValue1< Layer, Dali::Layer::SortFunctionType > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &layer, &Layer::SetSortFunction, function );
@@ -230,7 +230,7 @@ inline void SetClippingMessage( EventToUpdate& eventToUpdate, const Layer& layer
   typedef MessageValue1< Layer, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &layer, &Layer::SetClipping, enabled );
@@ -246,7 +246,7 @@ inline void SetClippingBoxMessage( EventToUpdate& eventToUpdate, const Layer& la
   typedef MessageValue1< Layer, Dali::ClippingBox > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &layer, &Layer::SetClippingBox, clippingbox );
@@ -265,7 +265,7 @@ inline void SetDepthTestDisabledMessage( EventToUpdate& eventToUpdate, const Lay
   typedef MessageValue1< Layer, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &layer, &Layer::SetDepthTestDisabled, disable );

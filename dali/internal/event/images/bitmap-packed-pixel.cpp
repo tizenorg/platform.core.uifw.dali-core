@@ -93,7 +93,7 @@ void BitmapPackedPixel::TestForTransparency()
     {
       unsigned char* row = pixelBuffer;
 
-      int byte; int bits;
+      int byte; unsigned char bits;
       Pixel::GetAlphaOffsetAndMask(mPixelFormat, byte, bits);
 
       int stride       = mBufferWidth * mBytesPerPixel;

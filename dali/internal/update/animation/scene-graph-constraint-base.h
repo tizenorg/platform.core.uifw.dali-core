@@ -255,7 +255,7 @@ inline void  BakeWeightMessage( EventToUpdate& eventToUpdate, const ConstraintBa
   typedef MessageDoubleBuffered1< ConstraintBase, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &constraint, &ConstraintBase::BakeWeight, weight );
@@ -266,7 +266,7 @@ inline void  SetRemoveActionMessage( EventToUpdate& eventToUpdate, const Constra
   typedef MessageValue1< ConstraintBase, Dali::Constraint::RemoveAction > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &constraint, &ConstraintBase::SetRemoveAction, removeAction );

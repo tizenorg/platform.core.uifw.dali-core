@@ -48,7 +48,7 @@ void RenderMessageDispatcher::AddRenderer( Renderer& renderer )
   typedef MessageValue1< RenderManager, Renderer* > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+  MessageRawPtr slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &mRenderManager, &RenderManager::AddRenderer, &renderer );
@@ -59,7 +59,7 @@ void RenderMessageDispatcher::RemoveRenderer( Renderer& renderer )
   typedef MessageValue1< RenderManager, Renderer* > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+  MessageRawPtr slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &mRenderManager, &RenderManager::RemoveRenderer, &renderer );
@@ -70,7 +70,7 @@ void RenderMessageDispatcher::AddRenderTracker( RenderTracker& renderTracker )
   typedef MessageValue1< RenderManager, RenderTracker* > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+  MessageRawPtr slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &mRenderManager, &RenderManager::AddRenderTracker, &renderTracker );
@@ -81,7 +81,7 @@ void RenderMessageDispatcher::RemoveRenderTracker( RenderTracker& renderTracker 
   typedef MessageValue1< RenderManager, RenderTracker* > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+  MessageRawPtr slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &mRenderManager, &RenderManager::RemoveRenderTracker, &renderTracker );

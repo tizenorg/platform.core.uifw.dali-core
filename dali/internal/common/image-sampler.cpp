@@ -67,17 +67,17 @@ void StoreFilterMode( unsigned int& options, FilterMode::Type mode, int bitShift
     }
     case FilterMode::DEFAULT:
     {
-      options |= ( 1u << bitShift );
+      options |= ( 1 << bitShift );
       break;
     }
     case FilterMode::NEAREST:
     {
-      options |= ( 2u << bitShift );
+      options |= ( 2 << bitShift );
       break;
     }
     case FilterMode::LINEAR:
     {
-      options |= ( 3u << bitShift );
+      options |= ( 3 << bitShift );
       break;
     }
   }

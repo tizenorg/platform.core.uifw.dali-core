@@ -73,7 +73,7 @@ inline void InitializeDynamicsCapsuleShapeMessage( EventToUpdate& eventToUpdate,
   typedef MessageValue2< DynamicsCapsuleShape, float, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &shape, &DynamicsCapsuleShape::Initialize, radius, length );

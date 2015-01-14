@@ -33,6 +33,7 @@
 
 namespace
 {
+
 void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& bitMask)
 {
   switch (pixelFormat)
@@ -49,6 +50,7 @@ void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& 
     case Dali::Pixel::RGB888:
     case Dali::Pixel::RGB8888:
     case Dali::Pixel::RGBA8888:
+    case Dali::Pixel::RGBX8888:
     {
       byteOffset=0;
       bitMask=0xFF;
@@ -99,6 +101,14 @@ void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& 
       byteOffset=1;
       bitMask=0x1e;
       break;
+    }
+    case Dali::Pixel::C8:
+    case Dali::Pixel::NV12:
+    case Dali::Pixel::NV21:
+    case Dali::Pixel::YUV420:
+    case Dali::Pixel::YVU420:
+    {
+      DALI_ASSERT_ALWAYS(false && "Now dali does not support nine patch for this format.\n");
     }
 
     case Dali::Pixel::COMPRESSED_R11_EAC:

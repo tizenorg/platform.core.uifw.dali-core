@@ -170,7 +170,7 @@ public:
    * @param [in] fieldBorder The amount of distancefield cells to add around the data (for glow/shadow effects)
    * @return A handle to a newly allocated object
    */
-  static ImageAttributes NewDistanceField(float fieldRadius, int fieldBorder);
+  static ImageAttributes NewDistanceField(float fieldRadius, unsigned int fieldBorder);
 
   /**
    * @brief Set the size properties.
@@ -293,7 +293,7 @@ public:
    *
    * @return field border
    */
-  int GetFieldBorder() const;
+  unsigned int GetFieldBorder() const;
 
   /**
    * @brief Return the field search radius currently represented by the attribute.

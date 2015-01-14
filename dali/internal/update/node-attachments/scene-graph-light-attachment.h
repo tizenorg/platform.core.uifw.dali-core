@@ -305,7 +305,7 @@ inline void SetLightMessage( EventToUpdate& eventToUpdate, const LightAttachment
   typedef MessageValue1< LightAttachment, Internal::LightPtr > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &LightAttachment::SetLight, parameter );
@@ -316,7 +316,7 @@ inline void SetNameMessage( EventToUpdate& eventToUpdate, const LightAttachment&
   typedef MessageValue1< LightAttachment, std::string > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &LightAttachment::SetName, parameter );
@@ -327,7 +327,7 @@ inline void SetTypeMessage( EventToUpdate& eventToUpdate, const LightAttachment&
   typedef MessageValue1< LightAttachment, LightType > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &LightAttachment::SetType, parameter );
@@ -338,7 +338,7 @@ inline void SetFallOffMessage( EventToUpdate& eventToUpdate, const LightAttachme
   typedef MessageValue1< LightAttachment, Vector2 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &LightAttachment::SetFallOff, parameter );
@@ -349,7 +349,7 @@ inline void SetSpotAngleMessage( EventToUpdate& eventToUpdate, const LightAttach
   typedef MessageValue1< LightAttachment, Vector2 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &LightAttachment::SetSpotAngle, parameter );
@@ -360,7 +360,7 @@ inline void SetAmbientColorMessage( EventToUpdate& eventToUpdate, const LightAtt
   typedef MessageValue1< LightAttachment, Vector3 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &LightAttachment::SetAmbientColor, parameter );
@@ -371,7 +371,7 @@ inline void SetDiffuseColorMessage( EventToUpdate& eventToUpdate, const LightAtt
   typedef MessageValue1< LightAttachment, Vector3 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &LightAttachment::SetDiffuseColor, parameter );
@@ -382,7 +382,7 @@ inline void SetSpecularColorMessage( EventToUpdate& eventToUpdate, const LightAt
   typedef MessageValue1< LightAttachment, Vector3 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &LightAttachment::SetSpecularColor, parameter );
@@ -393,7 +393,7 @@ inline void SetDirectionMessage( EventToUpdate& eventToUpdate, const LightAttach
   typedef MessageValue1< LightAttachment, Vector3 > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &LightAttachment::SetDirection, parameter );
@@ -404,7 +404,7 @@ inline void SetActiveMessage( EventToUpdate& eventToUpdate, const LightAttachmen
   typedef MessageValue1< LightAttachment, bool > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &attachment, &LightAttachment::SetActive, parameter );

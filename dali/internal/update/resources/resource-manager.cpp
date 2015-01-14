@@ -441,7 +441,7 @@ void ResourceManager::HandleUpdateMeshRequest( BufferIndex updateBufferIndex, Re
   typedef MessageDoubleBuffered2< SceneGraph::Mesh, SceneGraph::Mesh::ThreadBuffer, OwnerPointer<MeshData> > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mImpl->mRenderQueue.ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mImpl->mRenderQueue.ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the mRenderer queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mesh, &SceneGraph::Mesh::MeshDataUpdated, SceneGraph::Mesh::RENDER_THREAD, meshData );
@@ -950,7 +950,7 @@ void ResourceManager::ClearRequestedGlyphArea( ResourceId id, const ResourceType
     float blockSize = GlyphAtlasSize::GetBlockSize();
     // Get x, y from each character:
     for( TextResourceType::CharacterList::const_iterator iter = textResourceType->mCharacterList.begin(),
-           end = textResourceType->mCharacterList.end() ;
+           end = textResourceType->mCharacterList.end();
          iter != end ; iter ++ )
     {
       Vector2 clearArea( iter->xPosition, iter->yPosition );

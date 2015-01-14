@@ -122,7 +122,7 @@ unsigned int Pixel::GetBytesPerPixel(Format pixelFormat)
   return 0;
 }
 
-void Pixel::GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitMask)
+void Pixel::GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, unsigned char& bitMask)
 {
   switch (pixelFormat)
   {

@@ -142,7 +142,7 @@ void Shader::ForwardTextureId( BufferIndex updateBufferIndex, ResourceId texture
   typedef MessageValue1< Shader, Integration::ResourceId > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( this, &Shader::SetTextureId, textureId );
@@ -160,7 +160,7 @@ void Shader::ForwardUniformMeta( BufferIndex updateBufferIndex, UniformMeta* met
   typedef MessageValue1< Shader, UniformMeta* > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( this, &Shader::InstallUniformMetaInRender, meta );
@@ -172,7 +172,7 @@ void Shader::ForwardCoordinateType( BufferIndex updateBufferIndex, unsigned int 
   typedef MessageValue2< Shader, unsigned int, Dali::ShaderEffect::UniformCoordinateType > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( this, &Shader::SetCoordinateTypeInRender, index, type );
@@ -183,7 +183,7 @@ void Shader::ForwardGridDensity( BufferIndex updateBufferIndex, float density )
   typedef MessageValue1< Shader, float > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( this, &Shader::SetGridDensity, density );
@@ -194,7 +194,7 @@ void Shader::ForwardHints( BufferIndex updateBufferIndex, Dali::ShaderEffect::Ge
   typedef MessageValue1< Shader, Dali::ShaderEffect::GeometryHints > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( this, &Shader::SetGeometryHints, hint );
@@ -475,7 +475,7 @@ void SetTextureIdMessage( EventToUpdate& eventToUpdate, const Shader& shader, In
   typedef MessageDoubleBuffered1< Shader, Integration::ResourceId > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &shader, &Shader::ForwardTextureId, textureId );
@@ -486,7 +486,7 @@ void SetGridDensityMessage( EventToUpdate& eventToUpdate, const Shader& shader, 
   typedef MessageDoubleBuffered1< Shader, float > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &shader, &Shader::ForwardGridDensity, density );
@@ -497,7 +497,7 @@ void SetHintsMessage( EventToUpdate& eventToUpdate, const Shader& shader, Dali::
   typedef MessageDoubleBuffered1< Shader, Dali::ShaderEffect::GeometryHints > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &shader, &Shader::ForwardHints, hint );
@@ -508,7 +508,7 @@ void InstallUniformMetaMessage( EventToUpdate& eventToUpdate, const Shader& shad
   typedef MessageDoubleBuffered1< Shader, UniformMeta* > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &shader, &Shader::ForwardUniformMeta, &meta );
@@ -519,7 +519,7 @@ void SetCoordinateTypeMessage( EventToUpdate& eventToUpdate, const Shader& shade
   typedef MessageDoubleBuffered2< Shader, unsigned int, Dali::ShaderEffect::UniformCoordinateType > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &shader, &Shader::ForwardCoordinateType, index, type );

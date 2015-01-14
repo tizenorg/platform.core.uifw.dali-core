@@ -38,7 +38,7 @@ inline void InstallCustomPropertyMessage( EventToUpdate& eventToUpdate, const Pr
   typedef MessageValue1< PropertyOwner, PropertyBase* > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &owner, &PropertyOwner::InstallCustomProperty, &property );
@@ -49,7 +49,7 @@ inline void ApplyConstraintMessage( EventToUpdate& eventToUpdate, const Property
   typedef MessageValue1< PropertyOwner, OwnerPointer<ConstraintBase> > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &owner, &PropertyOwner::ApplyConstraint, &constraint );
@@ -63,7 +63,7 @@ inline void RemoveConstraintMessage( EventToUpdate& eventToUpdate, const Propert
   typedef MessageValue1< PropertyOwner, ConstraintBase* > LocalType;
 
   // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  MessageRawPtr slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &owner, &PropertyOwner::RemoveConstraint, &constraint );

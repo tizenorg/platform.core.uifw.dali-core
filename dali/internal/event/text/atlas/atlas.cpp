@@ -217,13 +217,13 @@ bool Atlas::AllocateBlock( unsigned int& blockNum )
     unsigned char mask = mFreeBlocks[i];
     if( 0xFF != mask)
     {
-      for( int n = 0; n < 8 ; n++)
+      for( unsigned char n = 0; n < 8 ; n++)
       {
         // check if a bit is not set.
-        if( ! (mask & (1 << n) ) )
+        if( ! (mask & (1u << n) ) )
         {
           // we have found a free bit, set it to 1.
-          mask|= (1 << n);
+          mask |= (1u << n);
           blockNum = i * 8 + n;
           mFreeBlocks[i] = mask;
 
@@ -245,10 +245,10 @@ void Atlas::DeAllocateBlock( unsigned int blockNum )
   unsigned char mask = mFreeBlocks[ bytePos ];
 
   // check the block was allocated
-  DALI_ASSERT_DEBUG( ((mask & (1<< bitPos))) && "DeAllocated a block, that was never allocated" );
+  DALI_ASSERT_DEBUG( ((mask & (1u<< bitPos))) && "DeAllocated a block, that was never allocated" );
 
   // clear the bit
-  mask &= ~(1 << bitPos);
+  mask &= ~(1u << bitPos);
 
   mFreeBlocks[ bytePos ] = mask;
 

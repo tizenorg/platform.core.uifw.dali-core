@@ -84,7 +84,7 @@ void ImageAttachment::ConnectToSceneGraph2( BufferIndex updateBufferIndex )
     typedef MessageValue1< ImageRenderer, ResourceId > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetTextureId, mTextureId );
@@ -127,7 +127,7 @@ void ImageAttachment::SetTextureId( BufferIndex updateBufferIndex, unsigned int 
     typedef MessageValue1< ImageRenderer, ResourceId > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetTextureId, mTextureId );
@@ -143,7 +143,7 @@ void ImageAttachment::SetPixelArea( BufferIndex updateBufferIndex, const PixelAr
     typedef MessageValue1< ImageRenderer, ImageRenderer::PixelArea > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetPixelArea, pixelArea );
@@ -175,7 +175,7 @@ void ImageAttachment::SetBorder( BufferIndex updateBufferIndex, const Vector4& b
   typedef MessageValue2< ImageRenderer, Vector4, bool > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetNinePatchBorder, border, inPixels );
@@ -315,7 +315,7 @@ void ImageAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
       typedef MessageValue3< ImageRenderer, ImageRenderer::MeshType, Vector2, bool > DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+      MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mImageRenderer, &ImageRenderer::CalculateMeshData, meshType, mGeometrySize, mIsPixelAreaSet );

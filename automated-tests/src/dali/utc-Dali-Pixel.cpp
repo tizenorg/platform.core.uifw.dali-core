@@ -117,7 +117,7 @@ int UtcDaliPixelGetAlphaOffsetAndMask(void)
   tet_infoline("UtcDaliPixelGetAlphaOffsetAndMask");
 
   int byteOffset = 0;
-  int bitMask = 0;
+  unsigned char bitMask = 0;
 
   // Be sure that the number of cases tested below is correct:
   TestPixelEnumSize( 26 );

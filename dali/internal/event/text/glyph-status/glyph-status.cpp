@@ -172,7 +172,7 @@ unsigned int GlyphStatus::GetEncodedValue(  unsigned int code, FontId fontId )
   // | font id (11 bits) | character code (21 bits) |
   // |                   |                          |
 
-  unsigned int combined = (code<<11) |  fontId  ;
+  unsigned int combined = (code<<11) |  (fontId & ~(1u<<11));
   return combined;
 }
 

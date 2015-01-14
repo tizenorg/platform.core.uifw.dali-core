@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/common/buffer-index.h>
 #include <dali/internal/common/event-to-update.h>
+#include <dali/internal/common/message-types.h>
 #include <dali/internal/update/common/scene-graph-buffers.h>
 
 namespace Dali
@@ -70,7 +71,7 @@ public:
   /**
    * @copydoc Dali::Internal::EventToUpdate::ReserveMessageSlot()
    */
-  virtual unsigned int* ReserveMessageSlot( std::size_t size, bool updateScene );
+  virtual MessageRawPtr ReserveMessageSlot( std::size_t size, bool updateScene );
 
   /**
    * @copydoc Dali::Internal::EventToUpdate::GetEventBufferIndex()

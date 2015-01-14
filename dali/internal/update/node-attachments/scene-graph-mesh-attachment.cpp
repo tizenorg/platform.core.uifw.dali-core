@@ -125,7 +125,7 @@ void MeshAttachment::ShaderChanged( BufferIndex updateBufferIndex )
   typedef Message< MeshRenderer > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the mRenderer queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mRenderer, &MeshRenderer::ResetCustomUniforms );
@@ -238,7 +238,7 @@ void MeshAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
     typedef MessageValue1< MeshRenderer, bool > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = renderQueue.ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    MessageRawPtr slot = renderQueue.ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( mRenderer, &MeshRenderer::SetAffectedByLighting, mAffectedByLighting );

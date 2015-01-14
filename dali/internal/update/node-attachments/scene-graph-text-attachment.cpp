@@ -113,7 +113,7 @@ void TextAttachment::SetTextVertexBuffer( BufferIndex updateBufferIndex, TextVer
     typedef MessageValue1< TextRenderer, OwnerPointer< TextVertexBuffer> > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( mTextRenderer, &TextRenderer::SetVertexData, vertexBuffer );
@@ -125,7 +125,7 @@ void TextAttachment::SetTextFontSize( BufferIndex updateBufferIndex, float pixel
   typedef MessageValue1< TextRenderer, float > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mTextRenderer, &TextRenderer::SetFontSize, pixelSize );
@@ -138,7 +138,7 @@ void TextAttachment::SetGradient( BufferIndex updateBufferIndex, const Vector4& 
   typedef MessageValue3< TextRenderer, Vector4, Vector2, Vector2 > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mTextRenderer, &TextRenderer::SetGradient, color, startPoint, endPoint );
@@ -151,7 +151,7 @@ void TextAttachment::SetTextColor( BufferIndex updateBufferIndex, const Vector4&
   typedef MessageValue1< TextRenderer, Vector4 > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mTextRenderer, &TextRenderer::SetTextColor, color );
@@ -164,7 +164,7 @@ void TextAttachment::SetOutline( BufferIndex updateBufferIndex, const bool enabl
   typedef MessageValue3< TextRenderer, bool, Vector4, Vector2 > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mTextRenderer, &TextRenderer::SetOutline, enable, color, params );
@@ -177,7 +177,7 @@ void TextAttachment::SetGlow( BufferIndex updateBufferIndex, const bool enable, 
   typedef MessageValue3< TextRenderer, bool, Vector4, float > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mTextRenderer, &TextRenderer::SetGlow, enable, color, params );
@@ -190,7 +190,7 @@ void TextAttachment::SetDropShadow( BufferIndex updateBufferIndex, const bool en
   typedef MessageValue4< TextRenderer, bool, Vector4, Vector2, float > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mTextRenderer, &TextRenderer::SetDropShadow, enable, color, offset, size );
@@ -203,7 +203,7 @@ void TextAttachment::SetSmoothEdge( BufferIndex updateBufferIndex, const float p
   typedef MessageValue1< TextRenderer, float > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  MessageRawPtr slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mTextRenderer, &TextRenderer::SetSmoothEdge, params );

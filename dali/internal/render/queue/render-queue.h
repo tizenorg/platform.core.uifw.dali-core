@@ -58,7 +58,7 @@ public:
    * @param[in] size The message size with respect to the size of type "char".
    * @return A pointer to the first char allocated for the message.
    */
-  unsigned int* ReserveMessageSlot( BufferIndex updateBufferIndex, std::size_t size );
+  MessageRawPtr ReserveMessageSlot( BufferIndex updateBufferIndex, std::size_t size );
 
   /**
    * Process the batch of messages, which were queued in the previous update.

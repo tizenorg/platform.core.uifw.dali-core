@@ -33,7 +33,7 @@
 
 namespace
 {
-void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& bitMask)
+void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, unsigned char& bitMask)
 {
   switch (pixelFormat)
   {
@@ -283,15 +283,15 @@ void NinePatchImage::ParseBorders()
     unsigned int srcStride = srcProfile->GetBufferStride();
 
     int alphaByte=0;
-    int alphaBits=0;
+    unsigned char alphaBits=0;
     Pixel::GetAlphaOffsetAndMask(pixelFormat, alphaByte, alphaBits);
     int redByte=0;
-    int redBits=0;
+    unsigned char redBits=0;
     GetRedOffsetAndMask(pixelFormat, redByte, redBits);
 
     int testByte = alphaByte;
-    int testBits = alphaBits;
-    int testValue = alphaBits; // Opaque == stretch
+    unsigned char testBits = alphaBits;
+    unsigned char testValue = alphaBits; // Opaque == stretch
     if( ! alphaBits )
     {
       testByte = redByte;

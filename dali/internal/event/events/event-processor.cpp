@@ -93,7 +93,7 @@ void EventProcessor::QueueEvent( const Event& event )
       typedef Integration::TouchEvent DerivedType;
 
       // Reserve some memory inside the message queue
-      unsigned int* slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
+      MessageRawPtr slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
       // Construct message in the message queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( static_cast<const DerivedType&>(event) );
@@ -106,7 +106,7 @@ void EventProcessor::QueueEvent( const Event& event )
       typedef Integration::HoverEvent DerivedType;
 
       // Reserve some memory inside the message queue
-      unsigned int* slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
+      MessageRawPtr slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
       // Construct message in the message queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( static_cast<const DerivedType&>(event) );
@@ -119,7 +119,7 @@ void EventProcessor::QueueEvent( const Event& event )
       typedef Integration::KeyEvent DerivedType;
 
       // Reserve some memory inside the message queue
-      unsigned int* slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
+      MessageRawPtr slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
       // Construct message in the message queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( static_cast<const DerivedType&>(event) );
@@ -132,7 +132,7 @@ void EventProcessor::QueueEvent( const Event& event )
       typedef Integration::MouseWheelEvent DerivedType;
 
       // Reserve some memory inside the message queue
-      unsigned int* slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
+      MessageRawPtr slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
       // Construct message in the message queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( static_cast<const DerivedType&>(event) );
@@ -158,7 +158,7 @@ void EventProcessor::QueueGestureEvent(const Integration::GestureEvent& event)
       typedef Integration::PinchGestureEvent DerivedType;
 
       // Reserve some memory inside the message queue
-      unsigned int* slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
+      MessageRawPtr slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
       // Construct message in the message queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( static_cast<const DerivedType&>(event) );
@@ -171,7 +171,7 @@ void EventProcessor::QueueGestureEvent(const Integration::GestureEvent& event)
       typedef Integration::PanGestureEvent DerivedType;
 
       // Reserve some memory inside the message queue
-      unsigned int* slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
+      MessageRawPtr slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
       // Construct message in the message queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( static_cast<const DerivedType&>(event) );
@@ -184,7 +184,7 @@ void EventProcessor::QueueGestureEvent(const Integration::GestureEvent& event)
       typedef Integration::TapGestureEvent DerivedType;
 
       // Reserve some memory inside the message queue
-      unsigned int* slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
+      MessageRawPtr slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
       // Construct message in the message queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( static_cast<const DerivedType&>(event) );
@@ -197,7 +197,7 @@ void EventProcessor::QueueGestureEvent(const Integration::GestureEvent& event)
       typedef Integration::LongPressGestureEvent DerivedType;
 
       // Reserve some memory inside the message queue
-      unsigned int* slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
+      MessageRawPtr slot = mCurrentEventQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
       // Construct message in the message queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( static_cast<const DerivedType&>(event) );

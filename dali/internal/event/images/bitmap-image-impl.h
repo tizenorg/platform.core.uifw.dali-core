@@ -149,6 +149,12 @@ public:
   PixelBuffer* GetBuffer();
 
   /**
+   * Returns the format of the pixels of the Image
+   * @return the pixel format
+   */
+  Pixel::Format GetPixelFormat() const;
+
+  /**
    * Returns buffer size in bytes.
    * @return the buffer size in bytes
    */

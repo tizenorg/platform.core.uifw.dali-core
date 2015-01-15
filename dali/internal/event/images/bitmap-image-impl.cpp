@@ -212,6 +212,11 @@ Integration::Bitmap * BitmapImage::GetBitmap() const
   return bitmap;
 }
 
+Pixel::Format BitmapImage::GetPixelFormat() const
+{
+  return GetBitmap()->GetPixelFormat();
+}
+
 } // namespace Internal
 
 } // namespace Dali

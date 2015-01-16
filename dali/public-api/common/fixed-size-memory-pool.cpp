@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+// CLASS HEADER
+#include <dali/public-api/common/fixed-size-memory-pool.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/event/common/fixed-size-memory-pool-impl.h>
+
+namespace Dali
+{
+
+FixedSizeMemoryPool FixedSizeMemoryPool::New( uint32_t size )
+{
+  Internal::FixedSizeMemoryPoolPtr internal = Internal::FixedSizeMemoryPool::New( size );
+
+  return FixedSizeMemoryPool( internal.Get() );
+}
+
+FixedSizeMemoryPool FixedSizeMemoryPool::New( uint32_t size, uint32_t initialCapacity, uint32_t maximumBlockCapacity )
+{
+  Internal::FixedSizeMemoryPoolPtr internal = Internal::FixedSizeMemoryPool::New( size, initialCapacity, maximumBlockCapacity );
+
+  return FixedSizeMemoryPool( internal.Get() );
+}
+
+FixedSizeMemoryPool::FixedSizeMemoryPool( Internal::FixedSizeMemoryPool* internal )
+: BaseHandle(internal)
+{
+}
+
+FixedSizeMemoryPool FixedSizeMemoryPool::DownCast( BaseHandle handle )
+{
+  return FixedSizeMemoryPool( dynamic_cast<Dali::Internal::FixedSizeMemoryPool*>( handle.GetObjectPtr() ) );
+}
+
+FixedSizeMemoryPool::FixedSizeMemoryPool()
+{
+}
+
+FixedSizeMemoryPool::~FixedSizeMemoryPool()
+{
+}
+
+FixedSizeMemoryPool::FixedSizeMemoryPool( const FixedSizeMemoryPool& copy )
+: BaseHandle(copy)
+{
+}
+
+FixedSizeMemoryPool& FixedSizeMemoryPool::operator=( const FixedSizeMemoryPool& rhs )
+{
+  BaseHandle::operator=(rhs);
+  return *this;
+}
+
+void* FixedSizeMemoryPool::NewAllocation()
+{
+  return GetImplementation(*this).NewAllocation();
+}
+
+void FixedSizeMemoryPool::DeleteAllocation( void* memory )
+{
+  GetImplementation(*this).DeleteAllocation( memory );
+}
+
+} // namespace Dali

@@ -31,6 +31,7 @@ SET(TC_SOURCES
         utc-Dali-DynamicsWorld.cpp
         utc-Dali-DynamicsWorldConfig.cpp
         utc-Dali-EncodedBufferImage.cpp
+        utc-Dali-FixedSizeMemoryPool.cpp
         utc-Dali-Font.cpp
         utc-Dali-FontParameters.cpp
         utc-Dali-FrameBufferImage.cpp

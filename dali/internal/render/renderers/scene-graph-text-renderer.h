@@ -191,6 +191,8 @@ private:
 
   float   mSmoothing;
   float   mPixelSize;
+public:
+  uint32_t textBraces; // @todo temp mem alloc
 };
 
 } // namespace SceneGraph

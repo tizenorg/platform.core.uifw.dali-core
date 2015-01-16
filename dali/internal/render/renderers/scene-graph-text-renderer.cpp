@@ -59,6 +59,8 @@ TextRenderer* TextRenderer::New( RenderDataProvider& dataprovider )
 
 TextRenderer::~TextRenderer()
 {
+  textBraces = 0xDEADC0DE; // @todo
+
   if(mTextureId > 0)
   {
     mTextureCache->RemoveObserver(mTextureId, this);
@@ -533,8 +535,10 @@ TextRenderer::TextRenderer( RenderDataProvider& dataprovider )
   mGeometryExtent(),
   mTextureId( 0 ),
   mSmoothing( Dali::TextStyle::DEFAULT_SMOOTH_EDGE_DISTANCE_FIELD ),
-  mPixelSize(0.0f)
+  mPixelSize(0.0f),
+  textBraces(0x3ACEBABE) // @todo
 {
+  belt = 0x3ACEBABE; // @todo
 }
 
 } // namespace SceneGraph

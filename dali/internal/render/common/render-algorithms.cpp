@@ -25,6 +25,10 @@
 #include <dali/internal/render/gl-resources/context.h>
 #include <dali/internal/render/renderers/scene-graph-renderer.h>
 
+#include <dali/internal/render/renderers/scene-graph-image-renderer.h> // @todo temp mem alloc check
+#include <dali/internal/render/renderers/scene-graph-mesh-renderer.h>  // @todo temp mem alloc check
+#include <dali/internal/render/renderers/scene-graph-text-renderer.h>  // @todo temp mem alloc check
+
 using Dali::Internal::SceneGraph::RenderItem;
 using Dali::Internal::SceneGraph::RenderList;
 using Dali::Internal::SceneGraph::RenderListContainer;
@@ -116,9 +120,49 @@ inline void ProcessRenderList( const RenderList& renderList,
     DALI_PRINT_RENDER_ITEM( item );
 
     SceneGraph::Renderer* renderer = const_cast< SceneGraph::Renderer* >( item.GetRenderer() );
-    const Matrix& modelViewMatrix = item.GetModelViewMatrix();
 
-    renderer->Render( bufferIndex, defaultShader, modelViewMatrix, viewMatrix, projectionMatrix, frameTime, cullMode );
+    // @todo temp mem alloc
+    bool ok = true;
+    if( 0x0ACEBABE != (renderer->belt & 0x0FFFFFFF) )
+    {
+      DALI_LOG_ERROR("Memory corruption? Renderer with wrong start magic number %x\n", renderer->belt);
+      ok = false;
+    }
+
+    if( 0x0ACEBABE != (renderer->braces & 0x0FFFFFFF) )
+    {
+      DALI_LOG_ERROR("Memory corruption? Renderer with wrong end magic number %x\n", renderer->braces);
+
+      ok = false;
+    }
+
+    if( 0x1ACEBABE == renderer->belt &&
+        0x1ACEBABE != ((SceneGraph::ImageRenderer*)renderer)->imageBraces)
+    {
+      DALI_LOG_ERROR("Memory corruption? Image Renderer with wrong end magic number %x\n",((SceneGraph::ImageRenderer*)renderer)->imageBraces);
+      ok = false;
+    }
+
+    if( 0x2ACEBABE == renderer->belt &&
+        0x2ACEBABE != ((SceneGraph::MeshRenderer*)renderer)->meshBraces)
+    {
+      DALI_LOG_ERROR("Memory corruption? Mesh Renderer with wrong end magic number %x\n", ((SceneGraph::MeshRenderer*)renderer)->meshBraces);
+      ok = false;
+    }
+
+    if( 0x3ACEBABE == renderer->belt &&
+        0x3ACEBABE != ((SceneGraph::TextRenderer*)renderer)->textBraces)
+    {
+      DALI_LOG_ERROR("Memory corruption? Text Renderer with wrong end magic number %x (%d,%d,%d,%d)\n", ((SceneGraph::TextRenderer*)renderer)->textBraces);
+      ok = false;
+    }
+
+    if(ok)
+    {
+      const Matrix& modelViewMatrix = item.GetModelViewMatrix();
+
+      renderer->Render( bufferIndex, defaultShader, modelViewMatrix, viewMatrix, projectionMatrix, frameTime, cullMode );
+    }
   }
 }
 

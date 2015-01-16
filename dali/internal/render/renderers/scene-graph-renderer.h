@@ -52,7 +52,7 @@ class RenderDataProvider;
 class Renderer : public GlResourceOwner
 {
 public:
-
+  uint32_t belt; // @todo temp mem alloc checks
   /**
    * Second-phase construction.
    * This is called when the renderer is inside render thread
@@ -187,6 +187,8 @@ private:
   BlendingOptions mBlendingOptions;
   bool mUseBlend:1;                 ///< True if blending should be enabled, 1 bit is enough
   CullFaceMode mCullFaceMode:3;     ///< cullface enum, 3 bits is enough
+public:
+  uint32_t braces; // @todo temp mem alloc checks
 };
 
 } // namespace SceneGraph

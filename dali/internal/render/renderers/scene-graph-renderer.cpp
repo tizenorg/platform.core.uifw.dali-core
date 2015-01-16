@@ -19,6 +19,8 @@
 #include <dali/internal/render/renderers/scene-graph-renderer.h>
 #include <dali/internal/render/renderers/scene-graph-renderer-declarations.h>
 
+#include <cstddef> // @todo temp mem alloc; offsetof
+
 // INTERNAL INCLUDES
 #include <dali/internal/render/gl-resources/context.h>
 #include <dali/internal/render/shaders/shader.h>
@@ -115,6 +117,8 @@ void Renderer::Initialize( Context& context, TextureCache& textureCache )
 
 Renderer::~Renderer()
 {
+  belt  = 0xDEADC0DE; // @todo
+  braces= 0xDEADC0DE; // @todo
 }
 
 void Renderer::SetShader( Shader* shader )
@@ -162,6 +166,23 @@ void Renderer::Render( BufferIndex bufferIndex,
   if( !mShader )
   {
     mShader = &defaultShader;
+  }
+
+  // @todo temp mem alloc check
+  bool ok = true;
+  if(mShader->belt != 0x1ACEBABE)
+  {
+    DALI_LOG_ERROR("Shader memory corrupt start? %x\n", mShader->belt);
+    ok = false;
+  }
+  if(mShader->braces != 0x1ACEBABE)
+  {
+    DALI_LOG_ERROR("Shader memory corrupt end? %x\n", mShader->braces);
+    ok = false;
+  }
+  if(!ok)
+  {
+    return;
   }
 
   if( !CheckResources() )
@@ -253,14 +274,16 @@ void Renderer::Render( BufferIndex bufferIndex,
 }
 
 Renderer::Renderer( RenderDataProvider& dataprovider )
-: mDataProvider( dataprovider ),
-  mContext( NULL ),
+  : belt(0x1ACEBABE), // @todo
+    mDataProvider( dataprovider ),
+    mContext( NULL ),
 
-  mTextureCache( NULL ),
-  mShader( NULL ),
-  mSamplerBitfield( ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) ),
-  mUseBlend( false ),
-  mCullFaceMode( CullNone )
+    mTextureCache( NULL ),
+    mShader( NULL ),
+    mSamplerBitfield( ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) ),
+    mUseBlend( false ),
+    mCullFaceMode( CullNone ),
+    braces(0x1ACEBABE) // @todo
 {
 }
 

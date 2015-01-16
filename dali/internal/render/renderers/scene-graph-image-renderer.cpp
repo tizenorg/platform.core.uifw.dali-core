@@ -121,6 +121,7 @@ ImageRenderer* ImageRenderer::New( RenderDataProvider& dataprovider )
 
 ImageRenderer::~ImageRenderer()
 {
+  imageBraces = 0xDEADC0DE; // @todo
   if ( mTextureId > 0 )
   {
     mTextureCache->RemoveObserver(mTextureId, this);
@@ -220,7 +221,7 @@ bool ImageRenderer::CheckResources()
     return false;
   }
 
-  Integration::ResourceId shaderTextureId =  mShader->GetTextureIdToRender() ;
+  Integration::ResourceId shaderTextureId =  mShader->GetTextureIdToRender();
 
   if( shaderTextureId &&  mTextureCache->GetTexture( shaderTextureId ) == NULL )
   {
@@ -926,17 +927,19 @@ void ImageRenderer::GenerateMeshIndices(GLushort* indices, int rectanglesX, int 
 }
 
 ImageRenderer::ImageRenderer( RenderDataProvider& dataprovider )
-: Renderer( dataprovider ),
-  mTexture( NULL ),
-  mBorder( 0.45, 0.45, 0.1, 0.1 ),
-  mPixelArea(),
-  mGeometrySize(),
-  mTextureId( 0 ),
-  mMeshType( ImageRenderer::QUAD ),
-  mIsMeshGenerated( false ),
-  mBorderInPixels( false ),
-  mUsePixelArea( false )
+  : Renderer( dataprovider ),
+    mTexture( NULL ),
+    mBorder( 0.45, 0.45, 0.1, 0.1 ),
+    mPixelArea(),
+    mGeometrySize(),
+    mTextureId( 0 ),
+    mMeshType( ImageRenderer::QUAD ),
+    mIsMeshGenerated( false ),
+    mBorderInPixels( false ),
+    mUsePixelArea( false ),
+    imageBraces(0x1ACEBABE) // @todo
 {
+  belt = 0x1ACEBABE; // @todo
 }
 
 } // namespace SceneGraph

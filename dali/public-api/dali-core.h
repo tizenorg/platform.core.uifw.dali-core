@@ -51,6 +51,7 @@
 #include <dali/public-api/common/constants.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/common/fixed-size-memory-pool.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/common/light.h>
 #include <dali/public-api/common/loading-state.h>

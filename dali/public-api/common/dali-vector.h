@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/math/math-utils.h>
-
+#include <stdint.h>
 /**
  * @brief For DALi internal use asserts are enabled in debug builds.
  *
@@ -54,7 +54,7 @@ class DALI_IMPORT_API VectorBase
 {
 public: // Typedefs
 
-  typedef std::size_t SizeType;
+  typedef uint32_t SizeType;
 
 protected: // Construction
 
@@ -172,7 +172,7 @@ protected: // for Derived classes
    * @param[in] source Pointer to the source address.
    * @param[in] numberOfBytes The number of bytes to be copied.
    */
-  void CopyMemory( char* destination, const char* source, size_t numberOfBytes );
+  void CopyMemory( char* destination, const char* source, SizeType numberOfBytes );
 
 private:
 
@@ -313,7 +313,7 @@ protected: // API for deriving classes
     if( newCount > Capacity() )
     {
       // Calculate the at offset as the pointer is invalid after the Reserve() call.
-      std::size_t offset = at - reinterpret_cast<char*>( mData );
+      SizeType offset = at - reinterpret_cast<char*>( mData );
 
       // need more space
       Reserve( NextPowerOfTwo( newCount ), elementSize ); // reserve enough space to store at least the next power of two elements of the new required size.

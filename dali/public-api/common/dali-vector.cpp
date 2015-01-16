@@ -148,7 +148,7 @@ char* VectorBase::Erase( char* first, char* last, SizeType elementSize )
   return next;
 }
 
-void VectorBase::CopyMemory( char* destination, const char* source, size_t numberOfBytes )
+void VectorBase::CopyMemory( char* destination, const char* source, SizeType numberOfBytes )
 {
   if( ( ( source < destination ) && ( source + numberOfBytes > destination ) ) ||
       ( ( destination < source ) && ( destination + numberOfBytes > source ) ) )

@@ -224,7 +224,8 @@ private:
   bool      mIsMeshGenerated : 1;
   bool      mBorderInPixels  : 1;
   bool      mUsePixelArea    : 1;
-
+public: // @todo
+  uint32_t imageCheckSum2;
 };
 
 } // namespace SceneGraph

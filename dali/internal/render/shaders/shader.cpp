@@ -105,13 +105,15 @@ inline unsigned int GetGeometryTypeIndex(GeometryType type)
 
 
 Shader::Shader( Dali::ShaderEffect::GeometryHints& hints )
-: mGeometryHints( hints ),
-  mGridDensity( Dali::ShaderEffect::DEFAULT_GRID_DENSITY ),
-  mTexture( NULL ),
-  mRenderTextureId( 0 ),
-  mUpdateTextureId( 0 ),
-  mRenderQueue(NULL),
-  mTextureCache(NULL)
+  : checkSum1(0x1ACEBABE),
+    mGeometryHints( hints ),
+    mGridDensity( Dali::ShaderEffect::DEFAULT_GRID_DENSITY ),
+    mTexture( NULL ),
+    mRenderTextureId( 0 ),
+    mUpdateTextureId( 0 ),
+    mRenderQueue(NULL),
+    mTextureCache(NULL),
+    checkSum2(0x1ACEBABE)
 {
   // Create enough size for all default types and sub-types
   mPrograms.resize(Log<GEOMETRY_TYPE_LAST>::value);
@@ -123,6 +125,8 @@ Shader::Shader( Dali::ShaderEffect::GeometryHints& hints )
 
 Shader::~Shader()
 {
+  checkSum1 = 0xDEADC0DE;
+  checkSum2 = 0xDEADC0DE;
 }
 
 void Shader::Initialize( RenderQueue& renderQueue, TextureCache& textureCache )

@@ -59,6 +59,7 @@ class TextureCache;
 class Shader : public PropertyOwner
 {
 public:
+  uint32_t checkSum1; // @todo memory alloc check
 
   /**
    * This container contains pointers to the programs for each sub-type of a given geometry type.
@@ -334,6 +335,9 @@ private: // Data
 
   // These members are only safe to access in render thread
   TextureCache*                  mTextureCache; // Used for retrieving textures in the render thread
+
+public: // @todo memory alloc check
+  uint32_t checkSum2;
 };
 
 // Messages for Shader, to be processed in Update thread.

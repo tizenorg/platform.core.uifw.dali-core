@@ -165,7 +165,8 @@ private:
   static const unsigned int mNumberOfCustomUniforms = 13; // Number of uniforms needed for renderer
   CustomUniform             mCustomUniform[SHADER_SUBTYPE_LAST][ mNumberOfCustomUniforms ];
   RenderMaterialUniforms    mRenderMaterialUniforms; ///< Uniforms for render material
-
+public: // @todo
+  uint32_t meshCheckSum2;
 };
 
 } // namespace SceneGraph

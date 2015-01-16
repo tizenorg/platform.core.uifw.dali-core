@@ -53,8 +53,10 @@ MeshRenderer::MeshRenderer( RenderDataProvider& dataprovider )
   mLightController(NULL),
   mAffectedByLighting(true),
   mGeometryType(GEOMETRY_TYPE_TEXTURED_MESH),
-  mShaderType(SHADER_DEFAULT)
+  mShaderType(SHADER_DEFAULT),
+  meshCheckSum2(0x2ACEBABE) // @todo
 {
+  checkSum1 = 0x2ACEBABE; // @todo
 }
 
 void MeshRenderer::ResetCustomUniforms()
@@ -77,6 +79,7 @@ void MeshRenderer::SetAffectedByLighting( bool affectedByLighting )
 
 MeshRenderer::~MeshRenderer()
 {
+  meshCheckSum2 = 0xDEADC0DE; // @todo
 }
 
 void MeshRenderer::GlContextDestroyed()

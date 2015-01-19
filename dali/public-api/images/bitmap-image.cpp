@@ -22,6 +22,8 @@
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/internal/event/images/bitmap-image-impl.h>
+#include <dali/integration-api/platform-abstraction.h>
+#include <dali/internal/event/common/thread-local-storage.h>
 
 namespace Dali
 {
@@ -132,6 +134,25 @@ void BitmapImage::Update (RectArea updateArea)
 bool BitmapImage::IsDataExternal() const
 {
   return GetImplementation(*this).IsDataExternal();
+}
+
+BitmapImage LoadBitmap( const std::string& filename )
+{
+  BitmapImage image;
+
+  Integration::PlatformAbstraction& platformAbstraction = Internal::ThreadLocalStorage::Get().GetPlatformAbstraction();
+
+  Integration::BitmapResourceType bitmapType( ImageAttributes::DEFAULT_ATTRIBUTES );
+
+  Integration::ResourcePointer resource = platformAbstraction.LoadResourceSynchronously( bitmapType, filename );
+  if( resource )
+  {
+    Integration::Bitmap* bitmap = static_cast<Integration::Bitmap*>( resource.Get() );
+
+    image = BitmapImage::New( bitmap->ReleaseBuffer(), bitmap->GetImageWidth(), bitmap->GetImageHeight(), bitmap->GetPixelFormat() );
+  }
+
+  return image;
 }
 
 } // namespace Dali

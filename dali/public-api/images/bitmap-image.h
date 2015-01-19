@@ -290,6 +290,14 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL BitmapImage(Internal::BitmapImage*);
 };
 
+/**
+ * @brief Synchronously loads & decodes an image file into a BitmapImage.
+ *
+ * @param [in] filename The filename of the image file to use.
+ * @return A handle to a newly allocated object.
+ */
+DALI_IMPORT_API BitmapImage LoadBitmap(const std::string& filename);
+
 } // namespace Dali
 
 #endif // __DALI_BITMAP_IMAGE_H__

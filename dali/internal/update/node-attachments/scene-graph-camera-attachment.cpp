@@ -182,7 +182,7 @@ void CameraAttachment::ConnectToSceneGraph( SceneController& sceneController, Bu
   // do nothing
 }
 
-void CameraAttachment::OnDestroy()
+void CameraAttachment::OnDestroy( BufferIndex updateBufferIndex )
 {
   // do nothing
 }

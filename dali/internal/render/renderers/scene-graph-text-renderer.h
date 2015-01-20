@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/fixed-size-memory-pool.h>
 #include <dali/internal/common/message.h>
 #include <dali/internal/render/shaders/custom-uniform.h>
 #include <dali/internal/render/gl-resources/gpu-buffer.h>
@@ -51,10 +52,11 @@ public:
 
   /**
    * Construct a new TextRenderer.
+   * @param allocator Allocator from which to allocate objects from
    * @param dataprovider to render
    * @return The newly allocated TextRenderer
    */
-  static TextRenderer* New( RenderDataProvider& dataprovider );
+  static TextRenderer* New( FixedSizeObjectAllocator< TextRenderer >& allocator, RenderDataProvider& dataprovider );
 
   /**
    * Virtual destructor

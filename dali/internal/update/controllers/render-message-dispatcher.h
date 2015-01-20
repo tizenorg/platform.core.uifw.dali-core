@@ -87,6 +87,7 @@ private:
   RenderQueue& mRenderQueue;
 
   const SceneGraphBuffers& mBuffers;
+
 };
 
 } // namespace SceneGraph

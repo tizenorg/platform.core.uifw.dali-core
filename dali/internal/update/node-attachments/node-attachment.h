@@ -60,8 +60,9 @@ public:
   /**
    * Called shortly before destruction.
    * After this method has been called, the SceneController cannot be safely accessed.
+   * @param[in] updateBufferIndex The current update buffer index.
    */
-  virtual void OnDestroy() = 0;
+  virtual void OnDestroy( BufferIndex updateBufferIndex ) = 0;
 
   /**
    * Set the parent of a NodeAttachment.

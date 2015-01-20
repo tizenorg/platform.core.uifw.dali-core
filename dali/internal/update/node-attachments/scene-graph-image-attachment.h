@@ -163,7 +163,7 @@ private:
   /**
    * @copydoc RenderableAttachment::OnDestroy2().
    */
-  virtual void OnDestroy2();
+  virtual void OnDestroy2( BufferIndex updateBufferIndex );
 
   /**
    * @copydoc RenderableAttachment::DoPrepareResources()
@@ -184,7 +184,7 @@ private:
 
 private: // Data
 
-  ImageRenderer* mImageRenderer; ///< Raw-pointers to renderer that is owned by RenderManager
+  ImageRenderer* mImageRenderer; ///< Raw-pointers to renderer that is owned by this object
   unsigned int mTextureId;        ///< The resource ID for a texture
 
   // bitfields to fit in single byte

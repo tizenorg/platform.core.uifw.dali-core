@@ -40,6 +40,9 @@ namespace SceneGraph
 class Node;
 class RenderQueue;
 class Shader;
+class ImageRenderer;
+class TextRenderer;
+class MeshRenderer;
 
 /**
  * DiscardQueue is used to cleanup nodes & resources when no longer in use.
@@ -52,7 +55,10 @@ class DiscardQueue
 {
 public:
 
-  typedef OwnerContainer< Shader* > ShaderQueue;
+  typedef OwnerContainer< Shader* >       ShaderQueue;
+  typedef Dali::Vector< ImageRenderer* >  ImageRendererQueue;
+  typedef Dali::Vector< TextRenderer* >   TextRendererQueue;
+  typedef Dali::Vector< MeshRenderer* >   MeshRendererQueue;
 
   /**
    * Create a new DiscardQueue.
@@ -102,6 +108,60 @@ public:
   void Add( BufferIndex bufferIndex, Shader* shader );
 
   /**
+   * Adds an unwanted image renderer to the discard queue
+   *
+   * @pre This method is not thread-safe, and should only be called from the update-thread.
+   * @param[in] bufferIndex The current update buffer index.
+   * @param[in] renderer The renderer to queue; DiscardQueue DOES NOT take ownership - must be deleted by client.
+   */
+  void Add( BufferIndex updateBufferIndex, ImageRenderer* renderer );
+
+  /**
+   * Adds an unwanted text renderer to the discard queue
+   *
+   * @pre This method is not thread-safe, and should only be called from the update-thread.
+   * @param[in] bufferIndex The current update buffer index.
+   * @param[in] renderer The renderer to queue; DiscardQueue DOES NOT take ownership - must be deleted by client.
+   */
+  void Add( BufferIndex updateBufferIndex, TextRenderer* renderer );
+
+  /**
+   * Adds an unwanted mesh renderer to the discard queue
+   *
+   * @pre This method is not thread-safe, and should only be called from the update-thread.
+   * @param[in] bufferIndex The current update buffer index.
+   * @param[in] renderer The renderer to queue; DiscardQueue DOES NOT take ownership - must be deleted by client.
+   */
+  void Add( BufferIndex updateBufferIndex, MeshRenderer* renderer );
+
+  /**
+   * Retrieve the current image renderer queue. Usually so that the objects it contains may be deleted.
+   *
+   * @pre This method is not thread-safe, and should only be called from the update-thread.
+   * @param[in] bufferIndex The current update buffer index.
+   * @return Return the current renderer queue.
+   */
+  ImageRendererQueue& GetImageRendererQueue( BufferIndex updateBufferIndex );
+
+  /**
+   * Retrieve the current text renderer queue. Usually so that the objects it contains may be deleted.
+   *
+   * @pre This method is not thread-safe, and should only be called from the update-thread.
+   * @param[in] bufferIndex The current update buffer index.
+   * @return Return the current renderer queue.
+   */
+  TextRendererQueue& GetTextRendererQueue( BufferIndex updateBufferIndex );
+
+  /**
+   * Retrieve the current mesh renderer queue. Usually so that the objects it contains may be deleted.
+   *
+   * @pre This method is not thread-safe, and should only be called from the update-thread.
+   * @param[in] bufferIndex The current update buffer index.
+   * @return Return the current renderer queue.
+   */
+  MeshRendererQueue& GetMeshRendererQueue( BufferIndex updateBufferIndex );
+
+  /**
    * Release the nodes which were queued in the frame N-2.
    * @pre This method should be called (once) at the beginning of every Update.
    * @param[in] updateBufferIndex The current update buffer index.
@@ -125,12 +185,18 @@ private:
   NodeAttachmentOwnerContainer mAttachmentQueue0;
   MeshOwnerContainer           mMeshQueue0;
   ShaderQueue                  mShaderQueue0;
+  ImageRendererQueue           mImageRendererQueue0;
+  TextRendererQueue            mTextRendererQueue0;
+  MeshRendererQueue            mMeshRendererQueue0;
 
   // Messages are queued here when the update buffer index == 1
   NodeOwnerContainer           mNodeQueue1;
   NodeAttachmentOwnerContainer mAttachmentQueue1;
   MeshOwnerContainer           mMeshQueue1;
   ShaderQueue                  mShaderQueue1;
+  ImageRendererQueue           mImageRendererQueue1;
+  TextRendererQueue            mTextRendererQueue1;
+  MeshRendererQueue            mMeshRendererQueue1;
 
 };
 

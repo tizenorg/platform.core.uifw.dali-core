@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/fixed-size-memory-pool.h>
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/render/renderers/render-material.h>
 #include <dali/internal/render/renderers/scene-graph-renderer.h>
@@ -67,11 +68,12 @@ public:
 
   /**
    * Construct a new MeshRenderer.
+   * @param allocator Allocator to allocate memory from
    * @param dataprovider to render
    * @param lightController to get the light information
    * @return The newly allocated MeshRenderer.
    */
-  static MeshRenderer* New( RenderDataProvider& dataprovider, LightController& lightController );
+  static MeshRenderer* New( FixedSizeObjectAllocator<MeshRenderer>& allocator, RenderDataProvider& dataprovider, LightController& lightController );
 
   /**
    * Retrieve the mesh information for the next frame.

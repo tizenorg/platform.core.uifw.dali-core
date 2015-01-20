@@ -22,18 +22,20 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/loading-state.h>
-#include <dali/public-api/object/base-image.h>
+#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
 
 namespace Dali
 {
-struct Vector2;
 
 namespace Internal DALI_INTERNAL
 {
 class Image;
 }
+
+class NativeImage;
+class ImageAttributes;
+
 
 /**
  * @brief An Image object represents an image resource that can be added to ImageActors.
@@ -90,52 +92,61 @@ class Image;
  * Note: if a resource was shared between Image objects it exists until its last reference is gone.
  *
  */
-class DALI_IMPORT_API Image : public BaseHandle
+class DALI_IMPORT_API BaseImage : public BaseHandle
 {
 public:
+  /**
+   * @brief Resource management options.
+   */
+
+  /**
+   * @brief LoadPolicy controls the way images are loaded into memory.
+   */
+  enum LoadPolicy
+  {
+    Immediate, ///< load image once it is created (default)
+    OnDemand   ///< delay loading until the image is being used (a related actor is added to Stage)
+  };
+
+  /**
+   * @brief ReleasePolicy controls the way images are deleted from memory.
+   */
+  enum ReleasePolicy
+  {
+    Unused, ///< release resource once image is not in use anymore (eg. all actors using it become offstage). Reload when resource is required again.
+    Never   ///< keep image data for the lifetime of the object. (default)
+  };
 
   /**
    * @brief Type of signal for LoadingFinished and Uploaded.
    */
-  typedef SignalV2< void (Image) > ImageSignalV2;
+  typedef SignalV2< void (BaseImage) > ImageSignalV2;
 
   // Signal Names
-  static const char* const SIGNAL_IMAGE_LOADING_FINISHED; ///< Name of LoadingFinished signal
+  static const char* const SIGNAL_IMAGE_UPLOADED; ///< Name of Uploaded signal
 
 public:
-
-  /**
-   * @brief Get the size of an image from disk.
-   *
-   * This function will read the header info from file on disk and is
-   * synchronous, so it should not be used repeatedly or in tight
-   * loops.
-   *
-   * @param [in] filename of the image file to use.
-   * @return The width and height in pixels of the image.
-   */
-  static Vector2 GetImageSize(const std::string filename);
 
   /**
    * @brief Constructor which creates an empty Image object.
    *
    * Use Image::New(...) to create an initialised object.
    */
-  Image();
+  BaseImage();
 
   /**
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  ~Image();
+  ~BaseImage();
 
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
    * @param [in] handle A reference to the copied handle
    */
-  Image(const Image& handle);
+  BaseImage(const BaseImage& handle);
 
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
@@ -143,45 +154,17 @@ public:
    * @param [in] rhs  A reference to the copied handle
    * @return A reference to this
    */
-  Image& operator=(const Image& rhs);
+  BaseImage& operator=(const BaseImage& rhs);
 
   /**
-   * @brief Create an initialised image object.
+   * @brief Creates object with already loaded NativeImage.
    *
-   * @param [in] filename The filename of the image file to use.
+   * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE
+   * @pre nativeImg should be initialised
+   * @param [in] nativeImg already initialised NativeImage
    * @return A handle to a newly allocated object
    */
-  static Image New(const std::string& filename);
-
-  /**
-   * @brief Create an initialised image object.
-   *
-   * @param [in] filename The filename of the image file to use.
-   * @param [in] loadPol    The LoadPolicy to apply when loading the image resource.
-   * @param [in] releasePol The ReleasePolicy to apply to Image.
-   * @return A handle to a newly allocated object
-   */
-  static Image New(const std::string& filename, LoadPolicy loadPol, ReleasePolicy releasePol);
-
-  /**
-   * @brief Create an initialised image object.
-   *
-   * @param [in] filename   The filename of the image file to use.
-   * @param [in] attributes Requested parameters for loading (size, scaling etc.).
-   * @return A handle to a newly allocated object
-   */
-  static Image New(const std::string& filename, const ImageAttributes& attributes);
-
-  /**
-   * @brief Create an initialised image object.
-   *
-   * @param [in] filename   The filename of the image file to use.
-   * @param [in] attributes Requested parameters for loading (size, scaling etc.).
-   * @param [in] loadPol    The LoadPolicy to apply when loading the image resource.
-   * @param [in] releasePol The ReleasePolicy to apply to Image.
-   * @return A handle to a newly allocated object
-   */
-  static Image New(const std::string& filename, const ImageAttributes& attributes, LoadPolicy loadPol, ReleasePolicy releasePol);
+  static BaseImage New(NativeImage& nativeImg);
 
   /**
    * @brief Downcast an Object handle to Image handle.
@@ -194,41 +177,64 @@ public:
   static Image DownCast( BaseHandle handle );
 
   /**
-   * @brief Query whether the image data has loaded.
+   * @brief Return load policy.
    *
-   * The asynchronous loading begins when the Image object is created.
-   * After the Image object is discarded, the image data will be released from memory.
-   * @return The loading state, either Loading, Success or Failed.
+   * @return resource load policy
    */
-  LoadingState GetLoadingState() const;
+  LoadPolicy GetLoadPolicy() const;
 
   /**
-   * @brief Returns the filename of the image if the image is created from a file.
+   * @brief Return resource release policy.
    *
-   * @return the image filename or empty string
+   * @return resource release policy
    */
-  std::string GetFilename() const;
+  ReleasePolicy GetReleasePolicy() const;
 
   /**
-   * @brief Reload image from filesystem.
+   * @brief Returns the width of the image.
    *
-   * The set ImageAttributes are used when requesting the image again.
-   * @note if Image is offstage and OnDemand policy is set, reload request is ignored.
+   * Returns either the requested width or the actual loaded width if no specific size was requested.
+   *
+   * @return width of the image in pixels.
    */
-  void Reload();
+  unsigned int GetWidth() const;
+
+  /**
+   * @brief Returns the height of the image.
+   *
+   * Returns either the requested height or the actual loaded height if no specific size was requested.
+   *
+   * @return height of the image in pixels.
+   */
+  unsigned int GetHeight() const;
+
+  /**
+   * @brief Get the attributes of an image.
+   *
+   * Only to be used after the image has finished loading.
+   * (Ticket's LoadingSucceeded callback was called)
+   * The returned value will reflect the true image dimensions once the asynchronous loading has finished.
+   * Connect to SignalLoadingFinished or use GetLoadingState to make sure this value is actual.
+   * @pre image should be loaded
+   * @return a copy of the attributes
+   */
+  ImageAttributes GetAttributes() const;
 
 public: // Signals
 
   /**
-   * @brief Emitted when the image data loads successfully, or when the loading fails.
+   * @brief This signal is emitted when the image data gets uploaded to GL.
    *
+   * It Will be sent after an actor using the image is added to
+   * the stage, when such a staged image is reloaded, or when a staged
+   * BitmapImage calls Update().
    * @return A signal object to Connect() with.
    */
-  ImageSignalV2& LoadingFinishedSignal();
+  ImageSignalV2& UploadedSignal();
 
 public: // Not intended for application developers
 
-  explicit DALI_INTERNAL Image(Internal::Image*);
+  explicit DALI_INTERNAL BaseImage(Internal::BaseImage*);
 };
 
 } // namespace Dali

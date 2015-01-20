@@ -33,6 +33,7 @@
 #include <dali/internal/update/controllers/render-message-dispatcher.h>
 #include <dali/internal/update/controllers/scene-controller.h>
 #include <dali/internal/update/nodes/node.h>
+#include <dali/internal/update/common/memory-allocators.h>
 #include <dali/integration-api/debug.h>
 
 #if defined(DEBUG_ENABLED)
@@ -71,7 +72,7 @@ void TextAttachment::ConnectToSceneGraph2( BufferIndex updateBufferIndex )
   DALI_ASSERT_DEBUG( NULL != mSceneController );
 
   // Create the renderer, passing ownership to the render-thread
-  mTextRenderer = TextRenderer::New( *mParent );
+  mTextRenderer = TextRenderer::New( mSceneController->GetRendererAllocators().textRendererAllocator, *mParent );
   mTextRenderer->SetUseBlend( true ); // Text renderer always requires blending
 
   mSceneController->GetRenderMessageDispatcher().AddRenderer( *mTextRenderer );

@@ -38,6 +38,7 @@
 #include <dali/internal/update/animation/scene-graph-animator.h>
 #include <dali/internal/update/animation/scene-graph-animation.h>
 #include <dali/internal/update/common/discard-queue.h>
+#include <dali/internal/update/common/memory-allocators.h>
 #include <dali/internal/update/manager/prepare-render-algorithms.h>
 #include <dali/internal/update/manager/process-render-tasks.h>
 #include <dali/internal/update/resources/resource-manager.h>
@@ -157,7 +158,7 @@ struct UpdateManager::Impl
         TouchResampler& touchResampler,
         SceneGraphBuffers& sceneGraphBuffers )
   :
-    renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers ),
+    renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers, discardQueue ),
     notificationManager( notificationManager ),
     animationFinishedNotifier( animationFinishedNotifier ),
     propertyNotifier( propertyNotifier ),
@@ -186,7 +187,7 @@ struct UpdateManager::Impl
     renderSortingHelper(),
     renderTaskWaiting( false )
   {
-    sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue, textureCache, completeStatusManager );
+    sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue, textureCache, completeStatusManager, rendererAllocators );
   }
 
   ~Impl()
@@ -287,6 +288,8 @@ struct UpdateManager::Impl
 
   GestureContainer                    gestures;                      ///< A container of owned gesture detectors
   bool                                renderTaskWaiting;             ///< A REFRESH_ONCE render task is waiting to be rendered
+
+  RendererAllocators                  rendererAllocators;            ///< A struct containing the memory allocators for renderer objects
 };
 
 UpdateManager::UpdateManager( NotificationManager& notificationManager,
@@ -982,6 +985,39 @@ void UpdateManager::PrepareMaterials( BufferIndex updateBufferIndex, MaterialCon
   }
 }
 
+void UpdateManager::DeleteDiscardQueueRenderers()
+{
+  DiscardQueue::RendererQueue& rendererQueue = mImpl->discardQueue.GetRendererQueue( mSceneGraphBuffers.GetUpdateBufferIndex() );
+
+  RendererAllocators& allocators = mImpl->rendererAllocators;
+
+  for( DiscardQueue::RendererQueue::Iterator it = rendererQueue.Begin(), itEnd = rendererQueue.End(); it != itEnd; ++it )
+  {
+    Renderer* renderer = *it;
+
+    ImageRenderer* imageRenderer = dynamic_cast< ImageRenderer* >( renderer );
+    if ( imageRenderer )
+    {
+      allocators.imageRendererAllocator.Delete( imageRenderer );
+      continue;
+    }
+
+    MeshRenderer* meshRenderer = dynamic_cast< MeshRenderer* >( renderer );
+    if ( meshRenderer )
+    {
+      allocators.meshRendererAllocator.Delete( meshRenderer );
+      continue;
+    }
+
+    TextRenderer* textRenderer = dynamic_cast< TextRenderer* >( renderer );
+    if ( textRenderer )
+    {
+      allocators.textRendererAllocator.Delete( textRenderer );
+      continue;
+    }
+  }
+}
+
 unsigned int UpdateManager::Update( float elapsedSeconds,
                                     unsigned int lastVSyncTimeMilliseconds,
                                     unsigned int nextVSyncTimeMilliseconds )
@@ -997,6 +1033,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   mImpl->renderManager.SetFrameDeltaTime(elapsedSeconds);
 
   // 1) Clear nodes/resources which were previously discarded
+  DeleteDiscardQueueRenderers();
   mImpl->discardQueue.Clear( mSceneGraphBuffers.GetUpdateBufferIndex() );
 
   // 2) Grab any loaded resources

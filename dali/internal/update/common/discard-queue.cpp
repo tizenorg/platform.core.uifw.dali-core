@@ -135,6 +135,31 @@ void DiscardQueue::Add( BufferIndex updateBufferIndex, Shader* shader )
   }
 }
 
+void DiscardQueue::Add( BufferIndex updateBufferIndex, Renderer* renderer )
+{
+  DALI_ASSERT_DEBUG( renderer );
+
+  // Send message to clean-up GL resources in the next Render
+  DoGlCleanup( updateBufferIndex, *renderer, mRenderQueue );
+
+  // The GL resources will now be freed in frame N
+  // The Update for frame N+1 may occur in parallel with the rendering of frame N
+  // Queue the node for destruction in frame N+2
+  if ( 0u == updateBufferIndex )
+  {
+    mRendererQueue0.PushBack( renderer );
+  }
+  else
+  {
+    mRendererQueue1.PushBack( renderer );
+  }
+}
+
+DiscardQueue::RendererQueue& DiscardQueue::GetRendererQueue( BufferIndex updateBufferIndex )
+{
+  return ( 0u == updateBufferIndex ) ? mRendererQueue0 : mRendererQueue1;
+}
+
 void DiscardQueue::Clear( BufferIndex updateBufferIndex )
 {
   // Destroy some discarded objects; these should no longer own any GL resources
@@ -145,6 +170,7 @@ void DiscardQueue::Clear( BufferIndex updateBufferIndex )
     mAttachmentQueue0.Clear();
     mMeshQueue0.Clear();
     mShaderQueue0.Clear();
+    mRendererQueue0.Clear();  // Will not delete pointed to objects
   }
   else
   {
@@ -152,6 +178,7 @@ void DiscardQueue::Clear( BufferIndex updateBufferIndex )
     mAttachmentQueue1.Clear();
     mMeshQueue1.Clear();
     mShaderQueue1.Clear();
+    mRendererQueue1.Clear();  // Will not delete pointed to objects
   }
 }
 

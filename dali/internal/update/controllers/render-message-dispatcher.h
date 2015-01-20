@@ -34,6 +34,7 @@ class Renderer;
 class RenderManager;
 class RenderQueue;
 class RenderTracker;
+class DiscardQueue;
 
 /**
  * A utility class for sending messages to the render-thread.
@@ -45,7 +46,7 @@ public:
   /**
    * Constructor
    */
-  RenderMessageDispatcher( RenderManager& renderManager, RenderQueue& renderQueue, const SceneGraphBuffers& buffers );
+  RenderMessageDispatcher( RenderManager& renderManager, RenderQueue& renderQueue, const SceneGraphBuffers& buffers, DiscardQueue& discardQueue );
 
   /**
    * Destructor
@@ -87,6 +88,8 @@ private:
   RenderQueue& mRenderQueue;
 
   const SceneGraphBuffers& mBuffers;
+
+  DiscardQueue& mDiscardQueue;
 };
 
 } // namespace SceneGraph

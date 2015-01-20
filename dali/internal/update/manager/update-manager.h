@@ -476,6 +476,11 @@ private:
    */
   void PrepareMaterials( BufferIndex updateBufferIndex, MaterialContainer& materials );
 
+  /**
+   * Delete all renderers from the current discard queue
+   */
+  void DeleteDiscardQueueRenderers();
+
 private:
 
   // needs to be direct member so that getter for event buffer can be inlined

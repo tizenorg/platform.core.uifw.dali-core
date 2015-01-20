@@ -19,6 +19,7 @@
 #include <dali/internal/update/controllers/render-message-dispatcher.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/update/common/discard-queue.h>
 #include <dali/internal/render/common/render-manager.h>
 #include <dali/internal/render/queue/render-queue.h>
 #include <dali/internal/common/message.h>
@@ -32,10 +33,11 @@ namespace Internal
 namespace SceneGraph
 {
 
-RenderMessageDispatcher::RenderMessageDispatcher( RenderManager& renderManager, RenderQueue& renderQueue, const SceneGraphBuffers& buffers )
+RenderMessageDispatcher::RenderMessageDispatcher( RenderManager& renderManager, RenderQueue& renderQueue, const SceneGraphBuffers& buffers, DiscardQueue& discardQueue )
 : mRenderManager( renderManager ),
   mRenderQueue( renderQueue ),
-  mBuffers( buffers )
+  mBuffers( buffers ),
+  mDiscardQueue( discardQueue )
 {
 }
 
@@ -56,6 +58,8 @@ void RenderMessageDispatcher::AddRenderer( Renderer& renderer )
 
 void RenderMessageDispatcher::RemoveRenderer( Renderer& renderer )
 {
+  mDiscardQueue.Add( mBuffers.GetUpdateBufferIndex(), &renderer );
+
   typedef MessageValue1< RenderManager, Renderer* > DerivedType;
 
   // Reserve some memory inside the render queue

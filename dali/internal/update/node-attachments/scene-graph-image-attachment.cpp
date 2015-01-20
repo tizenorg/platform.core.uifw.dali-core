@@ -23,6 +23,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/common/internal-constants.h>
 
+#include <dali/internal/update/common/memory-allocators.h>
 #include <dali/internal/update/resources/resource-manager.h>
 #include <dali/internal/update/resources/complete-status-manager.h>
 
@@ -73,7 +74,7 @@ void ImageAttachment::ConnectToSceneGraph2( BufferIndex updateBufferIndex )
   DALI_ASSERT_DEBUG( NULL != mSceneController );
 
   // Create main renderer, passing ownership to the render-thread
-  mImageRenderer = ImageRenderer::New( *mParent );
+  mImageRenderer = ImageRenderer::New( mSceneController->GetRendererAllocators().imageRendererAllocator, *mParent );
 
   mSceneController->GetRenderMessageDispatcher().AddRenderer( *mImageRenderer );
 

@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/images/nine-patch-image.h>
+#include <dali/internal/event/images/url-image-impl.h>
 #include <dali/internal/event/images/bitmap-image-impl.h>
 
 namespace Dali
@@ -44,7 +45,7 @@ class UpdateManager;
  * It's image data has a border which determines stretch and fill areas
  * Its pixel buffer data is loaded synchronously from file.
  */
-class NinePatchImage : public Image
+class NinePatchImage : public UrlImage
 {
 public:
 
@@ -59,8 +60,7 @@ public:
    */
   static NinePatchImagePtr New( const std::string& filename,
                                 const ImageAttributes& attributes,
-                                LoadPolicy    loadPol    = ImageLoadPolicyDefault,
-                                ReleasePolicy releasePol = ImageReleasePolicyDefault );
+                                ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
 
   /**
    * Create a new NinePatchImage
@@ -73,8 +73,7 @@ public:
    */
   NinePatchImage( const std::string& filename,
                   const ImageAttributes& attributes,
-                  LoadPolicy    loadPol    = ImageLoadPolicyDefault,
-                  ReleasePolicy releasePol = ImageReleasePolicyDefault );
+                  ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
 
   /**
    * Convert Image object to a 9 patch image object if possible.

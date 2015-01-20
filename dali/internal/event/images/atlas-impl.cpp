@@ -78,18 +78,14 @@ Atlas::Atlas( std::size_t width,
   mWidth  = width;
   mHeight = height;
 
-  if( Dali::Image::Immediate == mLoadPolicy )
-  {
-    AllocateAtlas();
-  }
+  AllocateAtlas();
 }
 
 void Atlas::Connect()
 {
   ++mConnectionCount;
 
-  if( Dali::Image::OnDemand == mLoadPolicy &&
-      mConnectionCount == 1 )
+  if( mConnectionCount == 1 )
   {
     AllocateAtlas();
   }
@@ -101,7 +97,7 @@ void Atlas::Disconnect()
   {
     --mConnectionCount;
 
-    if ( Dali::Image::Unused == mReleasePolicy &&
+    if ( Dali::Image::UNUSED == mReleasePolicy &&
          mConnectionCount == 0 )
     {
       ReleaseAtlas();

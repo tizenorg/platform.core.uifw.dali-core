@@ -59,8 +59,7 @@ public:
    */
   static NinePatchImagePtr New( const std::string& filename,
                                 const ImageAttributes& attributes,
-                                LoadPolicy    loadPol    = ImageLoadPolicyDefault,
-                                ReleasePolicy releasePol = ImageReleasePolicyDefault );
+                                ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
 
   /**
    * Create a new NinePatchImage
@@ -73,8 +72,7 @@ public:
    */
   NinePatchImage( const std::string& filename,
                   const ImageAttributes& attributes,
-                  LoadPolicy    loadPol    = ImageLoadPolicyDefault,
-                  ReleasePolicy releasePol = ImageReleasePolicyDefault );
+                  ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
 
   /**
    * Convert Image object to a 9 patch image object if possible.

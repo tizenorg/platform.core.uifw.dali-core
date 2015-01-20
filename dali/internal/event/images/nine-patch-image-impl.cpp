@@ -135,14 +135,14 @@ namespace
 TypeRegistration mType( typeid( Dali::NinePatchImage ), typeid( Dali::Image ), NULL );
 } // unnamed namespace
 
-NinePatchImagePtr NinePatchImage::New( const std::string& filename, const Dali::ImageAttributes& attributes, LoadPolicy loadPol, ReleasePolicy releasePol )
+NinePatchImagePtr NinePatchImage::New( const std::string& filename, const Dali::ImageAttributes& attributes, ReleasePolicy releasePol )
 {
-  Internal::NinePatchImagePtr internal( new NinePatchImage( filename, attributes, loadPol, releasePol ) );
+  Internal::NinePatchImagePtr internal( new NinePatchImage( filename, attributes, releasePol ) );
   internal->Initialize();
   return internal;
 }
 
-NinePatchImage::NinePatchImage( const std::string& filename, const Dali::ImageAttributes& attributes, LoadPolicy loadPol, ReleasePolicy releasePol)
+NinePatchImage::NinePatchImage( const std::string& filename, const Dali::ImageAttributes& attributes, ReleasePolicy releasePol)
 : Image(Dali::Image::Immediate, Dali::Image::Never),
   mParsedBorder(false)
 {

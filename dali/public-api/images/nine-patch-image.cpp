@@ -32,7 +32,7 @@ NinePatchImage::NinePatchImage()
 }
 
 NinePatchImage::NinePatchImage(Internal::NinePatchImage* internal)
-: Image(internal)
+: UrlImage(internal)
 {
 }
 
@@ -41,7 +41,7 @@ NinePatchImage::~NinePatchImage()
 }
 
 NinePatchImage::NinePatchImage(const NinePatchImage& handle)
-: Image(handle)
+: UrlImage(handle)
 {
 }
 

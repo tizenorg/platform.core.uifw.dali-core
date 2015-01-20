@@ -44,6 +44,11 @@ BitmapImage::~BitmapImage()
 {
 }
 
+BitmapImage::Initialize()
+{
+  RegisterObject();
+}
+
 BitmapImage::BitmapImage(const BitmapImage& handle)
 : Image(handle)
 {
@@ -72,12 +77,12 @@ BitmapImage BitmapImage::New(unsigned int width, unsigned int height, Pixel::For
   return BitmapImage(internal.Get());
 }
 
-BitmapImage BitmapImage::New(unsigned int width, unsigned int height, Pixel::Format pixelformat, LoadPolicy loadPol, ReleasePolicy releasePol)
+BitmapImage BitmapImage::New(unsigned int width, unsigned int height, Pixel::Format pixelformat, ReleasePolicy releasePol)
 {
   DALI_ASSERT_ALWAYS( 0u != width  && "Invalid BitmapImage width requested" );
   DALI_ASSERT_ALWAYS( 0u != height && "Invalid BitmapImage height requested" );
 
-  Internal::BitmapImagePtr internal = Internal::BitmapImage::New(width, height, pixelformat, loadPol, releasePol);
+  Internal::BitmapImagePtr internal = Internal::BitmapImage::New(width, height, pixelformat, releasePol);
   return BitmapImage(internal.Get());
 }
 

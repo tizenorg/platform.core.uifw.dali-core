@@ -85,7 +85,7 @@ int UtcDaliRenderTaskSetScreenToFrameBufferMappingActor(void)
 
   RenderTaskList taskList = stage.GetRenderTaskList();
   RenderTask renderTask = taskList.CreateTask();
-  FrameBufferImage frameBufferImage =  FrameBufferImage::New(stageSize.width*scale.x, stageSize.height*scale.y, Pixel::A8, Image::Never);
+  FrameBufferImage frameBufferImage =  FrameBufferImage::New(stageSize.width*scale.x, stageSize.height*scale.y, Pixel::A8, Image::NEVER);
   renderTask.SetSourceActor( offscreenActor );
   renderTask.SetExclusive( true );
   renderTask.SetInputEnabled( true );

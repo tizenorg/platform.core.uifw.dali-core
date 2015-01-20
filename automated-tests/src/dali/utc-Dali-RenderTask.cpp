@@ -184,9 +184,9 @@ bool TestScreenToFrameBufferFunction( Vector2& coordinates )
   return true;
 }
 
-ImageActor CreateLoadingImage(TestApplication& application, std::string filename, Image::LoadPolicy loadPolicy, Image::ReleasePolicy releasePolicy)
+ImageActor CreateLoadingImage(TestApplication& application, std::string filename, ResourceImage::LoadPolicy loadPolicy, Image::ReleasePolicy releasePolicy)
 {
-  Image image = Image::New(filename, loadPolicy, releasePolicy);
+  Image image = ResourceImage::New(filename, loadPolicy, releasePolicy);
   DALI_TEST_CHECK( image );
   application.SendNotification();
   application.Render(16);
@@ -216,7 +216,7 @@ void FailImageLoad(TestApplication& application, Integration::ResourceId resourc
   application.GetPlatform().SetResourceLoadFailed(resourceId, Integration::FailureUnknown);
 }
 
-void ReloadImage(TestApplication& application, Image image)
+void ReloadImage(TestApplication& application, ResourceImage image)
 {
   application.GetPlatform().ClearReadyResources();
   application.GetPlatform().DiscardRequest();
@@ -1236,7 +1236,7 @@ int UtcDaliRenderTaskContinuous01(void)
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
 
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1282,7 +1282,7 @@ int UtcDaliRenderTaskContinuous02(void)
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
 
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1326,7 +1326,7 @@ int UtcDaliRenderTaskContinuous03(void)
   Stage::GetCurrent().Add( rootActor );
 
   CameraActor offscreenCameraActor = CameraActor::New();
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1371,7 +1371,7 @@ int UtcDaliRenderTaskContinuous04(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1411,7 +1411,7 @@ int UtcDaliRenderTaskOnce01(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1468,7 +1468,7 @@ int UtcDaliRenderTaskOnce02(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1527,7 +1527,7 @@ int UtcDaliRenderTaskOnce03(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1584,7 +1584,7 @@ int UtcDaliRenderTaskOnce03(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1658,7 +1658,7 @@ int UtcDaliRenderTaskOnce05(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1726,7 +1726,7 @@ int UtcDaliRenderTaskOnce06(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1803,7 +1803,7 @@ int UtcDaliRenderTaskOnce07(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1867,7 +1867,7 @@ int UtcDaliRenderTaskOnce08(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Stage::GetCurrent().Add(secondRootActor);
@@ -1923,7 +1923,7 @@ int UtcDaliRenderTaskOnceNoSync01(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -1973,7 +1973,7 @@ int UtcDaliRenderTaskOnceNoSync02(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -2021,7 +2021,7 @@ int UtcDaliRenderTaskOnceNoSync03(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -2071,7 +2071,7 @@ int UtcDaliRenderTaskOnceNoSync03(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -2133,7 +2133,7 @@ int UtcDaliRenderTaskOnceNoSync05(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -2187,7 +2187,7 @@ int UtcDaliRenderTaskOnceNoSync06(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -2247,7 +2247,7 @@ int UtcDaliRenderTaskOnceNoSync07(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;
@@ -2299,7 +2299,7 @@ int UtcDaliRenderTaskOnceNoSync08(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor secondRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Stage::GetCurrent().Add(secondRootActor);
@@ -2349,7 +2349,7 @@ int UtcDaliRenderTaskOnceChain01(void)
 
   CameraActor offscreenCameraActor = CameraActor::New();
   Stage::GetCurrent().Add( offscreenCameraActor );
-  ImageActor firstRootActor = CreateLoadingImage(application, "aFile.jpg", Image::Immediate, Image::Unused);
+  ImageActor firstRootActor = CreateLoadingImage(application, "aFile.jpg", ResourceImage::IMMEDIATE, Image::UNUSED);
   Integration::ResourceRequest* imageRequest = application.GetPlatform().GetRequest();
   Integration::ResourceId imageRequestId = imageRequest->GetId();
   Integration::ResourceTypeId imageType  = imageRequest->GetType()->id;

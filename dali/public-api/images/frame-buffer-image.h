@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/images/image.h>
+#include <dali/public-api/images/pixel.h>
 #include <dali/public-api/math/rect.h>
 
 namespace Dali

@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/image-actor.h>
+#include <dali/public-api/common/fixed-size-memory-pool.h>
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/render/gl-resources/context.h>
@@ -58,10 +59,11 @@ public:
 
   /**
    * Create a new ImageRenderer.
+   * @param allocator Allocator from which to allocate objects from
    * @param dataprovider to render
    * @return The newly allocated ImageRenderer.
    */
-  static ImageRenderer* New( RenderDataProvider& dataprovider );
+  static ImageRenderer* New( FixedSizeObjectAllocator< ImageRenderer >& allocator, RenderDataProvider& dataprovider );
 
   /**
    * Virtual destructor

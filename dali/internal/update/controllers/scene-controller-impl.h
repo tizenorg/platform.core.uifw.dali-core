@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/update/controllers/scene-controller.h>
 #include <dali/internal/update/controllers/light-controller.h>
+#include <dali/internal/update/common/memory-allocators.h>
 
 namespace Dali
 {
@@ -52,7 +53,8 @@ public:
                        RenderQueue& renderQueue,
                        DiscardQueue& discardQueue,
                        TextureCache& textureCache,
-                       CompleteStatusManager& completeStatusManager );
+                       CompleteStatusManager& completeStatusManager,
+                       RendererAllocators& rendererAllocators );
 
   /**
    * Destructor
@@ -91,6 +93,11 @@ public:  // from SceneController
    */
   virtual CompleteStatusManager& GetCompleteStatusManager() { return mCompleteStatusManager;  }
 
+  /**
+   * @copydoc SceneController::GetRendererAllocators()
+   */
+  virtual RendererAllocators& GetRendererAllocators() { return mRendererAllocators;  }
+
 private:
 
   // Undefined copy constructor.
@@ -107,6 +114,7 @@ private:
   DiscardQueue&            mDiscardQueue;          ///< discard queue
   TextureCache&            mTextureCache;          ///< texture cache
   CompleteStatusManager&   mCompleteStatusManager; ///< Complete Status manager
+  RendererAllocators&      mRendererAllocators;    ///< Allocators used to allocate memory for renderers
 
 };
 

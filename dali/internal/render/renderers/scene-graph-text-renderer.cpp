@@ -52,9 +52,9 @@ namespace Internal
 namespace SceneGraph
 {
 
-TextRenderer* TextRenderer::New( RenderDataProvider& dataprovider )
+TextRenderer* TextRenderer::New( FixedSizeObjectAllocator< TextRenderer >& allocator, RenderDataProvider& dataprovider )
 {
-  return new TextRenderer( dataprovider );
+  return new ( allocator.NewAllocation() ) TextRenderer( dataprovider );
 }
 
 TextRenderer::~TextRenderer()
@@ -64,7 +64,7 @@ TextRenderer::~TextRenderer()
     mTextureCache->RemoveObserver(mTextureId, this);
   }
 
-  GlCleanup();
+  // GlCleanup now called by message from update thread on renderer destruction
 
   delete mTextColor;
 }

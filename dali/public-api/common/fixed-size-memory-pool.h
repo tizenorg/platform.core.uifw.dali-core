@@ -167,6 +167,17 @@ public:
   }
 
   /**
+   * @brief Allocate a block of memory from the memory pool of the appropriate size to
+   *        store an object of type T
+   *
+   * @return Return the allocated memory block
+   */
+  void* NewAllocation()
+  {
+    return mPool.NewAllocation();
+  }
+
+  /**
    * @brief Return the object to the memory pool
    *
    * @param object Pointer to the object to delete

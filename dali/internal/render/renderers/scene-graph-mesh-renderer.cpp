@@ -40,9 +40,9 @@ namespace Internal
 namespace SceneGraph
 {
 
-MeshRenderer* MeshRenderer::New( RenderDataProvider& dataprovider, LightController& lightController )
+MeshRenderer* MeshRenderer::New( FixedSizeObjectAllocator<MeshRenderer>& allocator, RenderDataProvider& dataprovider, LightController& lightController )
 {
-  MeshRenderer* meshRenderer = new MeshRenderer( dataprovider );
+  MeshRenderer* meshRenderer = new ( allocator.NewAllocation() ) MeshRenderer( dataprovider );
   meshRenderer->mLightController = &lightController;
 
   return meshRenderer;
@@ -77,6 +77,7 @@ void MeshRenderer::SetAffectedByLighting( bool affectedByLighting )
 
 MeshRenderer::~MeshRenderer()
 {
+  // GlCleanup now called by message from update thread on renderer destruction
 }
 
 void MeshRenderer::GlContextDestroyed()

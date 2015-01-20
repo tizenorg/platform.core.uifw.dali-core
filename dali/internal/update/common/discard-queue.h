@@ -40,6 +40,7 @@ namespace SceneGraph
 class Node;
 class RenderQueue;
 class Shader;
+class Renderer;
 
 /**
  * DiscardQueue is used to cleanup nodes & resources when no longer in use.
@@ -53,6 +54,7 @@ class DiscardQueue
 public:
 
   typedef OwnerContainer< Shader* > ShaderQueue;
+  typedef Dali::Vector< Renderer* > RendererQueue;
 
   /**
    * Create a new DiscardQueue.
@@ -102,6 +104,24 @@ public:
   void Add( BufferIndex bufferIndex, Shader* shader );
 
   /**
+   * Adds an unwanted renderer to the discard queue
+   *
+   * @pre This method is not thread-safe, and should only be called from the update-thread.
+   * @param[in] bufferIndex The current update buffer index.
+   * @param[in] renderer The renderer to queue; DiscardQueue DOES NOT take ownership - must be deleted by client.
+   */
+  void Add( BufferIndex updateBufferIndex, Renderer* renderer );
+
+  /**
+   * Retrieve the current renderer queue. Usually so that the objects it contains may be deleted.
+   *
+   * @pre This method is not thread-safe, and should only be called from the update-thread.
+   * @param[in] bufferIndex The current update buffer index.
+   * @return Return the current renderer queue.
+   */
+  RendererQueue& GetRendererQueue( BufferIndex updateBufferIndex );
+
+  /**
    * Release the nodes which were queued in the frame N-2.
    * @pre This method should be called (once) at the beginning of every Update.
    * @param[in] updateBufferIndex The current update buffer index.
@@ -125,12 +145,14 @@ private:
   NodeAttachmentOwnerContainer mAttachmentQueue0;
   MeshOwnerContainer           mMeshQueue0;
   ShaderQueue                  mShaderQueue0;
+  RendererQueue                mRendererQueue0;
 
   // Messages are queued here when the update buffer index == 1
   NodeOwnerContainer           mNodeQueue1;
   NodeAttachmentOwnerContainer mAttachmentQueue1;
   MeshOwnerContainer           mMeshQueue1;
   ShaderQueue                  mShaderQueue1;
+  RendererQueue                mRendererQueue1;
 
 };
 

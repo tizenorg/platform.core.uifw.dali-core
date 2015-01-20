@@ -187,7 +187,7 @@ private:
   /**
    * @copydoc RenderableAttachment::OnDestroy2()
    */
-  virtual void OnDestroy2();
+  virtual void OnDestroy2( BufferIndex updateBufferIndex );
 
   /**
    * @copydoc Dali::Internal::SceneGraph::RenderableAttachment::DoPrepareResources()

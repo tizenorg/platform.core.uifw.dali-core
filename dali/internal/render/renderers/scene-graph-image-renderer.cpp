@@ -114,9 +114,9 @@ namespace Internal
 namespace SceneGraph
 {
 
-ImageRenderer* ImageRenderer::New( RenderDataProvider& dataprovider )
+ImageRenderer* ImageRenderer::New( FixedSizeObjectAllocator<ImageRenderer>& allocator, RenderDataProvider& dataprovider )
 {
-  return new ImageRenderer( dataprovider );
+  return new ( allocator.NewAllocation() ) ImageRenderer( dataprovider );
 }
 
 ImageRenderer::~ImageRenderer()
@@ -126,7 +126,7 @@ ImageRenderer::~ImageRenderer()
     mTextureCache->RemoveObserver(mTextureId, this);
   }
 
-  GlCleanup();
+  // GlCleanup now called by message from update thread on renderer destruction
 }
 
 void ImageRenderer::SetTextureId( ResourceId textureId )

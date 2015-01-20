@@ -178,7 +178,7 @@ private:
   /**
    * @copydoc RenderableAttachment::OnDestroy2().
    */
-  virtual void OnDestroy2();
+  virtual void OnDestroy2( BufferIndex updateBufferIndex );
 
   /**
    * @copydoc RenderableAttachment::DoPrepareResources()

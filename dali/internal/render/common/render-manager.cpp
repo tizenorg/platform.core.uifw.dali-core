@@ -69,8 +69,8 @@ namespace Internal
 namespace SceneGraph
 {
 
-typedef OwnerContainer< Renderer* >            RendererOwnerContainer;
-typedef RendererOwnerContainer::Iterator       RendererOwnerIter;
+typedef Dali::Vector< Renderer* >              RendererVector;
+typedef RendererVector::Iterator               RendererVectorIter;
 
 typedef OwnerContainer< RenderMaterial* >      RenderMaterialContainer;
 typedef RenderMaterialContainer::Iterator      RenderMaterialIter;
@@ -160,7 +160,7 @@ struct RenderManager::Impl
 
   Rect<int>                           defaultSurfaceRect;   ///< Rectangle for the default surface we are rendering to
 
-  RendererOwnerContainer              rendererContainer;    ///< List of owned renderers
+  RendererVector                      rendererContainer;    ///< List of renderers
   RenderMaterialContainer             materials;            ///< List of owned render materials
 
   bool                                renderersAdded;
@@ -220,8 +220,8 @@ void RenderManager::ContextDestroyed()
   mImpl->textureCache.GlContextDestroyed(); // Clears gl texture ids
 
   // inform renderers
-  RendererOwnerContainer::Iterator end = mImpl->rendererContainer.End();
-  RendererOwnerContainer::Iterator iter = mImpl->rendererContainer.Begin();
+  RendererVectorIter end = mImpl->rendererContainer.End();
+  RendererVectorIter iter = mImpl->rendererContainer.Begin();
   for( ; iter != end; ++iter )
   {
     GlResourceOwner* renderer = *iter;
@@ -271,14 +271,15 @@ void RenderManager::RemoveRenderer( Renderer* renderer )
 {
   DALI_ASSERT_DEBUG( NULL != renderer );
 
-  RendererOwnerContainer& renderers = mImpl->rendererContainer;
+  RendererVector& renderers = mImpl->rendererContainer;
 
   // Find the renderer
-  for ( RendererOwnerIter iter = renderers.Begin(); iter != renderers.End(); ++iter )
+  for ( RendererVectorIter iter = renderers.Begin(); iter != renderers.End(); ++iter )
   {
     if ( *iter == renderer )
     {
-      renderers.Erase( iter ); // Renderer found; now destroy it
+      renderers.Erase( iter ); // Renderer found; now remove it from the list (will be destroyed from update thread)
+      renderer->GlCleanup();   // Cleanup GL resources
       break;
     }
   }

@@ -34,12 +34,14 @@ SceneControllerImpl::SceneControllerImpl( RenderMessageDispatcher& renderMessage
                                           RenderQueue& renderQueue,
                                           DiscardQueue& discardQueue,
                                           TextureCache& textureCache,
-                                          CompleteStatusManager& completeStatusManager )
+                                          CompleteStatusManager& completeStatusManager,
+                                          RendererAllocators& rendererAllocators )
 : mRenderMessageDispatcher( renderMessageDispatcher ),
   mRenderQueue( renderQueue ),
   mDiscardQueue( discardQueue ),
   mTextureCache( textureCache ),
-  mCompleteStatusManager( completeStatusManager )
+  mCompleteStatusManager( completeStatusManager ),
+  mRendererAllocators( rendererAllocators )
 {
   mLightController  = new LightControllerImpl;
 }

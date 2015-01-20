@@ -266,8 +266,9 @@ public: // API for derived classes
 
   /**
    * Chained from NodeAttachment::OnDestroy()
+   * @param[in] updateBufferIndex The current update buffer index.
    */
-  virtual void OnDestroy2() = 0;
+  virtual void OnDestroy2( BufferIndex updateBufferIndex ) = 0;
 
   /**
    * Retrieve the scale-for-size for given node size. Default implementation returns Vector3::ZERO
@@ -297,9 +298,9 @@ private: // From NodeAttachment
   virtual void ConnectToSceneGraph( SceneController& sceneController, BufferIndex updateBufferIndex );
 
   /**
-   * @copydoc NodeAttachment::DisconnectFromSceneGraph().
+   * @copydoc NodeAttachment::OnDestroy().
    */
-  virtual void OnDestroy();
+  virtual void OnDestroy( BufferIndex updateBufferIndex );
 
   /**
    * @copydoc NodeAttachment::GetRenderable()

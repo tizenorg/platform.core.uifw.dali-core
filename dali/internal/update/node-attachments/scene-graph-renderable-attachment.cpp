@@ -363,10 +363,10 @@ void RenderableAttachment::ConnectToSceneGraph( SceneController& sceneController
   renderer.SetShader( mShader );
 }
 
-void RenderableAttachment::OnDestroy()
+void RenderableAttachment::OnDestroy( BufferIndex updateBufferIndex )
 {
   // Chain to derived attachments
-  OnDestroy2();
+  OnDestroy2( updateBufferIndex );
 
   // SceneController is no longer valid
   mSceneController = NULL;

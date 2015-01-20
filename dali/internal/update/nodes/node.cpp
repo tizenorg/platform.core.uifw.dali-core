@@ -78,12 +78,12 @@ Node::~Node()
 {
 }
 
-void Node::OnDestroy()
+void Node::OnDestroy( BufferIndex updateBufferIndex )
 {
   // Node attachments should be notified about the disconnection.
   if ( mAttachment )
   {
-    mAttachment->OnDestroy();
+    mAttachment->OnDestroy( updateBufferIndex );
   }
 
   // Animators, Constraints etc. should be disconnected from the child's properties.

@@ -130,7 +130,7 @@ public:
   /**
    * Called during UpdateManager::DestroyNode shortly before Node is destroyed.
    */
-  void OnDestroy();
+  void OnDestroy( BufferIndex updateBufferIndex );
 
   // Layer interface
 

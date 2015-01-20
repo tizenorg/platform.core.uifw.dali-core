@@ -80,7 +80,7 @@ public:
   /**
    * @copydoc NodeAttachment::OnDestroy().
    */
-  virtual void OnDestroy();
+  virtual void OnDestroy( BufferIndex updateBufferIndex );
 
   /**
    * Virtual destructor

@@ -34,6 +34,7 @@ class RenderMessageDispatcher;
 class RenderQueue;
 class DiscardQueue;
 class TextureCache;
+struct RendererAllocators;
 
 /**
  * Abstract interface for the scene controller
@@ -94,6 +95,13 @@ public:
    * @return a reference to the complete status manager
    */
   virtual CompleteStatusManager& GetCompleteStatusManager() = 0;
+
+  /**
+   * Return the renderer allocators
+   *
+   * @return Return a struct containing all the renderer memory allocators
+   */
+  virtual RendererAllocators& GetRendererAllocators() = 0;
 
 private:
 

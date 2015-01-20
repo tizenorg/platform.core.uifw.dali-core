@@ -38,6 +38,7 @@
 #include <dali/internal/update/animation/scene-graph-animator.h>
 #include <dali/internal/update/animation/scene-graph-animation.h>
 #include <dali/internal/update/common/discard-queue.h>
+#include <dali/internal/update/common/memory-allocators.h>
 #include <dali/internal/update/manager/prepare-render-algorithms.h>
 #include <dali/internal/update/manager/process-render-tasks.h>
 #include <dali/internal/update/resources/resource-manager.h>
@@ -110,14 +111,14 @@ namespace SceneGraph
 namespace
 {
 
-void DestroyNodeSet( std::set<Node*>& nodeSet )
+void DestroyNodeSet( std::set<Node*>& nodeSet, BufferIndex updateBufferIndex  )
 {
   for( std::set<Node*>::iterator iter = nodeSet.begin(); iter != nodeSet.end(); ++iter )
   {
     Node* node( *iter );
 
     // Call Node::OnDestroy as each node is destroyed
-    node->OnDestroy();
+    node->OnDestroy( updateBufferIndex );
 
     delete node;
   }
@@ -158,6 +159,7 @@ struct UpdateManager::Impl
         SceneGraphBuffers& sceneGraphBuffers )
   :
     renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers ),
+    sceneGraphBuffers( sceneGraphBuffers ),
     notificationManager( notificationManager ),
     animationFinishedNotifier( animationFinishedNotifier ),
     propertyNotifier( propertyNotifier ),
@@ -186,7 +188,7 @@ struct UpdateManager::Impl
     renderSortingHelper(),
     renderTaskWaiting( false )
   {
-    sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue, textureCache, completeStatusManager );
+    sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue, textureCache, completeStatusManager, rendererAllocators );
   }
 
   ~Impl()
@@ -205,14 +207,16 @@ struct UpdateManager::Impl
     }
 
     // UpdateManager owns the Nodes
-    DestroyNodeSet( activeDisconnectedNodes );
-    DestroyNodeSet( connectedNodes );
-    DestroyNodeSet( disconnectedNodes );
+    const BufferIndex updateBufferIndex = sceneGraphBuffers.GetUpdateBufferIndex();
+
+    DestroyNodeSet( activeDisconnectedNodes, updateBufferIndex );
+    DestroyNodeSet( connectedNodes, updateBufferIndex );
+    DestroyNodeSet( disconnectedNodes, updateBufferIndex );
 
     // If there is root, reset it, otherwise do nothing as rendering was never started
     if( root )
     {
-      root->OnDestroy();
+      root->OnDestroy( updateBufferIndex );
 
       delete root;
       root = NULL;
@@ -220,7 +224,7 @@ struct UpdateManager::Impl
 
     if( systemLevelRoot )
     {
-      systemLevelRoot->OnDestroy();
+      systemLevelRoot->OnDestroy( updateBufferIndex );
 
       delete systemLevelRoot;
       systemLevelRoot = NULL;
@@ -230,8 +234,8 @@ struct UpdateManager::Impl
     delete sceneController;
   }
 
-  SceneGraphBuffers                   sceneGraphBuffers;             ///< Used to keep track of which buffers are being written or read
   RenderMessageDispatcher             renderMessageDispatcher;       ///< Used for passing messages to the render-thread
+  SceneGraphBuffers&                  sceneGraphBuffers;             ///< Used to keep track of which buffers are being written or read
   NotificationManager&                notificationManager;           ///< Queues notification messages for the event-thread.
   CompleteNotificationInterface&      animationFinishedNotifier;     ///< Provides notification to applications when animations are finished.
   PropertyNotifier&                   propertyNotifier;              ///< Provides notification to applications when properties are modified.
@@ -287,6 +291,8 @@ struct UpdateManager::Impl
 
   GestureContainer                    gestures;                      ///< A container of owned gesture detectors
   bool                                renderTaskWaiting;             ///< A REFRESH_ONCE render task is waiting to be rendered
+
+  RendererAllocators                  rendererAllocators;            ///< A struct containing the memory allocators for renderer objects
 };
 
 UpdateManager::UpdateManager( NotificationManager& notificationManager,
@@ -414,7 +420,7 @@ void UpdateManager::DestroyNode( Node* node )
   mImpl->discardQueue.Add( mSceneGraphBuffers.GetUpdateBufferIndex(), node );
 
   // Notify the Node about impending destruction
-  node->OnDestroy();
+  node->OnDestroy( mSceneGraphBuffers.GetUpdateBufferIndex() );
 }
 
 void UpdateManager::AttachToNode( Node* node, NodeAttachment* attachment )
@@ -982,6 +988,42 @@ void UpdateManager::PrepareMaterials( BufferIndex updateBufferIndex, MaterialCon
   }
 }
 
+void UpdateManager::DeleteDiscardQueueRenderers()
+{
+  RendererAllocators& allocators = mImpl->rendererAllocators;
+  const BufferIndex updateBufferIndex = mSceneGraphBuffers.GetUpdateBufferIndex();
+
+  // Delete image renderers
+  DiscardQueue::ImageRendererQueue& imageRendererQueue = mImpl->discardQueue.GetImageRendererQueue( updateBufferIndex );
+
+  for( DiscardQueue::ImageRendererQueue::Iterator it = imageRendererQueue.Begin(), itEnd = imageRendererQueue.End(); it != itEnd; ++it )
+  {
+    ImageRenderer* renderer = *it;
+
+    allocators.imageRendererAllocator.Delete( renderer );
+  }
+
+  // Delete text renderers
+  DiscardQueue::TextRendererQueue& textRendererQueue = mImpl->discardQueue.GetTextRendererQueue( updateBufferIndex );
+
+  for( DiscardQueue::TextRendererQueue::Iterator it = textRendererQueue.Begin(), itEnd = textRendererQueue.End(); it != itEnd; ++it )
+  {
+    TextRenderer* renderer = *it;
+
+    allocators.textRendererAllocator.Delete( renderer );
+  }
+
+  // Delete mesh renderers
+  DiscardQueue::MeshRendererQueue& meshRendererQueue = mImpl->discardQueue.GetMeshRendererQueue( updateBufferIndex );
+
+  for( DiscardQueue::MeshRendererQueue::Iterator it = meshRendererQueue.Begin(), itEnd = meshRendererQueue.End(); it != itEnd; ++it )
+  {
+    MeshRenderer* renderer = *it;
+
+    allocators.meshRendererAllocator.Delete( renderer );
+  }
+}
+
 unsigned int UpdateManager::Update( float elapsedSeconds,
                                     unsigned int lastVSyncTimeMilliseconds,
                                     unsigned int nextVSyncTimeMilliseconds )
@@ -997,6 +1039,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   mImpl->renderManager.SetFrameDeltaTime(elapsedSeconds);
 
   // 1) Clear nodes/resources which were previously discarded
+  DeleteDiscardQueueRenderers();
   mImpl->discardQueue.Clear( mSceneGraphBuffers.GetUpdateBufferIndex() );
 
   // 2) Grab any loaded resources

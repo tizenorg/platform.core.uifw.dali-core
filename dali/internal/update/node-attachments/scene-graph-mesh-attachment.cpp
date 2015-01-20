@@ -29,6 +29,7 @@
 #include <dali/internal/event/modeling/material-impl.h>
 
 #include <dali/internal/update/common/discard-queue.h>
+#include <dali/internal/update/common/memory-allocators.h>
 #include <dali/internal/update/resources/resource-manager.h>
 #include <dali/internal/update/controllers/render-message-dispatcher.h>
 #include <dali/internal/update/controllers/scene-controller.h>
@@ -81,13 +82,15 @@ void MeshAttachment::ConnectToSceneGraph2( BufferIndex updateBufferIndex )
   DALI_ASSERT_DEBUG( NULL != mSceneController );
 
   // Create main renderer, passing ownership to the render-thread
-  mRenderer = MeshRenderer::New( *mParent, mSceneController->GetLightController() );
+  mRenderer = MeshRenderer::New( mSceneController->GetRendererAllocators().meshRendererAllocator, *mParent, mSceneController->GetLightController() );
   mSceneController->GetRenderMessageDispatcher().AddRenderer( *mRenderer );
 }
 
-void MeshAttachment::OnDestroy2()
+void MeshAttachment::OnDestroy2( BufferIndex updateBufferIndex )
 {
   DALI_ASSERT_DEBUG( NULL != mSceneController );
+
+  mSceneController->GetDiscardQueue().Add( updateBufferIndex, mRenderer );
 
   // Request deletion in the next Render
   mSceneController->GetRenderMessageDispatcher().RemoveRenderer( *mRenderer );

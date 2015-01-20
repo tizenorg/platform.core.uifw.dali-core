@@ -47,7 +47,7 @@ void LightAttachment::ConnectToSceneGraph( SceneController& sceneController, Buf
   mLightController = &sceneController.GetLightController();
 }
 
-void LightAttachment::OnDestroy()
+void LightAttachment::OnDestroy( BufferIndex updateBufferIndex )
 {
   // do nothing
 }

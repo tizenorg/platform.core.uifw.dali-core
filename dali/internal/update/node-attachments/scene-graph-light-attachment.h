@@ -64,7 +64,7 @@ public:
   /**
    * @copydoc NodeAttachment::DisconnectFromSceneGraph().
    */
-  virtual void OnDestroy();
+  virtual void OnDestroy( BufferIndex updateBufferIndex );
 
   /**
    * Virtual destructor

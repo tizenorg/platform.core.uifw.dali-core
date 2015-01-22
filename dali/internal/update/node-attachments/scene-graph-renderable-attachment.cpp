@@ -195,9 +195,9 @@ void RenderableAttachment::SetRecalculateScaleForSize()
   mScaleForSizeDirty = true;
 }
 
-void RenderableAttachment::GetScaleForSize( const Vector3& nodeSize, Vector3& scaling )
+void RenderableAttachment::GetScaleForSize( BufferIndex updateBufferIndex, const Vector3& nodeSize, Vector3& scaling )
 {
-  DoGetScaleForSize( nodeSize, scaling );
+  DoGetScaleForSize( updateBufferIndex, nodeSize, scaling );
   mScaleForSizeDirty = false;
 }
 
@@ -250,7 +250,7 @@ bool RenderableAttachment::ResolveVisibility( BufferIndex updateBufferIndex )
   return mHasSizeAndColorFlag;
 }
 
-void RenderableAttachment::DoGetScaleForSize( const Vector3& nodeSize, Vector3& scaling )
+void RenderableAttachment::DoGetScaleForSize( BufferIndex updateBufferIndex, const Vector3& nodeSize, Vector3& scaling )
 {
   scaling = Vector3::ONE;
 }

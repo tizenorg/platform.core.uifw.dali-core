@@ -137,10 +137,12 @@ public: // API
   /**
    * Retrieve scale-for-size for given node size
    * Clears the scale for size flag
+   * @param[in] updateBufferIndex The current update buffer index.
    * @param[in] nodeSize to scale to
    * @param[out] scaling factors
+   *
    */
-  void GetScaleForSize( const Vector3& nodeSize, Vector3& scaling );
+  void GetScaleForSize( BufferIndex updateBufferIndex, const Vector3& nodeSize, Vector3& scaling );
 
   /**
    * Apply a shader on the renderable
@@ -271,10 +273,11 @@ public: // API for derived classes
 
   /**
    * Retrieve the scale-for-size for given node size. Default implementation returns Vector3::ZERO
+   * @param[in] updateBufferIndex The current update buffer index.
    * @param[in] nodeSize to scale to
    * @param[out] scaling factors
    */
-  virtual void DoGetScaleForSize( const Vector3& nodeSize, Vector3& scaling );
+  virtual void DoGetScaleForSize( BufferIndex updateBufferInde, const Vector3& nodeSize, Vector3& scaling );
 
 protected:
 

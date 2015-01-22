@@ -56,9 +56,8 @@ public:
 
   /**
    * Create a new DiscardQueue.
-   * @param[in] renderQueue Used to send GL clean-up messages for the next Render.
    */
-  DiscardQueue( RenderQueue& renderQueue );
+  DiscardQueue();
 
   /**
    * Non-virtual destructor; DiscardQueue is not suitable as a base class.
@@ -117,9 +116,6 @@ private:
   DiscardQueue& operator=( const DiscardQueue& rhs );
 
 private:
-
-  RenderQueue& mRenderQueue; ///< Used to send GL clean-up messages for the next Render.
-
   // Messages are queued here when the update buffer index == 0
   NodeOwnerContainer           mNodeQueue0;
   NodeAttachmentOwnerContainer mAttachmentQueue0;

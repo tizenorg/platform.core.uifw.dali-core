@@ -20,8 +20,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/math/rect.h>
-#include <dali/internal/render/common/post-process-resource-dispatcher.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
+#include <dali/internal/render/common/post-process-resource-dispatcher.h>
+#include <dali/internal/render/common/render-mesh-owner.h>
 
 namespace Dali
 {
@@ -44,6 +45,7 @@ namespace SceneGraph
 class Renderer;
 class RenderQueue;
 class RenderMaterial;
+class RenderMesh;
 class TextureCache;
 class RenderInstruction;
 class RenderInstructionContainer;
@@ -54,7 +56,7 @@ class Shader;
  * RenderManager is responsible for rendering the result of the previous "update", which
  * is provided in a RenderCommand during UpdateManager::Update().
  */
-class RenderManager : public PostProcessResourceDispatcher
+class RenderManager : public PostProcessResourceDispatcher, public RenderMeshOwner
 {
 public:
 
@@ -155,6 +157,23 @@ public:
    * @post renderMaterial is destroyed
    */
   void RemoveRenderMaterial( RenderMaterial* renderMaterial );
+
+  /**
+   * Adds a RenderMesh to the render manager for MeshRenderers to use.
+   * The RenderManager takes ownership of the mesh
+   * @param[in] renderMesh
+   * @post renderMesh is owned by RenderManager
+   */
+  void AddRenderMesh( RenderMesh* renderMesh );
+
+  /**
+   * Removes a RenderMesh from the RenderManager
+   * RenderManager will destroy the mesh
+   * @pre renderManager owns the mesh
+   * @param[in] renderMesh
+   * @post renderMesh is destroyed
+   */
+  void RemoveRenderMesh( RenderMesh* renderMesh );
 
   /**
    * Adds a render tracker to the RenderManager. RenderManager takes ownership of the

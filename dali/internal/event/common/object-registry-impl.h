@@ -114,6 +114,7 @@ private:
   ~ObjectRegistry();
 
 private:
+  size_t mObjectsCreated;
 
   Dali::ObjectRegistry::ObjectCreatedSignalV2 mObjectCreatedSignalV2;
   Dali::ObjectRegistry::ObjectDestroyedSignalV2 mObjectDestroyedSignalV2;

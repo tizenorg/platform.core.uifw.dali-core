@@ -37,15 +37,24 @@ ObjectRegistryPtr ObjectRegistry::New()
 }
 
 ObjectRegistry::ObjectRegistry()
+  : mObjectsCreated(0)
 {
 }
 
 ObjectRegistry::~ObjectRegistry()
 {
+  if(0 != mObjectsCreated)
+  {
+    DALI_LOG_WARNING("Dali objects alive at registry destruction '%d'\n", mObjectsCreated);
+  }
+
+  DALI_ASSERT_ALWAYS(0 == mObjectsCreated &&
+                     "Dali Objects have not been cleaned up before Dali core destruction!");
 }
 
 void ObjectRegistry::RegisterObject( Dali::BaseObject* object )
 {
+  mObjectsCreated++;
   if ( !mObjectCreatedSignalV2.Empty() )
   {
     Dali::BaseHandle handle( object );
@@ -55,6 +64,7 @@ void ObjectRegistry::RegisterObject( Dali::BaseObject* object )
 
 void ObjectRegistry::UnregisterObject( Dali::BaseObject* object )
 {
+  mObjectsCreated--;
   mObjectDestroyedSignalV2.Emit( object );
 }
 

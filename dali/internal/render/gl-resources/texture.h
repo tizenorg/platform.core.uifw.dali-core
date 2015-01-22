@@ -188,6 +188,11 @@ public:
    */
   void ApplySampler( TextureUnit unit, unsigned int samplerBitfield );
 
+  /**
+   * Kludge for NativeTexture
+   */
+  virtual void Resize( const Vector2& newSize ) {};
+
 protected:
 
   /**

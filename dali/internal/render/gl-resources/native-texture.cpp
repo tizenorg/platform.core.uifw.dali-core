@@ -125,6 +125,14 @@ bool NativeTexture::Init()
   return true;
 }
 
+void NativeTexture::Resize( const Vector2& newSize )
+{
+  if( mNativeImage )
+  {
+    mNativeImage->Resize( newSize );
+  }
+}
+
 } //namespace Internal
 
 } //namespace Dali

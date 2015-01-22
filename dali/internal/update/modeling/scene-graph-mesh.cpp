@@ -20,8 +20,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/render/common/post-process-resource-dispatcher.h>
-#include <dali/internal/render/gl-resources/context.h>
 #include <dali/internal/render/queue/render-queue.h>
+#include <dali/internal/render/queue/render-queue-dispatcher.h>
+#include <dali/internal/render/renderers/render-mesh.h>
 
 namespace Dali
 {
@@ -32,21 +33,25 @@ namespace Internal
 namespace SceneGraph
 {
 
+Mesh* Mesh::New( ResourceId id,
+                 RenderQueue& renderQueue,
+                 MeshData* meshData,
+                 RenderMesh* renderMesh )
+{
+  return new Mesh( id, renderQueue, meshData, renderMesh );
+}
+
+
 Mesh::Mesh( ResourceId id,
-            PostProcessResourceDispatcher& postProcessResourceDispatcher,
             RenderQueue& renderQueue,
-            MeshData* meshData )
-:
-  mPostProcessResourceDispatcher(postProcessResourceDispatcher),
-  mRenderQueue(renderQueue),
-  mUpdateMeshData(meshData),
-  mRenderMeshData(meshData),
-  mVertexBuffer(NULL),
-  mIndicesBuffer(NULL),
-  mNumberOfVertices(0u),
-  mNumberOfFaces(0u),
-  mResourceId ( id ),
-  mRefreshVertexBuffer(true)
+            MeshData* meshData,
+            RenderMesh* renderMesh )
+: mResourceId( id ),
+  mRenderQueue( renderQueue ),
+  mRenderMesh( renderMesh ),
+  mMeshData( meshData ),
+  mNumberOfVertices( 0u ),
+  mNumberOfFaces( 0u )
 {
 }
 
@@ -54,181 +59,45 @@ Mesh::~Mesh()
 {
 }
 
-void Mesh::SetMeshData(MeshData* meshData)
+void Mesh::SetMeshData( BufferIndex bufferIndex, MeshData* meshData )
 {
-  mUpdateMeshData = meshData;
+  mMeshData = meshData;
+  mNumberOfVertices = meshData->GetVertexCount();
+  mNumberOfFaces = meshData->GetFaceCount();
+
+  // Send a message to the render mesh
+  typedef MessageDoubleBuffered1< RenderMesh, OwnerPointer<MeshData> > LocalType;
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( bufferIndex, sizeof( LocalType ) );
+  new (slot) LocalType( mRenderMesh, &RenderMesh::MeshDataReplaced, mMeshData );
 }
 
-MeshData& Mesh::GetMeshData( Mesh::ThreadBuffer threadBuffer )
+const MeshData& Mesh::GetMeshData( BufferIndex /*bufferIndex*/ ) const
 {
-  return const_cast<MeshData&>(static_cast<const Mesh*>(this)->GetMeshData(threadBuffer));
+  DALI_ASSERT_DEBUG(mMeshData);
+  return *mMeshData;
 }
 
-const MeshData& Mesh::GetMeshData( Mesh::ThreadBuffer threadBuffer ) const
+MeshData& Mesh::GetMeshData( BufferIndex bufferIndex )
 {
-  MeshData* meshDataPtr = NULL;
-
-  switch(threadBuffer)
-  {
-    case Mesh::UPDATE_THREAD:
-    {
-
-      meshDataPtr = mUpdateMeshData;
-    }
-    break;
-
-    case Mesh::RENDER_THREAD:
-    {
-      meshDataPtr = &(*mRenderMeshData);
-    }
-    break;
-  }
-
-  DALI_ASSERT_DEBUG( meshDataPtr );
-  return *meshDataPtr;
+  return const_cast<MeshData&>( const_cast<const Mesh*>(this)->GetMeshData( bufferIndex ) );
 }
 
-void Mesh::RefreshVertexBuffer()
+void Mesh::MeshDataUpdated( BufferIndex bufferIndex )
 {
-    mRefreshVertexBuffer = true;
+  // Send a message to self in render thread
+  typedef Message< RenderMesh > LocalType;
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( bufferIndex, sizeof( LocalType ) );
+  new (slot) LocalType( mRenderMesh, &RenderMesh::RefreshVertexBuffer);
 }
 
-void Mesh::MeshDataUpdated( BufferIndex bufferIndex, Mesh::ThreadBuffer threadBuffer, MeshData* meshData )
+bool Mesh::HasGeometry( BufferIndex bufferIndex ) const
 {
-  if ( threadBuffer == Mesh::RENDER_THREAD )
-  {
-    // Called from a message, the old MeshData will be release and the new one is saved.
-    mRenderMeshData = meshData;
-    RefreshVertexBuffer();
-  }
-  else
-  {
-    // Dynamics and animatable meshes don't create new mesh data
-    DALI_ASSERT_DEBUG( threadBuffer == Mesh::UPDATE_THREAD );
-    DALI_ASSERT_DEBUG( meshData == NULL );
-
-    // Send a message to self in render thread
-    typedef Message< Mesh > LocalType;
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( bufferIndex, sizeof( LocalType ) );
-    new (slot) LocalType( this, &Mesh::RefreshVertexBuffer);
-  }
+  return GetMeshData( bufferIndex ).GetVertexCount() > 0u;
 }
 
-void Mesh::UploadVertexData( Context& context, BufferIndex renderBufferIndex )
+RenderMesh* Mesh::GetRenderMesh()
 {
-  // Short-circuit if nothing has changed
-  if ( !mRefreshVertexBuffer )
-  {
-    return;
-  }
-
-  DoUpload(context);
-
-  // Note, dispatcher should only be used in Render Thread (as should the rest of this method!)
-  ResourcePostProcessRequest ppRequest( mResourceId, ResourcePostProcessRequest::UPLOADED );
-  mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
-
-  mRenderMeshData->Discard();
-  mRefreshVertexBuffer = false;
-}
-
-void Mesh::DoUpload( Context& context )
-{
-  const MeshData::VertexContainer& vertices = mRenderMeshData->GetVertices();
-
-  DALI_ASSERT_DEBUG( !vertices.empty() );
-  if ( !mVertexBuffer )
-  {
-    mVertexBuffer = new GpuBuffer(context,GpuBuffer::ARRAY_BUFFER,GpuBuffer::STATIC_DRAW);
-  }
-  DALI_ASSERT_DEBUG(mVertexBuffer);
-
-  mVertexBuffer->UpdateDataBuffer( vertices.size() * sizeof(MeshData::Vertex), &vertices.at(0) );
-  mNumberOfVertices = mRenderMeshData->GetVertexCount();
-
-  if ( size_t numberOfIndices = mRenderMeshData->GetFaceIndexCount() )
-  {
-    const MeshData::FaceIndices& faces = mRenderMeshData->GetFaces();
-    DALI_ASSERT_DEBUG(!faces.empty());
-
-    if ( !mIndicesBuffer )
-    {
-      mIndicesBuffer = new GpuBuffer(context,GpuBuffer::ELEMENT_ARRAY_BUFFER,GpuBuffer::STATIC_DRAW);
-    }
-
-    mIndicesBuffer->UpdateDataBuffer( numberOfIndices * sizeof(GLushort), &(faces.at(0)) );
-    mNumberOfFaces = mRenderMeshData->GetFaceCount();
-  }
-}
-
-void Mesh::BindBuffers(Context& context)
-{
-  // Short-circuit if nothing has changed
-  if ( !mVertexBuffer )
-  {
-    return;
-  }
-
-  DALI_ASSERT_DEBUG( mIndicesBuffer || mRenderMeshData->GetVertexGeometryType() == Dali::MeshData::POINTS );
-
-  // Try and recover from context loss using retained data.
-  if( ! mVertexBuffer->BufferIsValid() && ! mRenderMeshData->GetVertices().empty() )
-  {
-    DoUpload( context );
-  }
-
-  if( mVertexBuffer->BufferIsValid() )
-  {
-    mVertexBuffer->Bind();
-  }
-
-  if( mIndicesBuffer && mIndicesBuffer->BufferIsValid())
-  {
-    mIndicesBuffer->Bind();
-  }
-}
-
-size_t Mesh::GetFaceIndexCount( ThreadBuffer threadBuffer ) const
-{
-  DALI_ASSERT_DEBUG( threadBuffer == Mesh::RENDER_THREAD );
-  size_t faceCount= 0;
-  switch( GetMeshData(threadBuffer).GetVertexGeometryType() )
-  {
-    case Dali::MeshData::POINTS:
-      faceCount = mNumberOfVertices;
-      break;
-    case Dali::MeshData::LINES:
-      faceCount = mNumberOfFaces*2;
-      break;
-    case Dali::MeshData::TRIANGLES:
-      faceCount = mNumberOfFaces*3;
-      break;
-  }
-
-  return faceCount;
-}
-
-bool Mesh::HasGeometry( ThreadBuffer threadBuffer ) const
-{
-  return GetMeshData(threadBuffer).GetVertexCount() > 0;
-}
-
-void Mesh::GlContextDestroyed()
-{
-  if( mVertexBuffer )
-  {
-    mVertexBuffer->GlContextDestroyed();
-  }
-  if( mIndicesBuffer )
-  {
-    mIndicesBuffer->GlContextDestroyed();
-  }
-}
-
-void Mesh::GlCleanup()
-{
-  mVertexBuffer = NULL;
-  mIndicesBuffer = NULL;
+  return mRenderMesh;
 }
 
 } // namespace SceneGraph

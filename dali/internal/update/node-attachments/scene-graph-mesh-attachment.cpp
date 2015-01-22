@@ -180,9 +180,8 @@ void MeshAttachment::CalculateBoneTransforms( BufferIndex               updateBu
                                               const BoneNodeContainer&  boneNodes,
                                               BoneTransforms&           boneTransforms )
 {
-  size_t boneCount = std::min( mesh->GetMeshData(Mesh::UPDATE_THREAD).GetBoneCount(), MAX_NUMBER_OF_BONES_PER_MESH );
-
-  const BoneContainer& bones = mesh->GetMeshData(Mesh::UPDATE_THREAD).GetBones();
+  size_t boneCount = std::min( mesh->GetMeshData(updateBufferIndex).GetBoneCount(), MAX_NUMBER_OF_BONES_PER_MESH );
+  const BoneContainer& bones = mesh->GetMeshData(updateBufferIndex).GetBones();
 
   for(size_t boneIdx=0; boneIdx < boneCount; ++boneIdx)
   {
@@ -215,7 +214,7 @@ bool MeshAttachment::DoPrepareResources( BufferIndex updateBufferIndex, Resource
     mMesh.mesh = mesh;
   }
 
-  if ( mMesh.mesh && mMesh.mesh->HasGeometry( Mesh::UPDATE_THREAD ) )
+  if ( mMesh.mesh && mMesh.mesh->HasGeometry( updateBufferIndex ) )
   {
     const SceneGraph::Material* material = mMesh.material;
     ready = material->AreResourcesReady();
@@ -247,10 +246,10 @@ void MeshAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
   // Provide renderer with ModelIT matrix, mesh, material, and bone transforms for the next frame
   MeshRenderer::MeshInfo& meshInfo = mRenderer->GetMeshInfo( updateBufferIndex );
 
-  Mesh*           meshPtr  = mMesh.mesh;
+  RenderMesh*     mesh  = mMesh.mesh->GetRenderMesh();
   RenderMaterial* material = mMesh.material->GetRenderMaterial();
 
-  meshInfo.mesh     = meshPtr;
+  meshInfo.mesh     = mesh;
   meshInfo.material = material;
 
   if ( material )
@@ -268,7 +267,7 @@ void MeshAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
         meshInfo.boneTransforms.inverseTransforms.resize( boneCount );
       }
 
-      CalculateBoneTransforms( updateBufferIndex, meshPtr, mMesh.boneNodes, meshInfo.boneTransforms );
+      CalculateBoneTransforms( updateBufferIndex, mMesh.mesh, mMesh.boneNodes, meshInfo.boneTransforms );
     }
   }
 }
@@ -309,13 +308,13 @@ bool MeshAttachment::IsFullyOpaque( BufferIndex updateBufferIndex )
   return fullyOpaque;
 }
 
-void MeshAttachment::DoGetScaleForSize( const Vector3& nodeSize, Vector3& scaling )
+void MeshAttachment::DoGetScaleForSize( const Vector3& nodeSize, Vector3& scaling, BufferIndex updateBufferIndex )
 {
   scaling = Vector3::ONE;
   // Check whether mesh data should be scaled to requiredSize
   if( NULL != mMesh.mesh )
   {
-    const MeshData& meshData = mMesh.mesh->GetMeshData( Mesh::UPDATE_THREAD );
+    const MeshData& meshData = mMesh.mesh->GetMeshData(updateBufferIndex);
 
     if( meshData.IsScalingRequired() )
     {

@@ -164,6 +164,11 @@ unsigned int Image::GetHeight() const
   return GetImplementation(*this).GetHeight();
 }
 
+void Image::ResizeNativeImage( const Vector2& newSize )
+{
+  GetImplementation(*this).ResizeNativeImage( newSize );
+}
+
 void Image::Reload()
 {
   GetImplementation(*this).Reload();

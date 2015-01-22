@@ -79,6 +79,11 @@ public:
    */
   virtual bool Init();
 
+  /**
+   * @copydoc Texture::Resize
+   */
+  virtual void Resize( const Vector2& newSize );
+
 protected:
   /**
    * @copydoc Texture::CreateGlTexture

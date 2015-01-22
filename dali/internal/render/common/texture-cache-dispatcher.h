@@ -102,6 +102,13 @@ public:
   virtual void DispatchCreateTextureForNativeImage( ResourceId id, NativeImagePtr nativeImage ) = 0;
 
   /**
+   * Resize a NativeImage.
+   * @param[in] id The resource id.
+   * @param[in] newSize The new size.
+   */
+  virtual void DispatchResizeNativeImage( ResourceId id, const Vector2& newSize ) = 0;
+
+  /**
    * Dispatch a message to create a framebuffer texture and add it to the texture cache
    * May be called from Update thread
    * @param[in] id Resource Id of the framebuffer

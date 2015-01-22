@@ -191,6 +191,13 @@ void Image::Reload()
   }
 }
 
+void Image::ResizeNativeImage( const Vector2& newSize )
+{
+  ResourceClient& resourceClient = ThreadLocalStorage::Get().GetResourceClient();
+
+  resourceClient.ResizeNativeImage( GetResourceId(), newSize );
+}
+
 void Image::ResourceLoadingFailed(const ResourceTicket& ticket)
 {
   mLoadingFinishedV2.Emit( Dali::Image( this ) );

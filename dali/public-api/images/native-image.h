@@ -68,6 +68,13 @@ public:
   virtual void PrepareTexture() = 0;
 
   /**
+   * @brief Called after the corresponding call to Image::ResizeNativeImage( const Vector2& )
+   *
+   * @param[in] newSize The new size.
+   */
+  virtual void Resize( const Vector2& newSize ) {}; // FIXME - to be pure virtual
+
+  /**
    * @brief Returns the width of the NativeImage.
    *
    * @return width

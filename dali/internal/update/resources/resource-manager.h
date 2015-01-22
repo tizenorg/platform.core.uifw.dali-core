@@ -523,6 +523,20 @@ inline void RequestAddNativeImageMessage( EventToUpdate& eventToUpdate,
   new (slot) LocalType( &manager, &ResourceManager::HandleAddNativeImageRequest, id, resourceData );
 }
 
+inline void RequestResizeNativeImageMessage( EventToUpdate& eventToUpdate,
+                                             ResourceManager& manager,
+                                             ResourceId id,
+                                             const Vector2& newSize )
+{
+  typedef MessageValue2< ResourceManager, ResourceId, Vector2 > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &ResourceManager::HandleResizeNativeImageRequest, id, newSize );
+}
+
 inline void RequestAddFrameBufferImageMessage( EventToUpdate& eventToUpdate,
                                                ResourceManager& manager,
                                                ResourceId id,

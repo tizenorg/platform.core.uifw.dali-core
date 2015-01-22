@@ -98,6 +98,20 @@ void TextureCache::AddNativeImage(ResourceId id, NativeImagePtr nativeImage)
   mTextures.insert(TexturePair(id, texture));
 }
 
+void TextureCache::ResizeNativeImage( ResourceId id, const Vector2& newSize )
+{
+  TextureIter textureIter = mTextures.find(id);
+  if( textureIter != mTextures.end() )
+  {
+    // we have reloaded the image from file, update texture
+    TexturePointer texturePtr = textureIter->second;
+    if( texturePtr )
+    {
+      texturePtr->Resize( newSize );
+    }
+  }
+}
+
 void TextureCache::AddFrameBuffer( ResourceId id, unsigned int width, unsigned int height, Pixel::Format pixelFormat )
 {
   DALI_LOG_INFO(Debug::Filter::gGLResource, Debug::General, "TextureCache::AddFrameBuffer(id=%i width:%u height:%u)\n", id, width, height);
@@ -484,6 +498,21 @@ void TextureCache::DispatchCreateTextureForNativeImage( ResourceId id, NativeIma
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::AddNativeImage, id, nativeImage );
+  }
+}
+
+void TextureCache::DispatchResizeNativeImage( ResourceId id, const Vector2& newSize )
+{
+  // NULL, means being shutdown, so ignore msgs
+  if( mSceneGraphBuffers != NULL )
+  {
+    typedef MessageValue2< TextureCache, ResourceId, Vector2 > DerivedType;
+
+    // Reserve some memory inside the render queue
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+    // Construct message in the render queue memory; note that delete should not be called on the return value
+    new (slot) DerivedType( this, &TextureCache::ResizeNativeImage, id, newSize );
   }
 }
 

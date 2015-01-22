@@ -338,6 +338,18 @@ void ResourceManager::HandleAddNativeImageRequest(ResourceId id, NativeImagePtr 
   mImpl->mTextureCacheDispatcher.DispatchCreateTextureForNativeImage( id, nativeImage );
 }
 
+void ResourceManager::HandleResizeNativeImageRequest(ResourceId id, const Vector2& newSize)
+{
+  DALI_ASSERT_DEBUG( mImpl->mResourceClient != NULL );
+
+  BitmapMetadata meta = GetBitmapMetadata( id );
+
+  if( meta.GetIsNativeImage() )
+  {
+    mImpl->mTextureCacheDispatcher.DispatchResizeNativeImage( id, newSize );
+  }
+}
+
 void ResourceManager::HandleAddFrameBufferImageRequest( ResourceId id, unsigned int width, unsigned int height, Pixel::Format pixelFormat )
 {
   DALI_ASSERT_DEBUG( mImpl->mResourceClient != NULL );

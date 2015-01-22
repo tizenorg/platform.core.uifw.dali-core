@@ -336,6 +336,14 @@ public:
    */
   ImageAttributes GetAttributes() const;
 
+  /**
+   * @brief Resizes a NativeImage in the next render-thread frame.
+   *
+   * See also NativeImage::Resize() interface.
+   * @param[in] newSize The new size.
+   */
+  void ResizeNativeImage( const Vector2& newSize );
+
 public: // Signals
 
   /**

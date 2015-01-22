@@ -115,6 +115,13 @@ public:
   void AddNativeImage( ResourceId id, NativeImagePtr nativeImage );
 
   /**
+   * Resize a NativeImage.
+   * @param[in] id The resource id.
+   * @param[in] newSize The new size.
+   */
+  void ResizeNativeImage( ResourceId id, const Vector2& newSize );
+
+  /**
    * Create a framebuffer texture and add it to the texture cache
    * @param[in] id Resource Id of the native image
    * @param[in] width Width of the framebuffer
@@ -268,6 +275,11 @@ protected: // Implements TextureCacheDispatcher
    * @copydoc TextureCacheDispatcher::DispatchCreateTextureForNativeImage()
    */
   virtual void DispatchCreateTextureForNativeImage( ResourceId id, NativeImagePtr nativeImage );
+
+  /**
+   * @copydoc TextureCacheDispatcher::DispatchResizeNativeImage()
+   */
+  virtual void DispatchResizeNativeImage( ResourceId id, const Vector2& newSize );
 
   /**
    * @copydoc TextureCacheDispatcher::DispatchCreateTextureForFramebuffer()

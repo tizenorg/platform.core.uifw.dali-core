@@ -198,6 +198,14 @@ public:
   ResourceTicketPtr AddNativeImage ( NativeImage& resourceData );
 
   /**
+   * @brief Resizes a NativeImage resource.
+   *
+   * @param[in] id The resource ID of the NativeImage.
+   * @param[in] newSize The new size.
+   */
+  void ResizeNativeImage( ResourceId Id, const Vector2& newSize );
+
+  /**
    * Add a framebuffer resource to the resource manager.
    * @param[in] width       width in pixels
    * @param[in] height      height in pixels

@@ -343,6 +343,11 @@ ResourceTicketPtr ResourceClient::AddNativeImage ( NativeImage& resourceData )
   return newTicket;
 }
 
+void ResourceClient::ResizeNativeImage( ResourceId Id, const Vector2& newSize )
+{
+  RequestResizeNativeImageMessage( mUpdateManager.GetEventToUpdate(), mResourceManager, Id, newSize );
+}
+
 ImageTicketPtr ResourceClient::AddFrameBufferImage ( unsigned int width, unsigned int height, Pixel::Format pixelFormat )
 {
   ImageTicketPtr newTicket;

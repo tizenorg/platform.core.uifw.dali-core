@@ -156,7 +156,7 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
 
   mResourceClient = new ResourceClient( *mResourceManager, *mUpdateManager, dataRetentionPolicy );
 
-  mStage = IntrusivePtr<Stage>( Stage::New( *mAnimationPlaylist, *mPropertyNotificationManager, *mUpdateManager, *mNotificationManager ) );
+  mStage = IntrusivePtr<Stage>( Stage::New( *mAnimationPlaylist, *mPropertyNotificationManager, *mUpdateManager, *mNotificationManager) );
 
   mStage->Initialize();
 
@@ -211,6 +211,7 @@ Core::~Core()
   delete mRenderManager;
   delete mDiscardQueue;
   delete mResourcePostProcessQueue;
+
 }
 
 Integration::ContextNotifierInterface* Core::GetContextNotifier()

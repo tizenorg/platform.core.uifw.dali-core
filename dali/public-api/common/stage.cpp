@@ -131,11 +131,9 @@ Vector2 Stage::GetDpi() const
   return GetImplementation(*this).GetDpi();
 }
 
-ObjectRegistry Stage::GetObjectRegistry() const
+ObjectRegistry Stage::GetObjectRegistry()
 {
-  Internal::ObjectRegistry& internal = Internal::Stage::GetCurrent()->GetObjectRegistry();
-
-  return ObjectRegistry(&internal);
+  return GetImplementation(*this).GetObjectRegistry();
 }
 
 DynamicsWorld Stage::InitializeDynamics(DynamicsWorldConfig config)

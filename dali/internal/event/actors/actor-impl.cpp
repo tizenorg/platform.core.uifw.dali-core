@@ -2093,8 +2093,8 @@ Actor::~Actor()
       mNode = NULL; // Node is about to be destroyed
     }
 
-    UnregisterObject();
   }
+  UnregisterObject();
 
 #ifdef DYNAMICS_SUPPORT
   // Cleanup dynamics

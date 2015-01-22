@@ -38,19 +38,16 @@ BaseObject::~BaseObject()
 
 void BaseObject::RegisterObject()
 {
-  if( Internal::Stage::IsInstalled() )
-  {
-    Internal::Stage::GetCurrent()->GetObjectRegistry().RegisterObject( this );
-  }
+  Dali::ObjectRegistry registry = Dali::ObjectRegistry::Get();
+  Internal::ObjectRegistry& r(GetImplementation(registry));
+  r.RegisterObject( this );
 }
 
 void BaseObject::UnregisterObject()
 {
-  // Guard to allow handle destruction after Core has been destroyed
-  if( Internal::Stage::IsInstalled() )
-  {
-    Internal::Stage::GetCurrent()->GetObjectRegistry().UnregisterObject( this );
-  }
+  Dali::ObjectRegistry registry = Dali::ObjectRegistry::Get();
+  Internal::ObjectRegistry& r(GetImplementation(registry));
+  r.UnregisterObject( this );
 }
 
 bool BaseObject::DoAction(const std::string& actionName, const std::vector<Property::Value>& attributes)

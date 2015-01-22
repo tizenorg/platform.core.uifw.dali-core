@@ -20,6 +20,8 @@
 
 // EXTERNAL INCLUDES
 #include <algorithm>
+#include <boost/thread.hpp> // @todo remove
+#include <sstream> // @todo remove
 
 // INTERNAL INCLUDES
 #include <dali/internal/event/common/thread-local-storage.h>
@@ -31,21 +33,29 @@ namespace Dali
 namespace Internal
 {
 
-ObjectRegistryPtr ObjectRegistry::New()
-{
-  return ObjectRegistryPtr(new ObjectRegistry());
-}
-
 ObjectRegistry::ObjectRegistry()
+  : mObjectsCreated(0)
 {
 }
 
 ObjectRegistry::~ObjectRegistry()
 {
+  if(0 != mObjectsCreated)
+  {
+    DALI_LOG_WARNING("Dali objects alive at registry destruction '%d'\n", mObjectsCreated);
+  }
+
+  DALI_ASSERT_ALWAYS(0 == mObjectsCreated &&
+                     "Dali Objects have not been cleaned up before Dali core destruction!");
 }
 
 void ObjectRegistry::RegisterObject( Dali::BaseObject* object )
 {
+  std::stringstream ss;
+  ss << boost::this_thread::get_id();
+  DALI_LOG_WARNING("Dali RegisterObject '%s:%x:%s'\n", ss.str().c_str(), (long long)(object), typeid( *object ).name());
+
+  mObjectsCreated++;
   if ( !mObjectCreatedSignalV2.Empty() )
   {
     Dali::BaseHandle handle( object );
@@ -55,6 +65,16 @@ void ObjectRegistry::RegisterObject( Dali::BaseObject* object )
 
 void ObjectRegistry::UnregisterObject( Dali::BaseObject* object )
 {
+  std::stringstream ss;
+  ss << boost::this_thread::get_id();
+  DALI_LOG_WARNING("Dali UnRegisterObject '%s:%x:%s'\n", ss.str().c_str(), (long long)(object), typeid( *object ).name());
+
+  if(0 >= mObjectsCreated)
+  {
+    DALI_LOG_WARNING("Dali objects deleted twice?! '%d'\n", mObjectsCreated);
+  }
+
+  mObjectsCreated--;
   mObjectDestroyedSignalV2.Emit( object );
 }
 

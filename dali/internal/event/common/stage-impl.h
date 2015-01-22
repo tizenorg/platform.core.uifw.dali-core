@@ -84,7 +84,7 @@ public:
   static StagePtr New( AnimationPlaylist& playlist,
                        PropertyNotificationManager& propertyNotificationManager,
                        SceneGraph::UpdateManager& updateManager,
-                       NotificationManager& notificationManager );
+                       NotificationManager& notificationManager);
 
   /**
    * Initialize the stage.
@@ -109,7 +109,7 @@ public:
   /**
    * @copydoc Dali::Stage::GetObjectRegistry()
    */
-  ObjectRegistry& GetObjectRegistry();
+  Dali::ObjectRegistry GetObjectRegistry();
 
   /**
    * Retrieve the root actor (not publically accessible).
@@ -412,7 +412,7 @@ private:
   Stage( AnimationPlaylist& playlist,
          PropertyNotificationManager& propertyNotificationManager,
          SceneGraph::UpdateManager& updateManager,
-         NotificationManager& notificationManager );
+         NotificationManager& notificationManager);
 
   /**
    * A reference counted object may only be deleted by calling Unreference()
@@ -447,9 +447,6 @@ private:
   float mStereoBase;
 
   Vector2 mDpi;
-
-  // The object registry
-  ObjectRegistryPtr mObjectRegistry;
 
 #ifdef DYNAMICS_SUPPORT
 

@@ -138,6 +138,7 @@
 #include <dali/public-api/object/property-value.h>
 #include <dali/public-api/object/property.h>
 #include <dali/public-api/object/ref-object.h>
+#include <dali/public-api/object/singleton-service.h>
 #include <dali/public-api/object/type-info.h>
 #include <dali/public-api/object/type-registry.h>
 

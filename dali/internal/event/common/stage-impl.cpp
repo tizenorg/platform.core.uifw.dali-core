@@ -63,15 +63,13 @@ const float DEFAULT_STEREO_BASE( 65.0f );
 StagePtr Stage::New( AnimationPlaylist& playlist,
                      PropertyNotificationManager& propertyNotificationManager,
                      SceneGraph::UpdateManager& updateManager,
-                     NotificationManager& notificationManager )
+                     NotificationManager& notificationManager)
 {
   return StagePtr( new Stage( playlist, propertyNotificationManager, updateManager, notificationManager ) );
 }
 
 void Stage::Initialize()
 {
-  mObjectRegistry = ObjectRegistry::New();
-
   // Create the ordered list of layers
   mLayerList = LayerList::New( *this, false/*not system-level*/ );
 
@@ -98,6 +96,7 @@ void Stage::Uninitialize()
   if( mDefaultCamera )
   {
     Remove(*(mDefaultCamera.Get()));
+    mDefaultCamera.Reset();
   }
 
   if( mRootLayer )
@@ -118,9 +117,9 @@ bool Stage::IsInstalled()
   return ThreadLocalStorage::Created();
 }
 
-ObjectRegistry& Stage::GetObjectRegistry()
+Dali::ObjectRegistry Stage::GetObjectRegistry()
 {
-  return *mObjectRegistry;
+  return Dali::ObjectRegistry::Get();
 }
 
 Layer& Stage::GetRootActor()
@@ -555,7 +554,7 @@ void Stage::NotifyContextRegained()
 Stage::Stage( AnimationPlaylist& playlist,
               PropertyNotificationManager& propertyNotificationManager,
               SceneGraph::UpdateManager& updateManager,
-              NotificationManager& notificationManager )
+              NotificationManager& notificationManager)
 : mAnimationPlaylist( playlist ),
   mPropertyNotificationManager(propertyNotificationManager),
   mUpdateManager(updateManager),
@@ -574,8 +573,6 @@ Stage::Stage( AnimationPlaylist& playlist,
 Stage::~Stage()
 {
   delete mSystemOverlay;
-
-  mObjectRegistry.Reset();
 }
 
 } // namespace Internal

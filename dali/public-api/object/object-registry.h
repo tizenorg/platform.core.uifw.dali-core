@@ -85,6 +85,12 @@ public:
   ~ObjectRegistry();
 
   /**
+   *
+   *
+   */
+  static ObjectRegistry Get();
+
+  /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
    * @param [in] handle A reference to the copied handle

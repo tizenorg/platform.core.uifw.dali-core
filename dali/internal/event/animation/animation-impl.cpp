@@ -122,8 +122,9 @@ Animation::~Animation()
 
     DestroySceneObject();
 
-    UnregisterObject();
   }
+
+  UnregisterObject();
 }
 
 void Animation::CreateSceneObject()

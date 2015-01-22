@@ -129,10 +129,7 @@ Image::~Image()
     }
   }
 
-  if( Stage::IsInstalled() )
-  {
-    UnregisterObject();
-  }
+  UnregisterObject();
 }
 
 bool Image::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )

@@ -240,8 +240,9 @@ ShaderEffect::~ShaderEffect()
     {
       RemoveShaderMessage( mUpdateManager, *mSceneObject );
     }
-    UnregisterObject();
   }
+
+  UnregisterObject();
 }
 
 void ShaderEffect::SetEffectImage( Dali::Image image )

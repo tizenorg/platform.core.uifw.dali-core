@@ -51,11 +51,6 @@ class ObjectRegistry : public BaseObject
 public:
 
   /**
-   * Create the objectRegistry
-   */
-  static ObjectRegistryPtr New();
-
-  /**
    * Registers the Object into the Object Registry, which notifies
    * about this object creation to its observers using signals. As
    * the signals use a BaseHandle, the object must already have a
@@ -101,19 +96,20 @@ public:
    */
   static bool DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor );
 
-private:
-
   /**
    * Protected constructor; see also ObjectRegistry::New()
    */
   ObjectRegistry();
 
   /**
-   * A reference counted object may only be deleted by calling Unreference()
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
   ~ObjectRegistry();
 
 private:
+  size_t mObjectsCreated;
 
   Dali::ObjectRegistry::ObjectCreatedSignalV2 mObjectCreatedSignalV2;
   Dali::ObjectRegistry::ObjectDestroyedSignalV2 mObjectDestroyedSignalV2;
@@ -133,14 +129,14 @@ inline Internal::ObjectRegistry& GetImplementation(Dali::ObjectRegistry& objectR
   return static_cast<Internal::ObjectRegistry&>(handle);
 }
 
-inline const Internal::ObjectRegistry& GetImplementation(const Dali::ObjectRegistry& objectRegistry)
-{
-  DALI_ASSERT_ALWAYS( objectRegistry && "ObjectRegistry handle is empty" );
+/* inline const Internal::ObjectRegistry& GetImplementation(const Dali::ObjectRegistry& objectRegistry) */
+/* { */
+/*   DALI_ASSERT_ALWAYS( objectRegistry && "ObjectRegistry handle is empty" ); */
 
-  const BaseObject& handle = objectRegistry.GetBaseObject();
+/*   const BaseObject& handle = objectRegistry.GetBaseObject(); */
 
-  return static_cast<const Internal::ObjectRegistry&>(handle);
-}
+/*   return static_cast<const Internal::ObjectRegistry&>(handle); */
+/* } */
 
 } // namespace Dali
 

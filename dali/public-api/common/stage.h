@@ -204,7 +204,7 @@ public:
    *
    * @return The object registry.
    */
-  ObjectRegistry GetObjectRegistry() const;
+  ObjectRegistry GetObjectRegistry();
 
   // Dynamics
 

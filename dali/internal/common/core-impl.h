@@ -62,6 +62,7 @@ class ModelFactory;
 class ShaderFactory;
 class TouchResampler;
 class EmojiFactory;
+class ObjectRegistry;
 
 namespace SceneGraph
 {
@@ -315,6 +316,7 @@ private:
   ResourceManager*                          mResourceManager;             ///< Asynchronous Resource Loading
   TouchResampler*                           mTouchResampler;              ///< Resamples touches to correct frame rate.
   EmojiFactory*                             mEmojiFactory;                ///< Emoji resource factory.
+  IntrusivePtr<ObjectRegistry>              mObjectRegistry;              ///< The dali core intanse object registry
 
   bool                                      mIsActive         : 1;        ///< Whether Core is active or suspended
   bool                                      mProcessingEvent  : 1;        ///< True during ProcessEvents()

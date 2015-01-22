@@ -88,6 +88,30 @@ struct AnimationFinishCheck
   bool& mSignalReceived; // owned by individual tests
 };
 
+// Functor to check object deletion
+struct ObjectDeleteCheck
+{
+  const Dali::RefObject* mCreatedObject;
+  bool mDeleted;
+
+  explicit ObjectDeleteCheck(const Dali::RefObject* createdObject = NULL)
+    : mDeleted(false);
+  {
+    mCreatedObject = createdObject;
+  }
+
+  void operator()(const Dali::RefObject* deletedObject)
+  {
+    if(mCreatedObject == pObject)
+    {
+      mDeleted = true;
+    }
+  }
+
+  bool wasDeleted() { return mDeleted; }
+
+};
+
 } // anon namespace
 
 int UtcDaliAnimationNew01(void)
@@ -9839,5 +9863,57 @@ int UtcDaliAnimationPath(void)
   DALI_TEST_EQUALS( actor.GetCurrentRotation(), rotation, TEST_LOCATION );
 
   finishCheck.CheckSignalReceived();
+  END_TEST;
+}
+
+
+int UtcDaliAnimationDestruction(void)
+{
+  ObjectDeleteCheck deleteCheck;
+  {
+    TestApplication application;
+
+    Actor actor = Actor::New();
+    Stage::GetCurrent().Add(actor);
+
+    //Build the path
+    Vector3 position0( 30.0,  80.0,  0.0);
+    Vector3 position1( 70.0,  120.0, 0.0);
+    Vector3 position2( 100.0, 100.0, 0.0);
+
+    Dali::Path path = Dali::Path::New();
+    path.AddPoint(position0);
+    path.AddPoint(position1);
+    path.AddPoint(position2);
+
+    //Control points for first segment
+    path.AddControlPoint( Vector3( 39.0,  90.0, 0.0) );
+    path.AddControlPoint(Vector3( 56.0, 119.0, 0.0) );
+
+    // Build the animation
+    float durationSeconds( 10.0f );
+    Animation animation = Animation::New(durationSeconds);
+    animation.Animate(actor, path, Vector3::XAXIS, AlphaFunctions::Linear, TimePeriod(0.0f, 1.0f ));
+
+    deleteCheck = ObjectDeleteCheck( animation.GetObjectPtr() );
+
+    ObjectRegistry registry = Stage::GetCurrent().GetObjectRegistry();
+
+    registry.ObjectDestroyedSignal().connect(DeletedCheck());
+
+    // Start the animation
+    animation.Play();
+
+    application.SendNotification();
+    application.Render(0);
+    application.SendNotification();
+
+  }
+
+  // Application dies, object count check should be zero; ObjectRegistry asserts if not
+
+  // check we got the animation deletion signal
+  DALI_TEST_CHECK( deleteCheck.wasDeleted()  );
+
   END_TEST;
 }

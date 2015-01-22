@@ -18,6 +18,8 @@
 // CLASS HEADER
 #include <dali/public-api/object/object-registry.h>
 
+#include <dali/public-api/object/singleton-service.h>
+
 // INTERNAL INCLUDES
 #include <dali/internal/event/common/object-registry-impl.h>
 
@@ -39,6 +41,33 @@ ObjectRegistry::ObjectRegistry(const ObjectRegistry& copy)
 : BaseHandle(copy)
 {
 }
+
+ObjectRegistry ObjectRegistry::Get()
+{
+  ObjectRegistry registry;
+
+  SingletonService singletonService( SingletonService::Get() );
+  if( singletonService )
+  {
+    Dali::BaseHandle handle = singletonService.GetSingleton( typeid(ObjectRegistry) );
+    if( handle )
+    {
+      // If so, downcast the handle of singleton to ObjectRegistry
+      DALI_ASSERT_DEBUG( dynamic_cast<Internal::ObjectRegistry*>(handle.GetObjectPtr()) );
+      registry = ObjectRegistry(reinterpret_cast<Internal::ObjectRegistry*>(handle.GetObjectPtr()));
+    }
+
+    if( !registry )
+    {
+      // If not, create the ObjectRegistry and register it as a singleton
+      registry = ObjectRegistry(new Internal::ObjectRegistry());
+      singletonService.Register( typeid(registry), registry );
+    }
+  }
+
+  return registry;
+}
+
 
 ObjectRegistry& ObjectRegistry::operator=(const ObjectRegistry& rhs)
 {

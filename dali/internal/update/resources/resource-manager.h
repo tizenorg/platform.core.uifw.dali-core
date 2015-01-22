@@ -44,6 +44,7 @@
 #include <dali/internal/update/modeling/scene-graph-mesh-declarations.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/update/resources/bitmap-metadata.h>
+#include <dali/internal/render/common/render-mesh-dispatcher.h>
 
 namespace Dali
 {
@@ -72,6 +73,7 @@ class DiscardQueue;
 class RenderQueue;
 class TextureCacheDispatcher;
 class PostProcessResourceDispatcher;
+class RenderMeshOwner;
 }
 
 class NotificationManager;
@@ -111,7 +113,8 @@ public:
                    ResourcePostProcessList& postProcessResourcesQueue,
                    SceneGraph::PostProcessResourceDispatcher& postProcessResourceDispatcher,
                    SceneGraph::DiscardQueue& discardQueue,
-                   SceneGraph::RenderQueue& renderQueue );
+                   SceneGraph::RenderQueue& renderQueue,
+                   SceneGraph::RenderMeshOwner& renderMeshOwner );
 
   /**
    * Virtual destructor.
@@ -251,7 +254,7 @@ public: // Used by ResourceClient
    * @param[in] id The resource id
    * @param[in] meshData The mesh data
    */
-  void HandleAllocateMeshRequest (ResourceId id, MeshData* meshData);
+  void HandleAllocateMeshRequest( BufferIndex updateBufferIndex, ResourceId id, MeshData* meshData);
 
   /**
    * Requests allocation of a font resource
@@ -588,7 +591,7 @@ inline void RequestAllocateMeshMessage( EventToUpdate& eventToUpdate,
                                         ResourceId id,
                                         OwnerPointer<MeshData>& meshData )
 {
-  typedef MessageValue2< ResourceManager, ResourceId, OwnerPointer<MeshData> > LocalType;
+  typedef MessageDoubleBuffered2< ResourceManager, ResourceId, OwnerPointer<MeshData> > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );

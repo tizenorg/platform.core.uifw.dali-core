@@ -67,7 +67,7 @@ void AnimatableMesh::UpdateMesh( BufferIndex updateBufferIndex )
   SceneGraph::Mesh* mesh(mResourceManager.GetMesh(mMeshId));
 
   // TODO: Should be double buffered - pass in buffer index
-  MeshData& meshData = mesh->GetMeshData(Mesh::UPDATE_THREAD);
+  MeshData& meshData = mesh->GetMeshData(updateBufferIndex);
 
   bool meshUpdated( false );
   MeshData::VertexContainer& oldVertices = meshData.GetVertices();
@@ -109,7 +109,7 @@ void AnimatableMesh::UpdateMesh( BufferIndex updateBufferIndex )
 
   if ( meshUpdated )
   {
-    mesh->MeshDataUpdated(updateBufferIndex, Mesh::UPDATE_THREAD, NULL);
+    mesh->MeshDataUpdated(updateBufferIndex);
   }
 }
 

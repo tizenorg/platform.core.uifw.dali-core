@@ -24,10 +24,9 @@
 #include <dali/internal/common/message.h>
 #include <dali/internal/update/nodes/node.h>
 #include <dali/internal/update/modeling/internal-mesh-data.h>
-#include <dali/internal/render/gl-resources/gpu-buffer.h>
-#include <dali/internal/render/gl-resources/gl-resource-owner.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/update/modeling/scene-graph-mesh-declarations.h>
+#include <dali/internal/render/renderers/render-mesh.h>
 
 namespace Dali
 {
@@ -38,36 +37,28 @@ namespace Internal
 namespace SceneGraph
 {
 class RenderQueue;
-class PostProcessResourceDispatcher;
 class Mesh;
+class RenderMesh;
 
 /**
  * Mesh resources consist of vertices, face indices and normals; they are shared (weakly referenced) by Nodes.
  */
-class Mesh : public GlResourceOwner
+class Mesh
 {
 public:
-
-  enum ThreadBuffer
-  {
-    UPDATE_THREAD,
-    RENDER_THREAD
-  };
 
   /**
    * Create a new scene graph mesh.
    * @param[in] id The resource ID of the mesh
    * @param[in] postProcessResourceDispatcher The dispatcher
    * @param[in] meshData The mesh data
+   * @param[in] renderMesh Pointer to the render side object
    * @return A smart-pointer to the newly allocated Mesh.
    */
   static Mesh* New( ResourceId id,
-                    PostProcessResourceDispatcher& postProcessResourceDispatcher,
                     RenderQueue& renderQueue,
-                    MeshData* meshData )
-  {
-    return new Mesh( id, postProcessResourceDispatcher, renderQueue, meshData );
-  }
+                    MeshData* meshData,
+                    RenderMesh *renderMesh );
 
   /**
    * Virtual destructor
@@ -76,96 +67,55 @@ public:
 
   /**
    * Set the mesh data
-   * @pre Should only be called in the update thread
+   * @param[in] bufferIndex to be used in double buffered values.
    * @param[in] meshData The mesh data
    */
-  void SetMeshData( MeshData* meshData );
+  void SetMeshData( BufferIndex bufferIndex, MeshData* meshData );
+
+  /**
+   * Get a the mesh data const reference.
+   * The caller can modify this data. If they do, they should call
+   * MeshDataUpdated() when finished.
+   * @param[in] bufferIndex to be used in double buffered values.
+   * @return meshData.
+   */
+  const MeshData& GetMeshData( BufferIndex bufferIndex ) const;
 
   /**
    * Get the mesh data.
    * The caller can modify this data. If they do, they should call
-   * MeshDataUpdated() when finished. This should only be done in the update thread.
-   * @param[in] threadBuffer indicates what buffer should be returned
-   * @return meshData.
-   */
-  MeshData& GetMeshData( ThreadBuffer threadBuffer );
-
-  /**
-   * Get the mesh data.
-   * @param[in] threadBuffer indicates what buffer should be returned
-   * @return meshData.
-   */
-  const MeshData& GetMeshData( ThreadBuffer threadBuffer ) const;
-
-  /**
-   * The mesh data has been updated. Allows the renderer to update
-   * the vertex buffer objects the next time they are needed.
+   * MeshDataUpdated() when finished.
    * @param[in] bufferIndex to be used in double buffered values.
-   * @param[in] threadBuffer indicates what buffer should be used
-   * @param[in] meshData The mesh data ownership is passed in through a message, if threadBuffer is UPDATE it should be NULL
+   * @return meshData.
    */
-  void MeshDataUpdated( BufferIndex bufferIndex, ThreadBuffer threadBuffer, MeshData* meshData );
+  MeshData& GetMeshData( BufferIndex bufferIndex );
 
   /**
-   * Sends the vertex data to GL if it has been refreshed. Notify resource manager when it has finished.
-   * @pre this function should only be called from the render thread
-   * @param[in] context The GL context.
-   * @param[in] renderBufferIndex The index that should be accessed in double buffered values.
+   * @brief The mesh data has been changed.
+   * @param[in] bufferIndex to be used in double buffered values.
    */
-  void UploadVertexData( Context& context, BufferIndex renderBufferIndex );
+  void MeshDataUpdated( BufferIndex bufferIndex );
 
   /**
-   * Actually perform the vertex upload.
-   * @param[in] context The GL context.
-   */
-  void DoUpload( Context& context );
-
-  /**
-   * Bind the vertex and index buffers.
-   * @pre this function should only be called from the render thread
-   * @param[in] context The GL context.
-   */
-  void BindBuffers( Context& context );
-
-  /**
-   * Get the number of face / line indices. (Note, this is not the number of faces)
-   * @param[in] threadBuffer indicates what buffer should be used
-   * @return the number of indices
-   */
-  size_t GetFaceIndexCount( ThreadBuffer threadBuffer ) const;
-
-  /**
-   * Returns a new
-   * @param[in] threadBuffer indicates what buffer should be used
+   * Check if there is any geometry in this mesh
    * @return true if there is any geometry
    **/
-  bool HasGeometry( ThreadBuffer threadBuffer ) const;
-
-public: // from GlResourceOwner
+  bool HasGeometry( BufferIndex bufferIndex ) const;
 
   /**
-   * @copydoc Dali::Internal::GlResourceOwner::GlContextDestroyed()
+   * Get the Render side object.
+   * @return a pointer to the render side object
    */
-  virtual void GlContextDestroyed();
-
-  /**
-   * @copydoc Dali::Internal::GlResourceOwner::GlCleanup()
-   */
-  virtual void GlCleanup();
+  RenderMesh* GetRenderMesh();
 
 private:
-  /**
-   * Method to set if the vertex buffer should be refreshed in the render thread
-   */
-  void RefreshVertexBuffer();
-
   /**
    * Private constructor; see also Mesh::New()
    */
   Mesh( ResourceId id,
-        PostProcessResourceDispatcher& postProcessResourceDispatcher,
         RenderQueue& renderQueue,
-        MeshData* meshData );
+        MeshData* meshData,
+        RenderMesh* renderMesh );
 
   // Undefined
   Mesh(const Mesh&);
@@ -174,28 +124,20 @@ private:
   Mesh& operator=(const Mesh& rhs);
 
 protected:
-  PostProcessResourceDispatcher& mPostProcessResourceDispatcher;
-  SceneGraph::RenderQueue& mRenderQueue;
+  ResourceId    mResourceId;      ///< Resource ID of the mesh
+  RenderQueue&  mRenderQueue;     ///< RenderQueue to send messages to the RenderMesh
+  RenderMesh*   mRenderMesh;      ///< RenderMesh object
+
   /**
    * The mUpdateMeshData will point to a mesh data that was just received
    * or to the MeshData pointed by mRenderMeshData if it's more that one frame old
    */
-  MeshData* mUpdateMeshData;              ///< Pointer to MeshData object
-  OwnerPointer<MeshData> mRenderMeshData; ///< Owner of the MeshData Object
-  OwnerPointer<GpuBuffer> mVertexBuffer;  ///< Vertex buffer
-  OwnerPointer<GpuBuffer> mIndicesBuffer; ///< Index buffer
-  size_t     mNumberOfVertices;    ///< Number of vertices
-  size_t     mNumberOfFaces;       ///< Number of faces
-  ResourceId mResourceId;
-  bool mRefreshVertexBuffer;              ///< True when GpuBuffers need updating
+  MeshData*  mMeshData;         ///< Weak reference to MeshData object
+  size_t     mNumberOfVertices; ///< Number of vertices
+  size_t     mNumberOfFaces;    ///< Number of faces
 };
 
 } // namespace SceneGraph
-
-// value types used by messages
-template <> struct ParameterType< SceneGraph::Mesh::ThreadBuffer >
-: public BasicType< SceneGraph::Mesh::ThreadBuffer > {};
-class Context;
 
 } // namespace Internal
 

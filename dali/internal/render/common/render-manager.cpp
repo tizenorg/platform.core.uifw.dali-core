@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/render/common/render-manager.h>
 
+// EXTERNAL INCLUDES
+#include <algorithm>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/stage.h>
@@ -36,6 +39,7 @@
 #include <dali/internal/render/gl-resources/native-frame-buffer-texture.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/renderers/render-material.h>
+#include <dali/internal/render/renderers/render-mesh.h>
 #include <dali/internal/render/renderers/scene-graph-renderer.h>
 #include <dali/internal/render/shaders/program-controller.h>
 
@@ -76,6 +80,10 @@ typedef OwnerContainer< RenderMaterial* >      RenderMaterialContainer;
 typedef RenderMaterialContainer::Iterator      RenderMaterialIter;
 typedef RenderMaterialContainer::ConstIterator RenderMaterialConstIter;
 
+typedef OwnerContainer< RenderMesh* >          RenderMeshContainer;
+typedef RenderMeshContainer::Iterator          RenderMeshIter;
+typedef RenderMeshContainer::ConstIterator     RenderMeshConstIter;
+
 typedef OwnerContainer< RenderTracker* >       RenderTrackerContainer;
 typedef RenderTrackerContainer::Iterator       RenderTrackerIter;
 typedef RenderTrackerContainer::ConstIterator  RenderTrackerConstIter;
@@ -101,6 +109,7 @@ struct RenderManager::Impl
     defaultSurfaceRect(),
     rendererContainer(),
     materials(),
+    meshes(),
     renderersAdded( false ),
     firstRenderCompleted( false ),
     defaultShader( NULL ),
@@ -162,6 +171,7 @@ struct RenderManager::Impl
 
   RendererOwnerContainer              rendererContainer;    ///< List of owned renderers
   RenderMaterialContainer             materials;            ///< List of owned render materials
+  RenderMeshContainer                 meshes;               ///< List of owned render meshes
 
   bool                                renderersAdded;
 
@@ -219,13 +229,22 @@ void RenderManager::ContextDestroyed()
   // inform texture cache
   mImpl->textureCache.GlContextDestroyed(); // Clears gl texture ids
 
-  // inform renderers
-  RendererOwnerContainer::Iterator end = mImpl->rendererContainer.End();
-  RendererOwnerContainer::Iterator iter = mImpl->rendererContainer.Begin();
-  for( ; iter != end; ++iter )
-  {
-    GlResourceOwner* renderer = *iter;
-    renderer->GlContextDestroyed(); // Clear up vertex buffers
+  { // inform meshes
+    RenderMeshContainer::Iterator end = mImpl->meshes.End();
+    for( RenderMeshContainer::Iterator iter = mImpl->meshes.Begin(); iter != end; ++iter )
+    {
+      GlResourceOwner* mesh = *iter;
+      mesh->GlContextDestroyed(); // Clear up vertex buffers
+    }
+  }
+  { // inform renderers
+    RendererOwnerContainer::Iterator end = mImpl->rendererContainer.End();
+    RendererOwnerContainer::Iterator iter = mImpl->rendererContainer.Begin();
+    for( ; iter != end; ++iter )
+    {
+      GlResourceOwner* renderer = *iter;
+      renderer->GlContextDestroyed(); // Clear up vertex buffers
+    }
   }
 }
 
@@ -299,16 +318,34 @@ void RenderManager::RemoveRenderMaterial( RenderMaterial* renderMaterial )
   RenderMaterialContainer& materials = mImpl->materials;
 
   // Find the render material and destroy it
-  for ( RenderMaterialIter iter = materials.Begin(); iter != materials.End(); ++iter )
+  RenderMaterialIter iter = std::find(materials.Begin(), materials.End(), renderMaterial);
+  if (iter != materials.End())
   {
-    RenderMaterial& current = **iter;
-    if ( &current == renderMaterial )
-    {
-      materials.Erase( iter );
-      break;
-    }
+    materials.Erase( iter );
   }
 }
+
+void RenderManager::AddRenderMesh( RenderMesh* renderMesh )
+{
+  DALI_ASSERT_DEBUG( NULL != renderMesh );
+
+  mImpl->meshes.PushBack( renderMesh );
+}
+
+void RenderManager::RemoveRenderMesh( RenderMesh* renderMesh )
+{
+  DALI_ASSERT_DEBUG( NULL != renderMesh );
+
+  RenderMeshContainer& meshes = mImpl->meshes;
+
+  // Find the render mesh and destroy it
+  RenderMeshIter iter = std::find(meshes.Begin(), meshes.End(), renderMesh);
+  if (iter != meshes.End())
+  {
+    meshes.Erase( iter );
+  }
+}
+
 
 void RenderManager::AddRenderTracker( RenderTracker* renderTracker )
 {

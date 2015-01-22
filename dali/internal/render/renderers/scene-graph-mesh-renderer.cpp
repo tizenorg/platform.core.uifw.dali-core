@@ -57,6 +57,11 @@ MeshRenderer::MeshRenderer( RenderDataProvider& dataprovider )
 {
 }
 
+MeshRenderer::MeshInfo& MeshRenderer::GetMeshInfo( BufferIndex updateBufferIndex )
+{
+  return mMeshInfo[ updateBufferIndex ];
+}
+
 void MeshRenderer::ResetCustomUniforms()
 {
   for( unsigned int subType = SHADER_DEFAULT; subType < SHADER_SUBTYPE_LAST; ++subType )
@@ -81,18 +86,7 @@ MeshRenderer::~MeshRenderer()
 
 void MeshRenderer::GlContextDestroyed()
 {
-  MeshInfo& meshInfo0 = mMeshInfo[ 0 ];
-  Mesh* mesh = meshInfo0.mesh;
-  if( mesh )
-  {
-    mesh->GlContextDestroyed();
-  }
-  MeshInfo& meshInfo1 = mMeshInfo[ 1 ];
-  mesh = meshInfo1.mesh;
-  if( mesh )
-  {
-    mesh->GlContextDestroyed();
-  }
+  // MeshRenderer does not own any GL resources
 }
 
 void MeshRenderer::GlCleanup()
@@ -118,10 +112,12 @@ bool MeshRenderer::CheckResources()
   return true;
 }
 
-void MeshRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& outType, ShaderSubTypes& outSubType )
+void MeshRenderer::ResolveGeometryTypes( BufferIndex bufferIndex,
+                                         GeometryType& outType,
+                                         ShaderSubTypes& outSubType )
 {
   MeshInfo& meshInfo = mMeshInfo[bufferIndex];
-  Mesh*           mesh     =   meshInfo.mesh;
+  RenderMesh* mesh = meshInfo.mesh;
   RenderMaterial& material = *(meshInfo.material);
 
   outType = GEOMETRY_TYPE_TEXTURED_MESH;
@@ -133,11 +129,11 @@ void MeshRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& 
 
   if( mShader->AreSubtypesRequired( outType ) )
   {
-    GLsizei numBoneMatrices = (GLsizei)mesh->GetMeshData(Mesh::RENDER_THREAD).GetBoneCount();
+    GLsizei numBoneMatrices = GLsizei(mesh->GetMeshData(bufferIndex).GetBoneCount());
 
     if( numBoneMatrices )
     {
-      if( mesh->GetMeshData(Mesh::RENDER_THREAD).HasColor() )
+      if( mesh->GetMeshData(bufferIndex).HasColor() )
       {
         outSubType = SHADER_RIGGED_AND_VERTEX_COLOR;
       }
@@ -152,7 +148,7 @@ void MeshRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& 
     }
     else
     {
-      if( mesh->GetMeshData(Mesh::RENDER_THREAD).HasColor() )
+      if( mesh->GetMeshData(bufferIndex).HasColor() )
       {
         outSubType = SHADER_VERTEX_COLOR;
       }
@@ -175,12 +171,15 @@ bool MeshRenderer::IsOutsideClipSpace( const Matrix& modelMatrix, const Matrix& 
   return false; // @todo add implementation
 }
 
-void MeshRenderer::DoRender( BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
+void MeshRenderer::DoRender( BufferIndex bufferIndex,
+                             Program& program,
+                             const Matrix& modelViewMatrix,
+                             const Matrix& viewMatrix )
 {
   MeshInfo& meshInfo = mMeshInfo[bufferIndex];
-  Mesh*           mesh              =    meshInfo.mesh;
-  RenderMaterial& material          =  *(meshInfo.material);
-  BoneTransforms& boneTransforms    =    meshInfo.boneTransforms;
+  RenderMesh& mesh = *(meshInfo.mesh);
+  RenderMaterial& material = *(meshInfo.material);
+  BoneTransforms& boneTransforms = meshInfo.boneTransforms;
 
   if( ! meshInfo.boneTransforms.transforms.empty() )
   {
@@ -190,10 +189,10 @@ void MeshRenderer::DoRender( BufferIndex bufferIndex, Program& program, const Ma
   const int stride = sizeof(Dali::MeshData::Vertex);
   Dali::MeshData::Vertex *v = 0;
 
-  mesh->UploadVertexData( *mContext, bufferIndex );
-  mesh->BindBuffers( *mContext );
+  mesh.UploadVertexData( *mContext, bufferIndex );
+  mesh.BindBuffers( *mContext );
 
-  GLsizei numBoneMatrices = (GLsizei)mesh->GetMeshData(Mesh::RENDER_THREAD).GetBoneCount();
+  GLsizei numBoneMatrices = GLsizei(mesh.GetMeshData(bufferIndex).GetBoneCount());
 
   GLint location       = Program::UNIFORM_UNKNOWN;
   GLint positionLoc    = program.GetAttribLocation(Program::ATTRIB_POSITION);
@@ -219,7 +218,7 @@ void MeshRenderer::DoRender( BufferIndex bufferIndex, Program& program, const Ma
     {
       program.SetUniformMatrix4fv(location, numBoneMatrices, boneTransforms.viewTransforms[0].AsFloat());
     }
-    if( mesh->GetMeshData(Mesh::RENDER_THREAD).HasNormals() )
+    if( mesh.GetMeshData(bufferIndex).HasNormals() )
     {
       location = mCustomUniform[ mShaderType ][ 2 ].GetUniformLocation( program, "uBoneMatricesIT" );
       if( Program::UNIFORM_UNKNOWN != location )
@@ -255,7 +254,7 @@ void MeshRenderer::DoRender( BufferIndex bufferIndex, Program& program, const Ma
     mContext->EnableVertexAttributeArray( texCoordLoc );
   }
 
-  if( mesh->GetMeshData(Mesh::RENDER_THREAD).HasNormals() )
+  if( mesh.GetMeshData(bufferIndex).HasNormals() )
   {
     normalLoc = program.GetAttribLocation(Program::ATTRIB_NORMAL);
     if( Program::ATTRIB_UNKNOWN != normalLoc )
@@ -264,7 +263,7 @@ void MeshRenderer::DoRender( BufferIndex bufferIndex, Program& program, const Ma
       mContext->EnableVertexAttributeArray( normalLoc );
     }
   }
-  else if( mesh->GetMeshData(Mesh::RENDER_THREAD).HasColor() )  // Normals & color are mutually exclusive
+  else if( mesh.GetMeshData(bufferIndex).HasColor() )  // Normals & color are mutually exclusive
   {
     colorLoc = program.GetAttribLocation(Program::ATTRIB_COLOR);
     if( Program::ATTRIB_UNKNOWN != colorLoc)
@@ -365,24 +364,24 @@ void MeshRenderer::DoRender( BufferIndex bufferIndex, Program& program, const Ma
     }
   }
 
-  Dali::MeshData::VertexGeometryType vertexGeometry = mesh->GetMeshData(Mesh::RENDER_THREAD).GetVertexGeometryType();
+  Dali::MeshData::VertexGeometryType vertexGeometry = mesh.GetMeshData(bufferIndex).GetVertexGeometryType();
   switch( vertexGeometry )
   {
     case Dali::MeshData::TRIANGLES:
     {
-      mContext->DrawElements(GL_TRIANGLES, mesh->GetFaceIndexCount(Mesh::RENDER_THREAD), GL_UNSIGNED_SHORT, 0);
+      mContext->DrawElements(GL_TRIANGLES, mesh.GetFaceIndexCount(), GL_UNSIGNED_SHORT, 0);
       DRAW_ELEMENT_RECORD(mesh->GetFaceIndexCount());
       break;
     }
     case Dali::MeshData::LINES:
     {
-      mContext->DrawElements(GL_LINES, mesh->GetFaceIndexCount(Mesh::RENDER_THREAD), GL_UNSIGNED_SHORT, 0);
+      mContext->DrawElements(GL_LINES, mesh.GetFaceIndexCount(), GL_UNSIGNED_SHORT, 0);
       DRAW_ELEMENT_RECORD(mesh->GetFaceIndexCount());
       break;
     }
     case Dali::MeshData::POINTS:
     {
-      mContext->DrawArrays(GL_POINTS, 0, mesh->GetFaceIndexCount(Mesh::RENDER_THREAD) );
+      mContext->DrawArrays(GL_POINTS, 0, mesh.GetFaceIndexCount() );
       DRAW_ARRAY_RECORD(mesh->GetFaceIndexCount());
       break;
     }

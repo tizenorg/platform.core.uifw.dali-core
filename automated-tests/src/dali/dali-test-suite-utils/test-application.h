@@ -78,6 +78,7 @@ public:
   bool UpdateOnly( unsigned int intervalMilliseconds = DEFAULT_RENDER_INTERVAL );
   bool RenderOnly( );
   void ResetContext();
+  /* void Quit(); */
 
 private:
   void DoUpdate( unsigned int intervalMilliseconds );

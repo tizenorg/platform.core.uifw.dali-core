@@ -48,6 +48,7 @@
 #include <dali/internal/update/touch/touch-resampler.h>
 #include <dali/internal/event/common/type-registry-impl.h>
 #include <dali/internal/event/render-tasks/render-task-list-impl.h>
+#include <dali/internal/event/object/singleton-service-impl.h>
 
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/gl-resources/context.h>
@@ -156,7 +157,7 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
 
   mResourceClient = new ResourceClient( *mResourceManager, *mUpdateManager, dataRetentionPolicy );
 
-  mStage = IntrusivePtr<Stage>( Stage::New( *mAnimationPlaylist, *mPropertyNotificationManager, *mUpdateManager, *mNotificationManager ) );
+  mStage = IntrusivePtr<Stage>( Stage::New( *mAnimationPlaylist, *mPropertyNotificationManager, *mUpdateManager, *mNotificationManager) );
 
   mStage->Initialize();
 
@@ -211,6 +212,7 @@ Core::~Core()
   delete mRenderManager;
   delete mDiscardQueue;
   delete mResourcePostProcessQueue;
+
 }
 
 Integration::ContextNotifierInterface* Core::GetContextNotifier()

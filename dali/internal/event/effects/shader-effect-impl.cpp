@@ -213,7 +213,7 @@ ShaderEffectPtr ShaderEffect::New( Dali::ShaderEffect::GeometryHints hints )
   UpdateManager& updateManager = tls.GetUpdateManager();
 
   ShaderEffectPtr shaderEffect( new ShaderEffect( updateManager, hints ) );
-  shaderEffect->RegisterObject();
+  shaderEffect->NotifyObjectCreate();
 
   return shaderEffect;
 }
@@ -240,8 +240,9 @@ ShaderEffect::~ShaderEffect()
     {
       RemoveShaderMessage( mUpdateManager, *mSceneObject );
     }
-    UnregisterObject();
   }
+
+  NotifyObjectDestroy();
 }
 
 void ShaderEffect::SetEffectImage( Dali::Image image )

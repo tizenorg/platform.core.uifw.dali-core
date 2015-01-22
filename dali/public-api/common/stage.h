@@ -199,13 +199,6 @@ public:
    */
   Vector2 GetDpi() const;
 
-  /**
-   * @brief Get the Object registry.
-   *
-   * @return The object registry.
-   */
-  ObjectRegistry GetObjectRegistry() const;
-
   // Dynamics
 
   /**

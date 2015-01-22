@@ -200,5 +200,18 @@ void TestApplication::ResetContext()
   mCore->ContextCreated();
 }
 
+// void TestApplication::Quit()
+// {
+//   mAdaptor->Stop();
+
+//   Dali::Application application(this);
+//   mTerminateSignalV2.Emit( application );
+
+//   mFramework->Quit();
+//   // This will trigger OnTerminate(), below, after the main loop has completed.
+//   mInitialized = false;
+
+// }
+
 
 } // Namespace dali

@@ -2066,7 +2066,7 @@ void Actor::Initialize()
 
   OnInitialize();
 
-  RegisterObject();
+  NotifyObjectCreate();
 }
 
 Actor::~Actor()
@@ -2093,8 +2093,8 @@ Actor::~Actor()
       mNode = NULL; // Node is about to be destroyed
     }
 
-    UnregisterObject();
   }
+  NotifyObjectDestroy();
 
 #ifdef DYNAMICS_SUPPORT
   // Cleanup dynamics

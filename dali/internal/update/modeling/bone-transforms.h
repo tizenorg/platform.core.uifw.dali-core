@@ -18,9 +18,13 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/vector-wrapper.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/math/matrix3.h>
 #include <dali/public-api/math/matrix.h>
+
 
 namespace Dali
 {

@@ -129,7 +129,7 @@ public:
   /**
    * @copydoc Dali::Internal::SceneGraph::RenderableAttachment::DoGetScaleForSize()
    */
-  virtual void DoGetScaleForSize( const Vector3& nodeSize, Vector3& scaling );
+  virtual void DoGetScaleForSize( BufferIndex updateBufferIndex, const Vector3& nodeSize, Vector3& scaling );
 
   /**
    * Set the mesh to be rendererd by this attachment

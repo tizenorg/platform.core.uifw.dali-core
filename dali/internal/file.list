@@ -134,6 +134,7 @@ internal_src_files = \
   $(internal_src_dir)/render/common/render-item.cpp \
   $(internal_src_dir)/render/common/render-tracker.cpp \
   $(internal_src_dir)/render/common/render-manager.cpp \
+  $(internal_src_dir)/render/common/render-mesh-owner-proxy.cpp \
   $(internal_src_dir)/render/common/texture-cache-dispatcher.cpp \
   $(internal_src_dir)/render/gl-resources/bitmap-texture.cpp \
   $(internal_src_dir)/render/gl-resources/context.cpp \
@@ -148,6 +149,7 @@ internal_src_files = \
   $(internal_src_dir)/render/gl-resources/texture-cache.cpp \
   $(internal_src_dir)/render/queue/render-queue.cpp \
   $(internal_src_dir)/render/renderers/render-material.cpp \
+  $(internal_src_dir)/render/renderers/render-mesh.cpp \
   $(internal_src_dir)/render/renderers/scene-graph-image-renderer.cpp \
   $(internal_src_dir)/render/renderers/scene-graph-mesh-renderer.cpp \
   $(internal_src_dir)/render/renderers/scene-graph-renderer.cpp \

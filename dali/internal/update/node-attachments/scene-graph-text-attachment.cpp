@@ -250,7 +250,7 @@ void TextAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
 {
 }
 
-void TextAttachment::DoGetScaleForSize( const Vector3& nodeSize, Vector3& scaling )
+void TextAttachment::DoGetScaleForSize( BufferIndex updateBufferIndex, const Vector3& nodeSize, Vector3& scaling )
 {
   // update cached scale for size if needed
   if( IsScaleForSizeDirty() )

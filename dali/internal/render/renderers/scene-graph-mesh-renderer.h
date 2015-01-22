@@ -20,11 +20,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/owner-pointer.h>
+#include <dali/internal/event/effects/shader-declarations.h>
+#include <dali/internal/update/modeling/bone-transforms.h>
 #include <dali/internal/render/renderers/render-material.h>
 #include <dali/internal/render/renderers/scene-graph-renderer.h>
-#include <dali/internal/update/modeling/bone-transforms.h>
 #include <dali/internal/render/shaders/custom-uniform.h>
-#include <dali/internal/event/effects/shader-declarations.h>
 
 namespace Dali
 {
@@ -39,7 +39,7 @@ class RenderDataProvider;
 struct BoneTransforms;
 class LightController;
 class RenderMaterial;
-class Mesh;
+class RenderMesh;
 
 /**
  * An attachment for rendering a mesh with a material.
@@ -60,9 +60,9 @@ public:
     {
     }
 
-    Mesh*                 mesh;
-    RenderMaterial*       material;
-    BoneTransforms        boneTransforms; ///< Note, this is a std::vector. May be realloced in off-frame
+    RenderMesh*     mesh;
+    RenderMaterial* material;
+    BoneTransforms  boneTransforms; ///< Note, this is a std::vector. May be realloced in off-frame
   };
 
   /**
@@ -78,10 +78,7 @@ public:
    * This should only be accessed from the update-thread, using the current update buffer.
    * @param[in] updateBufferIndex The current update buffer index.
    */
-  MeshInfo& GetMeshInfo( BufferIndex updateBufferIndex )
-  {
-    return mMeshInfo[ updateBufferIndex ];
-  }
+  MeshInfo& GetMeshInfo( BufferIndex updateBufferIndex );
 
   /**
    * Called when the shader has changed; mCustomUniform should be reset.
@@ -123,7 +120,9 @@ private:
   /**
    * @copydoc Dali::Internal::SceneGraph::Renderer::ResolveGeometryTypes()
    */
-  virtual void ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& outType, ShaderSubTypes& outSubType );
+  virtual void ResolveGeometryTypes( BufferIndex bufferIndex,
+                                     GeometryType& outType,
+                                     ShaderSubTypes& outSubType );
 
   /**
    * @copydoc Dali::Internal::SceneGraph::Renderer::IsOutsideClipSpace()

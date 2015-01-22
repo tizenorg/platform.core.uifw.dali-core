@@ -47,12 +47,16 @@
 
 #include <dali/internal/render/common/texture-cache-dispatcher.h>
 #include <dali/internal/render/common/post-process-resource-dispatcher.h>
+#include <dali/internal/render/common/render-mesh-owner-proxy.h>
+#include <dali/internal/render/renderers/render-mesh.h>
 
 using namespace Dali::Integration;
 
 using Dali::Internal::SceneGraph::DiscardQueue;
 using Dali::Internal::SceneGraph::RenderQueue;
 using Dali::Internal::SceneGraph::TextureCacheDispatcher;
+using Dali::Internal::SceneGraph::RenderMeshOwnerProxy;
+using Dali::Internal::SceneGraph::RenderMeshOwner;
 
 namespace Dali
 {
@@ -96,15 +100,17 @@ struct ResourceManager::ResourceManagerImpl
 {
   ResourceManagerImpl( PlatformAbstraction& platformAbstraction,
                        NotificationManager& notificationManager,
-                       SceneGraph::TextureCacheDispatcher& textureCacheDispatcher,
+                       TextureCacheDispatcher& textureCacheDispatcher,
                        ResourcePostProcessList& resourcePostProcessQueue,
                        SceneGraph::PostProcessResourceDispatcher& postProcessResourceDispatcher,
                        DiscardQueue& discardQueue,
-                       RenderQueue& renderQueue )
+                       RenderQueue& renderQueue,
+                       RenderMeshOwner& renderMeshOwner )
   : mPlatformAbstraction(platformAbstraction),
     mNotificationManager(notificationManager),
     mResourceClient(NULL),
     mTextureCacheDispatcher(textureCacheDispatcher),
+    mRenderMeshDispatcher(renderQueue, renderMeshOwner),
     mResourcePostProcessQueue(resourcePostProcessQueue),
     mPostProcessResourceDispatcher(postProcessResourceDispatcher),
     mDiscardQueue(discardQueue),
@@ -129,6 +135,7 @@ struct ResourceManager::ResourceManagerImpl
   NotificationManager&     mNotificationManager;
   ResourceClient*          mResourceClient; // (needs to be a ptr - it's not instantiated yet)
   TextureCacheDispatcher&  mTextureCacheDispatcher;
+  RenderMeshOwnerProxy     mRenderMeshDispatcher;
   ResourcePostProcessList& mResourcePostProcessQueue;
   SceneGraph::PostProcessResourceDispatcher& mPostProcessResourceDispatcher;
   DiscardQueue&            mDiscardQueue; ///< Unwanted resources are added here during UpdateCache()
@@ -174,7 +181,8 @@ ResourceManager::ResourceManager( PlatformAbstraction& platformAbstraction,
                                   ResourcePostProcessList& resourcePostProcessQueue,
                                   SceneGraph::PostProcessResourceDispatcher& postProcessResourceDispatcher,
                                   DiscardQueue& discardQueue,
-                                  RenderQueue& renderQueue )
+                                  RenderQueue& renderQueue,
+                                  RenderMeshOwner& renderMeshOwner )
 {
   mImpl = new ResourceManagerImpl( platformAbstraction,
                                    notificationManager,
@@ -182,7 +190,8 @@ ResourceManager::ResourceManager( PlatformAbstraction& platformAbstraction,
                                    resourcePostProcessQueue,
                                    postProcessResourceDispatcher,
                                    discardQueue,
-                                   renderQueue );
+                                   renderQueue,
+                                   renderMeshOwner );
 }
 
 ResourceManager::~ResourceManager()
@@ -380,17 +389,22 @@ void ResourceManager::HandleUpdateTextureRequest( ResourceId id,  const BitmapUp
   mImpl->mTextureCacheDispatcher.DispatchUploadBitmapArrayToTexture( id, uploadArray );
 }
 
-void ResourceManager::HandleAllocateMeshRequest( ResourceId id, MeshData* meshData )
+void ResourceManager::HandleAllocateMeshRequest( BufferIndex updateBufferIndex, ResourceId id, MeshData* meshData )
 {
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceManager: HandleAllocateMeshRequest(id:%u)\n", id);
 
-  SceneGraph::Mesh* renderableMesh(SceneGraph::Mesh::New(id, mImpl->mPostProcessResourceDispatcher, mImpl->mRenderQueue, meshData));
+  SceneGraph::RenderMesh* renderMesh = SceneGraph::RenderMesh::New(meshData);
+  DALI_ASSERT_ALWAYS(renderMesh && "renderableMesh not created");
 
-  DALI_ASSERT_ALWAYS(renderableMesh && "renderableMesh not created");
+  // Give the ownership of render mesh
+  mImpl->mRenderMeshDispatcher.AddRenderMesh( updateBufferIndex, renderMesh );
+
+  SceneGraph::Mesh* mesh = SceneGraph::Mesh::New(id, mImpl->mRenderQueue, meshData, renderMesh);
+  DALI_ASSERT_ALWAYS(mesh && "renderableMesh not created");
 
   // Add the ID to the completed set, and store the resource
   mImpl->newCompleteRequests.insert(id);
-  mImpl->mMeshes.insert(MeshDataPair(id, renderableMesh));
+  mImpl->mMeshes.insert(MeshDataPair(id, mesh));
 
   // Let NotificationManager know that the resource manager needs to do some processing
   NotifyTickets();
@@ -443,16 +457,7 @@ void ResourceManager::HandleUpdateMeshRequest( BufferIndex updateBufferIndex, Re
   DALI_ASSERT_DEBUG(mesh);
 
   // Update the mesh data
-  mesh->SetMeshData( meshData );
-
-  // Update the GL buffers in the next Render
-  typedef MessageDoubleBuffered2< SceneGraph::Mesh, SceneGraph::Mesh::ThreadBuffer, OwnerPointer<MeshData> > DerivedType;
-
-  // Reserve some memory inside the render queue
-  unsigned int* slot = mImpl->mRenderQueue.ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
-
-  // Construct message in the mRenderer queue memory; note that delete should not be called on the return value
-  new (slot) DerivedType( mesh, &SceneGraph::Mesh::MeshDataUpdated, SceneGraph::Mesh::RENDER_THREAD, meshData );
+  mesh->SetMeshData( updateBufferIndex, meshData );
 }
 
 void ResourceManager::HandleReloadResourceRequest( ResourceId id, const ResourceTypePath& typePath, LoadResourcePriority priority, bool resetFinishedStatus )
@@ -1003,6 +1008,7 @@ void ResourceManager::UploadGlyphsToTexture( const GlyphSet& glyphSet )
 }
 
 
+// model data is owned through intrusive pointers so no need for discard queue
 void ResourceManager::NotifyTickets()
 {
   DALI_ASSERT_DEBUG( mImpl->mResourceClient != NULL );
@@ -1080,6 +1086,8 @@ void ResourceManager::DiscardDeadResources( BufferIndex updateBufferIndex )
         DALI_ASSERT_DEBUG( mImpl->mMeshes.end() != mesh );
         if( mImpl->mMeshes.end() != mesh )
         {
+          // Discard the mesh resources
+          mImpl->mRenderMeshDispatcher.RemoveRenderMesh( updateBufferIndex, mesh->second->GetRenderMesh() );
           mImpl->mDiscardQueue.Add( updateBufferIndex, mesh->second );
           mImpl->mMeshes.erase( mesh );
         }

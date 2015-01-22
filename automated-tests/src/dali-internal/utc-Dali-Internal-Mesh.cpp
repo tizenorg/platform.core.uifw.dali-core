@@ -112,7 +112,7 @@ Internal::MeshData& GetStagedMeshData( unsigned int resourceId )
   Internal::ResourceManager& resourceManager  = Internal::ThreadLocalStorage::Get().GetResourceManager();
   Internal::SceneGraph::Mesh* internalMesh = resourceManager.GetMesh(resourceId);
   DALI_TEST_CHECK( internalMesh != NULL );
-  return internalMesh->GetMeshData(Internal::SceneGraph::Mesh::UPDATE_THREAD);
+  return internalMesh->GetMeshData(0);
 }
 
 

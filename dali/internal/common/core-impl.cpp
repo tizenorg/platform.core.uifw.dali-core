@@ -130,7 +130,7 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
   }
   textureCache.SetDiscardBitmapsPolicy(discardPolicy);
 
-  mDiscardQueue = new DiscardQueue( renderQueue );
+  mDiscardQueue = new DiscardQueue();
 
   mResourceManager = new ResourceManager(  mPlatform,
                                           *mNotificationManager,
@@ -138,7 +138,8 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
                                           *mResourcePostProcessQueue,
                                           *mRenderManager,
                                           *mDiscardQueue,
-                                           renderQueue );
+                                           renderQueue,
+                                          *mRenderManager );
 
   mTouchResampler = TouchResampler::New();
 

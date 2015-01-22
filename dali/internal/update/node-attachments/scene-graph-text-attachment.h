@@ -159,7 +159,7 @@ public:
   /**
    * @copydoc RenderableAttachment::GetScaleForSize()
    */
-  virtual void DoGetScaleForSize( const Vector3& nodeSize, Vector3& scaling );
+  virtual void DoGetScaleForSize( BufferIndex updateBufferIndex, const Vector3& nodeSize, Vector3& scaling );
 
 protected:
 

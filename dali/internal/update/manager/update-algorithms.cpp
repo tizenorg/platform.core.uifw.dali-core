@@ -248,7 +248,7 @@ inline void UpdateNodeWorldMatrix( Node& node, RenderableAttachment& updatedRend
     {
       // scaling, i.e. Text or Mesh
       Vector3 scaling;
-      updatedRenderable.GetScaleForSize( node.GetSize( updateBufferIndex ), scaling );
+      updatedRenderable.GetScaleForSize( updateBufferIndex, node.GetSize( updateBufferIndex ), scaling );
       if( node.GetInhibitLocalTransform() )
       {
         node.SetWorldMatrix( updateBufferIndex,
@@ -316,6 +316,10 @@ inline RenderableAttachment* UpdateAttachment( NodeAttachment& attachment,
     if( renderable->ResolveVisibility( updateBufferIndex ) )
     {
       renderable->PrepareResources( updateBufferIndex, resourceManager );
+    }
+    else
+    {
+      renderable = NULL;
     }
   }
   return renderable;

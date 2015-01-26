@@ -43,66 +43,95 @@ namespace Internal
 {
 
 ImageFactory::ImageFactory( ResourceClient& resourceClient )
-: mResourceClient(resourceClient),
+: mChecksum1(0x1ACEBABE),
+  mResourceClient(resourceClient),
   mMaxScale( 4 / 1024.0f ), ///< Only allow a very tiny fudge factor in matching new requests to existing resource transactions: 4 pixels at a dimension of 1024, 2 at 512, ...
-  mReqIdCurrent(0)
+  mReqIdCurrent(0),
+  mChecksum2(0x1ACEBABE)
 {
 }
 
 ImageFactory::~ImageFactory()
 {
-  // Request memory is freed up by intrusive_ptr
+  // Guard against dangling image handles causing errors
+  mChecksum1 = 0xDEADC0DE;
+  mChecksum2 = 0xDEADC0DE;
 
+  // Request memory is freed up by intrusive_ptr
   mRequestCache.clear();
 }
 
 RequestPtr ImageFactory::RegisterRequest( const std::string &filename, const ImageAttributes *attr )
 {
-  // check url cache
-  // check if same request exists
-  std::size_t urlHash = CalculateHash( filename );
-
-  RequestPtr foundReq( FindRequest( filename, urlHash, attr ) );
-
-  if( !foundReq )
+  if( mChecksum1 == 0x1ACEBABE && mChecksum2 == 0x1ACEBABE )
   {
-    // the same request hasn't been made before
-    foundReq = InsertNewRequest( 0, filename, urlHash, attr );
-  }
+    // check url cache
+    // check if same request exists
+    std::size_t urlHash = CalculateHash( filename );
 
-  return foundReq;
+    RequestPtr foundReq( FindRequest( filename, urlHash, attr ) );
+
+    if( !foundReq )
+    {
+      // the same request hasn't been made before
+      foundReq = InsertNewRequest( 0, filename, urlHash, attr );
+    }
+
+    return foundReq;
+  }
+  else
+  {
+    DALI_LOG_ERROR("ImageFactory::RegisterRequest() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+  RequestPtr emptyPtr;
+  return emptyPtr;
 }
 
 ResourceTicketPtr ImageFactory::Load( Request& request )
 {
   ResourceTicketPtr ticket;
 
-  // See if any resource transaction has already been associated with this request:
-  const ResourceId resId = request.resourceId;
-  if( resId != 0 )
+  if( mChecksum1 == 0x1ACEBABE && mChecksum2 == 0x1ACEBABE )
   {
-    // An IO operation has been started at some time for the request so recover the
-    // ticket that was created for that:
-    ticket = mResourceClient.RequestResourceTicket( resId );  ///@note Always succeeds in normal use.
+    // See if any resource transaction has already been associated with this request:
+    const ResourceId resId = request.resourceId;
+    if( resId != 0 )
+    {
+      // An IO operation has been started at some time for the request so recover the
+      // ticket that was created for that:
+      ticket = mResourceClient.RequestResourceTicket( resId );  ///@note Always succeeds in normal use.
+    }
+    else
+    {
+      // Request not yet associated with a ticketed async resource transaction, so
+      // attempt to find a compatible cached one:
+      const std::size_t urlHash = GetHashForCachedRequest( request );
+      ticket = FindCompatibleResource( request.url, urlHash, request.attributes );
+    }
+
+    // Start a new resource IO transaction for the request if none is already happening:
+    if( !ticket )
+    {
+      ticket = IssueLoadRequest( request.url, request.attributes );
+    }
+
+    DALI_ASSERT_ALWAYS( ticket && "ImageFactory::Load() - Cannot allocate ticket\n");
+    if( ticket )
+    {
+      request.resourceId = ticket->GetId();
+
+      DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+                         ticket->GetTypePath().type->id == ResourceNativeImage ||
+                         ticket->GetTypePath().type->id == ResourceTargetImage );
+    }
   }
   else
   {
-    // Request not yet associated with a ticketed async resource transaction, so
-    // attempt to find a compatible cached one:
-    const std::size_t urlHash = GetHashForCachedRequest( request );
-    ticket = FindCompatibleResource( request.url, urlHash, request.attributes );
+    DALI_LOG_ERROR("ImageFactory::Load used after deletion");
+    DALI_ASSERT_ALWAYS(0);
   }
 
-  // Start a new resource IO transaction for the request if none is already happening:
-  if( !ticket )
-  {
-    ticket = IssueLoadRequest( request.url, request.attributes );
-  }
-  request.resourceId = ticket->GetId();
-
-  DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
-                     ticket->GetTypePath().type->id == ResourceNativeImage ||
-                     ticket->GetTypePath().type->id == ResourceTargetImage );
   return ticket;
 }
 
@@ -121,48 +150,58 @@ ResourceTicketPtr ImageFactory::Reload( Request& request )
   // go through requests, check real size and attributes again. If different, update related ticket.
   ResourceTicketPtr ticket;
 
-  if( !request.resourceId )
+  if( mChecksum1 == 0x1ACEBABE && mChecksum2 == 0x1ACEBABE )
   {
-    // in case of OnDemand loading, just return
-    return NULL;
-  }
 
-  ticket = mResourceClient.RequestResourceTicket( request.resourceId );
-
-  // ticket might have been deleted, eg. Image::Disconnect
-  if( !ticket )
-  {
-    ticket = IssueLoadRequest( request.url, request.attributes );
-    request.resourceId = ticket->GetId();
-  }
-  else // ticket still alive
-  {
-    DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
-                       ticket->GetTypePath().type->id == ResourceNativeImage ||
-                       ticket->GetTypePath().type->id == ResourceTargetImage );
-
-    // do not reload if still loading
-    if ( ticket->GetLoadingState() == ResourceLoading )
+    if( !request.resourceId )
     {
-      return ticket;
+      // in case of OnDemand loading, just return
+      return NULL;
     }
 
-    Vector2 size;
-    Internal::ThreadLocalStorage::Get().GetPlatformAbstraction().GetClosestImageSize( request.url, *request.attributes, size );
+    ticket = mResourceClient.RequestResourceTicket( request.resourceId );
 
-    const ImageAttributes& attrib = static_cast<ImageTicket*>(ticket.Get())->GetAttributes();
-
-    if( size == attrib.GetSize() )
+    // ticket might have been deleted, eg. Image::Disconnect
+    if( !ticket )
     {
-      mResourceClient.ReloadResource( ticket->GetId(), false );
-    }
-    else
-    {
-      // if not, return a different ticket
       ticket = IssueLoadRequest( request.url, request.attributes );
       request.resourceId = ticket->GetId();
     }
+    else // ticket still alive
+    {
+      DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
+                         ticket->GetTypePath().type->id == ResourceNativeImage ||
+                         ticket->GetTypePath().type->id == ResourceTargetImage );
+
+      // do not reload if still loading
+      if ( ticket->GetLoadingState() == ResourceLoading )
+      {
+        return ticket;
+      }
+
+      Vector2 size;
+      Internal::ThreadLocalStorage::Get().GetPlatformAbstraction().GetClosestImageSize( request.url, *request.attributes, size );
+
+      const ImageAttributes& attrib = static_cast<ImageTicket*>(ticket.Get())->GetAttributes();
+
+      if( size == attrib.GetSize() )
+      {
+        mResourceClient.ReloadResource( ticket->GetId(), false );
+      }
+      else
+      {
+        // if not, return a different ticket
+        ticket = IssueLoadRequest( request.url, request.attributes );
+        request.resourceId = ticket->GetId();
+      }
+    }
   }
+  else
+  {
+    DALI_LOG_ERROR("ImageFactory::Reload() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   return ticket;
 }
 
@@ -222,28 +261,54 @@ const ImageAttributes& ImageFactory::GetRequestAttributes( const ImageFactoryCac
 
 void ImageFactory::GetImageSize( const ImageFactoryCache::RequestPtr& request, const ResourceTicketPtr& ticket, Size& size )
 {
-  if( ticket && ticket->GetLoadingState() != ResourceLoading )
+  if( mChecksum1 == 0x1ACEBABE && mChecksum2 == 0x1ACEBABE )
   {
-    // it is loaded so get the size from actual attributes
-    size = GetActualAttributes( ticket ).GetSize();
+
+    if( ticket && ticket->GetLoadingState() != ResourceLoading )
+    {
+      // it is loaded so get the size from actual attributes
+      size = GetActualAttributes( ticket ).GetSize();
+    }
+    else
+    {
+      // not loaded so either loading or not yet loaded, ask platform abstraction
+      Integration::PlatformAbstraction& platformAbstraction = Internal::ThreadLocalStorage::Get().GetPlatformAbstraction();
+      platformAbstraction.GetClosestImageSize( GetRequestPath( request ), GetRequestAttributes( request ), size );
+    }
   }
   else
   {
-    // not loaded so either loading or not yet loaded, ask platform abstraction
-    Integration::PlatformAbstraction& platformAbstraction = Internal::ThreadLocalStorage::Get().GetPlatformAbstraction();
-    platformAbstraction.GetClosestImageSize( GetRequestPath( request ), GetRequestAttributes( request ), size );
+    DALI_LOG_ERROR("ImageFactory::GetImageSize() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
   }
 }
 
 void ImageFactory::ReleaseTicket( ResourceTicket* ticket )
 {
-  ResourceTicketPtr ticketPtr(ticket);
-  mTicketsToRelease.push_back(ticketPtr);
+  if( mChecksum1 == 0x1ACEBABE && mChecksum2 == 0x1ACEBABE )
+  {
+    ResourceTicketPtr ticketPtr(ticket);
+    mTicketsToRelease.push_back(ticketPtr);
+  }
+  else
+  {
+    DALI_LOG_ERROR("ImageFactory::ReleaseTicket() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
 }
+
 
 void ImageFactory::FlushReleaseQueue()
 {
-  mTicketsToRelease.clear();
+  if( mChecksum1 == 0x1ACEBABE && mChecksum2 == 0x1ACEBABE )
+  {
+    mTicketsToRelease.clear();
+  }
+  else
+  {
+    DALI_LOG_ERROR("ImageFactory::FlushReleaseQueue() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
 }
 
 bool ImageFactory::CompareAttributes( const Dali::ImageAttributes& requested,
@@ -268,8 +333,18 @@ RequestPtr ImageFactory::InsertNewRequest( ResourceId resourceId, const std::str
 {
   ++mReqIdCurrent;
   RequestPtr request( new Request( mReqIdCurrent, resourceId, filename, attr ) );
-  mRequestCache.insert( RequestIdPair( mReqIdCurrent, request ) );
-  mUrlCache.insert( RequestPathHashPair( urlHash, mReqIdCurrent ) );
+
+  if( request )
+  {
+    mRequestCache.insert( RequestIdPair( mReqIdCurrent, request ) );
+    mUrlCache.insert( RequestPathHashPair( urlHash, mReqIdCurrent ) );
+  }
+  else
+  {
+    DALI_LOG_ERROR(" ImageFactory::InsertNewRequest() Cannot allocate Request");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   return request;
 }
 
@@ -418,44 +493,63 @@ ResourceTicketPtr ImageFactory::IssueLoadRequest( const std::string& filename, c
 
 void ImageFactory::RequestDiscarded( const Request& req )
 {
-  RequestId id( req.GetId() );
-  // find in mRequestCache
-  RequestIdMap::iterator foundRequestIter = mRequestCache.find( id );
-  DALI_ASSERT_DEBUG( foundRequestIter != mRequestCache.end() );
-
-  if( !foundRequestIter->second || foundRequestIter->second.Get()->ReferenceCount() == 1 )
+  if( mChecksum1 == 0x1ACEBABE && mChecksum2 == 0x1ACEBABE )
   {
-    // This is the last ref to the request - remove it.
+    RequestId id( req.GetId() );
+    // find in mRequestCache
+    RequestIdMap::iterator foundRequestIter = mRequestCache.find( id );
+    DALI_ASSERT_DEBUG( foundRequestIter != mRequestCache.end() );
 
-    mRequestCache.erase( foundRequestIter ); // If holding the last ref, will delete request
-
-    // find in mUrlCache
-    for( RequestPathHashMap::iterator it = mUrlCache.begin(); it != mUrlCache.end(); ++it )
+    if( !foundRequestIter->second || foundRequestIter->second.Get()->ReferenceCount() == 1 )
     {
-      if( id == it->second )
+      // This is the last ref to the request - remove it.
+
+      mRequestCache.erase( foundRequestIter ); // If holding the last ref, will delete request
+
+      // find in mUrlCache
+      for( RequestPathHashMap::iterator it = mUrlCache.begin(); it != mUrlCache.end(); ++it )
       {
-        mUrlCache.erase( it );
-        break;
+        if( id == it->second )
+        {
+          mUrlCache.erase( it );
+          break;
+        }
       }
     }
+  }
+  else
+  {
+    DALI_LOG_ERROR("ImageFactory::RequestDiscarded() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
   }
 }
 
 std::size_t ImageFactory::GetHashForCachedRequest( const Request& request )
 {
   const RequestId requestId = request.GetId();
-  std::size_t locatorHash(0);
-  RequestPathHashMap::const_iterator it;
 
-  for( it = mUrlCache.begin(); it != mUrlCache.end(); ++it )
+  std::size_t locatorHash(0);
+
+  if( requestId > 0 && requestId <= mReqIdCurrent )
   {
-    if( it->second == requestId )
+    RequestPathHashMap::const_iterator it;
+    RequestPathHashMap::const_iterator end = mUrlCache.end();
+
+    for( it = mUrlCache.begin(); it != end; ++it )
     {
-      locatorHash = it->first;
-      break;
+      if( it->second == requestId )
+      {
+        locatorHash = it->first;
+        break;
+      }
     }
+    DALI_ASSERT_DEBUG( it!=end && "Only already-cached requests can have their locator hashes looked-up." );
   }
-  DALI_ASSERT_DEBUG( it!=mUrlCache.end() && "Only already-cached requests can have their locator hashes looked-up." );
+  else
+  {
+    DALI_LOG_ERROR( "ImageFactory::GetHashForCachedRequest() Request id out of range" );
+  }
+
   return locatorHash;
 }
 

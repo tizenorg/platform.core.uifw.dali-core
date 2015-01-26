@@ -43,7 +43,6 @@ struct Request;
 class ImageFactory
 {
 public:
-
   /**
    * default constructor
    */
@@ -214,12 +213,14 @@ private:
   std::size_t GetHashForCachedRequest( const ImageFactoryCache::Request& request );
 
 private:
+  uint32_t                               mChecksum1;        ///< Guard against usage after deletion
   ResourceClient&                        mResourceClient;
   ImageFactoryCache::RequestPathHashMap  mUrlCache;         ///< A multimap of url hashes and request IDs
   ImageFactoryCache::RequestIdMap        mRequestCache;     ///< A map of request IDs and request information.
   ResourceTicketContainer                mTicketsToRelease; ///< List of ticket handles
   float                                  mMaxScale;         ///< Defines maximum size difference between compatible resources
   ImageFactoryCache::RequestId           mReqIdCurrent;     ///< Internal counter for Request IDs
+  uint32_t                               mChecksum2;        ///< Guard against usage after deletion
 };
 
 } // namespace Internal

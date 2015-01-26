@@ -357,8 +357,10 @@ public: // Message methods
   void UpdateImageTicket( ResourceId id, const Dali::ImageAttributes& imageAttributes ); ///!< Issue #AHC01
 
 private:
+  uint32_t         mChecksum1;
   ResourceManager& mResourceManager;          ///< The resource manager
   SceneGraph::UpdateManager& mUpdateManager;  ///< update manager
+  uint32_t         mChecksum2;
 
 private:
   struct Impl;

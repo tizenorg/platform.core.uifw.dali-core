@@ -29,7 +29,6 @@
 #include <dali/internal/update/resources/resource-manager.h>
 #include <dali/internal/update/manager/update-manager.h>
 
-
 namespace Dali
 {
 namespace Internal
@@ -63,8 +62,10 @@ struct ResourceClient::Impl
 ResourceClient::ResourceClient( ResourceManager& resourceManager,
                                 SceneGraph::UpdateManager& updateManager,
                                 ResourcePolicy::DataRetention dataRetentionPolicy)
-: mResourceManager(resourceManager),
-  mUpdateManager(updateManager)
+: mChecksum1( 0x1ACEBABE ),
+  mResourceManager(resourceManager),
+  mUpdateManager(updateManager),
+  mChecksum2( 0x1ACEBABE )
 {
   mImpl = new ResourceClient::Impl(dataRetentionPolicy);
   mResourceManager.SetClient(*this);
@@ -72,6 +73,10 @@ ResourceClient::ResourceClient( ResourceManager& resourceManager,
 
 ResourceClient::~ResourceClient()
 {
+  // Guard to prevent usage after deletion
+  mChecksum1 = 0xDEADC0DE;
+  mChecksum2 = 0xDEADC0DE;
+
   // Guard to allow handle destruction after Core has been destroyed
   if ( Stage::IsInstalled() )
   {
@@ -93,6 +98,12 @@ ResourceTicketPtr ResourceClient::RequestResource(
   const std::string& path,
   LoadResourcePriority priority )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::RequestResource() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   ResourceTicketPtr newTicket;
   ResourceTypePath typePath(type, path);
   ResourceId newId = 0;
@@ -108,7 +119,14 @@ ResourceTicketPtr ResourceClient::RequestResource(
       const BitmapResourceType& bitmapResource = static_cast <const BitmapResourceType&> (type);
       // image tickets will cache the requested parameters, which are updated on successful loading
       ImageTicket* imageTicket = new ImageTicket(*this, newId, typePath);
-      imageTicket->mAttributes = bitmapResource.imageAttributes;
+      if( imageTicket )
+      {
+        imageTicket->mAttributes = bitmapResource.imageAttributes;
+      }
+      else
+      {
+        DALI_LOG_ERROR(" ResourceClient::RequestResource() Cannot allocate ImageTicket\n");
+      }
       newTicket = imageTicket;
       break;
     }
@@ -146,6 +164,12 @@ ResourceTicketPtr ResourceClient::DecodeResource(
   RequestBufferPtr buffer,
   LoadResourcePriority priority )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::DecodeResource() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   DALI_ASSERT_DEBUG( type.id == ResourceBitmap && "Only bitmap resources are currently decoded from memory buffers. It should be easy to expand to other resource types though. The public API function at the front and the resource thread at the back end are all that should need to be changed. The code in the middle should be agnostic to the the resource type it is conveying.\n" );
   DALI_ASSERT_DEBUG( buffer.Get() && "Null resource buffer passed for decoding." );
   ResourceTicketPtr newTicket;
@@ -195,6 +219,12 @@ ResourceTicketPtr ResourceClient::DecodeResource(
 ResourceTicketPtr ResourceClient::LoadShader( ShaderResourceType& type,
                                               const std::string& path )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::LoadShader() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   ResourceTicketPtr newTicket;
 
   const ResourceId newId = ++(mImpl->mNextId);
@@ -212,6 +242,12 @@ ResourceTicketPtr ResourceClient::LoadShader( ShaderResourceType& type,
 
 bool ResourceClient::ReloadResource( ResourceId id, bool resetFinishedStatus, LoadResourcePriority priority )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::ReloadResource() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceClient: ReloadResource(Id: %u)\n", id);
 
   bool resourceExists = false;
@@ -237,6 +273,12 @@ bool ResourceClient::ReloadResource( ResourceId id, bool resetFinishedStatus, Lo
 
 void ResourceClient::SaveResource( ResourceTicketPtr ticket, const std::string& url )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::SaveResource() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   DALI_ASSERT_DEBUG( ticket );
 
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceClient: SaveResource(Id: %u, path:%s)\n", ticket->GetId(), url.c_str());
@@ -259,15 +301,28 @@ void ResourceClient::SaveResource( ResourceTicketPtr ticket, const std::string& 
 
 ResourceTicketPtr ResourceClient::RequestResourceTicket( ResourceId id )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::RequestResourceTicket() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceClient: RequestResourceTicket(Id: %u)\n", id);
 
   ResourceTicketPtr ticket;
 
-  TicketContainerIter ticketIter = mImpl->mTickets.find( id );
-
-  if ( mImpl->mTickets.end() != ticketIter )
+  if( id <= mImpl->mNextId )
   {
-    ticket = ticketIter->second;
+    TicketContainerIter ticketIter = mImpl->mTickets.find( id );
+
+    if ( mImpl->mTickets.end() != ticketIter )
+    {
+      ticket = ticketIter->second;
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR("ResourceClient::RequestResourceTicket() resourceId out of range\n");
   }
 
   return ticket;
@@ -279,6 +334,12 @@ ImageTicketPtr ResourceClient::AllocateBitmapImage( unsigned int width,
                                                     unsigned int bufferHeight,
                                                     Pixel::Format pixelformat )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::AllocateBitmapImage() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   /* buffer is available via public-api, therefore not discardable */
   Bitmap* const bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
   Bitmap::PackedPixelsProfile* const packedBitmap = bitmap->GetPackedPixelsProfile();
@@ -297,6 +358,12 @@ ImageTicketPtr ResourceClient::AllocateBitmapImage( unsigned int width,
 
 ImageTicketPtr ResourceClient::AddBitmapImage(Bitmap* bitmap)
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::AddBitmapImage() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   DALI_ASSERT_DEBUG( bitmap != NULL );
 
   ImageTicketPtr newTicket;
@@ -323,6 +390,12 @@ ImageTicketPtr ResourceClient::AddBitmapImage(Bitmap* bitmap)
 
 ResourceTicketPtr ResourceClient::AddNativeImage ( NativeImage& resourceData )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::AddNativeImage() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   ImageTicketPtr newTicket;
 
   const ResourceId newId = ++(mImpl->mNextId);
@@ -345,6 +418,12 @@ ResourceTicketPtr ResourceClient::AddNativeImage ( NativeImage& resourceData )
 
 ImageTicketPtr ResourceClient::AddFrameBufferImage ( unsigned int width, unsigned int height, Pixel::Format pixelFormat )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::AddFrameBufferImage() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   ImageTicketPtr newTicket;
 
   const ResourceId newId = ++(mImpl->mNextId);
@@ -366,6 +445,12 @@ ImageTicketPtr ResourceClient::AddFrameBufferImage ( unsigned int width, unsigne
 
 ImageTicketPtr ResourceClient::AddFrameBufferImage ( NativeImage& nativeImage )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::AddFrameBufferImage() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   ImageTicketPtr newTicket;
 
   const ResourceId newId = ++(mImpl->mNextId);
@@ -390,6 +475,12 @@ ResourceTicketPtr ResourceClient::AllocateTexture( unsigned int width,
                                                    unsigned int height,
                                                    Pixel::Format pixelformat )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::AllocateTexture() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   ImageTicketPtr newTicket;
   const ResourceId newId = ++(mImpl->mNextId);
 
@@ -412,11 +503,23 @@ ResourceTicketPtr ResourceClient::AllocateTexture( unsigned int width,
 void ResourceClient::UpdateTexture(  ResourceId id,
                                      BitmapUploadArray uploadArray )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::UpdateTexture() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   RequestUpdateTextureMessage(  mUpdateManager.GetEventToUpdate(), mResourceManager, id, uploadArray );
 }
 
 ResourceTicketPtr ResourceClient::AllocateMesh( OwnerPointer<MeshData>& meshData )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::AllocateMesh() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   ResourceTicketPtr newTicket;
   const ResourceId newId = ++(mImpl->mNextId);
   MeshResourceType meshResourceType; // construct first as no copy ctor (needed to bind ref to object)
@@ -432,6 +535,12 @@ ResourceTicketPtr ResourceClient::AllocateMesh( OwnerPointer<MeshData>& meshData
 
 void ResourceClient::UpdateBitmapArea( ResourceTicketPtr ticket, RectArea& updateArea )
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::UpdateBitmapArea() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   DALI_ASSERT_DEBUG( ticket );
 
   RequestUpdateBitmapAreaMessage( mUpdateManager.GetEventToUpdate(), mResourceManager, ticket->GetId(), updateArea );
@@ -466,6 +575,12 @@ void ResourceClient::UpdateMesh( ResourceTicketPtr ticket, const Dali::MeshData&
 
 Bitmap* ResourceClient::GetBitmap(ResourceTicketPtr ticket)
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::GetBitmap() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   DALI_ASSERT_DEBUG( ticket );
 
   Bitmap* bitmap = NULL;
@@ -494,6 +609,12 @@ void ResourceClient::UpdateAtlasStatus( ResourceId id, ResourceId atlasId, Integ
 
 void ResourceClient::ResourceTicketDiscarded(const ResourceTicket& ticket)
 {
+  if( mChecksum1 != 0x1ACEBABE && mChecksum2 != 0x1ACEBABE )
+  {
+    DALI_LOG_ERROR("ResourceClient::ResourceTicketDiscarded() used after deletion");
+    DALI_ASSERT_ALWAYS(0);
+  }
+
   const ResourceId deadId = ticket.GetId();
   const ResourceTypePath& typePath = ticket.GetTypePath();
 

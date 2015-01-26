@@ -27,8 +27,8 @@
 
 namespace // unnamed namespace
 {
-const unsigned int UPDATE_COUNT        = 2u; // Update projection or view matrix this many frames after a change
-const unsigned int COPY_PREVIOUS_PROJECTION = 1u; // Copy projection matrix from previous frame
+const unsigned int UPDATE_COUNT        = 2u;  // Update projection or view matrix this many frames after a change
+const unsigned int COPY_PREVIOUS_MATRIX = 1u; // Copy view or projection matrix from previous frame
 }
 
 namespace Dali
@@ -315,35 +315,43 @@ void CameraAttachment::Update( BufferIndex updateBufferIndex, const Node& owning
   }
   if( 0u != mUpdateViewFlag )
   {
-    --mUpdateViewFlag;
-    switch ( mType )
+    if ( COPY_PREVIOUS_MATRIX == mUpdateViewFlag )
     {
-      // camera orientation taken from node - i.e. look in abitrary, unconstrained direction
-      case Dali::Camera::FREE_LOOK:
+      // The projection matrix was updated in the previous frame; copy it
+      mViewMatrix.CopyPrevious( updateBufferIndex );
+    }
+    else // UPDATE_COUNT == mUpdateViewFlag
+    {
+      switch ( mType )
       {
-        Matrix& viewMatrix = mViewMatrix.Get(updateBufferIndex);
-        viewMatrix.SetInverseTransformComponents(
-            Vector3::ONE,
-            owningNode.GetWorldRotation(updateBufferIndex),
-            owningNode.GetWorldPosition(updateBufferIndex) );
+        // camera orientation taken from node - i.e. look in abitrary, unconstrained direction
+        case Dali::Camera::FREE_LOOK:
+        {
+          Matrix& viewMatrix = mViewMatrix.Get(updateBufferIndex);
+          viewMatrix.SetInverseTransformComponents(
+              Vector3::ONE,
+              owningNode.GetWorldRotation(updateBufferIndex),
+              owningNode.GetWorldPosition(updateBufferIndex) );
 
-        mViewMatrix.SetDirty(updateBufferIndex);
-        break;
-      }
+          mViewMatrix.SetDirty(updateBufferIndex);
+          break;
+        }
 
-      // camera orientation constrained to look at a target
-      case Dali::Camera::LOOK_AT_TARGET:
-      {
-        Matrix& viewMatrix = mViewMatrix.Get(updateBufferIndex);
-        LookAt( viewMatrix,
-                owningNode.GetWorldPosition(updateBufferIndex),
-                mTargetPosition,
-                owningNode.GetWorldRotation(updateBufferIndex).Rotate(Vector3::YAXIS) );
+        // camera orientation constrained to look at a target
+        case Dali::Camera::LOOK_AT_TARGET:
+        {
+          Matrix& viewMatrix = mViewMatrix.Get(updateBufferIndex);
+          LookAt( viewMatrix,
+                  owningNode.GetWorldPosition(updateBufferIndex),
+                  mTargetPosition,
+                  owningNode.GetWorldRotation(updateBufferIndex).Rotate(Vector3::YAXIS) );
 
-        mViewMatrix.SetDirty(updateBufferIndex);
-        break;
+          mViewMatrix.SetDirty(updateBufferIndex);
+          break;
+        }
       }
     }
+    --mUpdateViewFlag;
   }
 
   UpdateProjection( updateBufferIndex );
@@ -359,7 +367,7 @@ void CameraAttachment::UpdateProjection( BufferIndex updateBufferIndex )
   // Early-exit if no update required
   if ( 0u != mUpdateProjectionFlag )
   {
-    if ( COPY_PREVIOUS_PROJECTION == mUpdateProjectionFlag )
+    if ( COPY_PREVIOUS_MATRIX == mUpdateProjectionFlag )
     {
       // The projection matrix was updated in the previous frame; copy it
       mProjectionMatrix.CopyPrevious( updateBufferIndex );

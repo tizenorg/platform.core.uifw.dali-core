@@ -25,6 +25,7 @@
 #include <dali/public-api/common/ref-counted-dali-vector.h>
 #include <dali/public-api/images/native-image.h>
 #include <dali/integration-api/glyph-set.h>
+#include <dali/internal/event/common/thread-id.h>
 #include <dali/internal/event/resources/resource-client-declarations.h>
 #include <dali/internal/event/resources/image-ticket.h>
 #include <dali/internal/event/resources/resource-ticket-lifetime-observer.h>
@@ -354,7 +355,7 @@ public: // Message methods
    * @param id The resource id to find the ticket of
    * @param imageAttributes The image attributes to assign to the ticket
    */
-  void UpdateImageTicket( ResourceId id, const Dali::ImageAttributes& imageAttributes ); ///!< Issue #AHC01
+  void UpdateImageTicket( ResourceId id, const Dali::ImageAttributes& imageAttributes );
 
 private:
   ResourceManager& mResourceManager;          ///< The resource manager

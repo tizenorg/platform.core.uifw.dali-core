@@ -167,7 +167,6 @@ Internal::MaterialIPtr MeshAttachment::GetMaterial( ) const
   return material;
 }
 
-
 void MeshAttachment::DisconnectMaterial()
 {
   if ( mMesh.mCustomMaterial )
@@ -265,7 +264,10 @@ void MeshAttachment::SetBoneNode( SceneGraph::Node* node, size_t boneIdx )
 {
   size_t boneCount = mMesh.mBoneNames.size();
 
-  SetBoneNodeMessage( mStage->GetUpdateInterface(), *mSceneObject, node, boneIdx, boneCount );
+  if( Stage::IsInstalled() )
+  {
+    SetBoneNodeMessage( mStage->GetUpdateInterface(), *mSceneObject, node, boneIdx, boneCount );
+  }
 }
 
 // Helper class for connecting Nodes to the scene-graph MeshAttachment

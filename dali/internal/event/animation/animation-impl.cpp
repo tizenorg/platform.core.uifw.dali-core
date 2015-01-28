@@ -142,7 +142,7 @@ void Animation::CreateSceneObject()
 
 void Animation::DestroySceneObject()
 {
-  if ( mAnimation != NULL )
+  if ( mAnimation != NULL )// && Stage::IsInstalled() )
   {
     // Remove animation using a message to the update manager
     RemoveAnimationMessage( mUpdateManager, *mAnimation );

@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/map-wrapper.h>
 #include <dali/internal/event/resources/resource-client.h>
 #include <dali/public-api/images/image-attributes.h>
 
@@ -131,4 +132,3 @@ typedef std::pair<RequestPathHashMap::iterator, RequestPathHashMap::iterator> Re
 } // namespace Dali
 
 #endif // __DALI_INTERNAL_IMAGE_FACTORY_CACHE_H__
-

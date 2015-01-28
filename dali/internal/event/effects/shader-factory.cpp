@@ -58,8 +58,9 @@ ShaderFactory::~ShaderFactory()
 
 ResourceTicketPtr ShaderFactory::Load(const std::string& vertexSource, const std::string& fragmentSource, size_t& shaderHash)
 {
-  ResourceTicketPtr ticket;
+  DALI_EVENT_THREAD_CHECK;
 
+  ResourceTicketPtr ticket;
   shaderHash = CalculateHash(vertexSource, fragmentSource);
   std::stringstream stringHash;
   stringHash << shaderHash;

@@ -93,6 +93,8 @@ ResourceTicketPtr ResourceClient::RequestResource(
   const std::string& path,
   LoadResourcePriority priority )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   ResourceTicketPtr newTicket;
   ResourceTypePath typePath(type, path);
   ResourceId newId = 0;
@@ -146,6 +148,8 @@ ResourceTicketPtr ResourceClient::DecodeResource(
   RequestBufferPtr buffer,
   LoadResourcePriority priority )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   DALI_ASSERT_DEBUG( type.id == ResourceBitmap && "Only bitmap resources are currently decoded from memory buffers. It should be easy to expand to other resource types though. The public API function at the front and the resource thread at the back end are all that should need to be changed. The code in the middle should be agnostic to the the resource type it is conveying.\n" );
   DALI_ASSERT_DEBUG( buffer.Get() && "Null resource buffer passed for decoding." );
   ResourceTicketPtr newTicket;
@@ -195,6 +199,8 @@ ResourceTicketPtr ResourceClient::DecodeResource(
 ResourceTicketPtr ResourceClient::LoadShader( ShaderResourceType& type,
                                               const std::string& path )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   ResourceTicketPtr newTicket;
 
   const ResourceId newId = ++(mImpl->mNextId);
@@ -212,6 +218,8 @@ ResourceTicketPtr ResourceClient::LoadShader( ShaderResourceType& type,
 
 bool ResourceClient::ReloadResource( ResourceId id, bool resetFinishedStatus, LoadResourcePriority priority )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceClient: ReloadResource(Id: %u)\n", id);
 
   bool resourceExists = false;
@@ -237,6 +245,8 @@ bool ResourceClient::ReloadResource( ResourceId id, bool resetFinishedStatus, Lo
 
 void ResourceClient::SaveResource( ResourceTicketPtr ticket, const std::string& url )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   DALI_ASSERT_DEBUG( ticket );
 
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceClient: SaveResource(Id: %u, path:%s)\n", ticket->GetId(), url.c_str());
@@ -279,6 +289,8 @@ ImageTicketPtr ResourceClient::AllocateBitmapImage( unsigned int width,
                                                     unsigned int bufferHeight,
                                                     Pixel::Format pixelformat )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   /* buffer is available via public-api, therefore not discardable */
   Bitmap* const bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
   Bitmap::PackedPixelsProfile* const packedBitmap = bitmap->GetPackedPixelsProfile();
@@ -297,6 +309,8 @@ ImageTicketPtr ResourceClient::AllocateBitmapImage( unsigned int width,
 
 ImageTicketPtr ResourceClient::AddBitmapImage(Bitmap* bitmap)
 {
+  DALI_EVENT_THREAD_CHECK;
+
   DALI_ASSERT_DEBUG( bitmap != NULL );
 
   ImageTicketPtr newTicket;
@@ -323,6 +337,8 @@ ImageTicketPtr ResourceClient::AddBitmapImage(Bitmap* bitmap)
 
 ResourceTicketPtr ResourceClient::AddNativeImage ( NativeImage& resourceData )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   ImageTicketPtr newTicket;
 
   const ResourceId newId = ++(mImpl->mNextId);
@@ -345,6 +361,8 @@ ResourceTicketPtr ResourceClient::AddNativeImage ( NativeImage& resourceData )
 
 ImageTicketPtr ResourceClient::AddFrameBufferImage ( unsigned int width, unsigned int height, Pixel::Format pixelFormat )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   ImageTicketPtr newTicket;
 
   const ResourceId newId = ++(mImpl->mNextId);
@@ -366,6 +384,8 @@ ImageTicketPtr ResourceClient::AddFrameBufferImage ( unsigned int width, unsigne
 
 ImageTicketPtr ResourceClient::AddFrameBufferImage ( NativeImage& nativeImage )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   ImageTicketPtr newTicket;
 
   const ResourceId newId = ++(mImpl->mNextId);
@@ -390,6 +410,8 @@ ResourceTicketPtr ResourceClient::AllocateTexture( unsigned int width,
                                                    unsigned int height,
                                                    Pixel::Format pixelformat )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   ImageTicketPtr newTicket;
   const ResourceId newId = ++(mImpl->mNextId);
 
@@ -412,11 +434,14 @@ ResourceTicketPtr ResourceClient::AllocateTexture( unsigned int width,
 void ResourceClient::UpdateTexture(  ResourceId id,
                                      BitmapUploadArray uploadArray )
 {
+  DALI_EVENT_THREAD_CHECK;
   RequestUpdateTextureMessage(  mUpdateManager.GetEventToUpdate(), mResourceManager, id, uploadArray );
 }
 
 ResourceTicketPtr ResourceClient::AllocateMesh( OwnerPointer<MeshData>& meshData )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   ResourceTicketPtr newTicket;
   const ResourceId newId = ++(mImpl->mNextId);
   MeshResourceType meshResourceType; // construct first as no copy ctor (needed to bind ref to object)
@@ -432,6 +457,7 @@ ResourceTicketPtr ResourceClient::AllocateMesh( OwnerPointer<MeshData>& meshData
 
 void ResourceClient::UpdateBitmapArea( ResourceTicketPtr ticket, RectArea& updateArea )
 {
+  DALI_EVENT_THREAD_CHECK;
   DALI_ASSERT_DEBUG( ticket );
 
   RequestUpdateBitmapAreaMessage( mUpdateManager.GetEventToUpdate(), mResourceManager, ticket->GetId(), updateArea );
@@ -439,6 +465,7 @@ void ResourceClient::UpdateBitmapArea( ResourceTicketPtr ticket, RectArea& updat
 
 void ResourceClient::UploadBitmap( ResourceId destId, ResourceId srcId, std::size_t xOffset, std::size_t yOffset )
 {
+  DALI_EVENT_THREAD_CHECK;
   RequestUploadBitmapMessage( mUpdateManager.GetEventToUpdate(),
                               mResourceManager,
                               destId,
@@ -449,6 +476,7 @@ void ResourceClient::UploadBitmap( ResourceId destId, ResourceId srcId, std::siz
 
 void ResourceClient::UpdateMesh( ResourceTicketPtr ticket, const Dali::MeshData& meshData )
 {
+  DALI_EVENT_THREAD_CHECK;
   DALI_ASSERT_DEBUG( ticket );
 
   ResourcePolicy::Discardable discardable = ResourcePolicy::RETAIN;
@@ -466,6 +494,7 @@ void ResourceClient::UpdateMesh( ResourceTicketPtr ticket, const Dali::MeshData&
 
 Bitmap* ResourceClient::GetBitmap(ResourceTicketPtr ticket)
 {
+  DALI_EVENT_THREAD_CHECK;
   DALI_ASSERT_DEBUG( ticket );
 
   Bitmap* bitmap = NULL;
@@ -480,11 +509,13 @@ Bitmap* ResourceClient::GetBitmap(ResourceTicketPtr ticket)
 
 void ResourceClient::SetGlyphLoadObserver( GlyphLoadObserver* glyphLoadedInterface )
 {
+  DALI_EVENT_THREAD_CHECK;
   mImpl->mGlyphLoadObserver = glyphLoadedInterface;
 }
 
 void ResourceClient::UpdateAtlasStatus( ResourceId id, ResourceId atlasId, Integration::LoadStatus loadStatus )
 {
+  DALI_EVENT_THREAD_CHECK;
   RequestAtlasUpdateMessage( mUpdateManager.GetEventToUpdate(), mResourceManager, id, atlasId, loadStatus );
 }
 
@@ -494,6 +525,8 @@ void ResourceClient::UpdateAtlasStatus( ResourceId id, ResourceId atlasId, Integ
 
 void ResourceClient::ResourceTicketDiscarded(const ResourceTicket& ticket)
 {
+  DALI_EVENT_THREAD_CHECK;
+
   const ResourceId deadId = ticket.GetId();
   const ResourceTypePath& typePath = ticket.GetTypePath();
 
@@ -612,7 +645,7 @@ void ResourceClient::NotifyGlyphSetLoaded( ResourceId id, const GlyphSet& glyphS
   mImpl->mGlyphLoadObserver->GlyphsLoaded( id, glyphSet, loadStatus );
 }
 
-void ResourceClient::UpdateImageTicket( ResourceId id, const Dali::ImageAttributes& imageAttributes ) ///!< Issue #AHC01
+void ResourceClient::UpdateImageTicket( ResourceId id, const Dali::ImageAttributes& imageAttributes )
 {
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceClient: UpdateImageTicket(id:%u)\n", id);
 

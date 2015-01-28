@@ -60,6 +60,18 @@ AC_ARG_ENABLE([dynamics],
               [dynamics_support=$enableval],
               [dynamics_support=no])
 
+AC_ARG_ENABLE([thread-check],
+              [AC_HELP_STRING([--enable-thread-check],
+                              [Enables thread checking of APIs])],
+              [enable_thread_check=$enableval],
+              [enable_thread_check=no])
+
+AC_ARG_ENABLE([thread-assert],
+              [AC_HELP_STRING([--enable-thread-assert],
+                              [Enables asserting on thread check failure])],
+              [enable_thread_assert=$enableval],
+              [enable_thread_assert=no])
+
 if test "x$enable_debug" = "xyes"; then
   DALI_CFLAGS="$DALI_CFLAGS -DDEBUG_ENABLED"
 fi
@@ -87,6 +99,14 @@ if test "x$enable_backtrace" = "xyes"; then
 fi
 
 AM_CONDITIONAL([DYNAMICS_SUPPORT], [test x$dynamics_support = xyes])
+
+if test "x$enable_thread_check" = "xyes"; then
+  DALI_CFLAGS="$DALI_CFLAGS -DTHREAD_CHECK_ENABLED"
+fi
+
+if test "x$enable_thread_assert" = "xyes"; then
+  DALI_CFLAGS="$DALI_CFLAGS -DASSERT_ON_BAD_THREAD_ENABLED"
+fi
 
 AC_ARG_ENABLE([performance-monitor],
               [AC_HELP_STRING([--enable-performance-monitor],
@@ -141,4 +161,5 @@ Configuration
   Data Dir (Read Only):             $dataReadOnlyDir
   Emscripten:                       $enable_emscripten
   Backtrace:                        $enable_backtrace
+  Thread checks:                    $enable_thread_check  $enable_thread_assert
 "

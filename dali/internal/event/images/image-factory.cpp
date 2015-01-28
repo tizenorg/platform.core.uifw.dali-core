@@ -59,6 +59,8 @@ ImageFactory::~ImageFactory()
 
 Request* ImageFactory::RegisterRequest( const std::string &filename, const ImageAttributes *attr )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   // check url cache
   // check if same request exists
   std::size_t urlHash = CalculateHash( filename );
@@ -77,6 +79,8 @@ Request* ImageFactory::RegisterRequest( const std::string &filename, const Image
 
 ResourceTicketPtr ImageFactory::Load( Request& request )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   ResourceTicketPtr ticket;
 
   // See if any resource transaction has already been associated with this request:
@@ -118,6 +122,7 @@ ResourceTicketPtr ImageFactory::Load( Request& request )
 // new resource of size (96, 96), but reloading Req1 would load a scaled down version
 ResourceTicketPtr ImageFactory::Reload( Request& request )
 {
+  DALI_EVENT_THREAD_CHECK;
   DALI_ASSERT_ALWAYS( &request );
 
   // go through requests, check real size and attributes again. If different, update related ticket.
@@ -170,6 +175,8 @@ ResourceTicketPtr ImageFactory::Reload( Request& request )
 
 void ImageFactory::RecoverFromContextLoss()
 {
+  DALI_EVENT_THREAD_CHECK;
+
   for( RequestIdMap::iterator it = mRequestCache.begin(); it != mRequestCache.end(); ++it )
   {
     // go through requests, reload with resource ticket's attributes.
@@ -191,6 +198,8 @@ void ImageFactory::RecoverFromContextLoss()
 
 const std::string& ImageFactory::GetRequestPath( const ImageFactoryCache::RequestPtr& request ) const
 {
+  DALI_EVENT_THREAD_CHECK;
+
   if( request )
   {
     return request->url;
@@ -201,6 +210,8 @@ const std::string& ImageFactory::GetRequestPath( const ImageFactoryCache::Reques
 
 const ImageAttributes& ImageFactory::GetActualAttributes( const ResourceTicketPtr& ticket ) const
 {
+  DALI_EVENT_THREAD_CHECK;
+
   if( ticket )
   {
     DALI_ASSERT_DEBUG( ticket->GetTypePath().type->id == ResourceBitmap      ||
@@ -214,6 +225,8 @@ const ImageAttributes& ImageFactory::GetActualAttributes( const ResourceTicketPt
 
 const ImageAttributes& ImageFactory::GetRequestAttributes( const ImageFactoryCache::RequestPtr& request ) const
 {
+  DALI_EVENT_THREAD_CHECK;
+
   if( request && request->attributes )
   {
     return *(request->attributes);
@@ -224,6 +237,8 @@ const ImageAttributes& ImageFactory::GetRequestAttributes( const ImageFactoryCac
 
 void ImageFactory::GetImageSize( const ImageFactoryCache::RequestPtr& request, const ResourceTicketPtr& ticket, Size& size )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   if( ticket && ticket->GetLoadingState() != ResourceLoading )
   {
     // it is loaded so get the size from actual attributes
@@ -239,12 +254,16 @@ void ImageFactory::GetImageSize( const ImageFactoryCache::RequestPtr& request, c
 
 void ImageFactory::ReleaseTicket( ResourceTicket* ticket )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   ResourceTicketPtr ticketPtr(ticket);
   mTicketsToRelease.push_back(ticketPtr);
 }
 
 void ImageFactory::FlushReleaseQueue()
 {
+  DALI_EVENT_THREAD_CHECK;
+
   mTicketsToRelease.clear();
 }
 
@@ -410,6 +429,8 @@ ResourceTicketPtr ImageFactory::IssueLoadRequest( const std::string& filename, c
 
 void ImageFactory::RequestDiscarded( const Request& req )
 {
+  DALI_EVENT_THREAD_CHECK;
+
   RequestId id( req.GetId() );
   // find in mRequestCache
   RequestIdMap::iterator foundRequestIter = mRequestCache.find( id );

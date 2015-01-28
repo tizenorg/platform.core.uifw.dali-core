@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/event/common/thread-id.h>
 #include <dali/internal/event/resources/resource-type-path-id-map.h>
 #include <dali/internal/event/resources/resource-ticket.h>
 #include <dali/internal/event/images/image-factory-cache.h>

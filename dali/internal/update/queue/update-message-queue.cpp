@@ -23,6 +23,7 @@
 #include <dali/public-api/common/mutex.h>
 #include <dali/integration-api/render-controller.h>
 #include <dali/internal/common/message-buffer.h>
+#include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/render/common/performance-monitor.h>
 
 using std::vector;
@@ -151,46 +152,55 @@ unsigned int* MessageQueue::ReserveMessageSlot( unsigned int requestedSize, bool
 {
   DALI_ASSERT_DEBUG( 0 != requestedSize );
 
-  if( updateScene )
-  {
-    mImpl->sceneUpdateFlag = true;
-  }
+  unsigned int* messageSlot = NULL;
 
-  if ( !mImpl->currentMessageBuffer )
+  if( ThreadLocalStorage::Created() )
   {
-    const MessageBufferIter endIter = mImpl->freeQueue.end();
-
-    // Find the largest recycled buffer from freeQueue
-    MessageBufferIter nextBuffer = endIter;
-    for ( MessageBufferIter iter = mImpl->freeQueue.begin(); iter != endIter; ++iter )
+    if( updateScene )
     {
-      if ( endIter == nextBuffer ||
-           (*nextBuffer)->GetCapacity() < (*iter)->GetCapacity() )
+      mImpl->sceneUpdateFlag = true;
+    }
+
+    if ( !mImpl->currentMessageBuffer )
+    {
+      const MessageBufferIter endIter = mImpl->freeQueue.end();
+
+      // Find the largest recycled buffer from freeQueue
+      MessageBufferIter nextBuffer = endIter;
+      for ( MessageBufferIter iter = mImpl->freeQueue.begin(); iter != endIter; ++iter )
       {
-        nextBuffer = iter;
+        if ( endIter == nextBuffer ||
+             (*nextBuffer)->GetCapacity() < (*iter)->GetCapacity() )
+        {
+          nextBuffer = iter;
+        }
+      }
+
+      if ( endIter != nextBuffer )
+      {
+        // Reuse a recycled buffer from freeQueue
+        mImpl->currentMessageBuffer = *nextBuffer;
+        mImpl->freeQueue.erase( nextBuffer );
+      }
+      else
+      {
+        mImpl->currentMessageBuffer = new MessageBuffer( INITIAL_BUFFER_SIZE );
       }
     }
 
-    if ( endIter != nextBuffer )
+    // If we are inside Core::ProcessEvents(), core will automatically flush the queue.
+    // If we are outside, then we have to request a call to Core::ProcessEvents() on idle.
+    if ( false == mImpl->processingEvents )
     {
-      // Reuse a recycled buffer from freeQueue
-      mImpl->currentMessageBuffer = *nextBuffer;
-      mImpl->freeQueue.erase( nextBuffer );
+      mImpl->renderController.RequestProcessEventsOnIdle();
     }
-    else
-    {
-      mImpl->currentMessageBuffer = new MessageBuffer( INITIAL_BUFFER_SIZE );
-    }
+
+    messageSlot = mImpl->currentMessageBuffer->ReserveMessageSlot( requestedSize );
   }
 
-  // If we are inside Core::ProcessEvents(), core will automatically flush the queue.
-  // If we are outside, then we have to request a call to Core::ProcessEvents() on idle.
-  if ( false == mImpl->processingEvents )
-  {
-    mImpl->renderController.RequestProcessEventsOnIdle();
-  }
-
-  return mImpl->currentMessageBuffer->ReserveMessageSlot( requestedSize );
+  // The following line in the calling method is usually a placement new,
+  // which will fail silently if passed NULL (which will happen on shutdown).
+  return messageSlot;
 }
 
 BufferIndex MessageQueue::GetEventBufferIndex() const

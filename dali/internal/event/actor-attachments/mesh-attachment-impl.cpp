@@ -167,7 +167,6 @@ Internal::MaterialIPtr MeshAttachment::GetMaterial( ) const
   return material;
 }
 
-
 void MeshAttachment::DisconnectMaterial()
 {
   if ( mMesh.mCustomMaterial )

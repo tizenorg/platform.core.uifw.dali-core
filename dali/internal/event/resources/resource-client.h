@@ -25,6 +25,7 @@
 #include <dali/public-api/common/ref-counted-dali-vector.h>
 #include <dali/public-api/images/native-image.h>
 #include <dali/integration-api/glyph-set.h>
+#include <dali/internal/event/common/thread-id.h>
 #include <dali/internal/event/resources/resource-client-declarations.h>
 #include <dali/internal/event/resources/image-ticket.h>
 #include <dali/internal/event/resources/resource-ticket-lifetime-observer.h>
@@ -359,7 +360,7 @@ public: // Message methods
 private:
   ResourceManager& mResourceManager;          ///< The resource manager
   SceneGraph::UpdateManager& mUpdateManager;  ///< update manager
-
+  ThreadId mThreadId;                         ///< Thread identity to protect public api being called from the wrong thread
 private:
   struct Impl;
   Impl* mImpl;

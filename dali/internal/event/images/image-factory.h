@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/event/common/thread-id.h>
 #include <dali/internal/event/resources/resource-type-path-id-map.h>
 #include <dali/internal/event/resources/resource-ticket.h>
 #include <dali/internal/event/images/image-factory-cache.h>
@@ -221,6 +222,7 @@ private:
   ResourceTicketContainer                mTicketsToRelease; ///< List of ticket handles
   float                                  mMaxScale;         ///< Defines maximum size difference between compatible resources
   ImageFactoryCache::RequestId           mReqIdCurrent;     ///< Internal counter for Request IDs
+  ThreadId                               mThreadId;         ///< Checker to ensure public API is only called against the event thread
 };
 
 } // namespace Internal

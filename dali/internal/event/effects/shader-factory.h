@@ -22,6 +22,7 @@
 #include <dali/internal/event/resources/resource-ticket.h>
 #include <dali/internal/event/resources/resource-type-path-id-map.h>
 #include <dali/internal/event/effects/shader-declarations.h>
+#include <dali/internal/event/common/thread-id.h>
 
 namespace Dali
 {
@@ -80,7 +81,7 @@ private:
   ResourceClient&       mResourceClient;
   ResourceTypePathIdMap mResourceTypePathIdMap; ///< A map of resource IDs sorted by ResourceTypePath
   ShaderEffectPtr       mDefaultShader;
-
+  ThreadId              mThreadId;
 }; // class ShaderFactory
 
 } // namespace Internal

@@ -492,14 +492,14 @@ bool Actor::IsRelayoutEnabled() const
   return GetImplementation(*this).IsRelayoutEnabled();
 }
 
-void Actor::SetLayoutDirty( bool dirty )
+void Actor::SetLayoutDirty( bool dirty, Dimension dimension )
 {
-  GetImplementation(*this).SetLayoutDirty( dirty );
+  GetImplementation(*this).SetLayoutDirty( dirty, dimension );
 }
 
-bool Actor::IsLayoutDirty() const
+bool Actor::IsLayoutDirty( Dimension dimension ) const
 {
-  return GetImplementation(*this).IsLayoutDirty();
+  return GetImplementation(*this).IsLayoutDirty( dimension );
 }
 
 bool Actor::RelayoutPossible() const

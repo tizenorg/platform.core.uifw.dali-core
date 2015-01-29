@@ -1176,15 +1176,17 @@ public:
    * @brief Flag the actor as having it's layout dirty.
    *
    * @param[in] dirty The status of the flag to set.
+   * @param[in] dimension The dimension to set the flag for.
    */
-  void SetLayoutDirty( bool dirty );
+  void SetLayoutDirty( bool dirty, Dimension dimension = ALL_DIMENSIONS );
 
   /**
    * @brief Test whether the layout for this actor is dirty or not.
    *
+   * @param[in] dimension The dimension to retrieve the flag for.
    * @return Return if the layout is dirty or not.
    */
-  bool IsLayoutDirty() const;
+  bool IsLayoutDirty( Dimension dimension = ALL_DIMENSIONS ) const;
 
   /**
    * @brief Returns if relayout is enabled and the actor is not dirty

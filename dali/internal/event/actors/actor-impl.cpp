@@ -172,6 +172,21 @@ namespace Internal
 unsigned int Actor::mActorCounter = 0;
 ActorContainer Actor::mNullChildren;
 
+/**
+ * Struct to collect relayout variables
+ */
+struct Actor::RelayoutData
+{
+  bool dimensionDirty[DIMENSION_COUNT];      ///< Flags indicating whether the layout dimension is dirty or not
+  bool relayoutEnabled : 1;                  ///< Flag to specify if this actor should be included in size negotiation or not (defaults to true)
+
+  RelayoutData()
+  : relayoutEnabled( true )
+  {
+    memset( dimensionDirty, 0, sizeof( dimensionDirty ) );
+  }
+};
+
 #ifdef DYNAMICS_SUPPORT
 
 // Encapsulate actor related dynamics data
@@ -1177,34 +1192,47 @@ Vector3 Actor::GetNaturalSize() const
 
 void Actor::SetRelayoutEnabled( bool relayoutEnabled )
 {
-  mRelayoutEnabled = relayoutEnabled;
+  mRelayoutData->relayoutEnabled = relayoutEnabled;
 }
 
 bool Actor::IsRelayoutEnabled() const
 {
-  return mRelayoutEnabled;
+  return mRelayoutData->relayoutEnabled;
 }
 
-void Actor::SetLayoutDirty( bool dirty )
+void Actor::SetLayoutDirty( bool dirty, Dimension dimension )
 {
-  mLayoutDirty = dirty;
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( dimension & ( 1 << i ) )
+    {
+      mRelayoutData->dimensionDirty[ i ] = dirty;
+    }
+  }
 }
 
-bool Actor::IsLayoutDirty() const
+bool Actor::IsLayoutDirty( Dimension dimension ) const
 {
-  return mLayoutDirty;
+  for( unsigned int i = 0; i < DIMENSION_COUNT; ++i )
+  {
+    if( ( dimension & ( 1 << i ) ) && mRelayoutData->dimensionDirty[ i ] )
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool Actor::RelayoutPossible() const
 {
-  return mRelayoutEnabled && !mLayoutDirty;
+  return mRelayoutData->relayoutEnabled && !IsLayoutDirty();
 }
 
 bool Actor::RelayoutRequired() const
 {
-  return mRelayoutEnabled && mLayoutDirty;
+  return mRelayoutData->relayoutEnabled && IsLayoutDirty();
 }
-
 
 #ifdef DYNAMICS_SUPPORT
 
@@ -2056,6 +2084,7 @@ Actor::Actor( DerivedType derivedType )
   mNode( NULL ),
   mParentOrigin( NULL ),
   mAnchorPoint( NULL ),
+  mRelayoutData( NULL ),
 #ifdef DYNAMICS_SUPPORT
   mDynamicsData( NULL ),
 #endif
@@ -2078,12 +2107,12 @@ Actor::Actor( DerivedType derivedType )
   mOnStageSignalled( false ),
   mInheritRotation( true ),
   mInheritScale( true ),
-  mRelayoutEnabled( true ),
-  mLayoutDirty( false ),
   mDrawMode( DrawMode::NORMAL ),
   mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ),
   mColorMode( Node::DEFAULT_COLOR_MODE )
 {
+  // Assign relayout data. TODO: Do this based on a flag.
+  mRelayoutData = new RelayoutData();
 }
 
 void Actor::Initialize()

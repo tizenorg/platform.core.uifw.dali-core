@@ -754,12 +754,12 @@ public:
   /**
    * @copydoc Dali::Actor::SetLayoutDirty()
    */
-  void SetLayoutDirty( bool dirty );
+  void SetLayoutDirty( bool dirty, Dimension dimension = ALL_DIMENSIONS );
 
   /**
    * @copydoc Dali::Actor::IsLayoutDirty()
    */
-  bool IsLayoutDirty() const;
+  bool IsLayoutDirty( Dimension dimension = ALL_DIMENSIONS ) const;
 
   /**
    * @copydoc Dali::Actor::RelayoutPossible()
@@ -1388,6 +1388,9 @@ protected:
   Vector3*                mParentOrigin; // NULL means ParentOrigin::DEFAULT. ParentOrigin is non-animatable
   Vector3*                mAnchorPoint;  // NULL means AnchorPoint::DEFAULT. AnchorPoint is non-animatable
 
+  struct RelayoutData;
+  RelayoutData* mRelayoutData;           // Struct to hold optional collection of relayout variables
+
 #ifdef DYNAMICS_SUPPORT
   DynamicsData*           mDynamicsData; ///< optional physics data
 #endif
@@ -1423,8 +1426,6 @@ protected:
   bool mOnStageSignalled                           : 1; ///< Set to true before OnStageConnection signal is emitted, and false before OnStageDisconnection
   bool mInheritRotation                            : 1; ///< Cached: Whether the parent's rotation should be inherited.
   bool mInheritScale                               : 1; ///< Cached: Whether the parent's scale should be inherited.
-  bool mRelayoutEnabled                            : 1; ///< Flag to specify if this actor should be included in size negotiation or not (defaults to true)
-  bool mLayoutDirty                                : 1; ///< Flag indicating whether a layout dimension is dirty or not
   DrawMode::Type mDrawMode                         : 2; ///< Cached: How the actor and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode : 2; ///< Cached: Determines how position is inherited
   ColorMode mColorMode                             : 2; ///< Cached: Determines whether mWorldColor is inherited

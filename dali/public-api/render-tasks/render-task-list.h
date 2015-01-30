@@ -33,7 +33,7 @@ class RenderTaskList;
 }
 
 /**
- * @brief An ordered list of Dali::RenderTask%s.
+ * @brief An ordered list of Dali::RenderTask.
  *
  * These tasks describe how the Dali scene should be rendered; @see Dali::RenderTask for more details.
  */

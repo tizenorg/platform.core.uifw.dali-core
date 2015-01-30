@@ -46,16 +46,16 @@ ObjectRegistry::~ObjectRegistry()
 
 void ObjectRegistry::RegisterObject( Dali::BaseObject* object )
 {
-  if ( !mObjectCreatedSignalV2.Empty() )
+  if ( !mObjectCreatedSignalType.Empty() )
   {
     Dali::BaseHandle handle( object );
-    mObjectCreatedSignalV2.Emit( handle );
+    mObjectCreatedSignalType.Emit( handle );
   }
 }
 
 void ObjectRegistry::UnregisterObject( Dali::BaseObject* object )
 {
-  mObjectDestroyedSignalV2.Emit( object );
+  mObjectDestroyedSignalType.Emit( object );
 }
 
 bool ObjectRegistry::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )

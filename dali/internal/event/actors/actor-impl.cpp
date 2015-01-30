@@ -1109,10 +1109,10 @@ void Actor::SetSize(const Vector3& size)
 
     // Emit signal for application developer
 
-    if( !mSetSizeSignalV2.Empty() )
+    if( !mSetSizeSignalType.Empty() )
     {
       Dali::Actor handle( this );
-      mSetSizeSignalV2.Emit( handle, mSize );
+      mSetSizeSignalType.Emit( handle, mSize );
     }
   }
 }
@@ -1856,17 +1856,17 @@ bool Actor::IsKeyboardFocusable() const
 
 bool Actor::GetTouchRequired() const
 {
-  return !mTouchedSignalV2.Empty() || mDerivedRequiresTouch;
+  return !mTouchedSignalType.Empty() || mDerivedRequiresTouch;
 }
 
 bool Actor::GetHoverRequired() const
 {
-  return !mHoveredSignalV2.Empty() || mDerivedRequiresHover;
+  return !mHoveredSignalType.Empty() || mDerivedRequiresHover;
 }
 
 bool Actor::GetMouseWheelEventRequired() const
 {
-  return !mMouseWheelEventSignalV2.Empty() || mDerivedRequiresMouseWheelEvent;
+  return !mMouseWheelEventSignalType.Empty() || mDerivedRequiresMouseWheelEvent;
 }
 
 bool Actor::IsHittable() const
@@ -1897,10 +1897,10 @@ bool Actor::EmitTouchEventSignal(const TouchEvent& event)
 {
   bool consumed = false;
 
-  if ( !mTouchedSignalV2.Empty() )
+  if ( !mTouchedSignalType.Empty() )
   {
     Dali::Actor handle( this );
-    consumed = mTouchedSignalV2.Emit( handle, event );
+    consumed = mTouchedSignalType.Emit( handle, event );
   }
 
   if (!consumed)
@@ -1916,10 +1916,10 @@ bool Actor::EmitHoverEventSignal(const HoverEvent& event)
 {
   bool consumed = false;
 
-  if ( !mHoveredSignalV2.Empty() )
+  if ( !mHoveredSignalType.Empty() )
   {
     Dali::Actor handle( this );
-    consumed = mHoveredSignalV2.Emit( handle, event );
+    consumed = mHoveredSignalType.Emit( handle, event );
   }
 
   if (!consumed)
@@ -1935,10 +1935,10 @@ bool Actor::EmitMouseWheelEventSignal(const MouseWheelEvent& event)
 {
   bool consumed = false;
 
-  if ( !mMouseWheelEventSignalV2.Empty() )
+  if ( !mMouseWheelEventSignalType.Empty() )
   {
     Dali::Actor handle( this );
-    consumed = mMouseWheelEventSignalV2.Emit( handle, event );
+    consumed = mMouseWheelEventSignalType.Emit( handle, event );
   }
 
   if (!consumed)
@@ -1950,34 +1950,34 @@ bool Actor::EmitMouseWheelEventSignal(const MouseWheelEvent& event)
   return consumed;
 }
 
-Dali::Actor::TouchSignalV2& Actor::TouchedSignal()
+Dali::Actor::TouchSignalType& Actor::TouchedSignal()
 {
-  return mTouchedSignalV2;
+  return mTouchedSignalType;
 }
 
-Dali::Actor::HoverSignalV2& Actor::HoveredSignal()
+Dali::Actor::HoverSignalType& Actor::HoveredSignal()
 {
-  return mHoveredSignalV2;
+  return mHoveredSignalType;
 }
 
-Dali::Actor::MouseWheelEventSignalV2& Actor::MouseWheelEventSignal()
+Dali::Actor::MouseWheelEventSignalType& Actor::MouseWheelEventSignal()
 {
-  return mMouseWheelEventSignalV2;
+  return mMouseWheelEventSignalType;
 }
 
-Dali::Actor::SetSizeSignalV2& Actor::SetSizeSignal()
+Dali::Actor::SetSizeSignalType& Actor::SetSizeSignal()
 {
-  return mSetSizeSignalV2;
+  return mSetSizeSignalType;
 }
 
-Dali::Actor::OnStageSignalV2& Actor::OnStageSignal()
+Dali::Actor::OnStageSignalType& Actor::OnStageSignal()
 {
-  return mOnStageSignalV2;
+  return mOnStageSignalType;
 }
 
-Dali::Actor::OffStageSignalV2& Actor::OffStageSignal()
+Dali::Actor::OffStageSignalType& Actor::OffStageSignal()
 {
-  return mOffStageSignalV2;
+  return mOffStageSignalType;
 }
 
 bool Actor::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
@@ -2197,10 +2197,10 @@ void Actor::NotifyStageConnection()
     // Notification for external (CustomActor) derived classes
     OnStageConnectionExternal();
 
-    if ( !mOnStageSignalV2.Empty() )
+    if ( !mOnStageSignalType.Empty() )
     {
       Dali::Actor handle( this );
-      mOnStageSignalV2.Emit( handle );
+      mOnStageSignalType.Emit( handle );
     }
 
     // Guard against Remove during callbacks
@@ -2289,10 +2289,10 @@ void Actor::NotifyStageDisconnection()
     // Notification for external (CustomeActor) derived classes
     OnStageDisconnectionExternal();
 
-    if( !mOffStageSignalV2.Empty() )
+    if( !mOffStageSignalType.Empty() )
     {
       Dali::Actor handle( this );
-      mOffStageSignalV2.Emit( handle );
+      mOffStageSignalType.Emit( handle );
     }
 
     // Guard against Add during callbacks

@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+#include <dali/integration-api/common/atomics.h>
 
 namespace Dali
 {
@@ -29,7 +30,7 @@ RefObject::RefObject()
 {
 }
 
-RefObject::RefObject(const RefObject&)
+RefObject::RefObject( const RefObject& )
 : mCount(0) // Do not copy the reference count
 {
 }
@@ -44,7 +45,7 @@ RefObject::~RefObject()
 #endif // ENABLE_DEBUG
 }
 
-RefObject& RefObject::operator=(const RefObject&)
+RefObject& RefObject::operator=( const RefObject& )
 {
   // Do not copy the reference count
   return *this;
@@ -52,14 +53,13 @@ RefObject& RefObject::operator=(const RefObject&)
 
 void RefObject::Reference()
 {
-  // gcc > 4.1 builtin atomic add and fetch (++mCount; return mCount)
-  __sync_add_and_fetch(&mCount, 1);
+  Integration::AtomicAddAtCacheableAlignedAddress( &mCount, 1 );
 }
 
 void RefObject::Unreference()
 {
   // gcc > 4.1 builtin atomic subtract and fetch (--mCount; return mCount)
-  if (__sync_sub_and_fetch(&mCount, 1) == 0)
+  if( Integration::AtomicSubtractAtCacheableAlignedAddress( &mCount, 1 ) == 0 )
   {
     delete this;
   }

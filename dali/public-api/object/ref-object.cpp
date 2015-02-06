@@ -52,17 +52,62 @@ RefObject& RefObject::operator=(const RefObject&)
 
 void RefObject::Reference()
 {
-  // gcc > 4.1 builtin atomic add and fetch (++mCount; return mCount)
-  __sync_add_and_fetch(&mCount, 1);
+  // The inline assembly below was tested on an ARMv8 64 bit platform on
+  // 2015-02-06 and found to run in 11.8 nanosecond, whereas
+  // __sync_add_and_fetch( address, 1 ) required 18.8 nanoseconds.
+  // Including the assembly here produced one fewer assembly instruction than if
+  // it was wrapped in a function and inlined here by the compiler.
+#ifdef __aarch64__
+  asm volatile(
+  "1:\tldxr  w1, %[address] \n\t"
+      "add   w1, w1, %[one] \n\t"
+      "stxr  w2,  w1, %[address] \n\t"
+      "cbnz  w2,  1b \n\t"
+      // Outputs:
+    : // Q = A memory address with no offset ( https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html#Machine-Constraints )
+      [address] "+Q" (mCount)
+      // Inputs:
+    : [one] "Ir" (1)
+      // Clobbers: (explicitly clobber w1 register to hold the loaded value and register w2 to hold success/fail that we ignore):
+    : "w1", "w2"
+  );
+#else
+  // gcc > 4.1 builtin atomic add and fetch:
+  __sync_add_and_fetch( &mCount, 1 );
+#endif
 }
 
 void RefObject::Unreference()
 {
-  // gcc > 4.1 builtin atomic subtract and fetch (--mCount; return mCount)
-  if (__sync_sub_and_fetch(&mCount, 1) == 0)
+#ifdef __aarch64__
+  // The output register:
+  int32_t newValue;
+
+  asm volatile(
+  "1:\tldxr  %w[newValue], %[address] \n\t"
+      "sub   %w[newValue], %w[newValue], %[one] \n\t"
+      "stxr  w2,  %w[newValue], %[address] \n\t"
+      "cbnz  w2,  1b \n\t"
+    // Outputs:
+  : [newValue] "=&r" (newValue),
+    // Q = A memory address with no offset ( https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html#Machine-Constraints )
+    [address] "+Q" (mCount)
+    // Inputs:
+  : [one] "Ir" (1)
+    // Clobbered: I.e., stuff that is modified.
+  : "w2"
+  );
+  if( newValue == 0 )
   {
     delete this;
   }
+#else
+  // gcc > 4.1 builtin atomic subtract and fetch (--mCount; return mCount)
+  if( __sync_sub_and_fetch( &mCount, 1 )  == 0 )
+  {
+    delete this;
+  }
+#endif
 }
 
 int RefObject::ReferenceCount()

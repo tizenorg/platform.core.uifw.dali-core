@@ -1165,6 +1165,152 @@ int UtcDaliActorInheritPosition(void)
   END_TEST;
 }
 
+int UtcDaliActorSizeMode(void)
+{
+  tet_infoline("Testing Actor::SetSizeMode");
+  TestApplication application;
+
+  // Create a parent and a child.
+  Actor parent = Actor::New();
+  parent.SetParentOrigin( ParentOrigin::CENTER );
+  parent.SetAnchorPoint( AnchorPoint::CENTER );
+  Vector3 parentPosition( 0.0f, 0.0f, 0.0f );
+  parent.SetPosition( parentPosition );
+  parent.SetSize( 10.0f, 20.0f, 40.0f );
+  parent.SetSizeMode( USE_OWN_SIZE );
+  Stage::GetCurrent().Add( parent );
+
+  Actor child = Actor::New();
+  child.SetParentOrigin( ParentOrigin::CENTER );
+  child.SetAnchorPoint( AnchorPoint::CENTER );
+  Vector3 childPosition( 0.0f, 0.0f, 0.0f );
+  child.SetPosition( childPosition );
+  child.SetSize( 1.0f, 2.0f, 4.0f );
+  child.SetSizeMode( USE_OWN_SIZE );
+  parent.Add( child );
+
+  // Flush the queue and render once.
+  application.SendNotification();
+  application.Render();
+
+  // Test USE_OWN_SIZE uses the user-set size value.
+  DALI_TEST_EQUALS( child.GetCurrentSize(), Vector3( 1.0f, 2.0f, 4.0f ), TEST_LOCATION );
+
+  // Test SIZE_EQUAL_TO_PARENT overrides size with the parents size.
+  child.SetSizeMode( SIZE_EQUAL_TO_PARENT );
+
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( child.GetCurrentSize(), Vector3( 10.0f, 20.0f, 40.0f ), TEST_LOCATION );
+
+  // Test SIZE_RELATIVE_TO_PARENT overrides size with parents size * SizeModeFactor.
+  child.SetSizeMode( SIZE_RELATIVE_TO_PARENT );
+
+  application.SendNotification();
+  application.Render();
+  // First check without setting a relative factor, to confirm that the default factor (of 1.0f) is used.
+  DALI_TEST_EQUALS( child.GetCurrentSize(), Vector3( 10.0f, 20.0f, 40.0f ), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  // Set an arbitary relative factor to check against.
+  child.SetSizeModeFactor( Vector3( 2.0f, 3.0f, 4.0f ) );
+
+  application.SendNotification();
+  application.Render();
+  // Check with a valid relative factor.
+  DALI_TEST_EQUALS( child.GetCurrentSize(), Vector3( 20.0f, 60.0f, 160.0f ), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  // Test SIZE_FIXED_OFFSET_FROM_PARENT overrides size with parents size + SizeModeFactor.
+  child.SetSizeMode( SIZE_FIXED_OFFSET_FROM_PARENT );
+
+  application.SendNotification();
+  application.Render();
+  // Check with a valid relative factor.
+  DALI_TEST_EQUALS( child.GetCurrentSize(), Vector3( 12.0f, 23.0f, 44.0f ), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  application.SendNotification();
+
+  // Test the calculation order in update by having a parent with a size-relative
+  // factor and a rotation rotate a child anchored to one of the parents corners.
+  //       .---. c
+  //   .-----. |          .-----.    The new child is parented from the top-left of its parent.
+  //   |   '-|-'  ----->  |     |    We rotate the parent to confirm that the relative size calculation is
+  //   |  p  |    Rotate  |   .-|-.  done before rotation. If it wasn't, the childs resultant
+  //   '-----'    parent  '-----' |  world-position would be incorrect.
+  //                90°       '---'
+  //
+  // Create a new parent and child, and a root parent which the parent can grab relative size from.
+  Actor rootParent = Actor::New();
+  rootParent.SetParentOrigin( ParentOrigin::CENTER );
+  rootParent.SetAnchorPoint( AnchorPoint::CENTER );
+  rootParent.SetPosition( Vector3( 0.0f, 0.0f, 0.0f ) );
+  rootParent.SetSize( 10.0f, 10.0f, 10.0f );
+  rootParent.SetSizeMode( USE_OWN_SIZE );
+  Stage::GetCurrent().Add( rootParent );
+
+  Actor newParent = Actor::New();
+  newParent.SetParentOrigin( ParentOrigin::CENTER );
+  newParent.SetAnchorPoint( AnchorPoint::CENTER );
+  newParent.SetPosition( Vector3( 0.0f, 0.0f, 0.0f ) );
+  newParent.SetSize( 10.0f, 10.0f, 10.0f );
+  newParent.SetSizeMode( SIZE_RELATIVE_TO_PARENT );
+  newParent.SetSizeModeFactor( Vector3( 0.5f, 0.5f, 0.5f ) );
+  rootParent.Add( newParent );
+
+  Actor newChild = Actor::New();
+  newChild.SetParentOrigin( ParentOrigin::TOP_RIGHT );
+  newChild.SetAnchorPoint( AnchorPoint::CENTER );
+  newChild.SetPosition( Vector3( 0.0f, 0.0f, 0.0f ) );
+  newChild.SetSize( 1.0f, 1.0f, 1.0f );
+  newChild.SetSizeMode( USE_OWN_SIZE );
+  newParent.Add( newChild );
+
+  // Set up the rotation by 90 degrees on Z.
+  newParent.RotateBy( Radian( M_PI * 0.5f ), Vector3::ZAXIS );
+
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( newParent.GetCurrentSize(), Vector3( 5.0f, 5.0f, 5.0f ), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+  DALI_TEST_EQUALS( newParent.GetCurrentWorldPosition(), Vector3( 0.0f, 0.0f, 0.0f ), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+  DALI_TEST_EQUALS( newChild.GetCurrentWorldPosition(), Vector3( 2.5f, 2.5f, 0.0f ), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  // Set up a test to insure that the size-relative calculation persists through to the
+  // second frame, not just the first.
+  Actor testUpdateParent = Actor::New();
+  testUpdateParent.SetParentOrigin( ParentOrigin::CENTER );
+  testUpdateParent.SetAnchorPoint( AnchorPoint::CENTER );
+  testUpdateParent.SetPosition( Vector3( 0.0f, 0.0f, 0.0f ) );
+  testUpdateParent.SetSize( 10.0f, 10.0f, 10.0f );
+  testUpdateParent.SetSizeMode( USE_OWN_SIZE );
+  Stage::GetCurrent().Add( testUpdateParent );
+
+  Actor testUpdateChild = Actor::New();
+  testUpdateChild.SetParentOrigin( ParentOrigin::CENTER );
+  testUpdateChild.SetAnchorPoint( AnchorPoint::CENTER );
+  testUpdateChild.SetPosition( Vector3( 0.0f, 0.0f, 0.0f ) );
+  testUpdateChild.SetSize( 1.0f, 1.0f, 1.0f );
+  testUpdateChild.SetSizeMode( SIZE_RELATIVE_TO_PARENT );
+  testUpdateChild.SetSizeModeFactor( Vector3( 0.5f, 0.5f, 0.5f ) );
+  testUpdateParent.Add( testUpdateChild );
+
+  // Test CurrentSize is uninitialised.
+  DALI_TEST_EQUALS( testUpdateChild.GetCurrentSize(), Vector3( 0.0f, 0.0f, 0.0f ), TEST_LOCATION );
+
+  // Test the relative size is now set.
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( testUpdateChild.GetCurrentSize(), Vector3( 5.0f, 5.0f, 5.0f ), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  // Test the relative size is still set on this frame.
+  application.Render();
+  DALI_TEST_EQUALS( testUpdateChild.GetCurrentSize(), Vector3( 5.0f, 5.0f, 5.0f ), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  // Test the relative size is still set on this frame.
+  application.Render();
+  DALI_TEST_EQUALS( testUpdateChild.GetCurrentSize(), Vector3( 5.0f, 5.0f, 5.0f ), Math::MACHINE_EPSILON_0, TEST_LOCATION );
+
+  END_TEST;
+}
+
 // SetRotation(float angleRadians, Vector3 axis)
 int UtcDaliActorSetRotation01(void)
 {
@@ -3010,6 +3156,8 @@ const PropertyStringIndex PROPERTY_TABLE[] =
   { "color-mode",               Actor::COLOR_MODE,              Property::STRING      },
   { "position-inheritance",     Actor::POSITION_INHERITANCE,    Property::STRING      },
   { "draw-mode",                Actor::DRAW_MODE,               Property::STRING      },
+  { "size-mode",                Actor::SIZE_MODE,               Property::INTEGER     },
+  { "size-mode-factor",         Actor::SIZE_MODE_FACTOR,        Property::VECTOR3     },
 };
 const unsigned int PROPERTY_TABLE_COUNT = sizeof( PROPERTY_TABLE ) / sizeof( PROPERTY_TABLE[0] );
 } // unnamed namespace

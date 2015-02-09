@@ -105,7 +105,8 @@ inline void ProcessRenderList( const RenderList& renderList,
   // Clear depth and/or stencil buffer.
   if( clearMask )
   {
-    context.Clear( clearMask );
+    // only clear if the depth and/or stencil buffer have been written to
+    context.Clear( clearMask, Context::CHECK_CACHED_VALUES );
   }
 
   size_t count = renderList.Count();

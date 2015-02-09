@@ -301,6 +301,8 @@ void Context::ResetGlState()
   mViewPort.x = mViewPort.y = mViewPort.width = mViewPort.height = 0;
 
   ResetVertexAttributeState();
+
+  mFrameBufferStateCache.Reset();
 }
 
 #ifdef DEBUG_ENABLED

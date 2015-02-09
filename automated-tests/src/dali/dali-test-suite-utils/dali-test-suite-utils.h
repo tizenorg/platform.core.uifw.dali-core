@@ -42,6 +42,9 @@ using namespace Dali;
 #define TET_FAIL 1
 #define TET_PASS 0
 
+// A default float accuracy threshold for comparing equality of two floats.
+#define FLOAT_ACCURACY_THRESHOLD 0.001
+
 extern int test_return_value;
 
 void tet_result(int value);

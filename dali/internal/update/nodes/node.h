@@ -46,6 +46,7 @@ namespace Internal
 // value types used by messages
 template <> struct ParameterType< ColorMode > : public BasicType< ColorMode > {};
 template <> struct ParameterType< PositionInheritanceMode > : public BasicType< PositionInheritanceMode > {};
+template <> struct ParameterType< SizeRelativeToParentMode > : public BasicType< SizeRelativeToParentMode > {};
 
 namespace SceneGraph
 {
@@ -95,6 +96,7 @@ public:
   // Defaults
   static const PositionInheritanceMode DEFAULT_POSITION_INHERITANCE_MODE;
   static const ColorMode DEFAULT_COLOR_MODE;
+  static const SizeRelativeToParentMode DEFAULT_SIZE_RELATIVE_TO_PARENT_MODE;
 
   // Creation methods
 
@@ -592,6 +594,51 @@ public:
   }
 
   /**
+   * @brief Defines how a child actors size is affected by its parents size.
+   * @param[in] mode The size relative to parent mode to use.
+   */
+  void SetSizeRelativeToParentMode( SizeRelativeToParentMode mode )
+  {
+    if ( mode != mSizeRelativeToParentMode )
+    {
+      mSizeRelativeToParentMode = mode;
+
+      SetDirtyFlag( TransformFlag );
+    }
+  }
+
+  /**
+   * Query how the child actors size is affected by its parents size.
+   * @return The size relative to parent mode in use.
+   */
+  SizeRelativeToParentMode GetSizeRelativeToParentMode() const
+  {
+    return mSizeRelativeToParentMode;
+  }
+
+  /**
+   * Sets the factor of the parents size used for the child actor.
+   * Note: Only used if SizeRelativeToParentMode is SIZE_RELATIVE_TO_PARENT.
+   * @param[in] factor The vector to multiply the parents size by to get the childs size.
+   */
+  void SetSizeRelativeToParentFactor( const Vector3& factor )
+  {
+    mSizeRelativeToParentFactor = factor;
+
+    SetDirtyFlag( TransformFlag );
+  }
+
+  /**
+   * Gets the factor of the parents size used for the child actor.
+   * Note: Only used if SizeRelativeToParentMode is SIZE_RELATIVE_TO_PARENT.
+   * @return The vector being used to multiply the parents size by to get the childs size.
+   */
+  const Vector3& GetSizeRelativeToParentFactor() const
+  {
+    return mSizeRelativeToParentFactor;
+  }
+
+  /**
    * Set the initial volume of the node. Used for calculating geometry scaling
    * as the node size is changed  when transmitGeometryScaling is set to true.
    *
@@ -599,7 +646,7 @@ public:
    *
    * @param[in] volume The initial volume of this nodes meshes & children
    */
-  void SetInitialVolume( const Vector3& volume)
+  void SetInitialVolume( const Vector3& volume )
   {
     mInitialVolume = volume;
     SetDirtyFlag(SizeFlag);
@@ -862,6 +909,16 @@ public:
   }
 
   /**
+   * Sets the size of the node.
+   * @param[in] bufferIndex The buffer to write to.
+   * @param[in] size The size to write.
+   */
+  void SetSize( BufferIndex bufferIndex, const Vector3& size )
+  {
+    mSize[bufferIndex] = size;
+  }
+
+  /**
    * Retrieve the size of the node.
    * @param[in] bufferIndex The buffer to read from.
    * @return The size.
@@ -1059,6 +1116,7 @@ protected:
 
   Vector3             mGeometryScale;                ///< Applied before calculating world transform.
   Vector3             mInitialVolume;                ///< Initial volume... TODO - need a better name
+  Vector3             mSizeRelativeToParentFactor;   ///< Factor of parent size if using SizeRelativeToParent.
 
   // flags, compressed to bitfield
   int  mDirtyFlags:10;                               ///< A composite set of flags for each of the Node properties
@@ -1073,6 +1131,7 @@ protected:
   DrawMode::Type          mDrawMode:2;               ///< How the Node and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode:2;///< Determines how position is inherited, 2 bits is enough
   ColorMode               mColorMode:2;              ///< Determines whether mWorldColor is inherited, 2 bits is enough
+  SizeRelativeToParentMode mSizeRelativeToParentMode:2;///< Determines how the actors parent affects the actors size.
 
   // Changes scope, should be at end of class
   DALI_LOG_OBJECT_STRING_DECLARATION;
@@ -1089,6 +1148,28 @@ inline void SetInheritRotationMessage( EventToUpdate& eventToUpdate, const Node&
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetInheritRotation, inherit );
+}
+
+inline void SetSizeRelativeToParentModeMessage( EventToUpdate& eventToUpdate, const Node& node, SizeRelativeToParentMode mode )
+{
+  typedef MessageValue1< Node, SizeRelativeToParentMode > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::SetSizeRelativeToParentMode, mode );
+}
+
+inline void SetSizeRelativeToParentFactorMessage( EventToUpdate& eventToUpdate, const Node& node, const Vector3& factor )
+{
+  typedef MessageValue1< Node, Vector3 > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::SetSizeRelativeToParentFactor, factor );
 }
 
 inline void SetInitialVolumeMessage( EventToUpdate& eventToUpdate, const Node& node, const Vector3& initialVolume )

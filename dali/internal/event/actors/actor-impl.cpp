@@ -106,6 +106,8 @@ const Property::Index Actor::INHERIT_SCALE              = 39;
 const Property::Index Actor::COLOR_MODE                 = 40;
 const Property::Index Actor::POSITION_INHERITANCE       = 41;
 const Property::Index Actor::DRAW_MODE                  = 42;
+const Property::Index Actor::SIZE_RELATIVE_TO_PARENT_MODE   = 43;
+const Property::Index Actor::SIZE_RELATIVE_TO_PARENT_FACTOR = 44;
 
 namespace // unnamed namespace
 {
@@ -160,6 +162,8 @@ const Internal::PropertyDetails DEFAULT_PROPERTY_DETAILS[] =
   { "color-mode",             Property::STRING,   true,    false,   false },  // COLOR_MODE
   { "position-inheritance",   Property::STRING,   true,    false,   false },  // POSITION_INHERITANCE
   { "draw-mode",              Property::STRING,   true,    false,   false },  // DRAW_MODE
+  { "size-relative-to-parent-mode",   Property::INTEGER,  true,    false,   false },  // SIZE_RELATIVE_TO_PARENT_MODE
+  { "size-relative-to-parent-factor", Property::VECTOR3,  true,    false,   false },  // SIZE_RELATIVE_TO_PARENT_FACTOR
 };
 const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( Internal::PropertyDetails );
 
@@ -1056,6 +1060,38 @@ void Actor::SetInheritRotation(bool inherit)
 bool Actor::IsRotationInherited() const
 {
   return mInheritRotation;
+}
+
+void Actor::SetSizeRelativeToParentMode(SizeRelativeToParentMode mode)
+{
+  // non animateable so keep local copy
+  mSizeRelativeToParentMode = mode;
+  if( NULL != mNode )
+  {
+    // mNode is being used in a separate thread; queue a message to set the value
+    SetSizeRelativeToParentModeMessage( mStage->GetUpdateInterface(), *mNode, mode );
+  }
+}
+
+void Actor::SetSizeRelativeToParentFactor(const Vector3& factor)
+{
+  // non animateable so keep local copy
+  mSizeRelativeToParentFactor = factor;
+  if( NULL != mNode )
+  {
+    // mNode is being used in a separate thread; queue a message to set the value
+    SetSizeRelativeToParentFactorMessage( mStage->GetUpdateInterface(), *mNode, factor );
+  }
+}
+
+SizeRelativeToParentMode Actor::GetSizeRelativeToParentMode() const
+{
+  return mSizeRelativeToParentMode;
+}
+
+const Vector3& Actor::GetSizeRelativeToParentFactor() const
+{
+  return mSizeRelativeToParentFactor;
 }
 
 void Actor::SetColorMode(ColorMode colorMode)
@@ -2031,6 +2067,7 @@ Actor::Actor( DerivedType derivedType )
   mGestureData( NULL ),
   mAttachment(),
   mSize( 0.0f, 0.0f, 0.0f ),
+  mSizeRelativeToParentFactor( Vector3::ONE ),
   mName(),
   mId( ++mActorCounter ), // actor ID is initialised to start from 1, and 0 is reserved
   mIsRoot( ROOT_LAYER == derivedType ),
@@ -2049,7 +2086,8 @@ Actor::Actor( DerivedType derivedType )
   mInheritScale( true ),
   mDrawMode( DrawMode::NORMAL ),
   mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ),
-  mColorMode( Node::DEFAULT_COLOR_MODE )
+  mColorMode( Node::DEFAULT_COLOR_MODE ),
+  mSizeRelativeToParentMode( Node::DEFAULT_SIZE_RELATIVE_TO_PARENT_MODE )
 {
 }
 
@@ -2603,6 +2641,18 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
       break;
     }
 
+    case Dali::Actor::SIZE_RELATIVE_TO_PARENT_MODE:
+    {
+      SetSizeRelativeToParentMode( (Dali::SizeRelativeToParentMode)property.Get<int>() );
+      break;
+    }
+
+    case Dali::Actor::SIZE_RELATIVE_TO_PARENT_FACTOR:
+    {
+      SetSizeRelativeToParentFactor( property.Get<Vector3>() );
+      break;
+    }
+
     case Dali::Actor::INHERIT_SCALE:
     {
       SetInheritScale( property.Get<bool>() );
@@ -2986,6 +3036,18 @@ Property::Value Actor::GetDefaultProperty(Property::Index index) const
     case Dali::Actor::INHERIT_ROTATION:
     {
       value = IsRotationInherited();
+      break;
+    }
+
+    case Dali::Actor::SIZE_RELATIVE_TO_PARENT_MODE:
+    {
+      value = GetSizeRelativeToParentMode();
+      break;
+    }
+
+    case Dali::Actor::SIZE_RELATIVE_TO_PARENT_FACTOR:
+    {
+      value = GetSizeRelativeToParentFactor();
       break;
     }
 

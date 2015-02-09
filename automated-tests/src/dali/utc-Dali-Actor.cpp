@@ -1165,6 +1165,106 @@ int UtcDaliActorInheritPosition(void)
   END_TEST;
 }
 
+int UtcDaliActorSizeRelativeToParentMode(void)
+{
+  tet_infoline("Testing Actor::SetSizeRelativeToParentMode");
+  TestApplication application;
+
+  // Create a parent and a child.
+  Actor parent = Actor::New();
+  parent.SetParentOrigin( ParentOrigin::CENTER );
+  parent.SetAnchorPoint( AnchorPoint::CENTER );
+  Vector3 parentPosition( 0.0f, 0.0f, 0.0f );
+  parent.SetPosition( parentPosition );
+  parent.SetSize( 10.0f, 20.0f, 40.0f );
+  parent.SetSizeRelativeToParentMode( SIZE_RELATIVE_TO_PARENT_DISABLED );
+  Stage::GetCurrent().Add( parent );
+
+  Actor child = Actor::New();
+  child.SetParentOrigin( ParentOrigin::CENTER );
+  child.SetAnchorPoint( AnchorPoint::CENTER );
+  Vector3 childPosition( 0.0f, 0.0f, 0.0f );
+  child.SetPosition( childPosition );
+  child.SetSize( 1.0f, 2.0f, 4.0f );
+  child.SetSizeRelativeToParentMode( SIZE_RELATIVE_TO_PARENT_DISABLED );
+  parent.Add( child );
+
+  // Flush the queue and render once.
+  application.SendNotification();
+  application.Render();
+
+  // Test SIZE_RELATIVE_TO_PARENT_DISABLED uses the user-set size value.
+  DALI_TEST_EQUALS( child.GetCurrentSize(), Vector3( 1.0f, 2.0f, 4.0f ), TEST_LOCATION );
+
+  // Test SIZE_EQUAL_TO_PARENT overrides size with the parents size.
+  child.SetSizeRelativeToParentMode( SIZE_EQUAL_TO_PARENT );
+
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( child.GetCurrentSize(), Vector3( 10.0f, 20.0f, 40.0f ), TEST_LOCATION );
+
+  // Test SIZE_RELATIVE_TO_PARENT overrides size with parents size * SizeRelativeToParentFactor.
+  // First check without setting a relative factor, to confirm that the default factor (of 1.0f) is used.
+  child.SetSizeRelativeToParentMode( SIZE_RELATIVE_TO_PARENT );
+
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( child.GetCurrentSize(), Vector3( 10.0f, 20.0f, 40.0f ), FLOAT_ACCURACY_THRESHOLD, TEST_LOCATION );
+
+  // Set an arbitary relative factor to check against.
+  child.SetSizeRelativeToParentFactor( Vector3( 2.0f, 3.0f, 4.0f ) );
+
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( child.GetCurrentSize(), Vector3( 20.0f, 60.0f, 160.0f ), FLOAT_ACCURACY_THRESHOLD, TEST_LOCATION );
+
+  // Test the calculation order in update by having a parent with a size-relative
+  // factor and a rotation rotate a child anchored to one of the parents corners.
+  //       .---. c
+  //   .-----. |          .-----.    The new child is parented from the top-left of its parent.
+  //   |   '-|-'  ----->  |     |    We rotate the parent to confirm that the relative size calculation is
+  //   |  p  |    Rotate  |   .-|-.  done before rotation. If it wasn't, the childs resultant
+  //   '-----'    parent  '-----' |  world-position would be incorrect.
+  //                90°       '---'
+  //
+  // Create a new parent and child, and a root parent which the parent can grab relative size from.
+  Actor rootParent = Actor::New();
+  rootParent.SetParentOrigin( ParentOrigin::CENTER );
+  rootParent.SetAnchorPoint( AnchorPoint::CENTER );
+  rootParent.SetPosition( Vector3( 0.0f, 0.0f, 0.0f ) );
+  rootParent.SetSize( 10.0f, 10.0f, 10.0f );
+  rootParent.SetSizeRelativeToParentMode( SIZE_RELATIVE_TO_PARENT_DISABLED );
+  Stage::GetCurrent().Add( rootParent );
+
+  Actor newParent = Actor::New();
+  newParent.SetParentOrigin( ParentOrigin::CENTER );
+  newParent.SetAnchorPoint( AnchorPoint::CENTER );
+  newParent.SetPosition( Vector3( 0.0f, 0.0f, 0.0f ) );
+  newParent.SetSize( 10.0f, 10.0f, 10.0f );
+  newParent.SetSizeRelativeToParentMode( SIZE_RELATIVE_TO_PARENT );
+  newParent.SetSizeRelativeToParentFactor( Vector3( 0.5f, 0.5f, 0.5f ) );
+  rootParent.Add( newParent );
+
+  Actor newChild = Actor::New();
+  newChild.SetParentOrigin( ParentOrigin::TOP_RIGHT );
+  newChild.SetAnchorPoint( AnchorPoint::CENTER );
+  newChild.SetPosition( Vector3( 0.0f, 0.0f, 0.0f ) );
+  newChild.SetSize( 1.0f, 1.0f, 1.0f );
+  newChild.SetSizeRelativeToParentMode( SIZE_RELATIVE_TO_PARENT_DISABLED );
+  newParent.Add( newChild );
+
+  // Set up the rotation by 90 degrees on Z.
+  newParent.RotateBy( Radian( M_PI * 0.5f ), Vector3::ZAXIS );
+
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( newParent.GetCurrentSize(), Vector3( 5.0f, 5.0f, 5.0f ), FLOAT_ACCURACY_THRESHOLD, TEST_LOCATION );
+  DALI_TEST_EQUALS( newParent.GetCurrentWorldPosition(), Vector3( 0.0f, 0.0f, 0.0f ), FLOAT_ACCURACY_THRESHOLD, TEST_LOCATION );
+  DALI_TEST_EQUALS( newChild.GetCurrentWorldPosition(), Vector3( 2.5f, 2.5f, 0.0f ), FLOAT_ACCURACY_THRESHOLD, TEST_LOCATION );
+
+  END_TEST;
+}
+
 // SetRotation(float angleRadians, Vector3 axis)
 int UtcDaliActorSetRotation01(void)
 {
@@ -3010,6 +3110,8 @@ const PropertyStringIndex PROPERTY_TABLE[] =
   { "color-mode",               Actor::COLOR_MODE,              Property::STRING      },
   { "position-inheritance",     Actor::POSITION_INHERITANCE,    Property::STRING      },
   { "draw-mode",                Actor::DRAW_MODE,               Property::STRING      },
+  { "size-relative-to-parent-mode",   Actor::SIZE_RELATIVE_TO_PARENT_MODE,   Property::STRING },
+  { "size-relative-to-parent-factor", Actor::SIZE_RELATIVE_TO_PARENT_FACTOR, Property::VECTOR3 },
 };
 const unsigned int PROPERTY_TABLE_COUNT = sizeof( PROPERTY_TABLE ) / sizeof( PROPERTY_TABLE[0] );
 } // unnamed namespace

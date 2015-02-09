@@ -35,6 +35,7 @@ namespace SceneGraph
 
 const PositionInheritanceMode Node::DEFAULT_POSITION_INHERITANCE_MODE( INHERIT_PARENT_POSITION );
 const ColorMode Node::DEFAULT_COLOR_MODE( USE_OWN_MULTIPLY_PARENT_ALPHA );
+const SizeRelativeToParentMode Node::DEFAULT_SIZE_RELATIVE_TO_PARENT_MODE( SIZE_RELATIVE_TO_PARENT_DISABLED );
 
 Node* Node::New()
 {
@@ -61,6 +62,7 @@ Node::Node()
   mChildren(),
   mGeometryScale( Vector3::ONE ),
   mInitialVolume( Vector3::ONE ),
+  mSizeRelativeToParentFactor( Vector3::ONE ),
   mDirtyFlags(AllFlags),
   mIsRoot( false ),
   mInheritRotation( true ),
@@ -70,7 +72,8 @@ Node::Node()
   mIsActive( true ),
   mDrawMode( DrawMode::NORMAL ),
   mPositionInheritanceMode( DEFAULT_POSITION_INHERITANCE_MODE ),
-  mColorMode( DEFAULT_COLOR_MODE )
+  mColorMode( DEFAULT_COLOR_MODE ),
+  mSizeRelativeToParentMode( DEFAULT_SIZE_RELATIVE_TO_PARENT_MODE )
 {
 }
 

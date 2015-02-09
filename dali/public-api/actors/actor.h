@@ -286,6 +286,8 @@ public:
   static const Property::Index COLOR_MODE;            ///< name "color-mode",            type STRING
   static const Property::Index POSITION_INHERITANCE;  ///< name "position-inheritance",  type STRING
   static const Property::Index DRAW_MODE;             ///< name "draw-mode",             type STRING
+  static const Property::Index SIZE_RELATIVE_TO_PARENT_MODE;    ///< name "size-relative-to-parent-mode", type INTEGER
+  static const Property::Index SIZE_RELATIVE_TO_PARENT_FACTOR;  ///< name "size-relative-to-parent-factor", type VECTOR3
   /** @} */
 
   /// @name Signals
@@ -919,6 +921,52 @@ public:
    * @return true if the actor inherit's it's parent scale, false if it uses world scale.
    */
   bool IsScaleInherited() const;
+
+  /**
+   * @brief Defines how a child actors size is affected by its parents size.
+   *
+   * The default is to ignore the parents size and use the size property of the this actor.
+   *
+   * If SIZE_RELATIVE_TO_PARENT_DISABLED is used, this option is bypassed and
+   *     the actors size property is used.
+   * If SIZE_EQUAL_TO_PARENT is used, this actors size will be equal to that
+   *     of its parent. The actors size property is ignored.
+   * If SIZE_RELATIVE_TO_PARENT is used, this actors size will be a based on
+   *     its parents size by multiplying the parent size by
+   *     SizeRelativeToParentFactor.
+   *
+   * @pre The Actor has been initialized.
+   * @param[in] mode The relative to parent mode to use.
+   */
+  void SetSizeRelativeToParentMode(const SizeRelativeToParentMode mode);
+
+  /**
+   * @brief Returns the actors mode for modifying its size related to its parent.
+   *
+   * @pre The Actor has been initialized.
+   * @return The mode used.
+   */
+  SizeRelativeToParentMode GetSizeRelativeToParentMode() const;
+
+  /**
+   * @brief Sets the relative to parent size factor of the actor.
+   *
+   * This factor is only used when SizeRelativeToParentMode is set to SIZE_RELATIVE_TO_PARENT.
+   * The actors parent size is multipled by this factor and the result
+   * overwrites the childs size.
+   *
+   * @pre The Actor has been initialized.
+   * @param [in] factor A vector representing the multiplication to be applied to each axis.
+   */
+  void SetSizeRelativeToParentFactor(const Vector3& factor);
+
+  /**
+   * @brief Retrieve the relative to parent size factor of the actor.
+   *
+   * @pre The Actor has been initialized.
+   * @return The Actors current relative size factor.
+   */
+  Vector3 GetSizeRelativeToParentFactor() const;
 
   /**
    * @brief Retrieves the world-matrix of the actor.

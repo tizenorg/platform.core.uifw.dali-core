@@ -501,6 +501,32 @@ public:
   bool IsRotationInherited() const;
 
   /**
+   * @brief Defines how a child actors size is affected by its parents size.
+   * @param[in] mode The size relative to parent mode to use.
+   */
+  void SetSizeRelativeToParentMode(SizeRelativeToParentMode mode);
+
+  /**
+   * Query how the child actors size is affected by its parents size.
+   * @return The size relative to parent mode in use.
+   */
+  SizeRelativeToParentMode GetSizeRelativeToParentMode() const;
+
+  /**
+   * Sets the factor of the parents size used for the child actor.
+   * Note: Only used if SizeRelativeToParentMode is SIZE_RELATIVE_TO_PARENT.
+   * @param[in] factor The vector to multiply the parents size by to get the childs size.
+   */
+  void SetSizeRelativeToParentFactor(const Vector3& factor);
+
+  /**
+   * Gets the factor of the parents size used for the child actor.
+   * Note: Only used if SizeRelativeToParentMode is SIZE_RELATIVE_TO_PARENT.
+   * @return The vector being used to multiply the parents size by to get the childs size.
+   */
+  const Vector3& GetSizeRelativeToParentFactor() const;
+
+  /**
    * @copydoc Dali::Actor::GetCurrentWorldRotation()
    */
   const Quaternion& GetCurrentWorldRotation() const;
@@ -1364,6 +1390,7 @@ protected:
   Dali::Actor::OffStageSignalType          mOffStageSignal;
 
   Vector3         mSize;      ///< Event-side storage for size (not a pointer as most actors will have a size)
+  Vector3         mSizeRelativeToParentFactor; ///< Factor of parent size if using SizeRelativeToParent.
 
   std::string     mName;      ///< Name of the actor
   unsigned int    mId;        ///< A unique ID to identify the actor starting from 1, and 0 is reserved
@@ -1385,6 +1412,7 @@ protected:
   DrawMode::Type mDrawMode                         : 2; ///< Cached: How the actor and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode : 2; ///< Cached: Determines how position is inherited
   ColorMode mColorMode                             : 2; ///< Cached: Determines whether mWorldColor is inherited
+  SizeRelativeToParentMode mSizeRelativeToParentMode:2; ///< Cached: Determines how the actors parent affects the actors size.
 
 private:
 

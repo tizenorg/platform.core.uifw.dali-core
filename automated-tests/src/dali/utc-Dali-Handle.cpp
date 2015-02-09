@@ -400,6 +400,7 @@ int UtcDaliHandleIsPropertyAConstraintInput(void)
   DALI_TEST_CHECK( true == actor.IsPropertyAConstraintInput( Actor::WORLD_POSITION_X ) );
   DALI_TEST_CHECK( true == actor.IsPropertyAConstraintInput( Actor::WORLD_POSITION_Y ) );
   DALI_TEST_CHECK( true == actor.IsPropertyAConstraintInput( Actor::WORLD_POSITION_Z ) );
+  DALI_TEST_CHECK( true == actor.IsPropertyAConstraintInput( Actor::SIZE_RELATIVE_TO_PARENT_FACTOR ) );
 
   // Actor properties that cannot be used as a constraint input
   DALI_TEST_CHECK( false == actor.IsPropertyAConstraintInput( Actor::NAME ) );
@@ -410,6 +411,7 @@ int UtcDaliHandleIsPropertyAConstraintInput(void)
   DALI_TEST_CHECK( false == actor.IsPropertyAConstraintInput( Actor::COLOR_MODE ) );
   DALI_TEST_CHECK( false == actor.IsPropertyAConstraintInput( Actor::POSITION_INHERITANCE ) );
   DALI_TEST_CHECK( false == actor.IsPropertyAConstraintInput( Actor::DRAW_MODE ) );
+  DALI_TEST_CHECK( false == actor.IsPropertyAConstraintInput( Actor::SIZE_RELATIVE_TO_PARENT_MODE ) );
 
   END_TEST;
 }
@@ -621,7 +623,7 @@ int UtcDaliHandleNonAnimtableCompositeProperties(void)
   valueMap.SetValue("key", 5.f);
   valueMap.SetValue("2key", "a string");
 
-  DALI_TEST_EQUALS( true, valueMap.HasKey("key"),         TEST_LOCATION);
+  DALI_TEST_EQUALS( true, valueMap.HasKey("key"),        TEST_LOCATION);
   DALI_TEST_EQUALS( "key", valueMap.GetKey(0),           TEST_LOCATION);
 
   DALI_TEST_EQUALS( true, valueMap.HasKey("2key"),       TEST_LOCATION);
@@ -633,8 +635,8 @@ int UtcDaliHandleNonAnimtableCompositeProperties(void)
   valueMap.SetItem(0, Property::Value("a string"));
   valueMap.SetItem(1, Property::Value(5.f));
 
-  DALI_TEST_EQUALS( 5.f,         valueMap.GetValue("2key").Get<float>(),         TEST_LOCATION);
-  DALI_TEST_EQUALS( "a string",  valueMap.GetValue("key").Get<std::string>(),  TEST_LOCATION);
+  DALI_TEST_EQUALS( 5.f,         valueMap.GetValue("2key").Get<float>(),        TEST_LOCATION);
+  DALI_TEST_EQUALS( "a string",  valueMap.GetValue("key").Get<std::string>(),   TEST_LOCATION);
 
   // ordered map
   valueMap = Property::Value(Property::MAP);

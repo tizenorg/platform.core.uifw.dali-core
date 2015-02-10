@@ -86,14 +86,14 @@ protected:
   virtual ~BaseObject();
 
   /**
-   * @brief Registers the object as created with the Object registry.
+   * @brief Notify the object as created.
    */
-  void RegisterObject();
+  void NotifyObjectCreate();
 
   /**
-   * @brief Unregisters the object from Object registry.
+   * @brief Notify the object as destroyed.
    */
-  void UnregisterObject();
+  void NotifyObjectDestroy();
 
 private:
 

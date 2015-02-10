@@ -33,7 +33,6 @@
 #include <dali/internal/event/common/property-notification-manager.h>
 #include <dali/internal/event/render-tasks/render-task-list-impl.h>
 #include <dali/internal/update/nodes/node.h>
-#include <dali/internal/event/common/object-registry-impl.h>
 #include <dali/integration-api/platform-abstraction.h>
 #include <dali/public-api/common/constants.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
@@ -70,8 +69,6 @@ StagePtr Stage::New( AnimationPlaylist& playlist,
 
 void Stage::Initialize()
 {
-  mObjectRegistry = ObjectRegistry::New();
-
   // Create the ordered list of layers
   mLayerList = LayerList::New( *this, false/*not system-level*/ );
 
@@ -98,6 +95,7 @@ void Stage::Uninitialize()
   if( mDefaultCamera )
   {
     Remove(*(mDefaultCamera.Get()));
+    mDefaultCamera.Reset();
   }
 
   if( mRootLayer )
@@ -116,11 +114,6 @@ StagePtr Stage::GetCurrent()
 bool Stage::IsInstalled()
 {
   return ThreadLocalStorage::Created();
-}
-
-ObjectRegistry& Stage::GetObjectRegistry()
-{
-  return *mObjectRegistry;
 }
 
 Layer& Stage::GetRootActor()
@@ -574,8 +567,6 @@ Stage::Stage( AnimationPlaylist& playlist,
 Stage::~Stage()
 {
   delete mSystemOverlay;
-
-  mObjectRegistry.Reset();
 }
 
 } // namespace Internal

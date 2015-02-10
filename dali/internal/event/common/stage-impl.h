@@ -25,7 +25,6 @@
 #include <dali/integration-api/context-notifier.h>
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/event/actors/layer-impl.h>
-#include <dali/internal/event/common/object-registry-impl.h>
 #include <dali/internal/event/common/stage-def.h>
 #include <dali/internal/event/render-tasks/render-task-defaults.h>
 #include <dali/internal/update/manager/update-manager.h>
@@ -105,11 +104,6 @@ public:
    * @copydoc Dali::Stage::IsInstalled().
    */
   static bool IsInstalled();
-
-  /**
-   * @copydoc Dali::Stage::GetObjectRegistry()
-   */
-  ObjectRegistry& GetObjectRegistry();
 
   /**
    * Retrieve the root actor (not publically accessible).
@@ -447,9 +441,6 @@ private:
   float mStereoBase;
 
   Vector2 mDpi;
-
-  // The object registry
-  ObjectRegistryPtr mObjectRegistry;
 
 #ifdef DYNAMICS_SUPPORT
 

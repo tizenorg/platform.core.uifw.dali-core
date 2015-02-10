@@ -25,6 +25,7 @@
 #include <dali/public-api/shader-effects/shader-effect.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/scripting/scripting.h>
+#include <dali/public-api/object/singleton-service.h>
 #include <dali/internal/event/effects/shader-declarations.h>
 #include <dali/internal/event/effects/shader-factory.h>
 #include <dali/internal/event/images/image-impl.h>
@@ -212,7 +213,7 @@ ShaderEffectPtr ShaderEffect::New( Dali::ShaderEffect::GeometryHints hints )
   UpdateManager& updateManager = tls.GetUpdateManager();
 
   ShaderEffectPtr shaderEffect( new ShaderEffect( updateManager, hints ) );
-  shaderEffect->RegisterObject();
+  shaderEffect->NotifyObjectCreate();
 
   return shaderEffect;
 }
@@ -239,8 +240,9 @@ ShaderEffect::~ShaderEffect()
     {
       RemoveShaderMessage( mUpdateManager, *mSceneObject );
     }
-    UnregisterObject();
   }
+
+  NotifyObjectDestroy();
 }
 
 void ShaderEffect::SetEffectImage( Dali::Image image )

@@ -20,8 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
+#include <dali/public-api/object/singleton-service.h>
 #include <dali/integration-api/debug.h>
-#include <dali/internal/event/common/object-registry-impl.h>
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/common/type-registry-impl.h>
 
@@ -36,20 +36,21 @@ BaseObject::~BaseObject()
 {
 }
 
-void BaseObject::RegisterObject()
+void BaseObject::NotifyObjectCreate()
 {
-  if( Internal::Stage::IsInstalled() )
+  Dali::SingletonService service( Dali::SingletonService::Get() );
+  if(service)
   {
-    Internal::Stage::GetCurrent()->GetObjectRegistry().RegisterObject( this );
+    service.NotifyObjectCreate( this );
   }
 }
 
-void BaseObject::UnregisterObject()
+void BaseObject::NotifyObjectDestroy()
 {
-  // Guard to allow handle destruction after Core has been destroyed
-  if( Internal::Stage::IsInstalled() )
+  Dali::SingletonService service( Dali::SingletonService::Get() );
+  if(service)
   {
-    Internal::Stage::GetCurrent()->GetObjectRegistry().UnregisterObject( this );
+    service.NotifyObjectDestroy( this );
   }
 }
 

@@ -56,7 +56,7 @@ ModelPtr Model::New(const std::string& name)
 {
   ModelPtr model(new Model(name));
 
-  model->RegisterObject();
+  model->NotifyObjectCreate();
 
   return model;
 }
@@ -79,7 +79,7 @@ Model::~Model()
   DALI_LOG_TRACE_METHOD(Debug::Filter::gModel);
   mTicket->RemoveObserver(*this);
 
-  UnregisterObject();
+  NotifyObjectDestroy();
 }
 
 void Model::ResourceLoadingFailed(const ResourceTicket& ticket)

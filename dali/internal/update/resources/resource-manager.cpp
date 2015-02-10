@@ -36,7 +36,6 @@
 #include <dali/internal/event/resources/resource-type-path.h>
 #include <dali/internal/event/resources/resource-client.h>
 
-#include <dali/internal/update/modeling/scene-graph-mesh.h>
 #include <dali/internal/update/common/discard-queue.h>
 #include <dali/internal/update/resources/bitmap-metadata.h>
 #include <dali/internal/render/queue/render-queue.h>
@@ -69,14 +68,6 @@ typedef NotifyQueue::iterator                    NotifyQueueIter;
 typedef std::map<ResourceId, BitmapMetadata>     BitmapMetadataCache;
 typedef BitmapMetadataCache::iterator            BitmapMetadataIter;
 typedef std::pair<ResourceId, BitmapMetadata>    BitmapMetadataPair;
-
-typedef std::map<ResourceId, ModelDataPtr>       ModelCache;
-typedef ModelCache::iterator                     ModelCacheIter;
-typedef std::pair<ResourceId, ModelDataPtr>      ModelDataPair;
-
-typedef std::map<ResourceId, SceneGraph::Mesh*>  MeshCache;
-typedef MeshCache::iterator                      MeshCacheIter;
-typedef std::pair<ResourceId, SceneGraph::Mesh*> MeshDataPair;
 
 typedef std::map<ResourceId, ShaderDataPtr>      ShaderCache;
 typedef ShaderCache::iterator                    ShaderCacheIter;
@@ -112,13 +103,6 @@ struct ResourceManager::ResourceManagerImpl
 
   ~ResourceManagerImpl()
   {
-    // Cleanup existing meshes
-    for( MeshCacheIter it = mMeshes.begin();
-         it != mMeshes.end();
-         ++it )
-    {
-      delete it->second;
-    }
   }
 
   PlatformAbstraction&     mPlatformAbstraction;
@@ -157,8 +141,6 @@ struct ResourceManager::ResourceManagerImpl
    * This is the resource cache. It's filled/emptied from within Core::Update()
    */
   BitmapMetadataCache mBitmapMetadata;
-  ModelCache          mModels;
-  MeshCache           mMeshes;
   ShaderCache         mShaders;
 };
 
@@ -357,22 +339,6 @@ void ResourceManager::HandleAllocateTextureRequest( ResourceId id, unsigned int 
   mImpl->mTextureCacheDispatcher.DispatchCreateTexture( id, width, height, pixelFormat, true /* true = clear the texture */ );
 }
 
-void ResourceManager::HandleAllocateMeshRequest( ResourceId id, MeshData* meshData )
-{
-  DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceManager: HandleAllocateMeshRequest(id:%u)\n", id);
-
-  SceneGraph::Mesh* renderableMesh(SceneGraph::Mesh::New(id, mImpl->mPostProcessResourceDispatcher, mImpl->mRenderQueue, meshData));
-
-  DALI_ASSERT_ALWAYS(renderableMesh && "renderableMesh not created");
-
-  // Add the ID to the completed set, and store the resource
-  mImpl->newCompleteRequests.insert(id);
-  mImpl->mMeshes.insert(MeshDataPair(id, renderableMesh));
-
-  // Let NotificationManager know that the resource manager needs to do some processing
-  NotifyTickets();
-}
-
 void ResourceManager::HandleLoadShaderRequest( ResourceId id, const ResourceTypePath& typePath )
 {
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceManager: HandleLoadShaderRequest(id:%u, path:%s)\n", id, typePath.path.c_str());
@@ -411,25 +377,6 @@ void ResourceManager::HandleUploadBitmapRequest( ResourceId destId, ResourceId s
   {
     mImpl->mTextureCacheDispatcher.DispatchUpdateTexture( destId, srcId, xOffset, yOffset );
   }
-}
-
-void ResourceManager::HandleUpdateMeshRequest( BufferIndex updateBufferIndex, ResourceId id, MeshData* meshData )
-{
-  DALI_ASSERT_DEBUG( mImpl->mResourceClient != NULL );
-  SceneGraph::Mesh* mesh = GetMesh( id );
-  DALI_ASSERT_DEBUG(mesh);
-
-  // Update the mesh data
-  mesh->SetMeshData( meshData );
-
-  // Update the GL buffers in the next Render
-  typedef MessageDoubleBuffered2< SceneGraph::Mesh, SceneGraph::Mesh::ThreadBuffer, OwnerPointer<MeshData> > DerivedType;
-
-  // Reserve some memory inside the render queue
-  unsigned int* slot = mImpl->mRenderQueue.ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
-
-  // Construct message in the mRenderer queue memory; note that delete should not be called on the return value
-  new (slot) DerivedType( mesh, &SceneGraph::Mesh::MeshDataUpdated, SceneGraph::Mesh::RENDER_THREAD, meshData );
 }
 
 void ResourceManager::HandleReloadResourceRequest( ResourceId id, const ResourceTypePath& typePath, LoadResourcePriority priority, bool resetFinishedStatus )
@@ -507,15 +454,6 @@ void ResourceManager::HandleSaveResourceRequest( ResourceId id, const ResourceTy
       case ResourceShader:
       {
         resource = GetShaderData(id);
-        break;
-      }
-      case ResourceModel:
-      {
-        resource = GetModelData(id);
-        break;
-      }
-      case ResourceMesh:
-      {
         break;
       }
     }
@@ -602,21 +540,6 @@ void ResourceManager::HandleDiscardResourceRequest( ResourceId deadId, ResourceT
 }
 
 /********************************************************************************
- ******************** Event thread object direct interface  *********************
- ********************************************************************************/
-
-ModelDataPtr ResourceManager::GetModelData(ResourceId id)
-{
-  ModelDataPtr modelData;
-  ModelCacheIter iter = mImpl->mModels.find(id);
-  if(iter != mImpl->mModels.end())
-  {
-    modelData = iter->second;
-  }
-  return modelData;
-}
-
-/********************************************************************************
  ******************** Update thread object direct interface  ********************
  ********************************************************************************/
 
@@ -682,19 +605,6 @@ BitmapMetadata ResourceManager::GetBitmapMetadata(ResourceId id)
   }
 
   return metadata;
-}
-
-Internal::SceneGraph::Mesh* ResourceManager::GetMesh(ResourceId id)
-{
-  SceneGraph::Mesh* mesh = NULL;
-  MeshCacheIter iter = mImpl->mMeshes.find(id);
-
-  if (iter != mImpl->mMeshes.end())
-  {
-    mesh = iter->second;
-  }
-
-  return mesh;
 }
 
 ShaderDataPtr ResourceManager::GetShaderData(ResourceId id)
@@ -795,16 +705,6 @@ void ResourceManager::LoadResponse( ResourceId id, ResourceTypeId type, Resource
         break;
       }
 
-      case ResourceModel:
-      {
-        mImpl->mModels.insert(ModelDataPair(id, static_cast<ModelData*>(resource.Get())));
-        break;
-      }
-
-      case ResourceMesh:
-      {
-        break;
-      }
     }
 
     // Let ResourceClient know that the resource manager has loaded something that its clients might want to hear about:
@@ -953,28 +853,6 @@ void ResourceManager::DiscardDeadResources( BufferIndex updateBufferIndex )
       case ResourceNativeImage:
       case ResourceTargetImage:
         break;
-
-      case ResourceModel:
-      {
-        ModelCacheIter model = mImpl->mModels.find(iter->first);
-        DALI_ASSERT_DEBUG( mImpl->mModels.end() != model );
-
-        // model data is owned through intrusive pointers so no need for discard queue
-        mImpl->mModels.erase( model );
-        break;
-      }
-
-      case ResourceMesh:
-      {
-        MeshCacheIter mesh = mImpl->mMeshes.find(iter->first);
-        DALI_ASSERT_DEBUG( mImpl->mMeshes.end() != mesh );
-        if( mImpl->mMeshes.end() != mesh )
-        {
-          mImpl->mDiscardQueue.Add( updateBufferIndex, mesh->second );
-          mImpl->mMeshes.erase( mesh );
-        }
-      }
-      break;
 
       case ResourceShader:
       {

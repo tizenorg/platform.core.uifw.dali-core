@@ -39,7 +39,6 @@ class NotificationManager;
 class ResourceClient;
 class ResourceManager;
 class ImageFactory;
-class ModelFactory;
 class ShaderFactory;
 class EventToUpdate;
 class GestureEventProcessor;
@@ -122,12 +121,6 @@ public:
    * @return reference to the Image Factory
    */
   ImageFactory& GetImageFactory();
-
-  /**
-   * Returns the Model Factory
-   * @return reference to the Image Factory
-   */
-  ModelFactory& GetModelFactory();
 
   /**
    * Returns the Shader Factory

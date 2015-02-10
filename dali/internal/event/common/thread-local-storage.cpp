@@ -109,11 +109,6 @@ ImageFactory& ThreadLocalStorage::GetImageFactory()
   return mCore->GetImageFactory();
 }
 
-ModelFactory& ThreadLocalStorage::GetModelFactory()
-{
-  return mCore->GetModelFactory();
-}
-
 ShaderFactory& ThreadLocalStorage::GetShaderFactory()
 {
   return mCore->GetShaderFactory();

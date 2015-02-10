@@ -136,25 +136,6 @@ inline void UpdateNodeOpacity( Node& node, int nodeDirtyFlags, BufferIndex updat
   }
 }
 
-inline void UpdateNodeGeometry( Node &node, int nodeDirtyFlags, BufferIndex updateBufferIndex )
-{
-  if ( nodeDirtyFlags & SizeFlag )
-  {
-    Vector3 geometryScale( 1.0f, 1.0f, 1.0f );
-
-    if ( node.GetTransmitGeometryScaling() )
-    {
-      const Vector3& requiredSize = node.GetSize( updateBufferIndex );
-      geometryScale = FitKeepAspectRatio( requiredSize, node.GetInitialVolume() );
-    }
-
-    if ( node.GetGeometryScale() != geometryScale )
-    {
-      node.SetGeometryScale( geometryScale );
-    }
-  }
-}
-
 inline void UpdateRootNodeTransformValues( Layer& rootNode, int nodeDirtyFlags, BufferIndex updateBufferIndex )
 {
   // If the transform values need to be reinherited
@@ -246,7 +227,6 @@ inline void UpdateNodeWorldMatrix( Node& node, RenderableAttachment& updatedRend
   {
     if( updatedRenderable.UsesGeometryScaling() )
     {
-      // scaling, i.e. Mesh
       Vector3 scaling;
       updatedRenderable.GetScaleForSize( node.GetSize( updateBufferIndex ), scaling );
       if( node.GetInhibitLocalTransform() )
@@ -377,8 +357,6 @@ inline int UpdateNodesAndAttachments( Node& node,
   DALI_ASSERT_DEBUG( NULL != layer );
 
   UpdateNodeOpacity( node, nodeDirtyFlags, updateBufferIndex );
-
-  UpdateNodeGeometry( node, nodeDirtyFlags, updateBufferIndex );
 
   UpdateNodeTransformValues( node, nodeDirtyFlags, updateBufferIndex );
 

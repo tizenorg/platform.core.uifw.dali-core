@@ -35,11 +35,8 @@
 #include <dali/internal/common/event-to-update.h>
 #include <dali/internal/common/message.h>
 #include <dali/internal/event/common/thread-local-storage.h>
-#include <dali/internal/event/modeling/model-data-impl.h>
 #include <dali/internal/event/resources/resource-client-declarations.h>
 #include <dali/internal/event/effects/shader-factory.h>
-#include <dali/internal/update/modeling/internal-mesh-data.h>
-#include <dali/internal/update/modeling/scene-graph-mesh-declarations.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/update/resources/bitmap-metadata.h>
 
@@ -238,13 +235,6 @@ public: // Used by ResourceClient
   void HandleAllocateTextureRequest( ResourceId id, unsigned int width, unsigned int height, Pixel::Format pixelFormat );
 
   /**
-   * Requests allocation of a mesh resource
-   * @param[in] id The resource id
-   * @param[in] meshData The mesh data
-   */
-  void HandleAllocateMeshRequest (ResourceId id, MeshData* meshData);
-
-  /**
    * Load a shader program from a file
    * @param[in] id The resource id
    * @param[in] typePath The type & path of the resource
@@ -268,14 +258,6 @@ public: // Used by ResourceClient
   void HandleUploadBitmapRequest( ResourceId destId, ResourceId srcId, std::size_t xOffset, std::size_t yOffset );
 
   /**
-   * Upload mesh buffer changes.
-   * @param[in] updateBufferIndex The current update buffer index.
-   * @param[in] id The ID of a Mesh resource.
-   * @param[in] meshData Newly allocated mesh data; ownership is taken.
-   */
-  void HandleUpdateMeshRequest( BufferIndex updateBufferIndex, ResourceId id, MeshData* meshData );
-
-  /**
    * Request reloading a resource from the native filesystem.
    * @param[in] id The resource id
    * @param[in] typePath The type & path of the resource
@@ -295,20 +277,6 @@ public: // Used by ResourceClient
    * Resource ticket has been discarded, throw away the actual resource
    */
   void HandleDiscardResourceRequest( ResourceId id, Integration::ResourceTypeId typeId );
-
-  /********************************************************************************
-   ******************** Event thread object direct interface  *********************
-   ********************************************************************************/
-
-  /**
-   * Called by model implementations which require access to the model
-   * data.
-   * @note Only called from event thread objects - ModelData is not used
-   * by update objects.
-   * @param[in] id - the id of a ModelData resource.
-   * @return the model data or NULL if it has not been loaded.
-   */
-  Internal::ModelDataPtr GetModelData(ResourceId id);
 
   /********************************************************************************
    ******************** Update thread object direct interface  ********************
@@ -333,14 +301,6 @@ public: // Used by ResourceClient
    * doesn't keep track of the resource
    */
   BitmapMetadata GetBitmapMetadata(ResourceId id);
-
-  /**
-   * Get the mesh data.
-   * @note Used by update thread objects (SceneGraph::Mesh) only
-   * @param[in] id - the id of a MeshData resource.
-   * @return the mesh data or NULL if this resource isn't valid
-   */
-  Internal::SceneGraph::Mesh* GetMesh(ResourceId id);
 
   /**
    * Returns the shader resource corresponding to the Id
@@ -521,20 +481,6 @@ inline void RequestAllocateTextureMessage(EventToUpdate& eventToUpdate,
   new (slot) LocalType( &manager, &ResourceManager::HandleAllocateTextureRequest, id, width, height, pixelFormat );
 }
 
-inline void RequestAllocateMeshMessage( EventToUpdate& eventToUpdate,
-                                        ResourceManager& manager,
-                                        ResourceId id,
-                                        OwnerPointer<MeshData>& meshData )
-{
-  typedef MessageValue2< ResourceManager, ResourceId, OwnerPointer<MeshData> > LocalType;
-
-  // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
-
-  // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &manager, &ResourceManager::HandleAllocateMeshRequest, id, meshData.Release() );
-}
-
 inline void RequestLoadShaderMessage( EventToUpdate& eventToUpdate,
                                       ResourceManager& manager,
                                       ResourceId id,
@@ -577,22 +523,6 @@ inline void RequestUploadBitmapMessage( EventToUpdate& eventToUpdate,
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &manager, &ResourceManager::HandleUploadBitmapRequest, destId, srcId, xOffset, yOffset );
-}
-
-inline void RequestUpdateMeshMessage( EventToUpdate& eventToUpdate,
-                                      ResourceManager& manager,
-                                      ResourceId id,
-                                      const Dali::MeshData& meshData,
-                                      ResourcePolicy::Discardable discardable )
-{
-  typedef MessageDoubleBuffered2< ResourceManager, ResourceId, OwnerPointer< MeshData > > LocalType;
-  // Reserve some memory inside the message queue
-  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
-
-  MeshData* internalMeshData = new MeshData( meshData, discardable, false );
-
-  // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &manager, &ResourceManager::HandleUpdateMeshRequest, id, internalMeshData );
 }
 
 inline void RequestReloadResourceMessage( EventToUpdate& eventToUpdate,

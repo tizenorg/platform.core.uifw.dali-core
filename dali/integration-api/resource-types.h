@@ -43,9 +43,7 @@ enum ResourceTypeId
   ResourceBitmap,
   ResourceNativeImage,
   ResourceTargetImage,
-  ResourceShader,
-  ResourceModel,
-  ResourceMesh
+  ResourceShader
 };
 
 /**
@@ -262,79 +260,6 @@ private:
 
   // Undefined assignment operator.
   ShaderResourceType& operator=(const ShaderResourceType& rhs);
-};
-
-/**
- * ModelResourceType describes a model resource, which can be requested
- * from PlatformAbstraction::LoadResource()
- */
-struct ModelResourceType : public ResourceType
-{
-  /**
-   * Constructor.
-   */
-  ModelResourceType()
-    : ResourceType(ResourceModel)
-  {
-  }
-
-  /**
-   * Destructor.
-   */
-  virtual ~ModelResourceType()
-  {
-  }
-
-  /**
-   * @copydoc ResourceType::Clone
-   */
-  virtual ResourceType* Clone() const
-  {
-    return new ModelResourceType();
-  }
-
-private:
-
-  // Undefined copy constructor.
-  ModelResourceType(const ModelResourceType& typePath);
-
-  // Undefined assignment operator.
-  ModelResourceType& operator=(const ModelResourceType& rhs);
-};
-
-
-/**
- * MeshResourceType describes a mesh program resource, which can be created
- * using ResourceManager::AllocateMesh.
- */
-struct MeshResourceType : public ResourceType
-{
-  /**
-   * Constructor.
-   */
-  MeshResourceType()
-  : ResourceType(ResourceMesh) {}
-
-  /**
-   * Destructor.
-   */
-  virtual ~MeshResourceType() {}
-
-  /**
-   * @copydoc ResourceType::Clone
-   */
-  virtual ResourceType* Clone() const
-  {
-    return new MeshResourceType();
-  }
-
-private:
-
-  // Undefined copy constructor.
-  MeshResourceType(const MeshResourceType& typePath);
-
-  // Undefined assignment operator.
-  MeshResourceType& operator=(const MeshResourceType& rhs);
 };
 
 } // namespace Integration

@@ -127,7 +127,6 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/constrainable.h>
 #include <dali/public-api/object/handle.h>
-#include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/object/property-conditions.h>
 #include <dali/public-api/object/property-index.h>
 #include <dali/public-api/object/property-input.h>
@@ -138,6 +137,7 @@
 #include <dali/public-api/object/property-value.h>
 #include <dali/public-api/object/property.h>
 #include <dali/public-api/object/ref-object.h>
+#include <dali/public-api/object/singleton-service.h>
 #include <dali/public-api/object/type-info.h>
 #include <dali/public-api/object/type-registry.h>
 

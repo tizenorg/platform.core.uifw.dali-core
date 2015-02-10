@@ -30,6 +30,7 @@
 #include <dali/public-api/math/vector3.h>
 #include <dali/public-api/math/radian.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/public-api/object/singleton-service.h>
 #include <dali/public-api/scripting/scripting.h>
 
 #include <dali/internal/common/internal-constants.h>
@@ -2065,7 +2066,7 @@ void Actor::Initialize()
 
   OnInitialize();
 
-  RegisterObject();
+  mStage->GetBaseObjectLifetime().NotifyCreation(this);
 }
 
 Actor::~Actor()
@@ -2092,8 +2093,9 @@ Actor::~Actor()
       mNode = NULL; // Node is about to be destroyed
     }
 
-    UnregisterObject();
   }
+
+  mStage->GetBaseObjectLifetime().NotifyDestruction(this);
 
 #ifdef DYNAMICS_SUPPORT
   // Cleanup dynamics

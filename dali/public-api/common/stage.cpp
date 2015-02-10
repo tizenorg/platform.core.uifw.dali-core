@@ -24,7 +24,6 @@
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/common/core-impl.h>
 #include <dali/public-api/actors/layer.h>
-#include <dali/public-api/object/object-registry.h>
 
 #include <dali/public-api/dynamics/dynamics-world.h>
 #include <dali/public-api/dynamics/dynamics-world-config.h>
@@ -129,13 +128,6 @@ Vector4 Stage::GetBackgroundColor() const
 Vector2 Stage::GetDpi() const
 {
   return GetImplementation(*this).GetDpi();
-}
-
-ObjectRegistry Stage::GetObjectRegistry() const
-{
-  Internal::ObjectRegistry& internal = Internal::Stage::GetCurrent()->GetObjectRegistry();
-
-  return ObjectRegistry(&internal);
 }
 
 DynamicsWorld Stage::InitializeDynamics(DynamicsWorldConfig config)

@@ -24,6 +24,7 @@
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/event/animation/animation-playlist-declarations.h>
 #include <dali/internal/event/common/stage-def.h>
+#include <dali/internal/event/object/base-object-lifetime.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/public-api/common/view-mode.h>
 #include <dali/integration-api/resource-policies.h>
@@ -318,6 +319,7 @@ private:
 
   bool                                      mIsActive         : 1;        ///< Whether Core is active or suspended
   bool                                      mProcessingEvent  : 1;        ///< True during ProcessEvents()
+  BaseObjectLifetimePtr                     mBaseObjectLifetimePtr;       ///< Object lifetime notification
 
   friend class ThreadLocalStorage;
 

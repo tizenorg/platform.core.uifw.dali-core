@@ -33,7 +33,6 @@
 #include <dali/internal/event/common/property-notification-manager.h>
 #include <dali/internal/event/render-tasks/render-task-list-impl.h>
 #include <dali/internal/update/nodes/node.h>
-#include <dali/internal/event/common/object-registry-impl.h>
 #include <dali/integration-api/platform-abstraction.h>
 #include <dali/public-api/common/constants.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
@@ -63,15 +62,14 @@ const float DEFAULT_STEREO_BASE( 65.0f );
 StagePtr Stage::New( AnimationPlaylist& playlist,
                      PropertyNotificationManager& propertyNotificationManager,
                      SceneGraph::UpdateManager& updateManager,
-                     NotificationManager& notificationManager )
+                     NotificationManager& notificationManager,
+                     BaseObjectLifetime& objectLifetime)
 {
-  return StagePtr( new Stage( playlist, propertyNotificationManager, updateManager, notificationManager ) );
+  return StagePtr( new Stage( playlist, propertyNotificationManager, updateManager, notificationManager, objectLifetime ) );
 }
 
 void Stage::Initialize()
 {
-  mObjectRegistry = ObjectRegistry::New();
-
   // Create the ordered list of layers
   mLayerList = LayerList::New( *this, false/*not system-level*/ );
 
@@ -98,6 +96,7 @@ void Stage::Uninitialize()
   if( mDefaultCamera )
   {
     Remove(*(mDefaultCamera.Get()));
+    mDefaultCamera.Reset();
   }
 
   if( mRootLayer )
@@ -116,11 +115,6 @@ StagePtr Stage::GetCurrent()
 bool Stage::IsInstalled()
 {
   return ThreadLocalStorage::Created();
-}
-
-ObjectRegistry& Stage::GetObjectRegistry()
-{
-  return *mObjectRegistry;
 }
 
 Layer& Stage::GetRootActor()
@@ -552,14 +546,21 @@ void Stage::NotifyContextRegained()
   mContextRegainedSignal.Emit();
 }
 
+BaseObjectLifetime& Stage::GetBaseObjectLifetime()
+{
+  return mBaseObjectLifetime;
+}
+
 Stage::Stage( AnimationPlaylist& playlist,
               PropertyNotificationManager& propertyNotificationManager,
               SceneGraph::UpdateManager& updateManager,
-              NotificationManager& notificationManager )
+              NotificationManager& notificationManager,
+              BaseObjectLifetime& objectLifetimeNotification)
 : mAnimationPlaylist( playlist ),
   mPropertyNotificationManager(propertyNotificationManager),
   mUpdateManager(updateManager),
   mNotificationManager(notificationManager),
+  mBaseObjectLifetime(objectLifetimeNotification),
   mSize(Vector2::ZERO),
   mBackgroundColor(Dali::Stage::DEFAULT_BACKGROUND_COLOR),
   mViewMode( MONO ),
@@ -574,8 +575,6 @@ Stage::Stage( AnimationPlaylist& playlist,
 Stage::~Stage()
 {
   delete mSystemOverlay;
-
-  mObjectRegistry.Reset();
 }
 
 } // namespace Internal

@@ -25,9 +25,9 @@
 #include <dali/integration-api/context-notifier.h>
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/event/actors/layer-impl.h>
-#include <dali/internal/event/common/object-registry-impl.h>
 #include <dali/internal/event/common/stage-def.h>
 #include <dali/internal/event/render-tasks/render-task-defaults.h>
+#include <dali/internal/event/object/base-object-lifetime.h>
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/public-api/common/view-mode.h>
 #include <dali/public-api/math/vector2.h>
@@ -84,7 +84,8 @@ public:
   static StagePtr New( AnimationPlaylist& playlist,
                        PropertyNotificationManager& propertyNotificationManager,
                        SceneGraph::UpdateManager& updateManager,
-                       NotificationManager& notificationManager );
+                       NotificationManager& notificationManager,
+                       BaseObjectLifetime& objectLifetimeNotification);
 
   /**
    * Initialize the stage.
@@ -105,11 +106,6 @@ public:
    * @copydoc Dali::Stage::IsInstalled().
    */
   static bool IsInstalled();
-
-  /**
-   * @copydoc Dali::Stage::GetObjectRegistry()
-   */
-  ObjectRegistry& GetObjectRegistry();
 
   /**
    * Retrieve the root actor (not publically accessible).
@@ -392,6 +388,11 @@ public:
    */
   Dali::Stage::SceneCreatedSignalType& SceneCreatedSignal();
 
+  /**
+   * The stage holds the base object notifier
+   */
+  BaseObjectLifetime& GetBaseObjectLifetime();
+
 private: // Implementation of ContextNotificationInterface:
 
   /**
@@ -412,7 +413,8 @@ private:
   Stage( AnimationPlaylist& playlist,
          PropertyNotificationManager& propertyNotificationManager,
          SceneGraph::UpdateManager& updateManager,
-         NotificationManager& notificationManager );
+         NotificationManager& notificationManager,
+         BaseObjectLifetime& objectLifetime);
 
   /**
    * A reference counted object may only be deleted by calling Unreference()
@@ -429,6 +431,8 @@ private:
   SceneGraph::UpdateManager& mUpdateManager;
 
   NotificationManager& mNotificationManager;
+
+  BaseObjectLifetime& mBaseObjectLifetime; // object notification handler
 
   // The Actual size of the stage.
   Vector2 mSize;
@@ -447,9 +451,6 @@ private:
   float mStereoBase;
 
   Vector2 mDpi;
-
-  // The object registry
-  ObjectRegistryPtr mObjectRegistry;
 
 #ifdef DYNAMICS_SUPPORT
 
@@ -484,6 +485,7 @@ private:
   Dali::Stage::ContextStatusSignal mContextRegainedSignal;
 
   Dali::Stage::SceneCreatedSignalType mSceneCreatedSignal;
+
 };
 
 } // namespace Internal

@@ -57,7 +57,6 @@ SET(TC_SOURCES
         utc-Dali-Model.cpp
         utc-Dali-MouseWheelEvent.cpp
         utc-Dali-NinePatchImages.cpp
-        utc-Dali-ObjectRegistry.cpp
         utc-Dali-PanGesture.cpp
         utc-Dali-PanGestureDetector.cpp
         utc-Dali-Path.cpp
@@ -77,6 +76,7 @@ SET(TC_SOURCES
         utc-Dali-Scripting.cpp
         utc-Dali-SignalTemplatesFunctors.cpp
         utc-Dali-SignalTemplates.cpp
+		  utc-Dali-SingletonService.cpp
         utc-Dali-Spline.cpp
         utc-Dali-Stage.cpp
         utc-Dali-TapGesture.cpp

@@ -57,10 +57,10 @@ BitmapImage& BitmapImage::operator=(const BitmapImage& rhs)
 
 const BitmapImage BitmapImage::WHITE()
 {
-  Internal::BitmapImage* internal = new Internal::BitmapImage(1,1,Pixel::RGBA8888, Immediate, Never);
+  Internal::BitmapImagePtr internal = Internal::BitmapImage::New(1,1,Pixel::RGBA8888, Immediate, Never);
   PixelBuffer* pBuf = internal->GetBuffer();
   pBuf[0] = pBuf[1] = pBuf[2] = pBuf[3] = 0xFF;
-  return BitmapImage(internal);
+  return BitmapImage(internal.Get());
 }
 
 BitmapImage BitmapImage::New(unsigned int width, unsigned int height, Pixel::Format pixelformat)

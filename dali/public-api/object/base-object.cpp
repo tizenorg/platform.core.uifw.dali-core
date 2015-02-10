@@ -18,39 +18,64 @@
 // CLASS HEADER
 #include <dali/public-api/object/base-object.h>
 
+// EXTERNAL INCLUDES
+#include <boost/thread/tss.hpp>
+
 // INTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/public-api/object/singleton-service.h>
 #include <dali/integration-api/debug.h>
-#include <dali/internal/event/common/object-registry-impl.h>
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/common/type-registry-impl.h>
+#include <dali/internal/event/object/base-object-lifetime.h>
+
+namespace
+{
+  Dali::Internal::BaseObjectLifetime baseObjectLifetime;
+}
 
 namespace Dali
 {
 
+namespace Internal
+{
+
+void CheckBaseObjectLifetimeCount()
+{
+  baseObjectLifetime.CheckBaseObjectLifetimeCount();
+}
+
+};
+
+
 BaseObject::BaseObject()
 {
+
 }
 
 BaseObject::~BaseObject()
 {
 }
 
-void BaseObject::RegisterObject()
+void BaseObject::NotifyCreation()
 {
-  if( Internal::Stage::IsInstalled() )
-  {
-    Internal::Stage::GetCurrent()->GetObjectRegistry().RegisterObject( this );
-  }
+  baseObjectLifetime.NotifyCreation(this);
 }
 
-void BaseObject::UnregisterObject()
+void BaseObject::NotifyDestruction()
 {
-  // Guard to allow handle destruction after Core has been destroyed
-  if( Internal::Stage::IsInstalled() )
-  {
-    Internal::Stage::GetCurrent()->GetObjectRegistry().UnregisterObject( this );
-  }
+  baseObjectLifetime.NotifyDestruction(this);
+}
+
+BaseObject::ObjectCreatedSignalType& BaseObject::ObjectCreatedSignal()
+{
+  return baseObjectLifetime.ObjectCreatedSignal();
+}
+
+BaseObject::ObjectDestroyedSignalType& BaseObject::ObjectDestroyedSignal()
+{
+  return baseObjectLifetime.ObjectDestroyedSignal();
 }
 
 bool BaseObject::DoAction(const std::string& actionName, const std::vector<Property::Value>& attributes)

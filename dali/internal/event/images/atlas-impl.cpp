@@ -82,6 +82,9 @@ Atlas::Atlas( std::size_t width,
   {
     AllocateAtlas();
   }
+
+  // Initialize();
+
 }
 
 void Atlas::Connect()

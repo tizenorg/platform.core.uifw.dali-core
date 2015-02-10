@@ -23,11 +23,10 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/property.h>
 #include <dali/public-api/signals/functor-delegate.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
-
-class BaseHandle;
 
 /**
  * @brief A base class for objects.
@@ -86,14 +85,62 @@ protected:
   virtual ~BaseObject();
 
   /**
-   * @brief Registers the object as created with the Object registry.
+   * @brief Notify the object as created.
+   *
+   * Some derived objects, eg Actors, Images will notify their creation with this function
    */
-  void RegisterObject();
+  void NotifyCreation();
 
   /**
-   * @brief Unregisters the object from Object registry.
+   * @brief Notify the object as destroyed.
    */
-  void UnregisterObject();
+  void NotifyDestruction();
+
+public:
+  /**
+   * @brief Object created signal
+   */
+  typedef Signal<  void (BaseHandle) > ObjectCreatedSignalType;
+
+  /**
+   * @brief Object destroyed signal
+   */
+  typedef Signal<  void (const Dali::RefObject*) > ObjectDestroyedSignalType;
+
+  /**
+   * @brief This signal is emitted when (some) derived objects are created.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(BaseHandle object);
+   * @endcode
+   * @pre The Object has been initialized.
+   * @return The signal to connect to.
+   */
+  static ObjectCreatedSignalType& ObjectCreatedSignal();
+
+  /**
+   * @brief This signal is emitted when (some) derived objects are destroyed.
+   *
+   * WARNING: Since this signal is emitted when the object is
+   * in the process of being destroyed, the RefObject pointer
+   * passed in the signal should not be modified in anyways.
+   * And should NOT be used to create an handle. which will
+   * affect the life time of this destroyed object and leads to
+   * undefined behaviour.
+   *
+   * The only intended use is for Toolkit controls which want to
+   * keep track of objects being created and destroyed for internal
+   * bookkeeping.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(const Dali::RefObject* objectPointer);
+   * @endcode
+   * @pre The Object has been initialized.
+   * @return The signal to connect to.
+   */
+  static ObjectDestroyedSignalType& ObjectDestroyedSignal();
 
 private:
 

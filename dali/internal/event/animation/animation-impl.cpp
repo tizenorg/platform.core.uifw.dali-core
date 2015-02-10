@@ -109,7 +109,7 @@ void Animation::Initialize()
 
   CreateSceneObject();
 
-  RegisterObject();
+  NotifyCreation();
 }
 
 Animation::~Animation()
@@ -122,8 +122,9 @@ Animation::~Animation()
 
     DestroySceneObject();
 
-    UnregisterObject();
   }
+
+  NotifyDestruction();
 }
 
 void Animation::CreateSceneObject()

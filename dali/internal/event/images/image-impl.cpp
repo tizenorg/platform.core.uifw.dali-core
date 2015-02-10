@@ -129,10 +129,7 @@ Image::~Image()
     }
   }
 
-  if( Stage::IsInstalled() )
-  {
-    UnregisterObject();
-  }
+  NotifyDestruction();
 }
 
 bool Image::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
@@ -296,7 +293,7 @@ void Image::Disconnect()
 
 void Image::Initialize()
 {
-  RegisterObject();
+  NotifyCreation();
 }
 
 void Image::SetTicket( ResourceTicket* ticket )

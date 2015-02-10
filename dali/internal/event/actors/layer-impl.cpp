@@ -95,6 +95,8 @@ LayerPtr Layer::NewRoot( Stage& stage, LayerList& layerList, UpdateManager& mana
   root->mLayerList = &layerList;
   layerList.RegisterLayer( *root );
 
+  root->NotifyCreation();
+
   return root;
 }
 

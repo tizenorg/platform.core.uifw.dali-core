@@ -32,7 +32,6 @@ class Stage;
 
 class Actor;
 class Layer;
-class ObjectRegistry;
 class RenderTaskList;
 struct Vector2;
 struct Vector3;
@@ -198,13 +197,6 @@ public:
    * @return the horizontal and vertical DPI
    */
   Vector2 GetDpi() const;
-
-  /**
-   * @brief Get the Object registry.
-   *
-   * @return The object registry.
-   */
-  ObjectRegistry GetObjectRegistry() const;
 
   // Dynamics
 

@@ -19,6 +19,7 @@
 #include <dali/internal/common/core-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/event/object/singleton-service-impl.h>
 #include <dali/integration-api/system-overlay.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/debug.h>
@@ -66,6 +67,7 @@ const unsigned int MAXIMUM_UPDATE_COUNT = 2u;
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gCoreFilter = Debug::Filter::New(Debug::Concise, false, "LOG_CORE");
 #endif
+
 }
 
 namespace Dali
@@ -73,6 +75,8 @@ namespace Dali
 
 namespace Internal
 {
+
+extern void CheckBaseObjectLifetimeCount();
 
 using Integration::RenderController;
 using Integration::PlatformAbstraction;
@@ -156,7 +160,7 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
 
   mResourceClient = new ResourceClient( *mResourceManager, *mUpdateManager, dataRetentionPolicy );
 
-  mStage = IntrusivePtr<Stage>( Stage::New( *mAnimationPlaylist, *mPropertyNotificationManager, *mUpdateManager, *mNotificationManager ) );
+  mStage = IntrusivePtr<Stage>( Stage::New( *mAnimationPlaylist, *mPropertyNotificationManager, *mUpdateManager, *mNotificationManager) );
 
   mStage->Initialize();
 
@@ -184,7 +188,6 @@ Core::~Core()
   /*
    * The order of destructing these singletons is important!!!
    */
-
   // clear the thread local storage first
   // allows core to be created / deleted many times in the same thread (how TET cases work).
   // Do this before mStage.Reset() so Stage::IsInstalled() returns false
@@ -211,6 +214,12 @@ Core::~Core()
   delete mRenderManager;
   delete mDiscardQueue;
   delete mResourcePostProcessQueue;
+
+
+  SingletonService::Get()->Release();
+
+  CheckBaseObjectLifetimeCount();
+
 }
 
 Integration::ContextNotifierInterface* Core::GetContextNotifier()

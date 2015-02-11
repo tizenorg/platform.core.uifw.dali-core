@@ -497,11 +497,6 @@ Actor::MouseWheelEventSignalType& Actor::MouseWheelEventSignal()
   return GetImplementation(*this).MouseWheelEventSignal();
 }
 
-Actor::SetSizeSignalType& Actor::SetSizeSignal()
-{
-  return GetImplementation(*this).SetSizeSignal();
-}
-
 Actor::OnStageSignalType& Actor::OnStageSignal()
 {
   return GetImplementation(*this).OnStageSignal();

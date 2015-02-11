@@ -1106,14 +1106,6 @@ void Actor::SetSize(const Vector3& size)
 
     // Notification for derived classes
     OnSizeSet( mSize );
-
-    // Emit signal for application developer
-
-    if( !mSetSizeSignal.Empty() )
-    {
-      Dali::Actor handle( this );
-      mSetSizeSignal.Emit( handle, mSize );
-    }
   }
 }
 
@@ -1965,11 +1957,6 @@ Dali::Actor::MouseWheelEventSignalType& Actor::MouseWheelEventSignal()
   return mMouseWheelEventSignal;
 }
 
-Dali::Actor::SetSizeSignalType& Actor::SetSizeSignal()
-{
-  return mSetSizeSignal;
-}
-
 Dali::Actor::OnStageSignalType& Actor::OnStageSignal()
 {
   return mOnStageSignal;
@@ -1996,10 +1983,6 @@ bool Actor::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tra
   else if(Dali::Actor::SIGNAL_MOUSE_WHEEL_EVENT == signalName)
   {
     actor->MouseWheelEventSignal().Connect( tracker, functor );
-  }
-  else if(Dali::Actor::SIGNAL_SET_SIZE == signalName)
-  {
-    actor->SetSizeSignal().Connect( tracker, functor );
   }
   else if(Dali::Actor::SIGNAL_ON_STAGE == signalName)
   {

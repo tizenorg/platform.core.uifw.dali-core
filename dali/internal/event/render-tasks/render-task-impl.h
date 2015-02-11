@@ -453,7 +453,7 @@ inline Internal::RenderTask& GetImplementation(Dali::RenderTask& task)
 
   BaseObject& handle = task.GetBaseObject();
 
-  return static_cast<Internal::RenderTask&>(handle);
+  return dynamic_cast<Internal::RenderTask&>(handle);
 }
 
 inline const Internal::RenderTask& GetImplementation(const Dali::RenderTask& task)
@@ -462,7 +462,7 @@ inline const Internal::RenderTask& GetImplementation(const Dali::RenderTask& tas
 
   const BaseObject& handle = task.GetBaseObject();
 
-  return static_cast<const Internal::RenderTask&>(handle);
+  return dynamic_cast<const Internal::RenderTask&>(handle);
 }
 
 } // namespace Dali

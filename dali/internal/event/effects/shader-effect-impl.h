@@ -245,7 +245,7 @@ inline Internal::ShaderEffect& GetImplementation(Dali::ShaderEffect& effect)
 
   BaseObject& handle = effect.GetBaseObject();
 
-  return static_cast<Internal::ShaderEffect&>(handle);
+  return dynamic_cast<Internal::ShaderEffect&>(handle);
 }
 
 inline const Internal::ShaderEffect& GetImplementation(const Dali::ShaderEffect& effect)
@@ -254,7 +254,7 @@ inline const Internal::ShaderEffect& GetImplementation(const Dali::ShaderEffect&
 
   const BaseObject& handle = effect.GetBaseObject();
 
-  return static_cast<const Internal::ShaderEffect&>(handle);
+  return dynamic_cast<const Internal::ShaderEffect&>(handle);
 }
 
 } // namespace Dali

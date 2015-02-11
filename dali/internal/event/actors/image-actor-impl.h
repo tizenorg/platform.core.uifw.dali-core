@@ -262,7 +262,7 @@ inline Internal::ImageActor& GetImplementation(Dali::ImageActor& image)
 
   BaseObject& handle = image.GetBaseObject();
 
-  return static_cast<Internal::ImageActor&>(handle);
+  return dynamic_cast<Internal::ImageActor&>(handle);
 }
 
 inline const Internal::ImageActor& GetImplementation(const Dali::ImageActor& image)
@@ -271,7 +271,7 @@ inline const Internal::ImageActor& GetImplementation(const Dali::ImageActor& ima
 
   const BaseObject& handle = image.GetBaseObject();
 
-  return static_cast<const Internal::ImageActor&>(handle);
+  return dynamic_cast<const Internal::ImageActor&>(handle);
 }
 
 } // namespace Dali

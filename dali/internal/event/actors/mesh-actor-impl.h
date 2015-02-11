@@ -171,7 +171,7 @@ inline Internal::MeshActor& GetImplementation(Dali::MeshActor& meshActor)
 
   BaseObject& handle = meshActor.GetBaseObject();
 
-  return static_cast<Internal::MeshActor&>(handle);
+  return dynamic_cast<Internal::MeshActor&>(handle);
 }
 
 inline const Internal::MeshActor& GetImplementation(const Dali::MeshActor& meshActor)
@@ -180,7 +180,7 @@ inline const Internal::MeshActor& GetImplementation(const Dali::MeshActor& meshA
 
   const BaseObject& handle = meshActor.GetBaseObject();
 
-  return static_cast<const Internal::MeshActor&>(handle);
+  return dynamic_cast<const Internal::MeshActor&>(handle);
 }
 
 } // namespace Internal

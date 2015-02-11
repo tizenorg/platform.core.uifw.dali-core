@@ -39,7 +39,7 @@ class PropertyCondition;
  * The concrete derived class is responsible for implementing the property system methods.
  * Classes may derive from Dali::BaseObject, until any properties are required.
  */
-class Object : public Dali::BaseObject
+class Object : public virtual Dali::BaseObject
 {
 public:
 
@@ -162,7 +162,7 @@ inline Internal::Object& GetImplementation(Dali::Handle& object)
 
   BaseObject& handle = object.GetBaseObject();
 
-  return static_cast<Internal::Object&>(handle);
+  return dynamic_cast<Internal::Object&>(handle);
 }
 
 inline const Internal::Object& GetImplementation(const Dali::Handle& object)
@@ -171,7 +171,7 @@ inline const Internal::Object& GetImplementation(const Dali::Handle& object)
 
   const BaseObject& handle = object.GetBaseObject();
 
-  return static_cast<const Internal::Object&>(handle);
+  return dynamic_cast<const Internal::Object&>(handle);
 }
 
 } // namespace Dali

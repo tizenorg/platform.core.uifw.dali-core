@@ -262,14 +262,16 @@ inline Internal::Path& GetImplementation(Dali::Path& path)
 {
   DALI_ASSERT_ALWAYS( path && "Path handle is empty" );
   Dali::RefObject& object = path.GetBaseObject();
-  return static_cast<Internal::Path&>(object);
+
+  return dynamic_cast<Internal::Path&>(object);
 }
 
 inline const Internal::Path& GetImplementation(const Dali::Path& path)
 {
   DALI_ASSERT_ALWAYS( path && "Path handle is empty" );
   const Dali::RefObject& object = path.GetBaseObject();
-  return static_cast<const Internal::Path&>(object);
+
+  return dynamic_cast<const Internal::Path&>(object);
 }
 
 

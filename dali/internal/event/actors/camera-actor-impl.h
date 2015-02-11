@@ -271,7 +271,7 @@ inline Internal::CameraActor& GetImplementation(Dali::CameraActor& camera)
 
   BaseObject& handle = camera.GetBaseObject();
 
-  return static_cast<Internal::CameraActor&>(handle);
+  return dynamic_cast<Internal::CameraActor&>(handle);
 }
 
 inline const Internal::CameraActor& GetImplementation(const Dali::CameraActor& camera)
@@ -280,7 +280,7 @@ inline const Internal::CameraActor& GetImplementation(const Dali::CameraActor& c
 
   const BaseObject& handle = camera.GetBaseObject();
 
-  return static_cast<const Internal::CameraActor&>(handle);
+  return dynamic_cast<const Internal::CameraActor&>(handle);
 }
 
 } // namespace Dali

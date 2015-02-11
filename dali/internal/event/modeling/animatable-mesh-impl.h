@@ -239,14 +239,16 @@ inline Internal::AnimatableMesh& GetImplementation(Dali::AnimatableMesh& animata
 {
   DALI_ASSERT_ALWAYS(animatableMesh && "AnimatableMesh handle is empty");
   BaseObject& handle = animatableMesh.GetBaseObject();
-  return static_cast<Internal::AnimatableMesh&>(handle);
+
+  return dynamic_cast<Internal::AnimatableMesh&>(handle);
 }
 
 inline const Internal::AnimatableMesh& GetImplementation(const Dali::AnimatableMesh& animatableMesh)
 {
   DALI_ASSERT_ALWAYS(animatableMesh && "AnimatableMesh handle is empty");
   const BaseObject& handle = animatableMesh.GetBaseObject();
-  return static_cast<const Internal::AnimatableMesh&>(handle);
+
+  return dynamic_cast<const Internal::AnimatableMesh&>(handle);
 }
 
 }//Dali

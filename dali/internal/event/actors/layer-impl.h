@@ -298,7 +298,7 @@ inline Internal::Layer& GetImplementation(Dali::Layer& layer)
 
   BaseObject& handle = layer.GetBaseObject();
 
-  return static_cast<Internal::Layer&>(handle);
+  return dynamic_cast<Internal::Layer&>(handle);
 }
 
 inline const Internal::Layer& GetImplementation(const Dali::Layer& layer)
@@ -307,7 +307,7 @@ inline const Internal::Layer& GetImplementation(const Dali::Layer& layer)
 
   const BaseObject& handle = layer.GetBaseObject();
 
-  return static_cast<const Internal::Layer&>(handle);
+  return dynamic_cast<const Internal::Layer&>(handle);
 }
 
 } // namespace Dali

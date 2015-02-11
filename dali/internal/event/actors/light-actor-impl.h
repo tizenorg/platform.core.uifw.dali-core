@@ -148,7 +148,7 @@ inline Internal::LightActor& GetImplementation(Dali::LightActor& light)
 
   BaseObject& handle = light.GetBaseObject();
 
-  return static_cast<Internal::LightActor&>(handle);
+  return dynamic_cast<Internal::LightActor&>(handle);
 }
 
 inline const Internal::LightActor& GetImplementation(const Dali::LightActor& light)
@@ -157,7 +157,7 @@ inline const Internal::LightActor& GetImplementation(const Dali::LightActor& lig
 
   const BaseObject& handle = light.GetBaseObject();
 
-  return static_cast<const Internal::LightActor&>(handle);
+  return dynamic_cast<const Internal::LightActor&>(handle);
 }
 
 } // namespace Dali

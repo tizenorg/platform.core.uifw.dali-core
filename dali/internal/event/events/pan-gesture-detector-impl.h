@@ -296,7 +296,7 @@ inline Internal::PanGestureDetector& GetImplementation(Dali::PanGestureDetector&
 
   BaseObject& handle = detector.GetBaseObject();
 
-  return static_cast<Internal::PanGestureDetector&>(handle);
+  return dynamic_cast<Internal::PanGestureDetector&>(handle);
 }
 
 inline const Internal::PanGestureDetector& GetImplementation(const Dali::PanGestureDetector& detector)
@@ -305,7 +305,7 @@ inline const Internal::PanGestureDetector& GetImplementation(const Dali::PanGest
 
   const BaseObject& handle = detector.GetBaseObject();
 
-  return static_cast<const Internal::PanGestureDetector&>(handle);
+  return dynamic_cast<const Internal::PanGestureDetector&>(handle);
 }
 
 } // namespace Dali

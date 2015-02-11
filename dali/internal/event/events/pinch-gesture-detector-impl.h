@@ -129,7 +129,7 @@ inline Internal::PinchGestureDetector& GetImplementation(Dali::PinchGestureDetec
 
   BaseObject& handle = detector.GetBaseObject();
 
-  return static_cast<Internal::PinchGestureDetector&>(handle);
+  return dynamic_cast<Internal::PinchGestureDetector&>(handle);
 }
 
 inline const Internal::PinchGestureDetector& GetImplementation(const Dali::PinchGestureDetector& detector)
@@ -138,7 +138,7 @@ inline const Internal::PinchGestureDetector& GetImplementation(const Dali::Pinch
 
   const BaseObject& handle = detector.GetBaseObject();
 
-  return static_cast<const Internal::PinchGestureDetector&>(handle);
+  return dynamic_cast<const Internal::PinchGestureDetector&>(handle);
 }
 
 } // namespace Dali

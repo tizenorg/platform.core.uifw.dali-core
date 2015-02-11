@@ -491,14 +491,16 @@ inline Internal::ProxyObject& GetImplementation(Dali::Constrainable& object)
 {
   DALI_ASSERT_ALWAYS( object && "ProxyObject handle is empty" );
   BaseObject& handle = object.GetBaseObject();
-  return static_cast<Internal::ProxyObject&>(handle);
+
+  return dynamic_cast<Internal::ProxyObject&>(handle);
 }
 
 inline const Internal::ProxyObject& GetImplementation(const Dali::Constrainable& object)
 {
   DALI_ASSERT_ALWAYS( object && "ProxyObject handle is empty" );
   const BaseObject& handle = object.GetBaseObject();
-  return static_cast<const Internal::ProxyObject&>(handle);
+
+  return dynamic_cast<const Internal::ProxyObject&>(handle);
 }
 
 

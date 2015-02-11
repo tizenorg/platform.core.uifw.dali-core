@@ -1402,7 +1402,7 @@ inline Internal::Actor& GetImplementation(Dali::Actor& actor)
 
   BaseObject& handle = actor.GetBaseObject();
 
-  return static_cast<Internal::Actor&>(handle);
+  return dynamic_cast<Internal::Actor&>(handle);
 }
 
 inline const Internal::Actor& GetImplementation(const Dali::Actor& actor)
@@ -1411,7 +1411,7 @@ inline const Internal::Actor& GetImplementation(const Dali::Actor& actor)
 
   const BaseObject& handle = actor.GetBaseObject();
 
-  return static_cast<const Internal::Actor&>(handle);
+  return dynamic_cast<const Internal::Actor&>(handle);
 }
 
 } // namespace Dali

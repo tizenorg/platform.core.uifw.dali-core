@@ -338,7 +338,7 @@ inline Internal::ActiveConstraintBase& GetImplementation(Dali::ActiveConstraint&
 
   BaseObject& handle = constraint.GetBaseObject();
 
-  return static_cast<Internal::ActiveConstraintBase&>(handle);
+  return dynamic_cast<Internal::ActiveConstraintBase&>(handle);
 }
 
 inline const Internal::ActiveConstraintBase& GetImplementation(const Dali::ActiveConstraint& constraint)
@@ -347,7 +347,7 @@ inline const Internal::ActiveConstraintBase& GetImplementation(const Dali::Activ
 
   const BaseObject& handle = constraint.GetBaseObject();
 
-  return static_cast<const Internal::ActiveConstraintBase&>(handle);
+  return dynamic_cast<const Internal::ActiveConstraintBase&>(handle);
 }
 
 } // namespace Dali

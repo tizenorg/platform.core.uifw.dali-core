@@ -168,7 +168,7 @@ inline Internal::TapGestureDetector& GetImplementation(Dali::TapGestureDetector&
 
   BaseObject& handle = detector.GetBaseObject();
 
-  return static_cast<Internal::TapGestureDetector&>(handle);
+  return dynamic_cast<Internal::TapGestureDetector&>(handle);
 }
 
 inline const Internal::TapGestureDetector& GetImplementation(const Dali::TapGestureDetector& detector)
@@ -177,7 +177,7 @@ inline const Internal::TapGestureDetector& GetImplementation(const Dali::TapGest
 
   const BaseObject& handle = detector.GetBaseObject();
 
-  return static_cast<const Internal::TapGestureDetector&>(handle);
+  return dynamic_cast<const Internal::TapGestureDetector&>(handle);
 }
 
 } // namespace Dali

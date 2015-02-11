@@ -176,7 +176,7 @@ inline Internal::LongPressGestureDetector& GetImplementation(Dali::LongPressGest
 
   BaseObject& handle = detector.GetBaseObject();
 
-  return static_cast<Internal::LongPressGestureDetector&>(handle);
+  return dynamic_cast<Internal::LongPressGestureDetector&>(handle);
 }
 
 inline const Internal::LongPressGestureDetector& GetImplementation(const Dali::LongPressGestureDetector& detector)
@@ -185,7 +185,7 @@ inline const Internal::LongPressGestureDetector& GetImplementation(const Dali::L
 
   const BaseObject& handle = detector.GetBaseObject();
 
-  return static_cast<const Internal::LongPressGestureDetector&>(handle);
+  return dynamic_cast<const Internal::LongPressGestureDetector&>(handle);
 }
 
 } // namespace Dali

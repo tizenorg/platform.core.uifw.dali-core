@@ -47,6 +47,18 @@ struct TouchEvent;
  *
  * Multiple stage/window support is not currently provided.
  */
+/**
+ * @brief
+ * Signals
+ * | %Signal Name              | Method                               |
+ * |---------------------------|--------------------------------------|
+ * | key-event                 | @ref KeyEventSignal()                |
+ * | event-processing-finished | @ref EventProcessingFinishedSignal() |
+ * | touched                   | @ref TouchedSignal()                 |
+ * | context-lost              | @ref ContextLostSignal()             |
+ * | context-regained          | @ref ContextRegainedSignal()         |
+ * | scene-created             | @ref SceneCreatedSignal()            |
+ */
 class DALI_IMPORT_API Stage : public BaseHandle
 {
 public:
@@ -59,13 +71,6 @@ public:
 
   static const Vector4 DEFAULT_BACKGROUND_COLOR; ///< Default black background.
   static const Vector4 DEBUG_BACKGROUND_COLOR;   ///< Green background, useful when debugging.
-
-  // Signal Names
-  static const char* const SIGNAL_KEY_EVENT; ///< name "key-event"
-  static const char* const SIGNAL_EVENT_PROCESSING_FINISHED; ///< name "event-processing-finished"
-  static const char* const SIGNAL_TOUCHED; ///< name "touched"
-  static const char* const SIGNAL_CONTEXT_LOST; ///< name "context-lost"
-  static const char* const SIGNAL_CONTEXT_REGAINED; ///< name "context-regained"
 
   /**
    * @brief Allows the creation of an empty stage handle.

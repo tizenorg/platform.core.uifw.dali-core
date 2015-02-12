@@ -228,12 +228,29 @@ typedef ActorContainer::const_iterator ActorConstIter; ///< Const iterator for D
  *
  * @nosubgrouping
  */
+/**
+ * @brief
+ * Signals
+ * | %Signal Name      | Method                       |
+ * |-------------------|------------------------------|
+ * | touched           | @ref TouchedSignal()         |
+ * | hovered           | @ref HoveredSignal()         |
+ * | mouse-wheel-event | @ref MouseWheelEventSignal() |
+ * | on-stage          | @ref OnStageSignal()         |
+ * | off-stage         | @ref OffStageSignal()        |
+ */
+/**
+ * @brief Actions
+ * | %Action Name      | %Actor method called         |
+ * |-------------------|------------------------------|
+ * | show              | @ref SetVisible( true )      |
+ * | hide              | @ref SetVisible( false )     |
+ */
 class DALI_IMPORT_API Actor : public Constrainable
 {
 public:
 
   // Typedefs
-
   typedef Signal< bool (Actor, const TouchEvent&)> TouchSignalType;                ///< Touch signal type
   typedef Signal< bool (Actor, const HoverEvent&)> HoverSignalType;                ///< Hover signal type
   typedef Signal< bool (Actor, const MouseWheelEvent&) > MouseWheelEventSignalType;///< Mousewheel signal type
@@ -289,20 +306,20 @@ public:
   static const Property::Index SIZE_MODE_FACTOR;      ///< name "size-mode-factor",      type VECTOR3
   /** @} */
 
-  /// @name Signals
-  /** @{ */
-  static const char* const SIGNAL_TOUCHED;            ///< name "touched",           @see TouchedSignal()
-  static const char* const SIGNAL_HOVERED;            ///< name "hovered",           @see HoveredSignal()
-  static const char* const SIGNAL_MOUSE_WHEEL_EVENT;  ///< name "mouse-wheel-event", @see MouseWheelEventSignal()
-  static const char* const SIGNAL_ON_STAGE;           ///< name "on-stage",          @see OnStageSignal()
-  static const char* const SIGNAL_OFF_STAGE;          ///< name "off-stage",         @see OffStageSignal()
-  /** @} */
+  /** @name Signals
+     @{
+      name "touched",           @see TouchedSignal()
+      name "hovered",           @see HoveredSignal()
+      name "mouse-wheel-event", @see MouseWheelEventSignal()
+      name "on-stage",          @see OnStageSignal()
+      name "off-stage",         @see OffStageSignal()
+      @} */
 
-  /// @name Actions
-  /** @{ */
-  static const char* const ACTION_SHOW;               ///< name "show",   @see SetVisible()
-  static const char* const ACTION_HIDE;               ///< name "hide",   @see SetVisible()
-  /** @} */
+  /** @name Actions
+      @{
+      name "show",   @see SetVisible()
+      name "hide",   @see SetVisible()
+      @} */
 
   // Creation
 

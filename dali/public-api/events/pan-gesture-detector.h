@@ -51,6 +51,13 @@ struct PanGesture;
  *
  * @see PanGesture
  */
+/**
+ * @brief
+ * Signals
+ * | %Signal Name | Method                |
+ * |--------------|-----------------------|
+ * | pan-detected | @ref DetectedSignal() |
+ */
 class DALI_IMPORT_API PanGestureDetector : public GestureDetector
 {
 public:
@@ -80,11 +87,6 @@ public:
   static const Property::Index LOCAL_DISPLACEMENT;    ///< name "local-displacement",  type VECTOR2
   static const Property::Index LOCAL_VELOCITY;        ///< name "local-velocity",      type VECTOR2
   static const Property::Index PANNING;               ///< name "panning",             type BOOLEAN
-  /** @} */
-
-  /// @name Signals
-  /** @{ */
-  static const char* const SIGNAL_PAN_DETECTED; ///< name "pan-detected",   @see DetectedSignal()
   /** @} */
 
 public: // Creation & Destruction

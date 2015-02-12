@@ -28,9 +28,6 @@
 namespace Dali
 {
 
-const char* const Image::SIGNAL_IMAGE_LOADING_FINISHED = "image-loading-finished";
-const char* const Image::SIGNAL_IMAGE_UPLOADED = "uploaded";
-
 Vector2 Image::GetImageSize(const std::string fileName)
 {
   Vector2 size;

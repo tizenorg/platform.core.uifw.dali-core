@@ -94,6 +94,11 @@ class ImageAttributes;
  * were created with ReleasePolicy::Unused, taken off stage.
  * Note: if a resource was shared between Image objects it exists until its last reference is gone.
  *
+ * Signals
+ * | %Signal Name           | Method                       |
+ * |------------------------|------------------------------|
+ * | image-loading-finished | @ref LoadingFinishedSignal() |
+ * | uploaded               | @ref UploadedSignal()        |
  */
 class DALI_IMPORT_API Image : public BaseHandle
 {
@@ -124,10 +129,6 @@ public:
    * @brief Type of signal for LoadingFinished and Uploaded.
    */
   typedef Signal< void (Image) > ImageSignalType;
-
-  // Signal Names
-  static const char* const SIGNAL_IMAGE_LOADING_FINISHED; ///< Name of LoadingFinished signal
-  static const char* const SIGNAL_IMAGE_UPLOADED; ///< Name of Uploaded signal
 
 public:
 

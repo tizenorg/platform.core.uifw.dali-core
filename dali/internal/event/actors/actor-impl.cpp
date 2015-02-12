@@ -210,7 +210,14 @@ struct DynamicsData
 namespace
 {
 
-using namespace Dali;
+const char* const SIGNAL_TOUCHED = "touched";
+const char* const SIGNAL_HOVERED = "hovered";
+const char* const SIGNAL_MOUSE_WHEEL_EVENT = "mouse-wheel-event";
+const char* const SIGNAL_ON_STAGE = "on-stage";
+const char* const SIGNAL_OFF_STAGE = "off-stage";
+
+const char* const ACTION_SHOW = "show";
+const char* const ACTION_HIDE = "hide";
 
 BaseHandle CreateActor()
 {
@@ -219,13 +226,13 @@ BaseHandle CreateActor()
 
 TypeRegistration mType( typeid(Dali::Actor), typeid(Dali::Handle), CreateActor );
 
-SignalConnectorType signalConnector1(mType, Dali::Actor::SIGNAL_TOUCHED,    &Actor::DoConnectSignal);
-SignalConnectorType signalConnector2(mType, Dali::Actor::SIGNAL_HOVERED,    &Actor::DoConnectSignal);
-SignalConnectorType signalConnector4(mType, Dali::Actor::SIGNAL_ON_STAGE,   &Actor::DoConnectSignal);
-SignalConnectorType signalConnector5(mType, Dali::Actor::SIGNAL_OFF_STAGE,  &Actor::DoConnectSignal);
+SignalConnectorType signalConnector1(mType, SIGNAL_TOUCHED,    &Actor::DoConnectSignal);
+SignalConnectorType signalConnector2(mType, SIGNAL_HOVERED,    &Actor::DoConnectSignal);
+SignalConnectorType signalConnector4(mType, SIGNAL_ON_STAGE,   &Actor::DoConnectSignal);
+SignalConnectorType signalConnector5(mType, SIGNAL_OFF_STAGE,  &Actor::DoConnectSignal);
 
-TypeAction a1(mType, Dali::Actor::ACTION_SHOW, &Actor::DoAction);
-TypeAction a2(mType, Dali::Actor::ACTION_HIDE, &Actor::DoAction);
+TypeAction a1(mType, ACTION_SHOW, &Actor::DoAction);
+TypeAction a2(mType, ACTION_HIDE, &Actor::DoAction);
 
 }
 
@@ -2017,23 +2024,23 @@ bool Actor::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tra
   bool connected( true );
   Actor* actor = dynamic_cast<Actor*>(object);
 
-  if(Dali::Actor::SIGNAL_TOUCHED == signalName)
+  if( 0 == strcmp( signalName.c_str(), SIGNAL_TOUCHED ) ) // dont want to convert char* to string
   {
     actor->TouchedSignal().Connect( tracker, functor );
   }
-  else if(Dali::Actor::SIGNAL_HOVERED == signalName)
+  else if( 0 == strcmp( signalName.c_str(), SIGNAL_HOVERED ) )
   {
     actor->HoveredSignal().Connect( tracker, functor );
   }
-  else if(Dali::Actor::SIGNAL_MOUSE_WHEEL_EVENT == signalName)
+  else if( 0 == strcmp( signalName.c_str(), SIGNAL_MOUSE_WHEEL_EVENT ) )
   {
     actor->MouseWheelEventSignal().Connect( tracker, functor );
   }
-  else if(Dali::Actor::SIGNAL_ON_STAGE == signalName)
+  else if( 0 == strcmp( signalName.c_str(), SIGNAL_ON_STAGE  ) )
   {
     actor->OnStageSignal().Connect( tracker, functor );
   }
-  else if(Dali::Actor::SIGNAL_OFF_STAGE == signalName)
+  else if( 0 == strcmp( signalName.c_str(), SIGNAL_OFF_STAGE ) )
   {
     actor->OffStageSignal().Connect( tracker, functor );
   }
@@ -3471,12 +3478,12 @@ bool Actor::DoAction(BaseObject* object, const std::string& actionName, const st
 
   if( actor )
   {
-    if(Dali::Actor::ACTION_SHOW == actionName)
+    if( 0 == strcmp( actionName.c_str(), ACTION_SHOW ) ) // dont want to convert char* to string
     {
       actor->SetVisible(true);
       done = true;
     }
-    else if(Dali::Actor::ACTION_HIDE == actionName)
+    else if( 0 == strcmp( actionName.c_str(), ACTION_HIDE ) )
     {
       actor->SetVisible(false);
       done = true;

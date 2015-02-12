@@ -69,6 +69,13 @@ class RenderTask;
  * Note that all connected signals must be disconnected before the object is destroyed. This is typically done in the
  * object destructor, and requires either the Dali::Connection object or Dali::RenderTask handle to be stored.
  */
+/**
+ * @brief
+ * Signals
+ * | %Signal Name | Method                |
+ * |--------------|-----------------------|
+ * | finished     | @ref FinishedSignal() |
+ */
 class DALI_IMPORT_API RenderTask : public Constrainable
 {
 public:
@@ -81,9 +88,6 @@ public:
   static const Property::Index VIEWPORT_POSITION;    ///< Property  0, name "viewport-position",   type VECTOR2
   static const Property::Index VIEWPORT_SIZE;        ///< Property  1, name "viewport-size",       type VECTOR2
   static const Property::Index CLEAR_COLOR;          ///< Property  2, name "clear-color",         type VECTOR4
-
-  //Signal Names
-  static const char* const SIGNAL_FINISHED; ///< Name for Finished signal
 
   /**
    * @brief A pointer to a function for converting screen to frame-buffer coordinates.

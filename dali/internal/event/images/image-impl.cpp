@@ -41,16 +41,21 @@ namespace Internal
 namespace
 {
 
+// Signals
+
+const char* const SIGNAL_IMAGE_LOADING_FINISHED = "image-loading-finished";
+const char* const SIGNAL_IMAGE_UPLOADED =         "uploaded";
+
 BaseHandle CreateImage()
 {
   ImagePtr image = Image::New();
   return Dali::Image(image.Get());
 }
 
-TypeRegistration mType( typeid(Dali::Image), typeid(Dali::BaseHandle), CreateImage );
+TypeRegistration mType( typeid( Dali::Image ), typeid( Dali::BaseHandle ), CreateImage );
 
-Dali::SignalConnectorType signalConnector1(mType, Dali::Image::SIGNAL_IMAGE_LOADING_FINISHED,    &Image::DoConnectSignal);
-Dali::SignalConnectorType signalConnector2(mType, Dali::Image::SIGNAL_IMAGE_UPLOADED,            &Image::DoConnectSignal);
+Dali::SignalConnectorType signalConnector1( mType, SIGNAL_IMAGE_LOADING_FINISHED, &Image::DoConnectSignal );
+Dali::SignalConnectorType signalConnector2( mType, SIGNAL_IMAGE_UPLOADED,         &Image::DoConnectSignal );
 
 }
 
@@ -141,11 +146,11 @@ bool Image::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tra
   DALI_ASSERT_DEBUG( dynamic_cast<Image*>( object ) && "Resource ticket not ImageTicket subclass for image resource.\n" );
   Image* image = static_cast<Image*>(object);
 
-  if( Dali::Image::SIGNAL_IMAGE_LOADING_FINISHED == signalName )
+  if( 0 == strcmp( signalName.c_str(), SIGNAL_IMAGE_LOADING_FINISHED ) )
   {
     image->LoadingFinishedSignal().Connect( tracker, functor );
   }
-  else if(Dali::Image::SIGNAL_IMAGE_UPLOADED == signalName)
+  else if( 0 == strcmp( signalName.c_str(), SIGNAL_IMAGE_UPLOADED ) )
   {
     image->UploadedSignal().Connect( tracker, functor );
   }

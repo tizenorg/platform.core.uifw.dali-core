@@ -48,6 +48,13 @@ struct PinchGesture;
  *
  * @see PinchGesture
  */
+/**
+ * @brief
+ * Signals
+ * | %Signal Name   | Method                |
+ * |----------------|-----------------------|
+ * | pinch-detected | @ref DetectedSignal() |
+ */
 class DALI_IMPORT_API PinchGestureDetector : public GestureDetector
 {
 public: // Typedefs
@@ -56,9 +63,6 @@ public: // Typedefs
    * @brief Signal type.
    */
   typedef Signal< void ( Actor, const PinchGesture& ) > DetectedSignalType;
-
-  //Signal Names
-  static const char* const SIGNAL_PINCH_DETECTED; ///< name "pinch-detected"
 
 public: // Creation & Destruction
 

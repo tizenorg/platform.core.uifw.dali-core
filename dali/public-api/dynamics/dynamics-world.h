@@ -77,15 +77,19 @@ class DynamicsShape;
  * dynamicsRootActor.Add( actor );
  * @endcode
  */
+/**
+ * @brief
+ * Signals
+ * | %Signal Name              | Method                     |
+ * |---------------------------|----------------------------|
+ * | collision                 | @ref CollisionSignal()     |
+ */
 class DALI_IMPORT_API DynamicsWorld : public BaseHandle
 {
 public:
 
-  // Signal Names
-  static const char* const SIGNAL_COLLISION; ///< name "collision"
-
   // signals
-  typedef Signal< void (DynamicsWorld, const DynamicsCollision) > CollisionSignalType; ///< Type of collision signal
+  typedef Signal< void ( DynamicsWorld, const DynamicsCollision ) > CollisionSignalType; ///< Type of collision signal
 
 public:
   /**

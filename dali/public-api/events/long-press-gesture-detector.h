@@ -49,14 +49,18 @@ struct LongPressGesture;
  *
  * @see LongPressGesture
  */
+/**
+ * @brief
+ * Signals
+ * | %Signal Name        | Method                |
+ * |---------------------|-----------------------|
+ * | long-press-detected | @ref DetectedSignal() |
+ */
 class DALI_IMPORT_API LongPressGestureDetector : public GestureDetector
 {
 public: // Typedefs
 
   typedef Signal< void ( Actor, const LongPressGesture& ) > DetectedSignalType; ///< Gesture detected signal type
-
-  //Signal Names
-  static const char* const SIGNAL_LONG_PRESS_DETECTED; ///< name "long-press-detected"
 
 public: // Creation & Destruction
 

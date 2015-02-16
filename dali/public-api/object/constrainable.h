@@ -28,7 +28,7 @@ namespace Dali DALI_IMPORT_API
 
 namespace Internal
 {
-class Object;
+class ProxyObject;
 }
 
 class Constraint;
@@ -146,7 +146,7 @@ public:
    *
    * @param [in] handle A pointer to a newly allocated Dali resource
    */
-  explicit DALI_INTERNAL Constrainable(Dali::Internal::Object* handle);
+  explicit DALI_INTERNAL Constrainable(Dali::Internal::ProxyObject* objectPointer);
 };
 
 namespace WeightObject

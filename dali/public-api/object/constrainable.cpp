@@ -34,8 +34,8 @@ Constrainable Constrainable::New()
   return Constrainable( Internal::CustomObject::New() );
 }
 
-Constrainable::Constrainable(Dali::Internal::Object* handle)
-: Handle(handle)
+Constrainable::Constrainable(Dali::Internal::ProxyObject* objectPointer)
+: Handle(objectPointer)
 {
 }
 

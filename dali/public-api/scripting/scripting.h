@@ -117,23 +117,20 @@ T GetEnumeration( const std::string& value, const StringEnum< T >* table, unsign
  * @param[in]  table       A pointer to an array with the enumeration to string equivalents.
  * @param[in]  tableCount  Number of items in the array.
  *
- * @return The equivalent enumeration for the given string.
+ * @return The equivalent enumeration for the given string. Will return NULL if the value does not exist
  */
 template< typename T >
-std::string GetEnumerationName( T value, const StringEnum< T >* table, unsigned int tableCount )
+const char * GetEnumerationName( T value, const StringEnum< T >* table, unsigned int tableCount )
 {
-  std::string string( String::EMPTY );
-
   for ( unsigned int i = 0; i < tableCount; ++i )
   {
     if ( value == table[ i ].value )
     {
-      string = table[ i ].string;
-      break;
+      return table[ i ].string;
     }
   }
 
-  return string;
+  return NULL;
 }
 
 /**

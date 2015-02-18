@@ -29,7 +29,7 @@ namespace Dali
 namespace Internal
 {
 
-NativeFrameBufferTexture::NativeFrameBufferTexture( NativeImagePtr nativeImage, Context& context)
+NativeFrameBufferTexture::NativeFrameBufferTexture( NativeImageInterfacePtr nativeImage, Context& context)
   : FrameBufferTexture(nativeImage->GetWidth(),
                        nativeImage->GetHeight(),
                        nativeImage->GetPixelFormat(),

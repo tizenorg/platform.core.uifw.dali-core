@@ -31,7 +31,7 @@ namespace Dali
 namespace Internal
 {
 
-NativeTexture::NativeTexture(NativeImage* nativeImg, Context& context)
+NativeTexture::NativeTexture(NativeImageInterface* nativeImg, Context& context)
 : Texture(context,
           nativeImg->GetWidth(),
           nativeImg->GetHeight(),

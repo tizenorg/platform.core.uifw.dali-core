@@ -19,14 +19,14 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/images/native-image.h>
+#include <dali/public-api/images/native-image-interface.h>
 
 namespace Dali
 {
 class TestNativeImage;
 typedef IntrusivePtr<TestNativeImage> TestNativeImagePointer;
 
-class DALI_IMPORT_API TestNativeImage : public Dali::NativeImage
+class DALI_IMPORT_API TestNativeImage : public Dali::NativeImageInterface
 {
 public:
   static TestNativeImagePointer New(int width, int height);

@@ -56,6 +56,7 @@ SET(TC_SOURCES
         utc-Dali-MeshData.cpp
         utc-Dali-Model.cpp
         utc-Dali-MouseWheelEvent.cpp
+        utc-Dali-NativeImage.cpp
         utc-Dali-NinePatchImages.cpp
         utc-Dali-ObjectRegistry.cpp
         utc-Dali-PanGesture.cpp
@@ -73,6 +74,7 @@ SET(TC_SOURCES
         utc-Dali-RenderTask.cpp
         utc-Dali-RenderTaskList.cpp
         utc-Dali-RenderableActor.cpp
+        utc-Dali-ResourceImage.cpp
         utc-Dali-ShaderEffect.cpp
         utc-Dali-Scripting.cpp
         utc-Dali-SignalTemplatesFunctors.cpp

@@ -29,10 +29,9 @@ namespace Dali
 namespace Internal
 {
 
-NativeFrameBufferTexture::NativeFrameBufferTexture( NativeImagePtr nativeImage, Context& context)
+NativeFrameBufferTexture::NativeFrameBufferTexture( NativeImageInterfacePtr nativeImage, Context& context)
   : FrameBufferTexture(nativeImage->GetWidth(),
                        nativeImage->GetHeight(),
-                       nativeImage->GetPixelFormat(),
                        context),
     mNativeImage(nativeImage)
 {
@@ -54,7 +53,7 @@ bool NativeFrameBufferTexture::IsFullyOpaque() const
 
 bool NativeFrameBufferTexture::HasAlphaChannel() const
 {
-  return Pixel::HasAlpha(mNativeImage->GetPixelFormat());
+  return mNativeImage->RequiresBlending();
 }
 
 bool NativeFrameBufferTexture::Init()
@@ -124,7 +123,6 @@ void NativeFrameBufferTexture::GlCleanup()
 
   mNativeImage.Reset();
 }
-
 
 } //namespace Internal
 

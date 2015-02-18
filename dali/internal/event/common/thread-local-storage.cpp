@@ -19,7 +19,6 @@
 #include <dali/internal/event/common/thread-local-storage.h>
 
 // EXTERNAL INCLUDES
-#include <boost/thread/tss.hpp>
 #include <memory>
 
 // INTERNAL INCLUDES
@@ -38,21 +37,16 @@ namespace Internal
 
 namespace
 {
-#ifdef EMSCRIPTEN
-  std::auto_ptr<ThreadLocalStorage> threadLocal;
-#else
-  boost::thread_specific_ptr<ThreadLocalStorage> threadLocal;
-#endif
+__thread ThreadLocalStorage* threadLocal = NULL;
 }
 
 ThreadLocalStorage::ThreadLocalStorage(Core* core)
 : mCore(core)
 {
-  DALI_ASSERT_ALWAYS( threadLocal.get() == NULL && "Cannot create more than one ThreadLocalStorage object" );
+  DALI_ASSERT_ALWAYS( threadLocal == NULL && "Cannot create more than one ThreadLocalStorage object" );
 
   // reset is used to store a new value associated with this thread
-  threadLocal.reset(this);
-
+  threadLocal = this;
 }
 
 ThreadLocalStorage::~ThreadLocalStorage()
@@ -61,22 +55,25 @@ ThreadLocalStorage::~ThreadLocalStorage()
 
 void ThreadLocalStorage::Remove()
 {
-  threadLocal.reset();
+  threadLocal = NULL;
 }
 
 ThreadLocalStorage& ThreadLocalStorage::Get()
 {
-  ThreadLocalStorage* tls = threadLocal.get();
+  DALI_ASSERT_ALWAYS(threadLocal);
 
-  DALI_ASSERT_ALWAYS(tls);
-
-  return *tls;
+  return *threadLocal;
 }
 
 bool ThreadLocalStorage::Created()
 {
   // see if the TLS has been set yet
-  return (threadLocal.get() != NULL);
+  return (threadLocal != NULL);
+}
+
+ThreadLocalStorage* ThreadLocalStorage::GetInternal()
+{
+  return threadLocal;
 }
 
 Dali::Integration::PlatformAbstraction& ThreadLocalStorage::GetPlatformAbstraction()

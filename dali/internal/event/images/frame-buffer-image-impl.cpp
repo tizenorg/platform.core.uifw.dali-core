@@ -45,14 +45,14 @@ FrameBufferImagePtr  FrameBufferImage::New(unsigned int width, unsigned int heig
   return image;
 }
 
-FrameBufferImagePtr  FrameBufferImage::New( NativeImage& nativeImage )
+FrameBufferImagePtr  FrameBufferImage::New( NativeImageInterface& nativeImage )
 {
   FrameBufferImagePtr image = new FrameBufferImage(nativeImage);
   image->Initialize();
   return image;
 }
 
-FrameBufferImagePtr  FrameBufferImage::New( NativeImage& nativeImage, ReleasePolicy releasePolicy )
+FrameBufferImagePtr  FrameBufferImage::New( NativeImageInterface& nativeImage, ReleasePolicy releasePolicy )
 {
   FrameBufferImagePtr image = new FrameBufferImage(nativeImage, releasePolicy);
   image->Initialize();
@@ -67,7 +67,7 @@ FrameBufferImage::FrameBufferImage(unsigned int width, unsigned int height, Pixe
   mHeight = height;
 }
 
-FrameBufferImage::FrameBufferImage( NativeImage& nativeImage )
+FrameBufferImage::FrameBufferImage( NativeImageInterface& nativeImage )
 : Image(),
   mNativeImage(&nativeImage),
   mPixelFormat(nativeImage.GetPixelFormat())
@@ -76,7 +76,7 @@ FrameBufferImage::FrameBufferImage( NativeImage& nativeImage )
   mHeight = nativeImage.GetHeight();
 }
 
-FrameBufferImage::FrameBufferImage( NativeImage& nativeImage, ReleasePolicy releasePolicy )
+FrameBufferImage::FrameBufferImage( NativeImageInterface& nativeImage, ReleasePolicy releasePolicy )
 : Image(releasePolicy),
   mNativeImage(&nativeImage),
   mPixelFormat(nativeImage.GetPixelFormat())

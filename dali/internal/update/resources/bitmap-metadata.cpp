@@ -31,7 +31,7 @@ namespace Dali
 namespace Internal
 {
 
-BitmapMetadata BitmapMetadata::New(NativeImagePtr nativeImage)
+BitmapMetadata BitmapMetadata::New(NativeImageInterfacePtr nativeImage)
 {
   return BitmapMetadata(nativeImage->GetWidth(), nativeImage->GetHeight(), nativeImage->GetPixelFormat(), ! Pixel::HasAlpha(nativeImage->GetPixelFormat()));
 }
@@ -94,7 +94,7 @@ BitmapMetadata& BitmapMetadata::operator=( const BitmapMetadata& rhs )
   return *this;
 }
 
-void BitmapMetadata::Update(NativeImagePtr nativeImage)
+void BitmapMetadata::Update(NativeImageInterfacePtr nativeImage)
 {
   mImageWidth  = nativeImage->GetWidth();
   mImageHeight = nativeImage->GetHeight();

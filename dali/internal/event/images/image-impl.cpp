@@ -45,24 +45,6 @@ Dali::SignalConnectorType signalConnector2(mType, Dali::Image::SIGNAL_IMAGE_UPLO
 
 }
 
-ImagePtr Image::New( NativeImage& nativeImg )
-{
-  ImagePtr image = new Image;
-  image->Initialize();
-
-  ResourceClient &resourceClient = ThreadLocalStorage::Get().GetResourceClient();
-
-  image->mWidth  = nativeImg.GetWidth();
-  image->mHeight = nativeImg.GetHeight();
-
-  const ResourceTicketPtr& ticket = resourceClient.AddNativeImage( nativeImg );
-  DALI_ASSERT_DEBUG( dynamic_cast<ImageTicket*>( ticket.Get() ) && "Resource ticket not ImageTicket subclass for image resource.\n" );
-  image->mTicket = static_cast<ImageTicket*>(ticket.Get());
-  image->mTicket->AddObserver( *image );
-
-  return image;
-}
-
 bool Image::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
 {
   bool connected( true );

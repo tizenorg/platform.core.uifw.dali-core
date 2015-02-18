@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/pixel.h>
-#include <dali/public-api/images/native-image.h>
+#include <dali/public-api/images/native-image-interface.h>
 
 namespace Dali
 {
@@ -39,7 +39,7 @@ public:
    * @param[in] nativeImage The native image to load
    * @return A newly allocated BitmapMetadata
    */
-  static BitmapMetadata New(NativeImagePtr nativeImage);
+  static BitmapMetadata New(NativeImageInterfacePtr nativeImage);
 
   /**
    * Creates a new BitmapMetadata object from a Bitmap
@@ -78,7 +78,7 @@ public:
    * Updates the metadata with information from the native image
    * @param[in] nativeImage The native image that was updated
    */
-  void Update(NativeImagePtr nativeImage);
+  void Update(NativeImageInterfacePtr nativeImage);
 
   /**
    * Updates the metadata with information from the bitmap

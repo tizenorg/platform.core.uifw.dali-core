@@ -327,7 +327,7 @@ void ResourceManager::HandleAddBitmapImageRequest( ResourceId id, BitmapPtr bitm
   mImpl->mTextureCacheDispatcher.DispatchCreateTextureForBitmap( id, bitmap.Get() );
 }
 
-void ResourceManager::HandleAddNativeImageRequest(ResourceId id, NativeImagePtr nativeImage)
+void ResourceManager::HandleAddNativeImageRequest(ResourceId id, NativeImageInterfacePtr nativeImage)
 {
   DALI_ASSERT_DEBUG( mImpl->mResourceClient != NULL );
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceManager: HandleAddNativeImageRequest(id:%u)\n", id);
@@ -352,7 +352,7 @@ void ResourceManager::HandleAddFrameBufferImageRequest( ResourceId id, unsigned 
   mImpl->mTextureCacheDispatcher.DispatchCreateTextureForFrameBuffer( id, width, height, pixelFormat );
 }
 
-void ResourceManager::HandleAddFrameBufferImageRequest( ResourceId id, NativeImagePtr nativeImage )
+void ResourceManager::HandleAddFrameBufferImageRequest( ResourceId id, NativeImageInterfacePtr nativeImage )
 {
   DALI_ASSERT_DEBUG( mImpl->mResourceClient != NULL );
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceManager: HandleAddFrameBufferImageRequest(id:%u)\n", id);
@@ -815,7 +815,7 @@ void ResourceManager::LoadResponse( ResourceId id, ResourceTypeId type, Resource
 
       case ResourceNativeImage:
       {
-        NativeImagePtr nativeImg( static_cast<NativeImage*>(resource.Get()) );
+        NativeImageInterfacePtr nativeImg( static_cast<NativeImageInterface*>(resource.Get()) );
 
         ImageAttributes attrs = ImageAttributes::New(nativeImg->GetWidth(), nativeImg->GetHeight(), nativeImg->GetPixelFormat());
 

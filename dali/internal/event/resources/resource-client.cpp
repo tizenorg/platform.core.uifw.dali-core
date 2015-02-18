@@ -321,7 +321,7 @@ ImageTicketPtr ResourceClient::AddBitmapImage(Bitmap* bitmap)
   return newTicket;
 }
 
-ResourceTicketPtr ResourceClient::AddNativeImage ( NativeImage& resourceData )
+ResourceTicketPtr ResourceClient::AddNativeImage ( NativeImageInterface& resourceData )
 {
   ImageTicketPtr newTicket;
 
@@ -364,7 +364,7 @@ ImageTicketPtr ResourceClient::AddFrameBufferImage ( unsigned int width, unsigne
   return newTicket;
 }
 
-ImageTicketPtr ResourceClient::AddFrameBufferImage ( NativeImage& nativeImage )
+ImageTicketPtr ResourceClient::AddFrameBufferImage ( NativeImageInterface& nativeImage )
 {
   ImageTicketPtr newTicket;
 

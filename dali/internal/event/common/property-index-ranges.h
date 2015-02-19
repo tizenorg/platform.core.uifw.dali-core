@@ -30,6 +30,7 @@ namespace Internal
  * Specifies the allowed ranges for different class types to cater for future allocation
  */
 
+// TODO: This will be removed.
 enum
 {
   DEFAULT_PROPERTY_MAX_COUNT                  = PROPERTY_REGISTRATION_START_INDEX, ///< Default Property Range:     0 to 9999999

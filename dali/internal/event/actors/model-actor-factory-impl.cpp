@@ -19,6 +19,7 @@
 #include <dali/internal/event/actors/model-actor-factory-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/modeling/entity.h>
 #include <dali/internal/event/actors/mesh-actor-impl.h>
 #include <dali/internal/event/modeling/model-impl.h>
@@ -280,7 +281,7 @@ AnimationPtr ModelActorFactory::CreateAnimation(
       const KeyFrames& positionKeyFrames = GetImplementation(posKFHandle);
       if(positionKeyFrames.GetKeyFramesBase()->GetNumberOfKeyFrames() > 0)
       {
-        animation->AnimateBetween(Property(targetActor, Dali::Actor::POSITION),
+        animation->AnimateBetween(Property(targetActor, Dali::Actor::Properties::Position),
                                   positionKeyFrames, alpha, durationSeconds);
       }
     }
@@ -288,10 +289,10 @@ AnimationPtr ModelActorFactory::CreateAnimation(
     Dali::KeyFrames scaleKFHandle = entityAnimator.GetScaleKeyFrames();
     if(scaleKFHandle)
     {
-      const KeyFrames& scaleKeyFrames    = GetImplementation(scaleKFHandle);
+      const KeyFrames& scaleKeyFrames = GetImplementation(scaleKFHandle);
       if(scaleKeyFrames.GetKeyFramesBase()->GetNumberOfKeyFrames() > 0)
       {
-        animation->AnimateBetween(Property(targetActor, Dali::Actor::SCALE),    scaleKeyFrames, alpha, durationSeconds);
+        animation->AnimateBetween(Property(targetActor, Dali::Actor::Properties::Scale), scaleKeyFrames, alpha, durationSeconds);
       }
     }
 
@@ -301,7 +302,7 @@ AnimationPtr ModelActorFactory::CreateAnimation(
       const KeyFrames& rotationKeyFrames = GetImplementation(rotationKFHandle);
       if(rotationKeyFrames.GetKeyFramesBase()->GetNumberOfKeyFrames() > 0)
       {
-        animation->AnimateBetween(Property(targetActor, Dali::Actor::ROTATION), rotationKeyFrames, alpha, durationSeconds);
+        animation->AnimateBetween(Property(targetActor, Dali::Actor::Properties::Rotation), rotationKeyFrames, alpha, durationSeconds);
       }
     }
   }

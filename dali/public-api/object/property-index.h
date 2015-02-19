@@ -37,6 +37,24 @@ enum
   PROPERTY_CUSTOM_START_INDEX       = 50000000,   ///< The index at which custom properties start
 };
 
+/**
+ * @brief These are the property index start and range values for DALi-core.
+ * TODO: Confirm this. Optionally merge with enum above.
+ */
+enum
+{
+  DEFAULT_PROPERTY_MAX_COUNT                    = PROPERTY_REGISTRATION_START_INDEX,          ///< Default Property Range:     0 to 9999999
+
+  DEFAULT_ACTOR_PROPERTY_START_INDEX            = 0,                                          ///< Properties within the Actor base class
+  DEFAULT_ACTOR_PROPERTY_MAX_COUNT              = 10000,                                      ///< Actor Range:                0 to    9999
+
+  DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX    = DEFAULT_ACTOR_PROPERTY_START_INDEX + DEFAULT_ACTOR_PROPERTY_MAX_COUNT, ///< Properties for classes deriving from Actor
+  DEFAULT_DERIVED_ACTOR_PROPERTY_MAX_COUNT      = 10000,                                      // TODO: Confirm this
+
+  DEFAULT_GESTURE_DETECTOR_PROPERTY_START_INDEX = DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX, // TODO: Confirm this (this is the current value used)
+  DEFAULT_GESTURE_DETECTOR_PROPERTY_MAX_COUNT   = 10000,                                      ///< GestureDetector Range:      0 to    9999
+};
+
 } // namespace Dali
 
 #endif // __DALI_PROPERTY_INDEX_H__

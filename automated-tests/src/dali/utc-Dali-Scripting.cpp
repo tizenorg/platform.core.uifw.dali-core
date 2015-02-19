@@ -83,10 +83,17 @@ void TestEnumStrings(
   }
 }
 
+/// Helper method to create ResourceImage using property
+ResourceImage NewResourceImage( const Property::Value& map )
+{
+  ResourceImage image = ResourceImage::DownCast( NewImage( map ) );
+  return image;
+}
+
 /// Helper method to create ImageAttributes using an Image
 ImageAttributes NewImageAttributes( const Property::Value& map )
 {
-  Image image = NewImage( map );
+  ResourceImage image = ResourceImage::DownCast( NewImage( map ) );
   return image.GetAttributes();
 }
 
@@ -428,8 +435,6 @@ int UtcDaliScriptingNewImageNegative(void)
 }
 
 
-//////////////////////////////////////////////////////////////////////////////
-
 int UtcDaliScriptingNewImage(void)
 {
   TestApplication application;
@@ -439,8 +444,8 @@ int UtcDaliScriptingNewImage(void)
 
   // Filename only
   {
-    Image image = NewImage( map );
-    DALI_TEST_EQUALS( "TEST_FILE", image.GetFilename(), TEST_LOCATION );
+    ResourceImage image = ResourceImage::DownCast( NewImage( map ) );
+    DALI_TEST_EQUALS( "TEST_FILE", image.GetUrl(), TEST_LOCATION );
   }
 
   // load-policy
@@ -448,10 +453,10 @@ int UtcDaliScriptingNewImage(void)
   {
     const StringEnum< int > values[] =
     {
-        { "IMMEDIATE", Image::Immediate },
-        { "ON_DEMAND", Image::OnDemand }
+        { "IMMEDIATE", ResourceImage::IMMEDIATE },
+        { "ON_DEMAND", ResourceImage::ON_DEMAND }
     };
-    TestEnumStrings< Image::LoadPolicy, Image >( map, values, ( sizeof( values ) / sizeof ( values[0] ) ), &Image::GetLoadPolicy, &NewImage );
+    TestEnumStrings< ResourceImage::LoadPolicy, ResourceImage >( map, values, ( sizeof( values ) / sizeof ( values[0] ) ), &ResourceImage::GetLoadPolicy, &NewResourceImage );
   }
 
   // release-policy
@@ -459,8 +464,8 @@ int UtcDaliScriptingNewImage(void)
   {
     const StringEnum< int > values[] =
     {
-        { "UNUSED", Image::Unused },
-        { "NEVER", Image::Never }
+        { "UNUSED", Image::UNUSED },
+        { "NEVER", Image::NEVER }
     };
     TestEnumStrings< Image::ReleasePolicy, Image >( map, values, ( sizeof( values ) / sizeof ( values[0] ) ), &Image::GetReleasePolicy, &NewImage );
   }
@@ -550,7 +555,7 @@ int UtcDaliScriptingNewImage(void)
   map[ "type" ] = "Image";
   {
     Image image = NewImage( map );
-    DALI_TEST_CHECK( Image::DownCast( image ) );
+    DALI_TEST_CHECK( ResourceImage::DownCast( image ) );
     DALI_TEST_CHECK( !FrameBufferImage::DownCast( image ) );
     DALI_TEST_CHECK( !BitmapImage::DownCast( image ) );
   }
@@ -924,7 +929,7 @@ int UtcDaliScriptingCreatePropertyMapImage(void)
 
   // Default
   {
-    Image image = Image::New( "MY_PATH" );
+    Image image = ResourceImage::New( "MY_PATH" );
 
     Property::Map map;
     CreatePropertyMap( image, map );
@@ -932,7 +937,7 @@ int UtcDaliScriptingCreatePropertyMapImage(void)
 
     Property::Value value( map );
     DALI_TEST_CHECK( value.HasKey( "type" ) );
-    DALI_TEST_EQUALS( value.GetValue( "type" ).Get< std::string >(), "Image", TEST_LOCATION );
+    DALI_TEST_EQUALS( value.GetValue( "type" ).Get< std::string >(), "ResourceImage", TEST_LOCATION );
     DALI_TEST_CHECK( value.HasKey( "filename" ) );
     DALI_TEST_EQUALS( value.GetValue( "filename" ).Get< std::string >(), "MY_PATH", TEST_LOCATION );
     DALI_TEST_CHECK( value.HasKey( "load-policy") );
@@ -953,7 +958,7 @@ int UtcDaliScriptingCreatePropertyMapImage(void)
     attributes.SetPixelFormat( Pixel::A8 );
     attributes.SetScalingMode( ImageAttributes::FitWidth );
     attributes.SetSize( 300, 400 );
-    Image image = Image::New( "MY_PATH", attributes, Image::OnDemand, Image::Unused );
+    Image image = ResourceImage::New( "MY_PATH", attributes, ResourceImage::ON_DEMAND, Image::UNUSED );
 
     Property::Map map;
     CreatePropertyMap( image, map );
@@ -961,7 +966,7 @@ int UtcDaliScriptingCreatePropertyMapImage(void)
 
     Property::Value value( map );
     DALI_TEST_CHECK( value.HasKey( "type" ) );
-    DALI_TEST_EQUALS( value.GetValue( "type" ).Get< std::string >(), "Image", TEST_LOCATION );
+    DALI_TEST_EQUALS( value.GetValue( "type" ).Get< std::string >(), "ResourceImage", TEST_LOCATION );
     DALI_TEST_CHECK( value.HasKey( "filename" ) );
     DALI_TEST_EQUALS( value.GetValue( "filename" ).Get< std::string >(), "MY_PATH", TEST_LOCATION );
     DALI_TEST_CHECK( value.HasKey( "load-policy") );
@@ -1025,6 +1030,26 @@ int UtcDaliScriptingGetEnumerationTemplates(void)
     tet_printf("Checking: %d\n", myTable[ i ].value );
     DALI_TEST_EQUALS( myTable[ i ].string, GetEnumerationName( myTable[ i ].value, myTable, myTableCount ), TEST_LOCATION );
   }
+
+  END_TEST;
+}
+
+int UtcDaliScriptingCompareEnums(void)
+{
+  // EQUAL
+  DALI_TEST_CHECK( CompareEnums( "", "" ) );
+  DALI_TEST_CHECK( CompareEnums( "HELLO", "HELLO" ) );
+  DALI_TEST_CHECK( CompareEnums( "HELLO", "hello" ) );
+  DALI_TEST_CHECK( CompareEnums( "hello", "HELLO" ) );
+  DALI_TEST_CHECK( CompareEnums( "hello-world", "HELLO_WORLD" ) );
+  DALI_TEST_CHECK( CompareEnums( "hello_WORLD", "HELLO-world" ) );
+  DALI_TEST_CHECK( CompareEnums( "hello_WORLD-", "HELLO-world_" ) );
+  DALI_TEST_CHECK( CompareEnums( "_hello_WORLD-", "-HELLO-world_" ) );
+  DALI_TEST_CHECK( CompareEnums( "-hello_WORLD-", "_HELLO-world_" ) );
+  DALI_TEST_CHECK( CompareEnums( "hello123", "HELLO123" ) );
+
+  // NOT EQUAL
+  DALI_TEST_CHECK( ! CompareEnums( "hello", "HELLOWORLD" ) );
 
   END_TEST;
 }

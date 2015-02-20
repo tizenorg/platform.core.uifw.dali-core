@@ -68,6 +68,23 @@ else                                                                            
   tet_result(TET_FAIL);                                                                   \
 }
 
+/**
+ * DALI_REQUIRED_CHECK is a wrapper for tet_result.
+ * If the condition is false it terminates the test.
+ * @param[in] The boolean expression to check
+ */
+#define DALI_REQUIRED_CHECK(condition)                                                    \
+if ( (condition) )                                                                        \
+{                                                                                         \
+  tet_result(TET_PASS);                                                                   \
+}                                                                                         \
+else                                                                                      \
+{                                                                                         \
+  fprintf(stderr, "%s Failed in %s at line %d\n", __PRETTY_FUNCTION__, __FILE__, __LINE__);    \
+  tet_result(TET_FAIL);                                                                   \
+  END_TEST;                                                                               \
+}
+
 template <typename Type>
 inline bool CompareType(Type value1, Type value2, float epsilon);
 

@@ -47,7 +47,6 @@ NativeFrameBufferTexture::~NativeFrameBufferTexture()
 
 bool NativeFrameBufferTexture::IsFullyOpaque() const
 {
-  // TODO - Should test actual texture...
   return !HasAlphaChannel();
 }
 

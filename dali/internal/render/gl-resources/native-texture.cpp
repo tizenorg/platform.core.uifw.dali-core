@@ -70,7 +70,6 @@ bool NativeTexture::Bind(GLenum target, TextureUnit textureunit )
 
 bool NativeTexture::IsFullyOpaque() const
 {
-  // TODO - Should test actual texture...
   return !HasAlphaChannel();
 }
 

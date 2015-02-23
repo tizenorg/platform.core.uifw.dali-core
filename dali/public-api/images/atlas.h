@@ -20,7 +20,7 @@
 
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/images/image.h>
-#include <dali/public-api/images/bitmap-image.h>
+#include <dali/public-api/images/buffer-image.h>
 
 namespace Dali
 {
@@ -71,7 +71,7 @@ public:
    * @param [in] yOffset Specifies an offset in the y direction within the atlas.
    * @return True if the bitmap fits within the atlas at the specified offset.
    */
-  bool Upload( const BitmapImage& bitmap,
+  bool Upload( const BufferImage& bitmap,
                std::size_t xOffset,
                std::size_t yOffset );
 

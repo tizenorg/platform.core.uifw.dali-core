@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/event/images/atlas-impl.h>
-#include <dali/internal/event/images/bitmap-image-impl.h>
+#include <dali/internal/event/images/buffer-image-impl.h>
 
 namespace Dali
 {
@@ -39,7 +39,7 @@ Atlas::Atlas()
 {
 }
 
-bool Atlas::Upload( const BitmapImage& bitmap,
+bool Atlas::Upload( const BufferImage& bitmap,
                     std::size_t xOffset,
                     std::size_t yOffset )
 {

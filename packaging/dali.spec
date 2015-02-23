@@ -46,9 +46,6 @@ Integration development package for the OpenGLES Canvas - headers for integratin
 ##############################
 %prep
 %setup -q
-%define dali_data_rw_dir /opt/usr/share/dali/
-%define dali_data_ro_dir /usr/share/dali/
-%define shader_bin_dir   %{dali_data_rw_dir}/core/shaderbin
 %define dev_include_path %{_includedir}
 
 ##############################
@@ -66,10 +63,6 @@ CXXFLAGS+=" -D_ARCH_ARM_ -mfpu=neon"
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen
 autoreconf --install
-DALI_DATA_RW_DIR="%{dali_data_rw_dir}"
-DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
-export DALI_DATA_RW_DIR
-export DALI_DATA_RO_DIR
 
 CFLAGS="${CFLAGS:-%optflags}" ; export CFLAGS;
 CXXFLAGS="${CXXFLAGS:-%optflags}" ; export CXXFLAGS;
@@ -88,6 +81,7 @@ LDFLAGS="${LDFLAGS:-%optflags}" ; export LDFLAGS;
       --localstatedir=%{_localstatedir} \
       --sharedstatedir=%{_sharedstatedir} \
       --mandir=%{_mandir} \
+      --enable_shaderbin_ccache \
       --infodir=%{_infodir}
 
 make %{?jobs:-j%jobs}
@@ -98,7 +92,7 @@ make %{?jobs:-j%jobs}
 %install
 rm -rf %{buildroot}
 cd build/tizen
-%make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
+%make_install
 
 # LICENSE
 mkdir -p %{buildroot}/usr/share/license
@@ -110,8 +104,6 @@ cp -af %{_builddir}/%{name}-%{version}/LICENSE %{buildroot}/usr/share/license/%{
 ##############################
 %post
 /sbin/ldconfig
-chown 5000:5000 %{shader_bin_dir}
-rm -rf %{shader_bin_dir}/*
 exit 0
 
 ##############################
@@ -119,7 +111,6 @@ exit 0
 ##############################
 %postun
 /sbin/ldconfig
-rm -rf %{shader_bin_dir}
 exit 0
 
 ##############################
@@ -135,7 +126,6 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/lib%{name}-core.so*
 %defattr(-,app,app,-)
-%dir %{shader_bin_dir}
 %{_datadir}/license/%{name}
 
 %files devel

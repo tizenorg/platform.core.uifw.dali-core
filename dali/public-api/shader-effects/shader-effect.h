@@ -19,11 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/animation/active-constraint-declarations.h>
-#include <dali/public-api/object/constrainable.h>
-
-namespace Dali
-{
+#include <dali/public-api/object/constrainable.h> // Dali::Constrainable
 
 /**
  * @brief DALI_COMPOSE_SHADER macro provides a convenient way to write shader source code.
@@ -33,13 +29,15 @@ namespace Dali
  * We don't need to write quotation marks using this macro at every line.
  *
  * [An example of double quotation marks usage]
+ * <pre>
  * const string FRAGMENT_SHADER_SOURCE = \
  * "  void main()\n"
  * "  {\n"
  * "    gl_FragColor = texture2D( sTexture, vTexCoord ) * uColor;\n"
  * "  }\n";
- *
+ * </pre><br/>
  * [An example of DALI_COMPOSE_SHADER usage]
+ * <pre>
  * const string VERTEX_SHADER_SOURCE = DALI_COMPOSE_SHADER (
  *   void main()
  *   {
@@ -47,14 +45,12 @@ namespace Dali
  *     vTexCoord = aTexCoord;
  *   }
  * );
+ * </pre>
  */
 #define DALI_COMPOSE_SHADER(STR) #STR
 
-class Constraint;
-class Image;
-struct Vector2;
-struct Vector3;
-struct Vector4;
+namespace Dali
+{
 
 namespace Internal DALI_INTERNAL
 {
@@ -62,149 +58,35 @@ class ShaderEffect;
 }
 
 /**
- * @brief GeometryType determines how geometry is shaped.
- */
-enum GeometryType
-{
-  GEOMETRY_TYPE_IMAGE = 0x01,         ///< image, with flat color or texture
-  GEOMETRY_TYPE_UNTEXTURED_MESH = 0x02,///< Complex meshes, with flat color
-  GEOMETRY_TYPE_TEXTURED_MESH = 0x04, ///< Complex meshes, with texture
-  GEOMETRY_TYPE_LAST = 0x08
-};
-
-/**
- * @brief Shader effects provide a visual effect for actors.
- *
- * For a Custom shader you can provide the vertex and fragment shader code as strings.
- * These shader snippets get concatenated with the default attributes and uniforms.
- * For a vertex shader this part contains the following code:
- * <pre>
- * precision highp float;
- * attribute vec3  aPosition;
- * attribute vec2  aTexCoord;
- * uniform   mat4  uMvpMatrix;
- * uniform   mat4  uModelMatrix;
- * uniform   mat4  uViewMatrix;
- * uniform   mat4  uModelView;
- * uniform   mat3  uNormalMatrix;
- * uniform   mat4  uProjection;
- * uniform   vec4  uColor;
- * varying   vec2  vTexCoord;
- * </pre>
- * The custom shader part is expected to output the vertex position and texture coordinate.
- * A basic custom vertex shader would contain the following code:
- * <pre>
- * void main()
- * {
- *   gl_Position = uProjection * uModelView * vec4(aPosition, 1.0);
- *   vTexCoord = aTexCoord;
- * }
- * </pre>
- * For fragment shader the default part for images contains the following code:
- * <pre>
- * precision mediump float;
- * uniform   sampler2D sTexture;
- * uniform   sampler2D sEffect;
- * uniform   vec4      uColor;
- * varying   vec2      vTexCoord;
- * </pre>
- * <BR>
- * <B>
- * Note: In order for fade and color animations to work, the fragment shader needs to multiply the fragment color
- * with the uniform color "uColor" of the node
- * </B>
+ * @brief ShaderEffects allows custom vertex and color transformations in the GPU
  */
 class DALI_IMPORT_API ShaderEffect : public Constrainable
 {
 public:
-  /**
-   * @brief The Extension class is a base class for objects that can be attached to the
-   * ShaderEffects as extensions.
-   *
-   * Extensions are useful to create pimpled implementations of custom shaders.
-   * The shader effect will hold an intrusive pointer to the extension.
-   */
-  class Extension : public RefObject
-  {
-  protected:
-    /**
-     * @brief Disable default constructor. This a base class is not meant to be initialised on its own.
-     */
-    Extension();
-
-    /**
-     * @brief Virtual destructor.
-     */
-    virtual ~Extension();
-  };
-
-  // Default Properties
-  /* Grid Density defines the spacing of vertex coordinates in world units.
-   * ie a larger actor will have more grids at the same spacing.
-   *
-   *  +---+---+         +---+---+---+
-   *  |   |   |         |   |   |   |
-   *  +---+---+         +---+---+---+
-   *  |   |   |         |   |   |   |
-   *  +---+---+         +---+---+---+
-   *                    |   |   |   |
-   *                    +---+---+---+
-   */
-  static const Property::Index GRID_DENSITY;       ///< name "grid-density",   type FLOAT
-  static const Property::Index IMAGE;              ///< name "image",          type MAP; {"filename":"", "load-policy":...}
   static const Property::Index PROGRAM;            ///< name "program",        type MAP; {"vertex-prefix":"","fragment-prefix":"","vertex":"","fragment":""}
   static const Property::Index GEOMETRY_HINTS;     ///< name "geometry-hints", type INT (bitfield) values from enum GeometryHints
-
-  static const float DEFAULT_GRID_DENSITY;         ///< The default density is 40 pixels
 
   /**
    * @brief Hints for rendering/subdividing geometry.
    */
   enum GeometryHints
   {
-    HINT_NONE           = 0x00,   ///< no hints
-    HINT_GRID_X         = 0x01,   ///< Geometry must be subdivided in X
-    HINT_GRID_Y         = 0x02,   ///< Geometry must be subdivided in Y
-    HINT_GRID           = (HINT_GRID_X | HINT_GRID_Y),
-    HINT_DEPTH_BUFFER   = 0x04,   ///< Needs depth buffering turned on
-    HINT_BLENDING       = 0x08,   ///< Notifies the actor to use blending even if it's fully opaque. Needs actor's blending set to BlendingMode::AUTO
-    HINT_DOESNT_MODIFY_GEOMETRY = 0x10 ///< Notifies that the vertex shader will not change geometry (enables bounding box culling)
+    HINT_NONE                   = 0x00, ///< no hints
+    HINT_SELF_DEPTH_TESTING     = 0x01, ///< Expects depth testing enabled
+    HINT_TRANSPARENCY           = 0x02, ///< Might generate transparent alpha from opaque
+    HINT_MODIFIES_GEOMETRY      = 0x04, ///< Might change position of vertices
   };
-
-  /**
-   * @brief Coordinate type of the shader uniform.
-   *
-   * Viewport coordinate types will convert from viewport to view space.
-   * Use this coordinate type if your are doing a transformation in view space.
-   * The texture coordinate type converts a value in actor local space to texture coodinates.
-   * This is useful for pixel shaders and accounts for texture atlas.
-   */
-  enum UniformCoordinateType
-  {
-    COORDINATE_TYPE_DEFAULT,           ///< Default, No transformation to be applied
-    COORDINATE_TYPE_VIEWPORT_POSITION, ///< The uniform is a position vector in viewport coordinates that needs to be converted to GL view space coordinates.
-    COORDINATE_TYPE_VIEWPORT_DIRECTION ///< The uniform is a directional vector in viewport coordinates that needs to be converted to GL view space coordinates.
-  };
-
-  /**
-   * @brief Create an empty ShaderEffect.
-   *
-   * This can be initialised with ShaderEffect::New(...)
-   */
-  ShaderEffect();
 
   /**
    * @brief Create ShaderEffect.
    *
    * @param vertexShader code for the effect. If you pass in an empty string, the default version will be used
    * @param fragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param type GeometryType to define the shape of the geometry
    * @param hints GeometryHints to define the geometry of the rendered object
    * @return A handle to a shader effect
    */
   static ShaderEffect New( const std::string& vertexShader,
                            const std::string& fragmentShader,
-                           GeometryType type = GeometryType(GEOMETRY_TYPE_IMAGE),
                            GeometryHints hints = GeometryHints(HINT_NONE) );
 
   /**
@@ -213,7 +95,6 @@ public:
    * @param vertexShader code for the effect. If you pass in an empty string, the default version will be used
    * @param fragmentShaderPrefix code for the effect. It will be inserted before the default uniforms (ideal for \#defines)
    * @param fragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param type GeometryType to define the shape of the geometry
    * @param hints GeometryHints to define the geometry of the rendered object
    * @return A handle to a shader effect
    */
@@ -221,19 +102,23 @@ public:
                                     const std::string& vertexShader,
                                     const std::string& fragmentShaderPrefix,
                                     const std::string& fragmentShader,
-                                    GeometryType type = GeometryType(GEOMETRY_TYPE_IMAGE),
                                     GeometryHints hints = GeometryHints(HINT_NONE) );
 
   /**
    * @brief Downcast an Object handle to ShaderEffect.
    *
    * If handle points to a ShaderEffect the downcast produces valid
-   * handle. If not the returned handle is left uninitialized.
+   * handle. If not the returned handle is empty.
    *
    * @param[in] handle to An object
    * @return handle to a ShaderEffect object or an uninitialized handle
    */
   static ShaderEffect DownCast( BaseHandle handle );
+
+  /**
+   * @brief Default constructor, creates an empty handle
+   */
+  ShaderEffect();
 
   /**
    * @brief Destructor
@@ -257,130 +142,7 @@ public:
    */
   ShaderEffect& operator=(const ShaderEffect& rhs);
 
-  /**
-   * @brief Sets image for using as effect texture.
-   *
-   * This image texture will be bound to the "sEffect" sampler
-   * so it can be used in fragment shader for effects
-   *
-   * @param[in] image to use as effect texture
-   */
-  void SetEffectImage( Image image );
-
-  /**
-   * @brief Set a uniform value.
-   * This will register a property of type Property::FLOAT; see Object::RegisterProperty() for more details.
-   * If name matches a uniform in the shader source, this value will be uploaded when rendering.
-   * @pre Either the property name is not in use, or a property exists with the correct name & type.
-   * @param name The name of the uniform.
-   * @param value The value to to set.
-   * @param uniformCoordinateType The coordinate type of the uniform.
-   */
-  void SetUniform( const std::string& name,
-                   float value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
-
-  /**
-   * @brief Set a uniform value.
-   *
-   * This will register a property of type Property::VECTOR2; see Object::RegisterProperty() for more details.
-   * If name matches a uniform in the shader source, this value will be uploaded when rendering.
-   * @pre Either the property name is not in use, or a property exists with the correct name & type.
-   * @param name The name of the uniform.
-   * @param value The value to to set.
-   * @param uniformCoordinateType The coordinate type of the uniform.
-   */
-  void SetUniform( const std::string& name,
-                   Vector2 value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
-
-  /**
-   * @brief Set a uniform value.
-   *
-   * This will register a property of type Property::VECTOR3; see Object::RegisterProperty() for more details.
-   * If name matches a uniform in the shader source, this value will be uploaded when rendering.
-   * @pre Either the property name is not in use, or a property exists with the correct name & type.
-   * @param name The name of the uniform.
-   * @param value The value to to set.
-   * @param uniformCoordinateType The coordinate type of the uniform.
-   */
-  void SetUniform( const std::string& name,
-                   Vector3 value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
-
-  /**
-   * @brief Set a uniform value.
-   *
-   * This will register a property of type Property::VECTOR4; see Object::RegisterProperty() for more details.
-   * If name matches a uniform in the shader source, this value will be uploaded when rendering.
-   * @pre Either the property name is not in use, or a property exists with the correct name & type.
-   * @param name The name of the uniform.
-   * @param value The value to to set.
-   * @param uniformCoordinateType The coordinate type of the uniform.
-   */
-  void SetUniform( const std::string& name,
-                   Vector4 value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
-
-  /**
-   * @brief Set a uniform value.
-   *
-   * This will register a property of type Property::MATRIX; see Object::RegisterProperty() for more details.
-   * If name matches a uniform in the shader source, this value will be uploaded when rendering.
-   * @pre Either the property name is not in use, or a property exists with the correct name & type.
-   * @param name The name of the uniform.
-   * @param value The value to to set.
-   * @param uniformCoordinateType The coordinate type of the uniform.
-   */
-  void SetUniform( const std::string& name,
-                   const Matrix& value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
-
-  /**
-   * @brief Set a uniform value.
-   *
-   * This will register a property of type Property::MATRIX3; see Object::RegisterProperty() for more details.
-   * If name matches a uniform in the shader source, this value will be uploaded when rendering.
-   * @pre Either the property name is not in use, or a property exists with the correct name & type.
-   * @param name The name of the uniform.
-   * @param value The value to to set.
-   * @param uniformCoordinateType The coordinate type of the uniform.
-   */
-  void SetUniform( const std::string& name,
-                   const Matrix3& value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
-
-  /**
-   * @brief Attach an extension object.
-   *
-   * This object is reference counted and will be automatically deleted.
-   * This object can be retrieved back with the GetExtension function.
-   * @param object Pointer to a Extension.
-   * @pre extension is not NULL
-   */
-  void AttachExtension( Extension *object );
-
-  /**
-   * @brief Retrieve the attached extension object.
-   *
-   * This object can be set with the AttachExtension function.
-   * @return implementation Pointer to a Extension.
-   * @pre An extension needs to be attached previously.
-   */
-  Extension& GetExtension();
-
-  /**
-   * @brief Retrieve the attached extension object.
-   *
-   * This object can be set with the AttachExtension function.
-   * @return implementation Pointer to a Extension.
-   * @pre An extension needs to be attached previously.
-   */
-  const Extension& GetExtension() const;
-
-
 public: // Not intended for application developers
-
   /**
    * @brief This constructor is used by Dali New() methods.
    * @param [in] effect A pointer to a newly allocated Dali resource.

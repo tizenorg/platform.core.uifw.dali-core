@@ -28,9 +28,8 @@ namespace FilterMode
 {
 /**
  * @brief Texture filtering mode.
- * @see Dali::RenderableActor::SetFilterMode() and Dali::RenderableActor::GetFilterMode()
  */
-enum Type
+enum FilterMode
 {
   NONE,       ///< Use GL system defaults (minification NEAREST_MIPMAP_LINEAR, magnification LINEAR)
   DEFAULT,    ///< Use dali defaults (minification LINEAR, magnification LINEAR)

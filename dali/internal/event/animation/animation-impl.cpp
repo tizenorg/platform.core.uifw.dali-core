@@ -19,6 +19,7 @@
 #include <dali/internal/event/animation/animation-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/animation/time-period.h>
 #include <dali/public-api/common/dali-common.h>
@@ -421,51 +422,51 @@ void Animation::AnimateTo(Object& targetObject, Property::Index targetPropertyIn
   {
     case Property::BOOLEAN:
     {
-      AddAnimatorConnector( AnimatorConnector<bool>::New(targetObject,
-                                                         targetPropertyIndex,
-                                                         componentIndex,
-                                                         new AnimateToBoolean(destinationValue.Get<bool>()),
-                                                         alpha,
-                                                         period) );
+      AddAnimatorConnector( AnimatorConnector<bool>::New( targetObject,
+                                                          targetPropertyIndex,
+                                                          componentIndex,
+                                                          new AnimateToBoolean( destinationValue.Get<bool>() ),
+                                                          alpha,
+                                                          period ) );
       break;
     }
 
     case Property::FLOAT:
     {
-      AddAnimatorConnector( AnimatorConnector<float>::New(targetObject,
-                                                          targetPropertyIndex,
-                                                          componentIndex,
-                                                          new AnimateToFloat(destinationValue.Get<float>()),
-                                                          alpha,
-                                                          period) );
+      AddAnimatorConnector( AnimatorConnector<float>::New( targetObject,
+                                                           targetPropertyIndex,
+                                                           componentIndex,
+                                                           new AnimateToFloat( destinationValue.Get<float>() ),
+                                                           alpha,
+                                                           period ) );
       break;
     }
 
     case Property::INTEGER:
     {
-      AddAnimatorConnector( AnimatorConnector<int>::New(targetObject,
-                                                        targetPropertyIndex,
-                                                        componentIndex,
-                                                        new AnimateToInteger(destinationValue.Get<int>()),
-                                                        alpha,
-                                                        period) );
+      AddAnimatorConnector( AnimatorConnector<int>::New( targetObject,
+                                                         targetPropertyIndex,
+                                                         componentIndex,
+                                                         new AnimateToInteger( destinationValue.Get<int>() ),
+                                                         alpha,
+                                                         period ) );
       break;
     }
 
     case Property::VECTOR2:
     {
-      AddAnimatorConnector( AnimatorConnector<Vector2>::New(targetObject,
-                                                            targetPropertyIndex,
-                                                            componentIndex,
-                                                            new AnimateToVector2(destinationValue.Get<Vector2>()),
-                                                            alpha,
-                                                            period) );
+      AddAnimatorConnector( AnimatorConnector<Vector2>::New( targetObject,
+                                                             targetPropertyIndex,
+                                                             componentIndex,
+                                                             new AnimateToVector2( destinationValue.Get<Vector2>() ),
+                                                             alpha,
+                                                             period ) );
       break;
     }
 
     case Property::VECTOR3:
     {
-      if ( Dali::Actor::SIZE == targetPropertyIndex )
+      if ( Dali::Actor::Property::Size == targetPropertyIndex )
       {
         // Test whether this is actually an Actor
         Actor* maybeActor = dynamic_cast<Actor*>( &targetObject );
@@ -476,34 +477,34 @@ void Animation::AnimateTo(Object& targetObject, Property::Index targetPropertyIn
         }
       }
 
-      AddAnimatorConnector( AnimatorConnector<Vector3>::New(targetObject,
-                                                            targetPropertyIndex,
-                                                            componentIndex,
-                                                            new AnimateToVector3(destinationValue.Get<Vector3>()),
-                                                            alpha,
-                                                            period) );
+      AddAnimatorConnector( AnimatorConnector<Vector3>::New( targetObject,
+                                                             targetPropertyIndex,
+                                                             componentIndex,
+                                                             new AnimateToVector3( destinationValue.Get<Vector3>() ),
+                                                             alpha,
+                                                             period ) );
       break;
     }
 
     case Property::VECTOR4:
     {
-      AddAnimatorConnector( AnimatorConnector<Vector4>::New(targetObject,
-                                                            targetPropertyIndex,
-                                                            componentIndex,
-                                                            new AnimateToVector4(destinationValue.Get<Vector4>()),
-                                                            alpha,
-                                                            period) );
+      AddAnimatorConnector( AnimatorConnector<Vector4>::New( targetObject,
+                                                             targetPropertyIndex,
+                                                             componentIndex,
+                                                             new AnimateToVector4( destinationValue.Get<Vector4>() ),
+                                                             alpha,
+                                                             period ) );
       break;
     }
 
     case Property::ROTATION:
     {
-      AddAnimatorConnector( AnimatorConnector<Quaternion>::New(targetObject,
-                                                               targetPropertyIndex,
-                                                               componentIndex,
-                                                               new RotateToQuaternion(destinationValue.Get<Quaternion>()),
-                                                               alpha,
-                                                               period) );
+      AddAnimatorConnector( AnimatorConnector<Quaternion>::New( targetObject,
+                                                                targetPropertyIndex,
+                                                                componentIndex,
+                                                                new RotateToQuaternion( destinationValue.Get<Quaternion>() ),
+                                                                alpha,
+                                                                period ) );
       break;
     }
 
@@ -752,7 +753,7 @@ void Animation::Animate( Actor& actor, const Path& path, const Vector3& forward,
 
   //Position animation
   AddAnimatorConnector( AnimatorConnector<Vector3>::New( actor,
-                                                         Dali::Actor::POSITION,
+                                                         Dali::Actor::Property::Position,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new PathPositionFunctor( pathCopy ),
                                                          alpha,
@@ -763,7 +764,7 @@ void Animation::Animate( Actor& actor, const Path& path, const Vector3& forward,
   {
     //Rotation animation
     AddAnimatorConnector( AnimatorConnector<Quaternion>::New( actor,
-                                                              Dali::Actor::ROTATION,
+                                                              Dali::Actor::Property::Rotation,
                                                               Property::INVALID_COMPONENT_INDEX,
                                                               new PathRotationFunctor( pathCopy, forward ),
                                                               alpha,
@@ -786,7 +787,7 @@ void Animation::MoveBy(Actor& actor, const Vector3& displacement, AlphaFunction 
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   AddAnimatorConnector( AnimatorConnector<Vector3>::New( actor,
-                                                         Dali::Actor::POSITION,
+                                                         Dali::Actor::Property::Position,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new AnimateByVector3(displacement),
                                                          alpha,
@@ -808,7 +809,7 @@ void Animation::MoveTo(Actor& actor, const Vector3& position, AlphaFunction alph
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   AddAnimatorConnector( AnimatorConnector<Vector3>::New( actor,
-                                                         Dali::Actor::POSITION,
+                                                         Dali::Actor::Property::Position,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new AnimateToVector3(position),
                                                          alpha,
@@ -830,7 +831,7 @@ void Animation::RotateBy(Actor& actor, Radian angle, const Vector3& axis, AlphaF
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   AddAnimatorConnector( AnimatorConnector<Quaternion>::New( actor,
-                                                            Dali::Actor::ROTATION,
+                                                            Dali::Actor::Property::Rotation,
                                                             Property::INVALID_COMPONENT_INDEX,
                                                             new RotateByAngleAxis(angle, axis),
                                                             alpha,
@@ -882,7 +883,7 @@ void Animation::RotateTo(Actor& actor, const Quaternion& rotation, AlphaFunction
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   AddAnimatorConnector( AnimatorConnector<Quaternion>::New( actor,
-                                                            Dali::Actor::ROTATION,
+                                                            Dali::Actor::Property::Rotation,
                                                             Property::INVALID_COMPONENT_INDEX,
                                                             new RotateToQuaternion(rotation),
                                                             alpha,
@@ -904,7 +905,7 @@ void Animation::ScaleBy(Actor& actor, const Vector3& scale, AlphaFunction alpha,
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   AddAnimatorConnector( AnimatorConnector<Vector3>::New( actor,
-                                                         Dali::Actor::SCALE,
+                                                         Dali::Actor::Property::Scale,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new AnimateByVector3(scale),
                                                          alpha,
@@ -926,7 +927,7 @@ void Animation::ScaleTo(Actor& actor, const Vector3& scale, AlphaFunction alpha,
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   AddAnimatorConnector( AnimatorConnector<Vector3>::New( actor,
-                                                         Dali::Actor::SCALE,
+                                                         Dali::Actor::Property::Scale,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new AnimateToVector3(scale),
                                                          alpha,
@@ -938,7 +939,7 @@ void Animation::Show(Actor& actor, float delaySeconds)
   ExtendDuration( TimePeriod(delaySeconds, 0) );
 
   AddAnimatorConnector( AnimatorConnector<bool>::New( actor,
-                                                      Dali::Actor::VISIBLE,
+                                                      Dali::Actor::Property::Visible,
                                                       Property::INVALID_COMPONENT_INDEX,
                                                       new AnimateToBoolean(SHOW_VALUE),
                                                       AlphaFunctions::Default,
@@ -950,7 +951,7 @@ void Animation::Hide(Actor& actor, float delaySeconds)
   ExtendDuration( TimePeriod(delaySeconds, 0) );
 
   AddAnimatorConnector( AnimatorConnector<bool>::New( actor,
-                                                      Dali::Actor::VISIBLE,
+                                                      Dali::Actor::Property::Visible,
                                                       Property::INVALID_COMPONENT_INDEX,
                                                       new AnimateToBoolean(HIDE_VALUE),
                                                       AlphaFunctions::Default,
@@ -972,7 +973,7 @@ void Animation::OpacityBy(Actor& actor, float opacity, AlphaFunction alpha, floa
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   AddAnimatorConnector( AnimatorConnector<Vector4>::New( actor,
-                                                         Dali::Actor::COLOR,
+                                                         Dali::Actor::Property::Color,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new AnimateByOpacity(opacity),
                                                          alpha,
@@ -994,7 +995,7 @@ void Animation::OpacityTo(Actor& actor, float opacity, AlphaFunction alpha, floa
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   AddAnimatorConnector( AnimatorConnector<Vector4>::New( actor,
-                                                         Dali::Actor::COLOR,
+                                                         Dali::Actor::Property::Color,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new AnimateToOpacity(opacity),
                                                          alpha,
@@ -1016,7 +1017,7 @@ void Animation::ColorBy(Actor& actor, const Vector4& color, AlphaFunction alpha,
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   AddAnimatorConnector( AnimatorConnector<Vector4>::New( actor,
-                                                         Dali::Actor::COLOR,
+                                                         Dali::Actor::Property::Color,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new AnimateByVector4(color),
                                                          alpha,
@@ -1038,7 +1039,7 @@ void Animation::ColorTo(Actor& actor, const Vector4& color, AlphaFunction alpha,
   ExtendDuration( TimePeriod(delaySeconds, durationSeconds) );
 
   AddAnimatorConnector( AnimatorConnector<Vector4>::New( actor,
-                                                         Dali::Actor::COLOR,
+                                                         Dali::Actor::Property::Color,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new AnimateToVector4(color),
                                                          alpha,
@@ -1065,7 +1066,7 @@ void Animation::Resize(Actor& actor, float width, float height, AlphaFunction al
   actor.NotifySizeAnimation( *this, targetSize );
 
   AddAnimatorConnector( AnimatorConnector<Vector3>::New( actor,
-                                                         Dali::Actor::SIZE,
+                                                         Dali::Actor::Property::Size,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new AnimateToVector3(targetSize),
                                                          alpha,
@@ -1090,7 +1091,7 @@ void Animation::Resize(Actor& actor, const Vector3& size, AlphaFunction alpha, f
   actor.NotifySizeAnimation( *this, size );
 
   AddAnimatorConnector( AnimatorConnector<Vector3>::New( actor,
-                                                         Dali::Actor::SIZE,
+                                                         Dali::Actor::Property::Size,
                                                          Property::INVALID_COMPONENT_INDEX,
                                                          new AnimateToVector3(size),
                                                          alpha,

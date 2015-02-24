@@ -33,13 +33,23 @@ using Dali::Internal::SceneGraph::AnimatableProperty;
 namespace Dali
 {
 
-const Property::Index ActiveConstraint::WEIGHT = 0;
-
 namespace Internal
 {
 
 namespace // unnamed namespace
 {
+
+// Properties
+
+/**
+ * We want to discourage the use of property strings (minimize string comparisons),
+ * particularly for the default properties.
+ */
+const Dali::Internal::PropertyDetails DEFAULT_PROPERTY_DETAILS[] =
+{
+  { "weight", Dali::Property::FLOAT, true, true, true },
+};
+const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( DEFAULT_PROPERTY_DETAILS[0] );
 
 // Signals
 
@@ -54,27 +64,6 @@ BaseHandle Create()
 TypeRegistration mType( typeid(Dali::ActiveConstraint), typeid(Dali::Handle), Create );
 
 SignalConnectorType signalConnector1( mType, SIGNAL_APPLIED, &ActiveConstraintBase::DoConnectSignal );
-
-}
-
-
-namespace // unnamed namespace
-{
-
-/**
- * We want to discourage the use of property strings (minimize string comparisons),
- * particularly for the default properties.
- */
-const char* DEFAULT_PROPERTY_NAMES[] =
-{
-  "weight"
-};
-const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_NAMES ) / sizeof( std::string );
-
-const Property::Type DEFAULT_PROPERTY_TYPES[DEFAULT_PROPERTY_COUNT] =
-{
-  Property::FLOAT // WEIGHT
-};
 
 } // unnamed namespace
 
@@ -159,7 +148,7 @@ void ActiveConstraintBase::FirstApply( Object& parent, TimePeriod applyTime )
     // Automatically animate (increase) the weight, until the constraint is fully applied
     mApplyAnimation = Dali::Animation::New( applyTime.delaySeconds + applyTime.durationSeconds );
     Dali::ActiveConstraint self( this );
-    mApplyAnimation.AnimateTo( Property( self, Dali::ActiveConstraint::WEIGHT ), Dali::ActiveConstraint::FINAL_WEIGHT, mAlphaFunction, applyTime );
+    mApplyAnimation.AnimateTo( Property( self, Dali::ActiveConstraint::Property::Weight ), Dali::ActiveConstraint::FINAL_WEIGHT, mAlphaFunction, applyTime );
     mApplyAnimation.Play();
 
     // Chain "Finish" to "Applied" signal
@@ -338,7 +327,7 @@ const char* ActiveConstraintBase::GetDefaultPropertyName( Property::Index index 
 {
   if ( ( index >= 0 ) && ( index < DEFAULT_PROPERTY_COUNT ) )
   {
-    return DEFAULT_PROPERTY_NAMES[index];
+    return DEFAULT_PROPERTY_DETAILS[index].name;
   }
   else
   {
@@ -351,7 +340,7 @@ Property::Index ActiveConstraintBase::GetDefaultPropertyIndex( const std::string
   Property::Index index = Property::INVALID_INDEX;
 
   // Only one name to compare with...
-  if( 0 == strcmp( name.c_str(), DEFAULT_PROPERTY_NAMES[0] ) ) // dont want to convert rhs to string
+  if( 0 == strcmp( name.c_str(), DEFAULT_PROPERTY_DETAILS[0].name ) ) // Don't want to convert rhs to string
   {
     index = 0;
   }
@@ -378,7 +367,7 @@ Property::Type ActiveConstraintBase::GetDefaultPropertyType( Property::Index ind
 {
   if ( ( index >= 0 ) && ( index < DEFAULT_PROPERTY_COUNT ) )
   {
-    return DEFAULT_PROPERTY_TYPES[index];
+    return DEFAULT_PROPERTY_DETAILS[index].type;
   }
   else
   {
@@ -389,7 +378,7 @@ Property::Type ActiveConstraintBase::GetDefaultPropertyType( Property::Index ind
 
 void ActiveConstraintBase::SetDefaultProperty( Property::Index index, const Property::Value& propertyValue )
 {
-  if( Dali::ActiveConstraint::WEIGHT == index )
+  if( Dali::ActiveConstraint::Property::Weight == index )
   {
     SetWeight( propertyValue.Get<float>() );
   }
@@ -399,7 +388,7 @@ Property::Value ActiveConstraintBase::GetDefaultProperty( Property::Index index 
 {
   Property::Value value;
 
-  if( Dali::ActiveConstraint::WEIGHT == index )
+  if( Dali::ActiveConstraint::Property::Weight == index )
   {
     value = GetCurrentWeight();
   }

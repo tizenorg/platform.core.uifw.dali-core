@@ -21,17 +21,11 @@
 // INTERNAL INCLUDES
 #include <dali/internal/event/images/nine-patch-image-impl.h>
 #include <dali/public-api/object/type-registry.h>
-#include <dali/internal/event/common/property-index-ranges.h>
 #include <dali/internal/event/images/image-connector.h>
 #include <dali/public-api/scripting/scripting.h>
 
 namespace Dali
 {
-
-const Property::Index ImageActor::PIXEL_AREA           = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
-const Property::Index ImageActor::STYLE                = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 1;
-const Property::Index ImageActor::BORDER               = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 2;
-const Property::Index ImageActor::IMAGE                = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 3;
 
 namespace Internal
 {
@@ -39,12 +33,7 @@ namespace Internal
 namespace
 {
 
-BaseHandle Create()
-{
-  return Dali::ImageActor::New();
-}
-
-TypeRegistration mType( typeid(Dali::ImageActor), typeid(Dali::RenderableActor), Create );
+// Properties
 
 const Internal::PropertyDetails DEFAULT_IMAGE_ACTOR_PROPERTY_DETAILS[] =
 {
@@ -55,6 +44,13 @@ const Internal::PropertyDetails DEFAULT_IMAGE_ACTOR_PROPERTY_DETAILS[] =
   { "image",        Property::MAP,       true,    false,   false }, // IMAGE
 };
 const int DEFAULT_IMAGE_ACTOR_PROPERTY_COUNT = sizeof( DEFAULT_IMAGE_ACTOR_PROPERTY_DETAILS ) / sizeof( DEFAULT_IMAGE_ACTOR_PROPERTY_DETAILS[0] );
+
+BaseHandle Create()
+{
+  return Dali::ImageActor::New();
+}
+
+TypeRegistration mType( typeid( Dali::ImageActor ), typeid( Dali::RenderableActor ), Create );
 
 ImageActor::Style StyleEnum(const std::string &s)
 {
@@ -293,7 +289,7 @@ void ImageActor::GetDefaultPropertyIndices( Property::IndexContainer& indices ) 
 
   indices.reserve( indices.size() + DEFAULT_IMAGE_ACTOR_PROPERTY_COUNT );
 
-  int index = DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
+  int index = DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
   for ( int i = 0; i < DEFAULT_IMAGE_ACTOR_PROPERTY_COUNT; ++i, ++index )
   {
     indices.push_back( index );
@@ -302,13 +298,13 @@ void ImageActor::GetDefaultPropertyIndices( Property::IndexContainer& indices ) 
 
 bool ImageActor::IsDefaultPropertyWritable( Property::Index index ) const
 {
-  if( index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT )
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
     return RenderableActor::IsDefaultPropertyWritable(index);
   }
   else
   {
-    index -= DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
+    index -= DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
     if ( ( index >= 0 ) && ( index < DEFAULT_IMAGE_ACTOR_PROPERTY_COUNT ) )
     {
       return DEFAULT_IMAGE_ACTOR_PROPERTY_DETAILS[ index ].writable;
@@ -319,13 +315,13 @@ bool ImageActor::IsDefaultPropertyWritable( Property::Index index ) const
 
 bool ImageActor::IsDefaultPropertyAnimatable( Property::Index index ) const
 {
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return RenderableActor::IsDefaultPropertyAnimatable(index);
+    return RenderableActor::IsDefaultPropertyAnimatable( index );
   }
   else
   {
-    index -= DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
+    index -= DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
     if ( ( index >= 0 ) && ( index < DEFAULT_IMAGE_ACTOR_PROPERTY_COUNT ) )
     {
       return DEFAULT_IMAGE_ACTOR_PROPERTY_DETAILS[ index ].animatable;
@@ -336,13 +332,13 @@ bool ImageActor::IsDefaultPropertyAnimatable( Property::Index index ) const
 
 bool ImageActor::IsDefaultPropertyAConstraintInput( Property::Index index ) const
 {
-  if( index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT )
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return RenderableActor::IsDefaultPropertyAConstraintInput(index);
+    return RenderableActor::IsDefaultPropertyAConstraintInput( index );
   }
   else
   {
-    index -= DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
+    index -= DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
     if ( ( index >= 0 ) && ( index < DEFAULT_IMAGE_ACTOR_PROPERTY_COUNT ) )
     {
       return DEFAULT_IMAGE_ACTOR_PROPERTY_DETAILS[ index ].constraintInput;
@@ -353,14 +349,13 @@ bool ImageActor::IsDefaultPropertyAConstraintInput( Property::Index index ) cons
 
 Property::Type ImageActor::GetDefaultPropertyType( Property::Index index ) const
 {
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return RenderableActor::GetDefaultPropertyType(index);
+    return RenderableActor::GetDefaultPropertyType( index );
   }
   else
   {
-    index -= DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
-
+    index -= DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
     if ( ( index >= 0 ) && ( index < DEFAULT_IMAGE_ACTOR_PROPERTY_COUNT ) )
     {
       return DEFAULT_IMAGE_ACTOR_PROPERTY_DETAILS[index].type;
@@ -375,13 +370,13 @@ Property::Type ImageActor::GetDefaultPropertyType( Property::Index index ) const
 
 const char* ImageActor::GetDefaultPropertyName( Property::Index index ) const
 {
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
   {
     return RenderableActor::GetDefaultPropertyName(index);
   }
   else
   {
-    index -= DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
+    index -= DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
 
     if ( ( index >= 0 ) && ( index < DEFAULT_IMAGE_ACTOR_PROPERTY_COUNT ) )
     {
@@ -405,7 +400,7 @@ Property::Index ImageActor::GetDefaultPropertyIndex(const std::string& name) con
     const Internal::PropertyDetails* property = &DEFAULT_IMAGE_ACTOR_PROPERTY_DETAILS[ i ];
     if( 0 == strcmp( name.c_str(), property->name ) ) // dont want to convert rhs to string
     {
-      index = i + DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
+      index = i + DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
       break;
     }
   }
@@ -420,30 +415,30 @@ Property::Index ImageActor::GetDefaultPropertyIndex(const std::string& name) con
 
 void ImageActor::SetDefaultProperty( Property::Index index, const Property::Value& propertyValue )
 {
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    RenderableActor::SetDefaultProperty(index, propertyValue);
+    RenderableActor::SetDefaultProperty( index, propertyValue );
   }
   else
   {
     switch(index)
     {
-      case Dali::ImageActor::PIXEL_AREA:
+      case Dali::ImageActor::Property::PixelArea:
       {
         SetPixelArea(propertyValue.Get<Rect<int> >());
         break;
       }
-      case Dali::ImageActor::STYLE:
+      case Dali::ImageActor::Property::Style:
       {
-        SetStyle(StyleEnum(propertyValue.Get<std::string>()));
+        SetStyle( StyleEnum( propertyValue.Get<std::string>() ) );
         break;
       }
-      case Dali::ImageActor::BORDER:
+      case Dali::ImageActor::Property::Border:
       {
         SetNinePatchBorder( propertyValue.Get<Vector4>(), true /*in pixels*/ );
         break;
       }
-      case Dali::ImageActor::IMAGE:
+      case Dali::ImageActor::Property::Image:
       {
         Dali::Image img = Scripting::NewImage( propertyValue );
         if(img)
@@ -470,31 +465,31 @@ void ImageActor::SetDefaultProperty( Property::Index index, const Property::Valu
 Property::Value ImageActor::GetDefaultProperty( Property::Index index ) const
 {
   Property::Value ret;
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    ret = RenderableActor::GetDefaultProperty(index);
+    ret = RenderableActor::GetDefaultProperty( index );
   }
   else
   {
-    switch(index)
+    switch( index )
     {
-      case Dali::ImageActor::PIXEL_AREA:
+      case Dali::ImageActor::Property::PixelArea:
       {
         Rect<int> r = GetPixelArea();
         ret = r;
         break;
       }
-      case Dali::ImageActor::STYLE:
+      case Dali::ImageActor::Property::Style:
       {
-        ret = StyleString(GetStyle());
+        ret = StyleString( GetStyle() );
         break;
       }
-      case Dali::ImageActor::BORDER:
+      case Dali::ImageActor::Property::Border:
       {
         ret = GetNinePatchBorder();
         break;
       }
-      case Dali::ImageActor::IMAGE:
+      case Dali::ImageActor::Property::Image:
       {
         Property::Map map;
         Scripting::CreatePropertyMap( Dali::Image( mImageAttachment->GetImage().Get() ), map );
@@ -503,7 +498,7 @@ Property::Value ImageActor::GetDefaultProperty( Property::Index index ) const
       }
       default:
       {
-        DALI_LOG_WARNING("Unknown property (%d)\n", index);
+        DALI_LOG_WARNING( "Unknown property (%d)\n", index );
         break;
       }
     } // switch(index)

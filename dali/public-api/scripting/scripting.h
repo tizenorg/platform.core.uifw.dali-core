@@ -32,6 +32,25 @@ namespace Dali
 class Actor;
 
 /**
+ * Macros for creating enumeration to string tables.
+ * Example:
+ *
+ * DALI_ENUM_TO_STRING_TABLE_BEGIN( SizeMode )
+ * DALI_ENUM_TO_STRING( USE_OWN_SIZE )
+ * DALI_ENUM_TO_STRING( SIZE_EQUAL_TO_PARENT )
+ * DALI_ENUM_TO_STRING_TABLE_END( SizeMode )
+ *
+ * Creates:
+ * const Scripting::StringEnum< SizeMode > SizeModeTable[] = {
+ * { "USE_OWN_SIZE", USE_OWN_SIZE },
+ * { "SIZE_EQUAL_TO_PARENT", SIZE_EQUAL_TO_PARENT },
+ * }; const unsigned int SizeModeTableCount = sizeof( SizeModeTable ) / sizeof( SizeModeTable[0] );
+ */
+#define DALI_ENUM_TO_STRING_TABLE_BEGIN( t ) const Scripting::StringEnum< t > t##Table[] = {
+#define DALI_ENUM_TO_STRING_TABLE_END( t )   }; const unsigned int t##TableCount = sizeof( t##Table ) / sizeof( t##Table[0] );
+#define DALI_ENUM_TO_STRING( s ) { #s, s },
+
+/**
  * @brief Utilities for scripting support.
  */
 namespace Scripting
@@ -133,6 +152,30 @@ const char * GetEnumerationName( T value, const StringEnum< T >* table, unsigned
   }
 
   return NULL;
+}
+
+/**
+ * @brief Chooses the appropriate string for the provided enumeration from the given table.
+ * This is an optimised version that handles enumerations that start at 0 and are linear only.
+ *
+ * @param[in]  value       The enumeration.
+ * @param[in]  table       A pointer to an array with the enumeration to string equivalents.
+ * @param[in]  tableCount  Number of items in the array.
+ *
+ * @return The equivalent enumeration for the given string. Will return NULL if the value does not exist
+ *
+ * @note The caller is NOT responsible for cleaning up the returned pointer as it is statically allocated.
+ */
+template< typename T >
+const char * GetLinearEnumerationName( T value, const StringEnum< T >* table, unsigned int tableCount )
+{
+  int index = (int)value;
+  if ( index < 0 || index >= tableCount )
+  {
+    return NULL;
+  }
+
+  return table[index].string;
 }
 
 /**

@@ -25,21 +25,12 @@
 #include <dali/public-api/math/degree.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/event/actors/actor-impl.h>
-#include <dali/internal/event/common/property-index-ranges.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/events/gesture-event-processor.h>
 #include <dali/internal/update/gestures/scene-graph-pan-gesture.h>
 
 namespace Dali
 {
-
-const Property::Index PanGestureDetector::SCREEN_POSITION      = Internal::DEFAULT_GESTURE_DETECTOR_PROPERTY_MAX_COUNT;
-const Property::Index PanGestureDetector::SCREEN_DISPLACEMENT  = Internal::DEFAULT_GESTURE_DETECTOR_PROPERTY_MAX_COUNT + 1;
-const Property::Index PanGestureDetector::SCREEN_VELOCITY      = Internal::DEFAULT_GESTURE_DETECTOR_PROPERTY_MAX_COUNT + 2;
-const Property::Index PanGestureDetector::LOCAL_POSITION       = Internal::DEFAULT_GESTURE_DETECTOR_PROPERTY_MAX_COUNT + 3;
-const Property::Index PanGestureDetector::LOCAL_DISPLACEMENT   = Internal::DEFAULT_GESTURE_DETECTOR_PROPERTY_MAX_COUNT + 4;
-const Property::Index PanGestureDetector::LOCAL_VELOCITY       = Internal::DEFAULT_GESTURE_DETECTOR_PROPERTY_MAX_COUNT + 5;
-const Property::Index PanGestureDetector::PANNING              = Internal::DEFAULT_GESTURE_DETECTOR_PROPERTY_MAX_COUNT + 6;
 
 namespace Internal
 {
@@ -417,7 +408,7 @@ Property::Value PanGestureDetector::GetDefaultProperty(Property::Index index) co
 
   switch ( index )
   {
-    case Dali::PanGestureDetector::SCREEN_POSITION:
+    case Dali::PanGestureDetector::Property::ScreenPosition:
     {
       if(mSceneObject)
       {
@@ -430,7 +421,7 @@ Property::Value PanGestureDetector::GetDefaultProperty(Property::Index index) co
       break;
     }
 
-    case Dali::PanGestureDetector::SCREEN_DISPLACEMENT:
+    case Dali::PanGestureDetector::Property::ScreenDisplacement:
     {
       if(mSceneObject)
       {
@@ -443,7 +434,7 @@ Property::Value PanGestureDetector::GetDefaultProperty(Property::Index index) co
       break;
     }
 
-    case Dali::PanGestureDetector::SCREEN_VELOCITY:
+    case Dali::PanGestureDetector::Property::ScreenVelocity:
     {
       if(mSceneObject)
       {
@@ -456,7 +447,7 @@ Property::Value PanGestureDetector::GetDefaultProperty(Property::Index index) co
       break;
     }
 
-    case Dali::PanGestureDetector::LOCAL_POSITION:
+    case Dali::PanGestureDetector::Property::LocalPosition:
     {
       if(mSceneObject)
       {
@@ -469,7 +460,7 @@ Property::Value PanGestureDetector::GetDefaultProperty(Property::Index index) co
       break;
     }
 
-    case Dali::PanGestureDetector::LOCAL_DISPLACEMENT:
+    case Dali::PanGestureDetector::Property::LocalDisplacement:
     {
       if(mSceneObject)
       {
@@ -482,7 +473,7 @@ Property::Value PanGestureDetector::GetDefaultProperty(Property::Index index) co
       break;
     }
 
-    case Dali::PanGestureDetector::LOCAL_VELOCITY:
+    case Dali::PanGestureDetector::Property::LocalVelocity:
     {
       if(mSceneObject)
       {
@@ -495,7 +486,7 @@ Property::Value PanGestureDetector::GetDefaultProperty(Property::Index index) co
       break;
     }
 
-    case Dali::PanGestureDetector::PANNING:
+    case Dali::PanGestureDetector::Property::Panning:
     {
       if(mSceneObject)
       {
@@ -552,43 +543,43 @@ const PropertyInputImpl* PanGestureDetector::GetSceneObjectInputProperty( Proper
   {
     switch ( index )
     {
-      case Dali::PanGestureDetector::SCREEN_POSITION:
+      case Dali::PanGestureDetector::Property::ScreenPosition:
       {
         property = &mSceneObject->GetScreenPositionProperty();
         break;
       }
 
-      case Dali::PanGestureDetector::SCREEN_DISPLACEMENT:
+      case Dali::PanGestureDetector::Property::ScreenDisplacement:
       {
         property = &mSceneObject->GetScreenDisplacementProperty();
         break;
       }
 
-      case Dali::PanGestureDetector::SCREEN_VELOCITY:
+      case Dali::PanGestureDetector::Property::ScreenVelocity:
       {
         property = &mSceneObject->GetScreenVelocityProperty();
         break;
       }
 
-      case Dali::PanGestureDetector::LOCAL_POSITION:
+      case Dali::PanGestureDetector::Property::LocalPosition:
       {
         property = &mSceneObject->GetLocalPositionProperty();
         break;
       }
 
-      case Dali::PanGestureDetector::LOCAL_DISPLACEMENT:
+      case Dali::PanGestureDetector::Property::LocalDisplacement:
       {
         property = &mSceneObject->GetLocalDisplacementProperty();
         break;
       }
 
-      case Dali::PanGestureDetector::LOCAL_VELOCITY:
+      case Dali::PanGestureDetector::Property::LocalVelocity:
       {
         property = &mSceneObject->GetLocalVelocityProperty();
         break;
       }
 
-      case Dali::PanGestureDetector::PANNING:
+      case Dali::PanGestureDetector::Property::Panning:
       {
         property = &mSceneObject->GetPanningProperty();
         break;

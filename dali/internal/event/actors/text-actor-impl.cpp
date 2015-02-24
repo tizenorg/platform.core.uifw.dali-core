@@ -22,7 +22,6 @@
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/text/text-actor-parameters.h>
 #include <dali/internal/event/actor-attachments/text-attachment-impl.h>
-#include <dali/internal/event/common/property-index-ranges.h>
 #include <dali/internal/event/text/font-impl.h>
 #include <dali/internal/event/text/utf8-impl.h>
 #include <dali/internal/event/text/text-impl.h>
@@ -33,105 +32,56 @@
 namespace Dali
 {
 
-const Property::Index TextActor::TEXT                       = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
-const Property::Index TextActor::FONT                       = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 1;
-const Property::Index TextActor::FONT_STYLE                 = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 2;
-const Property::Index TextActor::OUTLINE_ENABLE             = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 3;
-const Property::Index TextActor::OUTLINE_COLOR              = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 4;
-const Property::Index TextActor::OUTLINE_THICKNESS_WIDTH    = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 5;
-const Property::Index TextActor::SMOOTH_EDGE                = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 6;
-const Property::Index TextActor::GLOW_ENABLE                = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 7;
-const Property::Index TextActor::GLOW_COLOR                 = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 8;
-const Property::Index TextActor::GLOW_INTENSITY             = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 9;
-const Property::Index TextActor::SHADOW_ENABLE              = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 10;
-const Property::Index TextActor::SHADOW_COLOR               = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 11;
-const Property::Index TextActor::SHADOW_OFFSET              = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 12;
-const Property::Index TextActor::ITALICS_ANGLE              = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 13;
-const Property::Index TextActor::UNDERLINE                  = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 14;
-const Property::Index TextActor::WEIGHT                     = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 15;
-const Property::Index TextActor::FONT_DETECTION_AUTOMATIC   = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 16;
-const Property::Index TextActor::GRADIENT_COLOR             = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 17;
-const Property::Index TextActor::GRADIENT_START_POINT       = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 18;
-const Property::Index TextActor::GRADIENT_END_POINT         = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 19;
-const Property::Index TextActor::SHADOW_SIZE                = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 20;
-const Property::Index TextActor::TEXT_COLOR                 = Internal::DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT + 21;
-
-namespace
-{
-
-// Signals
-
-const char* const SIGNAL_TEXT_LOADING_FINISHED = "text-loading-finished";
-
-// Default property names
-
-const char* DEFAULT_TEXT_ACTOR_PROPERTY_NAMES[] =
-{
-  "text",
-  "font",
-  "font-style",
-  "outline-enable",
-  "outline-color",
-  "outline-thickness-width",
-  "smooth-edge",
-  "glow-enable",
-  "glow-color",
-  "glow-intensity",
-  "shadow-enable",
-  "shadow-color",
-  "shadow-offset",
-  "italics-angle",
-  "underline",
-  "weight",
-  "font-detection-automatic",
-  "gradient-color",
-  "gradient-start-point",
-  "gradient-end-point",
-  "shadow-size",
-  "text-color"
-};
-const int DEFAULT_TEXT_ACTOR_PROPERTY_COUNT = sizeof( DEFAULT_TEXT_ACTOR_PROPERTY_NAMES ) / sizeof( DEFAULT_TEXT_ACTOR_PROPERTY_NAMES[0] );
-
-const Property::Type DEFAULT_TEXT_ACTOR_PROPERTY_TYPES[DEFAULT_TEXT_ACTOR_PROPERTY_COUNT] =
-{
-  Property::STRING,   // "text"
-  Property::STRING,   // "font"
-  Property::STRING,   // "font-style"
-  Property::BOOLEAN,  // "outline-enable"
-  Property::VECTOR4,  // "outline-color"
-  Property::VECTOR2,  // "outline-thickness-width"
-  Property::FLOAT,    // "smooth-edge"
-  Property::BOOLEAN,  // "glow-enable"
-  Property::VECTOR4,  // "glow-color"
-  Property::FLOAT,    // "glow-intensity"
-  Property::BOOLEAN,  // "shadow-enable"
-  Property::VECTOR4,  // "shadow-color"
-  Property::VECTOR2,  // "shadow-offset"
-  Property::FLOAT,    // "italics-angle"
-  Property::BOOLEAN,  // "underline"
-  Property::INTEGER,  // "weight"
-  Property::BOOLEAN,  // "font-detection-automatic"
-  Property::VECTOR4,  // "gradient-color",
-  Property::VECTOR2,  // "gradient-start-point",
-  Property::VECTOR2,  // "gradient-end-point"
-  Property::FLOAT,    // "shadow-size"
-  Property::VECTOR4,  // "text-color",
-};
-
-}
-
 namespace Internal
 {
 
 namespace
 {
 
+// Properties
+
+/**
+ * We want to discourage the use of property strings (minimize string comparisons),
+ * particularly for the default properties.
+ */
+const Internal::PropertyDetails DEFAULT_TEXT_ACTOR_PROPERTY_DETAILS[] =
+{
+  // Name                       Type              writable animatable constraint-input
+  { "text",                     Property::STRING,    true,    false,   true  },
+  { "font",                     Property::STRING,    true,    false,   true  },
+  { "font-style",               Property::STRING,    true,    false,   true  },
+  { "outline-enable",           Property::BOOLEAN,   true,    false,   true  },
+  { "outline-color",            Property::VECTOR4,   true,    false,   true  },
+  { "outline-thickness-width",  Property::VECTOR2,   true,    false,   true  },
+  { "smooth-edge",              Property::FLOAT,     true,    false,   true  },
+  { "glow-enable",              Property::BOOLEAN,   true,    false,   true  },
+  { "glow-color",               Property::VECTOR4,   true,    false,   true  },
+  { "glow-intensity",           Property::FLOAT,     true,    false,   true  },
+  { "shadow-enable",            Property::BOOLEAN,   true,    false,   true  },
+  { "shadow-color",             Property::VECTOR4,   true,    false,   true  },
+  { "shadow-offset",            Property::VECTOR2,   true,    false,   true  },
+  { "italics-angle",            Property::FLOAT,     true,    false,   true  },
+  { "underline",                Property::BOOLEAN,   true,    false,   true  },
+  { "weight",                   Property::INTEGER,   true,    false,   true  },
+  { "font-detection-automatic", Property::BOOLEAN,   true,    false,   true  },
+  { "gradient-color",           Property::VECTOR4,   true,    false,   true  },
+  { "gradient-start-point",     Property::VECTOR2,   true,    false,   true  },
+  { "gradient-end-point",       Property::VECTOR2,   true,    false,   true  },
+  { "shadow-size",              Property::FLOAT,     true,    false,   true  },
+  { "text-color",               Property::VECTOR4,   true,    false,   true  },
+};
+const int DEFAULT_TEXT_ACTOR_PROPERTY_COUNT = sizeof( DEFAULT_TEXT_ACTOR_PROPERTY_DETAILS ) / sizeof( Internal::PropertyDetails );
+
+// Signals
+
+const char* const SIGNAL_TEXT_LOADING_FINISHED = "text-loading-finished";
+
 BaseHandle Create()
 {
   return Dali::TextActor::New();
 }
 
-TypeRegistration mType( typeid(Dali::TextActor), typeid(Dali::RenderableActor), Create );
+TypeRegistration mType( typeid( Dali::TextActor ), typeid( Dali::RenderableActor ), Create );
 
 SignalConnectorType s1( mType, SIGNAL_TEXT_LOADING_FINISHED, &TextActor::DoConnectSignal );
 
@@ -646,7 +596,7 @@ void TextActor::GetDefaultPropertyIndices( Property::IndexContainer& indices ) c
 
   indices.reserve( indices.size() + DEFAULT_TEXT_ACTOR_PROPERTY_COUNT );
 
-  int index = DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
+  int index = DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
   for ( int i = 0; i < DEFAULT_TEXT_ACTOR_PROPERTY_COUNT; ++i, ++index )
   {
     indices.push_back( index );
@@ -655,20 +605,21 @@ void TextActor::GetDefaultPropertyIndices( Property::IndexContainer& indices ) c
 
 const char* TextActor::GetDefaultPropertyName( Property::Index index ) const
 {
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
     return RenderableActor::GetDefaultPropertyName(index) ;
   }
   else
   {
-    index -= DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
+    index -= DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
 
     if ( ( index >= 0 ) && ( index < DEFAULT_TEXT_ACTOR_PROPERTY_COUNT ) )
     {
-      return DEFAULT_TEXT_ACTOR_PROPERTY_NAMES[index];
+      return DEFAULT_TEXT_ACTOR_PROPERTY_DETAILS[index].name;
     }
     else
     {
+      // Index out-of-bounds.
       return NULL;
     }
   }
@@ -681,9 +632,9 @@ Property::Index TextActor::GetDefaultPropertyIndex(const std::string& name) cons
   // Look for name in default properties
   for( int i = 0; i < DEFAULT_TEXT_ACTOR_PROPERTY_COUNT; ++i )
   {
-    if( 0 == strcmp( name.c_str(), DEFAULT_TEXT_ACTOR_PROPERTY_NAMES[ i ] ) ) // dont want to convert rhs to string
+    if( 0 == strcmp( name.c_str(), DEFAULT_TEXT_ACTOR_PROPERTY_DETAILS[i].name ) ) // Don't want to convert rhs to string
     {
-      index = i + DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
+      index = i + DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
       break;
     }
   }
@@ -699,9 +650,9 @@ Property::Index TextActor::GetDefaultPropertyIndex(const std::string& name) cons
 
 bool TextActor::IsDefaultPropertyWritable( Property::Index index ) const
 {
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return RenderableActor::IsDefaultPropertyWritable(index) ;
+    return RenderableActor::IsDefaultPropertyWritable( index ) ;
   }
   else
   {
@@ -711,9 +662,9 @@ bool TextActor::IsDefaultPropertyWritable( Property::Index index ) const
 
 bool TextActor::IsDefaultPropertyAnimatable( Property::Index index ) const
 {
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return RenderableActor::IsDefaultPropertyAnimatable(index) ;
+    return RenderableActor::IsDefaultPropertyAnimatable( index ) ;
   }
   else
   {
@@ -723,26 +674,26 @@ bool TextActor::IsDefaultPropertyAnimatable( Property::Index index ) const
 
 bool TextActor::IsDefaultPropertyAConstraintInput( Property::Index index ) const
 {
-  if( index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT )
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return RenderableActor::IsDefaultPropertyAConstraintInput(index);
+    return RenderableActor::IsDefaultPropertyAConstraintInput( index );
   }
   return true; // Our properties can be used as input to constraints.
 }
 
 Property::Type TextActor::GetDefaultPropertyType( Property::Index index ) const
 {
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return RenderableActor::GetDefaultPropertyType(index) ;
+    return RenderableActor::GetDefaultPropertyType( index ) ;
   }
   else
   {
-    index -= DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT;
+    index -= DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
 
-    if ( ( index >= 0 ) && ( index < DEFAULT_TEXT_ACTOR_PROPERTY_COUNT ) )
+    if( ( index >= 0 ) && ( index < DEFAULT_TEXT_ACTOR_PROPERTY_COUNT ) )
     {
-      return DEFAULT_TEXT_ACTOR_PROPERTY_TYPES[index];
+      return DEFAULT_TEXT_ACTOR_PROPERTY_DETAILS[index].type;
     }
     else
     {
@@ -754,79 +705,79 @@ Property::Type TextActor::GetDefaultPropertyType( Property::Index index ) const
 
 void TextActor::SetDefaultProperty( Property::Index index, const Property::Value& propertyValue )
 {
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    RenderableActor::SetDefaultProperty(index, propertyValue) ;
+    RenderableActor::SetDefaultProperty( index, propertyValue ) ;
   }
   else
   {
     switch(index)
     {
-      case Dali::TextActor::TEXT:
+      case Dali::TextActor::Property::Text:
       {
         SetText( GetTextArray( Dali::Text( propertyValue.Get<std::string>() ) ) );
         break;
       }
-      case Dali::TextActor::FONT:
+      case Dali::TextActor::Property::Font:
       {
-        SetFont(*Font::New(propertyValue.Get<std::string>(),
+        SetFont( *Font::New( propertyValue.Get<std::string>(),
                            mTextAttachment->GetFont().GetStyle(),
-                           PointSize(mTextAttachment->GetFont().GetPointSize())));
+                           PointSize( mTextAttachment->GetFont().GetPointSize() ) ) );
         break;
       }
-      case Dali::TextActor::FONT_STYLE:
+      case Dali::TextActor::Property::FontStyle:
       {
-        SetFont(*Font::New(mTextAttachment->GetFont().GetName(),
+        SetFont( *Font::New( mTextAttachment->GetFont().GetName(),
                            propertyValue.Get<std::string>(),
-                           PointSize(mTextAttachment->GetFont().GetPointSize())));
+                           PointSize( mTextAttachment->GetFont().GetPointSize() ) ) );
         break;
       }
-      case Dali::TextActor::OUTLINE_ENABLE:
+      case Dali::TextActor::Property::OutlineEnable:
       {
         Vector4 color;
         Vector2 thickness;
         mTextAttachment->GetOutlineParams( color, thickness );
-        mTextAttachment->SetOutline(propertyValue.Get<bool>(), color, thickness);
+        mTextAttachment->SetOutline( propertyValue.Get<bool>(), color, thickness );
         break;
       }
-      case Dali::TextActor::OUTLINE_COLOR:
+      case Dali::TextActor::Property::OutlineColor:
       {
         Vector4 color;
         Vector2 thickness;
         mTextAttachment->GetOutlineParams( color, thickness );
-        mTextAttachment->SetOutline(mTextAttachment->GetOutline(), propertyValue.Get<Vector4>(), thickness);
+        mTextAttachment->SetOutline( mTextAttachment->GetOutline(), propertyValue.Get<Vector4>(), thickness );
         break;
       }
-      case Dali::TextActor::OUTLINE_THICKNESS_WIDTH:
+      case Dali::TextActor::Property::OutlineThicknessWidth:
       {
         Vector4 color;
         Vector2 thickness;
         mTextAttachment->GetOutlineParams( color, thickness );
-        mTextAttachment->SetOutline(mTextAttachment->GetOutline(), color, propertyValue.Get<Vector2>());
+        mTextAttachment->SetOutline( mTextAttachment->GetOutline(), color, propertyValue.Get<Vector2>() );
         break;
       }
-      case Dali::TextActor::SMOOTH_EDGE:
+      case Dali::TextActor::Property::SmoothEdge:
       {
         mTextAttachment->SetSmoothEdge( propertyValue.Get<float>());
         break;
       }
-      case Dali::TextActor::GLOW_ENABLE:
+      case Dali::TextActor::Property::GlowEnable:
       {
         Vector4 color;
         float intensity;
         mTextAttachment->GetGlowParams( color, intensity );
-        mTextAttachment->SetGlow(propertyValue.Get<bool>(), color, intensity);
+        mTextAttachment->SetGlow( propertyValue.Get<bool>(), color, intensity );
         break;
       }
-      case Dali::TextActor::GLOW_COLOR:
+      case Dali::TextActor::Property::GlowColor:
       {
         Vector4 color;
         float intensity;
         mTextAttachment->GetGlowParams( color, intensity );
-        mTextAttachment->SetGlow(mTextAttachment->GetGlow(), propertyValue.Get<Vector4>(), intensity);
+        mTextAttachment->SetGlow( mTextAttachment->GetGlow(), propertyValue.Get<Vector4>(), intensity );
         break;
       }
-      case Dali::TextActor::GLOW_INTENSITY:
+      case Dali::TextActor::Property::GlowIntensity:
       {
         Vector4 color;
         float intensity;
@@ -834,85 +785,85 @@ void TextActor::SetDefaultProperty( Property::Index index, const Property::Value
         mTextAttachment->SetGlow(mTextAttachment->GetGlow(), color, propertyValue.Get<float>());
         break;
       }
-      case Dali::TextActor::SHADOW_ENABLE:
+      case Dali::TextActor::Property::ShadowEnable:
       {
         Vector4 color;
         Vector2 offset;
         float size;
         mTextAttachment->GetShadowParams( color, offset, size );
-        mTextAttachment->SetShadow(propertyValue.Get<bool>(), color, offset, size );
+        mTextAttachment->SetShadow( propertyValue.Get<bool>(), color, offset, size );
         break;
       }
-      case Dali::TextActor::SHADOW_COLOR:
+      case Dali::TextActor::Property::ShadowColor:
       {
         Vector4 color;
         Vector2 offset;
         float size;
         mTextAttachment->GetShadowParams( color, offset, size );
-        mTextAttachment->SetShadow(mTextAttachment->GetShadow(), propertyValue.Get<Vector4>(), offset, size);
+        mTextAttachment->SetShadow( mTextAttachment->GetShadow(), propertyValue.Get<Vector4>(), offset, size );
         break;
       }
-      case Dali::TextActor::SHADOW_OFFSET:
+      case Dali::TextActor::Property::ShadowOffset:
       {
         Vector4 color;
         Vector2 offset;
         float size;
         mTextAttachment->GetShadowParams( color, offset, size );
-        mTextAttachment->SetShadow(mTextAttachment->GetShadow(), color, propertyValue.Get<Vector2>(), size );
+        mTextAttachment->SetShadow( mTextAttachment->GetShadow(), color, propertyValue.Get<Vector2>(), size );
         break;
       }
-      case Dali::TextActor::SHADOW_SIZE:
+      case Dali::TextActor::Property::ShadowSize:
       {
         Vector4 color;
         Vector2 offset;
         float size;
         mTextAttachment->GetShadowParams( color, offset, size );
-        mTextAttachment->SetShadow(mTextAttachment->GetShadow(), color, offset, propertyValue.Get<float>());
+        mTextAttachment->SetShadow( mTextAttachment->GetShadow(), color, offset, propertyValue.Get<float>() );
         break;
       }
-      case Dali::TextActor::ITALICS_ANGLE:
+      case Dali::TextActor::Property::ItalicsAngle:
       {
-        SetItalics(Radian(propertyValue.Get<float>())) ;
+        SetItalics( Radian( propertyValue.Get<float>() ) ) ;
         break;
       }
-      case Dali::TextActor::UNDERLINE:
+      case Dali::TextActor::Property::Underline:
       {
-        SetUnderline(propertyValue.Get<bool>(), 0.f, 0.f ) ;
+        SetUnderline( propertyValue.Get<bool>(), 0.f, 0.f ) ;
         break;
       }
-      case Dali::TextActor::WEIGHT:
+      case Dali::TextActor::Property::Weight:
       {
-        mTextAttachment->SetWeight(static_cast<TextStyle::Weight>(propertyValue.Get<int>())) ;
+        mTextAttachment->SetWeight( static_cast<TextStyle::Weight>( propertyValue.Get<int>() ) ) ;
         break;
       }
-      case Dali::TextActor::FONT_DETECTION_AUTOMATIC:
+      case Dali::TextActor::Property::FontDetectionAutomatic:
       {
         mFontDetection = propertyValue.Get<bool>()  ;
         break;
       }
-      case Dali::TextActor::GRADIENT_COLOR:
+      case Dali::TextActor::Property::GradientColor:
       {
         mTextAttachment->SetGradient( propertyValue.Get<Vector4>(), mTextAttachment->GetGradientStartPoint(), mTextAttachment->GetGradientEndPoint() );
         break;
       }
-      case Dali::TextActor::GRADIENT_START_POINT:
+      case Dali::TextActor::Property::GradientStartPoint:
       {
         mTextAttachment->SetGradient( mTextAttachment->GetGradientColor(), propertyValue.Get<Vector2>(), mTextAttachment->GetGradientEndPoint() );
         break;
       }
-      case Dali::TextActor::GRADIENT_END_POINT:
+      case Dali::TextActor::Property::GradientEndPoint:
       {
         mTextAttachment->SetGradient( mTextAttachment->GetGradientColor(), mTextAttachment->GetGradientStartPoint(), propertyValue.Get<Vector2>() );
         break;
       }
-      case Dali::TextActor::TEXT_COLOR:
+      case Dali::TextActor::Property::TextColor:
       {
         mTextAttachment->SetTextColor( propertyValue.Get<Vector4>() );
         break;
       }
       default:
       {
-        DALI_LOG_WARNING("Unknown text set property (%d)\n", index);
+        DALI_LOG_WARNING( "Unknown text set property (%d)\n", index );
         break;
       }
     } // switch(index)
@@ -923,35 +874,35 @@ void TextActor::SetDefaultProperty( Property::Index index, const Property::Value
 Property::Value TextActor::GetDefaultProperty( Property::Index index ) const
 {
   Property::Value ret ;
-  if(index < DEFAULT_RENDERABLE_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    ret = RenderableActor::GetDefaultProperty(index) ;
+    ret = RenderableActor::GetDefaultProperty( index ) ;
   }
   else
   {
-    switch(index)
+    switch( index )
     {
-      case Dali::TextActor::TEXT:
+      case Dali::TextActor::Property::Text:
       {
         ret = GetText();
         break;
       }
-      case Dali::TextActor::FONT:
+      case Dali::TextActor::Property::Font:
       {
         ret = mTextAttachment->GetFont().GetName();
         break;
       }
-      case Dali::TextActor::FONT_STYLE:
+      case Dali::TextActor::Property::FontStyle:
       {
         ret = mTextAttachment->GetFont().GetStyle();
         break;
       }
-      case Dali::TextActor::OUTLINE_ENABLE:
+      case Dali::TextActor::Property::OutlineEnable:
       {
         ret = mTextAttachment->GetOutline();
         break;
       }
-      case Dali::TextActor::OUTLINE_COLOR:
+      case Dali::TextActor::Property::OutlineColor:
       {
         Vector4 color;
         Vector2 thickness;
@@ -959,7 +910,7 @@ Property::Value TextActor::GetDefaultProperty( Property::Index index ) const
         ret = color;
         break;
       }
-      case Dali::TextActor::OUTLINE_THICKNESS_WIDTH:
+      case Dali::TextActor::Property::OutlineThicknessWidth:
       {
         Vector4 color;
         Vector2 thickness;
@@ -967,38 +918,38 @@ Property::Value TextActor::GetDefaultProperty( Property::Index index ) const
         ret = thickness;
         break;
       }
-      case Dali::TextActor::SMOOTH_EDGE:
+      case Dali::TextActor::Property::SmoothEdge:
       {
         ret = mTextAttachment->GetSmoothEdge();
         break;
       }
-      case Dali::TextActor::GLOW_ENABLE:
+      case Dali::TextActor::Property::GlowEnable:
       {
         ret = mTextAttachment->GetGlow();
         break;
       }
-      case Dali::TextActor::GLOW_COLOR:
+      case Dali::TextActor::Property::GlowColor:
       {
         Vector4 color;
-        float intensity(0.0f);
+        float intensity( 0.0f );
         mTextAttachment->GetGlowParams( color, intensity );
         ret  = color;
         break;
       }
-      case Dali::TextActor::GLOW_INTENSITY:
+      case Dali::TextActor::Property::GlowIntensity:
       {
         Vector4 color;
-        float intensity(0.0f);
+        float intensity( 0.0f );
         mTextAttachment->GetGlowParams( color, intensity );
         ret = intensity;
         break;
       }
-      case Dali::TextActor::SHADOW_ENABLE:
+      case Dali::TextActor::Property::ShadowEnable:
       {
         ret = mTextAttachment->GetShadow();
         break;
       }
-      case Dali::TextActor::SHADOW_COLOR:
+      case Dali::TextActor::Property::ShadowColor:
       {
         Vector4 color;
         Vector2 offset;
@@ -1007,7 +958,7 @@ Property::Value TextActor::GetDefaultProperty( Property::Index index ) const
         ret = color;
         break;
       }
-      case Dali::TextActor::SHADOW_OFFSET:
+      case Dali::TextActor::Property::ShadowOffset:
       {
         Vector4 color;
         Vector2 offset;
@@ -1016,7 +967,7 @@ Property::Value TextActor::GetDefaultProperty( Property::Index index ) const
         ret = offset;
         break;
       }
-      case Dali::TextActor::SHADOW_SIZE:
+      case Dali::TextActor::Property::ShadowSize:
       {
         Vector4 color;
         Vector2 offset;
@@ -1025,49 +976,49 @@ Property::Value TextActor::GetDefaultProperty( Property::Index index ) const
         ret = size;
         break;
       }
-      case Dali::TextActor::ITALICS_ANGLE:
+      case Dali::TextActor::Property::ItalicsAngle:
       {
-        ret = static_cast<float>(mTextAttachment->GetItalics()) ;
+        ret = static_cast<float>( mTextAttachment->GetItalics() ) ;
         break;
       }
-      case Dali::TextActor::UNDERLINE:
+      case Dali::TextActor::Property::Underline:
       {
         ret = mTextAttachment->GetUnderline() ;
         break;
       }
-      case Dali::TextActor::WEIGHT:
+      case Dali::TextActor::Property::Weight:
       {
-        ret = static_cast<int>(mTextAttachment->GetWeight());
+        ret = static_cast<int>( mTextAttachment->GetWeight() );
         break;
       }
-      case Dali::TextActor::FONT_DETECTION_AUTOMATIC:
+      case Dali::TextActor::Property::FontDetectionAutomatic:
       {
         ret = mFontDetection;
         break;
       }
-      case Dali::TextActor::GRADIENT_COLOR:
+      case Dali::TextActor::Property::GradientColor:
       {
         ret = mTextAttachment->GetGradientColor();
         break;
       }
-      case Dali::TextActor::GRADIENT_START_POINT:
+      case Dali::TextActor::Property::GradientStartPoint:
       {
         ret = mTextAttachment->GetGradientStartPoint();
         break;
       }
-      case Dali::TextActor::GRADIENT_END_POINT:
+      case Dali::TextActor::Property::GradientEndPoint:
       {
         ret = mTextAttachment->GetGradientEndPoint();
         break;
       }
-      case Dali::TextActor::TEXT_COLOR:
+      case Dali::TextActor::Property::TextColor:
       {
         ret = mTextAttachment->GetTextColor();
         break;
       }
       default:
       {
-        DALI_LOG_WARNING("Unknown text set property (%d)\n", index);
+        DALI_LOG_WARNING( "Unknown text set property (%d)\n", index );
         break;
       }
     } // switch(index)

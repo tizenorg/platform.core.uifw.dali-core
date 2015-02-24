@@ -36,7 +36,6 @@
 #include <dali/internal/event/common/property-input-impl.h>
 #include <dali/internal/update/common/property-base.h>
 
-
 namespace Dali
 {
 
@@ -56,12 +55,43 @@ class TypeInfo;
  */
 struct PropertyDetails
 {
-  const char* name;         ///< The name of the property.
-  Property::Type type;      ///< The property type.
-  bool writable:1;          ///< Whether the property is writable
-  bool animatable:1;        ///< Whether the property is animatable.
-  bool constraintInput:1;   ///< Whether the property can be used as an input to a constraint.
+  const char* name;             ///< The name of the property.
+  Property::Type type;          ///< The property type.
+  bool writable:1;              ///< Whether the property is writable
+  bool animatable:1;            ///< Whether the property is animatable.
+  bool constraintInput:1;       ///< Whether the property can be used as an input to a constraint.
+#ifdef DEBUG_ENABLED
+  Property::Index enumIndex;    ///< Used to check the index is correct within a debug build.
+#endif
 };
+
+/**
+ * These macros are used to define a table of property details per Actor object.
+ * The index property is only compiled in for DEBUG_ENABLED builds and allows checking the table index VS the property enum index.
+ * DALI_PROPERTY_TABLE_END Forces a run-time check that will happen once.
+ */
+#define DALI_PROPERTY_TABLE_BEGIN const Internal::PropertyDetails DEFAULT_PROPERTY_DETAILS[] = {
+#ifdef DEBUG_ENABLED
+#define DALI_PROPERTY_TABLE_END   }; const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( Internal::PropertyDetails ); \
+  struct PROPERTY_CHECK \
+  { \
+    PROPERTY_CHECK() \
+    { \
+      for( int i = 0; i < DEFAULT_PROPERTY_COUNT; i++ ) \
+      { \
+        DALI_ASSERT_DEBUG( DEFAULT_PROPERTY_DETAILS[i].enumIndex == i && "Property enumeration mismatch" ); \
+      } \
+    } \
+  }; \
+  static PROPERTY_CHECK PROPERTY_CHECK_INSTANCE;
+#else
+#define DALI_PROPERTY_TABLE_END   }; const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( Internal::PropertyDetails );
+#endif
+#ifdef DEBUG_ENABLED
+#define DALI_PROPERTY( text, type, writable, animatable, constraint, index ) { text, Dali::Property::type, writable, animatable, constraint, index },
+#else
+#define DALI_PROPERTY( text, type, writable, animatable, constraint, index ) { text, Dali::Property::type, writable, animatable, constraint },
+#endif
 
 namespace SceneGraph
 {

@@ -369,6 +369,22 @@ DALI_IMPORT_API bool operator==(const ImageAttributes& a, const ImageAttributes&
  */
 DALI_IMPORT_API bool operator!=(const ImageAttributes& a, const ImageAttributes& b);
 
+inline const char* ScalingModeToString( ImageAttributes::ScalingMode scalingMode )
+{
+  return scalingMode == ImageAttributes::ScaleToFill ? "ScaleToFill" : scalingMode == ImageAttributes::ShrinkToFit ? "ShrinkToFit" : scalingMode == ImageAttributes::FitWidth ? "FitWidth" : "FitHeight";
+}
+
+inline const char* FilterModeToString( ImageAttributes::FilterMode filterMode )
+{
+  return filterMode == ImageAttributes::Box ? "Box" : filterMode == ImageAttributes::BoxThenNearest ? "BoxThenNearest" : filterMode == ImageAttributes::BoxThenLinear ? "BoxThenLinear" : filterMode == ImageAttributes::Nearest ? "Nearest" : filterMode == ImageAttributes::Linear ? "Linear" : filterMode == ImageAttributes::NoFilter ? "NoFilter" : filterMode == ImageAttributes::DontCare ? "DontCare" :"Other";
+}
+
 } // namespace Dali
+
+#define DALI_SCALING_MODE_TO_STRING( scalingMode ) \
+  (scalingMode == ImageAttributes::ScaleToFill ? "ScaleToFill" : scalingMode == ImageAttributes::ShrinkToFit ? "ShrinkToFit" : scalingMode == ImageAttributes::FitWidth ? "FitWidth" : "FitHeight")
+
+#define DALI_FILTER_MODE_TO_STRING( filterMode ) \
+  (filterMode == ImageAttributes::Box ? "Box" : filterMode == ImageAttributes::BoxThenNearest ? "BoxThenNearest" : filterMode == ImageAttributes::BoxThenLinear ? "BoxThenLinear" : filterMode == ImageAttributes::Nearest ? "Nearest" : filterMode == ImageAttributes::Linear ? "Linear" : filterMode == ImageAttributes::NoFilter ? "NoFilter" : filterMode == ImageAttributes::DontCare ? "DontCare" :"Other")
 
 #endif // __DALI_IMAGE_ATTRIBUTES_H__

@@ -34,7 +34,6 @@ using Internal::MaterialIPtr;
 namespace Internal
 {
 
-
 namespace
 {
 

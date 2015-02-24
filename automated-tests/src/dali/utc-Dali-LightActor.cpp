@@ -258,14 +258,14 @@ int UtcDaliLightActorDefaultProperties(void)
   LightActor actor = LightActor::New();
 
   std::vector<Property::Index> indices ;
-  indices.push_back(LightActor::LIGHT_TYPE       );
-  indices.push_back(LightActor::ENABLE           );
-  indices.push_back(LightActor::FALL_OFF         );
-  indices.push_back(LightActor::SPOT_ANGLE       );
-  indices.push_back(LightActor::AMBIENT_COLOR    );
-  indices.push_back(LightActor::DIFFUSE_COLOR    );
-  indices.push_back(LightActor::SPECULAR_COLOR   );
-  indices.push_back(LightActor::DIRECTION        );
+  indices.push_back(LightActor::Property::LightType       );
+  indices.push_back(LightActor::Property::Enable           );
+  indices.push_back(LightActor::Property::FallOff         );
+  indices.push_back(LightActor::Property::SpotAngle       );
+  indices.push_back(LightActor::Property::AmbientColor    );
+  indices.push_back(LightActor::Property::DiffuseColor    );
+  indices.push_back(LightActor::Property::SpecularColor   );
+  indices.push_back(LightActor::Property::Direction        );
 
   DALI_TEST_CHECK(actor.GetPropertyCount() == ( Actor::New().GetPropertyCount() + indices.size() ) );
 
@@ -281,8 +281,8 @@ int UtcDaliLightActorDefaultProperties(void)
   actor.GetLight().SetAmbientColor( Vector3( 0.f, 0.f, 0.f ) );
   Vector3 col( 0.22f, 0.33f, 0.44f ) ;
   DALI_TEST_CHECK(actor.GetLight().GetAmbientColor() != col);
-  actor.SetProperty(LightActor::AMBIENT_COLOR, col);
-  Property::Value v = actor.GetProperty(LightActor::AMBIENT_COLOR);
+  actor.SetProperty(LightActor::Property::AmbientColor, col);
+  Property::Value v = actor.GetProperty(LightActor::Property::AmbientColor);
   DALI_TEST_CHECK(v.GetType() == Property::VECTOR3);
 
   DALI_TEST_CHECK(v.Get<Vector3>() == col);
@@ -316,14 +316,14 @@ struct PropertyDetails
 const PropertyDetails DEFAULT_LIGHT_ACTOR_PROPERTY_DETAILS[] =
 {
   // Index Name             Type
-  { LightActor::LIGHT_TYPE,     "light-type",     Property::STRING  },
-  { LightActor::ENABLE,         "enable",         Property::BOOLEAN },
-  { LightActor::FALL_OFF,       "fall-off",       Property::VECTOR2 },
-  { LightActor::SPOT_ANGLE,     "spot-angle",     Property::VECTOR2 },
-  { LightActor::AMBIENT_COLOR,  "ambient-color",  Property::VECTOR3 },
-  { LightActor::DIFFUSE_COLOR,  "diffuse-color",  Property::VECTOR3 },
-  { LightActor::SPECULAR_COLOR, "specular-color", Property::VECTOR3 },
-  { LightActor::DIRECTION,      "direction",      Property::VECTOR3 },
+  { LightActor::Property::LightType,     "light-type",     Property::STRING  },
+  { LightActor::Property::Enable,         "enable",         Property::BOOLEAN },
+  { LightActor::Property::FallOff,       "fall-off",       Property::VECTOR2 },
+  { LightActor::Property::SpotAngle,     "spot-angle",     Property::VECTOR2 },
+  { LightActor::Property::AmbientColor,  "ambient-color",  Property::VECTOR3 },
+  { LightActor::Property::DiffuseColor,  "diffuse-color",  Property::VECTOR3 },
+  { LightActor::Property::SpecularColor, "specular-color", Property::VECTOR3 },
+  { LightActor::Property::Direction,      "direction",      Property::VECTOR3 },
 };
 const unsigned int DEFAULT_LIGHT_ACTOR_PROPERTY_COUNT = sizeof( DEFAULT_LIGHT_ACTOR_PROPERTY_DETAILS ) / sizeof( PropertyDetails );
 } // unnamed namespace

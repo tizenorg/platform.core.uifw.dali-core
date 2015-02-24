@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/events/gesture-detector.h>
+#include <dali/public-api/object/property-index.h>
 #include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
@@ -60,6 +61,23 @@ class DALI_IMPORT_API PanGestureDetector : public GestureDetector
 {
 public:
 
+  /**
+   * @brief An enumeration of properties belonging to the PanGestureDetector class.
+   */
+  struct Property
+  {
+    enum
+    {
+      ScreenPosition = DEFAULT_GESTURE_DETECTOR_PROPERTY_START_INDEX, ///< name "screen-position",     type Vector2
+      ScreenDisplacement,                                             ///< name "screen-displacement", type Vector2
+      ScreenVelocity,                                                 ///< name "screen-velocity",     type Vector2
+      LocalPosition,                                                  ///< name "local-position",      type Vector2
+      LocalDisplacement,                                              ///< name "local-displacement",  type Vector2
+      LocalVelocity,                                                  ///< name "local-velocity",      type Vector2
+      Panning,                                                        ///< name "panning",             type Boolean
+    };
+  };
+
   // Typedefs
   typedef Signal< void ( Actor, const PanGesture& ) > DetectedSignalType; ///< Pan gesture detected signal type
 
@@ -76,6 +94,7 @@ public:
 
   static const Radian DEFAULT_THRESHOLD;    ///< The default threshold is PI * 0.25 radians (or 45 degrees).
 
+#if 0
   /// @name Properties
   /** @{ */
   static const Property::Index SCREEN_POSITION;       ///< name "screen-position",     type VECTOR2
@@ -86,6 +105,7 @@ public:
   static const Property::Index LOCAL_VELOCITY;        ///< name "local-velocity",      type VECTOR2
   static const Property::Index PANNING;               ///< name "panning",             type BOOLEAN
   /** @} */
+#endif
 
 public: // Creation & Destruction
 

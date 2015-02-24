@@ -48,16 +48,18 @@ using std::string;
 namespace Dali
 {
 
-const Property::Index ShaderEffect::GRID_DENSITY        = 0;
-const Property::Index ShaderEffect::IMAGE               = 1;
-const Property::Index ShaderEffect::PROGRAM             = 2;
-const Property::Index ShaderEffect::GEOMETRY_HINTS      = 3;
-
 namespace Internal
 {
 
 namespace
 {
+
+// Properties
+
+/**
+ * We want to discourage the use of property strings (minimize string comparisons),
+ * particularly for the default properties.
+ */
 const PropertyDetails DEFAULT_PROPERTY_DETAILS[] =
 {
  // Name               Type            writable animatable constraint-input
@@ -434,7 +436,6 @@ Property::Index ShaderEffect::GetDefaultPropertyIndex(const std::string& name) c
   }
 
   return index;
-
 }
 
 bool ShaderEffect::IsDefaultPropertyWritable(Property::Index index) const
@@ -469,13 +470,13 @@ void ShaderEffect::SetDefaultProperty( Property::Index index, const Property::Va
 {
   switch ( index )
   {
-    case Dali::ShaderEffect::GRID_DENSITY:
+    case Dali::ShaderEffect::Property::GridDensity:
     {
       SetGridDensityMessage( mUpdateManager.GetEventToUpdate(), *mSceneObject, propertyValue.Get<float>() );
       break;
     }
 
-    case Dali::ShaderEffect::IMAGE:
+    case Dali::ShaderEffect::Property::Image:
     {
       Dali::Image img(Scripting::NewImage( propertyValue ));
       if(img)
@@ -489,7 +490,7 @@ void ShaderEffect::SetDefaultProperty( Property::Index index, const Property::Va
       break;
     }
 
-    case Dali::ShaderEffect::PROGRAM:
+    case Dali::ShaderEffect::Property::Program:
     {
       std::string vertexPrefix   = GetShader("vertex-prefix", propertyValue);
       std::string fragmentPrefix = GetShader("fragment-prefix", propertyValue);
@@ -529,7 +530,7 @@ void ShaderEffect::SetDefaultProperty( Property::Index index, const Property::Va
       break;
     }
 
-    case Dali::ShaderEffect::GEOMETRY_HINTS:
+    case Dali::ShaderEffect::Property::GeometryHints:
     {
       Dali::ShaderEffect::GeometryHints hint = Dali::ShaderEffect::HINT_NONE;
       Property::Value geometryHintsValue   = propertyValue.GetValue("geometry-hints");

@@ -20,6 +20,20 @@
 
 namespace
 {
+
+// Properties
+
+/**
+ * We want to discourage the use of property strings (minimize string comparisons),
+ * particularly for the default properties.
+ */
+const Dali::Internal::PropertyDetails DEFAULT_PROPERTY_DETAILS[] =
+{
+  { "points",         Dali::Property::ARRAY, true, false, false },
+  { "control-points", Dali::Property::ARRAY, true, false, false },
+};
+const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( DEFAULT_PROPERTY_DETAILS[0] );
+
 /**
  * These coefficient arise from the cubic polynomial equations for
  * a bezier curve.
@@ -39,20 +53,10 @@ const float BezierBasisCoeff[] = {  -1.0f,  3.0f, -3.0f, 1.0f,
 
 const Dali::Matrix BezierBasis = Dali::Matrix( BezierBasisCoeff );
 
-const Dali::Internal::PropertyDetails DEFAULT_PROPERTY_DETAILS[] =
-{
-  { "points",         Dali::Property::ARRAY, true, false, false },
-  { "control-points", Dali::Property::ARRAY, true, false, false },
-};
-
-const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( DEFAULT_PROPERTY_DETAILS[0] );
-
-}//Unnamed namespace
+} //Unnamed namespace
 
 namespace Dali
 {
-const Property::Index Path::POINTS              = 0;
-const Property::Index Path::CONTROL_POINTS      = 1;
 
 namespace Internal
 {
@@ -143,7 +147,7 @@ Property::Value Path::GetDefaultProperty( Property::Index index ) const
   Property::Value value;
   switch ( index )
   {
-    case Dali::Path::POINTS:
+    case Dali::Path::Property::Points:
     {
       size_t pointCount( mPoint.Size() );
       for( size_t i(0); i!=pointCount; ++i )
@@ -152,7 +156,7 @@ Property::Value Path::GetDefaultProperty( Property::Index index ) const
       }
       break;
     }
-    case Dali::Path::CONTROL_POINTS:
+    case Dali::Path::Property::ControlPoints:
     {
       size_t controlpointCount( mControlPoint.Size() );
       for( size_t i(0); i!=controlpointCount; ++i )
@@ -175,7 +179,7 @@ void Path::SetDefaultProperty(Property::Index index, const Property::Value& prop
 {
   switch ( index )
   {
-    case Dali::Path::POINTS:
+    case Dali::Path::Property::Points:
     {
       Property::Array propertyArray;
       propertyValue.Get(propertyArray);
@@ -188,7 +192,7 @@ void Path::SetDefaultProperty(Property::Index index, const Property::Value& prop
       }
       break;
     }
-    case Dali::Path::CONTROL_POINTS:
+    case Dali::Path::Property::ControlPoints:
     {
       Property::Array propertyArray;
       propertyValue.Get(propertyArray);

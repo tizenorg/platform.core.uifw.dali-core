@@ -992,7 +992,7 @@ int UtcDaliRenderTaskSetViewportPosition(void)
 
   // Set by Property test
   Vector2 newPosition2(32.0f, 32.0f);
-  task.SetProperty( RenderTask::VIEWPORT_POSITION, newPosition2 );
+  task.SetProperty( RenderTask::Property::ViewportPosition, newPosition2 );
 
   // Update
   application.SendNotification();
@@ -1002,7 +1002,7 @@ int UtcDaliRenderTaskSetViewportPosition(void)
 
   Vector2 newPosition3(64.0f, 0.0f);
   Animation animation = Animation::New(1.0f);
-  animation.AnimateTo( Property( task, RenderTask::VIEWPORT_POSITION ), newPosition3, AlphaFunctions::Linear );
+  animation.AnimateTo( Property( task, RenderTask::Property::ViewportPosition ), newPosition3, AlphaFunctions::Linear );
   animation.Play();
 
   // Perform 1000ms worth of updates at which point animation should have completed.
@@ -1040,7 +1040,7 @@ int UtcDaliRenderTaskSetViewportSize(void)
 
   // Set by Property test
   Vector2 newSize2(50.0f, 50.0f);
-  task.SetProperty( RenderTask::VIEWPORT_SIZE, newSize2 );
+  task.SetProperty( RenderTask::Property::ViewportSize, newSize2 );
 
   // Update
   application.SendNotification();
@@ -1050,7 +1050,7 @@ int UtcDaliRenderTaskSetViewportSize(void)
 
   Vector2 newSize3(10.0f, 10.0f);
   Animation animation = Animation::New(1.0f);
-  animation.AnimateTo( Property( task, RenderTask::VIEWPORT_SIZE ), newSize3, AlphaFunctions::Linear );
+  animation.AnimateTo( Property( task, RenderTask::Property::ViewportSize ), newSize3, AlphaFunctions::Linear );
   animation.Play();
 
   // Perform 1000ms worth of updates at which point animation should have completed.
@@ -1081,7 +1081,7 @@ int UtcDaliRenderTaskSetClearColor(void)
 
   DALI_TEST_EQUALS( task.GetClearColor(), testColor, TEST_LOCATION );
 
-  task.SetProperty( RenderTask::CLEAR_COLOR, testColor2 );
+  task.SetProperty( RenderTask::Property::ClearColor, testColor2 );
 
   // Wait a frame.
   Wait(application);

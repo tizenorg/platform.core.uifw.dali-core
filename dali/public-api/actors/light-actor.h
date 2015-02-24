@@ -41,15 +41,24 @@ class DALI_IMPORT_API LightActor : public Actor
 {
 public:
 
-  // Default Properties additional to Actor
-  static const Property::Index LIGHT_TYPE;                           ///< name "light-type",       type STRING
-  static const Property::Index ENABLE;                               ///< name "enable",           type BOOLEAN
-  static const Property::Index FALL_OFF;                             ///< name "fall-off",         type VECTOR2
-  static const Property::Index SPOT_ANGLE;                           ///< name "spot-angle",       type VECTOR2
-  static const Property::Index AMBIENT_COLOR;                        ///< name "ambient-color",    type VECTOR3
-  static const Property::Index DIFFUSE_COLOR;                        ///< name "diffuse-color",    type VECTOR3
-  static const Property::Index SPECULAR_COLOR;                       ///< name "specular-color",   type VECTOR3
-  static const Property::Index DIRECTION;                            ///< name "direction",        type VECTOR3
+  /**
+   * @brief An enumeration of properties belonging to the LightActor class.
+   * Properties additional to Actor.
+   */
+  struct Property
+  {
+    enum
+    {
+      LightType = DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX, ///< name "light-type",       type String
+      Enable,                                                 ///< name "enable",           type Boolean
+      FallOff,                                                ///< name "fall-off",         type Vector2
+      SpotAngle,                                              ///< name "spot-angle",       type Vector2
+      AmbientColor,                                           ///< name "ambient-color",    type Vector3
+      DiffuseColor,                                           ///< name "diffuse-color",    type Vector3
+      SpecularColor,                                          ///< name "specular-color",   type Vector3
+      Direction,                                              ///< name "direction",        type Vector3
+    };
+  };
 
   /**
    * @brief Create an uninitialized LightActor handle.

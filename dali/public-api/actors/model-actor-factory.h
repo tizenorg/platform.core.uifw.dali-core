@@ -26,7 +26,6 @@
 #include <dali/public-api/animation/alpha-functions.h>
 
 
-
 namespace Dali
 {
 

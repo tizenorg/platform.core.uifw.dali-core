@@ -21,19 +21,10 @@
 // INTERNAL HEADER
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
-#include <dali/internal/event/common/property-index-ranges.h>
+#include <dali/internal/event/common/property-helper.h>
 
 namespace Dali
 {
-
-const Property::Index LightActor::LIGHT_TYPE              = Internal::DEFAULT_ACTOR_PROPERTY_MAX_COUNT;
-const Property::Index LightActor::ENABLE                  = Internal::DEFAULT_ACTOR_PROPERTY_MAX_COUNT + 1;
-const Property::Index LightActor::FALL_OFF                = Internal::DEFAULT_ACTOR_PROPERTY_MAX_COUNT + 2;
-const Property::Index LightActor::SPOT_ANGLE              = Internal::DEFAULT_ACTOR_PROPERTY_MAX_COUNT + 3;
-const Property::Index LightActor::AMBIENT_COLOR           = Internal::DEFAULT_ACTOR_PROPERTY_MAX_COUNT + 4;
-const Property::Index LightActor::DIFFUSE_COLOR           = Internal::DEFAULT_ACTOR_PROPERTY_MAX_COUNT + 5;
-const Property::Index LightActor::SPECULAR_COLOR          = Internal::DEFAULT_ACTOR_PROPERTY_MAX_COUNT + 6;
-const Property::Index LightActor::DIRECTION               = Internal::DEFAULT_ACTOR_PROPERTY_MAX_COUNT + 7;
 
 namespace Internal
 {
@@ -41,26 +32,26 @@ namespace Internal
 namespace
 {
 
+// Properties
+
+//              Name             Type   writable animatable constraint-input  enum for index-checking
+DALI_PROPERTY_TABLE_BEGIN
+DALI_PROPERTY( "light-type",     STRING,   true,    false,   true,   Dali::LightActor::Property::LightType     )
+DALI_PROPERTY( "enable",         BOOLEAN,  true,    false,   true,   Dali::LightActor::Property::Enable        )
+DALI_PROPERTY( "fall-off",       VECTOR2,  true,    false,   true,   Dali::LightActor::Property::FallOff       )
+DALI_PROPERTY( "spot-angle",     VECTOR2,  true,    false,   true,   Dali::LightActor::Property::SpotAngle     )
+DALI_PROPERTY( "ambient-color",  VECTOR3,  true,    false,   true,   Dali::LightActor::Property::AmbientColor  )
+DALI_PROPERTY( "diffuse-color",  VECTOR3,  true,    false,   true,   Dali::LightActor::Property::DiffuseColor  )
+DALI_PROPERTY( "specular-color", VECTOR3,  true,    false,   true,   Dali::LightActor::Property::SpecularColor )
+DALI_PROPERTY( "direction",      VECTOR3,  true,    false,   true,   Dali::LightActor::Property::Direction     )
+DALI_PROPERTY_TABLE_END( DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX )
+
 BaseHandle Create()
 {
   return Dali::LightActor::New();
 }
 
-TypeRegistration mType( typeid(Dali::LightActor), typeid(Dali::Actor), Create );
-
-const Internal::PropertyDetails DEFAULT_LIGHT_ACTOR_PROPERTY_DETAILS[] =
-{
-  // Name             Type              writable animatable constraint-input
-  { "light-type",     Property::STRING,   true,    false,   true },  // LIGHT_TYPE
-  { "enable",         Property::BOOLEAN,  true,    false,   true },  // ENABLE
-  { "fall-off",       Property::VECTOR2,  true,    false,   true },  // FALL_OFF
-  { "spot-angle",     Property::VECTOR2,  true,    false,   true },  // SPOT_ANGLE
-  { "ambient-color",  Property::VECTOR3,  true,    false,   true },  // AMBIENT_COLOR
-  { "diffuse-color",  Property::VECTOR3,  true,    false,   true },  // DIFFUSE_COLOR
-  { "specular-color", Property::VECTOR3,  true,    false,   true },  // SPECULAR_COLOR
-  { "direction",      Property::VECTOR3,  true,    false,   true },  // DIRECTION
-};
-const int DEFAULT_LIGHT_ACTOR_PROPERTY_COUNT = sizeof( DEFAULT_LIGHT_ACTOR_PROPERTY_DETAILS ) / sizeof( Internal::PropertyDetails );
+TypeRegistration mType( typeid( Dali::LightActor ), typeid( Dali::Actor ), Create );
 
 LightType LightTypeEnum(const std::string &stringValue)
 {
@@ -182,17 +173,17 @@ bool LightActor::GetActive()
 
 unsigned int LightActor::GetDefaultPropertyCount() const
 {
-  return Actor::GetDefaultPropertyCount() + DEFAULT_LIGHT_ACTOR_PROPERTY_COUNT;
+  return Actor::GetDefaultPropertyCount() + DEFAULT_PROPERTY_COUNT;
 }
 
 void LightActor::GetDefaultPropertyIndices( Property::IndexContainer& indices ) const
 {
   Actor::GetDefaultPropertyIndices( indices ); // Actor class properties
 
-  indices.reserve( indices.size() + DEFAULT_LIGHT_ACTOR_PROPERTY_COUNT );
+  indices.reserve( indices.size() + DEFAULT_PROPERTY_COUNT );
 
-  int index = DEFAULT_ACTOR_PROPERTY_MAX_COUNT;
-  for ( int i = 0; i < DEFAULT_LIGHT_ACTOR_PROPERTY_COUNT; ++i, ++index )
+  int index = DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
+  for ( int i = 0; i < DEFAULT_PROPERTY_COUNT; ++i, ++index )
   {
     indices.push_back( index );
   }
@@ -200,78 +191,64 @@ void LightActor::GetDefaultPropertyIndices( Property::IndexContainer& indices ) 
 
 bool LightActor::IsDefaultPropertyWritable( Property::Index index ) const
 {
-  if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return Actor::IsDefaultPropertyWritable(index) ;
+    return Actor::IsDefaultPropertyWritable( index ) ;
   }
-  else
-  {
-    return true; // all properties are writable
-  }
+
+  return DEFAULT_PROPERTY_DETAILS[ index - DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX ].writable;
 }
 
 bool LightActor::IsDefaultPropertyAnimatable( Property::Index index ) const
 {
-  if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return Actor::IsDefaultPropertyAnimatable(index) ;
+    return Actor::IsDefaultPropertyAnimatable( index ) ;
   }
-  else
-  {
-    return false; // all properties are non animateable
-  }
+
+  return DEFAULT_PROPERTY_DETAILS[ index - DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX ].animatable;
 }
 
 bool LightActor::IsDefaultPropertyAConstraintInput( Property::Index index ) const
 {
   if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return Actor::IsDefaultPropertyAConstraintInput(index);
+    return Actor::IsDefaultPropertyAConstraintInput( index );
   }
-  return true; // Our properties can be used as input to constraints.
+  return DEFAULT_PROPERTY_DETAILS[ index - DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX ].constraintInput;
 }
 
 Property::Type LightActor::GetDefaultPropertyType( Property::Index index ) const
 {
-  if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return Actor::GetDefaultPropertyType(index) ;
+    return Actor::GetDefaultPropertyType( index ) ;
   }
-  else
-  {
-    index -= DEFAULT_ACTOR_PROPERTY_MAX_COUNT;
 
-    if ( ( index >= 0 ) && ( index < DEFAULT_LIGHT_ACTOR_PROPERTY_COUNT ) )
-    {
-      return DEFAULT_LIGHT_ACTOR_PROPERTY_DETAILS[index].type;
-    }
-    else
-    {
-      // index out-of-bounds
-      return Property::NONE;
-    }
+  index -= DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
+  if ( ( index >= 0 ) && ( index < DEFAULT_PROPERTY_COUNT ) )
+  {
+    return DEFAULT_PROPERTY_DETAILS[index].type;
   }
+
+  // index out-of-bounds
+  return Property::NONE;
 }
 
 const char* LightActor::GetDefaultPropertyName( Property::Index index ) const
 {
-  if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    return Actor::GetDefaultPropertyName(index) ;
+    return Actor::GetDefaultPropertyName( index ) ;
   }
-  else
-  {
-    index -= DEFAULT_ACTOR_PROPERTY_MAX_COUNT;
 
-    if ( ( index >= 0 ) && ( index < DEFAULT_LIGHT_ACTOR_PROPERTY_COUNT ) )
-    {
-      return DEFAULT_LIGHT_ACTOR_PROPERTY_DETAILS[index].name;
-    }
-    else
-    {
-      return NULL;
-    }
+  index -= DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
+  if ( ( index >= 0 ) && ( index < DEFAULT_PROPERTY_COUNT ) )
+  {
+    return DEFAULT_PROPERTY_DETAILS[index].name;
   }
+
+  return NULL;
 }
 
 Property::Index LightActor::GetDefaultPropertyIndex(const std::string& name) const
@@ -279,12 +256,12 @@ Property::Index LightActor::GetDefaultPropertyIndex(const std::string& name) con
   Property::Index index = Property::INVALID_INDEX;
 
   // Look for name in current class' default properties
-  for( int i = 0; i < DEFAULT_LIGHT_ACTOR_PROPERTY_COUNT; ++i )
+  for( int i = 0; i < DEFAULT_PROPERTY_COUNT; ++i )
   {
-    const Internal::PropertyDetails* property = &DEFAULT_LIGHT_ACTOR_PROPERTY_DETAILS[ i ];
+    const Internal::PropertyDetails* property = &DEFAULT_PROPERTY_DETAILS[ i ];
     if( 0 == strcmp( name.c_str(), property->name ) ) // dont want to convert rhs to string
     {
-      index = i + DEFAULT_ACTOR_PROPERTY_MAX_COUNT;
+      index = i + DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX;
       break;
     }
   }
@@ -300,57 +277,57 @@ Property::Index LightActor::GetDefaultPropertyIndex(const std::string& name) con
 
 void LightActor::SetDefaultProperty( Property::Index index, const Property::Value& propertyValue )
 {
-  if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    Actor::SetDefaultProperty(index, propertyValue) ;
+    Actor::SetDefaultProperty( index, propertyValue ) ;
   }
   else
   {
     switch(index)
     {
-      case Dali::LightActor::LIGHT_TYPE:
+      case Dali::LightActor::Property::LightType:
       {
-        mLightAttachment->SetType(LightTypeEnum(propertyValue.Get<std::string>()));
+        mLightAttachment->SetType( LightTypeEnum(propertyValue.Get<std::string>() ) );
         break;
       }
-      case Dali::LightActor::ENABLE:
+      case Dali::LightActor::Property::Enable:
       {
-        SetActive(propertyValue.Get<bool>());
+        SetActive( propertyValue.Get<bool>() );
         break;
       }
-      case Dali::LightActor::FALL_OFF:
+      case Dali::LightActor::Property::FallOff:
       {
-        mLightAttachment->SetFallOff(propertyValue.Get<Vector2>());
+        mLightAttachment->SetFallOff( propertyValue.Get<Vector2>() );
         break;
       }
-      case Dali::LightActor::SPOT_ANGLE:
+      case Dali::LightActor::Property::SpotAngle:
       {
-        mLightAttachment->SetSpotAngle(propertyValue.Get<Vector2>());
+        mLightAttachment->SetSpotAngle( propertyValue.Get<Vector2>() );
         break;
       }
-      case Dali::LightActor::AMBIENT_COLOR:
+      case Dali::LightActor::Property::AmbientColor:
       {
-        mLightAttachment->SetAmbientColor(propertyValue.Get<Vector3>());
+        mLightAttachment->SetAmbientColor( propertyValue.Get<Vector3>() );
         break;
       }
-      case Dali::LightActor::DIFFUSE_COLOR:
+      case Dali::LightActor::Property::DiffuseColor:
       {
-        mLightAttachment->SetDiffuseColor(propertyValue.Get<Vector3>());
+        mLightAttachment->SetDiffuseColor( propertyValue.Get<Vector3>() );
         break;
       }
-      case Dali::LightActor::SPECULAR_COLOR:
+      case Dali::LightActor::Property::SpecularColor:
       {
-        mLightAttachment->SetSpecularColor(propertyValue.Get<Vector3>());
+        mLightAttachment->SetSpecularColor( propertyValue.Get<Vector3>() );
         break;
       }
-      case Dali::LightActor::DIRECTION:
+      case Dali::LightActor::Property::Direction:
       {
-        mLightAttachment->SetDirection(propertyValue.Get<Vector3>());
+        mLightAttachment->SetDirection( propertyValue.Get<Vector3>() );
         break;
       }
       default:
       {
-        DALI_LOG_WARNING("Unknown property (%d)\n", index);
+        DALI_LOG_WARNING( "Unknown property (%d)\n", index );
         break;
       }
     } // switch(index)
@@ -361,57 +338,57 @@ void LightActor::SetDefaultProperty( Property::Index index, const Property::Valu
 Property::Value LightActor::GetDefaultProperty( Property::Index index ) const
 {
   Property::Value ret ;
-  if(index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT)
+  if( index < DEFAULT_ACTOR_PROPERTY_MAX_COUNT )
   {
-    ret = Actor::GetDefaultProperty(index) ;
+    ret = Actor::GetDefaultProperty( index ) ;
   }
   else
   {
-    switch(index)
+    switch( index )
     {
-      case Dali::LightActor::LIGHT_TYPE:
+      case Dali::LightActor::Property::LightType:
       {
-        ret = LightTypeString(mLightAttachment->GetType());
+        ret = LightTypeString( mLightAttachment->GetType() );
         break;
       }
-      case Dali::LightActor::ENABLE:
+      case Dali::LightActor::Property::Enable:
       {
         ret = mIsActive;
         break;
       }
-      case Dali::LightActor::FALL_OFF:
+      case Dali::LightActor::Property::FallOff:
       {
         ret = mLightAttachment->GetFallOff();
         break;
       }
-      case Dali::LightActor::SPOT_ANGLE:
+      case Dali::LightActor::Property::SpotAngle:
       {
         ret = mLightAttachment->GetSpotAngle();
         break;
       }
-      case Dali::LightActor::AMBIENT_COLOR:
+      case Dali::LightActor::Property::AmbientColor:
       {
         ret = mLightAttachment->GetAmbientColor();
         break;
       }
-      case Dali::LightActor::DIFFUSE_COLOR:
+      case Dali::LightActor::Property::DiffuseColor:
       {
         ret = mLightAttachment->GetDiffuseColor();
         break;
       }
-      case Dali::LightActor::SPECULAR_COLOR:
+      case Dali::LightActor::Property::SpecularColor:
       {
         ret = mLightAttachment->GetSpecularColor();
         break;
       }
-      case Dali::LightActor::DIRECTION:
+      case Dali::LightActor::Property::Direction:
       {
         ret = mLightAttachment->GetDirection();
         break;
       }
       default:
       {
-        DALI_LOG_WARNING("Unknown property (%d)\n", index);
+        DALI_LOG_WARNING( "Unknown property (%d)\n", index );
         break;
       }
     } // switch(index)

@@ -15,7 +15,6 @@
  *
  */
 
-#include <dali/internal/event/common/property-index-ranges.h>
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/modeling/animatable-mesh-impl.h>
@@ -27,22 +26,24 @@
 namespace Dali
 {
 
-const Property::Index AnimatableVertex::POSITION          = 0;
-const Property::Index AnimatableVertex::COLOR             = 1;
-const Property::Index AnimatableVertex::TEXTURE_COORDS    = 2;
-
 namespace Internal
 {
 
 namespace
 {
 
+// Properties
+
+/**
+ * We want to discourage the use of property strings (minimize string comparisons),
+ * particularly for the default properties.
+ */
 const PropertyDetails DEFAULT_PROPERTY_DETAILS[] =
 {
  // Name               Type            writable animatable constraint-input
- { "position",       Property::VECTOR3, true,    true,   true  }, // POSITION
- { "vertex-color",   Property::VECTOR4, true,    true,   true  }, // COLOR
- { "texture-coords", Property::VECTOR2, true,    true,   true  }, // TEXTURE_COORDS
+ { "position",       Property::VECTOR3, true,    true,   true  },
+ { "vertex-color",   Property::VECTOR4, true,    true,   true  },
+ { "texture-coords", Property::VECTOR2, true,    true,   true  },
 };
 
 const int VERTEX_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( DEFAULT_PROPERTY_DETAILS[0] );
@@ -64,7 +65,6 @@ AnimatableMesh::AnimatableMesh(
   AddAnimatableMeshMessage( mUpdateManager, *mSceneObject );
 }
 
-
 AnimatableMeshPtr AnimatableMesh::New(
   unsigned int numVertices,
   const Dali::AnimatableMesh::Faces& faceIndices )
@@ -79,7 +79,6 @@ AnimatableMeshPtr AnimatableMesh::New(
 {
   return New( numVertices, faceIndices, material, false );
 }
-
 
 AnimatableMeshPtr AnimatableMesh::New(
   unsigned int numVertices,
@@ -127,7 +126,6 @@ AnimatableMeshPtr AnimatableMesh::New(
 
   return animatableMeshPtr;
 }
-
 
 AnimatableMesh::~AnimatableMesh()
 {
@@ -286,17 +284,17 @@ void AnimatableMesh::SetDefaultProperty( Property::Index index, const Property::
   int vertexIndex    = index / VERTEX_PROPERTY_COUNT;
   switch ( vertexProperty )
   {
-    case Dali::AnimatableVertex::POSITION:
+    case Dali::AnimatableVertex::Property::Position:
     {
       SetPosition( vertexIndex, property.Get<Vector3>() );
       break;
     }
-    case Dali::AnimatableVertex::COLOR:
+    case Dali::AnimatableVertex::Property::Color:
     {
       SetColor( vertexIndex, property.Get<Vector4>() );
       break;
     }
-    case Dali::AnimatableVertex::TEXTURE_COORDS:
+    case Dali::AnimatableVertex::Property::TextureCoords:
     {
       SetTextureCoords( vertexIndex, property.Get<Vector2>() );
       break;
@@ -317,17 +315,17 @@ Property::Value AnimatableMesh::GetDefaultProperty(Property::Index index) const
 
   switch ( vertexProperty )
   {
-    case Dali::AnimatableVertex::POSITION:
+    case Dali::AnimatableVertex::Property::Position:
     {
       value = GetCurrentPosition(vertexIndex);
       break;
     }
-    case Dali::AnimatableVertex::COLOR:
+    case Dali::AnimatableVertex::Property::Color:
     {
       value = GetCurrentColor(vertexIndex);
       break;
     }
-    case Dali::AnimatableVertex::TEXTURE_COORDS:
+    case Dali::AnimatableVertex::Property::TextureCoords:
     {
       value = GetCurrentTextureCoords(vertexIndex);
       break;
@@ -361,13 +359,13 @@ const SceneGraph::PropertyBase* AnimatableMesh::GetSceneObjectAnimatableProperty
 
     switch ( vertexProperty )
     {
-      case Dali::AnimatableVertex::POSITION:
+      case Dali::AnimatableVertex::Property::Position:
         property = &mSceneObject->mVertices[vertexIndex].position;
         break;
-      case Dali::AnimatableVertex::COLOR:
+      case Dali::AnimatableVertex::Property::Color:
         property = &mSceneObject->mVertices[vertexIndex].color;
         break;
-      case Dali::AnimatableVertex::TEXTURE_COORDS:
+      case Dali::AnimatableVertex::Property::TextureCoords:
         property = &mSceneObject->mVertices[vertexIndex].textureCoords;
         break;
     }
@@ -386,13 +384,13 @@ const PropertyInputImpl* AnimatableMesh::GetSceneObjectInputProperty( Property::
 
     switch ( vertexProperty )
     {
-      case Dali::AnimatableVertex::POSITION:
+      case Dali::AnimatableVertex::Property::Position:
         property = &mSceneObject->mVertices[vertexIndex].position;
         break;
-      case Dali::AnimatableVertex::COLOR:
+      case Dali::AnimatableVertex::Property::Color:
         property = &mSceneObject->mVertices[vertexIndex].color;
         break;
-      case Dali::AnimatableVertex::TEXTURE_COORDS:
+      case Dali::AnimatableVertex::Property::TextureCoords:
         property = &mSceneObject->mVertices[vertexIndex].textureCoords;
         break;
     }

@@ -19,6 +19,7 @@
 #include <dali/internal/event/actors/model-actor-factory-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/modeling/entity.h>
 #include <dali/internal/event/actors/mesh-actor-impl.h>
 #include <dali/internal/event/modeling/model-impl.h>
@@ -245,63 +246,60 @@ AnimationPtr ModelActorFactory::BuildAnimation(
   return animation;
 }
 
-
-
-
 AnimationPtr ModelActorFactory::CreateAnimation(
   Actor& rootActor,
   const ModelAnimationMap* animationData,
   AlphaFunction alpha,
-  float durationSeconds)
+  float durationSeconds )
 {
-  DALI_LOG_TRACE_METHOD(Debug::Filter::gModel);
+  DALI_LOG_TRACE_METHOD( Debug::Filter::gModel );
 
-  AnimationPtr animation(Animation::New(durationSeconds));
-  animation->SetDefaultAlphaFunction(alpha);
+  AnimationPtr animation( Animation::New( durationSeconds) );
+  animation->SetDefaultAlphaFunction( alpha );
 
-  for(EntityAnimatorMapIter it = animationData->animators.begin(); it != animationData->animators.end(); ++it)
+  for( EntityAnimatorMapIter it = animationData->animators.begin(); it != animationData->animators.end(); ++it )
   {
-    const EntityAnimatorMap& entityAnimator(*it);
+    const EntityAnimatorMap& entityAnimator( *it );
 
     // find actor for this animator
-    ActorPtr animatedActor = rootActor.FindChildByName(entityAnimator.GetEntityName());
-    if (!animatedActor)
+    ActorPtr animatedActor = rootActor.FindChildByName( entityAnimator.GetEntityName() );
+    if ( !animatedActor )
     {
       // If we can't find the actor, it may not have been instantiated, may
       // be a sibling or parent of rootActor or may have been removed.
       continue;
     }
 
-    Dali::Actor targetActor(animatedActor.Get());
+    Dali::Actor targetActor( animatedActor.Get() );
 
     Dali::KeyFrames posKFHandle = entityAnimator.GetPositionKeyFrames();
-    if(posKFHandle)
+    if( posKFHandle )
     {
       const KeyFrames& positionKeyFrames = GetImplementation(posKFHandle);
-      if(positionKeyFrames.GetKeyFramesBase()->GetNumberOfKeyFrames() > 0)
+      if( positionKeyFrames.GetKeyFramesBase()->GetNumberOfKeyFrames() > 0 )
       {
-        animation->AnimateBetween(Property(targetActor, Dali::Actor::POSITION),
-                                  positionKeyFrames, alpha, durationSeconds);
+        animation->AnimateBetween( Property( targetActor, Dali::Actor::Property::Position ),
+                                  positionKeyFrames, alpha, durationSeconds );
       }
     }
 
     Dali::KeyFrames scaleKFHandle = entityAnimator.GetScaleKeyFrames();
-    if(scaleKFHandle)
+    if( scaleKFHandle )
     {
-      const KeyFrames& scaleKeyFrames    = GetImplementation(scaleKFHandle);
-      if(scaleKeyFrames.GetKeyFramesBase()->GetNumberOfKeyFrames() > 0)
+      const KeyFrames& scaleKeyFrames = GetImplementation( scaleKFHandle );
+      if( scaleKeyFrames.GetKeyFramesBase()->GetNumberOfKeyFrames() > 0 )
       {
-        animation->AnimateBetween(Property(targetActor, Dali::Actor::SCALE),    scaleKeyFrames, alpha, durationSeconds);
+        animation->AnimateBetween( Property( targetActor, Dali::Actor::Property::Scale ), scaleKeyFrames, alpha, durationSeconds );
       }
     }
 
     Dali::KeyFrames rotationKFHandle = entityAnimator.GetRotationKeyFrames();
-    if(rotationKFHandle)
+    if( rotationKFHandle )
     {
-      const KeyFrames& rotationKeyFrames = GetImplementation(rotationKFHandle);
-      if(rotationKeyFrames.GetKeyFramesBase()->GetNumberOfKeyFrames() > 0)
+      const KeyFrames& rotationKeyFrames = GetImplementation( rotationKFHandle );
+      if( rotationKeyFrames.GetKeyFramesBase()->GetNumberOfKeyFrames() > 0 )
       {
-        animation->AnimateBetween(Property(targetActor, Dali::Actor::ROTATION), rotationKeyFrames, alpha, durationSeconds);
+        animation->AnimateBetween( Property( targetActor, Dali::Actor::Property::Rotation ), rotationKeyFrames, alpha, durationSeconds );
       }
     }
   }

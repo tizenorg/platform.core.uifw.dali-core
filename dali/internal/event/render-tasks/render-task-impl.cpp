@@ -40,15 +40,26 @@ Debug::Filter* gLogRender = Debug::Filter::New(Debug::Concise, false, "LOG_RENDE
 namespace Dali
 {
 
-const Property::Index RenderTask::VIEWPORT_POSITION         = 0;
-const Property::Index RenderTask::VIEWPORT_SIZE             = 1;
-const Property::Index RenderTask::CLEAR_COLOR               = 2;
-
 namespace Internal
 {
 
 namespace // For internal properties
 {
+
+// Properties
+
+/**
+ * We want to discourage the use of property strings (minimize string comparisons),
+ * particularly for the default properties.
+ */
+const Internal::PropertyDetails DEFAULT_PROPERTY_DETAILS[] =
+{
+  // Name                     Type            writable animatable constraint-input
+  { "viewport-position",  Property::VECTOR2,    true,    true,   true  },
+  { "viewport-size",      Property::VECTOR2,    true,    true,   true  },
+  { "clear-color",        Property::VECTOR4,    true,    true,   true  },
+};
+const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( Internal::PropertyDetails );
 
 // Signals
 
@@ -57,21 +68,6 @@ const char* const SIGNAL_FINISHED = "finished";
 TypeRegistration mType( typeid( Dali::RenderTask ), typeid( Dali::BaseHandle ), NULL );
 
 SignalConnectorType signalConnector1( mType, SIGNAL_FINISHED, &RenderTask::DoConnectSignal );
-
-const char* DEFAULT_PROPERTY_NAMES[] =
-{
-  "viewport-position",
-  "viewport-size",
-  "clear-color"
-};
-const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_NAMES ) / sizeof( DEFAULT_PROPERTY_NAMES[0]);
-
-const Property::Type DEFAULT_PROPERTY_TYPES[DEFAULT_PROPERTY_COUNT] =
-{
-  Property::VECTOR2,    // viewport-position
-  Property::VECTOR2,    // viewport-size
-  Property::VECTOR4,    // clear-color
-};
 
 }// unnamed namespace
 
@@ -480,7 +476,7 @@ const char* RenderTask::GetDefaultPropertyName( Property::Index index ) const
 {
   if( index < DEFAULT_PROPERTY_COUNT )
   {
-    return DEFAULT_PROPERTY_NAMES[index];
+    return DEFAULT_PROPERTY_DETAILS[index].name;
   }
   else
   {
@@ -495,7 +491,7 @@ Property::Index RenderTask::GetDefaultPropertyIndex(const std::string& name) con
   // Look for name in default properties
   for( int i = 0; i < DEFAULT_PROPERTY_COUNT; ++i )
   {
-    if( 0 == strcmp( name.c_str(), DEFAULT_PROPERTY_NAMES[ i ] ) ) // dont want to convert rhs to string
+    if( 0 == strcmp( name.c_str(), DEFAULT_PROPERTY_DETAILS[i].name ) ) // dont want to convert rhs to string
     {
       index = i;
       break;
@@ -524,7 +520,7 @@ Property::Type RenderTask::GetDefaultPropertyType(Property::Index index) const
 {
   if( index < DEFAULT_PROPERTY_COUNT )
   {
-    return DEFAULT_PROPERTY_TYPES[index];
+    return DEFAULT_PROPERTY_DETAILS[index].type;
   }
   else
   {
@@ -537,17 +533,17 @@ void RenderTask::SetDefaultProperty( Property::Index index, const Property::Valu
 {
   switch ( index )
   {
-    case Dali::RenderTask::VIEWPORT_POSITION:
+    case Dali::RenderTask::Property::ViewportPosition:
     {
       SetViewportPosition( property.Get<Vector2>() );
       break;
     }
-    case Dali::RenderTask::VIEWPORT_SIZE:
+    case Dali::RenderTask::Property::ViewportSize:
     {
       SetViewportSize( property.Get<Vector2>() );
       break;
     }
-    case Dali::RenderTask::CLEAR_COLOR:
+    case Dali::RenderTask::Property::ClearColor:
     {
       SetClearColor( property.Get<Vector4>() );
       break;
@@ -567,17 +563,17 @@ Property::Value RenderTask::GetDefaultProperty(Property::Index index) const
   switch ( index )
   {
 
-    case Dali::RenderTask::VIEWPORT_POSITION:
+    case Dali::RenderTask::Property::ViewportPosition:
     {
       value = GetCurrentViewportPosition();
       break;
     }
-    case Dali::RenderTask::VIEWPORT_SIZE:
+    case Dali::RenderTask::Property::ViewportSize:
     {
       value = GetCurrentViewportSize();
       break;
     }
-    case Dali::RenderTask::CLEAR_COLOR:
+    case Dali::RenderTask::Property::ClearColor:
     {
       value = GetClearColor();
       break;
@@ -609,15 +605,15 @@ const SceneGraph::PropertyBase* RenderTask::GetSceneObjectAnimatableProperty( Pr
   {
     switch ( index )
     {
-      case Dali::RenderTask::VIEWPORT_POSITION:
+      case Dali::RenderTask::Property::ViewportPosition:
         property = &mSceneObject->mViewportPosition;
         break;
 
-      case Dali::RenderTask::VIEWPORT_SIZE:
+      case Dali::RenderTask::Property::ViewportSize:
         property = &mSceneObject->mViewportSize;
         break;
 
-      case Dali::RenderTask::CLEAR_COLOR:
+      case Dali::RenderTask::Property::ClearColor:
         property = &mSceneObject->mClearColor;
         break;
 
@@ -636,15 +632,15 @@ const PropertyInputImpl* RenderTask::GetSceneObjectInputProperty( Property::Inde
   {
     switch ( index )
     {
-      case Dali::RenderTask::VIEWPORT_POSITION:
+      case Dali::RenderTask::Property::ViewportPosition:
         property = &mSceneObject->mViewportPosition;
         break;
 
-      case Dali::RenderTask::VIEWPORT_SIZE:
+      case Dali::RenderTask::Property::ViewportSize:
         property = &mSceneObject->mViewportSize;
         break;
 
-      case Dali::RenderTask::CLEAR_COLOR:
+      case Dali::RenderTask::Property::ClearColor:
         property = &mSceneObject->mViewportSize;
         break;
 

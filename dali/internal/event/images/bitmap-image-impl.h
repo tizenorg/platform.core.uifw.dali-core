@@ -23,6 +23,7 @@
 #include <dali/internal/event/images/image-impl.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/images/bitmap-image.h>
+#include <dali/integration-api/bitmap.h> // For Integration::BitmapPtr
 
 namespace Dali
 {

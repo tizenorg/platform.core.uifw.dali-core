@@ -142,8 +142,10 @@ unsigned int ProgramController::ProgramBinaryFormat()
 
 void ProgramController::StoreBinary( Integration::ShaderDataPtr programData )
 {
+#ifdef SHADERBIN_CACHE_ENABLED
   ResourcePostProcessRequest request( programData->GetResourceId(), ResourcePostProcessRequest::SAVE );
   mPostProcessDispatcher.DispatchPostProcessRequest( request );
+#endif
 }
 
 } // namespace Internal

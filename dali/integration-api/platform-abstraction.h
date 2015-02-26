@@ -399,6 +399,26 @@ public:
    */
   virtual Integration::BitmapPtr GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const = 0;
 
+  /**
+   * Load a shader binary file into a buffer
+   * @param[in] filename The shader binary filename to load
+   * @param[out] buffer  A buffer to receive the file.
+   * @result             true if the file is loaded.
+   */
+  virtual bool LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer ) const = 0;
+
+  /**
+   * Sets path for data/resource storage.
+   * @param[in] path data/resource storage path
+   */
+  void SetDataStoragePath( const std::string& path );
+
+  /**
+   * Gets path for data/resource storage.
+   * @return Path for data/resource storage
+   */
+  const std::string& GetDataStoragePath();
+
 }; // class PlatformAbstraction
 
 } // namespace Integration

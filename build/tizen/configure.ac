@@ -60,6 +60,12 @@ AC_ARG_ENABLE([dynamics],
               [dynamics_support=$enableval],
               [dynamics_support=no])
 
+AC_ARG_ENABLE(shaderbincache,
+              [AC_HELP_STRING([--enable-shaderbin-cache],
+                              [enables shader binary cache])],
+              [enable_shaderbin_cache=yes],
+              [enable_shaderbin_cache=no])
+
 if test "x$enable_debug" = "xyes"; then
   DALI_CFLAGS="$DALI_CFLAGS -DDEBUG_ENABLED"
 fi
@@ -84,6 +90,10 @@ AC_SUBST(DYNAMICS_SUPPORT)
 # Must come after Emscripten feature test
 if test "x$enable_backtrace" = "xyes"; then
   DALI_CFLAGS="$DALI_CFLAGS -DBACKTRACE_ENABLED"
+fi
+
+if test "x$enable_shaderbin_cache" = "xyes"; then
+  DALI_CFLAGS="$DALI_CFLAGS -DSHADERBIN_CACHE_ENABLED"
 fi
 
 AM_CONDITIONAL([DYNAMICS_SUPPORT], [test x$dynamics_support = xyes])

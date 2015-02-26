@@ -61,8 +61,7 @@ ResourceTicketPtr ShaderFactory::Load(const std::string& vertexSource, const std
   shaderHash = CalculateHash(vertexSource, fragmentSource);
   std::stringstream stringHash;
   stringHash << shaderHash;
-  std::string filename = DALI_SHADERBIN_DIR;
-  filename += stringHash.str();
+  std::string filename = stringHash.str();
   filename += ".dali-bin";
 
   ShaderResourceType resourceType(shaderHash, vertexSource, fragmentSource);

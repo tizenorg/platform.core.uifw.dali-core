@@ -402,7 +402,9 @@ void ResourceManager::HandleLoadShaderRequest( ResourceId id, const ResourceType
   {
     ShaderDataPtr shaderData(new ShaderData(shaderType->vertexShader, shaderType->fragmentShader));
 
-    mImpl->mPlatformAbstraction.LoadFile(typePath.path, shaderData->GetBuffer());
+#ifdef SHADERBIN_CACHE_ENABLED
+    mImpl->mPlatformAbstraction.LoadShaderBinFile(typePath.path, shaderData->GetBuffer());
+#endif
 
     // Add the ID to the completed set
     mImpl->newCompleteRequests.insert(id);

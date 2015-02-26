@@ -48,7 +48,6 @@ Integration development package for the OpenGLES Canvas - headers for integratin
 %setup -q
 %define dali_data_rw_dir /opt/usr/share/dali/
 %define dali_data_ro_dir /usr/share/dali/
-%define shader_bin_dir   %{dali_data_rw_dir}/core/shaderbin
 %define dev_include_path %{_includedir}
 
 ##############################
@@ -88,6 +87,7 @@ LDFLAGS="${LDFLAGS:-%optflags}" ; export LDFLAGS;
       --localstatedir=%{_localstatedir} \
       --sharedstatedir=%{_sharedstatedir} \
       --mandir=%{_mandir} \
+      --enable-shaderbincache \
       --infodir=%{_infodir}
 
 make %{?jobs:-j%jobs}
@@ -110,8 +110,6 @@ cp -af %{_builddir}/%{name}-%{version}/LICENSE %{buildroot}/usr/share/license/%{
 ##############################
 %post
 /sbin/ldconfig
-chown 5000:5000 %{shader_bin_dir}
-rm -rf %{shader_bin_dir}/*
 exit 0
 
 ##############################
@@ -119,7 +117,6 @@ exit 0
 ##############################
 %postun
 /sbin/ldconfig
-rm -rf %{shader_bin_dir}
 exit 0
 
 ##############################
@@ -135,7 +132,6 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/lib%{name}-core.so*
 %defattr(-,app,app,-)
-%dir %{shader_bin_dir}
 %{_datadir}/license/%{name}
 
 %files devel

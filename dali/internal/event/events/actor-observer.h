@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/signals/callback.h>
 #include <dali/internal/event/common/object-impl.h>
 
 namespace Dali
@@ -42,6 +43,11 @@ public:
    * Constructor.
    */
   ActorObserver();
+
+  /**
+   *
+   */
+  ActorObserver( CallbackBase* callback );
 
   /**
    * Non virtual destructor
@@ -101,6 +107,7 @@ private:
 private:
   Actor* mActor;              ///< Raw pointer to an Actor.
   bool  mActorDisconnected;   ///< Indicates whether the actor has been disconnected from the scene
+  CallbackBase* mCallback;
 };
 
 } // namespace Internal

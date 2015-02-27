@@ -485,6 +485,8 @@ int UtcDaliTouchInterruptedParentConsumer(void)
 
   // Remove actor from Stage
   Stage::GetCurrent().Remove( actor );
+  data.Reset();
+  rootData.Reset();
 
   // Render and notify
   application.SendNotification();
@@ -712,9 +714,6 @@ int UtcDaliTouchActorBecomesInsensitiveParentConsumer(void)
   data.Reset();
   rootData.Reset();
 
-  // Remove actor from Stage
-  Stage::GetCurrent().Remove( actor );
-
   // Render and notify
   application.SendNotification();
   application.Render();
@@ -724,7 +723,8 @@ int UtcDaliTouchActorBecomesInsensitiveParentConsumer(void)
 
   // Emit a motion signal, signalled with an interrupted (should get interrupted even if within root actor)
   application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 200.0f, 200.0f )) );
-  DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
+  DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
+  DALI_TEST_EQUALS( TouchPoint::Interrupted, data.touchEvent.points[0].state, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( TouchPoint::Interrupted, rootData.touchEvent.points[0].state, TEST_LOCATION );
   END_TEST;
@@ -1145,6 +1145,7 @@ int UtcDaliTouchActorUnStaged(void)
 
   // Remove actor from stage
   Stage::GetCurrent().Remove( actor );
+  data.Reset();
 
   // Render and notify
   application.SendNotification();
@@ -1499,5 +1500,86 @@ int UtcDaliTouchStencilNonRenderableActor(void)
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
+  END_TEST;
+}
+
+int UtcDaliTouchActorUnstaged(void)
+{
+  TestApplication application;
+
+  Actor actor = Actor::New();
+  actor.SetSize(100.0f, 100.0f);
+  actor.SetAnchorPoint(AnchorPoint::TOP_LEFT);
+  Stage::GetCurrent().Add(actor);
+
+  // Render and notify
+  application.SendNotification();
+  application.Render();
+
+  // Connect to actor's touched signal
+  SignalData data;
+  TouchEventFunctor functor( data );
+  actor.TouchedSignal().Connect( &application, functor );
+
+  // Emit a down signal
+  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
+  DALI_TEST_EQUALS( TouchPoint::Down, data.touchEvent.points[0].state, TEST_LOCATION );
+  DALI_TEST_CHECK( actor == data.touchEvent.points[0].hitActor );
+  data.Reset();
+
+  // Render and notify
+  application.SendNotification();
+  application.Render();
+
+  // Unparent the actor
+  actor.Unparent();
+
+  // Should receive an interrupted event
+  DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
+  DALI_TEST_EQUALS( TouchPoint::Interrupted, data.touchEvent.points[0].state, TEST_LOCATION );
+  END_TEST;
+}
+
+int UtcDaliTouchParentUnstaged(void)
+{
+  TestApplication application;
+
+  Actor parent = Actor::New();
+  parent.SetSize(100.0f, 100.0f);
+  parent.SetAnchorPoint(AnchorPoint::TOP_LEFT);
+  Stage::GetCurrent().Add(parent);
+
+  Actor actor = Actor::New();
+  actor.SetSize(100.0f, 100.0f);
+  actor.SetAnchorPoint(AnchorPoint::TOP_LEFT);
+  parent.Add(actor);
+
+  // Render and notify
+  application.SendNotification();
+  application.Render();
+
+  // Connect to actor's touched signal
+  SignalData data;
+  TouchEventFunctor functor( data );
+  actor.TouchedSignal().Connect( &application, functor );
+
+  // Emit a down signal
+  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
+  DALI_TEST_EQUALS( TouchPoint::Down, data.touchEvent.points[0].state, TEST_LOCATION );
+  DALI_TEST_CHECK( actor == data.touchEvent.points[0].hitActor );
+  data.Reset();
+
+  // Render and notify
+  application.SendNotification();
+  application.Render();
+
+  // Unparent the parent of the touchable actor
+  parent.Unparent();
+
+  // Should receive an interrupted event
+  DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
+  DALI_TEST_EQUALS( TouchPoint::Interrupted, data.touchEvent.points[0].state, TEST_LOCATION );
   END_TEST;
 }

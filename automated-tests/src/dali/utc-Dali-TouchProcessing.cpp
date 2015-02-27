@@ -485,6 +485,8 @@ int UtcDaliTouchInterruptedParentConsumer(void)
 
   // Remove actor from Stage
   Stage::GetCurrent().Remove( actor );
+  data.Reset();
+  rootData.Reset();
 
   // Render and notify
   application.SendNotification();
@@ -712,9 +714,6 @@ int UtcDaliTouchActorBecomesInsensitiveParentConsumer(void)
   data.Reset();
   rootData.Reset();
 
-  // Remove actor from Stage
-  Stage::GetCurrent().Remove( actor );
-
   // Render and notify
   application.SendNotification();
   application.Render();
@@ -724,7 +723,8 @@ int UtcDaliTouchActorBecomesInsensitiveParentConsumer(void)
 
   // Emit a motion signal, signalled with an interrupted (should get interrupted even if within root actor)
   application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 200.0f, 200.0f )) );
-  DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
+  DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
+  DALI_TEST_EQUALS( TouchPoint::Interrupted, data.touchEvent.points[0].state, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( TouchPoint::Interrupted, rootData.touchEvent.points[0].state, TEST_LOCATION );
   END_TEST;
@@ -1145,6 +1145,7 @@ int UtcDaliTouchActorUnStaged(void)
 
   // Remove actor from stage
   Stage::GetCurrent().Remove( actor );
+  data.Reset();
 
   // Render and notify
   application.SendNotification();

@@ -35,9 +35,17 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_ACT
 
 ActorObserver::ActorObserver()
 : mActor ( NULL ),
-  mActorDisconnected(false)
+  mActorDisconnected( false ),
+  mCallback( NULL )
 {
   DALI_LOG_TRACE_METHOD( gLogFilter );
+}
+
+ActorObserver::ActorObserver( CallbackBase* callback )
+: mActor ( NULL ),
+  mActorDisconnected( false ),
+  mCallback( callback )
+{
 }
 
 ActorObserver::~ActorObserver()
@@ -89,6 +97,11 @@ void ActorObserver::SceneObjectRemoved( Object& object )
 
   if ( mActor == &object )
   {
+    if (mCallback)
+    {
+      CallbackBase::Execute( *mCallback, mActor );
+    }
+
     // do not call object.RemoveObserver here, object is currently iterating through observers
     mActorDisconnected = true;
   }

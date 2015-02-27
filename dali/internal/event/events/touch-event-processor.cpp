@@ -25,6 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/renderable-actor.h>
 #include <dali/public-api/math/vector2.h>
+#include <dali/public-api/signals/callback.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/internal/event/actors/actor-impl.h>
@@ -126,7 +127,7 @@ Dali::Actor EmitTouchSignals( Actor* actor, RenderTask& renderTask, const TouchE
 
 TouchEventProcessor::TouchEventProcessor( Stage& stage )
 : mStage( stage ),
-  mLastPrimaryHitActor(),
+  mLastPrimaryHitActor( MakeCallback( this, &TouchEventProcessor::OnDisconnect ) ),
   mLastConsumedActor(),
   mTouchDownConsumedActor(),
   mLastRenderTask()
@@ -137,6 +138,28 @@ TouchEventProcessor::TouchEventProcessor( Stage& stage )
 TouchEventProcessor::~TouchEventProcessor()
 {
   DALI_LOG_TRACE_METHOD( gLogFilter );
+}
+
+void TouchEventProcessor::OnDisconnect( Actor* actor )
+{
+  if ( actor == mLastPrimaryHitActor.GetActor() )
+  {
+    Dali::Actor lastPrimaryHitActorHandle( actor );
+    TouchEvent touchEvent( 0 );
+    touchEvent.points.push_back( TouchPoint( 0, TouchPoint::Interrupted, 0.0f, 0.0f ) );
+    touchEvent.points[0].hitActor = lastPrimaryHitActorHandle;
+
+    Dali::Actor eventConsumer = EmitTouchSignals( lastPrimaryHitActorHandle, touchEvent );
+
+    if ( mLastConsumedActor.GetActor() != eventConsumer )
+    {
+      EmitTouchSignals( Dali::Actor( mLastConsumedActor.GetActor() ), touchEvent );
+    }
+
+    mLastPrimaryHitActor.SetActor( NULL );
+    mLastConsumedActor.SetActor( NULL );
+    mLastRenderTask.Reset();
+  }
 }
 
 void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& event )

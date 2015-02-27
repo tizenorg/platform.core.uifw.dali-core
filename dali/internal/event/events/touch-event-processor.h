@@ -78,6 +78,8 @@ private:
   // Undefined
   TouchEventProcessor& operator=(const TouchEventProcessor& rhs);
 
+  void OnDisconnect( Actor* actor );
+
 private:
 
   Stage& mStage; ///< Used to deliver touch events

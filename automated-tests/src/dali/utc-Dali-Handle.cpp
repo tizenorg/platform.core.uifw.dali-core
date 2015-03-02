@@ -36,6 +36,15 @@ void handle_test_cleanup(void)
 namespace
 {
 
+/// Allows the creation of a BaseObject
+class BaseObjectType : public BaseObject
+{
+public:
+  BaseObjectType()
+  {
+  }
+};
+
 Handle ImplicitCopyConstructor(Handle passedByValue)
 {
   // object + copy + passedByValue, ref count == 3
@@ -410,6 +419,8 @@ int UtcDaliHandleIsPropertyAConstraintInput(void)
   DALI_TEST_CHECK( false == actor.IsPropertyAConstraintInput( Actor::COLOR_MODE ) );
   DALI_TEST_CHECK( false == actor.IsPropertyAConstraintInput( Actor::POSITION_INHERITANCE ) );
   DALI_TEST_CHECK( false == actor.IsPropertyAConstraintInput( Actor::DRAW_MODE ) );
+  DALI_TEST_CHECK( false == actor.IsPropertyAConstraintInput( Actor::SIZE_MODE ) );
+  DALI_TEST_CHECK( false == actor.IsPropertyAConstraintInput( Actor::SIZE_MODE_FACTOR ) );
 
   END_TEST;
 }
@@ -621,7 +632,7 @@ int UtcDaliHandleNonAnimtableCompositeProperties(void)
   valueMap.SetValue("key", 5.f);
   valueMap.SetValue("2key", "a string");
 
-  DALI_TEST_EQUALS( true, valueMap.HasKey("key"),         TEST_LOCATION);
+  DALI_TEST_EQUALS( true, valueMap.HasKey("key"),        TEST_LOCATION);
   DALI_TEST_EQUALS( "key", valueMap.GetKey(0),           TEST_LOCATION);
 
   DALI_TEST_EQUALS( true, valueMap.HasKey("2key"),       TEST_LOCATION);
@@ -633,8 +644,8 @@ int UtcDaliHandleNonAnimtableCompositeProperties(void)
   valueMap.SetItem(0, Property::Value("a string"));
   valueMap.SetItem(1, Property::Value(5.f));
 
-  DALI_TEST_EQUALS( 5.f,         valueMap.GetValue("2key").Get<float>(),         TEST_LOCATION);
-  DALI_TEST_EQUALS( "a string",  valueMap.GetValue("key").Get<std::string>(),  TEST_LOCATION);
+  DALI_TEST_EQUALS( 5.f,         valueMap.GetValue("2key").Get<float>(),        TEST_LOCATION);
+  DALI_TEST_EQUALS( "a string",  valueMap.GetValue("key").Get<std::string>(),   TEST_LOCATION);
 
   // ordered map
   valueMap = Property::Value(Property::MAP);
@@ -767,6 +778,22 @@ int UtcDaliHandleDownCast(void)
 
   DALI_TEST_CHECK( !handle );
 
+  END_TEST;
+}
+
+int UtcDaliHandleDownCastNegative(void)
+{
+  TestApplication application;
+
+  // BaseObject is NOT an Object, so this DownCast should fail
+  BaseHandle handle( new BaseObjectType );
+  Handle customHandle1 = Handle::DownCast( handle );
+  DALI_TEST_CHECK( ! customHandle1 );
+
+  // A DownCast on an empty handle will also fail
+  Handle empty;
+  Handle customHandle2 = Handle::DownCast( empty );
+  DALI_TEST_CHECK( ! customHandle2 );
   END_TEST;
 }
 
@@ -1014,5 +1041,31 @@ int UtcDaliHandleRegisterPropertyTypes(void)
 
     DALI_TEST_CHECK( properties[i].animatable != exception );
   }
+  END_TEST;
+}
+
+int UtcDaliHandleCustomProperty(void)
+{
+  TestApplication application;
+
+  Handle handle = Handle::New();
+
+  float startValue(1.0f);
+  Property::Index index = handle.RegisterProperty( "test-property", startValue );
+  DALI_TEST_CHECK( handle.GetProperty<float>(index) == startValue );
+
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_CHECK( handle.GetProperty<float>(index) == startValue );
+  application.Render(0);
+  DALI_TEST_CHECK( handle.GetProperty<float>(index) == startValue );
+
+  handle.SetProperty( index, 5.0f );
+
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_CHECK( handle.GetProperty<float>(index) == 5.0f );
+  application.Render(0);
+  DALI_TEST_CHECK( handle.GetProperty<float>(index) == 5.0f );
   END_TEST;
 }

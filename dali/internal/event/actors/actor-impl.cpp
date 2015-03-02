@@ -106,6 +106,8 @@ const Property::Index Actor::INHERIT_SCALE              = 39;
 const Property::Index Actor::COLOR_MODE                 = 40;
 const Property::Index Actor::POSITION_INHERITANCE       = 41;
 const Property::Index Actor::DRAW_MODE                  = 42;
+const Property::Index Actor::SIZE_MODE                  = 43;
+const Property::Index Actor::SIZE_MODE_FACTOR           = 44;
 
 namespace // unnamed namespace
 {
@@ -160,8 +162,20 @@ const Internal::PropertyDetails DEFAULT_PROPERTY_DETAILS[] =
   { "color-mode",             Property::STRING,   true,    false,   false },  // COLOR_MODE
   { "position-inheritance",   Property::STRING,   true,    false,   false },  // POSITION_INHERITANCE
   { "draw-mode",              Property::STRING,   true,    false,   false },  // DRAW_MODE
+  { "size-mode",              Property::STRING,   true,    false,   false },  // SIZE_MODE
+  { "size-mode-factor",       Property::VECTOR3,  true,    false,   false },  // SIZE_MODE_FACTOR
 };
 const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( Internal::PropertyDetails );
+
+// Enumeration to/from text conversion tables:
+const Scripting::StringEnum< SizeMode > SIZE_MODE_TABLE[] =
+{
+  { "USE_OWN_SIZE",                  USE_OWN_SIZE                  },
+  { "SIZE_EQUAL_TO_PARENT",          SIZE_EQUAL_TO_PARENT          },
+  { "SIZE_RELATIVE_TO_PARENT",       SIZE_RELATIVE_TO_PARENT       },
+  { "SIZE_FIXED_OFFSET_FROM_PARENT", SIZE_FIXED_OFFSET_FROM_PARENT },
+};
+const unsigned int SIZE_MODE_TABLE_COUNT = sizeof( SIZE_MODE_TABLE ) / sizeof( SIZE_MODE_TABLE[0] );
 
 } // unnamed namespace
 
@@ -196,23 +210,33 @@ struct DynamicsData
 namespace
 {
 
-using namespace Dali;
+// Signals
+
+const char* const SIGNAL_TOUCHED = "touched";
+const char* const SIGNAL_HOVERED = "hovered";
+const char* const SIGNAL_MOUSE_WHEEL_EVENT = "mouse-wheel-event";
+const char* const SIGNAL_ON_STAGE = "on-stage";
+const char* const SIGNAL_OFF_STAGE = "off-stage";
+
+// Actions
+
+const char* const ACTION_SHOW = "show";
+const char* const ACTION_HIDE = "hide";
 
 BaseHandle CreateActor()
 {
   return Dali::Actor::New();
 }
 
-TypeRegistration mType( typeid(Dali::Actor), typeid(Dali::Handle), CreateActor );
+TypeRegistration mType( typeid( Dali::Actor ), typeid( Dali::Handle ), CreateActor );
 
-SignalConnectorType signalConnector1(mType, Dali::Actor::SIGNAL_TOUCHED,    &Actor::DoConnectSignal);
-SignalConnectorType signalConnector2(mType, Dali::Actor::SIGNAL_HOVERED,    &Actor::DoConnectSignal);
-SignalConnectorType signalConnector3(mType, Dali::Actor::SIGNAL_SET_SIZE,   &Actor::DoConnectSignal);
-SignalConnectorType signalConnector4(mType, Dali::Actor::SIGNAL_ON_STAGE,   &Actor::DoConnectSignal);
-SignalConnectorType signalConnector5(mType, Dali::Actor::SIGNAL_OFF_STAGE,  &Actor::DoConnectSignal);
+SignalConnectorType signalConnector1( mType, SIGNAL_TOUCHED,    &Actor::DoConnectSignal );
+SignalConnectorType signalConnector2( mType, SIGNAL_HOVERED,    &Actor::DoConnectSignal );
+SignalConnectorType signalConnector4( mType, SIGNAL_ON_STAGE,   &Actor::DoConnectSignal );
+SignalConnectorType signalConnector5( mType, SIGNAL_OFF_STAGE,  &Actor::DoConnectSignal );
 
-TypeAction a1(mType, Dali::Actor::ACTION_SHOW, &Actor::DoAction);
-TypeAction a2(mType, Dali::Actor::ACTION_HIDE, &Actor::DoAction);
+TypeAction a1( mType, ACTION_SHOW, &Actor::DoAction );
+TypeAction a2( mType, ACTION_HIDE, &Actor::DoAction );
 
 }
 
@@ -1029,6 +1053,38 @@ bool Actor::IsRotationInherited() const
   return mInheritRotation;
 }
 
+void Actor::SetSizeMode(SizeMode mode)
+{
+  // non animateable so keep local copy
+  mSizeMode = mode;
+  if( NULL != mNode )
+  {
+    // mNode is being used in a separate thread; queue a message to set the value
+    SetSizeModeMessage( mStage->GetUpdateInterface(), *mNode, mode );
+  }
+}
+
+void Actor::SetSizeModeFactor(const Vector3& factor)
+{
+  // non animateable so keep local copy
+  mSizeModeFactor = factor;
+  if( NULL != mNode )
+  {
+    // mNode is being used in a separate thread; queue a message to set the value
+    SetSizeModeFactorMessage( mStage->GetUpdateInterface(), *mNode, factor );
+  }
+}
+
+SizeMode Actor::GetSizeMode() const
+{
+  return mSizeMode;
+}
+
+const Vector3& Actor::GetSizeModeFactor() const
+{
+  return mSizeModeFactor;
+}
+
 void Actor::SetColorMode(ColorMode colorMode)
 {
   // non animateable so keep local copy
@@ -1077,14 +1133,6 @@ void Actor::SetSize(const Vector3& size)
 
     // Notification for derived classes
     OnSizeSet( mSize );
-
-    // Emit signal for application developer
-
-    if( !mSetSizeSignal.Empty() )
-    {
-      Dali::Actor handle( this );
-      mSetSizeSignal.Emit( handle, mSize );
-    }
   }
 }
 
@@ -1936,11 +1984,6 @@ Dali::Actor::MouseWheelEventSignalType& Actor::MouseWheelEventSignal()
   return mMouseWheelEventSignal;
 }
 
-Dali::Actor::SetSizeSignalType& Actor::SetSizeSignal()
-{
-  return mSetSizeSignal;
-}
-
 Dali::Actor::OnStageSignalType& Actor::OnStageSignal()
 {
   return mOnStageSignal;
@@ -1954,29 +1997,25 @@ Dali::Actor::OffStageSignalType& Actor::OffStageSignal()
 bool Actor::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
 {
   bool connected( true );
-  Actor* actor = dynamic_cast<Actor*>(object);
+  Actor* actor = dynamic_cast<Actor*>( object );
 
-  if(Dali::Actor::SIGNAL_TOUCHED == signalName)
+  if( 0 == strcmp( signalName.c_str(), SIGNAL_TOUCHED ) ) // don't want to convert char* to string
   {
     actor->TouchedSignal().Connect( tracker, functor );
   }
-  else if(Dali::Actor::SIGNAL_HOVERED == signalName)
+  else if( 0 == strcmp( signalName.c_str(), SIGNAL_HOVERED ) )
   {
     actor->HoveredSignal().Connect( tracker, functor );
   }
-  else if(Dali::Actor::SIGNAL_MOUSE_WHEEL_EVENT == signalName)
+  else if( 0 == strcmp( signalName.c_str(), SIGNAL_MOUSE_WHEEL_EVENT ) )
   {
     actor->MouseWheelEventSignal().Connect( tracker, functor );
   }
-  else if(Dali::Actor::SIGNAL_SET_SIZE == signalName)
-  {
-    actor->SetSizeSignal().Connect( tracker, functor );
-  }
-  else if(Dali::Actor::SIGNAL_ON_STAGE == signalName)
+  else if( 0 == strcmp( signalName.c_str(), SIGNAL_ON_STAGE  ) )
   {
     actor->OnStageSignal().Connect( tracker, functor );
   }
-  else if(Dali::Actor::SIGNAL_OFF_STAGE == signalName)
+  else if( 0 == strcmp( signalName.c_str(), SIGNAL_OFF_STAGE ) )
   {
     actor->OffStageSignal().Connect( tracker, functor );
   }
@@ -2002,6 +2041,7 @@ Actor::Actor( DerivedType derivedType )
   mGestureData( NULL ),
   mAttachment(),
   mSize( 0.0f, 0.0f, 0.0f ),
+  mSizeModeFactor( Vector3::ONE ),
   mName(),
   mId( ++mActorCounter ), // actor ID is initialised to start from 1, and 0 is reserved
   mIsRoot( ROOT_LAYER == derivedType ),
@@ -2020,13 +2060,15 @@ Actor::Actor( DerivedType derivedType )
   mInheritScale( true ),
   mDrawMode( DrawMode::NORMAL ),
   mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ),
-  mColorMode( Node::DEFAULT_COLOR_MODE )
+  mColorMode( Node::DEFAULT_COLOR_MODE ),
+  mSizeMode( Node::DEFAULT_SIZE_MODE )
 {
 }
 
 void Actor::Initialize()
 {
   mStage = Stage::GetCurrent();
+  DALI_ASSERT_ALWAYS( mStage && "Stage doesn't exist" );
 
   // Node creation
   SceneGraph::Node* node = CreateNode();
@@ -2036,7 +2078,7 @@ void Actor::Initialize()
 
   OnInitialize();
 
-  RegisterObject();
+  mStage->RegisterObject( this );
 }
 
 Actor::~Actor()
@@ -2063,7 +2105,7 @@ Actor::~Actor()
       mNode = NULL; // Node is about to be destroyed
     }
 
-    UnregisterObject();
+    mStage->UnregisterObject( this );
   }
 
 #ifdef DYNAMICS_SUPPORT
@@ -2155,7 +2197,7 @@ void Actor::ConnectToSceneGraph(int index)
   }
 #endif
 
-  // Notification for ProxyObject::Observers
+  // Notification for Object::Observers
   OnSceneObjectAdd();
 }
 
@@ -2232,7 +2274,7 @@ void Actor::RecursiveDisconnectFromStage( ActorContainer& disconnectionList )
  */
 void Actor::DisconnectFromSceneGraph()
 {
-  // Notification for ProxyObject::Observers
+  // Notification for Object::Observers
   OnSceneObjectRemove();
 
   // Notify attachment
@@ -2571,6 +2613,18 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
     case Dali::Actor::INHERIT_ROTATION:
     {
       SetInheritRotation( property.Get<bool>() );
+      break;
+    }
+
+    case Dali::Actor::SIZE_MODE:
+    {
+      SetSizeMode( Scripting::GetEnumeration< SizeMode >( property.Get<std::string>().c_str(), SIZE_MODE_TABLE, SIZE_MODE_TABLE_COUNT ) );
+      break;
+    }
+
+    case Dali::Actor::SIZE_MODE_FACTOR:
+    {
+      SetSizeModeFactor( property.Get<Vector3>() );
       break;
     }
 
@@ -2957,6 +3011,18 @@ Property::Value Actor::GetDefaultProperty(Property::Index index) const
     case Dali::Actor::INHERIT_ROTATION:
     {
       value = IsRotationInherited();
+      break;
+    }
+
+    case Dali::Actor::SIZE_MODE:
+    {
+      value = Scripting::GetEnumerationName< SizeMode >( GetSizeMode(), SIZE_MODE_TABLE, SIZE_MODE_TABLE_COUNT );
+      break;
+    }
+
+    case Dali::Actor::SIZE_MODE_FACTOR:
+    {
+      value = GetSizeModeFactor();
       break;
     }
 
@@ -3381,19 +3447,19 @@ SceneGraph::Node* Actor::CreateNode() const
   return Node::New();
 }
 
-bool Actor::DoAction(BaseObject* object, const std::string& actionName, const std::vector<Property::Value>& attributes)
+bool Actor::DoAction( BaseObject* object, const std::string& actionName, const std::vector<Property::Value>& attributes )
 {
   bool done = false;
-  Actor* actor = dynamic_cast<Actor*>(object);
+  Actor* actor = dynamic_cast<Actor*>( object );
 
   if( actor )
   {
-    if(Dali::Actor::ACTION_SHOW == actionName)
+    if( 0 == strcmp( actionName.c_str(), ACTION_SHOW ) ) // dont want to convert char* to string
     {
       actor->SetVisible(true);
       done = true;
     }
-    else if(Dali::Actor::ACTION_HIDE == actionName)
+    else if( 0 == strcmp( actionName.c_str(), ACTION_HIDE ) )
     {
       actor->SetVisible(false);
       done = true;

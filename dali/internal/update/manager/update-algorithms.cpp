@@ -154,14 +154,60 @@ inline void UpdateRootNodeTransformValues( Layer& rootNode, int nodeDirtyFlags, 
   }
 }
 
-inline void UpdateNodeTransformValues( Node& node, int nodeDirtyFlags, BufferIndex updateBufferIndex )
+/**
+ * Updates transform values for the given node if the transform flag is dirty.
+ * This includes applying a new size should the SizeMode require it.
+ * Note that this will cause the size dirty flag to be set. This is why we pass
+ * the dirty flags in by reference.
+ * @param[in]     node The node to update
+ * @param[in,out] nodeDirtyFlags A reference to the dirty flags, these may be modified by this function
+ * @param[in]     updateBufferIndex The current index to use for this frame
+ */
+inline void UpdateNodeTransformValues( Node& node, int& nodeDirtyFlags, BufferIndex updateBufferIndex )
 {
   // If the transform values need to be reinherited
-  if ( nodeDirtyFlags & TransformFlag )
+  if( nodeDirtyFlags & TransformFlag )
   {
+    // Handle size relative to parent modes.
+    // This must be delt with before rotation/translation as otherwise anything
+    // anchored to a corner of this child would appear at the wrong position.
+    // The size dirty flag is modified if the size is being overridden.
+    // Note: Switch is in order of use-case commonality.
+    switch( node.GetSizeMode() )
+    {
+      case USE_OWN_SIZE:
+      {
+        // Completely ignore the parents size.
+        break;
+      }
+
+      case SIZE_EQUAL_TO_PARENT:
+      {
+        // Set the nodes size to that of the parent.
+        node.SetSize( updateBufferIndex, node.GetParent()->GetSize( updateBufferIndex ) );
+        nodeDirtyFlags |= SizeFlag;
+        break;
+      }
+
+      case SIZE_RELATIVE_TO_PARENT:
+      {
+        // Set the nodes size to the parents multiplied by a user defined value.
+        node.SetSize( updateBufferIndex, node.GetSizeModeFactor() * node.GetParent()->GetSize( updateBufferIndex ) );
+        nodeDirtyFlags |= SizeFlag;
+        break;
+      }
+
+      case SIZE_FIXED_OFFSET_FROM_PARENT:
+      {
+        // Set the nodes size to the parents plus a user defined value.
+        node.SetSize( updateBufferIndex, node.GetSizeModeFactor() + node.GetParent()->GetSize( updateBufferIndex ) );
+        nodeDirtyFlags |= SizeFlag;
+        break;
+      }
+    }
+
     // With a non-central anchor-point, the world rotation and scale affects the world position.
     // Therefore the world rotation & scale must be updated before the world position.
-
     if( node.IsRotationInherited() )
     {
       node.InheritWorldRotation( updateBufferIndex );
@@ -188,6 +234,7 @@ inline void UpdateNodeTransformValues( Node& node, int nodeDirtyFlags, BufferInd
     node.CopyPreviousWorldRotation( updateBufferIndex );
     node.CopyPreviousWorldScale( updateBufferIndex );
     node.CopyPreviousWorldPosition( updateBufferIndex );
+    node.CopyPreviousSize( updateBufferIndex );
   }
 }
 
@@ -358,6 +405,8 @@ inline int UpdateNodesAndAttachments( Node& node,
 
   UpdateNodeOpacity( node, nodeDirtyFlags, updateBufferIndex );
 
+  // Note: nodeDirtyFlags are passed in by reference and may be modified by the following function.
+  // It is important that the modified version of these flags are used by the RenderableAttachment.
   UpdateNodeTransformValues( node, nodeDirtyFlags, updateBufferIndex );
 
   // Setting STENCIL will override OVERLAY, if that would otherwise have been inherited.

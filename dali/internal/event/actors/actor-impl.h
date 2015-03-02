@@ -28,7 +28,7 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/events/gesture.h>
 #include <dali/public-api/math/viewport.h>
-#include <dali/internal/event/common/proxy-object.h>
+#include <dali/internal/event/common/object-impl.h>
 #include <dali/internal/event/common/stage-def.h>
 #include <dali/internal/event/actors/actor-declarations.h>
 #include <dali/internal/event/actor-attachments/actor-attachment-declarations.h>
@@ -70,7 +70,7 @@ typedef ActorContainer::const_iterator        ActorConstIter;
  * The scene-graph can be updated in a separate thread, so the attachment is done using an asynchronous message.
  * When a tree of Actors is detached from the Stage, a message is sent to destroy the associated nodes.
  */
-class Actor : public ProxyObject
+class Actor : public Object
 {
 public:
 
@@ -499,6 +499,32 @@ public:
    * @return true if the actor inherit's it's parent orientation, false if it uses world orientation.
    */
   bool IsRotationInherited() const;
+
+  /**
+   * @brief Defines how a child actors size is affected by its parents size.
+   * @param[in] mode The size relative to parent mode to use.
+   */
+  void SetSizeMode(SizeMode mode);
+
+  /**
+   * Query how the child actors size is affected by its parents size.
+   * @return The size relative to parent mode in use.
+   */
+  SizeMode GetSizeMode() const;
+
+  /**
+   * Sets the factor of the parents size used for the child actor.
+   * Note: Only used if SizeMode is SIZE_RELATIVE_TO_PARENT or SIZE_FIXED_OFFSET_FROM_PARENT.
+   * @param[in] factor The vector to multiply the parents size by to get the childs size.
+   */
+  void SetSizeModeFactor(const Vector3& factor);
+
+  /**
+   * Gets the factor of the parents size used for the child actor.
+   * Note: Only used if SizeMode is SIZE_RELATIVE_TO_PARENT or SIZE_FIXED_OFFSET_FROM_PARENT.
+   * @return The vector being used to multiply the parents size by to get the childs size.
+   */
+  const Vector3& GetSizeModeFactor() const;
 
   /**
    * @copydoc Dali::Actor::GetCurrentWorldRotation()
@@ -977,11 +1003,6 @@ public:
   Dali::Actor::MouseWheelEventSignalType& MouseWheelEventSignal();
 
   /**
-   * @copydoc Dali::Actor::SetSizeSignal()
-   */
-  Dali::Actor::SetSizeSignalType& SetSizeSignal();
-
-  /**
    * @copydoc Dali::Actor::OnStageSignal()
    */
   Dali::Actor::OnStageSignalType& OnStageSignal();
@@ -1117,85 +1138,85 @@ protected:
    */
   float CalculateSizeZ( const Vector2& size ) const;
 
-public: // Default property extensions from ProxyObject
+public: // Default property extensions from Object
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetDefaultPropertyCount()
+   * @copydoc Dali::Internal::Object::GetDefaultPropertyCount()
    */
   virtual unsigned int GetDefaultPropertyCount() const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetDefaultPropertyIndices()
+   * @copydoc Dali::Internal::Object::GetDefaultPropertyIndices()
    */
   virtual void GetDefaultPropertyIndices( Property::IndexContainer& indices ) const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetDefaultPropertyName()
+   * @copydoc Dali::Internal::Object::GetDefaultPropertyName()
    */
   virtual const char* GetDefaultPropertyName(Property::Index index) const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetDefaultPropertyIndex()
+   * @copydoc Dali::Internal::Object::GetDefaultPropertyIndex()
    */
   virtual Property::Index GetDefaultPropertyIndex(const std::string& name) const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::IsDefaultPropertyWritable()
+   * @copydoc Dali::Internal::Object::IsDefaultPropertyWritable()
    */
   virtual bool IsDefaultPropertyWritable(Property::Index index) const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::IsDefaultPropertyAnimatable()
+   * @copydoc Dali::Internal::Object::IsDefaultPropertyAnimatable()
    */
   virtual bool IsDefaultPropertyAnimatable(Property::Index index) const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::IsDefaultPropertyAConstraintInput()
+   * @copydoc Dali::Internal::Object::IsDefaultPropertyAConstraintInput()
    */
   virtual bool IsDefaultPropertyAConstraintInput( Property::Index index ) const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetDefaultPropertyType()
+   * @copydoc Dali::Internal::Object::GetDefaultPropertyType()
    */
   virtual Property::Type GetDefaultPropertyType(Property::Index index) const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::SetDefaultProperty()
+   * @copydoc Dali::Internal::Object::SetDefaultProperty()
    */
   virtual void SetDefaultProperty(Property::Index index, const Property::Value& propertyValue);
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::SetSceneGraphProperty()
+   * @copydoc Dali::Internal::Object::SetSceneGraphProperty()
    */
   virtual void SetSceneGraphProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value );
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetDefaultProperty()
+   * @copydoc Dali::Internal::Object::GetDefaultProperty()
    */
   virtual Property::Value GetDefaultProperty( Property::Index index ) const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetPropertyOwner()
+   * @copydoc Dali::Internal::Object::GetPropertyOwner()
    */
   virtual const SceneGraph::PropertyOwner* GetPropertyOwner() const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetSceneObject()
+   * @copydoc Dali::Internal::Object::GetSceneObject()
    */
   virtual const SceneGraph::PropertyOwner* GetSceneObject() const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetSceneObjectAnimatableProperty()
+   * @copydoc Dali::Internal::Object::GetSceneObjectAnimatableProperty()
    */
   virtual const SceneGraph::PropertyBase* GetSceneObjectAnimatableProperty( Property::Index index ) const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetSceneObjectInputProperty()
+   * @copydoc Dali::Internal::Object::GetSceneObjectInputProperty()
    */
   virtual const PropertyInputImpl* GetSceneObjectInputProperty( Property::Index index ) const;
 
   /**
-   * @copydoc Dali::Internal::ProxyObject::GetPropertyComponentIndex()
+   * @copydoc Dali::Internal::Object::GetPropertyComponentIndex()
    */
   virtual int GetPropertyComponentIndex( Property::Index index ) const;
 
@@ -1321,14 +1342,14 @@ protected:
   Actor*                  mParent;       ///< Each actor (except the root) can have one parent
   ActorContainer*         mChildren;     ///< Container of referenced actors
   const SceneGraph::Node* mNode;         ///< Not owned
-  Vector3*                mParentOrigin; // NULL means ParentOrigin::DEFAULT. ParentOrigin is non-animatable
-  Vector3*                mAnchorPoint;  // NULL means AnchorPoint::DEFAULT. AnchorPoint is non-animatable
+  Vector3*                mParentOrigin; ///< NULL means ParentOrigin::DEFAULT. ParentOrigin is non-animatable
+  Vector3*                mAnchorPoint;  ///< NULL means AnchorPoint::DEFAULT. AnchorPoint is non-animatable
 
 #ifdef DYNAMICS_SUPPORT
   DynamicsData*           mDynamicsData; ///< optional physics data
 #endif
 
-  ActorGestureData*       mGestureData; /// Optional Gesture data. Only created when actor requires gestures
+  ActorGestureData*       mGestureData;  ///< Optional Gesture data. Only created when actor requires gestures
 
   ActorAttachmentPtr      mAttachment;   ///< Optional referenced attachment
 
@@ -1336,11 +1357,11 @@ protected:
   Dali::Actor::TouchSignalType             mTouchedSignal;
   Dali::Actor::HoverSignalType             mHoveredSignal;
   Dali::Actor::MouseWheelEventSignalType   mMouseWheelEventSignal;
-  Dali::Actor::SetSizeSignalType           mSetSizeSignal;
   Dali::Actor::OnStageSignalType           mOnStageSignal;
   Dali::Actor::OffStageSignalType          mOffStageSignal;
 
   Vector3         mSize;      ///< Event-side storage for size (not a pointer as most actors will have a size)
+  Vector3         mSizeModeFactor; ///< Factor of parent size used for certain SizeModes.
 
   std::string     mName;      ///< Name of the actor
   unsigned int    mId;        ///< A unique ID to identify the actor starting from 1, and 0 is reserved
@@ -1362,6 +1383,7 @@ protected:
   DrawMode::Type mDrawMode                         : 2; ///< Cached: How the actor and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode : 2; ///< Cached: Determines how position is inherited
   ColorMode mColorMode                             : 2; ///< Cached: Determines whether mWorldColor is inherited
+  SizeMode mSizeMode                               : 2; ///< Cached: Determines how the actors parent affects the actors size.
 
 private:
 

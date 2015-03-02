@@ -32,7 +32,7 @@
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/common/thread-local-storage.h>
-#include <dali/internal/render/shaders/shader.h>
+#include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/shaders/uniform-meta.h>
 #include <dali/internal/update/animation/scene-graph-constraint-base.h>
 #include "dali-shaders.h"

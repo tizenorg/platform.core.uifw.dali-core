@@ -46,6 +46,7 @@ namespace Internal
 // value types used by messages
 template <> struct ParameterType< ColorMode > : public BasicType< ColorMode > {};
 template <> struct ParameterType< PositionInheritanceMode > : public BasicType< PositionInheritanceMode > {};
+template <> struct ParameterType< SizeMode > : public BasicType< SizeMode > {};
 
 namespace SceneGraph
 {
@@ -95,6 +96,7 @@ public:
   // Defaults
   static const PositionInheritanceMode DEFAULT_POSITION_INHERITANCE_MODE;
   static const ColorMode DEFAULT_COLOR_MODE;
+  static const SizeMode DEFAULT_SIZE_MODE;
 
   // Creation methods
 
@@ -588,6 +590,51 @@ public:
   }
 
   /**
+   * @brief Defines how a child actor's size is affected by its parent's size.
+   * @param[in] mode The size relative to parent mode to use.
+   */
+  void SetSizeMode( SizeMode mode )
+  {
+    if ( mode != mSizeMode )
+    {
+      mSizeMode = mode;
+
+      SetDirtyFlag( TransformFlag );
+    }
+  }
+
+  /**
+   * Query how the child actor's size is affected by its parent's size.
+   * @return The size relative to parent mode in use.
+   */
+  SizeMode GetSizeMode() const
+  {
+    return mSizeMode;
+  }
+
+  /**
+   * Sets the factor of the parents size used for the child actor.
+   * Note: Only used for certain SizeModes.
+   * @param[in] factor The vector to multiply the parents size by to get the childs size.
+   */
+  void SetSizeModeFactor( const Vector3& factor )
+  {
+    mSizeModeFactor = factor;
+
+    SetDirtyFlag( TransformFlag );
+  }
+
+  /**
+   * Gets the factor of the parents size used for the child actor.
+   * Note: Only used for certain SizeModes.
+   * @return The vector being used to multiply the parents size by to get the childs size.
+   */
+  const Vector3& GetSizeModeFactor() const
+  {
+    return mSizeModeFactor;
+  }
+
+  /**
    * Retrieve the local scale of the node, relative to its parent.
    * @param[in] bufferIndex The buffer to read from.
    * @return The local scale.
@@ -662,6 +709,15 @@ public:
   bool IsScaleInherited() const
   {
     return mInheritScale;
+  }
+
+  /**
+   * Copies the previously used size, if this changed in the previous frame.
+   * @param[in] updateBufferIndex The current update buffer index.
+   */
+  void CopyPreviousSize( BufferIndex updateBufferIndex )
+  {
+    SetSize( updateBufferIndex, GetSize( 1u - updateBufferIndex ) );
   }
 
   /**
@@ -783,6 +839,16 @@ public:
   ColorMode GetColorMode() const
   {
     return mColorMode;
+  }
+
+  /**
+   * Sets the size of the node.
+   * @param[in] bufferIndex The buffer to write to.
+   * @param[in] size The size to write.
+   */
+  void SetSize( BufferIndex bufferIndex, const Vector3& size )
+  {
+    mSize[bufferIndex] = size;
   }
 
   /**
@@ -981,6 +1047,7 @@ protected:
   NodeAttachmentOwner mAttachment;                   ///< Optional owned attachment
   NodeContainer       mChildren;                     ///< Container of children; not owned
 
+  Vector3             mSizeModeFactor;               ///< Factor of parent size. Used for certain SizeModes.
   // flags, compressed to bitfield
   int  mDirtyFlags:10;                               ///< A composite set of flags for each of the Node properties
 
@@ -993,6 +1060,7 @@ protected:
   DrawMode::Type          mDrawMode:2;               ///< How the Node and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode:2;///< Determines how position is inherited, 2 bits is enough
   ColorMode               mColorMode:2;              ///< Determines whether mWorldColor is inherited, 2 bits is enough
+  SizeMode                mSizeMode:2;               ///< Determines how the actors parent affects the actors size.
 
   // Changes scope, should be at end of class
   DALI_LOG_OBJECT_STRING_DECLARATION;
@@ -1009,6 +1077,28 @@ inline void SetInheritRotationMessage( EventToUpdate& eventToUpdate, const Node&
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetInheritRotation, inherit );
+}
+
+inline void SetSizeModeMessage( EventToUpdate& eventToUpdate, const Node& node, SizeMode mode )
+{
+  typedef MessageValue1< Node, SizeMode > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::SetSizeMode, mode );
+}
+
+inline void SetSizeModeFactorMessage( EventToUpdate& eventToUpdate, const Node& node, const Vector3& factor )
+{
+  typedef MessageValue1< Node, Vector3 > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::SetSizeModeFactor, factor );
 }
 
 inline void SetParentOriginMessage( EventToUpdate& eventToUpdate, const Node& node, const Vector3& origin )

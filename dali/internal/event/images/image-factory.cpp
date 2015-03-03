@@ -33,9 +33,43 @@
 
 // EXTERNAL INCLUDES
 #include <float.h>
+#include <algorithm>
 
 using namespace Dali::Integration;
 using namespace Dali::Internal::ImageFactoryCache;
+
+namespace
+{
+
+struct UrlComparatorForAtlasResource
+{
+  UrlComparatorForAtlasResource( const std::string& url )
+  : url( url )
+  {}
+
+  bool operator() ( const AtlasResourceCache& atlasResource )
+  {
+    return url.compare( atlasResource.url ) == 0;
+  }
+
+  const std::string url;
+};
+
+struct IdComparatorForAtlasResource
+{
+  IdComparatorForAtlasResource( std::size_t id )
+  : id( id )
+  {}
+
+  bool operator() ( const AtlasResourceCache& atlasResource )
+  {
+    return atlasResource.resourceId == id;
+  }
+
+  std::size_t id;
+};
+
+}
 
 namespace Dali
 {
@@ -73,6 +107,64 @@ Request* ImageFactory::RegisterRequest( const std::string &filename, const Image
   }
 
   return foundReq;
+}
+
+AtlasResourceCache* ImageFactory::RegisterAtlasResource( ResourceId resourceId, const std::string &filename, std::size_t xOffset, std::size_t yOffset )
+{
+  AtlasResourceIterator iter = std::find_if( mAtlasResources.begin(), mAtlasResources.end(), AtlasResourceCache(resourceId, filename, xOffset, yOffset) );
+  if( iter !=  mAtlasResources.end() ) // already exist and uploaded, nothing need to do
+  {
+    return NULL;
+  }
+
+  iter = std::find_if( mAtlasResources.begin(), mAtlasResources.end(), UrlComparatorForAtlasResource(filename) );
+  if( iter !=  mAtlasResources.end() ) // The bitmap already loaded, no need to start IO operation
+  {
+    AtlasResourceCache* newResource = new AtlasResourceCache( resourceId, filename, xOffset, yOffset,  iter->bitmap);
+    return newResource;
+  }
+  else
+  {
+    ImageAttributes loadedAttrs;
+    Integration::BitmapResourceType resourceType( loadedAttrs );
+    Integration::PlatformAbstraction& platformAbstraction = Internal::ThreadLocalStorage::Get().GetPlatformAbstraction();
+
+    Integration::ResourcePointer resource = platformAbstraction.LoadResourceSynchronously(resourceType, filename);
+    Integration::BitmapPtr  bitmap = static_cast<Integration::Bitmap*>( resource.Get());
+
+    if( bitmap )
+    {
+      AtlasResourceCache* newResource = new AtlasResourceCache( resourceId, filename, xOffset, yOffset,  bitmap);
+      return newResource;
+    }
+    else
+    {
+      return NULL;
+    }
+  }
+}
+
+void ImageFactory::ClearAtlas( ResourceId resourceId, const Vector4& color )
+{
+  AtlasClearColorIterator iter = std::find_if( mAtlasClearColors.begin(), mAtlasClearColors.end(), AtlasClearColorCache(resourceId) );
+  if( iter !=  mAtlasClearColors.end() ) // This atals has been set clear before
+  {
+    iter->color = color;
+  }
+  else
+  {
+    mAtlasClearColors.push_back( AtlasClearColorCache( resourceId, color ) );
+  }
+
+  mResourceClient.ClearTexture( resourceId, color );
+
+  if( mAtlasResources.empty() )
+  {
+    return;
+  }
+
+  mAtlasResources.erase( std::remove_if( mAtlasResources.begin(), mAtlasResources.end(),  IdComparatorForAtlasResource(resourceId)),
+                         mAtlasResources.end());
 }
 
 ResourceTicketPtr ImageFactory::Load( Request& request )
@@ -168,6 +260,13 @@ ResourceTicketPtr ImageFactory::Reload( Request& request )
   return ticket;
 }
 
+void ImageFactory::UploadBitmapToAtlas(ImageFactoryCache::AtlasResourceCache& atlasResource)
+{
+  mAtlasResources.push_back( atlasResource );
+
+  mResourceClient.UploadBitmap( atlasResource.resourceId, atlasResource.bitmap.Get(), atlasResource.xOffset, atlasResource.yOffset );
+}
+
 void ImageFactory::RecoverFromContextLoss()
 {
   for( RequestIdMap::iterator it = mRequestCache.begin(); it != mRequestCache.end(); ++it )
@@ -184,6 +283,37 @@ void ImageFactory::RecoverFromContextLoss()
       {
         // Ensure the finished status is reset
         mResourceClient.ReloadResource( ticket->GetId(), true );
+      }
+    }
+  }
+
+  for( AtlasClearColorIterator iter = mAtlasClearColors.begin(); iter != mAtlasClearColors.end(); ++iter )
+  {
+    mResourceClient.ClearTexture( iter->resourceId, iter->color );
+  }
+
+  ImageAttributes loadedAttrs;
+  Integration::BitmapResourceType resourceType( loadedAttrs );
+  Integration::PlatformAbstraction& platformAbstraction = Internal::ThreadLocalStorage::Get().GetPlatformAbstraction();
+
+  for( AtlasResourceIterator iter = mAtlasResources.begin(); iter != mAtlasResources.end(); ++iter )
+  {
+    AtlasResourceIterator it = std::find_if( mAtlasResources.begin(), iter, UrlComparatorForAtlasResource(iter->url) );
+
+    if( it != iter && it->bitmap)
+    {
+      iter->bitmap = it->bitmap;
+      mResourceClient.UploadBitmap( iter->resourceId, it->bitmap.Get(), iter->xOffset, iter->yOffset );
+    }
+    else
+    {
+      Integration::ResourcePointer resource = platformAbstraction.LoadResourceSynchronously(resourceType, iter->url);
+      Integration::BitmapPtr  bitmap = static_cast<Integration::Bitmap*>( resource.Get());
+
+      if( bitmap )
+      {
+        iter->bitmap = bitmap;
+        mResourceClient.UploadBitmap( iter->resourceId, bitmap.Get(), iter->xOffset, iter->yOffset );
       }
     }
   }

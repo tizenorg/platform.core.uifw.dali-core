@@ -405,6 +405,10 @@ ResourceTicketPtr ResourceClient::AllocateTexture( unsigned int width,
 
   return newTicket;
 }
+void ResourceClient::ClearTexture(  ResourceId id, const Vector4& color )
+{
+  RequestClearTextureMessage(  mUpdateManager.GetEventToUpdate(), mResourceManager, id, color );
+}
 
 void ResourceClient::UpdateTexture(  ResourceId id,
                                      BitmapUploadArray uploadArray )
@@ -440,6 +444,17 @@ void ResourceClient::UploadBitmap( ResourceId destId, ResourceId srcId, std::siz
                               mResourceManager,
                               destId,
                               srcId,
+                              xOffset,
+                              yOffset );
+}
+
+
+void ResourceClient::UploadBitmap( ResourceId destId,Integration::Bitmap* bitmap, std::size_t xOffset, std::size_t yOffset)
+{
+  RequestUploadBitmapMessage( mUpdateManager.GetEventToUpdate(),
+                              mResourceManager,
+                              destId,
+                              bitmap,
                               xOffset,
                               yOffset );
 }

@@ -350,6 +350,56 @@ void BitmapTexture::UpdateArea( const RectArea& updateArea )
   }
 }
 
+void BitmapTexture::Clear( const Vector4& color )
+{
+  if( mId == 0 )
+  {
+    CreateGlTexture();
+  }
+
+  mContext.ActiveTexture( TEXTURE_UNIT_UPLOAD );
+  mContext.Bind2dTexture(mId);
+
+  size_t numPixels = mWidth*mHeight;
+  size_t bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
+  char* clearPixels = (char*)malloc(numPixels * bytesPerPixel);
+
+  uint32_t clearColor;
+  unsigned char r = static_cast<unsigned char>(color.r * 255.f);
+  unsigned char g = static_cast<unsigned char>(color.g * 255.f);
+  unsigned char b = static_cast<unsigned char>(color.b * 255.f);
+  unsigned char a = static_cast<unsigned char>(color.a * 255.f);
+  GLenum pixelFormat = GL_RGBA;
+  if( mPixelFormat == Pixel::RGBA8888)
+  {
+    clearColor = ( (uint32_t)a << 24 | (uint32_t)b << 16 | (uint32_t)g << 8 | (uint32_t)r );
+  }
+  else if( mPixelFormat == Pixel::RGB888)
+  {
+    clearColor = ( (uint32_t)b << 16 | (uint32_t)g << 8 | (uint32_t)r);
+    pixelFormat   = GL_RGB;
+  }
+  //ToDo handle more pixel format, for example Pixel::A8
+
+  for(size_t i=0; i<numPixels; i++)
+  {
+    memcpy(&clearPixels[i*bytesPerPixel], &clearColor, bytesPerPixel);
+  }
+
+  mContext.PixelStorei( GL_UNPACK_ALIGNMENT, 1 ); // We always use tightly packed data
+  mContext.TexSubImage2D(GL_TEXTURE_2D,
+                         0,
+                         0,
+                         0,
+                         mWidth,
+                         mHeight,
+                         pixelFormat,         /* our bitmap format (should match internal format) */
+                         GL_UNSIGNED_BYTE,       /* pixel data type */
+                         clearPixels);        /* texture data */
+
+  INCREASE_BY( PerformanceMonitor::TEXTURE_DATA_UPLOADED, numPixels * bytesPerPixel );
+}
+
 void BitmapTexture::ClearAreas( const BitmapClearArray& areaArray, std::size_t blockSize, uint32_t color )
 {
   if(mId > 0)

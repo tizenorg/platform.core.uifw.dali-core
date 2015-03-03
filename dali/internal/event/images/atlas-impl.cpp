@@ -21,9 +21,11 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
 #include <dali/internal/event/common/thread-local-storage.h>
-#include <dali/internal/event/images/buffer-image-impl.h>
+
+#include <dali/internal/event/images/image-factory.h>
 #include <dali/internal/event/resources/resource-client.h>
 #include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/platform-abstraction.h>
 
 namespace Dali
 {
@@ -36,28 +38,52 @@ namespace
 TypeRegistration mType( typeid( Dali::Atlas ), typeid( Dali::Image ), NULL );
 }
 
-Atlas* Atlas::New( std::size_t width,
-                   std::size_t height,
+Atlas* Atlas::New( unsigned int width,
+                   unsigned int height,
                    Pixel::Format pixelFormat )
 {
   return new Atlas( width, height, pixelFormat );
 }
 
-bool Atlas::Upload( const BufferImage& bufferImage,
-                    std::size_t xOffset,
-                    std::size_t yOffset )
+void Atlas::Clear(const Vector4& color)
+{
+  ClearCache();
+  ClearBackground( color );
+}
+
+bool Atlas::Upload( BufferImage& bufferImage,
+                    unsigned int xOffset,
+                    unsigned int yOffset )
 {
   bool uploadSuccess( false );
 
-  AllocateAtlas();
-
-  if( IsWithin(bufferImage, xOffset, yOffset) )
+  if( Compatible(bufferImage.GetPixelFormat(),
+                 xOffset + bufferImage.GetWidth(),
+                 yOffset + bufferImage.GetHeight() ) )
   {
+    AllocateAtlas();
     ResourceId destId = GetResourceId();
     ResourceId srcId = bufferImage.GetResourceId();
 
     if( destId && srcId )
     {
+      unsigned int index = 0;
+      // avoid recording the same buffer image again
+      for( std::vector<BufferImagePtr>::iterator iter = mBufferImages.begin();
+           iter != mBufferImages.end(); iter++, index++)
+      {
+        if( *(iter) == &bufferImage )
+        {
+          break;
+        }
+      }
+      if( index ==  mBufferImages.size())
+      {
+        mBufferImages.push_back( &bufferImage );
+      }
+
+      mLayout.push_back( new Layout(xOffset, yOffset, index, true) );
+
       mResourceClient.UploadBitmap( destId, srcId, xOffset, yOffset );
       uploadSuccess = true;
     }
@@ -66,16 +92,93 @@ bool Atlas::Upload( const BufferImage& bufferImage,
   return uploadSuccess;
 }
 
+bool Atlas::Upload( const std::string& url,
+                    unsigned int xOffset,
+                    unsigned int yOffset)
+{
+  bool uploadSuccess( false );
+
+  ResourceId destId = GetResourceId();
+
+  if( destId )
+  {
+    unsigned int index = 0;
+    bool addNewUrl(false);
+    // avoid recording the same url resource again
+    for( std::vector<UrlResource*>::iterator iter = mUrlResources.begin();
+        iter != mUrlResources.end(); iter++, index++)
+    {
+      if( url.compare((*iter)->url) == 0 )
+      {
+        break;
+      }
+    }
+    if( index ==  mUrlResources.size())
+    {
+      mUrlResources.push_back( new UrlResource(url) );
+      mUrlResources[index]->LoadBitmap();
+      addNewUrl = true;
+    }
+
+    Integration::BitmapPtr bitmap = mUrlResources[index]->bitmap;
+    if( bitmap && Compatible(bitmap->GetPixelFormat(), xOffset + bitmap->GetImageWidth(), yOffset + bitmap->GetImageHeight()) )
+    {
+      AllocateAtlas();
+      mLayout.push_back( new Layout(xOffset, yOffset, index, false) );
+      mResourceClient.UploadBitmap( destId, bitmap, xOffset, yOffset  );
+      uploadSuccess = true;
+    }
+    // If the bitmap loaded from the url is failed to upload, delete the url resource we newly added
+    else if( addNewUrl )
+    {
+      delete mUrlResources[index];
+      mUrlResources.pop_back();
+    }
+  }
+
+  return uploadSuccess;
+}
+
+void Atlas::RecoverFromContextLoss()
+{
+  ResourceId destId = GetResourceId();
+  if( destId )
+  {
+    if( mClear )
+    {
+      ClearBackground( mClearColor );
+    }
+
+    // Restore the atlas following the uploading order
+    for( std::vector<Layout*>::iterator iter = mLayout.begin(); iter != mLayout.end(); iter++ )
+    {
+      if( (*iter)->isBufferImage )
+      {
+        ResourceId srcId = mBufferImages[(*iter)->sourceIndex]->GetResourceId();
+        mResourceClient.UploadBitmap( destId, srcId, (*iter)->xOffset, (*iter)->yOffset );
+      }
+      else
+      {
+        UrlResource* urlResource = mUrlResources[ (*iter)->sourceIndex ];
+        mResourceClient.UploadBitmap( destId, urlResource->bitmap, (*iter)->xOffset, (*iter)->yOffset  );
+      }
+    }
+
+   }
+}
+
 Atlas::~Atlas()
 {
   ReleaseAtlas();
 }
 
-Atlas::Atlas( std::size_t width,
-              std::size_t height,
+Atlas::Atlas( unsigned int width,
+              unsigned int height,
               Pixel::Format pixelFormat )
 : mResourceClient( ThreadLocalStorage::Get().GetResourceClient() ),
-  mPixelFormat( pixelFormat )
+  mClearColor( Vector4::ZERO ),
+  mPixelFormat( pixelFormat ),
+  mClear( false )
 {
   mWidth  = width;
   mHeight = height;
@@ -105,35 +208,29 @@ void Atlas::Disconnect()
   }
 }
 
-bool Atlas::IsWithin( const BufferImage& bufferImage,
-                      std::size_t xOffset,
-                      std::size_t yOffset )
+bool Atlas::Compatible( Pixel::Format pixelFormat,
+                        unsigned int x,
+                        unsigned int y )
 {
-  bool within(false);
+  bool Compatible(false);
 
-  if( mPixelFormat != bufferImage.GetPixelFormat() )
+  if( mPixelFormat != pixelFormat )
   {
-    DALI_LOG_ERROR( "Pixel format %d does not match Atlas format %d\n", bufferImage.GetPixelFormat(), mPixelFormat );
+    DALI_LOG_ERROR( "Pixel format %d does not match Atlas format %d\n", pixelFormat, mPixelFormat );
   }
   else
   {
-    const unsigned int width  = bufferImage.GetWidth();
-    const unsigned int height = bufferImage.GetHeight();
-
-    if( xOffset < mWidth  &&
-        yOffset < mHeight &&
-        xOffset+width  <= mWidth &&
-        yOffset+height <= mHeight )
+    if( x <= mWidth  && y <= mHeight )
     {
-      within = true;
+      Compatible = true;
     }
     else
     {
-      DALI_LOG_ERROR( "%dx%d image does not fit at offset %d,%d\n", width, height, xOffset, yOffset );
+      DALI_LOG_ERROR( "image does not fit within the atlas \n" );
     }
   }
 
-  return within;
+  return Compatible;
 }
 
 void Atlas::AllocateAtlas()
@@ -141,12 +238,86 @@ void Atlas::AllocateAtlas()
   if( !mTicket )
   {
     mTicket = mResourceClient.AllocateTexture( mWidth, mHeight, mPixelFormat );
+    ThreadLocalStorage::Get().GetImageFactory().RegisterForContextRecovery( this );
   }
 }
 
 void Atlas::ReleaseAtlas()
 {
   mTicket.Reset();
+  ClearCache();
+  ThreadLocalStorage::Get().GetImageFactory().UnregisterFromContextRecovery( this );
+}
+
+void Atlas::ClearBackground(const Vector4& color )
+{
+  AllocateAtlas();
+  ResourceId destId = GetResourceId();
+  if( destId )
+  {
+    const unsigned int numPixels = mWidth * mHeight;
+    unsigned int bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
+    BufferImagePtr imageData = BufferImage::New( mWidth, mHeight, mPixelFormat );
+    PixelBuffer* pixbuf = imageData->GetBuffer();
+
+    uint32_t clearColor;
+    unsigned char r =  0xFF * color.r;
+    unsigned char g =  0xFF * color.g;
+    unsigned char b =  0xFF * color.b;
+    unsigned char a =  0xFF * color.a;
+    if( mPixelFormat == Pixel::RGBA8888 )
+    {
+      clearColor = ( (uint32_t) a<<24 | (uint32_t)b << 16 | (uint32_t)g << 8 | (uint32_t)r );
+    }
+    else if( mPixelFormat == Pixel::RGB888 )
+    {
+      clearColor = ( (uint32_t)b << 16 | (uint32_t)g << 8 | (uint32_t)r);
+    }
+    else if( mPixelFormat == Pixel::A8 )
+    {
+      clearColor = (uint32_t)a;
+    }
+
+    for( unsigned int i = 0; i < numPixels; ++i )
+    {
+      memcpy(&pixbuf[i*bytesPerPixel], &clearColor, bytesPerPixel);
+    }
+
+    RectArea area;
+    imageData->Update(area);
+
+    mClearColor = color;
+    mClear = true;
+    mResourceClient.UploadBitmap( destId, imageData->GetResourceId(), 0, 0 );
+  }
+}
+
+void Atlas::ClearCache()
+{
+  for( std::vector<Layout*>::iterator iter = mLayout.begin(); iter != mLayout.end(); iter++ )
+  {
+    delete *iter;
+  }
+  mLayout.clear();
+
+  for( std::vector<UrlResource*>::iterator iter = mUrlResources.begin();
+            iter != mUrlResources.end(); iter++)
+  {
+    delete *iter;
+  }
+  mUrlResources.clear();
+
+  mBufferImages.clear();
+}
+
+void Atlas::UrlResource::LoadBitmap()
+{
+  ImageAttributes loadedAttrs;
+  Integration::BitmapResourceType resourceType( loadedAttrs );
+  Integration::PlatformAbstraction& platformAbstraction = Internal::ThreadLocalStorage::Get().GetPlatformAbstraction();
+
+  Integration::ResourcePointer resource = platformAbstraction.LoadResourceSynchronously(resourceType, url);
+  bitmap = static_cast<Integration::Bitmap*>( resource.Get());
 }
 
 } // namespace Internal

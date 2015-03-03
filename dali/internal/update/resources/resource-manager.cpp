@@ -370,6 +370,12 @@ void ResourceManager::HandleAllocateTextureRequest( ResourceId id, unsigned int 
   mImpl->mTextureCacheDispatcher.DispatchCreateTexture( id, width, height, pixelFormat, true /* true = clear the texture */ );
 }
 
+void ResourceManager::HandleClearTextureRequest( ResourceId id, const Vector4& color )
+{
+  DALI_LOG_INFO(Debug::Filter::gResource, Debug::General, "ResourceManager: HandleClearTextureRequest(id:%u)\n", id);
+  mImpl->mTextureCacheDispatcher.DispatchClear( id, color );
+}
+
 void ResourceManager::HandleUpdateTextureRequest( ResourceId id,  const BitmapUploadArray& uploadArray )
 {
   mImpl->mTextureCacheDispatcher.DispatchUploadBitmapArrayToTexture( id, uploadArray );
@@ -420,6 +426,14 @@ void ResourceManager::HandleUpdateBitmapAreaRequest( ResourceId textureId, const
   if( textureId )
   {
     mImpl->mTextureCacheDispatcher.DispatchUpdateTextureArea( textureId, area );
+  }
+}
+
+void ResourceManager::HandleUploadBitmapRequest( ResourceId destId, Integration::Bitmap* bitmap, std::size_t xOffset, std::size_t yOffset )
+{
+  if( destId && bitmap )
+  {
+    mImpl->mTextureCacheDispatcher.DispatchUpdateTexture( destId, bitmap, xOffset, yOffset );
   }
 }
 

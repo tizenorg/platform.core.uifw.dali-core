@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/images/atlas.h>
 #include <dali/internal/event/images/image-impl.h>
 
@@ -56,15 +57,21 @@ public:
                      Pixel::Format pixelFormat = Pixel::RGBA8888 );
 
   /**
-   * @brief Upload a buffer image to the atlas.
-   *
-   * @pre The bitmap pixel format must match the Atlas format.
-   * @param [in] bufferImage The buffer image to upload.
-   * @param [in] xOffset Specifies an offset in the x direction within the atlas.
-   * @param [in] yOffset Specifies an offset in the y direction within the atlas.
-   * @return True if the bitmap fits within the atlas at the specified offset.
+   * @copydoc Dali::Atlas::Clear
+   */
+  void Clear( const Vector4& color  );
+
+  /**
+   * @copydoc Dali::Atlas::Upload( const BufferImage&, std::size_t, std::size_t )
    */
   bool Upload( const BufferImage& bufferImage,
+               std::size_t xOffset,
+               std::size_t yOffset );
+
+  /**
+   * @copydoc Dali::Atlas::Upload( const std::string&, std::size_t, std::size_t )
+   */
+  bool Upload( const std::string& url,
                std::size_t xOffset,
                std::size_t yOffset );
 
@@ -102,12 +109,11 @@ private:
 
   /**
    * Helper for Upload methods
-   * @return True if the bitmap fits within the atlas at the specified offset
+   * @return True if the bitmap has the same pixel format and its size fits within the atlas at the specified offset
    */
-  bool IsWithin( const BufferImage& bufferImage,
-                 std::size_t xOffset,
-                 std::size_t yOffset );
-
+  bool Compatible( Pixel::Format pixelFormat,
+                   std::size_t x,
+                   std::size_t y );
   /**
    * Helper to create the Atlas resource
    */

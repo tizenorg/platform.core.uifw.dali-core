@@ -65,6 +65,17 @@ public:
   ImageFactoryCache::Request* RegisterRequest( const std::string& filename, const ImageAttributes *attributes );
 
   /**
+   * Registers a resource image cache for an atlas, it will load the bitmap if the resource is not loaded yet, but does not upload the bitmap to texture.
+   * Use UploadBitmapToAtlas to upload the bitmap and cache it in the atlas resource list.
+   * @param[in] resourceId The atlas resource id.
+   * @param[in] filename The url of the resource image.
+   * @param[in] xOffset Specifies an offset in the x direction within the atlas.
+   * @param[in] yOffset Specifies an offset in the y direction within the atlas.
+   * @return an AtlasResourceCache pointer or NULL
+   */
+  ImageFactoryCache::AtlasResourceCache* RegisterAtlasResource( ResourceId resourceId, const std::string &filename, std::size_t xOffset, std::size_t yOffset );
+
+  /**
    * Issue a request which has already been registered with ImageFactory.
    * If the associated Ticket is no longer alive ImageFactory issues a resource load request.
    * @param [in] request Request to be loaded.
@@ -82,6 +93,11 @@ public:
    * @return the ResourceTicket mapped to the request
    */
   ResourceTicketPtr Reload( ImageFactoryCache::Request& request );
+
+  /**
+   * Upload a bitmap to the texture of an Atlas, and cache the resource into the atlas resource list
+   */
+  void UploadBitmapToAtlas(ImageFactoryCache::AtlasResourceCache& atlasResource);
 
   /**
    * Ensures all filesystem images are reloaded into textures.
@@ -221,6 +237,8 @@ private:
   ResourceTicketContainer                mTicketsToRelease; ///< List of ticket handles
   float                                  mMaxScale;         ///< Defines maximum size difference between compatible resources
   ImageFactoryCache::RequestId           mReqIdCurrent;     ///< Internal counter for Request IDs
+
+  ImageFactoryCache::AtlasResourceList   mAtlasResources;   ///< List of resource images in atlas
 };
 
 } // namespace Internal

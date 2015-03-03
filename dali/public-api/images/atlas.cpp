@@ -39,11 +39,23 @@ Atlas::Atlas()
 {
 }
 
+void Atlas::Clear( const Vector4& color  )
+{
+  GetImplementation( *this ).Clear( color );
+}
+
 bool Atlas::Upload( const BufferImage& bufferImage,
                     std::size_t xOffset,
                     std::size_t yOffset )
 {
   return GetImplementation(*this).Upload( GetImplementation(bufferImage), xOffset, yOffset );
+}
+
+bool Atlas::Upload( const std::string& url,
+                    std::size_t xOffset,
+                    std::size_t yOffset)
+{
+  return GetImplementation(*this).Upload( url, xOffset, yOffset );
 }
 
 Atlas Atlas::DownCast( BaseHandle handle )

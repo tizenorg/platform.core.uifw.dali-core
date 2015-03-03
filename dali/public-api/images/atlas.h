@@ -63,15 +63,36 @@ public:
   Atlas();
 
   /**
-   * @brief Upload a bitmap to the atlas.
+   * @brief Clear the Atlas with the given color
    *
-   * @pre The bitmap pixel format must match the Atlas format.
+   * @note The Atlas does not clear itself automatically during construction.
+   * Application should call this clear function to avoid getting garbage pixels in the atlas.
+   * By calling Clear, all the current uploaded image information will be lost.
+   * @param [in] color The color used to clear the Atlas.
+   */
+  void Clear( const Vector4& color  );
+
+  /**
+   * @brief Upload a buffer image to the atlas.
+   *
+   * @pre The pixel format of this buffer image must match the Atlas format.
    * @param [in] bufferImage The buffer image to upload.
    * @param [in] xOffset Specifies an offset in the x direction within the atlas.
    * @param [in] yOffset Specifies an offset in the y direction within the atlas.
-   * @return True if the bitmap fits within the atlas at the specified offset.
+   * @return True if the image has compatible pixel format and fits within the atlas at the specified offset.
    */
   bool Upload( const BufferImage& bufferImage,
+               std::size_t xOffset,
+               std::size_t yOffset );
+
+  /**
+   * @brief Upload a resource image to atlas
+   * @param [in] url The URL of the resource image file to use
+   * @param [in] xOffset Specifies an offset in the x direction within the atlas.
+   * @param [in] yOffset Specifies an offset in the y direction within the atlas.
+   * @return True if the image has compatible pixel format and fits within the atlas at the specified offset.
+   */
+  bool Upload( const std::string& url,
                std::size_t xOffset,
                std::size_t yOffset );
 

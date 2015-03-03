@@ -227,6 +227,13 @@ public:
                                      Pixel::Format pixelformat );
 
   /**
+   * Clear a texture with the given color.
+   * @param[in] id Texture resource id.
+   * @param[in] color The color used to clear the texture.
+   */
+  void ClearTexture( ResourceId id, const Vector4& color);
+
+  /**
    * Update a texture with an array of bitmaps.
    * Typically used to upload multiple glyph bitmaps to a texture.
    * @param[in] id texture resource id
@@ -256,6 +263,15 @@ public:
    * @param [in] yOffset Specifies an offset in the y direction within the texture
    */
   void UploadBitmap( ResourceId destId, ResourceId srcId, std::size_t xOffset, std::size_t yOffset );
+
+  /**
+   * Upload a bitmap to a texture
+   * @param[in] destId The destination texture ID
+   * @param[in] bitmap The pointer pointing to the bitmap to upload
+   * @param [in] xOffset Specifies an offset in the x direction within the texture
+   * @param [in] yOffset Specifies an offset in the y direction within the texture
+   */
+  void UploadBitmap( ResourceId destId, Integration::Bitmap* bitmap, std::size_t xOffset, std::size_t yOffset);
 
   /**
    * Update the mesh used by ticket

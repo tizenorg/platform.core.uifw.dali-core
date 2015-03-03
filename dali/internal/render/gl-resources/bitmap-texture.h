@@ -83,6 +83,12 @@ public: // Message interface
   void UploadBitmapArray( const BitmapUploadArray& bitmapArray);
 
   /**
+   * Clear the bitmap to the given color.
+   * @param[in] color Clear color
+   */
+  void Clear( const Vector4& color );
+
+  /**
    * Clear an array of areas from bitmap to the given color
    * @param[in] areaArray Array of rects to clear
    * @param[in] blockSize Size of block to clear

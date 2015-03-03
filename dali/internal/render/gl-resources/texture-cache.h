@@ -138,12 +138,21 @@ public:
   void UpdateTexture( ResourceId id, Integration::BitmapPtr bitmap );
 
   /**
+   * Update the texture with a newly loaded bitmap
+   * @param[in] id Resource Id of the bitmap
+   * @param[in] bitmap The bitmap
+   * @param[in] xOffset Specifies an offset in the x direction within the texture
+   * @param[in] yOffset Specifies an offset in the y direction within the texture
+   */
+  void UpdateTexture( ResourceId id, Integration::BitmapPtr bitmap, std::size_t xOffset, std::size_t yOffset );
+
+  /**
    * Update the part of a texture with a newly loaded bitmap
    * May be called from Update thread
    * @param[in] destId The ID of the texture to update
    * @param[in] srcId The resource ID of the source bitmap
-   * @param [in] xOffset Specifies an offset in the x direction within the texture
-   * @param [in] yOffset Specifies an offset in the y direction within the texture
+   * @param[in] xOffset Specifies an offset in the x direction within the texture
+   * @param[in] yOffset Specifies an offset in the y direction within the texture
    */
   void UpdateTexture( ResourceId destId, ResourceId srcId, std::size_t xOffset, std::size_t yOffset );
 
@@ -160,6 +169,15 @@ public:
    * @param[in] area The area of the bitmap that has changed
    */
   void UpdateTextureArea( ResourceId id, const RectArea& area );
+
+  /**
+   * Clear the texture
+   * @param[in] id Resource id of the texture
+   * @param[in] area Areas of the texture to clear
+   * @param[in] blockSize Size of block to clear
+   * @param[in] color Color to clear
+   */
+  void Clear( ResourceId id, const Vector4& color );
 
   /**
    * Clear multiple areas of the texture
@@ -287,6 +305,11 @@ protected: // Implements TextureCacheDispatcher
   /**
    * @copydoc TextureCacheDispatcher::DispatchUpdateTexture()
    */
+  virtual void DispatchUpdateTexture( ResourceId id, Integration::Bitmap* bitmap, std::size_t xOffset, std::size_t yOffset ) ;
+
+  /**
+   * @copydoc TextureCacheDispatcher::DispatchUpdateTexture()
+   */
   virtual void DispatchUpdateTexture( ResourceId destId, ResourceId srcId, std::size_t xOffset, std::size_t yOffset );
 
   /**
@@ -298,6 +321,11 @@ protected: // Implements TextureCacheDispatcher
    * @copydoc TextureCacheDispatcher::DispatchUploadBitmapArrayToTexture()
    */
   virtual void DispatchUploadBitmapArrayToTexture( ResourceId id, const BitmapUploadArray& uploadArray );
+
+  /**
+   * @copydoc TextureCacheDispatcher::DispatchClear()
+   */
+  virtual void DispatchClear( ResourceId id, const Vector4& color );
 
   /**
    * @copydoc TextureCacheDispatcher::DispatchClearAreas()

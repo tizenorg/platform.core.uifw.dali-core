@@ -19,8 +19,11 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/images/atlas.h>
+#include <dali/internal/event/images/context-recovery-interface.h>
 #include <dali/internal/event/images/image-impl.h>
+#include <dali/internal/event/images/buffer-image-impl.h>
 
 namespace Dali
 {
@@ -37,7 +40,7 @@ class ResourceClient;
  * The client is reponsible for generating the appropriate geometry (UV coordinates),
  * needed to draw images within the Atlas.
  */
-class Atlas : public Image
+class Atlas : public Image, public ContextRecoveryInterface
 {
 public:
 
@@ -51,22 +54,33 @@ public:
    * @param [in] pixelFormat The pixel format (rgba 32 bit by default).
    * @return A pointer to a new Atlas.
    */
-  static Atlas* New( std::size_t width,
-                     std::size_t height,
+  static Atlas* New( unsigned int width,
+                     unsigned int height,
                      Pixel::Format pixelFormat = Pixel::RGBA8888 );
 
   /**
-   * @brief Upload a buffer image to the atlas.
-   *
-   * @pre The bitmap pixel format must match the Atlas format.
-   * @param [in] bufferImage The buffer image to upload.
-   * @param [in] xOffset Specifies an offset in the x direction within the atlas.
-   * @param [in] yOffset Specifies an offset in the y direction within the atlas.
-   * @return True if the bitmap fits within the atlas at the specified offset.
+   * @copydoc Dali::Atlas::Clear
    */
-  bool Upload( const BufferImage& bufferImage,
-               std::size_t xOffset,
-               std::size_t yOffset );
+  void Clear( const Vector4& color  );
+
+  /**
+   * @copydoc Dali::Atlas::Upload( const BufferImage&, unsigned int, unsigned int )
+   */
+  bool Upload( BufferImage& bufferImage,
+               unsigned int xOffset,
+               unsigned int yOffset );
+
+  /**
+   * @copydoc Dali::Atlas::Upload( const std::string&, unsigned int, unsigned int )
+   */
+  bool Upload( const std::string& url,
+               unsigned int xOffset,
+               unsigned int yOffset );
+
+  /**
+   * @copydoc ContextRecoveryInterface::RecoverFromContextLoss
+   */
+  virtual void RecoverFromContextLoss();
 
 protected:
 
@@ -79,8 +93,8 @@ protected:
    * @param [in] height      The atlas height in pixels.
    * @param [in] pixelFormat The pixel format (rgba 32 bit by default).
    */
-  Atlas( std::size_t width,
-         std::size_t height,
+  Atlas( unsigned int width,
+         unsigned int height,
          Pixel::Format pixelFormat );
 
   /**
@@ -102,12 +116,11 @@ private:
 
   /**
    * Helper for Upload methods
-   * @return True if the bitmap fits within the atlas at the specified offset
+   * @return True if the bitmap has the same pixel format and its size fits within the atlas at the specified offset
    */
-  bool IsWithin( const BufferImage& bufferImage,
-                 std::size_t xOffset,
-                 std::size_t yOffset );
-
+  bool Compatible( Pixel::Format pixelFormat,
+                   unsigned int x,
+                   unsigned int y );
   /**
    * Helper to create the Atlas resource
    */
@@ -118,11 +131,67 @@ private:
    */
   void ReleaseAtlas();
 
+  /**
+   * Upload a bitmap with the given color to clear the background.
+   */
+  void ClearBackground( const Vector4& color  );
+
+  /**
+   * Clear all the current tiles and resources of the atlas
+   */
+  void ClearCache();
+
 private:
 
-  ResourceClient& mResourceClient;
+  struct Tile
+  {
+    Tile( unsigned int xOffset, unsigned int yOffset, unsigned int sourceIndex, bool isBufferImage )
+    : xOffset( xOffset ), yOffset( yOffset ), sourceIndex(sourceIndex), isBufferImage( isBufferImage )
+    {}
 
-  Pixel::Format mPixelFormat;
+    unsigned int xOffset;
+    unsigned int yOffset;
+    unsigned int sourceIndex;
+    bool isBufferImage:1;
+
+    ~Tile(){};
+
+  private:
+    Tile(const Tile& rhs); ///< not defined
+    Tile& operator=(const Tile& rhs); ///< not defined
+  };
+
+  struct UrlResource
+  {
+    UrlResource( const std::string& url )
+    : bitmap( NULL ),
+      url( url )
+    {}
+
+    void LoadBitmap();
+
+    Integration::BitmapPtr bitmap;
+    std::string url;
+
+     ~UrlResource()
+    {
+      bitmap.Reset();
+    }
+
+  private:
+    UrlResource(const UrlResource& rhs); ///< not defined
+    UrlResource& operator=(const UrlResource& rhs); ///< not defined
+  };
+
+private:
+
+  ResourceClient&              mResourceClient;
+  Vector4                      mClearColor;
+  std::vector<Tile*>           mTiles;
+  std::vector<BufferImagePtr>  mBufferImages;
+  std::vector<UrlResource*>    mUrlResources;
+  Pixel::Format                mPixelFormat;
+  bool                         mClear:1;
 };
 
 } // namespace Internal

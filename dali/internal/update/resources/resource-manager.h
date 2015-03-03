@@ -239,6 +239,13 @@ public: // Used by ResourceClient
   void HandleAllocateTextureRequest( ResourceId id, unsigned int width, unsigned int height, Pixel::Format pixelFormat );
 
   /**
+   * Clear a texture with the given color
+   * @param[in] id The resource id
+   * @param[in] color The clear color.
+   */
+  void HandleClearTextureRequest( ResourceId id, const Vector4& color );
+
+  /**
    * Upload an array of bitmaps to a texture.
    * @param[in] id The resource id
    * @param[in] uploadArray  bitmap upload array.
@@ -270,6 +277,15 @@ public: // Used by ResourceClient
    * @param[in] area The updated area. Zero width/height indicates the whole bitmap has been updated
    */
   void HandleUpdateBitmapAreaRequest( ResourceId textureId, const Dali::RectArea& area );
+
+  /**
+   * Upload a bitmap to a position within a specified texture
+   * @param[in] destId The destination texture ID
+   * @param[in] bitmap The pointer pointing to the bitmap data to upload
+   * @param [in] xOffset Specifies an offset in the x direction within the texture
+   * @param [in] yOffset Specifies an offset in the y direction within the texture
+   */
+  void HandleUploadBitmapRequest( ResourceId destId, Integration::Bitmap* bitmap, std::size_t xOffset, std::size_t yOffset );
 
   /**
    * Upload a bitmap to a position within a specified texture
@@ -400,6 +416,7 @@ public:
    ********************************* Private Methods  *****************************
    ********************************************************************************/
 private:
+
   /**
    * @param[in] id Resource id to clear
    * @param[in] typePath Glyphs to be loaded, and cleared beforehand
@@ -554,6 +571,20 @@ inline void RequestAllocateTextureMessage(EventToUpdate& eventToUpdate,
   new (slot) LocalType( &manager, &ResourceManager::HandleAllocateTextureRequest, id, width, height, pixelFormat );
 }
 
+inline void RequestClearTextureMessage(EventToUpdate& eventToUpdate,
+                                       ResourceManager& manager,
+                                       ResourceId id,
+                                       const Vector4& color )
+{
+  typedef MessageValue2< ResourceManager, ResourceId, Vector4 > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &ResourceManager::HandleClearTextureRequest, id, color );
+}
+
 inline void RequestUpdateTextureMessage(EventToUpdate& eventToUpdate,
                                                ResourceManager& manager,
                                                ResourceId id,
@@ -622,6 +653,22 @@ inline void RequestUpdateBitmapAreaMessage( EventToUpdate& eventToUpdate,
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &manager, &ResourceManager::HandleUpdateBitmapAreaRequest, id, area );
+}
+
+inline void RequestUploadBitmapMessage( EventToUpdate& eventToUpdate,
+                                        ResourceManager& manager,
+                                        ResourceId destId,
+                                        Integration::Bitmap* bitmap,
+                                        std::size_t xOffset,
+                                        std::size_t yOffset )
+{
+  typedef MessageValue4< ResourceManager, ResourceId, Integration::Bitmap* , std::size_t, std::size_t > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ), false );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &ResourceManager::HandleUploadBitmapRequest, destId, bitmap, xOffset, yOffset );
 }
 
 inline void RequestUploadBitmapMessage( EventToUpdate& eventToUpdate,

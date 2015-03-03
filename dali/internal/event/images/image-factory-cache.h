@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/internal/event/resources/resource-client.h>
 #include <dali/public-api/images/image-attributes.h>
 
@@ -123,6 +124,41 @@ private:
 };
 
 typedef std::pair<RequestPathHashMap::iterator, RequestPathHashMap::iterator> RequestPathHashRange;
+
+
+/**
+ * Resource cache for Atals
+ */
+struct AtlasResourceCache : public RefObject
+{
+  AtlasResourceCache(ResourceId resId, const std::string& url, std::size_t xOffset, std::size_t yOffset )
+  : resourceId( resId ), url( url ), xOffset( xOffset ), yOffset( yOffset ), bitmap( NULL )
+  {}
+
+  AtlasResourceCache(ResourceId resId, const std::string& url, std::size_t xOffset, std::size_t yOffset, Integration::BitmapPtr bitmap )
+  : resourceId( resId ), url( url ), xOffset( xOffset ), yOffset( yOffset ), bitmap( bitmap )
+  {}
+
+  virtual ~AtlasResourceCache()
+  {
+    bitmap.Reset();
+  }
+
+  bool operator() ( const AtlasResourceCache& atlasResource )
+  {
+    return ( resourceId ==  atlasResource.resourceId) && ( url.compare( atlasResource.url ) == 0)
+        && ( xOffset == atlasResource.xOffset ) && ( yOffset == atlasResource.yOffset );
+  }
+
+  ResourceId resourceId;          ///< The resource id of the Atlas
+  std::string url;          ///< Path to the image resource
+  std::size_t xOffset;
+  std::size_t yOffset;
+  Integration::BitmapPtr bitmap;
+};
+
+typedef std::vector<AtlasResourceCache>            AtlasResourceList;
+typedef std::vector<AtlasResourceCache>::iterator  AtlasResourceIterator;
 
 } // namespace ImageFactoryCache
 

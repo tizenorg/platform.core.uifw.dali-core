@@ -22,6 +22,9 @@
 #include <stdint.h>
 #include <cstddef>
 
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
+
 namespace Dali
 {
 
@@ -46,7 +49,7 @@ struct TypeSizeWithAlignment
  * type of data they wish to store in the block. The TypeSizeWithAlignment<T> template
  * can be useful for determining the size of memory aligned blocks for a given type.
  */
-class FixedSizeMemoryPool
+class DALI_IMPORT_API FixedSizeMemoryPool
 {
 public:
 

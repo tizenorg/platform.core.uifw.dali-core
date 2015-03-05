@@ -51,7 +51,6 @@ public:
     TRIANGLE_STRIP
   };
 
-  /**
    * @brief An enumeration of properties belonging to the Geomnetry class.
    */
   struct Property

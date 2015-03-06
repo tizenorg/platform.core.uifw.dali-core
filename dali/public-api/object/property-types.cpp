@@ -36,7 +36,7 @@ const char* const PROPERTY_TYPE_NAMES[ Property::TYPE_COUNT ] =
   "MATRIX3",
   "MATRIX",
   "RECTANGLE",
-  "ROTATION",
+  "ORIENTATION",
   "STRING",
   "ARRAY",
   "MAP",

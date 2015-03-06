@@ -24,6 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/handle.h> // Dali::Handle
 #include <dali/public-api/object/property-buffer.h> // Dali::PropertyBuffer
+#include <dali/public-api/object/property-index-ranges.h>
 
 namespace Dali
 {
@@ -51,18 +52,19 @@ public:
     TRIANGLE_STRIP
   };
 
-   * @brief An enumeration of properties belonging to the Geomnetry class.
+  /**
+   * @brief An enumeration of properties belonging to the Geometry class.
    */
   struct Property
   {
-    uint32_t asd;
+    enum
+    {
+      GEOMETRY_TYPE,         ///< name "geometry-type",          type STRING
+      GEOMETRY_CENTER,       ///< name "geometry-center",        type VECTOR3
+      GEOMETRY_HALF_EXTENTS, ///< name "geometry-half-extents",  type VECTOR3
+      REQUIRES_DEPTH_TEST,   ///< name "requires-depth-testing", type BOOLEAN
+    };
   };
-  /** @{ */
-  static const Property::Index GEOMETRY_TYPE;         ///< name "geometry-type",          type STRING
-  static const Property::Index GEOMETRY_CENTER;       ///< name "geometry-center",        type VECTOR3
-  static const Property::Index GEOMETRY_HALF_EXTENTS; ///< name "geometry-half-extents",  type VECTOR3
-  static const Property::Index REQUIRES_DEPTH_TEST;   ///< name "requires-depth-testing", type BOOLEAN
-  /** @} */
 
   /**
    * @brief Creates a new Geometry object

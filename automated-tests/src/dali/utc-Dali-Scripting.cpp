@@ -652,7 +652,7 @@ int UtcDaliScriptingNewActorProperties(void)
     DALI_TEST_EQUALS( handle.GetLeaveRequired(), true, TEST_LOCATION );
     DALI_TEST_EQUALS( handle.GetPositionInheritanceMode(), DONT_INHERIT_POSITION, TEST_LOCATION );
     DALI_TEST_EQUALS( handle.GetDrawMode(), DrawMode::STENCIL, TEST_LOCATION );
-    DALI_TEST_EQUALS( handle.IsRotationInherited(), false, TEST_LOCATION );
+    DALI_TEST_EQUALS( handle.IsOrientationInherited(), false, TEST_LOCATION );
     DALI_TEST_EQUALS( handle.IsScaleInherited(), false, TEST_LOCATION );
 
     Stage::GetCurrent().Remove( handle );
@@ -788,7 +788,7 @@ int UtcDaliScriptingCreatePropertyMapActor(void)
     actor.SetParentOrigin( ParentOrigin::TOP_RIGHT );
     actor.SetSensitive( false );
     actor.SetLeaveRequired( true );
-    actor.SetInheritRotation( false );
+    actor.SetInheritOrientation( false );
     actor.SetInheritScale( false );
     actor.SetSizeMode( USE_OWN_SIZE );
     actor.SetSizeModeFactor( Vector3::ONE );

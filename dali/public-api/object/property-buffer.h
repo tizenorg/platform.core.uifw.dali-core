@@ -19,11 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
-#include <cstddef> // std::size_t
-#include <string> // std::string
+#include <cstddef>  // std::size_t
+#include <string>   // std::string
 
 // INTERNAL INCLUDES
-#include <dali/public-api/object/handle.h> // Dali::Handle
+#include <dali/public-api/object/handle.h>   // Dali::Handle
 #include <dali/public-api/object/property.h> // Dali::Property::Index
 
 namespace Dali

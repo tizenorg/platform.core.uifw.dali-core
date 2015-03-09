@@ -104,32 +104,6 @@ public:
                      ShaderHints hints = ShaderHints(HINT_NONE) );
 
   /**
-   * @brief Create Shader.
-   * @param vertexShaderPrefix code for the effect. It will be inserted before the default uniforms (ideal for \#defines)
-   * @param vertexShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param fragmentShaderPrefix code for the effect. It will be inserted before the default uniforms (ideal for \#defines)
-   * @param fragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param hints GeometryHints to define the geometry of the rendered object
-   * @return A handle to a shader effect
-   */
-  static Shader NewWithPrefix( const std::string& vertexShaderPrefix,
-                               const std::string& vertexShader,
-                               const std::string& fragmentShaderPrefix,
-                               const std::string& fragmentShader,
-                               ShaderHints hints = ShaderHints(HINT_NONE) );
-
-  /**
-   * @brief Downcast an Object handle to Shader.
-   *
-   * If handle points to a Shader the downcast produces valid
-   * handle. If not the returned handle is empty.
-   *
-   * @param[in] handle to An object
-   * @return handle to a Shader object or an uninitialized handle
-   */
-  static Shader DownCast( BaseHandle handle );
-
-  /**
    * @brief Default constructor, creates an empty handle
    */
   Shader();
@@ -144,9 +118,9 @@ public:
   /**
    * @brief Copy constructor
    *
-   * @param object A reference to a Shader object
+   * @param handle A handle to a Shader object
    */
-  Shader(const Shader& object);
+  Shader( const Shader& handle );
 
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
@@ -154,14 +128,14 @@ public:
    * @param [in] rhs  A reference to the copied handle
    * @return A reference to this
    */
-  Shader& operator=(const Shader& rhs);
+  Shader& operator=( const Shader& rhs );
 
 public: // Not intended for application developers
   /**
    * @brief This constructor is used by Dali New() methods.
    * @param [in] effect A pointer to a newly allocated Dali resource.
    */
-  explicit DALI_INTERNAL Shader(Internal::Shader* effect);
+  explicit DALI_INTERNAL Shader( Internal::Shader* effect );
 };
 
 } // namespace Dali

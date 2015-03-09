@@ -94,7 +94,8 @@ public:
    */
   Material();
 
-  /**
+  /**void GetBlendFunc( Material::BlendingFactor::Type& srcFactorRgb,
+   *
    * @brief Destructor
    */
   ~Material();

@@ -31,8 +31,7 @@ const int KEY_INVALID_CODE = -1;
 }
 
 KeyEvent::KeyEvent()
-: keyPressedName(""),
-  keyPressed(""),
+: keyPressed(""),
   keyCode(KEY_INVALID_CODE),
   keyModifier(0),
   time(0),
@@ -40,9 +39,8 @@ KeyEvent::KeyEvent()
 {
 }
 
-KeyEvent::KeyEvent(const std::string& keyName, const std::string& keyString, int keyCode, int keyModifier,unsigned long timeStamp, const State& keyState)
-: keyPressedName(keyName),
-  keyPressed(keyString),
+KeyEvent::KeyEvent(const std::string& keyString, int keyCode, int keyModifier,unsigned long timeStamp, const State& keyState)
+: keyPressed(keyString),
   keyCode(keyCode),
   keyModifier(keyModifier),
   time(timeStamp),

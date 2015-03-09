@@ -63,14 +63,13 @@ struct DALI_IMPORT_API KeyEvent
   /**
    * @brief Constructor.
    *
-   * @param[in]  keyName       The name of the key pressed or command from the IMF, if later then the some following parameters will be needed.
    * @param[in]  keyString     A string of input characters or key pressed
    * @param[in]  keyCode       The unique key code for the key pressed.
    * @param[in]  keyModifier   The key modifier for special keys like shift and alt
    * @param[in]  timeStamp The time (in ms) that the key event occurred.
    * @param[in]  keyState The state of the key event.
    */
-  KeyEvent(const std::string& keyName, const std::string& keyString, int keyCode, int keyModifier, unsigned long timeStamp, const State& keyState);
+  KeyEvent(const std::string& keyString, int keyCode, int keyModifier, unsigned long timeStamp, const State& keyState);
 
   /**
    * @brief Destructor.
@@ -99,11 +98,6 @@ struct DALI_IMPORT_API KeyEvent
   bool IsAltModifier() const;
 
   // Data
-
-  /**
-   * @brief name given to the key pressed.
-   */
-  std::string keyPressedName;
 
   /**
    * @brief The actual string returned that should be used for input editors.

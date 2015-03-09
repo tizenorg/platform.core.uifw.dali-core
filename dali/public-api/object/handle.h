@@ -157,7 +157,7 @@ public:
    * @param [in] name The name of the property.
    * @return The index of the property, or Property::INVALID_INDEX if no property exists with the given name.
    */
-  Property::Index GetPropertyIndex( const std::string& name ) const;
+  Property::Index GetPropertyIndex( const std::string& name );
 
   /**
    * @brief Query whether a property can be set using SetProperty().
@@ -255,7 +255,7 @@ public:
    * @param [in] index The index of the property.
    * @return The property value.
    */
-  Property::Value GetProperty( Property::Index index ) const;
+  Property::Value GetProperty( Property::Index index );
 
   /**
    * @brief Convenience function for obtaining a property of a known type.
@@ -265,7 +265,7 @@ public:
    * @return The property value.
    */
   template <typename T>
-  T GetProperty( Property::Index index ) const
+  T GetProperty( Property::Index index )
   {
     Property::Value value = GetProperty(index);
 

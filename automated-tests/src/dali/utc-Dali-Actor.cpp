@@ -863,7 +863,7 @@ int UtcDaliActorGetCurrentSizeImmediate(void)
   const float durationSeconds = 2.0f;
   Animation animation = Animation::New( durationSeconds );
   const Vector3 targetValue( 10.0f, 20.0f, 30.0f );
-  animation.AnimateTo( Property( actor, Actor::SIZE ), targetValue );
+  animation.AnimateTo( Property( actor, Actor::Property::SIZE ), targetValue );
 
   DALI_TEST_CHECK( actor.GetSize() == targetValue );
 
@@ -1366,16 +1366,16 @@ int UtcDaliActorSizeMode(void)
   for( unsigned int propertyIndex = 0; propertyIndex < SIZE_MODE_VALUES_COUNT; ++propertyIndex )
   {
     Property::Value inValue = SIZE_MODE_VALUES[ propertyIndex ].string;
-    propertyActor.SetProperty( Actor::SIZE_MODE, inValue );
-    std::string outString = propertyActor.GetProperty( Actor::SIZE_MODE ).Get< std::string >();
+    propertyActor.SetProperty( Actor::Property::SIZE_MODE, inValue );
+    std::string outString = propertyActor.GetProperty( Actor::Property::SIZE_MODE ).Get< std::string >();
     DALI_TEST_EQUALS( inValue.Get< std::string >(), outString, TEST_LOCATION );
   }
 
   // Test setting and getting the SizeModeFactor property.
   Vector3 testPropertySizeModeFactor( 1.0f, 2.0f, 3.0f );
   Property::Value inValueFactor = testPropertySizeModeFactor;
-  propertyActor.SetProperty( Actor::SIZE_MODE_FACTOR, inValueFactor );
-  Vector3 outValueFactor = propertyActor.GetProperty( Actor::SIZE_MODE_FACTOR ).Get< Vector3 >();
+  propertyActor.SetProperty( Actor::Property::SIZE_MODE_FACTOR, inValueFactor );
+  Vector3 outValueFactor = propertyActor.GetProperty( Actor::Property::SIZE_MODE_FACTOR ).Get< Vector3 >();
   DALI_TEST_EQUALS( testPropertySizeModeFactor, outValueFactor, TEST_LOCATION );
 
   END_TEST;
@@ -2056,7 +2056,7 @@ int UtcDaliActorApplyConstraint(void)
 
   Actor actor = Actor::New();
 
-  Constraint constraint = Constraint::New<Vector4>( Actor::COLOR, TestConstraint() );
+  Constraint constraint = Constraint::New<Vector4>( Actor::Property::COLOR, TestConstraint() );
   actor.ApplyConstraint(constraint);
 
   DALI_TEST_CHECK( gTestConstraintCalled == false );
@@ -2083,8 +2083,8 @@ int UtcDaliActorApplyConstraintAppliedCallback(void)
   parent.SetSize( parentSize );
   Stage::GetCurrent().Add( parent );
 
-  Constraint constraint = Constraint::New<Vector3>( Actor::SIZE,
-                                                    Source( parent, Actor::SIZE ),
+  Constraint constraint = Constraint::New<Vector3>( Actor::Property::SIZE,
+                                                    Source( parent, Actor::Property::SIZE ),
                                                     EqualToConstraint() );
 
   // Create some child actors
@@ -2275,7 +2275,7 @@ int UtcDaliActorRemoveConstraints(void)
 
   Actor actor = Actor::New();
 
-  Constraint constraint = Constraint::New<Vector4>( Actor::COLOR, TestConstraint() );
+  Constraint constraint = Constraint::New<Vector4>( Actor::Property::COLOR, TestConstraint() );
   actor.ApplyConstraint(constraint);
   actor.RemoveConstraints();
 
@@ -2304,8 +2304,8 @@ int UtcDaliActorRemoveConstraint(void)
   // 1. Apply Constraint1 and Constraint2, and test...
   unsigned int result1 = 0u;
   unsigned int result2 = 0u;
-  ActiveConstraint activeConstraint1 = actor.ApplyConstraint( Constraint::New<Vector4>( Actor::COLOR, TestConstraintRef<Vector4>(result1, 1) ) );
-  ActiveConstraint activeConstraint2 = actor.ApplyConstraint( Constraint::New<Vector4>( Actor::COLOR, TestConstraintRef<Vector4>(result2, 2) ) );
+  ActiveConstraint activeConstraint1 = actor.ApplyConstraint( Constraint::New<Vector4>( Actor::Property::COLOR, TestConstraintRef<Vector4>(result1, 1) ) );
+  ActiveConstraint activeConstraint2 = actor.ApplyConstraint( Constraint::New<Vector4>( Actor::Property::COLOR, TestConstraintRef<Vector4>(result2, 2) ) );
 
   Stage::GetCurrent().Add( actor );
   // flush the queue and render once
@@ -2331,7 +2331,7 @@ int UtcDaliActorRemoveConstraint(void)
   // 3. Re-Apply Constraint1 and test...
   result1 = 0;
   result2 = 0;
-  activeConstraint1 = actor.ApplyConstraint( Constraint::New<Vector4>( Actor::COLOR, TestConstraintRef<Vector4>(result1, 1) ) );
+  activeConstraint1 = actor.ApplyConstraint( Constraint::New<Vector4>( Actor::Property::COLOR, TestConstraintRef<Vector4>(result1, 1) ) );
   // make color property dirty, which will trigger constraints to be reapplied.
   actor.SetColor( Color::WHITE );
   // flush the queue and render once
@@ -2381,12 +2381,12 @@ int UtcDaliActorRemoveConstraintTag(void)
   unsigned int result2 = 0u;
 
   unsigned constraint1Tag = 1u;
-  Constraint constraint1 = Constraint::New<Vector4>( Actor::COLOR, TestConstraintRef<Vector4>(result1, 1) );
+  Constraint constraint1 = Constraint::New<Vector4>( Actor::Property::COLOR, TestConstraintRef<Vector4>(result1, 1) );
   constraint1.SetTag( constraint1Tag );
   actor.ApplyConstraint( constraint1 );
 
   unsigned constraint2Tag = 2u;
-  Constraint constraint2 = Constraint::New<Vector4>( Actor::COLOR, TestConstraintRef<Vector4>(result2, 2) );
+  Constraint constraint2 = Constraint::New<Vector4>( Actor::Property::COLOR, TestConstraintRef<Vector4>(result2, 2) );
   constraint2.SetTag( constraint2Tag );
   actor.ApplyConstraint( constraint2 );
 
@@ -2804,9 +2804,9 @@ int UtcDaliActorSetDrawModeOverlayRender(void)
   ids.push_back( 10 );  // third rendered actor
   app.GetGlAbstraction().SetNextTextureIds( ids );
 
-  BitmapImage imageA = BitmapImage::New(16, 16);
-  BitmapImage imageB = BitmapImage::New(16, 16);
-  BitmapImage imageC = BitmapImage::New(16, 16);
+  BufferImage imageA = BufferImage::New(16, 16);
+  BufferImage imageB = BufferImage::New(16, 16);
+  BufferImage imageC = BufferImage::New(16, 16);
   ImageActor a = ImageActor::New( imageA );
   ImageActor b = ImageActor::New( imageB );
   ImageActor c = ImageActor::New( imageC );
@@ -2861,8 +2861,8 @@ int UtcDaliActorSetDrawModeOverlayHitTest(void)
   TestApplication app;
   tet_infoline(" UtcDaliActorSetDrawModeOverlayHitTest");
 
-  BitmapImage imageA = BitmapImage::New(16, 16);
-  BitmapImage imageB = BitmapImage::New(16, 16);
+  BufferImage imageA = BufferImage::New(16, 16);
+  BufferImage imageB = BufferImage::New(16, 16);
   ImageActor a = ImageActor::New( imageA );
   ImageActor b = ImageActor::New( imageB );
 
@@ -3011,7 +3011,7 @@ int UtcDaliActorConstrainedToWorldMatrix(void)
 
   Actor child = Actor::New();
   child.SetParentOrigin(ParentOrigin::CENTER);
-  Constraint posConstraint = Constraint::New<Vector3>( Actor::POSITION, Source( parent, Actor::WORLD_MATRIX), PositionComponentConstraint() );
+  Constraint posConstraint = Constraint::New<Vector3>( Actor::Property::POSITION, Source( parent, Actor::Property::WORLD_MATRIX), PositionComponentConstraint() );
   child.ApplyConstraint(posConstraint);
 
   Stage::GetCurrent().Add( child );
@@ -3143,51 +3143,51 @@ struct PropertyStringIndex
 
 const PropertyStringIndex PROPERTY_TABLE[] =
 {
-  { "parent-origin",            Actor::PARENT_ORIGIN,           Property::VECTOR3     },
-  { "parent-origin-x",          Actor::PARENT_ORIGIN_X,         Property::FLOAT       },
-  { "parent-origin-y",          Actor::PARENT_ORIGIN_Y,         Property::FLOAT       },
-  { "parent-origin-z",          Actor::PARENT_ORIGIN_Z,         Property::FLOAT       },
-  { "anchor-point",             Actor::ANCHOR_POINT,            Property::VECTOR3     },
-  { "anchor-point-x",           Actor::ANCHOR_POINT_X,          Property::FLOAT       },
-  { "anchor-point-y",           Actor::ANCHOR_POINT_Y,          Property::FLOAT       },
-  { "anchor-point-z",           Actor::ANCHOR_POINT_Z,          Property::FLOAT       },
-  { "size",                     Actor::SIZE,                    Property::VECTOR3     },
-  { "size-width",               Actor::SIZE_WIDTH,              Property::FLOAT       },
-  { "size-height",              Actor::SIZE_HEIGHT,             Property::FLOAT       },
-  { "size-depth",               Actor::SIZE_DEPTH,              Property::FLOAT       },
-  { "position",                 Actor::POSITION,                Property::VECTOR3     },
-  { "position-x",               Actor::POSITION_X,              Property::FLOAT       },
-  { "position-y",               Actor::POSITION_Y,              Property::FLOAT       },
-  { "position-z",               Actor::POSITION_Z,              Property::FLOAT       },
-  { "world-position",           Actor::WORLD_POSITION,          Property::VECTOR3     },
-  { "world-position-x",         Actor::WORLD_POSITION_X,        Property::FLOAT       },
-  { "world-position-y",         Actor::WORLD_POSITION_Y,        Property::FLOAT       },
-  { "world-position-z",         Actor::WORLD_POSITION_Z,        Property::FLOAT       },
-  { "rotation",                 Actor::ROTATION,                Property::ROTATION    },
-  { "world-rotation",           Actor::WORLD_ROTATION,          Property::ROTATION    },
-  { "scale",                    Actor::SCALE,                   Property::VECTOR3     },
-  { "scale-x",                  Actor::SCALE_X,                 Property::FLOAT       },
-  { "scale-y",                  Actor::SCALE_Y,                 Property::FLOAT       },
-  { "scale-z",                  Actor::SCALE_Z,                 Property::FLOAT       },
-  { "world-scale",              Actor::WORLD_SCALE,             Property::VECTOR3     },
-  { "visible",                  Actor::VISIBLE,                 Property::BOOLEAN     },
-  { "color",                    Actor::COLOR,                   Property::VECTOR4     },
-  { "color-red",                Actor::COLOR_RED,               Property::FLOAT       },
-  { "color-green",              Actor::COLOR_GREEN,             Property::FLOAT       },
-  { "color-blue",               Actor::COLOR_BLUE,              Property::FLOAT       },
-  { "color-alpha",              Actor::COLOR_ALPHA,             Property::FLOAT       },
-  { "world-color",              Actor::WORLD_COLOR,             Property::VECTOR4     },
-  { "world-matrix",             Actor::WORLD_MATRIX,            Property::MATRIX      },
-  { "name",                     Actor::NAME,                    Property::STRING      },
-  { "sensitive",                Actor::SENSITIVE,               Property::BOOLEAN     },
-  { "leave-required",           Actor::LEAVE_REQUIRED,          Property::BOOLEAN     },
-  { "inherit-rotation",         Actor::INHERIT_ROTATION,        Property::BOOLEAN     },
-  { "inherit-scale",            Actor::INHERIT_SCALE,           Property::BOOLEAN     },
-  { "color-mode",               Actor::COLOR_MODE,              Property::STRING      },
-  { "position-inheritance",     Actor::POSITION_INHERITANCE,    Property::STRING      },
-  { "draw-mode",                Actor::DRAW_MODE,               Property::STRING      },
-  { "size-mode",                Actor::SIZE_MODE,               Property::STRING      },
-  { "size-mode-factor",         Actor::SIZE_MODE_FACTOR,        Property::VECTOR3     },
+  { "parent-origin",            Actor::Property::PARENT_ORIGIN,            Property::VECTOR3     },
+  { "parent-origin-x",          Actor::Property::PARENT_ORIGIN_X,          Property::FLOAT       },
+  { "parent-origin-y",          Actor::Property::PARENT_ORIGIN_Y,          Property::FLOAT       },
+  { "parent-origin-z",          Actor::Property::PARENT_ORIGIN_Z,          Property::FLOAT       },
+  { "anchor-point",             Actor::Property::ANCHOR_POINT,             Property::VECTOR3     },
+  { "anchor-point-x",           Actor::Property::ANCHOR_POINT_X,           Property::FLOAT       },
+  { "anchor-point-y",           Actor::Property::ANCHOR_POINT_Y,           Property::FLOAT       },
+  { "anchor-point-z",           Actor::Property::ANCHOR_POINT_Z,           Property::FLOAT       },
+  { "size",                     Actor::Property::SIZE,                     Property::VECTOR3     },
+  { "size-width",               Actor::Property::SIZE_WIDTH,               Property::FLOAT       },
+  { "size-height",              Actor::Property::SIZE_HEIGHT,              Property::FLOAT       },
+  { "size-depth",               Actor::Property::SIZE_DEPTH,               Property::FLOAT       },
+  { "position",                 Actor::Property::POSITION,                 Property::VECTOR3     },
+  { "position-x",               Actor::Property::POSITION_X,               Property::FLOAT       },
+  { "position-y",               Actor::Property::POSITION_Y,               Property::FLOAT       },
+  { "position-z",               Actor::Property::POSITION_Z,               Property::FLOAT       },
+  { "world-position",           Actor::Property::WORLD_POSITION,           Property::VECTOR3     },
+  { "world-position-x",         Actor::Property::WORLD_POSITION_X,         Property::FLOAT       },
+  { "world-position-y",         Actor::Property::WORLD_POSITION_Y,         Property::FLOAT       },
+  { "world-position-z",         Actor::Property::WORLD_POSITION_Z,         Property::FLOAT       },
+  { "rotation",                 Actor::Property::ROTATION,                 Property::ROTATION    },
+  { "world-rotation",           Actor::Property::WORLD_ROTATION,           Property::ROTATION    },
+  { "scale",                    Actor::Property::SCALE,                    Property::VECTOR3     },
+  { "scale-x",                  Actor::Property::SCALE_X,                  Property::FLOAT       },
+  { "scale-y",                  Actor::Property::SCALE_Y,                  Property::FLOAT       },
+  { "scale-z",                  Actor::Property::SCALE_Z,                  Property::FLOAT       },
+  { "world-scale",              Actor::Property::WORLD_SCALE,              Property::VECTOR3     },
+  { "visible",                  Actor::Property::VISIBLE,                  Property::BOOLEAN     },
+  { "color",                    Actor::Property::COLOR,                    Property::VECTOR4     },
+  { "color-red",                Actor::Property::COLOR_RED,                Property::FLOAT       },
+  { "color-green",              Actor::Property::COLOR_GREEN,              Property::FLOAT       },
+  { "color-blue",               Actor::Property::COLOR_BLUE,               Property::FLOAT       },
+  { "color-alpha",              Actor::Property::COLOR_ALPHA,              Property::FLOAT       },
+  { "world-color",              Actor::Property::WORLD_COLOR,              Property::VECTOR4     },
+  { "world-matrix",             Actor::Property::WORLD_MATRIX,             Property::MATRIX      },
+  { "name",                     Actor::Property::NAME,                     Property::STRING      },
+  { "sensitive",                Actor::Property::SENSITIVE,                Property::BOOLEAN     },
+  { "leave-required",           Actor::Property::LEAVE_REQUIRED,           Property::BOOLEAN     },
+  { "inherit-rotation",         Actor::Property::INHERIT_ROTATION,         Property::BOOLEAN     },
+  { "inherit-scale",            Actor::Property::INHERIT_SCALE,            Property::BOOLEAN     },
+  { "color-mode",               Actor::Property::COLOR_MODE,               Property::STRING      },
+  { "position-inheritance",     Actor::Property::POSITION_INHERITANCE,     Property::STRING      },
+  { "draw-mode",                Actor::Property::DRAW_MODE,                Property::STRING      },
+  { "size-mode",                Actor::Property::SIZE_MODE,                Property::STRING      },
+  { "size-mode-factor",         Actor::Property::SIZE_MODE_FACTOR,         Property::VECTOR3     },
 };
 const unsigned int PROPERTY_TABLE_COUNT = sizeof( PROPERTY_TABLE ) / sizeof( PROPERTY_TABLE[0] );
 } // unnamed namespace

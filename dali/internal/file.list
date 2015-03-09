@@ -8,11 +8,11 @@ internal_src_files = \
   $(internal_src_dir)/common/text-parameters.cpp \
   $(internal_src_dir)/common/image-sampler.cpp \
   $(internal_src_dir)/common/dali-hash.cpp \
+  $(internal_src_dir)/common/fixed-size-memory-pool.cpp \
   \
   $(internal_src_dir)/event/actor-attachments/actor-attachment-impl.cpp \
   $(internal_src_dir)/event/actor-attachments/camera-attachment-impl.cpp \
   $(internal_src_dir)/event/actor-attachments/image-attachment-impl.cpp \
-  $(internal_src_dir)/event/actor-attachments/light-attachment-impl.cpp \
   $(internal_src_dir)/event/actor-attachments/mesh-attachment-impl.cpp \
   $(internal_src_dir)/event/actor-attachments/renderable-attachment-impl.cpp \
   $(internal_src_dir)/event/actor-attachments/text-attachment-impl.cpp \
@@ -24,8 +24,6 @@ internal_src_files = \
   $(internal_src_dir)/event/actors/text-actor-impl.cpp \
   $(internal_src_dir)/event/actors/mesh-actor-impl.cpp \
   $(internal_src_dir)/event/actors/camera-actor-impl.cpp \
-  $(internal_src_dir)/event/actors/light-actor-impl.cpp \
-  $(internal_src_dir)/event/actors/model-actor-factory-impl.cpp \
   $(internal_src_dir)/event/actors/renderable-actor-impl.cpp \
   $(internal_src_dir)/event/animation/active-constraint-base.cpp \
   $(internal_src_dir)/event/animation/animation-impl.cpp \
@@ -35,12 +33,12 @@ internal_src_files = \
   $(internal_src_dir)/event/animation/path-impl.cpp \
   $(internal_src_dir)/event/common/demangler.cpp \
   $(internal_src_dir)/event/common/notification-manager.cpp \
+  $(internal_src_dir)/event/common/object-impl.cpp \
   $(internal_src_dir)/event/common/object-registry-impl.cpp \
   $(internal_src_dir)/event/common/projection.cpp \
   $(internal_src_dir)/event/common/property-notification-manager.cpp \
   $(internal_src_dir)/event/common/property-conditions-impl.cpp  \
   $(internal_src_dir)/event/common/property-notification-impl.cpp  \
-  $(internal_src_dir)/event/common/proxy-object.cpp \
   $(internal_src_dir)/event/common/stage-impl.cpp \
   $(internal_src_dir)/event/common/system-overlay-impl.cpp \
   $(internal_src_dir)/event/common/thread-local-storage.cpp \
@@ -73,7 +71,7 @@ internal_src_files = \
   $(internal_src_dir)/event/images/bitmap-packed-pixel.cpp \
   $(internal_src_dir)/event/images/bitmap-compressed.cpp \
   $(internal_src_dir)/event/images/image-impl.cpp \
-  $(internal_src_dir)/event/images/bitmap-image-impl.cpp \
+  $(internal_src_dir)/event/images/buffer-image-impl.cpp \
   $(internal_src_dir)/event/images/frame-buffer-image-impl.cpp \
   $(internal_src_dir)/event/images/encoded-buffer-image-impl.cpp \
   $(internal_src_dir)/event/images/image-connector.cpp \
@@ -82,17 +80,11 @@ internal_src_files = \
   $(internal_src_dir)/event/images/nine-patch-image-impl.cpp \
   $(internal_src_dir)/event/images/emoji-factory.cpp \
   $(internal_src_dir)/event/images/resource-image-impl.cpp \
+  $(internal_src_dir)/event/images/native-image-impl.cpp \
   $(internal_src_dir)/event/modeling/animatable-mesh-impl.cpp \
   $(internal_src_dir)/event/modeling/cloth-impl.cpp \
-  $(internal_src_dir)/event/modeling/entity-impl.cpp \
-  $(internal_src_dir)/event/modeling/light-impl.cpp \
   $(internal_src_dir)/event/modeling/material-impl.cpp \
   $(internal_src_dir)/event/modeling/mesh-impl.cpp \
-  $(internal_src_dir)/event/modeling/model-archive.cpp \
-  $(internal_src_dir)/event/modeling/model-data-impl.cpp \
-  $(internal_src_dir)/event/modeling/model-factory.cpp \
-  $(internal_src_dir)/event/modeling/model-impl.cpp \
-  $(internal_src_dir)/event/modeling/model-logger.cpp \
   $(internal_src_dir)/event/object/custom-object-internal.cpp \
   $(internal_src_dir)/event/render-tasks/render-task-impl.cpp \
   $(internal_src_dir)/event/render-tasks/render-task-list-impl.cpp \
@@ -138,6 +130,7 @@ internal_src_files = \
   $(internal_src_dir)/render/common/texture-cache-dispatcher.cpp \
   $(internal_src_dir)/render/gl-resources/bitmap-texture.cpp \
   $(internal_src_dir)/render/gl-resources/context.cpp \
+  $(internal_src_dir)/render/gl-resources/frame-buffer-state-cache.cpp \
   $(internal_src_dir)/render/gl-resources/compressed-bitmap-texture.cpp \
   $(internal_src_dir)/render/gl-resources/frame-buffer-texture.cpp \
   $(internal_src_dir)/render/gl-resources/gl-call-debug.cpp \
@@ -169,7 +162,6 @@ internal_src_files = \
   $(internal_src_dir)/update/common/property-owner.cpp \
   $(internal_src_dir)/update/common/scene-graph-buffers.cpp \
   $(internal_src_dir)/update/common/scene-graph-property-notification.cpp \
-  $(internal_src_dir)/update/controllers/light-controller-impl.cpp \
   $(internal_src_dir)/update/controllers/render-message-dispatcher.cpp \
   $(internal_src_dir)/update/controllers/scene-controller-impl.cpp \
   $(internal_src_dir)/update/modeling/internal-mesh-data.cpp \
@@ -189,7 +181,6 @@ internal_src_files = \
   $(internal_src_dir)/update/node-attachments/node-attachment.cpp \
   $(internal_src_dir)/update/node-attachments/scene-graph-camera-attachment.cpp \
   $(internal_src_dir)/update/node-attachments/scene-graph-image-attachment.cpp \
-  $(internal_src_dir)/update/node-attachments/scene-graph-light-attachment.cpp \
   $(internal_src_dir)/update/node-attachments/scene-graph-mesh-attachment.cpp \
   $(internal_src_dir)/update/node-attachments/scene-graph-renderable-attachment.cpp \
   $(internal_src_dir)/update/node-attachments/scene-graph-text-attachment.cpp \

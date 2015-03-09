@@ -22,20 +22,25 @@
 #include <sstream>
 
 // INTERNAL INCLUDES
-#include <dali/internal/common/dali-hash.h>
+#include <dali/public-api/dali-core-version.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/common/dali-hash.h>
 #include <dali/internal/event/resources/resource-client.h>
 #include <dali/internal/event/effects/shader-effect-impl.h>
 #include <dali/internal/event/effects/shader-declarations.h>
 
-// the generated shader strings
+// compile time generated shader strings
 #include "dali-shaders.h"
 
+namespace
+{
+const char* VERSION_SEPARATOR = "-";
+const char* SHADER_SUFFIX = ".dali-bin";
+}
 
 // Use pre-compiler constants in order to utilize string concatenation
 #define SHADER_DEF_USE_BONES    "#define USE_BONES\n"
-#define SHADER_DEF_USE_LIGHTING "#define USE_LIGHTING\n"
 #define SHADER_DEF_USE_COLOR    "#define USE_COLOR\n"
 #define SHADER_DEF_USE_GRADIENT "#define USE_GRADIENT\n"
 
@@ -62,10 +67,11 @@ ResourceTicketPtr ShaderFactory::Load(const std::string& vertexSource, const std
 
   shaderHash = CalculateHash(vertexSource, fragmentSource);
   std::stringstream stringHash;
+  stringHash << CORE_MAJOR_VERSION << VERSION_SEPARATOR << CORE_MINOR_VERSION << VERSION_SEPARATOR << CORE_MICRO_VERSION << VERSION_SEPARATOR;
   stringHash << shaderHash;
-  std::string filename = DALI_SHADERBIN_DIR;
-  filename += stringHash.str();
-  filename += ".dali-bin";
+  std::string filename;
+  filename.append( stringHash.str() );
+  filename.append( SHADER_SUFFIX );
 
   ShaderResourceType resourceType(shaderHash, vertexSource, fragmentSource);
   ResourceTypePath typePath(resourceType, filename);
@@ -130,20 +136,10 @@ void ShaderFactory::LoadDefaultShaders()
   mDefaultShader->SendProgramMessage( GEOMETRY_TYPE_TEXT, SHADER_GRADIENT_OUTLINE_GLOW, TextDistanceFieldOutlineGlowVertex, TextDistanceFieldOutlineGlowFragment, false );
 
   // Untextured meshes
-  mDefaultShader->SendProgramMessage( GEOMETRY_TYPE_UNTEXTURED_MESH, SHADER_DEFAULT,
-                                      UntexturedMeshVertex,
-                                      std::string( SHADER_DEF_USE_LIGHTING ) + UntexturedMeshFragment,
-                                      false );
-
   mDefaultShader->SendProgramMessage( GEOMETRY_TYPE_UNTEXTURED_MESH, SHADER_EVENLY_LIT,
                                       UntexturedMeshVertex,
                                       UntexturedMeshFragment,
                                       false );
-
-  mDefaultShader->SendProgramMessage( GEOMETRY_TYPE_UNTEXTURED_MESH, SHADER_RIGGED_AND_LIT,
-                                      std::string( SHADER_DEF_USE_BONES ) + UntexturedMeshVertex,
-                                      std::string( SHADER_DEF_USE_LIGHTING ) + UntexturedMeshFragment,
-                                      true );
 
   mDefaultShader->SendProgramMessage( GEOMETRY_TYPE_UNTEXTURED_MESH, SHADER_RIGGED_AND_EVENLY_LIT,
                                       std::string( SHADER_DEF_USE_BONES ) + UntexturedMeshVertex,
@@ -161,20 +157,10 @@ void ShaderFactory::LoadDefaultShaders()
                                       false );
 
   // Textured meshes
-  mDefaultShader->SendProgramMessage( GEOMETRY_TYPE_TEXTURED_MESH, SHADER_DEFAULT,
-                                      TexturedMeshVertex,
-                                      std::string( SHADER_DEF_USE_LIGHTING ) + TexturedMeshFragment,
-                                      false );
-
   mDefaultShader->SendProgramMessage( GEOMETRY_TYPE_TEXTURED_MESH, SHADER_EVENLY_LIT,
                                       TexturedMeshVertex,
                                       TexturedMeshFragment,
                                       false );
-
-  mDefaultShader->SendProgramMessage( GEOMETRY_TYPE_TEXTURED_MESH, SHADER_RIGGED_AND_LIT,
-                                      std::string( SHADER_DEF_USE_BONES ) + TexturedMeshVertex,
-                                      std::string( SHADER_DEF_USE_LIGHTING ) + TexturedMeshFragment,
-                                      true );
 
   mDefaultShader->SendProgramMessage( GEOMETRY_TYPE_TEXTURED_MESH, SHADER_RIGGED_AND_EVENLY_LIT,
                                       std::string( SHADER_DEF_USE_BONES ) + TexturedMeshVertex,

@@ -70,21 +70,30 @@ class DALI_IMPORT_API CameraActor : public Actor
 {
 public:
 
-  // Default Properties; additional to Actor properties
-  static const Property::Index TYPE;                         ///< Property::STRING,   // "type"                  // Not animatable
-  static const Property::Index PROJECTION_MODE;              ///< Property::STRING,   // "projection-mode"       // Not animatable
-  static const Property::Index FIELD_OF_VIEW;                ///< Property::FLOAT,    // "field-of-view"         // Not animatable
-  static const Property::Index ASPECT_RATIO;                 ///< Property::FLOAT,    // "aspect-ratio"          // Not animatable
-  static const Property::Index NEAR_PLANE_DISTANCE;          ///< Property::FLOAT,    // "near-plane-distance"   // Not animatable
-  static const Property::Index FAR_PLANE_DISTANCE;           ///< Property::FLOAT,    // "far-plane-distance"    // Not animatable
-  static const Property::Index LEFT_PLANE_DISTANCE;          ///< Property::FLOAT,    // "left-plane-distance"   // Not animatable
-  static const Property::Index RIGHT_PLANE_DISTANCE;         ///< Property::FLOAT,    // "right-plane-distance"  // Not animatable
-  static const Property::Index TOP_PLANE_DISTANCE;           ///< Property::FLOAT,    // "top-plane-distance"    // Not animatable
-  static const Property::Index BOTTOM_PLANE_DISTANCE;        ///< Property::FLOAT,    // "bottom-plane-distance" // Not animatable
-  static const Property::Index TARGET_POSITION;              ///< Property::VECTOR3,  // "target-position"       // Not animatable
-  static const Property::Index PROJECTION_MATRIX;            ///< Property::MATRIX,   // "projection-matrix"     // Constraint input, not animatable
-  static const Property::Index VIEW_MATRIX;                  ///< Property::MATRIX,   // "view-matrix"           // Constraint input, not animatable
-  static const Property::Index INVERT_Y_AXIS;                ///< Property::BOOLEAN,  // "invert-y-axis"         // Not animatable
+  /**
+   * @brief An enumeration of properties belonging to the CameraActor class.
+   * Properties additional to Actor.
+   */
+  struct Property
+  {
+    enum
+    {
+      TYPE = DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX, ///< name "type",                  type STRING
+      PROJECTION_MODE,                                   ///< name "projection-mode",       type STRING
+      FIELD_OF_VIEW,                                     ///< name "field-of-view",         type FLOAT
+      ASPECT_RATIO,                                      ///< name "aspect-ratio",          type FLOAT
+      NEAR_PLANE_DISTANCE,                               ///< name "near-plane-distance",   type FLOAT
+      FAR_PLANE_DISTANCE,                                ///< name "far-plane-distance",    type FLOAT
+      LEFT_PLANE_DISTANCE,                               ///< name "left-plane-distance",   type FLOAT
+      RIGHT_PLANE_DISTANCE,                              ///< name "right-plane-distance",  type FLOAT
+      TOP_PLANE_DISTANCE,                                ///< name "top-plane-distance",    type FLOAT
+      BOTTOM_PLANE_DISTANCE,                             ///< name "bottom-plane-distance", type FLOAT
+      TARGET_POSITION,                                   ///< name "target-position",       type VECTOR3
+      PROJECTION_MATRIX,                                 ///< name "projection-matrix",     type MATRIX
+      VIEW_MATRIX,                                       ///< name "view-matrix",           type MATRIX
+      INVERT_Y_AXIS,                                     ///< name "invert-y-axis",         type BOOLEAN
+    };
+  };
 
   /**
    * @brief Create an uninitialized CameraActor handle.

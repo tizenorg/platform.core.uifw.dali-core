@@ -23,8 +23,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/images/image.h>
-#include <dali/public-api/images/native-image.h>
-#include <dali/public-api/images/bitmap-image.h>
+#include <dali/public-api/images/native-image-interface.h>
+#include <dali/public-api/images/buffer-image.h>
 #include <dali/public-api/common/ref-counted-dali-vector.h>
 
 #include <dali/integration-api/bitmap.h>
@@ -37,7 +37,6 @@
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/common/bitmap-upload.h>
 #include <dali/internal/event/text/font-impl.h>
-#include <dali/internal/event/modeling/model-data-impl.h>
 #include <dali/internal/event/resources/resource-client-declarations.h>
 #include <dali/internal/event/effects/shader-factory.h>
 #include <dali/internal/update/modeling/internal-mesh-data.h>
@@ -48,7 +47,7 @@
 namespace Dali
 {
 
-class NativeImage;
+class NativeImageInterface;
 
 namespace Integration
 {
@@ -209,10 +208,10 @@ public: // Used by ResourceClient
   /**
    * Add an existing resource to the resource manager.
    * @param[in] id The resource id
-   * @param [in] resourceData the NativeImage object
+   * @param [in] resourceData the NativeImageInterface object
    * @return A ref-counted request object. Keep a copy until the resource is no longer required.
    */
-  void HandleAddNativeImageRequest( ResourceId id, NativeImagePtr resourceData );
+  void HandleAddNativeImageRequest( ResourceId id, NativeImageInterfacePtr resourceData );
 
   /**
    * Add an existing resource to the resource manager.
@@ -228,7 +227,7 @@ public: // Used by ResourceClient
    * @param[in] id            The resource id
    * @param[in] nativeImage   The NativeImage
    */
-  void HandleAddFrameBufferImageRequest( ResourceId id, NativeImagePtr nativeImage );
+  void HandleAddFrameBufferImageRequest( ResourceId id, NativeImageInterfacePtr nativeImage );
 
   /**
    * Allocate a new empty texture.
@@ -317,20 +316,6 @@ public: // Used by ResourceClient
    * @param[in] loadStatus The status update.
    */
   void HandleAtlasUpdateRequest( ResourceId id, ResourceId atlasId, Integration::LoadStatus loadStatus );
-
-  /********************************************************************************
-   ******************** Event thread object direct interface  *********************
-   ********************************************************************************/
-
-  /**
-   * Called by model implementations which require access to the model
-   * data.
-   * @note Only called from event thread objects - ModelData is not used
-   * by update objects.
-   * @param[in] id - the id of a ModelData resource.
-   * @return the model data or NULL if it has not been loaded.
-   */
-  Internal::ModelDataPtr GetModelData(ResourceId id);
 
   /********************************************************************************
    ******************** Update thread object direct interface  ********************
@@ -512,9 +497,9 @@ inline void RequestAddBitmapImageMessage( EventToUpdate& eventToUpdate,
 inline void RequestAddNativeImageMessage( EventToUpdate& eventToUpdate,
                                           ResourceManager& manager,
                                           ResourceId id,
-                                          NativeImagePtr resourceData )
+                                          NativeImageInterfacePtr resourceData )
 {
-  typedef MessageValue2< ResourceManager, ResourceId, NativeImagePtr > LocalType;
+  typedef MessageValue2< ResourceManager, ResourceId, NativeImageInterfacePtr > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
@@ -542,9 +527,9 @@ inline void RequestAddFrameBufferImageMessage( EventToUpdate& eventToUpdate,
 inline void RequestAddFrameBufferImageMessage( EventToUpdate& eventToUpdate,
                                                ResourceManager& manager,
                                                ResourceId id,
-                                               NativeImagePtr resourceData )
+                                               NativeImageInterfacePtr resourceData )
 {
-  typedef MessageValue2< ResourceManager, ResourceId, NativeImagePtr > LocalType;
+  typedef MessageValue2< ResourceManager, ResourceId, NativeImageInterfacePtr > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );

@@ -23,7 +23,7 @@
 #include <stdint.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/images/bitmap-image.h>
+#include <dali/public-api/images/buffer-image.h>
 #include <dali/internal/common/message.h>
 #include <dali/internal/render/gl-resources/texture.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
@@ -124,6 +124,7 @@ private:
 private:
   Internal::BitmapCompressedPtr mBitmap;      ///< The Bitmap the Texture was created from (may be NULL)
   ResourcePolicy::Discardable mDiscardPolicy;
+  Pixel::Format  mPixelFormat;
 
   // Changes scope, should be at end of class
   DALI_LOG_OBJECT_STRING_DECLARATION;

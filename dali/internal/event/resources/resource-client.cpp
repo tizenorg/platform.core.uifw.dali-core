@@ -122,7 +122,6 @@ ResourceTicketPtr ResourceClient::RequestResource(
       newTicket = imageTicket;
       break;
     }
-    case ResourceModel:       // FALLTHROUGH
     case ResourceTargetImage:
     case ResourceShader:
     case ResourceMesh:
@@ -171,7 +170,6 @@ ResourceTicketPtr ResourceClient::DecodeResource(
 
       // FALLTHROUGH:
       case ResourceNativeImage:
-      case ResourceModel:
       case ResourceTargetImage:
       case ResourceShader:
       case ResourceMesh:
@@ -303,7 +301,7 @@ ImageTicketPtr ResourceClient::AddBitmapImage(Bitmap* bitmap)
 
   const ResourceId newId = ++(mImpl->mNextId);
 
-  Dali::ImageAttributes imageAttributes = Dali::ImageAttributes::New(bitmap->GetImageWidth(), bitmap->GetImageHeight(), bitmap->GetPixelFormat());
+  Dali::ImageAttributes imageAttributes = Dali::ImageAttributes::New(bitmap->GetImageWidth(), bitmap->GetImageHeight());
   BitmapResourceType bitmapResourceType(imageAttributes); // construct first as no copy ctor (needed to bind ref to object)
   ResourceTypePath typePath(bitmapResourceType, "");
   newTicket = new ImageTicket(*this, newId, typePath);
@@ -321,7 +319,7 @@ ImageTicketPtr ResourceClient::AddBitmapImage(Bitmap* bitmap)
   return newTicket;
 }
 
-ResourceTicketPtr ResourceClient::AddNativeImage ( NativeImage& resourceData )
+ResourceTicketPtr ResourceClient::AddNativeImage ( NativeImageInterface& resourceData )
 {
   ImageTicketPtr newTicket;
 
@@ -330,8 +328,7 @@ ResourceTicketPtr ResourceClient::AddNativeImage ( NativeImage& resourceData )
   ResourceTypePath typePath(nativeImageResourceType, "");
   newTicket = new ImageTicket(*this, newId, typePath);
   newTicket->mAttributes = ImageAttributes::New(resourceData.GetWidth(),
-                                                resourceData.GetHeight(),
-                                                resourceData.GetPixelFormat());
+                                                resourceData.GetHeight());
   newTicket->LoadingSucceeded();
 
   mImpl->mTickets.insert(TicketPair(newId, newTicket.Get()));
@@ -349,7 +346,7 @@ ImageTicketPtr ResourceClient::AddFrameBufferImage ( unsigned int width, unsigne
 
   const ResourceId newId = ++(mImpl->mNextId);
 
-  Dali::ImageAttributes imageAttributes = Dali::ImageAttributes::New(width, height, pixelFormat );
+  Dali::ImageAttributes imageAttributes = Dali::ImageAttributes::New(width, height);
   RenderTargetResourceType renderTargetResourceType(imageAttributes) ; // construct first as no copy ctor (needed to bind ref to object)
   ResourceTypePath typePath(renderTargetResourceType, "");
   newTicket = new ImageTicket(*this, newId, typePath);
@@ -364,13 +361,13 @@ ImageTicketPtr ResourceClient::AddFrameBufferImage ( unsigned int width, unsigne
   return newTicket;
 }
 
-ImageTicketPtr ResourceClient::AddFrameBufferImage ( NativeImage& nativeImage )
+ImageTicketPtr ResourceClient::AddFrameBufferImage ( NativeImageInterface& nativeImage )
 {
   ImageTicketPtr newTicket;
 
   const ResourceId newId = ++(mImpl->mNextId);
 
-  Dali::ImageAttributes imageAttributes = Dali::ImageAttributes::New(nativeImage.GetWidth(), nativeImage.GetHeight(), nativeImage.GetPixelFormat() );
+  Dali::ImageAttributes imageAttributes = Dali::ImageAttributes::New(nativeImage.GetWidth(), nativeImage.GetHeight() );
   RenderTargetResourceType renderTargetResourceType(imageAttributes); // construct first as no copy ctor (needed to bind ref to object)
   ResourceTypePath typePath(renderTargetResourceType, "");
   newTicket = new ImageTicket(*this, newId, typePath);
@@ -393,7 +390,7 @@ ResourceTicketPtr ResourceClient::AllocateTexture( unsigned int width,
   ImageTicketPtr newTicket;
   const ResourceId newId = ++(mImpl->mNextId);
 
-  Dali::ImageAttributes imageAttributes = Dali::ImageAttributes::New( width, height, pixelformat);
+  Dali::ImageAttributes imageAttributes = Dali::ImageAttributes::New( width, height);
   BitmapResourceType bitmapResourceType(imageAttributes); // construct first as no copy ctor (needed to bind ref to object)
   ResourceTypePath typePath(bitmapResourceType, "");
   newTicket = new ImageTicket(*this, newId, typePath);

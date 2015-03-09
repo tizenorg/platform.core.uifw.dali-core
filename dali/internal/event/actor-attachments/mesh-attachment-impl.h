@@ -28,7 +28,7 @@
 #include <dali/internal/event/modeling/mesh-impl.h>
 #include <dali/internal/event/modeling/material-impl.h>
 #include <dali/internal/event/resources/resource-ticket.h>
-#include <dali/internal/event/common/proxy-object.h>
+#include <dali/internal/event/common/object-impl.h>
 
 namespace Dali
 {
@@ -109,20 +109,6 @@ public:
   void DisconnectMaterial( );
 
   /**
-   * Set whether this mesh actor should be affected by lights in the
-   * scene.  If it set to false, then the mesh will be unaffected by
-   * lighting, and will be evenly lit without any shading.
-   * This property is not inherited.
-   * @param[in] affectedByLighting Whether the actor should be lit by the scene lighting.
-   */
-  void SetAffectedByLighting( bool affectedByLighting );
-
-  /**
-   * @return true if the actor is lit by the scene, or false if evenly lit.
-   */
-  bool IsAffectedByLighting();
-
-  /**
    * Search the actor tree for all named bones in the mesh  and connect them.
    * @param[in] rootActor - the root actor of the actor tree.
    */
@@ -183,7 +169,7 @@ protected:
   /**
    * Helper class for connecting Nodes to the scene-graph MeshAttachment
    */
-  class Connector : public ProxyObject::Observer
+  class Connector : public Object::Observer
   {
   public:
     /**
@@ -211,22 +197,22 @@ protected:
      */
     void ConnectNode();
 
-  public: // From ProxyObject::Observer
+  public: // From Object::Observer
 
     /**
-     * @copydoc Dali::Internal::ProxyObject::Observer::SceneObjectAdded
+     * @copydoc Dali::Internal::Object::Observer::SceneObjectAdded
      */
-    virtual void SceneObjectAdded( ProxyObject& proxy );
+    virtual void SceneObjectAdded( Object& object );
 
     /**
-     * @copydoc Dali::Internal::ProxyObject::Observer::SceneObjectAdded
+     * @copydoc Dali::Internal::Object::Observer::SceneObjectAdded
      */
-    virtual void SceneObjectRemoved( ProxyObject& proxy );
+    virtual void SceneObjectRemoved( Object& object );
 
     /**
-     * @copydoc Dali::Internal::ProxyObject::Observer::ProxyDestroyed
+     * @copydoc Dali::Internal::Object::Observer::ObjectDestroyed
      */
-    virtual void ProxyDestroyed( ProxyObject& proxy );
+    virtual void ObjectDestroyed( Object& object );
 
   public:
     MeshAttachment& mMeshAttachment; ///< Parent
@@ -240,7 +226,6 @@ private:
   const SceneGraph::MeshAttachment* mSceneObject; ///< Not owned
 
   MeshAndCustomMaterial mMesh;
-  bool                  mAffectedByLighting;
   ConnectorList         mConnectors;
 };
 

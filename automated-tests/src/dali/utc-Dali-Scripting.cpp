@@ -90,6 +90,13 @@ ResourceImage NewResourceImage( const Property::Value& map )
   return image;
 }
 
+/// Helper method to create ResourceImage using property
+BufferImage NewBufferImage( const Property::Value& map )
+{
+  BufferImage image = BufferImage::DownCast( NewImage( map ) );
+  return image;
+}
+
 /// Helper method to create ImageAttributes using an Image
 ImageAttributes NewImageAttributes( const Property::Value& map )
 {
@@ -217,15 +224,6 @@ int UtcDaliScriptingGetAnchorConstant(void)
 {
   TestApplication application;
 
-  DALI_TEST_EQUALS( Dali::ParentOrigin::BACK_TOP_LEFT, GetAnchorConstant( "BACK_TOP_LEFT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::BACK_TOP_CENTER, GetAnchorConstant( "BACK_TOP_CENTER" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::BACK_TOP_RIGHT, GetAnchorConstant( "BACK_TOP_RIGHT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::BACK_CENTER_LEFT, GetAnchorConstant( "BACK_CENTER_LEFT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::BACK_CENTER, GetAnchorConstant( "BACK_CENTER" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::BACK_CENTER_RIGHT, GetAnchorConstant( "BACK_CENTER_RIGHT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::BACK_BOTTOM_LEFT, GetAnchorConstant( "BACK_BOTTOM_LEFT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::BACK_BOTTOM_CENTER, GetAnchorConstant( "BACK_BOTTOM_CENTER" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::BACK_BOTTOM_RIGHT, GetAnchorConstant( "BACK_BOTTOM_RIGHT" ), TEST_LOCATION );
   DALI_TEST_EQUALS( Dali::ParentOrigin::TOP_LEFT, GetAnchorConstant( "TOP_LEFT" ), TEST_LOCATION );
   DALI_TEST_EQUALS( Dali::ParentOrigin::TOP_CENTER, GetAnchorConstant( "TOP_CENTER" ), TEST_LOCATION );
   DALI_TEST_EQUALS( Dali::ParentOrigin::TOP_RIGHT, GetAnchorConstant( "TOP_RIGHT" ), TEST_LOCATION );
@@ -235,15 +233,6 @@ int UtcDaliScriptingGetAnchorConstant(void)
   DALI_TEST_EQUALS( Dali::ParentOrigin::BOTTOM_LEFT, GetAnchorConstant( "BOTTOM_LEFT" ), TEST_LOCATION );
   DALI_TEST_EQUALS( Dali::ParentOrigin::BOTTOM_CENTER, GetAnchorConstant( "BOTTOM_CENTER" ), TEST_LOCATION );
   DALI_TEST_EQUALS( Dali::ParentOrigin::BOTTOM_RIGHT, GetAnchorConstant( "BOTTOM_RIGHT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::FRONT_TOP_LEFT, GetAnchorConstant( "FRONT_TOP_LEFT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::FRONT_TOP_CENTER, GetAnchorConstant( "FRONT_TOP_CENTER" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::FRONT_TOP_RIGHT, GetAnchorConstant( "FRONT_TOP_RIGHT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::FRONT_CENTER_LEFT, GetAnchorConstant( "FRONT_CENTER_LEFT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::FRONT_CENTER, GetAnchorConstant( "FRONT_CENTER" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::FRONT_CENTER_RIGHT, GetAnchorConstant( "FRONT_CENTER_RIGHT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::FRONT_BOTTOM_LEFT, GetAnchorConstant( "FRONT_BOTTOM_LEFT" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::FRONT_BOTTOM_CENTER, GetAnchorConstant( "FRONT_BOTTOM_CENTER" ), TEST_LOCATION );
-  DALI_TEST_EQUALS( Dali::ParentOrigin::FRONT_BOTTOM_RIGHT, GetAnchorConstant( "FRONT_BOTTOM_RIGHT" ), TEST_LOCATION );
 
   try
   {
@@ -490,42 +479,6 @@ int UtcDaliScriptingNewImage(void)
 
   //map.erase( map.end() - 2, map.end() );
 
-  // pixel-format
-  map[ "pixel-format" ] = "";
-  {
-    const StringEnum< int > values[] =
-    {
-        { "A8", Pixel::A8 },
-        { "L8", Pixel::L8 },
-        { "LA88", Pixel::LA88 },
-        { "RGB565", Pixel::RGB565 },
-        { "BGR565", Pixel::BGR565 },
-        { "RGBA4444", Pixel::RGBA4444 },
-        { "BGRA4444", Pixel::BGRA4444 },
-        { "RGBA5551", Pixel::RGBA5551 },
-        { "BGRA5551", Pixel::BGRA5551 },
-        { "RGB888", Pixel::RGB888 },
-        { "RGB8888", Pixel::RGB8888 },
-        { "BGR8888", Pixel::BGR8888 },
-        { "RGBA8888", Pixel::RGBA8888 },
-        { "BGRA8888", Pixel::BGRA8888 },
-        { "COMPRESSED_R11_EAC", Pixel::COMPRESSED_R11_EAC },
-        { "COMPRESSED_SIGNED_R11_EAC", Pixel::COMPRESSED_SIGNED_R11_EAC },
-        { "COMPRESSED_RG11_EAC", Pixel::COMPRESSED_RG11_EAC },
-        { "COMPRESSED_SIGNED_RG11_EAC", Pixel::COMPRESSED_SIGNED_RG11_EAC },
-        { "COMPRESSED_RGB8_ETC2", Pixel::COMPRESSED_RGB8_ETC2 },
-        { "COMPRESSED_SRGB8_ETC2", Pixel::COMPRESSED_SRGB8_ETC2 },
-        { "COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2", Pixel::COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 },
-        { "COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2", Pixel::COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 },
-        { "COMPRESSED_RGBA8_ETC2_EAC", Pixel::COMPRESSED_RGBA8_ETC2_EAC },
-        { "COMPRESSED_SRGB8_ALPHA8_ETC2_EAC", Pixel::COMPRESSED_SRGB8_ALPHA8_ETC2_EAC },
-        { "COMPRESSED_RGB8_ETC1", Pixel::COMPRESSED_RGB8_ETC1 },
-        { "COMPRESSED_RGB_PVRTC_4BPPV1", Pixel::COMPRESSED_RGB_PVRTC_4BPPV1 },
-        { "A8", Pixel::A8 }, // Checked already but reset so that BitmapImage works
-    };
-    TestEnumStrings< Pixel::Format, ImageAttributes >( map, values, ( sizeof( values ) / sizeof ( values[0] ) ), &ImageAttributes::GetPixelFormat, &NewImageAttributes );
-  }
-
   // scaling-mode
   map[ "scaling-mode" ] = "";
   {
@@ -545,19 +498,58 @@ int UtcDaliScriptingNewImage(void)
     Image image = NewImage( map );
     DALI_TEST_CHECK( FrameBufferImage::DownCast( image ) );
   }
-  // type BitMapImage
-  map[ "type" ] = "BitmapImage";
-  {
-    Image image = NewImage( map );
-    DALI_TEST_CHECK( BitmapImage::DownCast( image ) );
-  }
+  // type BufferImage
+   map[ "type" ] = "BufferImage";
+   {
+     Image image = NewImage( map );
+     DALI_TEST_CHECK( BufferImage::DownCast( image ) );
+     DALI_TEST_CHECK((BufferImage::DownCast( image )).GetPixelFormat()== Pixel::RGBA8888);
+   }
+
+   // pixel-format
+   map[ "pixel-format" ] = "";
+   {
+     const StringEnum< int > values[] =
+     {
+         { "A8", Pixel::A8 },
+         { "L8", Pixel::L8 },
+         { "LA88", Pixel::LA88 },
+         { "RGB565", Pixel::RGB565 },
+         { "BGR565", Pixel::BGR565 },
+         { "RGBA4444", Pixel::RGBA4444 },
+         { "BGRA4444", Pixel::BGRA4444 },
+         { "RGBA5551", Pixel::RGBA5551 },
+         { "BGRA5551", Pixel::BGRA5551 },
+         { "RGB888", Pixel::RGB888 },
+         { "RGB8888", Pixel::RGB8888 },
+         { "BGR8888", Pixel::BGR8888 },
+         { "RGBA8888", Pixel::RGBA8888 },
+         { "BGRA8888", Pixel::BGRA8888 },
+       /*{ "COMPRESSED_R11_EAC", Pixel::COMPRESSED_R11_EAC },
+         { "COMPRESSED_SIGNED_R11_EAC", Pixel::COMPRESSED_SIGNED_R11_EAC },
+         { "COMPRESSED_RG11_EAC", Pixel::COMPRESSED_RG11_EAC },
+         { "COMPRESSED_SIGNED_RG11_EAC", Pixel::COMPRESSED_SIGNED_RG11_EAC },
+         { "COMPRESSED_RGB8_ETC2", Pixel::COMPRESSED_RGB8_ETC2 },
+         { "COMPRESSED_SRGB8_ETC2", Pixel::COMPRESSED_SRGB8_ETC2 },
+         { "COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2", Pixel::COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 },
+         { "COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2", Pixel::COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 },
+         { "COMPRESSED_RGBA8_ETC2_EAC", Pixel::COMPRESSED_RGBA8_ETC2_EAC },
+         { "COMPRESSED_SRGB8_ALPHA8_ETC2_EAC", Pixel::COMPRESSED_SRGB8_ALPHA8_ETC2_EAC },
+         { "COMPRESSED_RGB8_ETC1", Pixel::COMPRESSED_RGB8_ETC1 },
+         { "COMPRESSED_RGB_PVRTC_4BPPV1", Pixel::COMPRESSED_RGB_PVRTC_4BPPV1 },*/
+         // BufferImage doesnot support compressed format
+     };
+
+     TestEnumStrings< Pixel::Format, BufferImage >( map, values, ( sizeof( values ) / sizeof ( values[0] ) ), &BufferImage::GetPixelFormat, &NewBufferImage );
+   }
+
   // type Image
-  map[ "type" ] = "Image";
+  map[ "type" ] = "ResourceImage";
   {
     Image image = NewImage( map );
     DALI_TEST_CHECK( ResourceImage::DownCast( image ) );
     DALI_TEST_CHECK( !FrameBufferImage::DownCast( image ) );
-    DALI_TEST_CHECK( !BitmapImage::DownCast( image ) );
+    DALI_TEST_CHECK( !BufferImage::DownCast( image ) );
   }
   END_TEST;
 }
@@ -684,8 +676,8 @@ int UtcDaliScriptingNewActorProperties(void)
   }
 
   // Check Anchor point and parent origin STRINGS
-  map[ "parent-origin" ] = "BACK_TOP_LEFT";
-  map[ "anchor-point" ] = "FRONT_CENTER_LEFT";
+  map[ "parent-origin" ] = "TOP_LEFT";
+  map[ "anchor-point" ] = "CENTER_LEFT";
   {
     Actor handle = NewActor( map );
     DALI_TEST_CHECK( handle );
@@ -694,8 +686,8 @@ int UtcDaliScriptingNewActorProperties(void)
     application.SendNotification();
     application.Render();
 
-    DALI_TEST_EQUALS( handle.GetCurrentParentOrigin(), ParentOrigin::BACK_TOP_LEFT, TEST_LOCATION );
-    DALI_TEST_EQUALS( handle.GetCurrentAnchorPoint(), AnchorPoint::FRONT_CENTER_LEFT, TEST_LOCATION );
+    DALI_TEST_EQUALS( handle.GetCurrentParentOrigin(), ParentOrigin::TOP_LEFT, TEST_LOCATION );
+    DALI_TEST_EQUALS( handle.GetCurrentAnchorPoint(), AnchorPoint::CENTER_LEFT, TEST_LOCATION );
 
     Stage::GetCurrent().Remove( handle );
   }
@@ -718,15 +710,7 @@ int UtcDaliScriptingNewActorChildren(void)
   child2Map[ "type" ] = "TextActor";
   child2Map[ "position" ] = Vector3::ZAXIS;
 
-  Property::Map grandChildMap;
-  grandChildMap[ "type" ] = "LightActor";
-  grandChildMap[ "position" ] = Vector3::ONE;
-
-  // Add arrays to appropriate maps
-  Property::Array grandChildArray;
-  grandChildArray.push_back( grandChildMap );
   Property::Array childArray;
-  child1Map[ "actors" ] = grandChildArray;
   childArray.push_back( child1Map );
   childArray.push_back( child2Map );
   map[ "actors" ] = childArray;
@@ -746,19 +730,13 @@ int UtcDaliScriptingNewActorChildren(void)
   DALI_TEST_CHECK( child1 );
   DALI_TEST_CHECK( ImageActor::DownCast( child1 ) );
   DALI_TEST_EQUALS( child1.GetCurrentPosition(), Vector3::YAXIS, TEST_LOCATION );
-  DALI_TEST_EQUALS( child1.GetChildCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( child1.GetChildCount(), 0u, TEST_LOCATION );
 
   Actor child2 = handle.GetChildAt(1);
   DALI_TEST_CHECK( child2 );
   DALI_TEST_CHECK( TextActor::DownCast( child2 ) );
   DALI_TEST_EQUALS( child2.GetCurrentPosition(), Vector3::ZAXIS, TEST_LOCATION );
   DALI_TEST_EQUALS( child2.GetChildCount(), 0u, TEST_LOCATION );
-
-  Actor grandChild = child1.GetChildAt( 0 );
-  DALI_TEST_CHECK( grandChild );
-  DALI_TEST_CHECK( LightActor::DownCast( grandChild ) );
-  DALI_TEST_EQUALS( grandChild.GetCurrentPosition(), Vector3::ONE, TEST_LOCATION );
-  DALI_TEST_EQUALS( grandChild.GetChildCount(), 0u, TEST_LOCATION );
 
   Stage::GetCurrent().Remove( handle );
   END_TEST;
@@ -868,10 +846,9 @@ int UtcDaliScriptingCreatePropertyMapActor(void)
     Actor actor = Actor::New();
     Actor child = ImageActor::New();
     Actor grandChild = TextActor::New();
-    Actor grandChild2 = LightActor::New();
+
     actor.Add( child );
     child.Add( grandChild );
-    child.Add( grandChild2 );
 
     Stage::GetCurrent().Add( actor );
     application.SendNotification();
@@ -896,7 +873,7 @@ int UtcDaliScriptingCreatePropertyMapActor(void)
 
     DALI_TEST_CHECK( childValue.HasKey( "actors" ) );
     Property::Array grandChildren( childValue.GetValue( "actors").Get< Property::Array >() );
-    DALI_TEST_CHECK( grandChildren.size() == 2u );
+    DALI_TEST_CHECK( grandChildren.size() == 1u );
 
     Property::Map grandChildMap( grandChildren[0].Get< Property::Map >() );
     DALI_TEST_CHECK( !grandChildMap.Empty() );
@@ -904,11 +881,6 @@ int UtcDaliScriptingCreatePropertyMapActor(void)
     DALI_TEST_CHECK( grandChildValue.HasKey( "type" ) );
     DALI_TEST_EQUALS( grandChildValue.GetValue( "type" ).Get< std::string >(), "TextActor", TEST_LOCATION );
 
-    Property::Map grandChild2Map( grandChildren[1].Get< Property::Map >() );
-    DALI_TEST_CHECK( !grandChild2Map.Empty() );
-    Property::Value grandChild2Value( grandChild2Map );
-    DALI_TEST_CHECK( grandChild2Value.HasKey( "type" ) );
-    DALI_TEST_EQUALS( grandChild2Value.GetValue( "type" ).Get< std::string >(), "LightActor", TEST_LOCATION );
 
     Stage::GetCurrent().Remove( actor );
   }
@@ -944,8 +916,6 @@ int UtcDaliScriptingCreatePropertyMapImage(void)
     DALI_TEST_EQUALS( value.GetValue( "load-policy" ).Get< std::string >(), "IMMEDIATE", TEST_LOCATION );
     DALI_TEST_CHECK( value.HasKey( "release-policy") );
     DALI_TEST_EQUALS( value.GetValue( "release-policy" ).Get< std::string >(), "NEVER", TEST_LOCATION );
-    DALI_TEST_CHECK( value.HasKey( "pixel-format") );
-    DALI_TEST_EQUALS( value.GetValue( "pixel-format" ).Get< std::string >(), "RGBA8888", TEST_LOCATION );
     DALI_TEST_CHECK( value.HasKey( "scaling-mode") );
     DALI_TEST_EQUALS( value.GetValue( "scaling-mode" ).Get< std::string >(), "SHRINK_TO_FIT", TEST_LOCATION );
     DALI_TEST_CHECK( !value.HasKey( "width" ) );
@@ -955,7 +925,6 @@ int UtcDaliScriptingCreatePropertyMapImage(void)
   // Change values
   {
     ImageAttributes attributes;
-    attributes.SetPixelFormat( Pixel::A8 );
     attributes.SetScalingMode( ImageAttributes::FitWidth );
     attributes.SetSize( 300, 400 );
     Image image = ResourceImage::New( "MY_PATH", attributes, ResourceImage::ON_DEMAND, Image::UNUSED );
@@ -973,8 +942,6 @@ int UtcDaliScriptingCreatePropertyMapImage(void)
     DALI_TEST_EQUALS( value.GetValue( "load-policy" ).Get< std::string >(), "ON_DEMAND", TEST_LOCATION );
     DALI_TEST_CHECK( value.HasKey( "release-policy") );
     DALI_TEST_EQUALS( value.GetValue( "release-policy" ).Get< std::string >(), "UNUSED", TEST_LOCATION );
-    DALI_TEST_CHECK( value.HasKey( "pixel-format") );
-    DALI_TEST_EQUALS( value.GetValue( "pixel-format" ).Get< std::string >(), "A8", TEST_LOCATION );
     DALI_TEST_CHECK( value.HasKey( "scaling-mode") );
     DALI_TEST_EQUALS( value.GetValue( "scaling-mode" ).Get< std::string >(), "FIT_WIDTH", TEST_LOCATION );
     DALI_TEST_CHECK( value.HasKey( "width" ) );
@@ -983,14 +950,16 @@ int UtcDaliScriptingCreatePropertyMapImage(void)
     DALI_TEST_EQUALS( value.GetValue( "height" ).Get< int >(), 400, TEST_LOCATION );
   }
 
-  // BitmapImage
+  // BufferImage
   {
-    Image image = BitmapImage::New( 200, 300, Pixel::RGBA8888 );
+    Image image = BufferImage::New( 200, 300, Pixel::A8 );
     Property::Map map;
     CreatePropertyMap( image, map );
     Property::Value value( map );
     DALI_TEST_CHECK( value.HasKey( "type" ) );
-    DALI_TEST_EQUALS( value.GetValue( "type" ).Get< std::string >(), "BitmapImage", TEST_LOCATION );
+    DALI_TEST_EQUALS( value.GetValue( "type" ).Get< std::string >(), "BufferImage", TEST_LOCATION );
+    DALI_TEST_CHECK( value.HasKey( "pixel-format") );
+    DALI_TEST_EQUALS( value.GetValue( "pixel-format" ).Get< std::string >(), "A8", TEST_LOCATION );
   }
 
   // FrameBufferImage

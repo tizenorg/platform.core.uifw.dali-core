@@ -15,10 +15,9 @@ SET(TC_SOURCES
         utc-Dali-Any.cpp
         utc-Dali-Atlas.cpp
         utc-Dali-BaseHandle.cpp
-        utc-Dali-BitmapImage.cpp
+        utc-Dali-BufferImage.cpp
         utc-Dali-CameraActor.cpp
         utc-Dali-Character.cpp
-        utc-Dali-Constrainable.cpp
         utc-Dali-Constraint.cpp
         utc-Dali-Context.cpp
         utc-Dali-CustomActor.cpp
@@ -44,7 +43,6 @@ SET(TC_SOURCES
         utc-Dali-ImageAttributes.cpp
         utc-Dali-KeyEvent.cpp
         utc-Dali-Layer.cpp
-        utc-Dali-LightActor.cpp
         utc-Dali-LocklessBuffer.cpp
         utc-Dali-LongPressGesture.cpp
         utc-Dali-LongPressGestureDetector.cpp
@@ -54,8 +52,9 @@ SET(TC_SOURCES
         utc-Dali-Matrix3.cpp
         utc-Dali-MeshActor.cpp
         utc-Dali-MeshData.cpp
-        utc-Dali-Model.cpp
         utc-Dali-MouseWheelEvent.cpp
+        utc-Dali-Mutex.cpp
+        utc-Dali-NativeImage.cpp
         utc-Dali-NinePatchImages.cpp
         utc-Dali-ObjectRegistry.cpp
         utc-Dali-PanGesture.cpp
@@ -73,6 +72,7 @@ SET(TC_SOURCES
         utc-Dali-RenderTask.cpp
         utc-Dali-RenderTaskList.cpp
         utc-Dali-RenderableActor.cpp
+        utc-Dali-ResourceImage.cpp
         utc-Dali-ShaderEffect.cpp
         utc-Dali-Scripting.cpp
         utc-Dali-SignalTemplatesFunctors.cpp
@@ -127,6 +127,7 @@ INCLUDE_DIRECTORIES(
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
     ${${CAPI_LIB}_LIBRARIES}
+    -lpthread
 )
 
 INSTALL(PROGRAMS ${EXEC_NAME}

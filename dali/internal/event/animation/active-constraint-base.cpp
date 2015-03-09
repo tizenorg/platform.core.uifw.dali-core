@@ -24,8 +24,9 @@
 #include <dali/public-api/object/type-registry.h>
 #include <dali/internal/common/event-to-update.h>
 #include <dali/internal/event/animation/animation-impl.h>
-#include <dali/internal/update/common/animatable-property.h>
+#include <dali/internal/event/common/property-helper.h>
 #include <dali/internal/update/animation/scene-graph-constraint-base.h>
+#include <dali/internal/update/common/animatable-property.h>
 #include <dali/internal/update/common/property-owner-messages.h>
 
 using Dali::Internal::SceneGraph::AnimatableProperty;
@@ -33,13 +34,18 @@ using Dali::Internal::SceneGraph::AnimatableProperty;
 namespace Dali
 {
 
-const Property::Index ActiveConstraint::WEIGHT = 0;
-
 namespace Internal
 {
 
 namespace // unnamed namespace
 {
+
+// Properties
+
+//              Name        Type   writable animatable constraint-input  enum for index-checking
+DALI_PROPERTY_TABLE_BEGIN
+DALI_PROPERTY( "weight",    FLOAT,   true,     true,    true,   Dali::ActiveConstraint::Property::WEIGHT )
+DALI_PROPERTY_TABLE_END( DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX )
 
 // Signals
 
@@ -55,27 +61,6 @@ TypeRegistration mType( typeid(Dali::ActiveConstraint), typeid(Dali::Handle), Cr
 
 SignalConnectorType signalConnector1( mType, SIGNAL_APPLIED, &ActiveConstraintBase::DoConnectSignal );
 
-}
-
-
-namespace // unnamed namespace
-{
-
-/**
- * We want to discourage the use of property strings (minimize string comparisons),
- * particularly for the default properties.
- */
-const char* DEFAULT_PROPERTY_NAMES[] =
-{
-  "weight"
-};
-const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_NAMES ) / sizeof( std::string );
-
-const Property::Type DEFAULT_PROPERTY_TYPES[DEFAULT_PROPERTY_COUNT] =
-{
-  Property::FLOAT // WEIGHT
-};
-
 } // unnamed namespace
 
 ActiveConstraintBase::ActiveConstraintBase( EventToUpdate& eventToUpdate, Property::Index targetPropertyIndex, SourceContainer& sources, unsigned int sourceCount )
@@ -83,8 +68,8 @@ ActiveConstraintBase::ActiveConstraintBase( EventToUpdate& eventToUpdate, Proper
   mTargetPropertyIndex( targetPropertyIndex ),
   mSources( sources ),
   mSourceCount( sourceCount ),
-  mTargetProxy( NULL ),
-  mObservedProxies(),
+  mTargetObject( NULL ),
+  mObservedObjects(),
   mSceneGraphConstraint( NULL ),
   mCustomWeight( NULL ),
   mOffstageWeight( Dali::ActiveConstraint::DEFAULT_WEIGHT ),
@@ -93,11 +78,11 @@ ActiveConstraintBase::ActiveConstraintBase( EventToUpdate& eventToUpdate, Proper
   mTag(0),
   mApplyAnimation()
 {
-  // Skip init when any of the proxy objects have been destroyed
+  // Skip init when any of the objects have been destroyed
   if ( mSources.size() != mSourceCount )
   {
-    // Discard all proxy pointers
-    mTargetProxy = NULL;
+    // Discard all object pointers
+    mTargetObject = NULL;
     mSources.clear();
   }
 
@@ -108,7 +93,7 @@ ActiveConstraintBase::ActiveConstraintBase( EventToUpdate& eventToUpdate, Proper
     {
       DALI_ASSERT_ALWAYS( NULL != iter->object && "ActiveConstraint source object not found" );
 
-      ObserveProxy( *(iter->object) );
+      ObserveObject( *(iter->object) );
     }
   }
 }
@@ -124,7 +109,7 @@ ActiveConstraintBase::~ActiveConstraintBase()
   }
 }
 
-void ActiveConstraintBase::SetCustomWeightObject( ProxyObject& weightObject, Property::Index weightIndex )
+void ActiveConstraintBase::SetCustomWeightObject( Object& weightObject, Property::Index weightIndex )
 {
   const SceneGraph::PropertyBase* base = weightObject.GetSceneObjectAnimatableProperty( weightIndex );
   const SceneGraph::AnimatableProperty<float>* sceneProperty = dynamic_cast< const SceneGraph::AnimatableProperty<float>* >( base );
@@ -133,18 +118,18 @@ void ActiveConstraintBase::SetCustomWeightObject( ProxyObject& weightObject, Pro
   {
     mCustomWeight = sceneProperty;
 
-    ObserveProxy( weightObject );
+    ObserveObject( weightObject );
   }
 }
 
-void ActiveConstraintBase::FirstApply( ProxyObject& parent, TimePeriod applyTime )
+void ActiveConstraintBase::FirstApply( Object& parent, TimePeriod applyTime )
 {
-  DALI_ASSERT_ALWAYS( NULL == mTargetProxy && "Parent of ActiveConstraint already set" );
+  DALI_ASSERT_ALWAYS( NULL == mTargetObject && "Parent of ActiveConstraint already set" );
 
   // No need to do anything, if the source objects are gone
   if( mSources.size() == mSourceCount )
   {
-    mTargetProxy = &parent;
+    mTargetObject = &parent;
 
     ConnectConstraint();
   }
@@ -159,7 +144,7 @@ void ActiveConstraintBase::FirstApply( ProxyObject& parent, TimePeriod applyTime
     // Automatically animate (increase) the weight, until the constraint is fully applied
     mApplyAnimation = Dali::Animation::New( applyTime.delaySeconds + applyTime.durationSeconds );
     Dali::ActiveConstraint self( this );
-    mApplyAnimation.AnimateTo( Property( self, Dali::ActiveConstraint::WEIGHT ), Dali::ActiveConstraint::FINAL_WEIGHT, mAlphaFunction, applyTime );
+    mApplyAnimation.AnimateTo( Property( self, Dali::ActiveConstraint::Property::WEIGHT ), Dali::ActiveConstraint::FINAL_WEIGHT, mAlphaFunction, applyTime );
     mApplyAnimation.Play();
 
     // Chain "Finish" to "Applied" signal
@@ -169,18 +154,18 @@ void ActiveConstraintBase::FirstApply( ProxyObject& parent, TimePeriod applyTime
 
 void ActiveConstraintBase::OnParentDestroyed()
 {
-  // Stop observing the remaining proxies
+  // Stop observing the remaining objects
   StopObservation();
 
-  // Discard all proxy pointers
-  mTargetProxy = NULL;
+  // Discard all object pointers
+  mTargetObject = NULL;
   mSources.clear();
 }
 
 void ActiveConstraintBase::OnParentSceneObjectAdded()
 {
   if ( NULL == mSceneGraphConstraint &&
-       mTargetProxy )
+       mTargetObject )
   {
     ConnectConstraint();
   }
@@ -200,13 +185,13 @@ void ActiveConstraintBase::OnParentSceneObjectRemoved()
 
 void ActiveConstraintBase::BeginRemove()
 {
-  // Stop observing the remaining proxies
+  // Stop observing the remaining objects
   StopObservation();
 
-  // Discard all proxy pointers
+  // Discard all object pointers
   mSources.clear();
 
-  const SceneGraph::PropertyOwner* propertyOwner = mTargetProxy ? mTargetProxy->GetSceneObject() : NULL;
+  const SceneGraph::PropertyOwner* propertyOwner = mTargetObject ? mTargetObject->GetSceneObject() : NULL;
 
   if ( propertyOwner &&
        mSceneGraphConstraint )
@@ -222,9 +207,9 @@ void ActiveConstraintBase::BeginRemove()
   }
 }
 
-ProxyObject* ActiveConstraintBase::GetParent()
+Object* ActiveConstraintBase::GetParent()
 {
-  return mTargetProxy;
+  return mTargetObject;
 }
 
 bool ActiveConstraintBase::Supports( Capability capability ) const
@@ -234,7 +219,7 @@ bool ActiveConstraintBase::Supports( Capability capability ) const
 
 Dali::Handle ActiveConstraintBase::GetTargetObject()
 {
-  return Dali::Handle( mTargetProxy );
+  return Dali::Handle( mTargetObject );
 }
 
 Property::Index ActiveConstraintBase::GetTargetProperty()
@@ -338,7 +323,7 @@ const char* ActiveConstraintBase::GetDefaultPropertyName( Property::Index index 
 {
   if ( ( index >= 0 ) && ( index < DEFAULT_PROPERTY_COUNT ) )
   {
-    return DEFAULT_PROPERTY_NAMES[index];
+    return DEFAULT_PROPERTY_DETAILS[index].name;
   }
   else
   {
@@ -351,7 +336,7 @@ Property::Index ActiveConstraintBase::GetDefaultPropertyIndex( const std::string
   Property::Index index = Property::INVALID_INDEX;
 
   // Only one name to compare with...
-  if( 0 == strcmp( name.c_str(), DEFAULT_PROPERTY_NAMES[0] ) ) // dont want to convert rhs to string
+  if( 0 == strcmp( name.c_str(), DEFAULT_PROPERTY_DETAILS[0].name ) ) // Don't want to convert rhs to string
   {
     index = 0;
   }
@@ -361,35 +346,33 @@ Property::Index ActiveConstraintBase::GetDefaultPropertyIndex( const std::string
 
 bool ActiveConstraintBase::IsDefaultPropertyWritable( Property::Index index ) const
 {
-  return true; // All default properties are currently writable
+  return DEFAULT_PROPERTY_DETAILS[ index ].writable;
 }
 
 bool ActiveConstraintBase::IsDefaultPropertyAnimatable( Property::Index index ) const
 {
-  return true; // All default properties are currently animatable
+  return DEFAULT_PROPERTY_DETAILS[ index ].animatable;
 }
 
 bool ActiveConstraintBase::IsDefaultPropertyAConstraintInput( Property::Index index ) const
 {
-  return true; // All default properties can currently be used as a constraint input
+  return DEFAULT_PROPERTY_DETAILS[ index ].constraintInput;
 }
 
 Property::Type ActiveConstraintBase::GetDefaultPropertyType( Property::Index index ) const
 {
   if ( ( index >= 0 ) && ( index < DEFAULT_PROPERTY_COUNT ) )
   {
-    return DEFAULT_PROPERTY_TYPES[index];
+    return DEFAULT_PROPERTY_DETAILS[index].type;
   }
-  else
-  {
-    // Index out-of-range
-    return Property::NONE;
-  }
+
+  // Index out-of-range
+  return Property::NONE;
 }
 
 void ActiveConstraintBase::SetDefaultProperty( Property::Index index, const Property::Value& propertyValue )
 {
-  if( Dali::ActiveConstraint::WEIGHT == index )
+  if( Dali::ActiveConstraint::Property::WEIGHT == index )
   {
     SetWeight( propertyValue.Get<float>() );
   }
@@ -399,7 +382,7 @@ Property::Value ActiveConstraintBase::GetDefaultProperty( Property::Index index 
 {
   Property::Value value;
 
-  if( Dali::ActiveConstraint::WEIGHT == index )
+  if( Dali::ActiveConstraint::Property::WEIGHT == index )
   {
     value = GetCurrentWeight();
   }
@@ -438,19 +421,19 @@ const PropertyInputImpl* ActiveConstraintBase::GetSceneObjectInputProperty( Prop
   return &mSceneGraphConstraint->mWeight;
 }
 
-void ActiveConstraintBase::SceneObjectAdded( ProxyObject& proxy )
+void ActiveConstraintBase::SceneObjectAdded( Object& object )
 {
   // Should not be getting callbacks when mSources has been cleared
    DALI_ASSERT_DEBUG( mSources.size() == mSourceCount );
 
   if ( NULL == mSceneGraphConstraint &&
-       mTargetProxy )
+       mTargetObject )
   {
     ConnectConstraint();
   }
 }
 
-void ActiveConstraintBase::SceneObjectRemoved( ProxyObject& proxy )
+void ActiveConstraintBase::SceneObjectRemoved( Object& object )
 {
   // Notify base class that the scene-graph constraint is being removed
   OnSceneObjectRemove();
@@ -460,7 +443,7 @@ void ActiveConstraintBase::SceneObjectRemoved( ProxyObject& proxy )
     // Preserve the previous weight
     mOffstageWeight = mSceneGraphConstraint->GetWeight( mEventToUpdate.GetEventBufferIndex() );
 
-    const SceneGraph::PropertyOwner* propertyOwner = mTargetProxy ? mTargetProxy->GetSceneObject() : NULL;
+    const SceneGraph::PropertyOwner* propertyOwner = mTargetObject ? mTargetObject->GetSceneObject() : NULL;
 
     if( propertyOwner )
     {
@@ -473,41 +456,41 @@ void ActiveConstraintBase::SceneObjectRemoved( ProxyObject& proxy )
   }
 }
 
-void ActiveConstraintBase::ProxyDestroyed( ProxyObject& proxy )
+void ActiveConstraintBase::ObjectDestroyed( Object& object )
 {
-  // Remove proxy pointer from observation set
-  ProxyObjectIter iter = std::find( mObservedProxies.Begin(), mObservedProxies.End(), &proxy );
-  DALI_ASSERT_DEBUG( mObservedProxies.End() != iter );
-  mObservedProxies.Erase( iter );
+  // Remove object pointer from observation set
+  ObjectIter iter = std::find( mObservedObjects.Begin(), mObservedObjects.End(), &object );
+  DALI_ASSERT_DEBUG( mObservedObjects.End() != iter );
+  mObservedObjects.Erase( iter );
 
-  // Stop observing the remaining proxies
+  // Stop observing the remaining objects
   StopObservation();
 
-  // Discard all proxy & scene-graph pointers
+  // Discard all object & scene-graph pointers
   mSceneGraphConstraint = NULL;
-  mTargetProxy = NULL;
+  mTargetObject = NULL;
   mSources.clear();
 }
 
-void ActiveConstraintBase::ObserveProxy( ProxyObject& proxy )
+void ActiveConstraintBase::ObserveObject( Object& object )
 {
-  ProxyObjectIter iter = std::find( mObservedProxies.Begin(), mObservedProxies.End(), &proxy );
-  if ( mObservedProxies.End() == iter )
+  ObjectIter iter = std::find( mObservedObjects.Begin(), mObservedObjects.End(), &object );
+  if ( mObservedObjects.End() == iter )
   {
-    proxy.AddObserver( *this );
-    mObservedProxies.PushBack( &proxy );
+    object.AddObserver( *this );
+    mObservedObjects.PushBack( &object );
   }
 }
 
 void ActiveConstraintBase::StopObservation()
 {
-  const ProxyObjectIter end = mObservedProxies.End();
-  for( ProxyObjectIter iter = mObservedProxies.Begin(); iter != end; ++iter )
+  const ObjectIter end = mObservedObjects.End();
+  for( ObjectIter iter = mObservedObjects.Begin(); iter != end; ++iter )
   {
     (*iter)->RemoveObserver( *this );
   }
 
-  mObservedProxies.Clear();
+  mObservedObjects.Clear();
 }
 
 void ActiveConstraintBase::FirstApplyFinished( Object* object )

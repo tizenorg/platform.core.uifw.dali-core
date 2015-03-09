@@ -25,7 +25,7 @@
 #include <dali/public-api/object/type-registry.h>
 #include <dali/internal/event/images/resource-image-impl.h>
 #include <dali/internal/event/images/frame-buffer-image-impl.h>
-#include <dali/internal/event/images/bitmap-image-impl.h>
+#include <dali/internal/event/images/buffer-image-impl.h>
 #include <dali/internal/event/effects/shader-effect-impl.h>
 
 namespace Dali
@@ -67,15 +67,6 @@ const unsigned int DRAW_MODE_TABLE_COUNT = sizeof( DRAW_MODE_TABLE ) / sizeof( D
 
 const StringEnum< Vector3 > ANCHOR_CONSTANT_TABLE[] =
 {
-  { "BACK_TOP_LEFT",          ParentOrigin::BACK_TOP_LEFT          },
-  { "BACK_TOP_CENTER",        ParentOrigin::BACK_TOP_CENTER        },
-  { "BACK_TOP_RIGHT",         ParentOrigin::BACK_TOP_RIGHT         },
-  { "BACK_CENTER_LEFT",       ParentOrigin::BACK_CENTER_LEFT       },
-  { "BACK_CENTER",            ParentOrigin::BACK_CENTER            },
-  { "BACK_CENTER_RIGHT",      ParentOrigin::BACK_CENTER_RIGHT      },
-  { "BACK_BOTTOM_LEFT",       ParentOrigin::BACK_BOTTOM_LEFT       },
-  { "BACK_BOTTOM_CENTER",     ParentOrigin::BACK_BOTTOM_CENTER     },
-  { "BACK_BOTTOM_RIGHT",      ParentOrigin::BACK_BOTTOM_RIGHT      },
   { "TOP_LEFT",               ParentOrigin::TOP_LEFT               },
   { "TOP_CENTER",             ParentOrigin::TOP_CENTER             },
   { "TOP_RIGHT",              ParentOrigin::TOP_RIGHT              },
@@ -85,15 +76,6 @@ const StringEnum< Vector3 > ANCHOR_CONSTANT_TABLE[] =
   { "BOTTOM_LEFT",            ParentOrigin::BOTTOM_LEFT            },
   { "BOTTOM_CENTER",          ParentOrigin::BOTTOM_CENTER          },
   { "BOTTOM_RIGHT",           ParentOrigin::BOTTOM_RIGHT           },
-  { "FRONT_TOP_LEFT",         ParentOrigin::FRONT_TOP_LEFT         },
-  { "FRONT_TOP_CENTER",       ParentOrigin::FRONT_TOP_CENTER       },
-  { "FRONT_TOP_RIGHT",        ParentOrigin::FRONT_TOP_RIGHT        },
-  { "FRONT_CENTER_LEFT",      ParentOrigin::FRONT_CENTER_LEFT      },
-  { "FRONT_CENTER",           ParentOrigin::FRONT_CENTER           },
-  { "FRONT_CENTER_RIGHT",     ParentOrigin::FRONT_CENTER_RIGHT     },
-  { "FRONT_BOTTOM_LEFT",      ParentOrigin::FRONT_BOTTOM_LEFT      },
-  { "FRONT_BOTTOM_CENTER",    ParentOrigin::FRONT_BOTTOM_CENTER    },
-  { "FRONT_BOTTOM_RIGHT",     ParentOrigin::FRONT_BOTTOM_RIGHT     },
 };
 const unsigned int ANCHOR_CONSTANT_TABLE_COUNT = sizeof( ANCHOR_CONSTANT_TABLE ) / sizeof( ANCHOR_CONSTANT_TABLE[0] );
 
@@ -301,11 +283,12 @@ Image NewImage( const Property::Value& map )
     }
 
     field = "pixel-format";
+    Pixel::Format pixelFormat = Pixel::RGBA8888;
     if( map.HasKey(field) )
     {
       DALI_ASSERT_ALWAYS(map.GetValue(field).GetType() == Property::STRING && "Image release-policy property is not a string" );
       std::string s(map.GetValue(field).Get<std::string>());
-      attributes.SetPixelFormat( GetEnumeration< Pixel::Format >( s.c_str(), PIXEL_FORMAT_TABLE, PIXEL_FORMAT_TABLE_COUNT ));
+      pixelFormat = GetEnumeration< Pixel::Format >( s.c_str(), PIXEL_FORMAT_TABLE, PIXEL_FORMAT_TABLE_COUNT );
     }
 
     field = "scaling-mode";
@@ -322,19 +305,19 @@ Image NewImage( const Property::Value& map )
       std::string s(map.GetValue("type").Get<std::string>());
       if("FrameBufferImage" == s)
       {
-        ret = Image( new Internal::FrameBufferImage(attributes.GetWidth(),
-                                                    attributes.GetHeight(),
-                                                    attributes.GetPixelFormat(),
-                                                    releasePolicy) );
+        ret = FrameBufferImage::New(attributes.GetWidth(),
+                                    attributes.GetHeight(),
+                                    pixelFormat,
+                                    releasePolicy);
       }
-      else if("BitmapImage" == s)
+      else if("BufferImage" == s)
       {
-        ret = Image( new Internal::BitmapImage(attributes.GetWidth(),
-                                               attributes.GetHeight(),
-                                               attributes.GetPixelFormat(),
-                                               releasePolicy) );
+        ret = BufferImage::New(attributes.GetWidth(),
+                               attributes.GetHeight(),
+                               pixelFormat,
+                               releasePolicy);
       }
-      else if("Image" == s)
+      else if("ResourceImage" == s)
       {
         ret = ResourceImage::New(filename, attributes, loadPolicy, releasePolicy);
       }
@@ -539,10 +522,12 @@ void CreatePropertyMap( Image image, Property::Map& map )
   {
     std::string imageType( "ResourceImage" );
 
-    // Get Type - cannot use TypeRegistry as Image is not a ProxyObject and thus, not registered
-    if ( BitmapImage::DownCast( image ) )
+    // Get Type - cannot use TypeRegistry as Image is not an Object and thus, not registered
+    BufferImage bufferImage = BufferImage::DownCast( image );
+    if ( bufferImage )
     {
-      imageType = "BitmapImage";
+      imageType = "BufferImage";
+      map[ "pixel-format" ] = GetEnumerationName< Pixel::Format >( bufferImage.GetPixelFormat(), PIXEL_FORMAT_TABLE, PIXEL_FORMAT_TABLE_COUNT );
     }
     else if ( FrameBufferImage::DownCast( image ) )
     {
@@ -559,7 +544,6 @@ void CreatePropertyMap( Image image, Property::Map& map )
       map[ "load-policy" ] = GetEnumerationName< ResourceImage::LoadPolicy >( resourceImage.GetLoadPolicy(), IMAGE_LOAD_POLICY_TABLE, IMAGE_LOAD_POLICY_TABLE_COUNT );
 
       ImageAttributes attributes( resourceImage.GetAttributes() );
-      map[ "pixel-format" ] = GetEnumerationName< Pixel::Format >( attributes.GetPixelFormat(), PIXEL_FORMAT_TABLE, PIXEL_FORMAT_TABLE_COUNT );
       map[ "scaling-mode" ] = GetEnumerationName< ImageAttributes::ScalingMode >( attributes.GetScalingMode(), IMAGE_SCALING_MODE_TABLE, IMAGE_SCALING_MODE_TABLE_COUNT );
     }
 

@@ -58,13 +58,11 @@ dali-shaders.cpp: $(dali_shaders_script) $(dali_shaders_dir)/*.txt
 dali_core_includes = \
         -I../../..
 
-daliShaderbinDir  = ${dataReadWriteDir}/core/shaderbin/
 daliGlyphCacheDir = ${dataReadWriteDir}/glyphcache/
 
 libdali_core_la_CXXFLAGS = -DDALI_COMPILATION \
                            -DDALI_DATA_RW_DIR="\"${daliReadWriteDir}\"" \
                            -DDALI_DATA_RO_DIR="\"${daliReadOnlyDir}\"" \
-                           -DDALI_SHADERBIN_DIR="\"${daliShaderbinDir}\"" \
                            -DDALI_GLYPH_CACHE_DIR="\"${daliGlyphCacheDir}\"" \
                            -DDALI_EMOTICON_DIR="\"${emoticons_dir}\"" \
                            -Werror -Wall -Wfloat-equal \
@@ -72,12 +70,7 @@ libdali_core_la_CXXFLAGS = -DDALI_COMPILATION \
                            $(DALI_CFLAGS)
 
 libdali_core_la_LIBADD = $(DALI_LDFLAGS) \
-                         -lboost_thread \
-                         -lboost_system
-
-# Create an empty shaderbin dir
-install-data-local:
-	$(MKDIR_P) ${DESTDIR}/${daliShaderbinDir}
+                         -lpthread
 
 # Install headers under the correct subdirectories
 platformabstractiondir = $(includedir)/dali/integration-api

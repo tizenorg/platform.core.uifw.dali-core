@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/events/gesture-detector.h>
+#include <dali/public-api/object/property-index-ranges.h>
 #include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
@@ -60,6 +61,23 @@ class DALI_IMPORT_API PanGestureDetector : public GestureDetector
 {
 public:
 
+  /**
+   * @brief An enumeration of properties belonging to the PanGestureDetector class.
+   */
+  struct Property
+  {
+    enum
+    {
+      SCREEN_POSITION = DEFAULT_GESTURE_DETECTOR_PROPERTY_START_INDEX, ///< name "screen-position",     type VECTOR2
+      SCREEN_DISPLACEMENT,                                             ///< name "screen-displacement", type VECTOR2
+      SCREEN_VELOCITY,                                                 ///< name "screen-velocity",     type VECTOR2
+      LOCAL_POSITION,                                                  ///< name "local-position",      type VECTOR2
+      LOCAL_DISPLACEMENT,                                              ///< name "local-displacement",  type VECTOR2
+      LOCAL_VELOCITY,                                                  ///< name "local-velocity",      type VECTOR2
+      PANNING,                                                         ///< name "panning",             type BOOLEAN
+    };
+  };
+
   // Typedefs
   typedef Signal< void ( Actor, const PanGesture& ) > DetectedSignalType; ///< Pan gesture detected signal type
 
@@ -75,17 +93,6 @@ public:
   static const Radian DIRECTION_VERTICAL;   ///< For an up and down pan (-0.5 * PI Radians). Useful for AddDirection().
 
   static const Radian DEFAULT_THRESHOLD;    ///< The default threshold is PI * 0.25 radians (or 45 degrees).
-
-  /// @name Properties
-  /** @{ */
-  static const Property::Index SCREEN_POSITION;       ///< name "screen-position",     type VECTOR2
-  static const Property::Index SCREEN_DISPLACEMENT;   ///< name "screen-displacement", type VECTOR2
-  static const Property::Index SCREEN_VELOCITY;       ///< name "screen-velocity",     type VECTOR2
-  static const Property::Index LOCAL_POSITION;        ///< name "local-position",      type VECTOR2
-  static const Property::Index LOCAL_DISPLACEMENT;    ///< name "local-displacement",  type VECTOR2
-  static const Property::Index LOCAL_VELOCITY;        ///< name "local-velocity",      type VECTOR2
-  static const Property::Index PANNING;               ///< name "panning",             type BOOLEAN
-  /** @} */
 
 public: // Creation & Destruction
 

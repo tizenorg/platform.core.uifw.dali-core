@@ -50,8 +50,7 @@ MeshAttachmentPtr MeshAttachment::New( Stage& stage, const SceneGraph::Node& par
 
 MeshAttachment::MeshAttachment( Stage& stage )
 : RenderableAttachment( stage ),
-  mSceneObject( NULL ),
-  mAffectedByLighting( true )
+  mSceneObject( NULL )
 {
 }
 
@@ -178,19 +177,6 @@ void MeshAttachment::DisconnectMaterial()
   }
 }
 
-void MeshAttachment::SetAffectedByLighting( bool affectedByLighting )
-{
-  // sceneObject is being used in a separate thread; queue a message to set
-  SetAffectedByLightingMessage( mStage->GetUpdateInterface(), *mSceneObject, affectedByLighting );
-
-  mAffectedByLighting = affectedByLighting;
-}
-
-bool MeshAttachment::IsAffectedByLighting()
-{
-  return mAffectedByLighting;
-}
-
 void MeshAttachment::BindBonesToMesh( Internal::ActorPtr rootActor )
 {
   size_t boneIdx = 0;
@@ -290,17 +276,17 @@ MeshAttachment::Connector::~Connector()
   }
 }
 
-void MeshAttachment::Connector::SceneObjectAdded( ProxyObject& proxy )
+void MeshAttachment::Connector::SceneObjectAdded( Object& object )
 {
   ConnectNode();
 }
 
-void MeshAttachment::Connector::SceneObjectRemoved( ProxyObject& proxy )
+void MeshAttachment::Connector::SceneObjectRemoved( Object& object )
 {
   ConnectNode();
 }
 
-void MeshAttachment::Connector::ProxyDestroyed( ProxyObject& proxy )
+void MeshAttachment::Connector::ObjectDestroyed( Object& object )
 {
   mActor = NULL;
 

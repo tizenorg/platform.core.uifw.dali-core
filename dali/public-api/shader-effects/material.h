@@ -19,15 +19,16 @@
  */
 
 // EXTERNAL INCLUDES
-#include <cstddef>  // std::size_t
-#include <string>   // std::string
+#include <cstddef> // std::size_t
+#include <string> // std::string
 
 // INTERNAL INCLUDES
-#include <dali/public-api/actors/blending.h>        // Dali::BlendingMode, Dali::BlendingEquation, Dali::BlendingFactor
-#include <dali/public-api/images/image.h>           // Dali::Image
-#include <dali/public-api/object/handle.h>          // Dali::Handle
+#include <dali/public-api/actors/blending.h> // Dali::BlendingMode, Dali::BlendingEquation, Dali::BlendingFactor
+#include <dali/public-api/images/image.h> // Dali::Image
+#include <dali/public-api/object/handle.h> // Dali::Handle
+#include <dali/public-api/object/property-index-ranges.h> // DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX
 #include <dali/public-api/shader-effects/sampler.h> // Dali::Sampler
-#include <dali/public-api/shader-effects/shader.h>  // Dali::Shader
+#include <dali/public-api/shader-effects/shader.h> // Dali::Shader
 
 namespace Dali
 {

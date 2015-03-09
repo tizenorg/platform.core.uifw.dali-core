@@ -25,6 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/handle.h> // Dali::Handle
 #include <dali/public-api/object/property.h> // Dali::Property::Index
+#include <dali/public-api/object/property-index-ranges.h> // DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX
 
 namespace Dali
 {
@@ -57,7 +58,8 @@ public:
   {
     enum
     {
-      SIZE = DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX, ///< name "size", type UNSIGNED_INT
+      SIZE = DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX, ///< name "size",           type UNSIGNED_INT
+      BUFFER_FORMAT,                                      ///< name "buffer-format",  type MAP
     };
   };
 

@@ -22,9 +22,10 @@
 #include <string> // std::string
 
 // INTERNAL INCLUDES
-#include <dali/public-api/geometry/geometry.h>        // Dali::Geometry
-#include <dali/public-api/object/handle.h>            // Dali::Handle
-#include <dali/public-api/shader-effects/material.h>  // Dali::Material
+#include <dali/public-api/geometry/geometry.h> // Dali::Geometry
+#include <dali/public-api/object/handle.h> // Dali::Handle
+#include <dali/public-api/object/property-index-ranges.h> // DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX
+#include <dali/public-api/shader-effects/material.h> // Dali::Material
 
 namespace Dali
 {
@@ -113,7 +114,7 @@ public:
    *
    * @param [in] pointer A pointer to a newly allocated Renderer
    */
-  explicit DALI_INTERNAL Renderer(Internal::Renderer* pointer);
+  explicit DALI_INTERNAL Renderer( Internal::Renderer* pointer );
 };
 
 } //namespace Dali

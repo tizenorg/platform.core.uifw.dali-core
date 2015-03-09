@@ -24,6 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/handle.h> // Dali::Handle
 #include <dali/public-api/object/property-buffer.h> // Dali::PropertyBuffer
+#include <dali/public-api/object/property-index-ranges.h> // DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX
 
 namespace Dali
 {

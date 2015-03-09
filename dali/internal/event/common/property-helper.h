@@ -47,7 +47,7 @@ struct PropertyDetails
  * The index property is only compiled in for DEBUG_ENABLED builds and allows checking the table index VS the property enum index.
  * DALI_PROPERTY_TABLE_END Forces a run-time check that will happen once.
  */
-#define DALI_PROPERTY_TABLE_BEGIN const Internal::PropertyDetails DEFAULT_PROPERTY_DETAILS[] = {
+#define DALI_PROPERTY_TABLE_BEGIN static const Internal::PropertyDetails DEFAULT_PROPERTY_DETAILS[] = {
 #ifdef DEBUG_ENABLED
 #define DALI_PROPERTY_TABLE_END( startIndex )   }; const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( Internal::PropertyDetails ); \
   struct PROPERTY_CHECK \
@@ -67,7 +67,7 @@ struct PropertyDetails
   }; \
   static PROPERTY_CHECK PROPERTY_CHECK_INSTANCE;
 #else
-#define DALI_PROPERTY_TABLE_END( startIndex )   }; const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( Internal::PropertyDetails );
+#define DALI_PROPERTY_TABLE_END( startIndex )   }; static const int DEFAULT_PROPERTY_COUNT = sizeof( DEFAULT_PROPERTY_DETAILS ) / sizeof( Internal::PropertyDetails );
 #endif
 #ifdef DEBUG_ENABLED
 #define DALI_PROPERTY( text, type, writable, animatable, constraint, index ) { text, Dali::Property::type, writable, animatable, constraint, index },

@@ -1,0 +1,28 @@
+From f1333199783e44ca1ea34ce23a6e333efac29fcd Mon Sep 17 00:00:00 2001
+From: Yoonsang Lee <ysang114.lee@samsung.com>
+Date: Thu, 19 Mar 2015 14:49:52 +0900
+Subject: [PATCH 07/10] Correct comment of Actor::SetKeyboardFocusable()
+
+The default value for SetKeyboardFocusable() is false, not true.
+
+Change-Id: Ia54df8731804f1b3c72b272d3774273eb9a2eb94
+---
+ dali/public-api/actors/actor.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dali/public-api/actors/actor.h b/dali/public-api/actors/actor.h
+index 39ed418..f2864f2 100644
+--- a/dali/public-api/actors/actor.h
++++ b/dali/public-api/actors/actor.h
+@@ -1172,7 +1172,7 @@ public:
+   /**
+    * @brief Sets whether the actor should be focusable by keyboard navigation.
+    *
+-   * The default is true.
++   * The default is false.
+    * @pre The Actor has been initialized.
+    * @param[in] focusable - true if the actor should be focusable by keyboard navigation,
+    * false otherwise.
+-- 
+1.7.9.5
+

@@ -1,0 +1,50 @@
+From 74bdab5ea1978d891c378682a8f4435c3976d69e Mon Sep 17 00:00:00 2001
+From: Xiangyin Ma <x1.ma@samsung.com>
+Date: Wed, 11 Mar 2015 15:12:08 +0000
+Subject: [PATCH 01/10] Atlas: fix the order of allocation and ResourceId
+ query
+
+Change-Id: I81ec538d55beab1b461410593c36bc17e5d3f349
+---
+ dali/internal/event/images/atlas-impl.cpp |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/dali/internal/event/images/atlas-impl.cpp b/dali/internal/event/images/atlas-impl.cpp
+index 9243841..519be32 100644
+--- a/dali/internal/event/images/atlas-impl.cpp
++++ b/dali/internal/event/images/atlas-impl.cpp
+@@ -82,25 +82,23 @@ bool Atlas::Upload( const std::string& url,
+ {
+   bool uploadSuccess( false );
+ 
+-  ResourceId destId = GetResourceId();
++  Integration::BitmapPtr bitmap = LoadBitmap( url );
+ 
+-  if( destId )
++  if( bitmap && Compatible(bitmap->GetPixelFormat(), xOffset + bitmap->GetImageWidth(), yOffset + bitmap->GetImageHeight()) )
+   {
+-    Integration::BitmapPtr bitmap = LoadBitmap( url );
+-
+-    if( bitmap && Compatible(bitmap->GetPixelFormat(), xOffset + bitmap->GetImageWidth(), yOffset + bitmap->GetImageHeight()) )
++    AllocateAtlas();
++    ResourceId destId = GetResourceId();
++    if( destId )
+     {
+-      AllocateAtlas();
+       mResourceClient.UploadBitmap( destId, bitmap, xOffset, yOffset  );
++      uploadSuccess = true;
+ 
+       if( mRecoverContext )
+       {
+         mTiles.PushBack( new Tile(xOffset, yOffset, url) );
+       }
+-      uploadSuccess = true;
+     }
+   }
+-
+   return uploadSuccess;
+ }
+ 
+-- 
+1.7.9.5
+

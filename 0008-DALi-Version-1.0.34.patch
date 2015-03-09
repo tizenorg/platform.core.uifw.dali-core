@@ -1,0 +1,39 @@
+From f3c7162152ea0fb53c7493d48c7da11fe33e76b9 Mon Sep 17 00:00:00 2001
+From: Richard Huang <r.huang@samsung.com>
+Date: Thu, 19 Mar 2015 11:04:09 +0000
+Subject: [PATCH 08/10] DALi Version 1.0.34
+
+Change-Id: Ic3946113acaf81654da6fb9c354cfbd7f2a204ce
+---
+ dali/public-api/dali-core-version.cpp |    2 +-
+ packaging/dali.spec                   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/dali/public-api/dali-core-version.cpp b/dali/public-api/dali-core-version.cpp
+index 633128c..9e60b1b 100644
+--- a/dali/public-api/dali-core-version.cpp
++++ b/dali/public-api/dali-core-version.cpp
+@@ -28,7 +28,7 @@ namespace Dali
+ 
+ const unsigned int CORE_MAJOR_VERSION = 1;
+ const unsigned int CORE_MINOR_VERSION = 0;
+-const unsigned int CORE_MICRO_VERSION = 33;
++const unsigned int CORE_MICRO_VERSION = 34;
+ const char * const CORE_BUILD_DATE    = __DATE__ " " __TIME__;
+ 
+ #ifdef DEBUG_ENABLED
+diff --git a/packaging/dali.spec b/packaging/dali.spec
+index d705681..8deb61d 100644
+--- a/packaging/dali.spec
++++ b/packaging/dali.spec
+@@ -1,6 +1,6 @@
+ Name:       dali
+ Summary:    The OpenGLES Canvas Core Library
+-Version:    1.0.33
++Version:    1.0.34
+ Release:    1
+ Group:      System/Libraries
+ License:    Apache-2.0
+-- 
+1.7.9.5
+

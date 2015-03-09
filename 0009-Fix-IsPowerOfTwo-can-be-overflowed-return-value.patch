@@ -1,0 +1,40 @@
+From 0fe3e68cabbb5fffa162011d41a40d39f5237ebe Mon Sep 17 00:00:00 2001
+From: daemyung jang <dm86.jang@samsung.com>
+Date: Wed, 18 Mar 2015 15:19:25 +0900
+Subject: [PATCH 09/10] Fix IsPowerOfTwo can be overflowed return value
+
+Change-Id: I1ccc0a174dc9164400aee00e48a08f1c8ca33182
+---
+ dali/public-api/math/math-utils.h |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/dali/public-api/math/math-utils.h b/dali/public-api/math/math-utils.h
+index cb56fd5..25a26a7 100644
+--- a/dali/public-api/math/math-utils.h
++++ b/dali/public-api/math/math-utils.h
+@@ -35,10 +35,10 @@ namespace Dali
+  */
+ inline unsigned int NextPowerOfTwo( unsigned int i )
+ {
+-  DALI_ASSERT_DEBUG(i <= 1U << (sizeof(unsigned) * 8 - 1) && "Return type cannot represent the next power of two greater than the argument.");
+-  if(i==0)
++  DALI_ASSERT_DEBUG(i <= 1u << (sizeof(unsigned) * 8 - 1) && "Return type cannot represent the next power of two greater than the argument.");
++  if(i==0u)
+   {
+-    return 1;
++    return 1u;
+   }
+ 
+   i--;
+@@ -59,7 +59,7 @@ inline unsigned int NextPowerOfTwo( unsigned int i )
+  */
+ inline bool IsPowerOfTwo( unsigned int i )
+ {
+-  return (i != 0) && ((i & (i - 1)) == 0);
++  return (i != 0u) && ((i & (i - 1u)) == 0u);
+ }
+ 
+ /**
+-- 
+1.7.9.5
+

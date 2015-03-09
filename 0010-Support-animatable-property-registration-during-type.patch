@@ -1,0 +1,1728 @@
+From 9107c92f146d64856f05e0abe9bf19e395a084c5 Mon Sep 17 00:00:00 2001
+From: Richard Huang <r.huang@samsung.com>
+Date: Mon, 9 Mar 2015 16:08:24 +0000
+Subject: [PATCH 10/10] Support animatable property registration during type
+ registry
+
+Use AnimatablePropertyRegistration or DALI_ANIMATABLE_PROPERTY_REGISTRATION
+to register the animatable property. The animatable propery will be lazy
+registered when it is being accessed.
+
+Change-Id: Idcbf5a55a0d288fe8937a63db1fb087fb968124d
+---
+ automated-tests/src/dali/utc-Dali-TypeRegistry.cpp |  111 ++++-
+ dali/internal/event/actors/actor-impl.cpp          |    6 +-
+ dali/internal/event/actors/actor-impl.h            |    2 +-
+ dali/internal/event/common/custom-property.h       |  141 ------
+ dali/internal/event/common/object-impl.cpp         |  458 +++++++++++++-------
+ dali/internal/event/common/object-impl.h           |   40 +-
+ dali/internal/event/common/property-metadata.h     |  243 +++++++++++
+ dali/internal/event/common/type-info-impl.cpp      |   24 +-
+ dali/internal/event/common/type-info-impl.h        |    8 +
+ dali/internal/event/common/type-registry-impl.cpp  |   16 +
+ dali/internal/event/common/type-registry-impl.h    |   10 +
+ dali/internal/event/effects/shader-effect-impl.cpp |    6 +-
+ .../event/events/pan-gesture-detector-impl.cpp     |    2 +-
+ .../event/object/custom-object-internal.cpp        |    2 +-
+ dali/public-api/object/handle.cpp                  |    4 +-
+ dali/public-api/object/handle.h                    |    6 +-
+ dali/public-api/object/property-index-ranges.h     |    4 +
+ dali/public-api/object/type-registry-helper.h      |    7 +
+ dali/public-api/object/type-registry.cpp           |    7 +
+ dali/public-api/object/type-registry.h             |   24 +
+ 20 files changed, 790 insertions(+), 331 deletions(-)
+ delete mode 100644 dali/internal/event/common/custom-property.h
+ create mode 100644 dali/internal/event/common/property-metadata.h
+
+diff --git a/automated-tests/src/dali/utc-Dali-TypeRegistry.cpp b/automated-tests/src/dali/utc-Dali-TypeRegistry.cpp
+index 534b00a..8120663 100644
+--- a/automated-tests/src/dali/utc-Dali-TypeRegistry.cpp
++++ b/automated-tests/src/dali/utc-Dali-TypeRegistry.cpp
+@@ -733,8 +733,6 @@ int UtcDaliTypeRegistryCustomSignalFailure(void)
+   END_TEST;
+ }
+ 
+-
+-
+ int UtcDaliTypeRegistryInitFunctions(void)
+ {
+   TestApplication application;
+@@ -748,8 +746,6 @@ int UtcDaliTypeRegistryInitFunctions(void)
+ }
+ 
+ 
+-
+-
+ int UtcDaliTypeRegistryNameInitFunctions(void)
+ {
+   TestApplication application;
+@@ -821,13 +817,42 @@ int UtcDaliPropertyRegistration(void)
+   typeInfo.GetPropertyIndices( indices );
+   DALI_TEST_EQUALS( indices.size(), 1u, TEST_LOCATION );
+ 
+-  // Ensure indices returned from actor and customActor differ by two
++  // Register animatable property
++  std::string animatablePropertyName( "animatable-prop-1" );
++  int animatablePropertyIndex( ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX );
++  Property::Type animatablePropertyType( Property::FLOAT );
++  AnimatablePropertyRegistration animatableProperty1( customType1, animatablePropertyName, animatablePropertyIndex, animatablePropertyType );
++
++  // Check property count after registration
++  DALI_TEST_EQUALS( customPropertyCount + 1u, customActor.GetPropertyCount(), TEST_LOCATION );
++
++  // Set the animatable property value
++  customActor.SetProperty( animatablePropertyIndex, 25.0f );
++
++  // Render and notify
++  application.SendNotification();
++  application.Render();
++
++  // Check the animatable property value
++  DALI_TEST_EQUALS( customActor.GetProperty< float >( animatablePropertyIndex ), 25.0f, TEST_LOCATION );
++
++  // Check the animatable property name
++  DALI_TEST_EQUALS( customActor.GetPropertyName( animatablePropertyIndex ), animatablePropertyName, TEST_LOCATION );
++//  DALI_TEST_EQUALS( typeInfo.GetPropertyName( animatablePropertyIndex ), animatablePropertyName, TEST_LOCATION );
++
++  // Check the animatable property index
++  DALI_TEST_EQUALS( customActor.GetPropertyIndex( animatablePropertyName ), animatablePropertyIndex, TEST_LOCATION );
++
++  // Check the animatable property type
++  DALI_TEST_EQUALS( customActor.GetPropertyType( animatablePropertyIndex ), animatablePropertyType, TEST_LOCATION );
++
++  // Ensure indices returned from actor and customActor differ by three
+   Actor actor = Actor::New();
+   actor.GetPropertyIndices( indices );
+   unsigned int actorIndices = indices.size();
+   customActor.GetPropertyIndices( indices );
+   unsigned int customActorIndices = indices.size();
+-  DALI_TEST_EQUALS( actorIndices + 2u, customActorIndices, TEST_LOCATION ); // Custom property + registered property
++  DALI_TEST_EQUALS( actorIndices + 3u, customActorIndices, TEST_LOCATION ); // Custom property + registered property
+   END_TEST;
+ }
+ 
+@@ -857,6 +882,28 @@ int UtcDaliPropertyRegistrationIndexOutOfBounds(void)
+   {
+     DALI_TEST_ASSERT( e, "( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX )", TEST_LOCATION );
+   }
++
++  // Attempt to register an animatable property type out-of-bounds index (less than)
++  try
++  {
++    AnimatablePropertyRegistration property1( customType1, "anim-prop-name", ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX - 1, Property::BOOLEAN );
++    tet_result( TET_FAIL );
++  }
++  catch ( DaliException& e )
++  {
++    DALI_TEST_ASSERT( e, "( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX )", TEST_LOCATION );
++  }
++
++  // Attempt to register an animatable property type out-of-bounds index (greater than)
++  try
++  {
++    AnimatablePropertyRegistration property1( customType1, "anim-prop-name", ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX + 1, Property::BOOLEAN );
++    tet_result( TET_FAIL );
++  }
++  catch ( DaliException& e )
++  {
++    DALI_TEST_ASSERT( e, "( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX )", TEST_LOCATION );
++  }
+   END_TEST;
+ }
+ 
+@@ -906,6 +953,21 @@ int UtcDaliPropertyRegistrationAddSameIndex(void)
+   {
+     DALI_TEST_ASSERT( e, "! \"Property index already added", TEST_LOCATION );
+   }
++
++  int animatablePropertyIndex = ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX + 100;
++
++  // Add one property with a valid property index
++  AnimatablePropertyRegistration property3( customType1, "anim-prop-name", animatablePropertyIndex, Property::BOOLEAN );
++
++  // Attempt to add another property with the same index
++  try
++  {
++    AnimatablePropertyRegistration property4( customType1, "anim-prop-name-2", animatablePropertyIndex, Property::BOOLEAN );
++  }
++  catch ( DaliException& e )
++  {
++    DALI_TEST_ASSERT( e, "! \"Property index already added", TEST_LOCATION );
++  }
+   END_TEST;
+ }
+ 
+@@ -937,10 +999,14 @@ int UtcDaliPropertyRegistrationPropertyAnimatable(void)
+ {
+   TestApplication application;
+   int propertyIndex = PROPERTY_REGISTRATION_START_INDEX + 400;
++  int animatablePropertyIndex = ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX + 400;
+ 
+   // These properties are not animatable
+   PropertyRegistration property1( customType1, "prop-name", propertyIndex, Property::BOOLEAN, &SetProperty, &GetProperty );
+ 
++  // These properties are animatable
++  AnimatablePropertyRegistration property2( customType1, "anim-prop-name", animatablePropertyIndex, Property::BOOLEAN );
++
+   // Create custom-actor
+   TypeInfo typeInfo = TypeRegistry::Get().GetTypeInfo( typeid(MyTestCustomActor) );
+   DALI_TEST_CHECK( typeInfo );
+@@ -951,6 +1017,17 @@ int UtcDaliPropertyRegistrationPropertyAnimatable(void)
+ 
+   // Check if animatable
+   DALI_TEST_CHECK( ! customActor.IsPropertyAnimatable( propertyIndex ) );
++  DALI_TEST_CHECK( customActor.IsPropertyAnimatable( animatablePropertyIndex ) );
++
++  // Create another instance of custom-actor
++  BaseHandle handle2 = typeInfo.CreateInstance();
++  DALI_TEST_CHECK( handle2 );
++  Actor customActor2 = Actor::DownCast( handle2 );
++  DALI_TEST_CHECK( customActor2 );
++
++  // Check if animatable
++  DALI_TEST_CHECK( ! customActor2.IsPropertyAnimatable( propertyIndex ) );
++  DALI_TEST_CHECK( customActor2.IsPropertyAnimatable( animatablePropertyIndex ) );
+   END_TEST;
+ }
+ 
+@@ -958,6 +1035,7 @@ int UtcDaliPropertyRegistrationInvalidGetAndSet(void)
+ {
+   TestApplication application;
+   int propertyIndex = PROPERTY_REGISTRATION_START_INDEX + 2000;
++  int animatablePropertyIndex = ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX + 2000;
+ 
+   // Create custom-actor
+   TypeInfo typeInfo = TypeRegistry::Get().GetTypeInfo( typeid(MyTestCustomActor) );
+@@ -978,6 +1056,16 @@ int UtcDaliPropertyRegistrationInvalidGetAndSet(void)
+     DALI_TEST_ASSERT( e, "! \"Cannot find property index", TEST_LOCATION );
+   }
+ 
++  try
++  {
++    customActor.SetProperty( animatablePropertyIndex, true );
++    tet_result( TET_FAIL );
++  }
++  catch ( DaliException& e )
++  {
++    DALI_TEST_ASSERT( e, "! \"Cannot find property index", TEST_LOCATION );
++  }
++
+   // Try to get an index that hasn't been added
+   try
+   {
+@@ -988,11 +1076,20 @@ int UtcDaliPropertyRegistrationInvalidGetAndSet(void)
+   {
+     DALI_TEST_ASSERT( e, "! \"Cannot find property index", TEST_LOCATION );
+   }
++
++  try
++  {
++    (void) customActor.GetProperty< bool >( animatablePropertyIndex );
++    tet_result( TET_FAIL );
++  }
++  catch ( DaliException& e )
++  {
++    DALI_TEST_ASSERT( e, "! \"Cannot find property index", TEST_LOCATION );
++  }
+   END_TEST;
+ }
+ 
+ 
+-
+ int UtcDaliLongPressGestureDetectorTypeRegistry(void)
+ {
+   TestApplication application;
+diff --git a/dali/internal/event/actors/actor-impl.cpp b/dali/internal/event/actors/actor-impl.cpp
+index 5daf60f..e6e62cd 100644
+--- a/dali/internal/event/actors/actor-impl.cpp
++++ b/dali/internal/event/actors/actor-impl.cpp
+@@ -2572,7 +2572,7 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
+ }
+ 
+ // TODO: This method needs to be removed
+-void Actor::SetSceneGraphProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value )
++void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata& entry, const Property::Value& value )
+ {
+   OnPropertySet(index, value);
+ 
+@@ -2996,7 +2996,7 @@ const PropertyBase* Actor::GetSceneObjectAnimatableProperty( Property::Index ind
+ 
+   if ( static_cast<unsigned int>(index) >= DEFAULT_PROPERTY_MAX_COUNT )
+   {
+-    CustomProperty* custom = FindCustomProperty( index );
++    CustomPropertyMetadata* custom = FindCustomProperty( index );
+     DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
+ 
+     property = custom->GetSceneGraphProperty();
+@@ -3101,7 +3101,7 @@ const PropertyInputImpl* Actor::GetSceneObjectInputProperty( Property::Index ind
+ 
+   if ( index >= DEFAULT_PROPERTY_MAX_COUNT )
+   {
+-    CustomProperty* custom = FindCustomProperty( index );
++    CustomPropertyMetadata* custom = FindCustomProperty( index );
+     DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
+     property = custom->GetSceneGraphProperty();
+   }
+diff --git a/dali/internal/event/actors/actor-impl.h b/dali/internal/event/actors/actor-impl.h
+index d6a17db..6cf654c 100644
+--- a/dali/internal/event/actors/actor-impl.h
++++ b/dali/internal/event/actors/actor-impl.h
+@@ -1193,7 +1193,7 @@ public: // Default property extensions from Object
+   /**
+    * @copydoc Dali::Internal::Object::SetSceneGraphProperty()
+    */
+-  virtual void SetSceneGraphProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value );
++  virtual void SetSceneGraphProperty( Property::Index index, const PropertyMetadata& entry, const Property::Value& value );
+ 
+   /**
+    * @copydoc Dali::Internal::Object::GetDefaultProperty()
+diff --git a/dali/internal/event/common/custom-property.h b/dali/internal/event/common/custom-property.h
+deleted file mode 100644
+index 9b2a188..0000000
+--- a/dali/internal/event/common/custom-property.h
++++ /dev/null
+@@ -1,141 +0,0 @@
+-#ifndef __DALI_INTERNAL_SCENE_GRAPH_CUSTOM_PROPERTY_H__
+-#define __DALI_INTERNAL_SCENE_GRAPH_CUSTOM_PROPERTY_H__
+-
+-/*
+- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- * http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- *
+- */
+-
+-// EXTERNAL INCLUDES
+-#include <algorithm>
+-#include <utility>
+-
+-// INTERNAL INCLUDES
+-#include <dali/public-api/common/constants.h>
+-#include <dali/public-api/object/property.h>
+-
+-namespace Dali
+-{
+-
+-namespace Internal
+-{
+-
+-namespace SceneGraph
+-{
+-class PropertyBase;
+-}
+-
+-/**
+- * An entry in a scene-graph property lookup.
+- * The type field should be queried, before accessing the scene-graph property:
+- *
+- * @code
+- * void Example(PropertyEntry entry)
+- * {
+- *   if (entry.type == Property::VECTOR3)
+- *   {
+- *     SceneGraph::AnimatableProperty<Vector3>* property = dynamic_cast< SceneGraph::AnimatableProperty<Vector3>* >( entry.property );
+- *     ...
+- *   }
+- * @endcode
+- *
+- */
+-class CustomProperty
+-{
+-public:
+-
+-  /**
+-   * Constructor for scene graph based properties
+-   * @param [in] newName The name of the custom property.
+-   * @param [in] newType The type ID of the custom property.
+-   * @param [in] newProperty A pointer to the scene-graph owned property.
+-   */
+-  CustomProperty( const std::string& newName,
+-                  Property::Type newType,
+-                  const SceneGraph::PropertyBase* newProperty)
+-  : name(newName),
+-    type(newType),
+-    value(), // value is held by newProperty
+-    mProperty(newProperty),
+-    mAccessMode(Property::ANIMATABLE)
+-  {
+-    DALI_ASSERT_DEBUG(mProperty && "Uninitialized scenegraph property") ;
+-  }
+-
+-  /**
+-   * Constructor for event side only properties
+-   * @param [in] newName The name of the custom property.
+-   * @param [in] newIndex The index of the custom property.
+-   * @param [in] newType The type ID of the custom property.
+-   * @param [in] newProperty A pointer to the scene-graph owned property.
+-   */
+-  CustomProperty( const std::string& newName,
+-                  Property::Value newValue,
+-                  Property::AccessMode accessMode )
+-  : name(newName),
+-    type(newValue.GetType()),
+-    value(newValue),
+-    mProperty(NULL),
+-    mAccessMode(accessMode)
+-  {
+-    DALI_ASSERT_DEBUG(accessMode != Property::ANIMATABLE && "Animatable must have scenegraph property") ;
+-  }
+-
+-  /**
+-   * @return true if the property is animatable (i.e. if its a scene graph property)
+-   */
+-  bool IsAnimatable(void) const
+-  {
+-    return NULL != mProperty;
+-  }
+-
+-  /**
+-   * @return true if the property can be written to
+-   */
+-  bool IsWritable(void) const
+-  {
+-    return (mAccessMode == Property::ANIMATABLE) || (mAccessMode == Property::READ_WRITE) ;
+-  }
+-
+-  /**
+-   * @return the scene graph property
+-   */
+-  const SceneGraph::PropertyBase* GetSceneGraphProperty() const
+-  {
+-    DALI_ASSERT_DEBUG(mProperty && "Accessing uninitialized SceneGraph property") ;
+-    return mProperty;
+-  }
+-
+-  std::string name;       ///< The name of the property
+-  Property::Type type;    ///< The type of the property
+-  Property::Value value;  ///< The property value for a non animatable and custom property
+-
+-private:
+-
+-  // Not implemented
+-  CustomProperty();
+-  CustomProperty( const CustomProperty& );
+-  CustomProperty& operator=( const CustomProperty& );
+-
+-private:
+-  const SceneGraph::PropertyBase* mProperty; ///< A pointer to a scene-graph property; should not be modified from actor-thread.
+-  Property::AccessMode mAccessMode; ///< The mode of the property
+-};
+-
+-} // namespace Internal
+-
+-} // namespace Dali
+-
+-#endif // __DALI_INTERNAL_SCENE_GRAPH_CUSTOM_PROPERTY_H__
+diff --git a/dali/internal/event/common/object-impl.cpp b/dali/internal/event/common/object-impl.cpp
+index d449702..edd2db9 100644
+--- a/dali/internal/event/common/object-impl.cpp
++++ b/dali/internal/event/common/object-impl.cpp
+@@ -172,7 +172,8 @@ std::string Object::GetPropertyName( Property::Index index ) const
+     return GetDefaultPropertyName( index );
+   }
+ 
+-  if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
++  if ( ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
++    || ( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) ) )
+   {
+     const TypeInfo* typeInfo( GetTypeInfo() );
+     if ( typeInfo )
+@@ -185,7 +186,7 @@ std::string Object::GetPropertyName( Property::Index index ) const
+     }
+   }
+ 
+-  CustomProperty* custom = FindCustomProperty( index );
++  CustomPropertyMetadata* custom = FindCustomProperty( index );
+   if( custom )
+   {
+     return custom->name;
+@@ -193,26 +194,39 @@ std::string Object::GetPropertyName( Property::Index index ) const
+   return "";
+ }
+ 
+-Property::Index Object::GetPropertyIndex(const std::string& name) const
++Property::Index Object::GetPropertyIndex(const std::string& name)
+ {
+   Property::Index index = GetDefaultPropertyIndex( name );
+ 
+-  if ( index == Property::INVALID_INDEX )
++  if(index == Property::INVALID_INDEX)
+   {
+     const TypeInfo* typeInfo( GetTypeInfo() );
+     if ( typeInfo )
+     {
+       index = typeInfo->GetPropertyIndex( name );
++      if ( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) )
++      {
++        // check whether the animatable property is registered already, if not then register one.
++        AnimatablePropertyMetadata* animatableProperty = FindAnimatableProperty( index );
++        if(!animatableProperty)
++        {
++          const TypeInfo* typeInfo( GetTypeInfo() );
++          if (typeInfo)
++          {
++            index = RegisterSceneGraphProperty(typeInfo->GetPropertyName(index), index, Property::Value(typeInfo->GetPropertyType(index)));
++          }
++        }
++      }
+     }
+   }
+ 
+-  if( ( index == Property::INVALID_INDEX )&&( mCustomProperties.Count() > 0 ) )
++  if( (index == Property::INVALID_INDEX)&&( mCustomProperties.Count() > 0 ) )
+   {
+     Property::Index count = PROPERTY_CUSTOM_START_INDEX;
+-    const CustomPropertyLookup::ConstIterator end = mCustomProperties.End();
+-    for( CustomPropertyLookup::ConstIterator iter = mCustomProperties.Begin(); iter != end; ++iter, ++count )
++    const PropertyMetadataLookup::ConstIterator end = mCustomProperties.End();
++    for( PropertyMetadataLookup::ConstIterator iter = mCustomProperties.Begin(); iter != end; ++iter, ++count )
+     {
+-      CustomProperty* custom = *iter;
++      CustomPropertyMetadata* custom = static_cast<CustomPropertyMetadata*>(*iter);
+       if ( custom->name == name )
+       {
+         index = count;
+@@ -228,77 +242,104 @@ bool Object::IsPropertyWritable( Property::Index index ) const
+ {
+   DALI_ASSERT_ALWAYS(index > Property::INVALID_INDEX && "Property index is out of bounds");
+ 
++  bool writable = false;
++
+   if ( index < DEFAULT_PROPERTY_MAX_COUNT )
+   {
+-    return IsDefaultPropertyWritable( index );
++    writable = IsDefaultPropertyWritable( index );
+   }
+-
+-  if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
++  else if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
+   {
+     const TypeInfo* typeInfo( GetTypeInfo() );
+     if ( typeInfo )
+     {
+-      return typeInfo->IsPropertyWritable( index );
++      writable = typeInfo->IsPropertyWritable( index );
+     }
+     else
+     {
+       DALI_ASSERT_ALWAYS( ! "Invalid property index" );
+     }
+   }
+-
+-  CustomProperty* custom = FindCustomProperty( index );
+-  if( custom )
++  else if ( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) )
+   {
+-    return custom->IsWritable();
++    // Type Registry scene-graph properties are writable.
++    writable = true;
+   }
+-  return false;
++  else
++  {
++    CustomPropertyMetadata* custom = FindCustomProperty( index );
++    if( custom )
++    {
++      writable = custom->IsWritable();
++    }
++  }
++
++  return writable;
+ }
+ 
+ bool Object::IsPropertyAnimatable( Property::Index index ) const
+ {
+   DALI_ASSERT_ALWAYS(index > Property::INVALID_INDEX && "Property index is out of bounds");
+ 
++  bool animatable = false;
++
+   if ( index < DEFAULT_PROPERTY_MAX_COUNT )
+   {
+-    return IsDefaultPropertyAnimatable( index );
++    animatable = IsDefaultPropertyAnimatable( index );
+   }
+-
+-  if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
++  else if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
+   {
+     // Type Registry event-thread only properties are not animatable.
+-    return false;
++    animatable = false;
+   }
+-
+-  CustomProperty* custom = FindCustomProperty( index );
+-  if( custom )
++  else if ( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) )
++  {
++    // Type Registry scene-graph properties are animatable.
++    animatable = true;
++  }
++  else
+   {
+-    return custom->IsAnimatable();
++    CustomPropertyMetadata* custom = FindCustomProperty( index );
++    if( custom )
++    {
++      animatable = custom->IsAnimatable();
++    }
+   }
+-  return false;
++
++  return animatable;
+ }
+ 
+ bool Object::IsPropertyAConstraintInput( Property::Index index ) const
+ {
+   DALI_ASSERT_ALWAYS(index > Property::INVALID_INDEX && "Property index is out of bounds");
+ 
++  bool isConstraintInput = false;
++
+   if ( index < DEFAULT_PROPERTY_MAX_COUNT )
+   {
+-    return IsDefaultPropertyAConstraintInput( index );
++    isConstraintInput = IsDefaultPropertyAConstraintInput( index );
+   }
+-
+-  if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
++  else if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
+   {
+     // Type Registry event-thread only properties cannot be used as an input to a constraint.
+-    return false;
++    isConstraintInput = false;
+   }
+-
+-  CustomProperty* custom = FindCustomProperty( index );
+-  if( custom )
++  else if ( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) )
+   {
+-    // ... custom properties can be used as input to a constraint.
+-    return true;
++    // scene graph properties can be used as input to a constraint.
++    isConstraintInput = true;
+   }
+-  return false;
++  else
++  {
++    CustomPropertyMetadata* custom = FindCustomProperty( index );
++    if( custom )
++    {
++      // ... custom properties can be used as input to a constraint.
++      isConstraintInput = true;
++    }
++  }
++
++  return isConstraintInput;
+ }
+ 
+ Property::Type Object::GetPropertyType( Property::Index index ) const
+@@ -310,7 +351,8 @@ Property::Type Object::GetPropertyType( Property::Index index ) const
+     return GetDefaultPropertyType( index );
+   }
+ 
+-  if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
++  if ( ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
++    || ( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) ) )
+   {
+     const TypeInfo* typeInfo( GetTypeInfo() );
+     if ( typeInfo )
+@@ -323,7 +365,7 @@ Property::Type Object::GetPropertyType( Property::Index index ) const
+     }
+   }
+ 
+-  CustomProperty* custom = FindCustomProperty( index );
++  CustomPropertyMetadata* custom = FindCustomProperty( index );
+   if( custom )
+   {
+     return custom->type;
+@@ -348,28 +390,55 @@ void Object::SetProperty( Property::Index index, const Property::Value& property
+     }
+     else
+     {
+-      DALI_ASSERT_ALWAYS( ! "Cannot find property index" );
++      DALI_LOG_ERROR("Cannot find property index\n");
+     }
+   }
+-  else
++  else if ( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) )
+   {
+-    CustomProperty* custom = FindCustomProperty( index );
+-    DALI_ASSERT_ALWAYS( custom && "Invalid property index" );
+-    if( custom->IsAnimatable() )
++    AnimatablePropertyMetadata* animatableProperty = FindAnimatableProperty( index );
++    if(!animatableProperty)
++    {
++      const TypeInfo* typeInfo( GetTypeInfo() );
++      if (typeInfo && Property::INVALID_INDEX == RegisterSceneGraphProperty(typeInfo->GetPropertyName(index), index, propertyValue))
++      {
++        DALI_LOG_ERROR("Cannot register property\n");
++      }
++      else
++      {
++        DALI_LOG_ERROR("Cannot find property index\n");
++      }
++    }
++    else
+     {
+       // set the scene graph property value
+-      SetSceneGraphProperty( index, *custom, propertyValue );
++      SetSceneGraphProperty( index, *animatableProperty, propertyValue );
++    }
++  }
++  else
++  {
++    CustomPropertyMetadata* custom = FindCustomProperty( index );
++    if( custom )
++    {
++      if( custom->IsAnimatable() )
++      {
++        // set the scene graph property value
++        SetSceneGraphProperty( index, *custom, propertyValue );
++      }
++      else if( custom->IsWritable() )
++      {
++        custom->value = propertyValue;
++        OnPropertySet(index, propertyValue);
++      }
++      // trying to set value on read only property is no-op
+     }
+-    else if( custom->IsWritable() )
++    else
+     {
+-      custom->value = propertyValue;
+-      OnPropertySet(index, propertyValue);
++      DALI_LOG_ERROR("Invalid property index\n");
+     }
+-    // trying to set value on read only property is no-op
+   }
+ }
+ 
+-Property::Value Object::GetProperty(Property::Index index) const
++Property::Value Object::GetProperty(Property::Index index)
+ {
+   DALI_ASSERT_ALWAYS( index > Property::INVALID_INDEX && "Property index is out of bounds" );
+ 
+@@ -388,113 +457,49 @@ Property::Value Object::GetProperty(Property::Index index) const
+     }
+     else
+     {
+-      DALI_ASSERT_ALWAYS( ! "Cannot find property index" );
++      DALI_LOG_ERROR("Cannot find property index\n");
+     }
+   }
+-  else if( mCustomProperties.Count() > 0 )
++  else if ( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) )
+   {
+-    CustomProperty* custom = FindCustomProperty( index );
+-    DALI_ASSERT_ALWAYS( custom && "Invalid property index" );
+-
+-    if( !custom->IsAnimatable() )
+-    {
+-      value = custom->value;
+-    }
+-    else
++    AnimatablePropertyMetadata* animatableProperty = FindAnimatableProperty( index );
++    if(!animatableProperty)
+     {
+-      BufferIndex bufferIndex( Stage::GetCurrent()->GetEventBufferIndex() );
+-
+-      switch ( custom->type )
++      const TypeInfo* typeInfo( GetTypeInfo() );
++      if (typeInfo)
+       {
+-        case Property::BOOLEAN:
+-        {
+-          const AnimatableProperty<bool>* property = dynamic_cast< const AnimatableProperty<bool>* >( custom->GetSceneGraphProperty() );
+-          DALI_ASSERT_DEBUG( NULL != property );
+-
+-          value = (*property)[ bufferIndex ];
+-          break;
+-        }
+-
+-        case Property::FLOAT:
+-        {
+-          const AnimatableProperty<float>* property = dynamic_cast< const AnimatableProperty<float>* >( custom->GetSceneGraphProperty() );
+-          DALI_ASSERT_DEBUG( NULL != property );
+-
+-          value = (*property)[ bufferIndex ];
+-          break;
+-        }
+-
+-        case Property::INTEGER:
++        if(Property::INVALID_INDEX != RegisterSceneGraphProperty(typeInfo->GetPropertyName(index), index, Property::Value(typeInfo->GetPropertyType(index))))
+         {
+-          const AnimatableProperty<int>* property = dynamic_cast< const AnimatableProperty<int>* >( custom->GetSceneGraphProperty() );
+-          DALI_ASSERT_DEBUG( NULL != property );
+-
+-          value = (*property)[ bufferIndex ];
+-          break;
++          value = Property::Value(typeInfo->GetPropertyType(index));
+         }
+-
+-        case Property::VECTOR2:
++        else
+         {
+-          const AnimatableProperty<Vector2>* property = dynamic_cast< const AnimatableProperty<Vector2>* >( custom->GetSceneGraphProperty() );
+-          DALI_ASSERT_DEBUG( NULL != property );
+-
+-          value = (*property)[ bufferIndex ];
+-          break;
++          DALI_LOG_ERROR("Cannot register property\n");
+         }
+-
+-        case Property::VECTOR3:
+-        {
+-          const AnimatableProperty<Vector3>* property = dynamic_cast< const AnimatableProperty<Vector3>* >( custom->GetSceneGraphProperty() );
+-          DALI_ASSERT_DEBUG( NULL != property );
+-
+-          value = (*property)[ bufferIndex ];
+-          break;
+-        }
+-
+-        case Property::VECTOR4:
+-        {
+-          const AnimatableProperty<Vector4>* property = dynamic_cast< const AnimatableProperty<Vector4>* >( custom->GetSceneGraphProperty() );
+-          DALI_ASSERT_DEBUG( NULL != property );
+-
+-          value = (*property)[ bufferIndex ];
+-          break;
+-        }
+-
+-        case Property::MATRIX:
+-        {
+-          const AnimatableProperty<Matrix>* property = dynamic_cast< const AnimatableProperty<Matrix>* >( custom->GetSceneGraphProperty() );
+-          DALI_ASSERT_DEBUG( NULL != property );
+-
+-          value = (*property)[ bufferIndex ];
+-          break;
+-        }
+-
+-        case Property::MATRIX3:
+-        {
+-          const AnimatableProperty<Matrix3>* property = dynamic_cast< const AnimatableProperty<Matrix3>* >( custom->GetSceneGraphProperty() );
+-          DALI_ASSERT_DEBUG( NULL != property );
+-
+-          value = (*property)[ bufferIndex ];
+-          break;
+-        }
+-
+-        case Property::ROTATION:
+-        {
+-          const AnimatableProperty<Quaternion>* property = dynamic_cast< const AnimatableProperty<Quaternion>* >( custom->GetSceneGraphProperty() );
+-          DALI_ASSERT_DEBUG( NULL != property );
+-
+-          value = (*property)[ bufferIndex ];
+-          break;
+-        }
+-
+-        default:
+-        {
+-          DALI_ASSERT_ALWAYS( false && "PropertyType enumeration is out of bounds" );
+-          break;
+-        }
+-      } // switch(type)
+-    } // if animatable
+-
++      }
++      else
++      {
++        DALI_LOG_ERROR("Cannot find property index\n");
++      }
++    }
++    else
++    {
++      // get the animatable property value
++      value = GetPropertyValue( animatableProperty );
++    }
++  }
++  else if(mCustomProperties.Count() > 0)
++  {
++    CustomPropertyMetadata* custom = FindCustomProperty( index );
++    if(custom)
++    {
++      // get the custom property value
++      value = GetPropertyValue( custom );
++    }
++    else
++    {
++      DALI_LOG_ERROR("Invalid property index\n");
++    }
+   } // if custom
+ 
+   return value;
+@@ -519,8 +524,8 @@ void Object::GetPropertyIndices( Property::IndexContainer& indices ) const
+   {
+     indices.reserve( indices.size() + mCustomProperties.Count() );
+ 
+-    CustomPropertyLookup::ConstIterator iter = mCustomProperties.Begin();
+-    const CustomPropertyLookup::ConstIterator endIter = mCustomProperties.End();
++    PropertyMetadataLookup::ConstIterator iter = mCustomProperties.Begin();
++    const PropertyMetadataLookup::ConstIterator endIter = mCustomProperties.End();
+     int i=0;
+     for ( ; iter != endIter; ++iter, ++i )
+     {
+@@ -529,7 +534,7 @@ void Object::GetPropertyIndices( Property::IndexContainer& indices ) const
+   }
+ }
+ 
+-Property::Index Object::RegisterProperty( const std::string& name, const Property::Value& propertyValue)
++Property::Index Object::RegisterSceneGraphProperty(const std::string& name, Property::Index index, const Property::Value& propertyValue)
+ {
+   // Create a new property
+   Dali::Internal::OwnerPointer<PropertyBase> newProperty;
+@@ -611,13 +616,19 @@ Property::Index Object::RegisterProperty( const std::string& name, const Propert
+ 
+   // get the scene property owner from derived class
+   const SceneGraph::PropertyOwner* scenePropertyOwner = GetPropertyOwner();
+-  Property::Index index = PROPERTY_CUSTOM_START_INDEX + mCustomProperties.Count();
+   // we can only pass properties to scene graph side if there is a scene object
+   if( scenePropertyOwner )
+   {
+     // keep a local pointer to the property as the OwnerPointer will pass its copy to the message
+     const PropertyBase* property = newProperty.Get();
+-    mCustomProperties.PushBack( new CustomProperty( name, propertyValue.GetType(), property ) );
++    if(index >= PROPERTY_CUSTOM_START_INDEX)
++    {
++      mCustomProperties.PushBack( new CustomPropertyMetadata( name, propertyValue.GetType(), property ) );
++    }
++    else
++    {
++      mAnimatableProperties.PushBack( new AnimatablePropertyMetadata( propertyValue.GetType(), property ) );
++    }
+ 
+     // queue a message to add the property
+     InstallCustomPropertyMessage( Stage::GetCurrent()->GetUpdateInterface(), *scenePropertyOwner, newProperty.Release() ); // Message takes ownership
+@@ -625,14 +636,19 @@ Property::Index Object::RegisterProperty( const std::string& name, const Propert
+     // notify the derived class (optional) method in case it needs to do some more work on the new property
+     // note! have to use the local pointer as OwnerPointer now points to NULL as it handed over its ownership
+     NotifyScenePropertyInstalled( *property, name, index );
++
++    return index;
+   }
+   else
+   {
+     // property was orphaned and killed so return invalid index
+-    index = Property::INVALID_INDEX;
++    return Property::INVALID_INDEX;
+   }
++}
+ 
+-  return index;
++Property::Index Object::RegisterProperty( const std::string& name, const Property::Value& propertyValue)
++{
++  return RegisterSceneGraphProperty(name, PROPERTY_CUSTOM_START_INDEX + mCustomProperties.Count(), propertyValue);
+ }
+ 
+ Property::Index Object::RegisterProperty( const std::string& name, const Property::Value& propertyValue, Property::AccessMode accessMode)
+@@ -647,7 +663,7 @@ Property::Index Object::RegisterProperty( const std::string& name, const Propert
+   {
+     // Add entry to the property lookup
+     index = PROPERTY_CUSTOM_START_INDEX + mCustomProperties.Count();
+-    mCustomProperties.PushBack( new CustomProperty( name, propertyValue, accessMode ) );
++    mCustomProperties.PushBack( new CustomPropertyMetadata( name, propertyValue, accessMode ) );
+   }
+ 
+   return index;
+@@ -665,7 +681,7 @@ Dali::PropertyNotification Object::AddPropertyNotification(Property::Index index
+     }
+     else if ( mCustomProperties.Count() > 0 )
+     {
+-      CustomProperty* custom = FindCustomProperty( index );
++      CustomPropertyMetadata* custom = FindCustomProperty( index );
+       DALI_ASSERT_ALWAYS( custom && "Invalid property index" );
+       DALI_ASSERT_ALWAYS( custom->IsAnimatable() && "Property notification added to event side only property." );
+     }
+@@ -790,7 +806,115 @@ ActiveConstraintBase* Object::DoApplyConstraint( Constraint& constraint, Dali::H
+   return activeConstraintImpl;
+ }
+ 
+-void Object::SetSceneGraphProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value )
++Property::Value Object::GetPropertyValue( const PropertyMetadata* entry )
++{
++  Property::Value value;
++
++  DALI_ASSERT_ALWAYS( entry && "Invalid property metadata" );
++
++  if( !entry->IsAnimatable() )
++  {
++    value = entry->value;
++  }
++  else
++  {
++    BufferIndex bufferIndex( Stage::GetCurrent()->GetEventBufferIndex() );
++
++    switch ( entry->type )
++    {
++      case Property::BOOLEAN:
++      {
++        const AnimatableProperty<bool>* property = dynamic_cast< const AnimatableProperty<bool>* >( entry->GetSceneGraphProperty() );
++        DALI_ASSERT_DEBUG( NULL != property );
++
++        value = (*property)[ bufferIndex ];
++        break;
++      }
++
++      case Property::FLOAT:
++      {
++        const AnimatableProperty<float>* property = dynamic_cast< const AnimatableProperty<float>* >( entry->GetSceneGraphProperty() );
++        DALI_ASSERT_DEBUG( NULL != property );
++
++        value = (*property)[ bufferIndex ];
++        break;
++      }
++
++      case Property::INTEGER:
++      {
++        const AnimatableProperty<int>* property = dynamic_cast< const AnimatableProperty<int>* >( entry->GetSceneGraphProperty() );
++        DALI_ASSERT_DEBUG( NULL != property );
++
++        value = (*property)[ bufferIndex ];
++        break;
++      }
++
++      case Property::VECTOR2:
++      {
++        const AnimatableProperty<Vector2>* property = dynamic_cast< const AnimatableProperty<Vector2>* >( entry->GetSceneGraphProperty() );
++        DALI_ASSERT_DEBUG( NULL != property );
++
++        value = (*property)[ bufferIndex ];
++        break;
++      }
++
++      case Property::VECTOR3:
++      {
++        const AnimatableProperty<Vector3>* property = dynamic_cast< const AnimatableProperty<Vector3>* >( entry->GetSceneGraphProperty() );
++        DALI_ASSERT_DEBUG( NULL != property );
++
++        value = (*property)[ bufferIndex ];
++        break;
++      }
++
++      case Property::VECTOR4:
++      {
++        const AnimatableProperty<Vector4>* property = dynamic_cast< const AnimatableProperty<Vector4>* >( entry->GetSceneGraphProperty() );
++        DALI_ASSERT_DEBUG( NULL != property );
++
++        value = (*property)[ bufferIndex ];
++        break;
++      }
++
++      case Property::MATRIX:
++      {
++        const AnimatableProperty<Matrix>* property = dynamic_cast< const AnimatableProperty<Matrix>* >( entry->GetSceneGraphProperty() );
++        DALI_ASSERT_DEBUG( NULL != property );
++
++        value = (*property)[ bufferIndex ];
++        break;
++      }
++
++      case Property::MATRIX3:
++      {
++        const AnimatableProperty<Matrix3>* property = dynamic_cast< const AnimatableProperty<Matrix3>* >( entry->GetSceneGraphProperty() );
++        DALI_ASSERT_DEBUG( NULL != property );
++
++        value = (*property)[ bufferIndex ];
++        break;
++      }
++
++      case Property::ROTATION:
++      {
++        const AnimatableProperty<Quaternion>* property = dynamic_cast< const AnimatableProperty<Quaternion>* >( entry->GetSceneGraphProperty() );
++        DALI_ASSERT_DEBUG( NULL != property );
++
++        value = (*property)[ bufferIndex ];
++        break;
++      }
++
++      default:
++      {
++        DALI_ASSERT_ALWAYS( false && "PropertyType enumeration is out of bounds" );
++        break;
++      }
++    } // switch(type)
++  } // if animatable
++
++  return value;
++}
++
++void Object::SetSceneGraphProperty( Property::Index index, const PropertyMetadata& entry, const Property::Value& value )
+ {
+   switch ( entry.type )
+   {
+@@ -1011,15 +1135,29 @@ Object::~Object()
+   delete mPropertyNotifications;
+ }
+ 
+-CustomProperty* Object::FindCustomProperty( Property::Index index ) const
++CustomPropertyMetadata* Object::FindCustomProperty( Property::Index index ) const
+ {
+-  CustomProperty* property( NULL );
++  CustomPropertyMetadata* property( NULL );
+   int arrayIndex = index - PROPERTY_CUSTOM_START_INDEX;
+   if( arrayIndex >= 0 )
+   {
+     if( arrayIndex < (int)mCustomProperties.Count() ) // we can only access the first 2 billion custom properties
+     {
+-      property = mCustomProperties[ arrayIndex ];
++      property = static_cast<CustomPropertyMetadata*>(mCustomProperties[ arrayIndex ]);
++    }
++  }
++  return property;
++}
++
++AnimatablePropertyMetadata* Object::FindAnimatableProperty( Property::Index index ) const
++{
++  AnimatablePropertyMetadata* property( NULL );
++  int arrayIndex = index - ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX;
++  if( arrayIndex >= 0 )
++  {
++    if( arrayIndex < (int)mAnimatableProperties.Count() )
++    {
++      property = static_cast<AnimatablePropertyMetadata*>(mAnimatableProperties[ arrayIndex ]);
+     }
+   }
+   return property;
+diff --git a/dali/internal/event/common/object-impl.h b/dali/internal/event/common/object-impl.h
+index 10983a8..e62d099 100644
+--- a/dali/internal/event/common/object-impl.h
++++ b/dali/internal/event/common/object-impl.h
+@@ -30,8 +30,8 @@
+ #include <dali/public-api/object/property-notification.h>
+ #include <dali/internal/common/owner-container.h>
+ #include <dali/internal/event/common/object-impl.h>
+-#include <dali/internal/event/common/custom-property.h>
+ #include <dali/internal/event/common/property-input-impl.h>
++#include <dali/internal/event/common/property-metadata.h>
+ #include <dali/internal/update/common/property-base.h>
+ 
+ namespace Dali
+@@ -146,7 +146,7 @@ public:
+   /**
+    * @copydoc Dali::Handle::GetPropertyIndex()
+    */
+-  virtual Property::Index GetPropertyIndex( const std::string& name ) const;
++  virtual Property::Index GetPropertyIndex( const std::string& name );
+ 
+   /**
+    * @copydoc Dali::Handle::IsPropertyWritable()
+@@ -176,7 +176,7 @@ public:
+   /**
+    * @copydoc Dali::Handle::GetProperty()
+    */
+-  virtual Property::Value GetProperty( Property::Index index ) const;
++  virtual Property::Value GetProperty( Property::Index index );
+ 
+   /**
+    * @copydoc Dali::Handle::GetPropertyIndices()
+@@ -324,7 +324,14 @@ protected:
+    * @param index
+    * @return pointer to the property
+    */
+-  CustomProperty* FindCustomProperty( Property::Index index ) const;
++  CustomPropertyMetadata* FindCustomProperty( Property::Index index ) const;
++
++  /**
++   * Helper to find animatable property
++   * @param index
++   * @return pointer to the property
++   */
++  AnimatablePropertyMetadata* FindAnimatableProperty( Property::Index index ) const;
+ 
+ private: // Default property extensions for derived classes
+ 
+@@ -452,17 +459,34 @@ private:
+   void RemoveConstraint( ActiveConstraint& constraint, bool isInScenegraph );
+ 
+   /**
++   * Get the value of the property.
++   * @param [in] entry An entry from the property lookup container.
++   * @return The new value of the property.
++   */
++  Property::Value GetPropertyValue( const PropertyMetadata* entry );
++
++  /**
+    * Set the value of scene graph property.
+    * @param [in] index The index of the property.
+-   * @param [in] entry An entry from the CustomPropertyLookup.
++   * @param [in] entry An entry from the property lookup container.
+    * @param [in] value The new value of the property.
+    */
+-  virtual void SetSceneGraphProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value );
++  virtual void SetSceneGraphProperty( Property::Index index, const PropertyMetadata& entry, const Property::Value& value );
++
++  /**
++   * Helper to register a scene-graph property
++   * @param [in] name The name of the property.
++   * @param [in] index The index of the property
++   * @param [in] value The value of the property.
++   * @return The index of the registered property or Property::INVALID_INDEX if registration failed.
++   */
++  Property::Index RegisterSceneGraphProperty(const std::string& name, Property::Index index, const Property::Value& propertyValue);
+ 
+ private:
+ 
+-  typedef OwnerContainer<CustomProperty*> CustomPropertyLookup;
+-  CustomPropertyLookup mCustomProperties; ///< Used for accessing custom Node properties
++  typedef OwnerContainer<PropertyMetadata*> PropertyMetadataLookup;
++  PropertyMetadataLookup mCustomProperties; ///< Used for accessing custom Node properties
++  PropertyMetadataLookup mAnimatableProperties; ///< Used for accessing animatable Node properties
+   mutable TypeInfo const *  mTypeInfo; ///< The type-info for this object, mutable so it can be lazy initialized from const method if it is required
+ 
+   Dali::Vector<Observer*> mObservers;
+diff --git a/dali/internal/event/common/property-metadata.h b/dali/internal/event/common/property-metadata.h
+new file mode 100644
+index 0000000..be416e0
+--- /dev/null
++++ b/dali/internal/event/common/property-metadata.h
+@@ -0,0 +1,243 @@
++#ifndef __DALI_INTERNAL_PROPERTY_METADATA_H__
++#define __DALI_INTERNAL_PROPERTY_METADATA_H__
++
++/*
++ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *
++ */
++
++// EXTERNAL INCLUDES
++#include <algorithm>
++#include <utility>
++
++// INTERNAL INCLUDES
++#include <dali/public-api/common/constants.h>
++#include <dali/public-api/object/property.h>
++
++namespace Dali
++{
++
++namespace Internal
++{
++
++namespace SceneGraph
++{
++class PropertyBase;
++}
++
++/**
++ * An entry in a property metadata lookup.
++ * The type field should be queried, before accessing the scene-graph property:
++ *
++ * @code
++ * void Example(PropertyEntry entry)
++ * {
++ *   if (entry.type == Property::VECTOR3)
++ *   {
++ *     SceneGraph::AnimatableProperty<Vector3>* property = dynamic_cast< SceneGraph::AnimatableProperty<Vector3>* >( entry.property );
++ *     ...
++ *   }
++ * @endcode
++ *
++ */
++class PropertyMetadata
++{
++public:
++
++  /**
++   * Constructor for an uninitalized property metadata
++   */
++  PropertyMetadata()
++  : type(Property::NONE),
++    value(),
++    mProperty(NULL)
++  {
++  }
++
++  /**
++   * Constructor for property metadata
++   * @param [in] newProperty A pointer to the property metadata.
++   */
++  PropertyMetadata(const SceneGraph::PropertyBase* newProperty)
++  : type(Property::NONE),
++    value(), // value is held by newProperty
++    mProperty(newProperty)
++  {
++    DALI_ASSERT_DEBUG(mProperty && "Uninitialized scenegraph property") ;
++  }
++
++  /**
++   * Constructor for property metadata
++   * @param [in] newValue The value of the scene-graph owned property.
++   */
++  PropertyMetadata(Property::Value newValue)
++  : type(newValue.GetType()),
++    value(newValue),
++    mProperty(NULL)
++  {
++  }
++
++  /**
++   * Destructor for property metadata
++   */
++  virtual ~PropertyMetadata()
++  {
++  }
++
++  /**
++   * @return true if the property is animatable (i.e. if its a scene graph property)
++   */
++  bool IsAnimatable(void) const
++  {
++    return NULL != mProperty;
++  }
++
++  /**
++   * @return true if the property can be written to
++   */
++  virtual bool IsWritable(void) const = 0;
++
++  /**
++   * @return the scene graph property
++   */
++  const SceneGraph::PropertyBase* GetSceneGraphProperty() const
++  {
++    DALI_ASSERT_DEBUG(mProperty && "Accessing uninitialized SceneGraph property") ;
++    return mProperty;
++  }
++
++  Property::Type type;    ///< The type of the property
++  Property::Value value;  ///< The property value for a non animatable and custom property
++
++protected:
++
++  // Not implemented
++  PropertyMetadata( const PropertyMetadata& );
++  PropertyMetadata& operator=( const PropertyMetadata& );
++
++  const SceneGraph::PropertyBase* mProperty; ///< A pointer to a scene-graph property; should not be modified from actor-thread.
++};
++
++
++/**
++ * An entry in an animatable property metadata lookup.
++ * The type field should be queried, before accessing the animatable property:
++ */
++class AnimatablePropertyMetadata : public PropertyMetadata
++{
++public:
++
++  /**
++   * Constructor for metadata of animatable property
++   * @param [in] newProperty A pointer to the scene-graph owned property.
++   */
++  AnimatablePropertyMetadata( Property::Type newType,
++                        const SceneGraph::PropertyBase* newProperty )
++  {
++    type = newType;
++    mProperty = newProperty;
++    DALI_ASSERT_DEBUG(mProperty && "Uninitialized scenegraph property") ;
++  }
++
++  /**
++   * Constructor for metadata of animatable property
++   * @param [in] newValue The value of the scene-graph owned property.
++   */
++  AnimatablePropertyMetadata( Property::Value newValue )
++  {
++    type = newValue.GetType();
++    value = newValue;
++  }
++
++  /**
++   * @return true if the property can be written to
++   */
++  virtual bool IsWritable(void) const
++  {
++    return true ;
++  }
++
++private:
++
++  // Not implemented
++  AnimatablePropertyMetadata();
++  AnimatablePropertyMetadata( const AnimatablePropertyMetadata& );
++  AnimatablePropertyMetadata& operator=( const AnimatablePropertyMetadata& );
++};
++
++class CustomPropertyMetadata : public PropertyMetadata
++{
++public:
++
++  /**
++   * Constructor for metadata of scene graph based properties
++   * @param [in] newName The name of the custom property.
++   * @param [in] newType The type ID of the custom property.
++   * @param [in] newProperty A pointer to the scene-graph owned property.
++   */
++  CustomPropertyMetadata( const std::string& newName,
++                  Property::Type newType,
++                  const SceneGraph::PropertyBase* newProperty)
++  : name(newName),
++    mAccessMode(Property::ANIMATABLE)
++  {
++    type = newType;
++    mProperty = newProperty;
++    DALI_ASSERT_DEBUG(mProperty && "Uninitialized scenegraph property") ;
++  }
++
++  /**
++   * Constructor for metadata of event side only properties
++   * @param [in] newName The name of the custom property.
++   * @param [in] newValue The value of the custom property.
++   * @param [in] accessMode The access mode of the custom property (writable, animatable etc).
++   */
++  CustomPropertyMetadata( const std::string& newName,
++                  Property::Value newValue,
++                  Property::AccessMode accessMode )
++  : name(newName),
++    mAccessMode(accessMode)
++  {
++    type = newValue.GetType();
++    value = newValue;
++    DALI_ASSERT_DEBUG(accessMode != Property::ANIMATABLE && "Animatable must have scenegraph property") ;
++  }
++
++  /**
++   * @return true if the property can be written to
++   */
++  virtual bool IsWritable(void) const
++  {
++    return (mAccessMode == Property::ANIMATABLE) || (mAccessMode == Property::READ_WRITE) ;
++  }
++
++  std::string name;       ///< The name of the property
++
++private:
++
++  // Not implemented
++  CustomPropertyMetadata();
++  CustomPropertyMetadata( const CustomPropertyMetadata& );
++  CustomPropertyMetadata& operator=( const CustomPropertyMetadata& );
++
++private:
++  Property::AccessMode mAccessMode; ///< The mode of the property
++};
++
++} // namespace Internal
++
++} // namespace Dali
++
++#endif // __DALI_INTERNAL_PROPERTY_METADATA_H__
+diff --git a/dali/internal/event/common/type-info-impl.cpp b/dali/internal/event/common/type-info-impl.cpp
+index 91e50cf..6f2b62f 100644
+--- a/dali/internal/event/common/type-info-impl.cpp
++++ b/dali/internal/event/common/type-info-impl.cpp
+@@ -347,6 +347,21 @@ void TypeInfo::AddProperty( const std::string& name, Property::Index index, Prop
+   }
+ }
+ 
++void TypeInfo::AddAnimatableProperty( const std::string& name, Property::Index index, Property::Type type )
++{
++  RegisteredPropertyContainer::iterator iter = find_if( mRegisteredProperties.begin(), mRegisteredProperties.end(),
++                                                        PairFinder< Property::Index, RegisteredPropertyPair>(index) );
++
++  if ( iter == mRegisteredProperties.end() )
++  {
++    mRegisteredProperties.push_back( RegisteredPropertyPair( index, RegisteredProperty( type, NULL, NULL, name ) ) );
++  }
++  else
++  {
++    DALI_ASSERT_ALWAYS( ! "Property index already added to Type" );
++  }
++}
++
+ unsigned int TypeInfo::GetPropertyCount() const
+ {
+   unsigned int count( mRegisteredProperties.size() );
+@@ -395,7 +410,14 @@ bool TypeInfo::IsPropertyWritable( Property::Index index ) const
+ 
+   if ( iter != mRegisteredProperties.end() )
+   {
+-    writable = iter->second.setFunc ? true : false;
++    if( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) )
++    {
++      writable = true; // animatable property is writable
++    }
++    else
++    {
++      writable = iter->second.setFunc ? true : false;
++    }
+   }
+   else
+   {
+diff --git a/dali/internal/event/common/type-info-impl.h b/dali/internal/event/common/type-info-impl.h
+index 8233007..b6545a0 100644
+--- a/dali/internal/event/common/type-info-impl.h
++++ b/dali/internal/event/common/type-info-impl.h
+@@ -124,6 +124,14 @@ public:
+   void AddProperty( const std::string& name, Property::Index index, Property::Type type, Dali::TypeInfo::SetPropertyFunction setFunc, Dali::TypeInfo::GetPropertyFunction getFunc );
+ 
+   /**
++   * Adds an animatable property to the type.
++   * @param[in] name The name of the property.
++   * @param[in] index The index of the property
++   * @param[in] type The Property::Type.
++   */
++  void AddAnimatableProperty( const std::string& name, Property::Index index, Property::Type type );
++
++  /**
+    * Do an action on base object
+    * @param [in] object The base object to act upon
+    * @param [in] actionName The name of the desired action
+diff --git a/dali/internal/event/common/type-registry-impl.cpp b/dali/internal/event/common/type-registry-impl.cpp
+index 0cb2d68..23e6cc3 100644
+--- a/dali/internal/event/common/type-registry-impl.cpp
++++ b/dali/internal/event/common/type-registry-impl.cpp
+@@ -211,6 +211,22 @@ bool TypeRegistry::RegisterProperty( TypeRegistration& registered, const std::st
+   return false;
+ }
+ 
++bool TypeRegistry::RegisterAnimatableProperty( TypeRegistration& registered, const std::string& name, Property::Index index, Property::Type type )
++{
++  RegistryMap::iterator iter = mRegistryLut.find( registered.RegisteredName() );
++
++  if( iter != mRegistryLut.end() )
++  {
++    DALI_ASSERT_DEBUG(iter->second);
++
++    GetImplementation(iter->second).AddAnimatableProperty( name, index, type );
++
++    return true;
++  }
++
++  return false;
++}
++
+ bool TypeRegistry::DoActionTo( BaseObject * const object, const std::string &actionName, const std::vector<Property::Value> &properties)
+ {
+   bool done = false;
+diff --git a/dali/internal/event/common/type-registry-impl.h b/dali/internal/event/common/type-registry-impl.h
+index 72e07f7..ce5d64e 100644
+--- a/dali/internal/event/common/type-registry-impl.h
++++ b/dali/internal/event/common/type-registry-impl.h
+@@ -111,6 +111,16 @@ public:
+    */
+   bool RegisterProperty( TypeRegistration& registered, const std::string& name, Property::Index index, Property::Type type, Dali::TypeInfo::SetPropertyFunction setFunc, Dali::TypeInfo::GetPropertyFunction getFunc );
+ 
++  /**
++   * Register a scene graph only property with a type
++   * @param [in] registered TypeRegistration object used to register the type
++   * @param [in] name Property name
++   * @param [in] index Property index
++   * @param [in] type Property type
++   * @return true if registered
++   */
++  bool RegisterAnimatableProperty( TypeRegistration& registered, const std::string& name, Property::Index index, Property::Type type );
++
+   /*
+    * @copydoc Dali::Internal::TypeInfo::DoActionTo
+    * Walks all base types until it finds a doer.
+diff --git a/dali/internal/event/effects/shader-effect-impl.cpp b/dali/internal/event/effects/shader-effect-impl.cpp
+index e73aa5f..b039dfc 100644
+--- a/dali/internal/event/effects/shader-effect-impl.cpp
++++ b/dali/internal/event/effects/shader-effect-impl.cpp
+@@ -595,9 +595,9 @@ const SceneGraph::PropertyOwner* ShaderEffect::GetSceneObject() const
+ 
+ const PropertyBase* ShaderEffect::GetSceneObjectAnimatableProperty( Property::Index index ) const
+ {
+-  CustomProperty* custom = FindCustomProperty( index );
+-  DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
+-  return custom->GetSceneGraphProperty();
++  PropertyMetadata* property = index >= PROPERTY_CUSTOM_START_INDEX ? static_cast<PropertyMetadata*>(FindCustomProperty( index )) : static_cast<PropertyMetadata*>(FindAnimatableProperty( index ));
++  DALI_ASSERT_ALWAYS( property && "Property index is invalid" );
++  return property->GetSceneGraphProperty();
+ }
+ 
+ const PropertyInputImpl* ShaderEffect::GetSceneObjectInputProperty( Property::Index index ) const
+diff --git a/dali/internal/event/events/pan-gesture-detector-impl.cpp b/dali/internal/event/events/pan-gesture-detector-impl.cpp
+index da0ba35..487da4e 100644
+--- a/dali/internal/event/events/pan-gesture-detector-impl.cpp
++++ b/dali/internal/event/events/pan-gesture-detector-impl.cpp
+@@ -533,7 +533,7 @@ const PropertyInputImpl* PanGestureDetector::GetSceneObjectInputProperty( Proper
+ 
+   if ( index >= DEFAULT_PROPERTY_MAX_COUNT )
+   {
+-    CustomProperty* custom = FindCustomProperty( index );
++    CustomPropertyMetadata* custom = FindCustomProperty( index );
+     DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
+     property = custom->GetSceneGraphProperty();
+   }
+diff --git a/dali/internal/event/object/custom-object-internal.cpp b/dali/internal/event/object/custom-object-internal.cpp
+index 8805451..2da75a9 100644
+--- a/dali/internal/event/object/custom-object-internal.cpp
++++ b/dali/internal/event/object/custom-object-internal.cpp
+@@ -48,7 +48,7 @@ const SceneGraph::PropertyOwner* CustomObject::GetSceneObject() const
+ 
+ const PropertyBase* CustomObject::GetSceneObjectAnimatableProperty( Property::Index index ) const
+ {
+-  CustomProperty* custom = FindCustomProperty( index );
++  CustomPropertyMetadata* custom = FindCustomProperty( index );
+   DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
+   return custom->GetSceneGraphProperty();
+ }
+diff --git a/dali/public-api/object/handle.cpp b/dali/public-api/object/handle.cpp
+index 01065b5..c2fed86 100644
+--- a/dali/public-api/object/handle.cpp
++++ b/dali/public-api/object/handle.cpp
+@@ -86,7 +86,7 @@ std::string Handle::GetPropertyName( Property::Index index ) const
+   return GetImplementation(*this).GetPropertyName( index );
+ }
+ 
+-Property::Index Handle::GetPropertyIndex( const std::string& name ) const
++Property::Index Handle::GetPropertyIndex( const std::string& name )
+ {
+   return GetImplementation(*this).GetPropertyIndex( name );
+ }
+@@ -126,7 +126,7 @@ Property::Index Handle::RegisterProperty( const std::string& name, const Propert
+   return GetImplementation(*this).RegisterProperty( name, propertyValue, accessMode );
+ }
+ 
+-Property::Value Handle::GetProperty( Property::Index index ) const
++Property::Value Handle::GetProperty( Property::Index index )
+ {
+   return GetImplementation(*this).GetProperty( index );
+ }
+diff --git a/dali/public-api/object/handle.h b/dali/public-api/object/handle.h
+index 0dd7eb3..fa72c82 100644
+--- a/dali/public-api/object/handle.h
++++ b/dali/public-api/object/handle.h
+@@ -157,7 +157,7 @@ public:
+    * @param [in] name The name of the property.
+    * @return The index of the property, or Property::INVALID_INDEX if no property exists with the given name.
+    */
+-  Property::Index GetPropertyIndex( const std::string& name ) const;
++  Property::Index GetPropertyIndex( const std::string& name );
+ 
+   /**
+    * @brief Query whether a property can be set using SetProperty().
+@@ -255,7 +255,7 @@ public:
+    * @param [in] index The index of the property.
+    * @return The property value.
+    */
+-  Property::Value GetProperty( Property::Index index ) const;
++  Property::Value GetProperty( Property::Index index );
+ 
+   /**
+    * @brief Convenience function for obtaining a property of a known type.
+@@ -265,7 +265,7 @@ public:
+    * @return The property value.
+    */
+   template <typename T>
+-  T GetProperty( Property::Index index ) const
++  T GetProperty( Property::Index index )
+   {
+     Property::Value value = GetProperty(index);
+ 
+diff --git a/dali/public-api/object/property-index-ranges.h b/dali/public-api/object/property-index-ranges.h
+index faabd6f..8c3509e 100644
+--- a/dali/public-api/object/property-index-ranges.h
++++ b/dali/public-api/object/property-index-ranges.h
+@@ -47,6 +47,10 @@ enum PropertyRanges
+   DEFAULT_PROPERTY_MAX_COUNT                    = PROPERTY_REGISTRATION_START_INDEX,           ///< Default Property Range: 0 to 9999999
+ 
+   PROPERTY_REGISTRATION_MAX_INDEX               = 19999999,   ///< The maximum index supported when registering a property
++
++  ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX  = 20000000,   ///< The index when registering an animatable property should start from this number.
++  ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX    = 29999999,   ///< The maximum index supported when registering an animatable property
++
+   PROPERTY_CUSTOM_START_INDEX                   = 50000000,   ///< The index at which custom properties start
+ };
+ 
+diff --git a/dali/public-api/object/type-registry-helper.h b/dali/public-api/object/type-registry-helper.h
+index 15fc090..e2b8ac6 100644
+--- a/dali/public-api/object/type-registry-helper.h
++++ b/dali/public-api/object/type-registry-helper.h
+@@ -43,6 +43,10 @@ namespace Internal
+   PropertyRegistration DALI_TOKEN_PASTE( property, count ) ( typeRegistrationObject, text, Toolkit::objectType::Property::enumIndex, Property::valueType, &objectType::SetProperty, &objectType::GetProperty ); \
+   DALI_COMPILE_TIME_ASSERT( ( Toolkit::objectType::Property::enumIndex - Toolkit::objectType::PROPERTY_START_INDEX ) == count );
+ 
++#define DALI_ANIMATABLE_PROPERTY_REGISTRATION_INTERNAL( count, typeRegistrationObject, objectType, text, valueType, enumIndex) \
++  AnimatablePropertyRegistration DALI_TOKEN_PASTE( property, count ) ( typeRegistrationObject, text, Toolkit::objectType::AnimatableProperty::enumIndex, Property::valueType ); \
++  DALI_COMPILE_TIME_ASSERT( ( Toolkit::objectType::AnimatableProperty::enumIndex - Toolkit::objectType::ANIMATABLE_PROPERTY_START_INDEX ) == count );
++
+ #define DALI_SIGNAL_REGISTRATION_INTERNAL( count, typeRegistrationObject, objectType, text, textVariable ) \
+   const char* const textVariable = text; \
+   SignalConnectorType DALI_TOKEN_PASTE( signalConnector, count ) ( typeRegistrationObject, text, &Toolkit::Internal::objectType::DoConnectSignal );
+@@ -62,6 +66,9 @@ namespace Internal
+ #define DALI_PROPERTY_REGISTRATION( objectType, text, valueType, enumIndex ) \
+   DALI_PROPERTY_REGISTRATION_INTERNAL( __COUNTER__, typeRegistration, objectType, text, valueType, enumIndex )
+ 
++#define DALI_ANIMATABLE_PROPERTY_REGISTRATION( objectType, text, valueType, enumIndex ) \
++  DALI_ANIMATABLE_PROPERTY_REGISTRATION_INTERNAL( __COUNTER__, typeRegistration, objectType, text, valueType, enumIndex )
++
+ #define DALI_SIGNAL_REGISTRATION( objectType, text, textVariable ) \
+   DALI_SIGNAL_REGISTRATION_INTERNAL( __COUNTER__, typeRegistration, objectType, text, textVariable )
+ 
+diff --git a/dali/public-api/object/type-registry.cpp b/dali/public-api/object/type-registry.cpp
+index 93286fb..af04a4b 100644
+--- a/dali/public-api/object/type-registry.cpp
++++ b/dali/public-api/object/type-registry.cpp
+@@ -130,4 +130,11 @@ PropertyRegistration::PropertyRegistration( TypeRegistration& registered, const
+   Internal::TypeRegistry::Get()->RegisterProperty( registered, name, index, type, setFunc, getFunc );
+ }
+ 
++AnimatablePropertyRegistration::AnimatablePropertyRegistration( TypeRegistration& registered, const std::string& name, Property::Index index, Property::Type type )
++{
++  DALI_ASSERT_ALWAYS( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) );
++
++  Internal::TypeRegistry::Get()->RegisterAnimatableProperty( registered, name, index, type );
++}
++
+ } // namespace Dali
+diff --git a/dali/public-api/object/type-registry.h b/dali/public-api/object/type-registry.h
+index 3c05cd7..561231b 100644
+--- a/dali/public-api/object/type-registry.h
++++ b/dali/public-api/object/type-registry.h
+@@ -279,6 +279,30 @@ public:
+                         TypeInfo::SetPropertyFunction setFunc, TypeInfo::GetPropertyFunction getFunc );
+ };
+ 
++/**
++ * @brief Register an animatable property for the given type.
++ */
++class DALI_IMPORT_API AnimatablePropertyRegistration
++{
++public:
++
++  /**
++   * @brief This constructor registers the animatable property with the registered type.
++   *
++   * This constructor is for scene-graph only properties where the
++   * value of the property can be retrieved and set via specified
++   * functions.
++   *
++   * @param [in] registered The TypeRegistration object
++   * @param [in] name The name of the property
++   * @param [in] index The property index. Must be a value between ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX and ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX inclusive.
++   * @param [in] type The property value type.
++   *
++   * @pre "registered" must be registered with the TypeRegistry.
++   */
++  AnimatablePropertyRegistration( TypeRegistration& registered, const std::string& name, Property::Index index, Property::Type type );
++};
++
+ } // namespace Dali
+ 
+ #endif // header
+-- 
+1.7.9.5
+

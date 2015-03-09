@@ -1,0 +1,26 @@
+From 33a120b78334dc4cb151447cd347f931c94c93d3 Mon Sep 17 00:00:00 2001
+From: Kimmo Hoikka <kimmo.hoikka@samsung.com>
+Date: Thu, 12 Mar 2015 11:38:12 +0000
+Subject: [PATCH 03/10] Dont include dali-core.h inside dali core
+
+Change-Id: I2e0d0daafba10e97a160f58bfbeb7ce4a6073f60
+---
+ dali/internal/common/fixed-size-memory-pool.cpp |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dali/internal/common/fixed-size-memory-pool.cpp b/dali/internal/common/fixed-size-memory-pool.cpp
+index c2594aa..5ee0377 100644
+--- a/dali/internal/common/fixed-size-memory-pool.cpp
++++ b/dali/internal/common/fixed-size-memory-pool.cpp
+@@ -19,7 +19,7 @@
+ #include <dali/internal/common/fixed-size-memory-pool.h>
+ 
+ // INTERNAL HEADERS
+-#include <dali/public-api/dali-core.h>
++#include <dali/public-api/common/dali-common.h>
+ 
+ namespace Dali
+ {
+-- 
+1.7.9.5
+

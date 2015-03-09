@@ -1,0 +1,30 @@
+From 646af112d42c3086163c45fca8192f11a56f0108 Mon Sep 17 00:00:00 2001
+From: Heeyong Song <heeyong.song@samsung.com>
+Date: Mon, 16 Mar 2015 17:20:09 +0900
+Subject: [PATCH 05/10] Fix a rendering issue of the mesh which has vertex
+ color
+
+Change-Id: I248c0547357665630f62ce1c323591a53f372816
+---
+ .../render/renderers/scene-graph-mesh-renderer.cpp |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/dali/internal/render/renderers/scene-graph-mesh-renderer.cpp b/dali/internal/render/renderers/scene-graph-mesh-renderer.cpp
+index f4d14e0..366f31b 100644
+--- a/dali/internal/render/renderers/scene-graph-mesh-renderer.cpp
++++ b/dali/internal/render/renderers/scene-graph-mesh-renderer.cpp
+@@ -134,7 +134,10 @@ void MeshRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType&
+       {
+         outSubType = SHADER_VERTEX_COLOR;
+       }
+-      outSubType = SHADER_EVENLY_LIT;
++      else
++      {
++        outSubType = SHADER_EVENLY_LIT;
++      }
+     }
+   }
+   if( outType != mGeometryType || outSubType != mShaderType )
+-- 
+1.7.9.5
+

@@ -1,0 +1,42 @@
+From 7b40122e1b00db44cfaa6e77388d8e68b8cf23ca Mon Sep 17 00:00:00 2001
+From: Kimmo Hoikka <kimmo.hoikka@samsung.com>
+Date: Fri, 6 Mar 2015 18:25:55 +0000
+Subject: [PATCH 02/10] Adding thread join to the mutex test case
+
+Change-Id: I0b66fbb89016d2f13c3fb580ae7d8d1dd1f2fe53
+---
+ automated-tests/src/dali/utc-Dali-Mutex.cpp |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/automated-tests/src/dali/utc-Dali-Mutex.cpp b/automated-tests/src/dali/utc-Dali-Mutex.cpp
+index d9f902d..233f722 100644
+--- a/automated-tests/src/dali/utc-Dali-Mutex.cpp
++++ b/automated-tests/src/dali/utc-Dali-Mutex.cpp
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
++ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+@@ -88,7 +88,7 @@ int UtcDaliMutexMultiThread(void)
+   {
+     Mutex::ScopedLock lock( *gGlobalValueMutex );
+     DALI_TEST_EQUALS( true, gGlobalValueMutex->IsLocked(), TEST_LOCATION );
+-    pthread_create(&thread1, NULL, &WorkerThread1, NULL );
++    pthread_create( &thread1, NULL, &WorkerThread1, NULL );
+     // wait till the thread is in run state
+     while( RUN != gWorkerThreadState )
+     {
+@@ -117,6 +117,8 @@ int UtcDaliMutexMultiThread(void)
+     usleep( 1 ); // 1 microsecond
+   }
+   DALI_TEST_EQUALS( false, gGlobalValueMutex->IsLocked(), TEST_LOCATION );
++  void* exitValue;
++  pthread_join( thread1, &exitValue );
+ 
+   END_TEST;
+ }
+-- 
+1.7.9.5
+

@@ -86,7 +86,7 @@ std::string Handle::GetPropertyName( Property::Index index ) const
   return GetImplementation(*this).GetPropertyName( index );
 }
 
-Property::Index Handle::GetPropertyIndex( const std::string& name ) const
+Property::Index Handle::GetPropertyIndex( const std::string& name )
 {
   return GetImplementation(*this).GetPropertyIndex( name );
 }
@@ -126,7 +126,7 @@ Property::Index Handle::RegisterProperty( const std::string& name, const Propert
   return GetImplementation(*this).RegisterProperty( name, propertyValue, accessMode );
 }
 
-Property::Value Handle::GetProperty( Property::Index index ) const
+Property::Value Handle::GetProperty( Property::Index index )
 {
   return GetImplementation(*this).GetProperty( index );
 }

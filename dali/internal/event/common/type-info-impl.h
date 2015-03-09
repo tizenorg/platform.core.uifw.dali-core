@@ -124,6 +124,13 @@ public:
   void AddProperty( const std::string& name, Property::Index index, Property::Type type, Dali::TypeInfo::SetPropertyFunction setFunc, Dali::TypeInfo::GetPropertyFunction getFunc );
 
   /**
+   * Adds an animatable property to the type.
+   * @param[in] name The name of the property.
+   * @param[in] type The Property::Type.
+   */
+  void AddAnimatableProperty( const std::string& name, const Property::Type& type );
+
+  /**
    * Do an action on base object
    * @param [in] object The base object to act upon
    * @param [in] actionName The name of the desired action
@@ -162,6 +169,13 @@ public:
    * @return True, if writable, false otherwise.
    */
   bool IsPropertyWritable( Property::Index index ) const;
+
+  /**
+   * Checks if the property is animatable.
+   * @param[in] index The property index.
+   * @return True, if animatable, false otherwise.
+   */
+  bool IsPropertyAnimatable( Property::Index index ) const;
 
   /**
    * Retrieve the Property::Type of the property at the given index.
@@ -210,15 +224,17 @@ private:
     : type( Property::NONE ),
       setFunc( NULL ),
       getFunc( NULL ),
-      name()
+      name(),
+      accessMode(Property::READ_WRITE)
     {
     }
 
-    RegisteredProperty( Property::Type propType, Dali::TypeInfo::SetPropertyFunction set, Dali::TypeInfo::GetPropertyFunction get, const std::string& propName )
+    RegisteredProperty( Property::Type propType, Dali::TypeInfo::SetPropertyFunction set, Dali::TypeInfo::GetPropertyFunction get, const std::string& propName, Property::AccessMode accessMode )
     : type( propType ),
       setFunc( set ),
       getFunc( get ),
-      name( propName )
+      name( propName ),
+      accessMode(accessMode)
     {
     }
 
@@ -226,6 +242,7 @@ private:
     Dali::TypeInfo::SetPropertyFunction setFunc;
     Dali::TypeInfo::GetPropertyFunction getFunc;
     std::string name;
+    Property::AccessMode accessMode;
   };
 
   typedef std::pair<std::string, Dali::TypeInfo::SignalConnectorFunction > ConnectionPair;
@@ -242,6 +259,8 @@ private:
   ActionContainer mActions;
   ConnectorContainer mSignalConnectors;
   RegisteredPropertyContainer mRegisteredProperties;
+
+  unsigned int mRegisteredAnimatablePropertyCount;
 };
 
 } // namespace Internal

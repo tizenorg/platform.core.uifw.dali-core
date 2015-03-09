@@ -83,7 +83,7 @@ namespace Internal
 {
 
 TypeInfo::TypeInfo(const std::string &name, const std::string &baseTypeName, Dali::TypeInfo::CreateFunction creator)
-  : mTypeName(name), mBaseTypeName(baseTypeName), mCreate(creator)
+  : mTypeName(name), mBaseTypeName(baseTypeName), mCreate(creator), mRegisteredAnimatablePropertyCount(0)
 {
   DALI_ASSERT_ALWAYS(!name.empty() && "Type info construction must have a name");
   DALI_ASSERT_ALWAYS(!baseTypeName.empty() && "Type info construction must have a base type name");
@@ -250,12 +250,15 @@ void TypeInfo::GetPropertyIndices( Property::IndexContainer& indices ) const
 
   if ( ! mRegisteredProperties.empty() )
   {
-    indices.reserve( indices.size() + mRegisteredProperties.size() );
+    indices.reserve( indices.size() + mRegisteredProperties.size() - mRegisteredAnimatablePropertyCount );
 
     const RegisteredPropertyContainer::const_iterator endIter = mRegisteredProperties.end();
     for ( RegisteredPropertyContainer::const_iterator iter = mRegisteredProperties.begin(); iter != endIter; ++iter )
     {
-      indices.push_back( iter->first );
+      if(iter->second.accessMode != Property::ANIMATABLE)
+      {
+        indices.push_back( iter->first );
+      }
     }
   }
 }
@@ -338,7 +341,8 @@ void TypeInfo::AddProperty( const std::string& name, Property::Index index, Prop
 
     if ( iter == mRegisteredProperties.end() )
     {
-      mRegisteredProperties.push_back( RegisteredPropertyPair( index, RegisteredProperty( type, setFunc, getFunc, name ) ) );
+      Property::AccessMode accessMode = (NULL == setFunc) ? Property::READ_ONLY : Property::READ_WRITE;
+      mRegisteredProperties.push_back( RegisteredPropertyPair( index, RegisteredProperty( type, setFunc, getFunc, name, accessMode ) ) );
     }
     else
     {
@@ -347,15 +351,21 @@ void TypeInfo::AddProperty( const std::string& name, Property::Index index, Prop
   }
 }
 
+void TypeInfo::AddAnimatableProperty( const std::string& name, const Property::Type& type )
+{
+  mRegisteredProperties.push_back( RegisteredPropertyPair( PROPERTY_REGISTRATION_START_INDEX + mRegisteredProperties.size(), RegisteredProperty( type, NULL, NULL, name, Property::ANIMATABLE ) ) );
+  mRegisteredAnimatablePropertyCount++;
+}
+
 unsigned int TypeInfo::GetPropertyCount() const
 {
-  unsigned int count( mRegisteredProperties.size() );
+  unsigned int count( mRegisteredProperties.size() - mRegisteredAnimatablePropertyCount );
 
   Dali::TypeInfo base = TypeRegistry::Get()->GetTypeInfo( mBaseTypeName );
   while ( base )
   {
     const TypeInfo& baseImpl( GetImplementation(base) );
-    count += baseImpl.mRegisteredProperties.size();
+    count += baseImpl.mRegisteredProperties.size() - baseImpl.mRegisteredAnimatablePropertyCount;
     base = TypeRegistry::Get()->GetTypeInfo( baseImpl.mBaseTypeName );
   }
 
@@ -411,6 +421,33 @@ bool TypeInfo::IsPropertyWritable( Property::Index index ) const
   }
 
   return writable;
+}
+
+bool TypeInfo::IsPropertyAnimatable( Property::Index index ) const
+{
+  bool animatable( false );
+
+  RegisteredPropertyContainer::const_iterator iter = find_if( mRegisteredProperties.begin(), mRegisteredProperties.end(),
+                                                          PairFinder< Property::Index, RegisteredPropertyPair >( index ) );
+
+  if ( iter != mRegisteredProperties.end() )
+  {
+    animatable = (iter->second.accessMode == Property::ANIMATABLE);
+  }
+  else
+  {
+    Dali::TypeInfo base = TypeRegistry::Get()->GetTypeInfo( mBaseTypeName );
+    if ( base )
+    {
+      animatable = GetImplementation(base).IsPropertyAnimatable( index );
+    }
+    else
+    {
+      DALI_ASSERT_ALWAYS( ! "Cannot find property index" ); // use the same assert as Object
+    }
+  }
+
+  return animatable;
 }
 
 Property::Type TypeInfo::GetPropertyType( Property::Index index ) const

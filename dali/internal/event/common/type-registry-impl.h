@@ -111,6 +111,15 @@ public:
    */
   bool RegisterProperty( TypeRegistration& registered, const std::string& name, Property::Index index, Property::Type type, Dali::TypeInfo::SetPropertyFunction setFunc, Dali::TypeInfo::GetPropertyFunction getFunc );
 
+  /**
+   * Register a scene graph only property with a type
+   * @param [in] registered TypeRegistration object used to register the type
+   * @param [in] name Property name
+   * @param [in] type Property type
+   * @return true if registered
+   */
+  bool RegisterAnimatableProperty( TypeRegistration& registered, const std::string& name, const Property::Type& type );
+
   /*
    * @copydoc Dali::Internal::TypeInfo::DoActionTo
    * Walks all base types until it finds a doer.

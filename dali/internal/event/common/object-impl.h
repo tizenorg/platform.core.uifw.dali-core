@@ -146,7 +146,7 @@ public:
   /**
    * @copydoc Dali::Handle::GetPropertyIndex()
    */
-  virtual Property::Index GetPropertyIndex( const std::string& name ) const;
+  virtual Property::Index GetPropertyIndex( const std::string& name );
 
   /**
    * @copydoc Dali::Handle::IsPropertyWritable()
@@ -176,7 +176,7 @@ public:
   /**
    * @copydoc Dali::Handle::GetProperty()
    */
-  virtual Property::Value GetProperty( Property::Index index ) const;
+  virtual Property::Value GetProperty( Property::Index index );
 
   /**
    * @copydoc Dali::Handle::GetPropertyIndices()

@@ -130,4 +130,9 @@ PropertyRegistration::PropertyRegistration( TypeRegistration& registered, const 
   Internal::TypeRegistry::Get()->RegisterProperty( registered, name, index, type, setFunc, getFunc );
 }
 
+AnimatablePropertyRegistration::AnimatablePropertyRegistration( TypeRegistration& registered, const std::string& name, const Property::Type& type )
+{
+  Internal::TypeRegistry::Get()->RegisterAnimatableProperty( registered, name, type );
+}
+
 } // namespace Dali

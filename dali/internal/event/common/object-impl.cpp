@@ -193,30 +193,42 @@ std::string Object::GetPropertyName( Property::Index index ) const
   return "";
 }
 
-Property::Index Object::GetPropertyIndex(const std::string& name) const
+Property::Index Object::GetPropertyIndex(const std::string& name)
 {
   Property::Index index = GetDefaultPropertyIndex( name );
 
-  if ( index == Property::INVALID_INDEX )
+  if(index == Property::INVALID_INDEX)
   {
     const TypeInfo* typeInfo( GetTypeInfo() );
     if ( typeInfo )
     {
       index = typeInfo->GetPropertyIndex( name );
     }
-  }
 
-  if( ( index == Property::INVALID_INDEX )&&( mCustomProperties.Count() > 0 ) )
-  {
-    Property::Index count = PROPERTY_CUSTOM_START_INDEX;
-    const CustomPropertyLookup::ConstIterator end = mCustomProperties.End();
-    for( CustomPropertyLookup::ConstIterator iter = mCustomProperties.Begin(); iter != end; ++iter, ++count )
+    bool isAnimatableProperty = (index != Property::INVALID_INDEX && IsPropertyAnimatable(index));
+    Property::Index animatablePropertyIndex = index;
+    if( index == Property::INVALID_INDEX || isAnimatableProperty )
     {
-      CustomProperty* custom = *iter;
-      if ( custom->name == name )
+      index = Property::INVALID_INDEX;
+
+      if( mCustomProperties.Count() > 0 )
       {
-        index = count;
-        break;
+        Property::Index count = PROPERTY_CUSTOM_START_INDEX;
+        const CustomPropertyLookup::ConstIterator end = mCustomProperties.End();
+        for( CustomPropertyLookup::ConstIterator iter = mCustomProperties.Begin(); iter != end; ++iter, ++count )
+        {
+          CustomProperty* custom = *iter;
+          if ( custom->name == name )
+          {
+            index = count;
+            break;
+          }
+        }
+      }
+
+      if(index == Property::INVALID_INDEX && isAnimatableProperty && typeInfo)
+      {
+        index = RegisterProperty( name, Property::Value(typeInfo->GetPropertyType(animatablePropertyIndex)));
       }
     }
   }
@@ -266,7 +278,15 @@ bool Object::IsPropertyAnimatable( Property::Index index ) const
   if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
   {
     // Type Registry event-thread only properties are not animatable.
-    return false;
+    const TypeInfo* typeInfo( GetTypeInfo() );
+    if ( typeInfo )
+    {
+      return typeInfo->IsPropertyAnimatable(index);
+    }
+    else
+    {
+      DALI_ASSERT_ALWAYS( ! "Invalid property index" );
+    }
   }
 
   CustomProperty* custom = FindCustomProperty( index );
@@ -335,6 +355,8 @@ void Object::SetProperty( Property::Index index, const Property::Value& property
 {
   DALI_ASSERT_ALWAYS(index > Property::INVALID_INDEX && "Property index is out of bounds" );
 
+  bool isCustomProperty = false;
+
   if ( index < DEFAULT_PROPERTY_MAX_COUNT )
   {
     SetDefaultProperty( index, propertyValue );
@@ -342,16 +364,40 @@ void Object::SetProperty( Property::Index index, const Property::Value& property
   else if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
   {
     const TypeInfo* typeInfo( GetTypeInfo() );
-    if ( typeInfo )
+    if ( typeInfo && !typeInfo->IsPropertyAnimatable(index) )
     {
       typeInfo->SetProperty( this, index, propertyValue );
     }
     else
     {
-      DALI_ASSERT_ALWAYS( ! "Cannot find property index" );
+      Property::AccessMode accessMode = Property::READ_ONLY;;
+      if(typeInfo->IsPropertyAnimatable(index))
+      {
+        accessMode = Property::ANIMATABLE;
+      }
+      else if(typeInfo->IsPropertyWritable(index))
+      {
+        accessMode = Property::READ_WRITE;
+      }
+
+      index = RegisterProperty( typeInfo->GetPropertyName(index), Property::Value(typeInfo->GetPropertyType(index)), accessMode);
+
+      if(Property::INVALID_INDEX != index)
+      {
+        isCustomProperty = true;
+      }
+      else
+      {
+        DALI_ASSERT_ALWAYS( ! "Cannot register property" );
+      }
     }
   }
   else
+  {
+    isCustomProperty = true;
+  }
+
+  if(isCustomProperty)
   {
     CustomProperty* custom = FindCustomProperty( index );
     DALI_ASSERT_ALWAYS( custom && "Invalid property index" );
@@ -369,11 +415,12 @@ void Object::SetProperty( Property::Index index, const Property::Value& property
   }
 }
 
-Property::Value Object::GetProperty(Property::Index index) const
+Property::Value Object::GetProperty(Property::Index index)
 {
   DALI_ASSERT_ALWAYS( index > Property::INVALID_INDEX && "Property index is out of bounds" );
 
   Property::Value value;
+  bool isCustomProperty = false;
 
   if ( index < DEFAULT_PROPERTY_MAX_COUNT )
   {
@@ -382,16 +429,40 @@ Property::Value Object::GetProperty(Property::Index index) const
   else if ( ( index >= PROPERTY_REGISTRATION_START_INDEX ) && ( index <= PROPERTY_REGISTRATION_MAX_INDEX ) )
   {
     const TypeInfo* typeInfo( GetTypeInfo() );
-    if ( typeInfo )
+    if ( typeInfo && !typeInfo->IsPropertyAnimatable(index) )
     {
       value = typeInfo->GetProperty( this, index );
     }
     else
     {
-      DALI_ASSERT_ALWAYS( ! "Cannot find property index" );
+      Property::AccessMode accessMode = Property::READ_ONLY;;
+      if(typeInfo->IsPropertyAnimatable(index))
+      {
+        accessMode = Property::ANIMATABLE;
+      }
+      else if(typeInfo->IsPropertyWritable(index))
+      {
+        accessMode = Property::READ_WRITE;
+      }
+
+      index = RegisterProperty( typeInfo->GetPropertyName(index), Property::Value(typeInfo->GetPropertyType(index)), accessMode);
+
+      if(Property::INVALID_INDEX != index)
+      {
+        isCustomProperty = true;
+      }
+      else
+      {
+        DALI_ASSERT_ALWAYS( ! "Cannot register property" );
+      }
     }
   }
-  else if( mCustomProperties.Count() > 0 )
+  else
+  {
+    isCustomProperty = true;
+  }
+
+  if(isCustomProperty && mCustomProperties.Count() > 0)
   {
     CustomProperty* custom = FindCustomProperty( index );
     DALI_ASSERT_ALWAYS( custom && "Invalid property index" );

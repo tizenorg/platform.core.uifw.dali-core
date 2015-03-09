@@ -43,6 +43,9 @@ namespace Internal
   PropertyRegistration DALI_TOKEN_PASTE( property, count ) ( typeRegistrationObject, text, Toolkit::objectType::Property::enumIndex, Property::valueType, &objectType::SetProperty, &objectType::GetProperty ); \
   DALI_COMPILE_TIME_ASSERT( ( Toolkit::objectType::Property::enumIndex - Toolkit::objectType::PROPERTY_START_INDEX ) == count );
 
+#define DALI_ANIMATABLE_PROPERTY_REGISTRATION_INTERNAL( count, typeRegistrationObject, objectType, text, valueType) \
+  AnimatablePropertyRegistration DALI_TOKEN_PASTE( property, count ) ( typeRegistrationObject, text, Property::valueType );
+
 #define DALI_SIGNAL_REGISTRATION_INTERNAL( count, typeRegistrationObject, objectType, text, textVariable ) \
   const char* const textVariable = text; \
   SignalConnectorType DALI_TOKEN_PASTE( signalConnector, count ) ( typeRegistrationObject, text, &Toolkit::Internal::objectType::DoConnectSignal );
@@ -61,6 +64,9 @@ namespace Internal
 
 #define DALI_PROPERTY_REGISTRATION( objectType, text, valueType, enumIndex ) \
   DALI_PROPERTY_REGISTRATION_INTERNAL( __COUNTER__, typeRegistration, objectType, text, valueType, enumIndex )
+
+#define DALI_ANIMATABLE_PROPERTY_REGISTRATION( objectType, text, valueType ) \
+  DALI_ANIMATABLE_PROPERTY_REGISTRATION_INTERNAL( __COUNTER__, typeRegistration, objectType, text, valueType )
 
 #define DALI_SIGNAL_REGISTRATION( objectType, text, textVariable ) \
   DALI_SIGNAL_REGISTRATION_INTERNAL( __COUNTER__, typeRegistration, objectType, text, textVariable )

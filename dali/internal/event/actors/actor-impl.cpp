@@ -57,7 +57,6 @@
 #endif
 
 using Dali::Internal::SceneGraph::Node;
-using Dali::Internal::SceneGraph::AnimatableProperty;
 using Dali::Internal::SceneGraph::PropertyBase;
 
 namespace Dali
@@ -584,7 +583,7 @@ void Actor::SetPosition(const Vector3& position)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mPosition, &AnimatableProperty<Vector3>::Bake, position );
+    SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mPosition, &SceneGraph::AnimatableProperty<Vector3>::Bake, position );
   }
 }
 
@@ -593,7 +592,7 @@ void Actor::SetX(float x)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mPosition, &AnimatableProperty<Vector3>::BakeX, x );
+    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mPosition, &SceneGraph::AnimatableProperty<Vector3>::BakeX, x );
   }
 }
 
@@ -602,7 +601,7 @@ void Actor::SetY(float y)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mPosition, &AnimatableProperty<Vector3>::BakeY, y );
+    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mPosition, &SceneGraph::AnimatableProperty<Vector3>::BakeY, y );
   }
 }
 
@@ -611,7 +610,7 @@ void Actor::SetZ(float z)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mPosition, &AnimatableProperty<Vector3>::BakeZ, z );
+    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mPosition, &SceneGraph::AnimatableProperty<Vector3>::BakeZ, z );
   }
 }
 
@@ -620,7 +619,7 @@ void Actor::MoveBy(const Vector3& distance)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mPosition, &AnimatableProperty<Vector3>::BakeRelative, distance );
+    SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mPosition, &SceneGraph::AnimatableProperty<Vector3>::BakeRelative, distance );
   }
 }
 
@@ -678,7 +677,7 @@ void Actor::SetRotation(const Quaternion& rotation)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Quaternion>::Send( mStage->GetUpdateManager(), mNode, &mNode->mRotation, &AnimatableProperty<Quaternion>::Bake, rotation );
+    SceneGraph::NodePropertyMessage<Quaternion>::Send( mStage->GetUpdateManager(), mNode, &mNode->mRotation, &SceneGraph::AnimatableProperty<Quaternion>::Bake, rotation );
   }
 }
 
@@ -687,7 +686,7 @@ void Actor::RotateBy(const Radian& angle, const Vector3& axis)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Quaternion>::Send( mStage->GetUpdateManager(), mNode, &mNode->mRotation, &AnimatableProperty<Quaternion>::BakeRelative, Quaternion(angle, axis) );
+    SceneGraph::NodePropertyMessage<Quaternion>::Send( mStage->GetUpdateManager(), mNode, &mNode->mRotation, &SceneGraph::AnimatableProperty<Quaternion>::BakeRelative, Quaternion(angle, axis) );
   }
 }
 
@@ -696,7 +695,7 @@ void Actor::RotateBy(const Quaternion& relativeRotation)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Quaternion>::Send( mStage->GetUpdateManager(), mNode, &mNode->mRotation, &AnimatableProperty<Quaternion>::BakeRelative, relativeRotation );
+    SceneGraph::NodePropertyMessage<Quaternion>::Send( mStage->GetUpdateManager(), mNode, &mNode->mRotation, &SceneGraph::AnimatableProperty<Quaternion>::BakeRelative, relativeRotation );
   }
 }
 
@@ -737,7 +736,7 @@ void Actor::SetScale(const Vector3& scale)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mScale, &AnimatableProperty<Vector3>::Bake, scale );
+    SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mScale, &SceneGraph::AnimatableProperty<Vector3>::Bake, scale );
   }
 }
 
@@ -746,7 +745,7 @@ void Actor::SetScaleX( float x )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mScale, &AnimatableProperty<Vector3>::BakeX, x );
+    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mScale, &SceneGraph::AnimatableProperty<Vector3>::BakeX, x );
   }
 }
 
@@ -755,7 +754,7 @@ void Actor::SetScaleY( float y )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mScale, &AnimatableProperty<Vector3>::BakeY, y );
+    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mScale, &SceneGraph::AnimatableProperty<Vector3>::BakeY, y );
   }
 }
 
@@ -764,7 +763,7 @@ void Actor::SetScaleZ( float z )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mScale, &AnimatableProperty<Vector3>::BakeZ, z );
+    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mScale, &SceneGraph::AnimatableProperty<Vector3>::BakeZ, z );
   }
 }
 
@@ -802,7 +801,7 @@ void Actor::ScaleBy(const Vector3& relativeScale)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mScale, &AnimatableProperty<Vector3>::BakeRelativeMultiply, relativeScale );
+    SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mScale, &SceneGraph::AnimatableProperty<Vector3>::BakeRelativeMultiply, relativeScale );
   }
 }
 
@@ -866,7 +865,7 @@ void Actor::SetVisible(bool visible)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<bool>::Send( mStage->GetUpdateManager(), mNode, &mNode->mVisible, &AnimatableProperty<bool>::Bake, visible );
+    SceneGraph::NodePropertyMessage<bool>::Send( mStage->GetUpdateManager(), mNode, &mNode->mVisible, &SceneGraph::AnimatableProperty<bool>::Bake, visible );
   }
 }
 
@@ -886,7 +885,7 @@ void Actor::SetOpacity(float opacity)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &AnimatableProperty<Vector4>::BakeW, opacity );
+    SceneGraph::NodePropertyComponentMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &SceneGraph::AnimatableProperty<Vector4>::BakeW, opacity );
   }
 }
 
@@ -895,7 +894,7 @@ void Actor::OpacityBy(float relativeOpacity)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &AnimatableProperty<Vector4>::BakeWRelative, relativeOpacity );
+    SceneGraph::NodePropertyComponentMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &SceneGraph::AnimatableProperty<Vector4>::BakeWRelative, relativeOpacity );
   }
 }
 
@@ -925,7 +924,7 @@ void Actor::SetColor(const Vector4& color)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &AnimatableProperty<Vector4>::Bake, color );
+    SceneGraph::NodePropertyMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &SceneGraph::AnimatableProperty<Vector4>::Bake, color );
   }
 }
 
@@ -934,7 +933,7 @@ void Actor::SetColorRed( float red )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &AnimatableProperty<Vector4>::BakeX, red );
+    SceneGraph::NodePropertyComponentMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &SceneGraph::AnimatableProperty<Vector4>::BakeX, red );
   }
 }
 
@@ -943,7 +942,7 @@ void Actor::SetColorGreen( float green )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &AnimatableProperty<Vector4>::BakeY, green );
+    SceneGraph::NodePropertyComponentMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &SceneGraph::AnimatableProperty<Vector4>::BakeY, green );
   }
 }
 
@@ -952,7 +951,7 @@ void Actor::SetColorBlue( float blue )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &AnimatableProperty<Vector4>::BakeZ, blue );
+    SceneGraph::NodePropertyComponentMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &SceneGraph::AnimatableProperty<Vector4>::BakeZ, blue );
   }
 }
 
@@ -961,7 +960,7 @@ void Actor::ColorBy(const Vector4& relativeColor)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &AnimatableProperty<Vector4>::BakeRelative, relativeColor );
+    SceneGraph::NodePropertyMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, &mNode->mColor, &SceneGraph::AnimatableProperty<Vector4>::BakeRelative, relativeColor );
   }
 }
 
@@ -1068,7 +1067,7 @@ void Actor::SetSize(const Vector3& size)
     mSize = size;
 
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mSize, &AnimatableProperty<Vector3>::Bake, mSize );
+    SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mSize, &SceneGraph::AnimatableProperty<Vector3>::Bake, mSize );
 
     // Notification for derived classes
     OnSizeSet( mSize );
@@ -1088,7 +1087,7 @@ void Actor::SetWidth( float width )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mSize, &AnimatableProperty<Vector3>::BakeX, width );
+    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mSize, &SceneGraph::AnimatableProperty<Vector3>::BakeX, width );
   }
 }
 
@@ -1097,7 +1096,7 @@ void Actor::SetHeight( float height )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mSize, &AnimatableProperty<Vector3>::BakeY, height );
+    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mSize, &SceneGraph::AnimatableProperty<Vector3>::BakeY, height );
   }
 }
 
@@ -1106,7 +1105,7 @@ void Actor::SetDepth( float depth )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mSize, &AnimatableProperty<Vector3>::BakeZ, depth );
+    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, &mNode->mSize, &SceneGraph::AnimatableProperty<Vector3>::BakeZ, depth );
   }
 }
 
@@ -2590,107 +2589,107 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
 }
 
 // TODO: This method needs to be removed
-void Actor::SetSceneGraphProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value )
+void Actor::SetSceneGraphProperty( Property::Index index, const SceneGraphProperty& entry, const Property::Value& value )
 {
   OnPropertySet(index, value);
 
-  switch ( entry.type )
+  switch ( entry.mType )
   {
     case Property::BOOLEAN:
     {
-      const AnimatableProperty<bool>* property = dynamic_cast< const AnimatableProperty<bool>* >( entry.GetSceneGraphProperty() );
+      const SceneGraph::AnimatableProperty<bool>* property = dynamic_cast< const SceneGraph::AnimatableProperty<bool>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<bool>::Send( mStage->GetUpdateManager(), mNode, property, &AnimatableProperty<bool>::Bake, value.Get<bool>() );
+      SceneGraph::NodePropertyMessage<bool>::Send( mStage->GetUpdateManager(), mNode, property, &SceneGraph::AnimatableProperty<bool>::Bake, value.Get<bool>() );
 
       break;
     }
 
     case Property::FLOAT:
     {
-      const AnimatableProperty<float>* property = dynamic_cast< const AnimatableProperty<float>* >( entry.GetSceneGraphProperty() );
+      const SceneGraph::AnimatableProperty<float>* property = dynamic_cast< const SceneGraph::AnimatableProperty<float>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<float>::Send( mStage->GetUpdateManager(), mNode, property, &AnimatableProperty<float>::Bake, value.Get<float>() );
+      SceneGraph::NodePropertyMessage<float>::Send( mStage->GetUpdateManager(), mNode, property, &SceneGraph::AnimatableProperty<float>::Bake, value.Get<float>() );
 
       break;
     }
 
     case Property::INTEGER:
     {
-      const AnimatableProperty<int>* property = dynamic_cast< const AnimatableProperty<int>* >( entry.GetSceneGraphProperty() );
+      const SceneGraph::AnimatableProperty<int>* property = dynamic_cast< const SceneGraph::AnimatableProperty<int>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<int>::Send( mStage->GetUpdateManager(), mNode, property, &AnimatableProperty<int>::Bake, value.Get<int>() );
+      SceneGraph::NodePropertyMessage<int>::Send( mStage->GetUpdateManager(), mNode, property, &SceneGraph::AnimatableProperty<int>::Bake, value.Get<int>() );
 
       break;
     }
 
     case Property::VECTOR2:
     {
-      const AnimatableProperty<Vector2>* property = dynamic_cast< const AnimatableProperty<Vector2>* >( entry.GetSceneGraphProperty() );
+      const SceneGraph::AnimatableProperty<Vector2>* property = dynamic_cast< const SceneGraph::AnimatableProperty<Vector2>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Vector2>::Send( mStage->GetUpdateManager(), mNode, property, &AnimatableProperty<Vector2>::Bake, value.Get<Vector2>() );
+      SceneGraph::NodePropertyMessage<Vector2>::Send( mStage->GetUpdateManager(), mNode, property, &SceneGraph::AnimatableProperty<Vector2>::Bake, value.Get<Vector2>() );
 
       break;
     }
 
     case Property::VECTOR3:
     {
-      const AnimatableProperty<Vector3>* property = dynamic_cast< const AnimatableProperty<Vector3>* >( entry.GetSceneGraphProperty() );
+      const SceneGraph::AnimatableProperty<Vector3>* property = dynamic_cast< const SceneGraph::AnimatableProperty<Vector3>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, property, &AnimatableProperty<Vector3>::Bake, value.Get<Vector3>() );
+      SceneGraph::NodePropertyMessage<Vector3>::Send( mStage->GetUpdateManager(), mNode, property, &SceneGraph::AnimatableProperty<Vector3>::Bake, value.Get<Vector3>() );
 
       break;
     }
 
     case Property::VECTOR4:
     {
-      const AnimatableProperty<Vector4>* property = dynamic_cast< const AnimatableProperty<Vector4>* >( entry.GetSceneGraphProperty() );
+      const SceneGraph::AnimatableProperty<Vector4>* property = dynamic_cast< const SceneGraph::AnimatableProperty<Vector4>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, property, &AnimatableProperty<Vector4>::Bake, value.Get<Vector4>() );
+      SceneGraph::NodePropertyMessage<Vector4>::Send( mStage->GetUpdateManager(), mNode, property, &SceneGraph::AnimatableProperty<Vector4>::Bake, value.Get<Vector4>() );
 
       break;
     }
 
     case Property::ROTATION:
     {
-      const AnimatableProperty<Quaternion>* property = dynamic_cast< const AnimatableProperty<Quaternion>* >( entry.GetSceneGraphProperty() );
+      const SceneGraph::AnimatableProperty<Quaternion>* property = dynamic_cast< const SceneGraph::AnimatableProperty<Quaternion>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Quaternion>::Send( mStage->GetUpdateManager(), mNode, property,&AnimatableProperty<Quaternion>::Bake,  value.Get<Quaternion>() );
+      SceneGraph::NodePropertyMessage<Quaternion>::Send( mStage->GetUpdateManager(), mNode, property,&SceneGraph::AnimatableProperty<Quaternion>::Bake,  value.Get<Quaternion>() );
 
       break;
     }
 
     case Property::MATRIX:
     {
-      const AnimatableProperty<Matrix>* property = dynamic_cast< const AnimatableProperty<Matrix>* >( entry.GetSceneGraphProperty() );
+      const SceneGraph::AnimatableProperty<Matrix>* property = dynamic_cast< const SceneGraph::AnimatableProperty<Matrix>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Matrix>::Send( mStage->GetUpdateManager(), mNode, property,&AnimatableProperty<Matrix>::Bake,  value.Get<Matrix>() );
+      SceneGraph::NodePropertyMessage<Matrix>::Send( mStage->GetUpdateManager(), mNode, property,&SceneGraph::AnimatableProperty<Matrix>::Bake,  value.Get<Matrix>() );
 
       break;
     }
 
     case Property::MATRIX3:
     {
-      const AnimatableProperty<Matrix3>* property = dynamic_cast< const AnimatableProperty<Matrix3>* >( entry.GetSceneGraphProperty() );
+      const SceneGraph::AnimatableProperty<Matrix3>* property = dynamic_cast< const SceneGraph::AnimatableProperty<Matrix3>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );
 
       // property is being used in a separate thread; queue a message to set the property
-      SceneGraph::NodePropertyMessage<Matrix3>::Send( mStage->GetUpdateManager(), mNode, property,&AnimatableProperty<Matrix3>::Bake,  value.Get<Matrix3>() );
+      SceneGraph::NodePropertyMessage<Matrix3>::Send( mStage->GetUpdateManager(), mNode, property,&SceneGraph::AnimatableProperty<Matrix3>::Bake,  value.Get<Matrix3>() );
 
       break;
     }

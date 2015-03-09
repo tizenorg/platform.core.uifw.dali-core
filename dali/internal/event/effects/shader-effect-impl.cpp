@@ -595,9 +595,9 @@ const SceneGraph::PropertyOwner* ShaderEffect::GetSceneObject() const
 
 const PropertyBase* ShaderEffect::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
-  CustomProperty* custom = FindCustomProperty( index );
-  DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
-  return custom->GetSceneGraphProperty();
+  SceneGraphProperty* property = index >= PROPERTY_CUSTOM_START_INDEX ? static_cast<SceneGraphProperty*>(FindCustomProperty( index )) : static_cast<SceneGraphProperty*>(FindAnimatableProperty( index ));
+  DALI_ASSERT_ALWAYS( property && "Property index is invalid" );
+  return property->GetSceneGraphProperty();
 }
 
 const PropertyInputImpl* ShaderEffect::GetSceneObjectInputProperty( Property::Index index ) const

@@ -101,11 +101,6 @@ struct DALI_IMPORT_API KeyEvent
   // Data
 
   /**
-   * @brief name given to the key pressed.
-   */
-  std::string keyPressedName;
-
-  /**
    * @brief The actual string returned that should be used for input editors.
    */
   std::string keyPressed;

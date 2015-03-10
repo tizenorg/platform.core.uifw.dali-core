@@ -21,7 +21,7 @@
 #include <dali/internal/common/event-to-update.h>
 #include <dali/internal/update/common/double-buffered.h>
 #include <dali/internal/update/common/property-owner.h>
-#include <dali/internal/render/renderers/sampler-data-provider.h>
+#include <dali/internal/render/data-providers/sampler-data-provider.h>
 
 #include <string>
 
@@ -75,9 +75,10 @@ public:
 
 public: // SamplerDataProvider interface
   /**
-   *
+   * Get the texture unit uniform name
+   * @return the name of the texture unit uniform
    */
-  const std::string& GetUniformName();
+  virtual const std::string& GetUniformName();
 
   /**
    * Get the texture ID

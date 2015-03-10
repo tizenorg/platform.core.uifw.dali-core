@@ -42,7 +42,7 @@ namespace SceneGraph
 class SceneController;
 class Shader;
 class TextureCache;
-class RenderDataProvider;
+class NodeDataProvider;
 
 /**
  * Renderers are used to render images, text, & meshes etc.
@@ -132,7 +132,7 @@ protected:
    * Protected constructor; only derived classes can be instantiated.
    * @param dataprovider for rendering
    */
-  Renderer( RenderDataProvider& dataprovider );
+  Renderer( NodeDataProvider& dataprovider );
 
 private:
 
@@ -150,6 +150,9 @@ private:
   virtual bool CheckResources() = 0;
 
   /**
+   * @deprecated - Not needed in final MESH_REWORK
+   * @todo MESH_REWORK Remove this API
+   *
    * Resolve the derived renderers geometry type and subtype
    * @param[in] bufferIndex The index of the previous update buffer.
    * @param[out] outType    The geometry type
@@ -176,7 +179,7 @@ private:
 
 protected:
 
-  RenderDataProvider& mDataProvider;
+  NodeDataProvider& mDataProvider;
   Context* mContext;
   TextureCache* mTextureCache;
   Shader* mShader;

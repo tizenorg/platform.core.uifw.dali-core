@@ -43,38 +43,44 @@ public:
   }
 
   /**
+   * Get the sampler's uniform name
+   * @return The uniform name
+   */
+  virtual const std::string& GetUniformName() const = 0;
+
+  /**
    * Get the texture identity associated with the sampler
    * @return The texture identity
    */
-  virtual ResourceId GetTextureId() = 0;
+  virtual ResourceId GetTextureId() const = 0;
 
   /**
    * Get the filter mode
    * @param[in] bufferIndex The buffer index to use
    * @return The minify filter mode
    */
-  virtual FilterMode GetMinifyFilterMode( BufferIndex bufferIndex ) = 0;
+  virtual FilterMode GetMinifyFilterMode( BufferIndex bufferIndex ) const = 0;
 
   /**
    * Get the filter mode
    * @param[in] bufferIndex The buffer index to use
    * @return The magnify filter mode
    */
-  virtual FilterMode GetMagifyFilterMode( BufferIndex bufferIndex ) = 0;
+  virtual FilterMode GetMagnifyFilterMode( BufferIndex bufferIndex ) const = 0;
 
   /**
    * Get the horizontal wrap mode
    * @param[in] bufferIndex The buffer index to use
    * @return The horizontal wrap mode
    */
-  virtual WrapMode GetUWrapMode( BufferIndex bufferIndex ) = 0;
+  virtual WrapMode GetUWrapMode( BufferIndex bufferIndex ) const = 0;
 
   /**
    * Get the vertical wrap mode
    * @param[in] bufferIndex The buffer index to use
    * @return The vertical wrap mode
    */
-  virtual WrapMode GetVWrapMode( BufferIndex bufferIndex ) = 0;
+  virtual WrapMode GetVWrapMode( BufferIndex bufferIndex ) const = 0;
 
 protected:
   /**

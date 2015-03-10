@@ -20,6 +20,7 @@
 #include <dali/internal/update/common/double-buffered.h>
 #include <dali/internal/update/common/property-owner.h>
 #include <dali/internal/update/node-attachments/scene-graph-renderable-attachment.h>
+#include <dali/internal/render/data-providers/uniform-map-provider.h>
 
 namespace Dali
 {
@@ -31,7 +32,7 @@ class Material;
 class Geometry;
 
 
-class RendererAttachment : public RenderableAttachment, public PropertyOwner
+class RendererAttachment : public RenderableAttachment, public PropertyOwner, public UniformMapProvider
 {
 public:
   /**
@@ -83,6 +84,7 @@ public:
 private:
   const Material* mMaterial; ///< The material this renderer uses. (Not owned)
   const Geometry* mGeometry; ///< The geometry this renderer uses. (Not owned)
+
   int mDepthIndex;     ///< Used only in PrepareRenderInstructions
 };
 

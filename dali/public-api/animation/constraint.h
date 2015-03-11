@@ -106,10 +106,9 @@ public:
                          ConstraintSource source1,
                          boost::function<P (const P& current, const PropertyInput& input1)> func )
   {
-    return New( target,
-                PropertyTypes::Get<P>(),
-                source1,
-                func );
+    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
+    constraint.AddSource( source1 );
+    return constraint;
   }
 
   /**
@@ -128,11 +127,10 @@ public:
                          ConstraintSource source2,
                          boost::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2)> func )
   {
-    return New( target,
-                PropertyTypes::Get<P>(),
-                source1,
-                source2,
-                func );
+    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
+    constraint.AddSource( source1 );
+    constraint.AddSource( source2 );
+    return constraint;
   }
 
   /**
@@ -153,12 +151,11 @@ public:
                          ConstraintSource source3,
                          boost::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2, const PropertyInput& input3)> func )
   {
-    return New( target,
-                PropertyTypes::Get<P>(),
-                source1,
-                source2,
-                source3,
-                func );
+    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
+    constraint.AddSource( source1 );
+    constraint.AddSource( source2 );
+    constraint.AddSource( source3 );
+    return constraint;
   }
 
   /**
@@ -185,13 +182,12 @@ public:
                                             const PropertyInput& input3,
                                             const PropertyInput& input4)> func )
   {
-    return New( target,
-                PropertyTypes::Get<P>(),
-                source1,
-                source2,
-                source3,
-                source4,
-                func );
+    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
+    constraint.AddSource( source1 );
+    constraint.AddSource( source2 );
+    constraint.AddSource( source3 );
+    constraint.AddSource( source4 );
+    return constraint;
   }
 
   /**
@@ -221,14 +217,13 @@ public:
                                             const PropertyInput& input4,
                                             const PropertyInput& input5)> func )
   {
-    return New( target,
-                PropertyTypes::Get<P>(),
-                source1,
-                source2,
-                source3,
-                source4,
-                source5,
-                func );
+    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
+    constraint.AddSource( source1 );
+    constraint.AddSource( source2 );
+    constraint.AddSource( source3 );
+    constraint.AddSource( source4 );
+    constraint.AddSource( source5 );
+    return constraint;
   }
 
   /**
@@ -261,16 +256,22 @@ public:
                                             const PropertyInput& input5,
                                             const PropertyInput& input6)> func )
   {
-    return New( target,
-                PropertyTypes::Get<P>(),
-                source1,
-                source2,
-                source3,
-                source4,
-                source5,
-                source6,
-                func );
+    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
+    constraint.AddSource( source1 );
+    constraint.AddSource( source2 );
+    constraint.AddSource( source3 );
+    constraint.AddSource( source4 );
+    constraint.AddSource( source5 );
+    constraint.AddSource( source6 );
+    return constraint;
   }
+
+  /**
+   * Adds a constraint source to the constraint
+   *
+   * @param[in] source The constraint source input to add
+   */
+  void AddSource( ConstraintSource source );
 
   /**
    * @brief Downcast an Object handle to Constraint handle.
@@ -384,120 +385,6 @@ private: // Not intended for use by Application developers
    */
   static Constraint New( Property::Index target,
                          Property::Type targetType,
-                         AnyFunction func );
-
-  /**
-   * @brief Construct a new constraint which targets a property.
-   *
-   * @param [in] target The index of the property to constrain.
-   * @param [in] targetType The type of the constrained property.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] func The constraint function.
-   * @return The new constraint.
-   */
-  static Constraint New( Property::Index target,
-                         Property::Type targetType,
-                         ConstraintSource source1,
-                         AnyFunction func );
-
-  /**
-   * @brief Construct a new constraint which targets a property.
-   *
-   * @param [in] target The index of the property to constrain.
-   * @param [in] targetType The type of the constrained property.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] source2 The source of a property; the current value will be passed as the 3rd parameter of func.
-   * @param [in] func The constraint function.
-   * @return The new constraint.
-   */
-  static Constraint New( Property::Index target,
-                         Property::Type targetType,
-                         ConstraintSource source1,
-                         ConstraintSource source2,
-                         AnyFunction func );
-
-  /**
-   * @brief Construct a new constraint which targets a property.
-   *
-   * @param [in] target The index of the property to constrain.
-   * @param [in] targetType The type of the constrained property.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] source2 The source of a property; the current value will be passed as the 3rd parameter of func.
-   * @param [in] source3 The source of a property; the current value will be passed as the 4th parameter of func.
-   * @param [in] func The constraint function.
-   * @return The new constraint.
-   */
-  static Constraint New( Property::Index target,
-                         Property::Type targetType,
-                         ConstraintSource source1,
-                         ConstraintSource source2,
-                         ConstraintSource source3,
-                         AnyFunction func );
-
-  /**
-   * @brief Construct a new constraint which targets a property.
-   *
-   * @param [in] target The index of the property to constrain.
-   * @param [in] targetType The type of the constrained property.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] source2 The source of a property; the current value will be passed as the 3rd parameter of func.
-   * @param [in] source3 The source of a property; the current value will be passed as the 4th parameter of func.
-   * @param [in] source4 The source of a property; the current value will be passed as the 5th parameter of func.
-   * @param [in] func The constraint function.
-   * @return The new constraint.
-   */
-  static Constraint New( Property::Index target,
-                         Property::Type targetType,
-                         ConstraintSource source1,
-                         ConstraintSource source2,
-                         ConstraintSource source3,
-                         ConstraintSource source4,
-                         AnyFunction func );
-
-  /**
-   * @brief Construct a new constraint which targets a property.
-   *
-   * @param [in] target The index of the property to constrain.
-   * @param [in] targetType The type of the constrained property.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] source2 The source of a property; the current value will be passed as the 3rd parameter of func.
-   * @param [in] source3 The source of a property; the current value will be passed as the 4th parameter of func.
-   * @param [in] source4 The source of a property; the current value will be passed as the 5th parameter of func.
-   * @param [in] source5 The source of a property; the current value will be passed as the 6th parameter of func.
-   * @param [in] func The constraint function.
-   * @return The new constraint.
-   */
-  static Constraint New( Property::Index target,
-                         Property::Type targetType,
-                         ConstraintSource source1,
-                         ConstraintSource source2,
-                         ConstraintSource source3,
-                         ConstraintSource source4,
-                         ConstraintSource source5,
-                         AnyFunction func );
-
-  /**
-   * @brief Construct a new constraint which targets a property.
-   *
-   * @param [in] target The index of the property to constrain.
-   * @param [in] targetType The type of the constrained property.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] source2 The source of a property; the current value will be passed as the 3rd parameter of func.
-   * @param [in] source3 The source of a property; the current value will be passed as the 4th parameter of func.
-   * @param [in] source4 The source of a property; the current value will be passed as the 5th parameter of func.
-   * @param [in] source5 The source of a property; the current value will be passed as the 6th parameter of func.
-   * @param [in] source6 The source of a property; the current value will be passed as the 7th parameter of func.
-   * @param [in] func The constraint function.
-   * @return The new constraint.
-   */
-  static Constraint New( Property::Index target,
-                         Property::Type targetType,
-                         ConstraintSource source1,
-                         ConstraintSource source2,
-                         ConstraintSource source3,
-                         ConstraintSource source4,
-                         ConstraintSource source5,
-                         ConstraintSource source6,
                          AnyFunction func );
 };
 

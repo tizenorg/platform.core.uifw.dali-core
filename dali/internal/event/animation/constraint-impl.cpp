@@ -128,112 +128,134 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
 
 Constraint::Constraint( Property::Index targetIndex,
                         Property::Type targetType,
-                        SourceContainer& sources,
                         AnyFunction& func )
-: mApplyTime( 0.0f )
+: mActiveConstraintTemplate(),
+  mApplyTime( 0.0f ),
+  mTargetIndex( targetIndex ),
+  mTargetType( targetType ),
+  mSources(),
+  mAlphaFunction( Dali::Constraint::DEFAULT_ALPHA_FUNCTION ),
+  mFunc( func ),
+  mRemoveAction( Dali::Constraint::DEFAULT_REMOVE_ACTION ),
+  mTag( 0 )
 {
-  switch ( targetType )
-  {
-    case Property::BOOLEAN:
-    {
-      PropertyConstraintPtr<bool>::Type funcPtr( CreatePropertyConstraint<bool>( func, sources.size() ) );
+}
 
-      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<bool>::New( targetIndex,
-                                                                                       sources,
-                                                                                       funcPtr ) );
-      break;
-    }
-
-    case Property::FLOAT:
-    {
-      PropertyConstraintPtr<float>::Type funcPtr( CreatePropertyConstraint<float>( func, sources.size() ) );
-
-      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<float>::New( targetIndex,
-                                                                                        sources,
-                                                                                        funcPtr ) );
-      break;
-    }
-
-    case Property::INTEGER:
-    {
-      PropertyConstraintPtr<int>::Type funcPtr( CreatePropertyConstraint<int>( func, sources.size() ) );
-
-      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<int>::New( targetIndex,
-                                                                                      sources,
-                                                                                      funcPtr ) );
-      break;
-    }
-
-    case Property::VECTOR2:
-    {
-      PropertyConstraintPtr<Vector2>::Type funcPtr( CreatePropertyConstraint<Vector2>( func, sources.size() ) );
-
-      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector2>::New( targetIndex,
-                                                                                          sources,
-                                                                                          funcPtr ) );
-      break;
-    }
-
-    case Property::VECTOR3:
-    {
-      PropertyConstraintPtr<Vector3>::Type funcPtr( CreatePropertyConstraint<Vector3>( func, sources.size() ) );
-
-      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector3>::New( targetIndex,
-                                                                                          sources,
-                                                                                          funcPtr ) );
-      break;
-    }
-
-    case Property::VECTOR4:
-    {
-      PropertyConstraintPtr<Vector4>::Type funcPtr( CreatePropertyConstraint<Vector4>( func, sources.size() ) );
-
-      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector4>::New( targetIndex,
-                                                                                          sources,
-                                                                                          funcPtr ) );
-      break;
-    }
-
-    case Property::ROTATION:
-    {
-      PropertyConstraintPtr<Quaternion>::Type funcPtr( CreatePropertyConstraint<Quaternion>( func, sources.size() ) );
-
-      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Quaternion>::New( targetIndex,
-                                                                                             sources,
-                                                                                             funcPtr ) );
-      break;
-    }
-
-    case Property::MATRIX:
-    {
-      PropertyConstraintPtr<Matrix>::Type funcPtr( CreatePropertyConstraint<Matrix>( func, sources.size() ) );
-
-      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Matrix>::New( targetIndex,
-                                                                                         sources,
-                                                                                         funcPtr ) );
-      break;
-    }
-
-    case Property::MATRIX3:
-    {
-      PropertyConstraintPtr<Matrix3>::Type funcPtr( CreatePropertyConstraint<Matrix3>( func, sources.size() ) );
-
-      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Matrix3>::New( targetIndex,
-                                                                                          sources,
-                                                                                          funcPtr ) );
-      break;
-    }
-
-    default:
-    {
-      DALI_ASSERT_ALWAYS( false && "Property type enumeration out of bounds" ); // should never come here
-      break;
-    }
-  }
+void Constraint::AddSource( Source source )
+{
+  mActiveConstraintTemplate.Reset();
+  mSources.push_back( source );
 }
 
 ActiveConstraintBase* Constraint::CreateActiveConstraint()
 {
+  if ( !mActiveConstraintTemplate )
+  {
+    switch ( mTargetType )
+    {
+      case Property::BOOLEAN:
+      {
+        PropertyConstraintPtr<bool>::Type funcPtr( CreatePropertyConstraint<bool>( mFunc, mSources.size() ) );
+
+        mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<bool>::New( mTargetIndex,
+                                                                                         mSources,
+                                                                                         funcPtr ) );
+        break;
+      }
+
+      case Property::FLOAT:
+      {
+        PropertyConstraintPtr<float>::Type funcPtr( CreatePropertyConstraint<float>( mFunc, mSources.size() ) );
+
+        mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<float>::New( mTargetIndex,
+                                                                                          mSources,
+                                                                                          funcPtr ) );
+        break;
+      }
+
+      case Property::INTEGER:
+      {
+        PropertyConstraintPtr<int>::Type funcPtr( CreatePropertyConstraint<int>( mFunc, mSources.size() ) );
+
+        mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<int>::New( mTargetIndex,
+                                                                                        mSources,
+                                                                                        funcPtr ) );
+        break;
+      }
+
+      case Property::VECTOR2:
+      {
+        PropertyConstraintPtr<Vector2>::Type funcPtr( CreatePropertyConstraint<Vector2>( mFunc, mSources.size() ) );
+
+        mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector2>::New( mTargetIndex,
+                                                                                            mSources,
+                                                                                            funcPtr ) );
+        break;
+      }
+
+      case Property::VECTOR3:
+      {
+        PropertyConstraintPtr<Vector3>::Type funcPtr( CreatePropertyConstraint<Vector3>( mFunc, mSources.size() ) );
+
+        mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector3>::New( mTargetIndex,
+                                                                                            mSources,
+                                                                                            funcPtr ) );
+        break;
+      }
+
+      case Property::VECTOR4:
+      {
+        PropertyConstraintPtr<Vector4>::Type funcPtr( CreatePropertyConstraint<Vector4>( mFunc, mSources.size() ) );
+
+        mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector4>::New( mTargetIndex,
+                                                                                            mSources,
+                                                                                            funcPtr ) );
+        break;
+      }
+
+      case Property::ROTATION:
+      {
+        PropertyConstraintPtr<Quaternion>::Type funcPtr( CreatePropertyConstraint<Quaternion>( mFunc, mSources.size() ) );
+
+        mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Quaternion>::New( mTargetIndex,
+                                                                                               mSources,
+                                                                                               funcPtr ) );
+        break;
+      }
+
+      case Property::MATRIX:
+      {
+        PropertyConstraintPtr<Matrix>::Type funcPtr( CreatePropertyConstraint<Matrix>( mFunc, mSources.size() ) );
+
+        mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Matrix>::New( mTargetIndex,
+                                                                                           mSources,
+                                                                                           funcPtr ) );
+        break;
+      }
+
+      case Property::MATRIX3:
+      {
+        PropertyConstraintPtr<Matrix3>::Type funcPtr( CreatePropertyConstraint<Matrix3>( mFunc, mSources.size() ) );
+
+        mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Matrix3>::New( mTargetIndex,
+                                                                                            mSources,
+                                                                                            funcPtr ) );
+        break;
+      }
+
+      default:
+      {
+        DALI_ASSERT_ALWAYS( false && "Property type enumeration out of bounds" ); // should never come here
+        break;
+      }
+    }
+
+    ActiveConstraintBase& activeConstraintImpl = GetImplementation( mActiveConstraintTemplate );
+    activeConstraintImpl.SetAlphaFunction( mAlphaFunction );
+    activeConstraintImpl.SetRemoveAction( mRemoveAction );
+    activeConstraintImpl.SetTag( mTag );
+  }
+
   return GetImplementation( mActiveConstraintTemplate ).Clone();
 }
 
@@ -249,36 +271,48 @@ TimePeriod Constraint::GetApplyTime() const
 
 void Constraint::SetAlphaFunction( Dali::AlphaFunction func )
 {
-  GetImplementation( mActiveConstraintTemplate ).SetAlphaFunction( func );
+  mAlphaFunction = func;
+
+  if ( mActiveConstraintTemplate )
+  {
+    GetImplementation( mActiveConstraintTemplate ).SetAlphaFunction( func );
+  }
 }
 
 Dali::AlphaFunction Constraint::GetAlphaFunction() const
 {
-  return GetImplementation( mActiveConstraintTemplate ).GetAlphaFunction();
+  return mAlphaFunction;
 }
 
 void Constraint::SetRemoveAction( Dali::Constraint::RemoveAction action )
 {
-  GetImplementation( mActiveConstraintTemplate ).SetRemoveAction( action );
+  mRemoveAction = action;
+
+  if ( mActiveConstraintTemplate )
+  {
+    GetImplementation( mActiveConstraintTemplate ).SetRemoveAction( action );
+  }
 }
 
 Dali::Constraint::RemoveAction Constraint::GetRemoveAction() const
 {
-  return GetImplementation( mActiveConstraintTemplate ).GetRemoveAction();
+  return mRemoveAction;
 }
-
 
 void Constraint::SetTag(unsigned int tag)
 {
-  GetImplementation( mActiveConstraintTemplate ).SetTag(tag);
+  mTag = tag;
+
+  if ( mActiveConstraintTemplate )
+  {
+    GetImplementation( mActiveConstraintTemplate ).SetTag(tag);
+  }
 }
 
 unsigned int Constraint::GetTag() const
 {
-  return GetImplementation( mActiveConstraintTemplate ).GetTag();
+  return mTag;
 }
-
-
 
 Constraint::~Constraint()
 {

@@ -48,13 +48,16 @@ public:
    * Construct a new constraint which targets a property.
    * @param [in] target The index of the property to constrain.
    * @param [in] targetType The type of the constrained property.
-   * @param [in] sources The objects which provide parameters for func.
    * @param [in] func The constraint function.
    */
   Constraint( Property::Index target,
               Property::Type targetType,
-              SourceContainer& sources,
               AnyFunction& func );
+
+  /**
+   * Adds a constraint-source to the constraint
+   */
+  void AddSource( Source source );
 
   /**
    * @copydoc Dali::Constraint::SetApplyTime()
@@ -96,9 +99,6 @@ public:
    */
   unsigned int GetTag() const;
 
-
-
-
   /**
    * Create an active constraint.
    * An active constraint is created each time the constraint is applied to an object.
@@ -124,8 +124,14 @@ private:
 protected:
 
   Dali::ActiveConstraint mActiveConstraintTemplate; ///< Used to create active constraints
-
   TimePeriod mApplyTime;
+  Property::Index mTargetIndex;
+  Property::Type mTargetType;
+  SourceContainer mSources;
+  AlphaFunction mAlphaFunction;
+  AnyFunction mFunc;
+  Dali::Constraint::RemoveAction mRemoveAction;
+  unsigned int mTag;
 };
 
 } // namespace Internal

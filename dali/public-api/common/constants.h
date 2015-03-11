@@ -128,7 +128,7 @@ static const float PI_4 = static_cast<float>(M_PI_4); ///< Constant representing
  */
 namespace String
 {
-extern const std::string EMPTY; ///< The empty string
+DALI_IMPORT_API extern const std::string EMPTY; ///< The empty string
 }
 
 } // namespace Dali

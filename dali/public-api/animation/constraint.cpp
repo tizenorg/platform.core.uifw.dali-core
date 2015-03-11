@@ -53,6 +53,11 @@ Constraint& Constraint::operator=(const Constraint& rhs)
   return *this;
 }
 
+void Constraint::AddSource( ConstraintSource source )
+{
+  GetImplementation( *this ).AddSource( Internal::Source( source ) );
+}
+
 void Constraint::SetApplyTime( TimePeriod timePeriod )
 {
   GetImplementation(*this).SetApplyTime( timePeriod );
@@ -93,133 +98,12 @@ unsigned int Constraint::GetTag() const
   return GetImplementation(*this).GetTag();
 }
 
-
-
-
-
 Constraint Constraint::New( Property::Index target,
                             Property::Type targetType,
                             AnyFunction func )
 {
-  Internal::SourceContainer sources; // empty
-
   return Constraint( new Internal::Constraint( target,
                                                targetType,
-                                               sources,
-                                               func ) );
-}
-
-Constraint Constraint::New( Property::Index target,
-                            Property::Type targetType,
-                            ConstraintSource source1,
-                            AnyFunction func )
-{
-  Internal::SourceContainer sources;
-  sources.push_back( Internal::Source( source1 ) );
-
-  return Constraint( new Internal::Constraint( target,
-                                               targetType,
-                                               sources,
-                                               func ) );
-}
-
-Constraint Constraint::New( Property::Index target,
-                            Property::Type targetType,
-                            ConstraintSource source1,
-                            ConstraintSource source2,
-                            AnyFunction func )
-{
-  Internal::SourceContainer sources;
-  sources.push_back( Internal::Source( source1 ) );
-  sources.push_back( Internal::Source( source2 ) );
-
-  return Constraint( new Internal::Constraint( target,
-                                               targetType,
-                                               sources,
-                                               func ) );
-}
-
-Constraint Constraint::New( Property::Index target,
-                            Property::Type targetType,
-                            ConstraintSource source1,
-                            ConstraintSource source2,
-                            ConstraintSource source3,
-                            AnyFunction func )
-{
-  Internal::SourceContainer sources;
-  sources.push_back( Internal::Source( source1 ) );
-  sources.push_back( Internal::Source( source2 ) );
-  sources.push_back( Internal::Source( source3 ) );
-
-  return Constraint( new Internal::Constraint( target,
-                                               targetType,
-                                               sources,
-                                               func ) );
-}
-
-Constraint Constraint::New( Property::Index target,
-                            Property::Type targetType,
-                            ConstraintSource source1,
-                            ConstraintSource source2,
-                            ConstraintSource source3,
-                            ConstraintSource source4,
-                            AnyFunction func )
-{
-  Internal::SourceContainer sources;
-  sources.push_back( Internal::Source( source1 ) );
-  sources.push_back( Internal::Source( source2 ) );
-  sources.push_back( Internal::Source( source3 ) );
-  sources.push_back( Internal::Source( source4 ) );
-
-  return Constraint( new Internal::Constraint( target,
-                                               targetType,
-                                               sources,
-                                               func ) );
-}
-
-Constraint Constraint::New( Property::Index target,
-                            Property::Type targetType,
-                            ConstraintSource source1,
-                            ConstraintSource source2,
-                            ConstraintSource source3,
-                            ConstraintSource source4,
-                            ConstraintSource source5,
-                            AnyFunction func )
-{
-  Internal::SourceContainer sources;
-  sources.push_back( Internal::Source( source1 ) );
-  sources.push_back( Internal::Source( source2 ) );
-  sources.push_back( Internal::Source( source3 ) );
-  sources.push_back( Internal::Source( source4 ) );
-  sources.push_back( Internal::Source( source5 ) );
-
-  return Constraint( new Internal::Constraint( target,
-                                               targetType,
-                                               sources,
-                                               func ) );
-}
-
-Constraint Constraint::New( Property::Index target,
-                            Property::Type targetType,
-                            ConstraintSource source1,
-                            ConstraintSource source2,
-                            ConstraintSource source3,
-                            ConstraintSource source4,
-                            ConstraintSource source5,
-                            ConstraintSource source6,
-                            AnyFunction func )
-{
-  Internal::SourceContainer sources;
-  sources.push_back( Internal::Source( source1 ) );
-  sources.push_back( Internal::Source( source2 ) );
-  sources.push_back( Internal::Source( source3 ) );
-  sources.push_back( Internal::Source( source4 ) );
-  sources.push_back( Internal::Source( source5 ) );
-  sources.push_back( Internal::Source( source6 ) );
-
-  return Constraint( new Internal::Constraint( target,
-                                               targetType,
-                                               sources,
                                                func ) );
 }
 

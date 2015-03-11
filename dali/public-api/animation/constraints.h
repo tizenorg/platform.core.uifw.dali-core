@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/animation/constraint.h>
 #include <dali/public-api/math/vector3.h>
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/math/quaternion.h>
@@ -46,21 +47,18 @@ struct ScaleToFitConstraint
   /**
    * @brief Functor operator
    *
-   * @param[in] current The actor's current scale
-   * @param[in] sizeProperty The actor's current size
-   * @param[in] parentSizeProperty The parent's current size.
+   * @param[in,out] current The actor's current scale, the constrained value is set.
+   * @param[in] inputs Contains the the actor's current size and its parent's current size.
    * @return The actor's new scale
    */
-  Vector3 operator()(const Vector3&    current,
-                     const PropertyInput& sizeProperty,
-                     const PropertyInput& parentSizeProperty)
+  void operator()( Vector3& current, const PropertyInputContainer& inputs )
   {
-    const Vector3 size = sizeProperty.GetVector3();
-    const Vector3 parentSize = parentSizeProperty.GetVector3();
+    const Vector3& size = inputs[0]->GetVector3();
+    const Vector3& parentSize = inputs[1]->GetVector3();
 
-    return Vector3( fabsf(size.x) > Math::MACHINE_EPSILON_1 ? (parentSize.x / size.x) : 0.0f,
-                    fabsf(size.y) > Math::MACHINE_EPSILON_1 ? (parentSize.y / size.y) : 0.0f,
-                    fabsf(size.z) > Math::MACHINE_EPSILON_1 ? (parentSize.z / size.z) : 0.0f );
+    current.x = fabsf(size.x) > Math::MACHINE_EPSILON_1 ? (parentSize.x / size.x) : 0.0f;
+    current.y = fabsf(size.y) > Math::MACHINE_EPSILON_1 ? (parentSize.y / size.y) : 0.0f;
+    current.z = fabsf(size.z) > Math::MACHINE_EPSILON_1 ? (parentSize.z / size.z) : 0.0f;
   }
 };
 
@@ -81,16 +79,13 @@ struct ScaleToFitKeepAspectRatioConstraint
   /**
    * @brief Functor operator
    *
-   * @param[in] current The actor's current scale
-   * @param[in] sizeProperty The actor's current size
-   * @param[in] parentSizeProperty The parent's current size.
+   * @param[in,out] current The actor's current scale
+   * @param[in] inputs Contains the the actor's current size and its parent's current size.
    * @return The actor's new scale
    */
-  Vector3 operator()(const Vector3&    current,
-                     const PropertyInput& sizeProperty,
-                     const PropertyInput& parentSizeProperty)
+  void operator()( Vector3& current, const PropertyInputContainer& inputs )
   {
-    return FitKeepAspectRatio( parentSizeProperty.GetVector3(), sizeProperty.GetVector3() );
+    current = FitKeepAspectRatio( inputs[0]->GetVector3(), inputs[1]->GetVector3() );
   }
 };
 
@@ -109,16 +104,13 @@ struct ScaleToFillXYKeepAspectRatioConstraint
   { }
 
   /**
-   * @param[in] current The actor's current scale
-   * @param[in] sizeProperty The actor's current size
-   * @param[in] parentSizeProperty The parent's current size.
+   * @param[in,out] current The actor's current scale, the constrained value is set.
+   * @param[in] inputs Contains the the actor's current size and its parent's current size.
    * @return The actor's new scale
    */
-  Vector3 operator()(const Vector3&    current,
-                     const PropertyInput& sizeProperty,
-                     const PropertyInput& parentSizeProperty)
+  void operator()( Vector3& current, const PropertyInputContainer& inputs )
   {
-    return FillXYKeepAspectRatio( parentSizeProperty.GetVector3(), sizeProperty.GetVector3() );
+    current = FillXYKeepAspectRatio( inputs[0]->GetVector3(), inputs[1]->GetVector3() );
   }
 };
 
@@ -138,73 +130,85 @@ struct EqualToConstraint
   /**
    * @brief override functor for float properties
    *
-   * @param[in] current The current property value
-   * @param[in] property The property to copy
+   * @param[in, out] current The current property value, the constrained value is set
+   * @param[in] inputs Contains the property to copy
    * @return The copy of the input property
    */
-  float operator()(const float current, const PropertyInput& property)
+  void operator()( float& current, const PropertyInputContainer& inputs )
   {
-    return property.GetFloat();
+    current = inputs[0]->GetFloat();
   }
 
   /**
    * @brief override functor for float properties
    *
-   * @param[in] current The current property value
-   * @param[in] property The property to copy
+   * @param[in] current The current property value, the constrained value is set
+   * @param[in] inputs Contains the property to copy
    * @return The copy of the input property
    */
-  Vector3 operator()(const Vector3& current, const PropertyInput& property)
+  void operator()( Vector2& current, const PropertyInputContainer& inputs )
   {
-    return property.GetVector3();
+    current = inputs[0]->GetVector2();
   }
 
   /**
    * @brief override functor for float properties
    *
-   * @param[in] current The current property value
-   * @param[in] property The property to copy
+   * @param[in,out] current The current property value, the constrained value is set
+   * @param[in] inputs Contains the property to copy
    * @return The copy of the input property
    */
-  Vector4 operator()(const Vector4& current, const PropertyInput& property)
+  void operator()( Vector3& current, const PropertyInputContainer& inputs )
   {
-    return property.GetVector4();
+    current = inputs[0]->GetVector3();
   }
 
   /**
    * @brief override functor for float properties
    *
-   * @param[in] current The current property value
-   * @param[in] property The property to copy
+   * @param[in,out] current The current property value, the constrained value is set
+   * @param[in] inputs Contains the property to copy
    * @return The copy of the input property
    */
-  Quaternion operator()(const Quaternion& current, const PropertyInput& property)
+  void operator()( Vector4& current, const PropertyInputContainer& inputs )
   {
-    return property.GetQuaternion();
+    current = inputs[0]->GetVector4();
   }
 
   /**
    * @brief override functor for float properties
    *
-   * @param[in] current The current property value
-   * @param[in] property The property to copy
+   * @param[in,out] current The current property value, the constrained value is set
+   * @param[in] inputs Contains the property to copy
    * @return The copy of the input property
    */
-  Matrix3 operator()(const Matrix3& current, const PropertyInput& property)
+  void operator()( Quaternion& current, const PropertyInputContainer& inputs )
   {
-    return property.GetMatrix3();
+    current = inputs[0]->GetQuaternion();
   }
 
   /**
    * @brief override functor for float properties
    *
-   * @param[in] current The current property value
-   * @param[in] property The property to copy
+   * @param[in,out] current The current property value
+   * @param[in] inputs Contains the property to copy
    * @return The copy of the input property
    */
-  Matrix operator()(const Matrix& current, const PropertyInput& property)
+  void operator()( Matrix3& current, const PropertyInputContainer& inputs )
   {
-    return property.GetMatrix();
+    current = inputs[0]->GetMatrix3();
+  }
+
+  /**
+   * @brief override functor for float properties
+   *
+   * @param[in,out] current The current property value, the constrained value is set
+   * @param[in] inputs Contains the property to copy
+   * @return The copy of the input property
+   */
+  void operator()( Matrix& current, const PropertyInputContainer& inputs )
+  {
+    current = inputs[0]->GetMatrix();
   }
 
 };
@@ -212,7 +216,7 @@ struct EqualToConstraint
 /**
  * @brief RelativeToConstraint for Vector3 properties
  *
- * f(current, property, scale) = property * scale
+ * current = property * scale
  */
 struct RelativeToConstraint
 {
@@ -231,9 +235,9 @@ struct RelativeToConstraint
   /**
    * @brief Functor.
    */
-  Vector3 operator()(const Vector3& current, const PropertyInput& property)
+  void operator()( Vector3& current, const PropertyInputContainer& inputs )
   {
-    return property.GetVector3() * mScale;
+    current = inputs[0]->GetVector3() * mScale;
   }
 
   Vector3 mScale; ///< Component-wise scale factor
@@ -253,9 +257,9 @@ struct RelativeToConstraintFloat
   /**
    * @brief Functor.
    */
-  float operator()(const float current, const PropertyInput& property)
+  void operator()( float& current, const PropertyInputContainer& inputs )
   {
-    return property.GetFloat() * mScale;
+    current = inputs[0]->GetFloat() * mScale;
   }
 
   float mScale; ///< Scale factor
@@ -276,10 +280,10 @@ struct SourceWidthFixedHeight
   /**
    * @brief Functor.
    */
-  Vector3 operator()(const Vector3& current,
-                     const PropertyInput& sourceSize)
+  void operator()( Vector3& current, const PropertyInputContainer& inputs )
   {
-    return Vector3( sourceSize.GetVector3().width, mFixedHeight, current.depth );
+    current.width  = inputs[0]->GetVector3().width;
+    current.height = mFixedHeight;
   }
 
   float mFixedHeight; ///< the fixed height
@@ -293,17 +297,16 @@ struct SourceWidthFixedHeight
  * constrained actor along the vector between camera position and
  * target position.
  *
- * @param[in] current The current orientation property value
- * @param[in] targetPosition World position of target
- * @param[in] cameraPosition World position of camera
- * @param[in] targetOrientation World orientation of the target
+ * @param[in,out] current The current orientation property value, the constrained value is set.
+ * @param[in] inputs Contains the World position of the target, the World position of the camera, and the world orientation of the target
  * @return The orientation of the camera
  */
-inline Quaternion LookAt( const Quaternion& current,
-                          const PropertyInput& targetPosition,
-                          const PropertyInput& cameraPosition,
-                          const PropertyInput& targetOrientation )
+inline void LookAt( Quaternion& current, const PropertyInputContainer& inputs )
 {
+  const PropertyInput& targetPosition( *inputs[0] );
+  const PropertyInput& cameraPosition( *inputs[1] );
+  const PropertyInput& targetOrientation( *inputs[2] );
+
   Vector3 vForward = targetPosition.GetVector3() - cameraPosition.GetVector3();
   vForward.Normalize();
 
@@ -320,7 +323,7 @@ inline Quaternion LookAt( const Quaternion& current,
   Vector3 vY = vForward.Cross(vX);
   vY.Normalize();
 
-  return Quaternion( vX, vY, vForward );
+  current = Quaternion( vX, vY, vForward );
 }
 
 } // namespace Dali

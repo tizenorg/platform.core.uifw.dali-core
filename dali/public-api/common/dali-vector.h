@@ -192,8 +192,8 @@ protected: // Data
  *
  * Trivial types do not need destructor or copy constructor called.
  */
-template< bool IsTrivial >
-class VectorAlgorithms : public VectorBase
+template< bool IsTrivial, typename T > // T is not needed for trivial types
+class VectorImplementation : public VectorBase
 {
 protected: // API for deriving classes
 
@@ -202,13 +202,13 @@ protected: // API for deriving classes
   /**
    * @brief Empty constructor.
    */
-  VectorAlgorithms()
+  VectorImplementation()
   { }
 
   /**
    * @brief Empty destructor.
    */
-  ~VectorAlgorithms()
+  ~VectorImplementation()
   { }
 
   /**
@@ -336,20 +336,54 @@ protected: // API for deriving classes
 };
 
 /**
- * @brief Vector algorithm variant for complex types.
- *
- * Not yet supported so will lead to compile error
- * as constructor and destructor are private.
- * TODO add support for this variant.
+ * @brief Vector implementation for complex types that require destructor and/or copy constructor
  */
-template<>
-class VectorAlgorithms< false > : public VectorBase
+template< typename T >
+class VectorImplementation< false, T > : public VectorBase
 {
-private:
-  VectorAlgorithms()
+
+  typedef T ItemType;
+  typedef VectorBase::SizeType SizeType;
+
+public:
+  /**
+   * @brief Empty constructor.
+   */
+  VectorImplementation()
   { }
-  ~VectorAlgorithms()
-  { }
+
+  /**
+   * @brief Destructor.
+   */
+  ~VectorImplementation()
+  {
+    Clear();
+  }
+
+  /**
+   * @brief Clear the contents.
+   *
+   * Call the destructors and set count to 0
+   */
+  void Clear()
+  {
+    if( mData )
+    {
+      SizeType index = 0u;
+      const SizeType count = Count();
+      ItemType* objectPointer = reinterpret_cast<ItemType*>( VectorBase::mData );
+      for( ; index < count; ++index )
+      {
+        if( objectPointer )
+        {
+          objectPointer->~ItemType();
+        }
+        ++objectPointer;
+      }
+      VectorBase::SetCount( 0u );
+    }
+  }
+
 };
 
 /**
@@ -358,7 +392,7 @@ private:
  * @param type of the data that the vector holds.
  */
 template< class T, bool IsTrivialType = __has_trivial_destructor(T) && __has_trivial_copy(T) >
-class Vector : public VectorAlgorithms< IsTrivialType >
+class Vector : public VectorImplementation< IsTrivialType, T >
 {
 public: // API
 
@@ -410,7 +444,7 @@ public: // API
   {
     if( this != &vector )
     {
-      VectorAlgorithms<BaseType>::Copy( vector, sizeof( ItemType ) );
+      VectorImplementation<BaseType,T>::Copy( vector, sizeof( ItemType ) );
     }
     return *this;
   }
@@ -502,7 +536,7 @@ public: // API
     DALI_ASSERT_VECTOR( ( at <= End() ) && ( at >= Begin() ) && "Iterator not inside vector" );
     const SizeType size = sizeof( ItemType );
     char* address = const_cast<char*>( reinterpret_cast<const char*>( &element ) );
-    VectorAlgorithms<BaseType>::Insert( reinterpret_cast< char* >( at ),
+    VectorImplementation<BaseType,T>::Insert( reinterpret_cast< char* >( at ),
                                         address,
                                         address + size,
                                         size );
@@ -536,7 +570,7 @@ public: // API
       return;
     }
 
-    VectorAlgorithms<BaseType>::Insert( reinterpret_cast< char* >( at ),
+    VectorImplementation<BaseType,T>::Insert( reinterpret_cast< char* >( at ),
                                         reinterpret_cast< char* >( from ),
                                         reinterpret_cast< char* >( to ),
                                         sizeof( ItemType ) );
@@ -550,7 +584,7 @@ public: // API
    */
   void Reserve( SizeType count )
   {
-    VectorAlgorithms<BaseType>::Reserve( count, sizeof( ItemType ) );
+    VectorImplementation<BaseType,T>::Reserve( count, sizeof( ItemType ) );
   }
 
   /**
@@ -594,7 +628,7 @@ public: // API
     DALI_ASSERT_VECTOR( (iterator < End()) && (iterator >= Begin()) && "Iterator not inside vector" );
     if( iterator < ( End() - 1u ) )
     {
-      VectorAlgorithms<BaseType>::Erase( reinterpret_cast< char* >( iterator ), sizeof( ItemType ) );
+      VectorImplementation<BaseType,T>::Erase( reinterpret_cast< char* >( iterator ), sizeof( ItemType ) );
     }
     else
     {
@@ -634,7 +668,7 @@ public: // API
     }
     else
     {
-      nextElement = reinterpret_cast<Iterator>( VectorAlgorithms<BaseType>::Erase( reinterpret_cast< char* >( first ),
+      nextElement = reinterpret_cast<Iterator>( VectorImplementation<BaseType,T>::Erase( reinterpret_cast< char* >( first ),
                                                                                    reinterpret_cast< char* >( last ),
                                                                                    sizeof( ItemType ) ) );
     }
@@ -680,7 +714,7 @@ public: // API
    */
   void Clear()
   {
-    VectorAlgorithms<BaseType>::Clear();
+    VectorImplementation<BaseType,T>::Clear();
   }
 
   /**
@@ -688,7 +722,7 @@ public: // API
    */
   void Release()
   {
-    VectorAlgorithms<BaseType>::Release();
+    VectorImplementation<BaseType,T>::Release();
   }
 };
 

@@ -844,7 +844,7 @@ void Animation::RotateTo(Actor& actor, Radian angle, const Vector3& axis)
   Vector4 normalizedAxis(axis.x, axis.y, axis.z, 0.0f);
   normalizedAxis.Normalize();
 
-  Quaternion orientation(Quaternion::FromAxisAngle(normalizedAxis, angle));
+  Quaternion orientation( angle, normalizedAxis);
 
   RotateTo(actor, orientation, mDefaultAlpha, 0.0f, GetDuration());
 }
@@ -859,7 +859,7 @@ void Animation::RotateTo(Actor& actor, Radian angle, const Vector3& axis, AlphaF
   Vector4 normalizedAxis(axis.x, axis.y, axis.z, 0.0f);
   normalizedAxis.Normalize();
 
-  Quaternion orientation(Quaternion::FromAxisAngle(normalizedAxis, angle));
+  Quaternion orientation( angle, normalizedAxis );
 
   RotateTo(actor, orientation, alpha, 0.0f, GetDuration());
 }
@@ -874,7 +874,7 @@ void Animation::RotateTo(Actor& actor, Radian angle, const Vector3& axis, AlphaF
   Vector4 normalizedAxis(axis.x, axis.y, axis.z, 0.0f);
   normalizedAxis.Normalize();
 
-  Quaternion orientation(Quaternion::FromAxisAngle(normalizedAxis, angle));
+  Quaternion orientation( angle, normalizedAxis );
 
   RotateTo(actor, orientation, alpha, delaySeconds, durationSeconds);
 }

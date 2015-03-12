@@ -638,7 +638,7 @@ struct AnimateToBoolean : public AnimatorFunctionBase
 struct RotateByAngleAxis : public AnimatorFunctionBase
 {
   RotateByAngleAxis(const Radian& angleRadians, const Vector3& axis)
-  : mAngleRadians(angleRadians),
+  : mAngleRadians( angleRadians.radian ),
     mAxis(axis.x, axis.y, axis.z, 0.0f)
   {
   }
@@ -647,7 +647,7 @@ struct RotateByAngleAxis : public AnimatorFunctionBase
   {
     if (alpha > 0.0f)
     {
-      return rotation * Quaternion(mAngleRadians * alpha, mAxis);
+      return rotation * Quaternion( Radian( mAngleRadians * alpha ), mAxis );
     }
 
     return rotation;

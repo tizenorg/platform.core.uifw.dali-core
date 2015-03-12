@@ -40,12 +40,12 @@ const Quaternion Quaternion::IDENTITY;
  * Default Constructor
  */
 Quaternion::Quaternion()
-  : mVector(0.0f, 0.0f, 0.0f, 1.0f)
+  : mVector( 0.0f, 0.0f, 0.0f, 1.0f )
 {
 }
 
-Quaternion::Quaternion(float cosThetaBy2, float iBySineTheta, float jBySineTheta, float kBySineTheta) :
-  mVector(iBySineTheta, jBySineTheta, kBySineTheta, cosThetaBy2)
+Quaternion::Quaternion( float cosThetaBy2, float iBySineTheta, float jBySineTheta, float kBySineTheta ) :
+  mVector( iBySineTheta, jBySineTheta, kBySineTheta, cosThetaBy2 )
 {
 }
 
@@ -54,13 +54,13 @@ Quaternion::Quaternion(const Vector4& vector)
   mVector = vector;
 }
 
-Quaternion::Quaternion(float angle, const Vector3 &axis)
+Quaternion::Quaternion( const Radian& angle, const Vector3& axis )
 {
   MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,4);
 
   Vector3 tmpAxis = axis;
   tmpAxis.Normalize();
-  const float halfAngle = angle * 0.5f;
+  const float halfAngle = angle.radian * 0.5f;
   const float sinThetaByTwo = sinf(halfAngle);
   const float cosThetaByTwo = cosf(halfAngle);
   mVector.x = tmpAxis.x * sinThetaByTwo;
@@ -69,13 +69,13 @@ Quaternion::Quaternion(float angle, const Vector3 &axis)
   mVector.w = cosThetaByTwo;
 }
 
-Quaternion::Quaternion(float theta, const Vector4 &axis)
+Quaternion::Quaternion( const Radian& theta, const Vector4& axis )
 {
   MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,4);
 
   Vector4 tmpAxis = axis;
   tmpAxis.Normalize();
-  const float halfTheta = theta * 0.5f;
+  const float halfTheta = theta.radian * 0.5f;
   const float sinThetaByTwo = sinf(halfTheta);
   const float cosThetaByTwo = cosf(halfTheta);
   mVector.x = tmpAxis.x * sinThetaByTwo;
@@ -84,12 +84,12 @@ Quaternion::Quaternion(float theta, const Vector4 &axis)
   mVector.w = cosThetaByTwo;
 }
 
-Quaternion::Quaternion(float x, float y, float z)
+Quaternion::Quaternion( const Radian& pitch, const Radian& yaw, const Radian& roll )
 {
-  SetEuler(x,y,z);
+  SetEuler( pitch, yaw, roll );
 }
 
-Quaternion::Quaternion(const Matrix& matrix)
+Quaternion::Quaternion( const Matrix& matrix )
 {
   Vector3 xAxis( matrix.GetXAxis() );
   Vector3 yAxis( matrix.GetYAxis() );
@@ -129,11 +129,6 @@ Quaternion::Quaternion( const Vector3& v0, const Vector3& v1 )
   }
 }
 
-Quaternion Quaternion::FromAxisAngle(const Vector4 &axis, float angle)
-{
-  return Quaternion(angle, axis);
-}
-
 Quaternion::~Quaternion()
 {
 }
@@ -148,12 +143,12 @@ bool Quaternion::IsIdentity() const
            ( fabsf( mVector.z ) < Math::MACHINE_EPSILON_10 ) );
 }
 
-bool Quaternion::ToAxisAngle(Vector3 &axis, float &angle) const
+bool Quaternion::ToAxisAngle(Vector3& axis, Radian& angle) const
 {
   angle = acosf(mVector.w);
   bool converted = false;
   // pre-compute to save time
-  const float sine = sinf( angle );
+  const float sine = sinf( angle.radian );
 
   // If sine(angle) is zero, conversion is not possible
 
@@ -166,13 +161,13 @@ bool Quaternion::ToAxisAngle(Vector3 &axis, float &angle) const
     axis.x = mVector.x*sinf_theta_inv;
     axis.y = mVector.y*sinf_theta_inv;
     axis.z = mVector.z*sinf_theta_inv;
-    angle*=2.0f;
+    angle.radian *= 2.0f;
     converted = true;
   }
   return converted;
 }
 
-bool Quaternion::ToAxisAngle(Vector4 &axis, float &angle) const
+bool Quaternion::ToAxisAngle(Vector4& axis, Radian& angle) const
 {
   Vector3 axis3;
   bool converted = ToAxisAngle(axis3, angle);
@@ -191,13 +186,13 @@ const Vector4& Quaternion::AsVector() const
   return mVector;
 }
 
-void Quaternion::SetEuler(float x, float y, float z)
+void Quaternion::SetEuler( const Radian& pitch, const Radian& yaw, const Radian& roll )
 {
   MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,19);
 
-  const float halfX = 0.5f * x;
-  const float halfY = 0.5f * y;
-  const float halfZ = 0.5f * z;
+  const float halfX = 0.5f * pitch.radian;
+  const float halfY = 0.5f * yaw.radian;
+  const float halfZ = 0.5f * roll.radian;
 
   float cosX2 = cosf(halfX);
   float cosY2 = cosf(halfY);
@@ -581,12 +576,11 @@ void Quaternion::SetFromAxes( const Vector3& xAxis, const Vector3& yAxis, const 
 std::ostream& operator<< (std::ostream& o, const Quaternion& quaternion)
 {
   Vector3 axis;
-  float angleRadians;
+  Radian angleRadians;
 
   quaternion.ToAxisAngle( axis, angleRadians );
-  Degree degrees = Radian(angleRadians);
 
-  return o << "[ Axis: [" << axis.x << ", " << axis.y << ", " << axis.z << "], Angle: " << degrees << " degrees ]";
+  return o << "[ Axis: [" << axis.x << ", " << axis.y << ", " << axis.z << "], Angle: " << angleRadians.radian << " radians ]";
 }
 
 } // namespace Dali

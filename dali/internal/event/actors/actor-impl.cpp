@@ -668,7 +668,7 @@ void Actor::SetOrientation(const Radian& angle, const Vector3& axis)
   Vector4 normalizedAxis(axis.x, axis.y, axis.z, 0.0f);
   normalizedAxis.Normalize();
 
-  Quaternion orientation(Quaternion::FromAxisAngle(normalizedAxis, angle));
+  Quaternion orientation( angle, normalizedAxis );
 
   SetOrientation(orientation);
 }

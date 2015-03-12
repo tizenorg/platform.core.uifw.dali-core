@@ -322,7 +322,7 @@ TextVertexBuffer* TextVertexGenerator::Generate( const Integration::TextArray& t
 
   // Italics displacement
   // the text is rendered upside down
-  const float sinAngle = format.IsItalic() ? std::sin( format.GetItalicsAngle() ) : 0.0f;
+  const float sinAngle = format.IsItalic() ? sinf( format.GetItalicsAngle().radian ) : 0.0f;
 
   // get the line height and ascender from the font
   const float lineHeight( metrics.GetLineHeight() * scalar );

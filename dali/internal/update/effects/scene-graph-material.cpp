@@ -38,7 +38,7 @@ Material::~Material()
 {
 }
 
-void Material::SetShader( Shader* shader )
+void Material::SetShader( const Shader* shader )
 {
   mShader = shader;
 }

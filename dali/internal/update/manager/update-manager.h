@@ -270,10 +270,10 @@ public:
   /**
    * Get the geometry owner
    */
-  ObjectOwnerContainer<Geometry*>& GetGeometryOwner();
-  ObjectOwnerContainer<Material*>& GetMaterialOwner();
-  ObjectOwnerContainer<Sampler*>& GetSamplerOwner();
-  ObjectOwnerContainer<PropertyBuffer*>& GetPropertyBufferOwner();
+  ObjectOwnerContainer< Geometry* >& GetGeometryOwner();
+  ObjectOwnerContainer< Material* >& GetMaterialOwner();
+  ObjectOwnerContainer< Sampler* >& GetSamplerOwner();
+  ObjectOwnerContainer< PropertyBuffer* >& GetPropertyBufferOwner();
 
 
   // Shaders

@@ -17,6 +17,10 @@
  * limitations under the License.
  */
 
+// EXTERNAL INCLUDES
+#include <algorithm>
+
+// INTERNAL INCLUDES
 #include <dali/internal/common/owner-container.h>
 #include <dali/internal/update/common/discard-queue.h>
 
@@ -33,12 +37,12 @@ class UpdateManager;
  * It is responsible for ensuring they are placed on a discard queue
  * when removed from the container.
  */
-template< class TypePointer >
+template< class Type >
 class ObjectOwnerContainer
 {
 public:
-  typedef typename Internal::OwnerContainer< TypePointer > ObjectContainer;
-  typedef typename Internal::OwnerContainer< TypePointer >::Iterator Iterator;
+  typedef typename Internal::OwnerContainer< Type* > ObjectContainer;
+  typedef typename Internal::OwnerContainer< Type* >::Iterator Iterator;
 
   ObjectOwnerContainer( SceneGraphBuffers& sceneGraphBuffers, DiscardQueue& discardQueue )
   : mSceneGraphBuffers( sceneGraphBuffers ),
@@ -46,38 +50,29 @@ public:
   {
   }
 
-  void Add( TypePointer object )
+  void Add( Type* pointer )
   {
-    mObjectContainer.PushBack( object );
+    DALI_ASSERT_DEBUG( pointer && "Pointer should not be null" );
+
+    mObjectContainer.PushBack( pointer );
   }
 
-  void Remove( TypePointer object )
+  void Remove( Type* pointer )
   {
-    DALI_ASSERT_DEBUG( object != NULL);
+    DALI_ASSERT_DEBUG( pointer && "Pointer should not be null" );
 
     // Find the object
-    for( Iterator iter = mObjectContainer.Begin(); iter != mObjectContainer.End(); ++iter )
-    {
-      TypePointer current = *iter;
-      if ( current == object )
-      {
-        // Transfer ownership to the discard queue
-        // This keeps the object alive, until the render-thread has finished with it
-        mDiscardQueue.Add( mSceneGraphBuffers.GetUpdateBufferIndex(), mObjectContainer.Release( iter ) );
+    Iterator match = std::find( mObjectContainer.Begin(), mObjectContainer.End(), pointer );
+    DALI_ASSERT_DEBUG( match != mObjectContainer.End() && "Should always find a match" );
 
-        return;
-      }
-    }
-
-    // Should not reach here
-    DALI_ASSERT_DEBUG(false);
+    mDiscardQueue.Add( mSceneGraphBuffers.GetUpdateBufferIndex(), mObjectContainer.Release( match ) );
   }
 
   void ResetToBaseValues( BufferIndex bufferIndex )
   {
     for ( Iterator iter = mObjectContainer.Begin(); iter != mObjectContainer.End(); ++iter)
     {
-      TypePointer object = (*iter);
+      Type* object = (*iter);
       object->ResetToBaseValues( bufferIndex );
     }
   }
@@ -88,7 +83,7 @@ public:
 
     for ( Iterator iter = mObjectContainer.Begin(); iter != mObjectContainer.End(); ++iter)
     {
-      TypePointer object = (*iter);
+      Type* object = (*iter);
       numberOfConstrainedObjects += ConstrainPropertyOwner( *object, bufferIndex );
     }
     return numberOfConstrainedObjects;

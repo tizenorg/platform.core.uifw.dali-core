@@ -30,7 +30,6 @@
 #include <dali/public-api/object/handle.h>
 #include <dali/public-api/object/property-index-ranges.h>
 #include <dali/public-api/signals/dali-signal.h>
-
 namespace Dali
 {
 
@@ -40,6 +39,7 @@ class Actor;
 }
 
 class Actor;
+class Renderer;
 class Animation;
 class Constraint;
 struct Degree;
@@ -1298,6 +1298,38 @@ public: // Signals
    * @return The signal
    */
   OffStageSignalType& OffStageSignal();
+
+public: // Renderer
+
+  /**
+   * @brief Add a renderer to this actor.
+   *
+   * @pre The renderer must be initialized.
+   *
+   * @param[in] renderer Renderer to add to the actor.
+   */
+  std::size_t AddRenderer( Renderer& renderer );
+
+  /**
+   * @brief Get the number of renderers on this actor.
+   *
+   * @return the number of renderers on this actor
+   */
+  std::size_t GetNumberOfRenderers() const;
+
+  /**
+   * @brief Remove an renderer from the actor.
+   *
+   * @param[in] renderer Handle to the renderer that is to be removed
+   */
+  void RemoveRenderer( Renderer& renderer );
+
+  /**
+   * @brief Remove an renderer from the actor by index.
+   *
+   * @param[in] index Index of the renderer that is to be removed
+   */
+  void RemoveRenderer( std::size_t index );
 
 public: // Dynamics
 

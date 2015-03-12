@@ -2,7 +2,7 @@
 #define __DALI_DEGREE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,33 +19,35 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/constants.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/math/math-utils.h>
 
 namespace Dali
 {
-
-struct Radian;
 
 /**
  * @brief An angle in degrees.
  *
  * This reduces ambiguity when using methods which accept angles in degrees or radians.
  */
-struct DALI_IMPORT_API Degree
+struct Degree
 {
+  /**
+   * @brief default constructor, initialises to 0.
+   */
+  Degree()
+  : degree( 0.f )
+  { }
+
   /**
    * @brief Create an angle in degrees.
    *
    * @param[in] value The initial value in degrees.
    */
-  explicit Degree( float value );
-
-  /**
-   * @brief Create an angle in degrees from an angle in radians.
-   *
-   * @param[in] value The initial value in radians.
-   */
-  Degree( const Radian& value );
+  explicit Degree( float value )
+  : degree( value )
+  { }
 
   /**
    * @brief Compare equality between two degrees.
@@ -53,7 +55,10 @@ struct DALI_IMPORT_API Degree
    * @param[in] rhs Degree to compare to
    * @return true if the value is identical
    */
-  bool operator==( const Degree& rhs ) const;
+  bool operator==( const Degree& rhs ) const
+  {
+    return fabsf( degree - rhs.degree ) < GetRangedEpsilon( degree, rhs.degree );
+  }
 
   /**
    * @brief Compare inequality between two degrees.
@@ -61,7 +66,10 @@ struct DALI_IMPORT_API Degree
    * @param[in] rhs Degree to compare to
    * @return true if the value is not identical
    */
-  bool operator!=( const Degree& rhs ) const;
+  bool operator!=( const Degree& rhs ) const
+  {
+    return !(this->operator==(rhs));
+  }
 
   /**
    * @brief Compare two degrees.
@@ -69,7 +77,10 @@ struct DALI_IMPORT_API Degree
    * @param[in] rhs Degree to compare to
    * @return true if this is less than the value
    */
-  bool operator<( const Degree& rhs ) const;
+  bool operator<( const Degree& rhs ) const
+  {
+    return degree < rhs.degree;
+  }
 
   /**
    * @brief Assign an angle from a float value.
@@ -77,35 +88,31 @@ struct DALI_IMPORT_API Degree
    * @param[in] value Float value in degrees
    * @return a reference to this
    */
-  Degree& operator=( const float value );
+  Degree& operator=( float value )
+  {
+    degree = value;
+    return *this;
+  }
 
-  /**
-   * @brief Assign an angle in radians to a Degree.
-   *
-   * @param[in] rhs Radian to get the value from
-   * @return a reference to this
-   */
-  Degree& operator=( const Radian& rhs );
+public:
 
-  /**
-   * @brief Cast operator to const float reference
-   */
-  operator const float&() const;
-
-  /**
-   * @brief Cast operator to float reference.
-   */
-  operator float&();
-
-private:
   // member data
-  float mValue; ///< The value in degrees
+  float degree; ///< The value in degrees
 
-  /**
-   * @brief Disable the default constructor.
-   */
-  Degree();
 };
+
+/**
+ * @brief Create an angle in degrees from an angle in radians.
+ *
+ * @return value in degrees.
+ */
+inline Degree DegreeFromRadian( float radian )
+{
+  Degree degree( radian * Math::ONE80_OVER_PI );
+  return degree;
+}
+
+// compiler generated destructor, copy constructor and assignment operators are ok as this class is POD
 
 } // namespace Dali
 

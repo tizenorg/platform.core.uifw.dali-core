@@ -206,13 +206,13 @@ void TextAttachment::ResetSmoothEdge()
 
 void TextAttachment::SetItalics( Radian angle )
 {
-  if( mStyle.IsItalicsDefault() ||
-      ( Radian( mStyle.GetItalicsAngle() ) != angle ) )
+  const Degree angleInDegrees = DegreeFromRadian( angle.radian );
+  if( mStyle.IsItalicsDefault() || ( mStyle.GetItalicsAngle() != angleInDegrees ) )
   {
     mItalicsChanged = true;
 
     const Radian radian0( 0.0f );
-    mStyle.SetItalics( ( radian0 != angle ), Degree( angle ) );
+    mStyle.SetItalics( ( radian0 != angle ), angleInDegrees );
   }
 }
 

@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/constants.h>
+#include <dali/public-api/math/radian.h>
 #include <dali/public-api/math/vector4.h>
 
 namespace Dali
@@ -64,7 +65,7 @@ public:
    * @param[in] angle - the angle around the axis
    * @param[in] axis  - the vector of the axis
    */
-  Quaternion(float angle, const Vector3 &axis);
+  Quaternion( const Radian& angle, const Vector3& axis);
 
   /**
    * @brief Constructor from an axis and angle.
@@ -72,7 +73,7 @@ public:
    * @param[in] theta - the angle of the axis
    * @param[in] axis  - the unit vector of the axis
    */
-  Quaternion(float theta, const Vector4 &axis);
+  Quaternion( const Radian& theta, const Vector4 &axis );
 
   /**
    * @brief Construct from Euler angles.
@@ -81,7 +82,7 @@ public:
    * @param[in] y - the Y axis euler angle (yaw)
    * @param[in] z - the Z axis euler angle (roll)
    */
-  Quaternion(float x, float y, float z);
+  Quaternion( float x, float y, float z );
 
   /**
    * @brief Construct from a matrix.
@@ -109,15 +110,6 @@ public:
   explicit Quaternion( const Vector3& v0, const Vector3& v1 );
 
   /**
-   * @brief Converts an axis + angle pair rotation to a Quaternion.
-   *
-   * @param[in] axis
-   * @param[in] angle
-   * @return the represented quaternion
-   */
-  static Quaternion FromAxisAngle(const Vector4 &axis, float angle);
-
-  /**
    * @brief Destructor, nonvirtual as this is not a base class.
    *
    */
@@ -138,19 +130,19 @@ public:
    * @brief Convert the quaternion to an axis/angle pair.
    *
    * @param[out] axis
-   * @param[out] angle
+   * @param[out] angle in radians
    * @return true if converted correctly
    */
-  bool ToAxisAngle(Vector3 &axis, float &angle) const;
+  bool ToAxisAngle(Vector3& axis, Radian& angle) const;
 
   /**
    * @brief Convert the quaternion to an axis/angle pair.
    *
    * @param[out] axis
-   * @param[out] angle
+   * @param[out] angle in radians
    * @return true if converted correctly
    */
-  bool ToAxisAngle(Vector4 &axis, float &angle) const;
+  bool ToAxisAngle(Vector4& axis, Radian& angle) const;
 
   /**
    * @brief Return the quaternion as a vector.

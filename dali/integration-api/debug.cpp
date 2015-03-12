@@ -298,11 +298,11 @@ std::string QuaternionToString(const Quaternion& q, size_t precision, size_t ind
   std::ostringstream oss;
 
   Vector3 axis;
-  float angle;
+  Radian angle;
   q.ToAxisAngle(axis, angle);
 
   oss << std::setw(indent+3) << std::setfill(' ') << std::setprecision(precision) << std::right;
-  oss << "<A:" << std::setw(precision+4) << angle * 180.0 / Math::PI << ", " << Vector3ToString(axis, precision, 0) << ">";
+  oss << "<A:" << std::setw(precision+4) << DegreeFromRadian( angle.radian ).degree << ", " << Vector3ToString(axis, precision, 0) << ">";
 
   return oss.str();
 }

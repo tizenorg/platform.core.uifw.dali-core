@@ -173,7 +173,7 @@ void TextActor::SetShadow( bool enable, const Vector4& color, const Vector2& off
 
 void TextActor::SetItalics( bool enabled, Degree angle )
 {
-  GetImplementation(*this).SetItalics( enabled ? Radian(angle) : Radian( 0.0f ) );
+  SetItalics( enabled, Radian( angle ) );
 }
 
 void TextActor::SetItalics( bool enabled, Radian angle )

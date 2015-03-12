@@ -393,7 +393,7 @@ Property::Value::Value(Type type)
 
     case Property::ROTATION:
     {
-      mImpl = new Impl( Quaternion(0.f, Vector4::YAXIS) );
+      mImpl = new Impl( Quaternion( Radian(0.f), Vector4::YAXIS) );
       break;
     }
 
@@ -628,9 +628,7 @@ void Property::Value::Get(AngleAxis& angleAxisValue) const
   {
     Quaternion quaternion = AnyCast<Quaternion>(mImpl->mValue);
 
-    Radian angleRadians(0.0f);
-    quaternion.ToAxisAngle( angleAxisValue.axis, angleRadians );
-    angleAxisValue.angle = angleRadians;
+    quaternion.ToAxisAngle( angleAxisValue.axis, angleAxisValue.angle );
   }
   else
   {

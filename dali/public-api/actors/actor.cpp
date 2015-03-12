@@ -28,6 +28,7 @@
 
 #include <dali/internal/event/actors/actor-impl.h>
 #include <dali/internal/event/actors/layer-impl.h>
+#include <dali/internal/event/actors/renderer-impl.h>
 #include <dali/internal/event/actor-attachments/actor-attachment-impl.h>
 #include <dali/internal/event/animation/constraint-impl.h>
 
@@ -515,6 +516,26 @@ Actor::OnStageSignalType& Actor::OnStageSignal()
 Actor::OffStageSignalType& Actor::OffStageSignal()
 {
   return GetImplementation(*this).OffStageSignal();
+}
+
+std::size_t Actor::AddRenderer( Renderer& renderer )
+{
+  return GetImplementation(*this).AddRenderer( GetImplementation( renderer ) );
+}
+
+std::size_t Actor::GetNumberOfRenderers() const
+{
+  return GetImplementation(*this).GetNumberOfRenderers();
+}
+
+void Actor::RemoveRenderer( Renderer& renderer )
+{
+  GetImplementation(*this).RemoveRenderer( GetImplementation( renderer ) );
+}
+
+void Actor::RemoveRenderer( std::size_t index )
+{
+  GetImplementation(*this).RemoveRenderer( index );
 }
 
 DynamicsBody Actor::EnableDynamics(DynamicsBodyConfig bodyConfig)

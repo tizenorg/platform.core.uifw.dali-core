@@ -39,6 +39,7 @@
 #include <dali/internal/event/common/property-helper.h>
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/actor-attachments/actor-attachment-impl.h>
+#include <dali/internal/event/actor-attachments/renderer-attachment-impl.h>
 #include <dali/internal/event/animation/constraint-impl.h>
 #include <dali/internal/event/common/projection.h>
 #include <dali/internal/update/common/animatable-property.h>
@@ -1141,6 +1142,38 @@ Vector3 Actor::GetNaturalSize() const
   return Vector3( 0.0f, 0.0f, 0.0f );
 }
 
+std::size_t Actor::AddRenderer( Renderer& renderer )
+{
+  //TODO: MESH_REWORK : Check this
+  //TODO: MESH_REWORK : Add support for multiple renderers
+  if ( ! mAttachment )
+  {
+    mAttachment = RendererAttachment::New( *mStage,  *mNode, renderer );
+  }
+
+  return 0;
+}
+
+std::size_t Actor::GetNumberOfRenderers() const
+{
+  //TODO: MESH_REWORK : Check this
+  //TODO: MESH_REWORK : Add support for multiple renderers
+  return 1u;
+}
+
+void Actor::RemoveRenderer( Renderer& renderer )
+{
+  //TODO: MESH_REWORK : Check this
+  //TODO: MESH_REWORK : Add support for multiple renderers
+  mAttachment = NULL;
+}
+
+void Actor::RemoveRenderer( std::size_t index )
+{
+  //TODO: MESH_REWORK : Check this
+  //TODO: MESH_REWORK : Add support for multiple renderers
+  mAttachment = NULL;
+}
 
 #ifdef DYNAMICS_SUPPORT
 

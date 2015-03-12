@@ -165,17 +165,17 @@ unsigned int PanGestureDetector::GetMaximumTouchesRequired() const
 
 void PanGestureDetector::AddAngle( Radian angle, Radian threshold )
 {
-  threshold = fabsf( threshold ); // Ensure the threshold is positive.
+  threshold = fabsf( threshold.radian ); // Ensure the threshold is positive.
 
   // If the threshold is greater than PI, then just use PI
   // This means that any panned angle will invoke the pan gesture. We should still add this angle as
   // an angle may have been added previously with a small threshold.
-  if ( threshold > Math::PI )
+  if ( threshold.radian > Math::PI )
   {
     threshold = Math::PI;
   }
 
-  angle = WrapInDomain( angle, -Math::PI, Math::PI );
+  angle = WrapInDomain( angle.radian, -Math::PI, Math::PI );
 
   DALI_LOG_INFO( gLogFilter, Debug::Concise, "Angle Added: %.2f, Threshold: %.2f\n", RadiansToDegrees(angle), RadiansToDegrees(threshold) );
 
@@ -188,7 +188,7 @@ void PanGestureDetector::AddDirection( Radian direction, Radian threshold )
   AddAngle( direction, threshold );
 
   // Calculate the opposite angle so that we cover the entire direction.
-  direction = GetOppositeAngle( direction );
+  direction = GetOppositeAngle( direction.radian );
 
   AddAngle( direction, threshold );
 }
@@ -205,7 +205,7 @@ void PanGestureDetector::ClearAngles()
 
 void PanGestureDetector::RemoveAngle( Radian angle )
 {
-  angle = WrapInDomain( angle, -Math::PI, Math::PI );
+  angle = WrapInDomain( angle.radian, -Math::PI, Math::PI );
 
   for (AngleContainer::iterator iter = mAngleContainer.begin(), endIter = mAngleContainer.end(); iter != endIter; ++iter )
   {
@@ -222,7 +222,7 @@ void PanGestureDetector::RemoveDirection( Radian direction )
   RemoveAngle( direction );
 
   // Calculate the opposite angle so that we cover the entire direction.
-  direction = GetOppositeAngle( direction );
+  direction = GetOppositeAngle( direction.radian );
 
   RemoveAngle( direction );
 }
@@ -244,14 +244,14 @@ bool PanGestureDetector::CheckAngleAllowed( Radian angle ) const
   {
     for ( AngleContainer::const_iterator iter = mAngleContainer.begin(), endIter = mAngleContainer.end(); iter != endIter; ++iter )
     {
-      float angleAllowed( iter->first );
-      float threshold ( iter->second );
+      float angleAllowed( iter->first.radian );
+      float threshold ( iter->second.radian );
 
       DALI_LOG_INFO( gLogFilter, Debug::General,
                      "AngleToCheck: %.2f, CompareWith: %.2f, Threshold: %.2f\n",
                      RadiansToDegrees(angle), RadiansToDegrees(angleAllowed), RadiansToDegrees(threshold) );
 
-      float relativeAngle( fabsf( WrapInDomain( angle - angleAllowed, -Math::PI, Math::PI ) ) );
+      float relativeAngle( fabsf( WrapInDomain( angle.radian - angleAllowed, -Math::PI, Math::PI ) ) );
       if ( relativeAngle <= threshold )
       {
         allowed = true;

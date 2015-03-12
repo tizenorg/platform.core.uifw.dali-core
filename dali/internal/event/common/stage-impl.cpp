@@ -299,7 +299,7 @@ void Stage::SetViewMode( ViewMode viewMode )
 
     if( mViewMode == MONO )
     {
-      mDefaultCamera->SetOrientation( Degree( 180.0f ), Vector3::YAXIS );
+      mDefaultCamera->SetOrientation( Radian( Math::PI ), Vector3::YAXIS );
       mRenderTaskList->GetTask(0).SetSourceActor( Dali::Actor() );
 
       //Create camera and RenderTask for left eye
@@ -337,8 +337,7 @@ void Stage::SetViewMode( ViewMode viewMode )
         mDefaultCamera->Remove( *mRightCamera.Get() );
         mRightRenderTask.Reset();
         mRightCamera.Reset();
-
-        mDefaultCamera->SetOrientation( Degree( 0.0f ), Vector3::YAXIS );
+        mDefaultCamera->SetOrientation( Radian( 0.0f ), Vector3::YAXIS );
         mDefaultCamera->SetType( Dali::Camera::LOOK_AT_TARGET );
         mRenderTaskList->GetTask(0).SetSourceActor( Dali::Layer(mRootLayer.Get()) );
 
@@ -357,13 +356,14 @@ void Stage::SetViewMode( ViewMode viewMode )
 
         mLeftCamera->SetPerspectiveProjection( mSize, Vector2( 0.0f,stereoBase) );
         mLeftCamera->SetAspectRatio( aspect );
-        mLeftCamera->SetOrientation( Degree(-90.0f), Vector3::ZAXIS );
+
+        mLeftCamera->SetOrientation( Radian( -Math::PI_2 ), Vector3::ZAXIS );
         mLeftCamera->SetPosition( Vector3( stereoBase, 0.0f, 0.0f ) );
         mLeftRenderTask.SetViewport( Viewport(0, mSize.height * 0.5f, mSize.width, mSize.height * 0.5f) );
 
         mRightCamera->SetPerspectiveProjection( mSize, Vector2( 0.0,  -stereoBase) );
         mRightCamera->SetAspectRatio( aspect );
-        mRightCamera->SetOrientation( Degree(-90.0f), Vector3::ZAXIS );
+        mRightCamera->SetOrientation( Radian( -Math::PI_2 ), Vector3::ZAXIS );
         mRightCamera->SetPosition( Vector3(-stereoBase, 0.0f, 0.0f ) );
         mRightRenderTask.SetViewport( Viewport(0, 0, mSize.width, mSize.height * 0.5f ) );
 
@@ -379,13 +379,13 @@ void Stage::SetViewMode( ViewMode viewMode )
 
         mLeftCamera->SetPerspectiveProjection( Size( mSize.x * 0.5f, mSize.y ), Vector2(stereoBase,0.0f) );
         mLeftCamera->SetFieldOfView( fov );
-        mLeftCamera->SetOrientation( Degree(0.0f), Vector3::ZAXIS );
+        mLeftCamera->SetOrientation( Radian(0.0f), Vector3::ZAXIS );
         mLeftCamera->SetPosition( Vector3( stereoBase, 0.0f, 0.0f ) );
         mLeftRenderTask.SetViewport( Viewport(0, 0, mSize.width * 0.5f, mSize.height ) );
 
         mRightCamera->SetPerspectiveProjection( Size( mSize.x * 0.5f, mSize.y ), Vector2(-stereoBase,0.0f) );
         mRightCamera->SetFieldOfView( fov );
-        mRightCamera->SetOrientation( Degree(0.0f), Vector3::ZAXIS );
+        mRightCamera->SetOrientation( Radian(0.0f), Vector3::ZAXIS );
         mRightCamera->SetPosition( Vector3( -stereoBase, 0.0f, 0.0f ) );
         mRightRenderTask.SetViewport( Viewport(mSize.width * 0.5f, 0, mSize.width * 0.5f, mSize.height ) );
 

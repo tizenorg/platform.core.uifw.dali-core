@@ -19,10 +19,12 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/animation/key-frames.h>
 #include <dali/public-api/animation/path.h>
 #include <dali/public-api/animation/time-period.h>
+#include <dali/public-api/math/radian.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/handle.h>
 #include <dali/public-api/object/property.h>
@@ -31,8 +33,6 @@
 namespace Dali
 {
 
-class Actor;
-struct Degree;
 class Quaternion;
 struct Radian;
 class ShaderEffect;
@@ -642,7 +642,10 @@ public:
    * @param [in] angle The angle in degrees.
    * @param [in] axis The axis to rotate around
    */
-  void RotateBy(Actor actor, Degree angle, Vector3 axis);
+  void RotateBy( Actor actor, Degree angle, Vector3 axis )
+  {
+    RotateBy( actor, Radian( angle ), axis );
+  }
 
   /**
    * @brief Rotate an actor around an arbitrary axis.
@@ -665,7 +668,10 @@ public:
    * @param [in] axis The axis to rotate around.
    * @param [in] alpha The alpha function to apply.
    */
-  void RotateBy(Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha);
+  void RotateBy( Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha )
+  {
+    RotateBy( actor, Radian( angle ), axis, alpha );
+  }
 
   /**
    * @brief Rotate an actor around an arbitrary axis.
@@ -692,7 +698,10 @@ public:
    * @param [in] delaySeconds The initial delay from the start of the animation.
    * @param [in] durationSeconds The duration of the rotation.
    */
-  void RotateBy(Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha, float delaySeconds, float durationSeconds);
+  void RotateBy( Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha, float delaySeconds, float durationSeconds )
+  {
+    RotateBy( actor, Radian( angle ), axis, alpha, delaySeconds, durationSeconds );
+  }
 
   /**
    * @brief Rotate an actor around an arbitrary axis.
@@ -718,7 +727,10 @@ public:
    * @param [in] angle The target rotation angle in degrees.
    * @param [in] axis The target axis of rotation.
    */
-  void RotateTo(Actor actor, Degree angle, Vector3 axis);
+  void RotateTo( Actor actor, Degree angle, Vector3 axis )
+  {
+    RotateTo( actor, Radian( angle ), axis );
+  }
 
   /**
    * @brief Rotate an actor to a target orientation.
@@ -751,7 +763,10 @@ public:
    * @param [in] axis The target axis of rotation.
    * @param [in] alpha The alpha function to apply.
    */
-  void RotateTo(Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha);
+  void RotateTo( Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha )
+  {
+    RotateTo( actor, Radian( angle ), axis, alpha );
+  }
 
   /**
    * @brief Rotate an actor to a target orientation.
@@ -789,7 +804,10 @@ public:
    * @param [in] delaySeconds The initial delay from the start of the animation.
    * @param [in] durationSeconds The duration of the rotation.
    */
-  void RotateTo(Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha, float delaySeconds, float durationSeconds);
+  void RotateTo( Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha, float delaySeconds, float durationSeconds )
+  {
+    RotateTo( actor, Radian( angle ), axis, alpha, delaySeconds, durationSeconds );
+  }
 
   /**
    * @brief Rotate an actor to a target orientation.

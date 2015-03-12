@@ -22,7 +22,6 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/animation/constraint.h>
 #include <dali/public-api/common/dali-common.h>
-#include <dali/public-api/math/degree.h>
 #include <dali/public-api/math/radian.h>
 #include <dali/public-api/math/vector2.h>
 
@@ -271,11 +270,6 @@ PositionInheritanceMode Actor::GetPositionInheritanceMode() const
   return GetImplementation(*this).GetPositionInheritanceMode();
 }
 
-void Actor::SetOrientation(const Degree& angle, const Vector3& axis)
-{
-  GetImplementation(*this).SetOrientation(Radian(angle), axis);
-}
-
 void Actor::SetOrientation(const Radian& angle, const Vector3& axis)
 {
   GetImplementation(*this).SetOrientation(angle, axis);
@@ -284,11 +278,6 @@ void Actor::SetOrientation(const Radian& angle, const Vector3& axis)
 void Actor::SetOrientation(const Quaternion& orientation)
 {
   GetImplementation(*this).SetOrientation(orientation);
-}
-
-void Actor::RotateBy(const Degree& angle, const Vector3& axis)
-{
-  GetImplementation(*this).RotateBy(Radian(angle), axis);
 }
 
 void Actor::RotateBy(const Radian& angle, const Vector3& axis)

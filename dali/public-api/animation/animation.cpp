@@ -22,7 +22,6 @@
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/animation/time-period.h>
 #include <dali/public-api/math/quaternion.h>
-#include <dali/public-api/math/degree.h>
 #include <dali/public-api/math/radian.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/internal/event/actors/actor-impl.h>
@@ -283,19 +282,9 @@ void Animation::MoveTo(Actor actor, Vector3 position, AlphaFunction alpha, float
   GetImplementation(*this).MoveTo(GetImplementation(actor), position, alpha, delaySeconds, durationSeconds);
 }
 
-void Animation::RotateBy(Actor actor, Degree angle, Vector3 axis)
-{
-  GetImplementation(*this).RotateBy(GetImplementation(actor), Radian(angle), axis);
-}
-
 void Animation::RotateBy(Actor actor, Radian angle, Vector3 axis)
 {
   GetImplementation(*this).RotateBy(GetImplementation(actor), angle, axis);
-}
-
-void Animation::RotateBy(Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha)
-{
-  GetImplementation(*this).RotateBy(GetImplementation(actor), Radian(angle), axis, alpha);
 }
 
 void Animation::RotateBy(Actor actor, Radian angle, Vector3 axis, AlphaFunction alpha)
@@ -303,19 +292,9 @@ void Animation::RotateBy(Actor actor, Radian angle, Vector3 axis, AlphaFunction 
   GetImplementation(*this).RotateBy(GetImplementation(actor), angle, axis, alpha);
 }
 
-void Animation::RotateBy(Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha, float delaySeconds, float durationSeconds)
-{
-  GetImplementation(*this).RotateBy(GetImplementation(actor), Radian(angle), axis, alpha, delaySeconds, durationSeconds);
-}
-
 void Animation::RotateBy(Actor actor, Radian angle, Vector3 axis, AlphaFunction alpha, float delaySeconds, float durationSeconds)
 {
   GetImplementation(*this).RotateBy(GetImplementation(actor), angle, axis, alpha, delaySeconds, durationSeconds);
-}
-
-void Animation::RotateTo(Actor actor, Degree angle, Vector3 axis)
-{
-  GetImplementation(*this).RotateTo(GetImplementation(actor), Radian(angle), axis);
 }
 
 void Animation::RotateTo(Actor actor, Radian angle, Vector3 axis)
@@ -328,11 +307,6 @@ void Animation::RotateTo(Actor actor, Quaternion rotation)
   GetImplementation(*this).RotateTo(GetImplementation(actor), rotation);
 }
 
-void Animation::RotateTo(Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha)
-{
-  GetImplementation(*this).RotateTo(GetImplementation(actor), Radian(angle), axis, alpha);
-}
-
 void Animation::RotateTo(Actor actor, Radian angle, Vector3 axis, AlphaFunction alpha)
 {
   GetImplementation(*this).RotateTo(GetImplementation(actor), angle, axis, alpha);
@@ -341,11 +315,6 @@ void Animation::RotateTo(Actor actor, Radian angle, Vector3 axis, AlphaFunction 
 void Animation::RotateTo(Actor actor, Quaternion rotation, AlphaFunction alpha)
 {
   GetImplementation(*this).RotateTo(GetImplementation(actor), rotation, alpha);
-}
-
-void Animation::RotateTo(Actor actor, Degree angle, Vector3 axis, AlphaFunction alpha, float delaySeconds, float durationSeconds)
-{
-  GetImplementation(*this).RotateTo(GetImplementation(actor), Radian(angle), axis, alpha, delaySeconds, durationSeconds);
 }
 
 void Animation::RotateTo(Actor actor, Radian angle, Vector3 axis, AlphaFunction alpha, float delaySeconds, float durationSeconds)

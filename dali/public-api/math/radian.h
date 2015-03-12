@@ -2,7 +2,7 @@
 #define __DALI_RADIAN_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,57 +19,45 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/constants.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/math/math-utils.h>
+#include <dali/public-api/math/degree.h>
 
 namespace Dali
 {
-
-struct Degree;
 
 /**
  * @brief An angle in radians.
  *
  * This reduces ambiguity when using methods which accept angles in degrees or radians.
  */
-struct DALI_IMPORT_API Radian
+struct Radian
 {
+  /**
+   * @brief default constructor, initialises to 0.
+   */
+  Radian()
+  : radian( 0.f )
+  { }
+
   /**
    * @brief Create an angle in radians.
    *
    * @param[in] value The initial value in radians.
    */
-  explicit Radian( float value );
+  explicit Radian( float value )
+  : radian( value )
+  { }
 
   /**
    * @brief Create an angle in radians from an angle in degrees.
    *
-   * @param[in] value The initial value in degrees.
+   * @param[in] degree The initial value in degrees.
    */
-  Radian( const Degree& value );
-
-  /**
-   * @brief Compare equality between two radians.
-   *
-   * @param[in] rhs Radian to compare to
-   * @return true if the value is identical
-   */
-  bool operator==( const Radian& rhs ) const;
-
-  /**
-   * @brief Compare inequality between two radians.
-   *
-   * @param[in] rhs Radian to compare to
-   * @return true if the value is not identical
-   */
-  bool operator!=( const Radian& rhs ) const;
-
-  /**
-   * @brief Compare two radians.
-   *
-   * @param[in] rhs Radian to compare to
-   * @return true if this is less than the value
-   */
-  bool operator<( const Radian& rhs ) const;
+  Radian( Degree degree )
+  : radian( degree.degree * Math::PI_OVER_180 )
+  { }
 
   /**
    * @brief Assign an angle from a float value.
@@ -77,33 +65,89 @@ struct DALI_IMPORT_API Radian
    * @param[in] value Float value in radians
    * @return a reference to this object
    */
-  Radian& operator=( const float value );
+  Radian& operator=( float value )
+  {
+    radian = value;
+    return *this;
+  }
 
   /**
-   * @brief Assign an angle in degrees to a Radian.
+   * @brief Assign an angle from a Degree value.
    *
-   * @param[in] rhs Degree to get the value from
+   * @param[in] degree The value in degrees.
    * @return a reference to this object
    */
-  Radian& operator=( const Degree& rhs );
+  Radian& operator=( Degree degree )
+  {
+    radian = degree.degree * Math::PI_OVER_180;
+    return *this;
+  }
 
   /**
-   * @brief Cast operator to const float reference.
+   * @brief Conversion to float
+   * @return the float value of this Radian
    */
-  operator const float&() const;
+  operator float() const
+  {
+    return radian;
+  }
 
-  /**
-   * @brief Cast operator to float reference.
-   */
-  operator float&();
+public:
 
-private:
   // member data
-  float mValue; ///< The value in radians
+  float radian; ///< The value in radians
 
-  // disable default constructor
-  Radian();
 };
+
+// compiler generated destructor, copy constructor and assignment operators are ok as this class is POD
+
+/**
+ * @brief Compare equality between two radians.
+ *
+ * @param[in] lhs Radian to compare
+ * @param[in] rhs Radian to compare to
+ * @return true if the values are identical
+ */
+inline bool operator==( const Radian& lhs, const Radian& rhs )
+{
+  return fabsf( lhs.radian - rhs.radian ) < Math::MACHINE_EPSILON_10; // expect Radian angles to be between 0 and 10 (multiplies of Math::PI)
+}
+
+/**
+ * @brief Compare inequality between two radians.
+ *
+ * @param[in] lhs Radian to compare
+ * @param[in] rhs Radian to compare to
+ * @return true if the values are not identical
+ */
+inline bool operator!=( const Radian& lhs, const Radian& rhs )
+{
+  return !( operator==( lhs, rhs ) );
+}
+
+/**
+ * @brief Multiply Radian with a float
+ *
+ * @param[in] lhs Radian to multiply
+ * @param[in] rhs float to multiply
+ * @return result of the multiplication
+ */
+inline Radian operator*( const Radian& lhs, float rhs )
+{
+  return Radian( lhs.radian * rhs );
+}
+
+/**
+ * @brief Clamp a radian value
+ * @param angle to clamp
+ * @param min value
+ * @param max value
+ * @return the resulting radian
+ */
+inline Radian Clamp( Radian angle, float min, float max )
+{
+  return Radian( Clamp<float>( angle.radian, min, max ) );
+}
 
 } // namespace Dali
 

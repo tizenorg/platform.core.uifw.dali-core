@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
 #include <string>
 
 // INTERNAL INCLUDES
@@ -27,6 +26,7 @@
 #include <dali/public-api/animation/active-constraint-declarations.h>
 #include <dali/public-api/actors/actor-enumerations.h>
 #include <dali/public-api/actors/draw-mode.h>
+#include <dali/public-api/math/radian.h>
 #include <dali/public-api/object/handle.h>
 #include <dali/public-api/object/property-index-ranges.h>
 #include <dali/public-api/signals/dali-signal.h>
@@ -42,7 +42,6 @@ class Actor;
 class Actor;
 class Animation;
 class Constraint;
-struct Degree;
 class DynamicsBody;
 class DynamicsBodyConfig;
 class DynamicsJoint;
@@ -757,7 +756,10 @@ public:
    * @param [in] angle The new orientation angle in degrees.
    * @param [in] axis The new axis of orientation.
    */
-  void SetOrientation(const Degree& angle, const Vector3& axis);
+  void SetOrientation( const Degree& angle, const Vector3& axis )
+  {
+    SetOrientation( Radian( angle ), axis );
+  }
 
   /**
    * @brief Sets the orientation of the Actor.
@@ -787,7 +789,10 @@ public:
    * @param[in] angle The angle to the rotation to combine with the existing orientation.
    * @param[in] axis The axis of the rotation to combine with the existing orientation.
    */
-  void RotateBy(const Degree& angle, const Vector3& axis);
+  void RotateBy(const Degree& angle, const Vector3& axis)
+  {
+    RotateBy( Radian( angle ), axis );
+  }
 
   /**
    * @brief Apply a relative rotation to an actor.

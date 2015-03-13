@@ -30,6 +30,10 @@ namespace Dali
 {
 namespace Internal
 {
+namespace SceneGraph
+{
+class PropertyBuffer;
+}
 
 class PropertyBuffer;
 typedef IntrusivePtr<PropertyBuffer> PropertyBufferPtr;
@@ -172,6 +176,9 @@ private: // unimplemented methods
   PropertyBuffer( const PropertyBuffer& );
   PropertyBuffer& operator=( const PropertyBuffer& );
 
+private: // data
+  SceneGraph::PropertyBuffer* mSceneObject;
+  bool mOnStage;
 };
 
 } // namespace Internal

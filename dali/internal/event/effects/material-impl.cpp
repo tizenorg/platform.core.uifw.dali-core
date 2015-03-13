@@ -234,7 +234,7 @@ const SceneGraph::PropertyOwner* Material::GetPropertyOwner() const
 
 const SceneGraph::PropertyOwner* Material::GetSceneObject() const
 {
-  return MATERIAL_IMPL.GetSceneObject();
+  return mSceneObject;
 }
 
 const SceneGraph::PropertyBase* Material::GetSceneObjectAnimatableProperty( Property::Index index ) const
@@ -254,13 +254,13 @@ int Material::GetPropertyComponentIndex( Property::Index index ) const
 
 bool Material::OnStage() const
 {
-  // TODO: MESH_REWORK
-  DALI_ASSERT_ALWAYS( false && "TODO: MESH_REWORK" );
-  return false;
+  return mOnStage;
 }
 
 void Material::Connect()
 {
+  mOnStage = true;
+
   SamplerConnectorContainer::const_iterator end = mSamplerConnectors.end();
   for( SamplerConnectorContainer::iterator it = mSamplerConnectors.begin();
        it < end;
@@ -272,6 +272,8 @@ void Material::Connect()
 
 void Material::Disconnect()
 {
+  mOnStage = false;
+
   SamplerConnectorContainer::const_iterator end = mSamplerConnectors.end();
   for( SamplerConnectorContainer::iterator it = mSamplerConnectors.begin();
        it < end;
@@ -282,7 +284,8 @@ void Material::Disconnect()
 }
 
 Material::Material()
-: mSceneObject( NULL )
+: mSceneObject( NULL ),
+  mOnStage( false )
 {
 }
 

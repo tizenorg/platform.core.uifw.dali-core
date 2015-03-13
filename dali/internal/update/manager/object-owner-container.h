@@ -23,6 +23,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/common/owner-container.h>
 #include <dali/internal/update/common/discard-queue.h>
+#include <dali/internal/update/controllers/scene-controller.h>
 
 namespace Dali
 {
@@ -45,9 +46,15 @@ public:
   typedef typename Internal::OwnerContainer< Type* >::Iterator Iterator;
 
   ObjectOwnerContainer( SceneGraphBuffers& sceneGraphBuffers, DiscardQueue& discardQueue )
-  : mSceneGraphBuffers( sceneGraphBuffers ),
+  : mSceneController( NULL ),
+    mSceneGraphBuffers( sceneGraphBuffers ),
     mDiscardQueue( discardQueue )
   {
+  }
+
+  void SetSceneController(SceneController& sceneController)
+  {
+    mSceneController = &sceneController;
   }
 
   void Add( Type* pointer )
@@ -55,6 +62,9 @@ public:
     DALI_ASSERT_DEBUG( pointer && "Pointer should not be null" );
 
     mObjectContainer.PushBack( pointer );
+
+    // @todo MESH_REWORK FIX ME NOW!
+    //pointer->ConnectToSceneGraph(*mSceneController, mSceneGraphBuffers.GetUpdateBufferIndex() );
   }
 
   void Remove( Type* pointer )
@@ -66,6 +76,7 @@ public:
     DALI_ASSERT_DEBUG( match != mObjectContainer.End() && "Should always find a match" );
 
     mDiscardQueue.Add( mSceneGraphBuffers.GetUpdateBufferIndex(), mObjectContainer.Release( match ) );
+    pointer->DisconnectFromSceneGraph(*mSceneController, mSceneGraphBuffers.GetUpdateBufferIndex() );
   }
 
   void ResetToBaseValues( BufferIndex bufferIndex )
@@ -90,6 +101,7 @@ public:
   }
 
 private:
+  SceneController* mSceneController;
   ObjectContainer mObjectContainer;
   SceneGraphBuffers& mSceneGraphBuffers;
   DiscardQueue& mDiscardQueue;

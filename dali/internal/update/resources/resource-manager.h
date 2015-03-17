@@ -326,6 +326,12 @@ public: // Used by ResourceClient
    */
   void HandleAtlasUpdateRequest( ResourceId id, ResourceId atlasId, Integration::LoadStatus loadStatus );
 
+   /**
+    * @brief Create GL texture for resource.
+    * @param[in] id The resource id.
+    */
+   void HandleCreateGlTextureRequest( ResourceId id );
+
   /********************************************************************************
    ******************** Update thread object direct interface  ********************
    ********************************************************************************/
@@ -739,6 +745,19 @@ inline void RequestAtlasUpdateMessage( EventToUpdate& eventToUpdate,
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &manager, &ResourceManager::HandleAtlasUpdateRequest, id, atlasId, loadStatus );
+}
+
+inline void RequestCreateGlTextureMessage( EventToUpdate& eventToUpdate,
+                                           ResourceManager& manager,
+                                           ResourceId id )
+{
+  typedef MessageValue1< ResourceManager, ResourceId > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &ResourceManager::HandleCreateGlTextureRequest, id );
 }
 
 } // namespace Internal

@@ -39,6 +39,13 @@ public:
   { }
 
   /**
+   * GL context creation callback.
+   * This method is called when context is created.
+   * @pre This method can only be called from the render-thread.
+   */
+   virtual void GlContextCreated() = 0;
+
+  /**
    * Reset all GL resources.
    * This method is called when context is or has been deleted.
    * Context cannot be called from this method.

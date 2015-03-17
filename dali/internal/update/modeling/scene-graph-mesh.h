@@ -146,6 +146,11 @@ public: // from GlResourceOwner
   /**
    * @copydoc Dali::Internal::GlResourceOwner::GlContextDestroyed()
    */
+  virtual void GlContextCreated() {};
+
+  /**
+   * @copydoc Dali::Internal::GlResourceOwner::GlContextDestroyed()
+   */
   virtual void GlContextDestroyed();
 
   /**

@@ -206,6 +206,9 @@ void RenderManager::ContextCreated()
 
   // renderers, textures and gpu buffers cannot reinitialize themselves
   // so they rely on someone reloading the data for them
+
+  // for early texture recovery from texture loss:
+  mImpl->textureCache.GlContextCreated();
 }
 
 void RenderManager::ContextDestroyed()

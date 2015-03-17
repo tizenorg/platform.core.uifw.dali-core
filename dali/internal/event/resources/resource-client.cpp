@@ -486,6 +486,12 @@ Bitmap* ResourceClient::GetBitmap(ResourceTicketPtr ticket)
   return bitmap;
 }
 
+void ResourceClient::CreateGlTexture( ResourceId id )
+{
+  RequestCreateGlTextureMessage( mUpdateManager.GetEventToUpdate(), mResourceManager, id );
+}
+
+
 void ResourceClient::SetGlyphLoadObserver( GlyphLoadObserver* glyphLoadedInterface )
 {
   mImpl->mGlyphLoadObserver = glyphLoadedInterface;

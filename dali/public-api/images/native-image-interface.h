@@ -51,6 +51,13 @@ public:
   virtual void GlExtensionDestroy() = 0;
 
   /**
+   * @brief Called on GL Context creation.
+   *
+   * Use to process the loss of a GL context in a derived class
+   */
+  virtual void GlContextCreated();
+
+  /**
    * @brief Use the NativeImage as a texture for rendering.
    *
    * @pre There is a GL context for the current thread.

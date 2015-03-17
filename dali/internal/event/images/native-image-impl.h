@@ -57,6 +57,11 @@ protected:
    * A reference counted object may only be deleted by calling Unreference()
    */
   virtual ~NativeImage();
+
+  /**
+   * @copydoc Dali::NativeImage::CreateGlTexture
+   */
+  void CreateGlTexture();
 };
 
 } // namespace Internal

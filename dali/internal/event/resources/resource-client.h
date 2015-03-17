@@ -282,6 +282,12 @@ public:
    */
   Integration::Bitmap* GetBitmap(ResourceTicketPtr ticket);
 
+   /**
+    * @brief Trigger asynchronous creation of GL texture to back resource immediately.
+    * @param[in] id The resource ID to allocate a GL texture for.
+    */
+   void CreateGlTexture( ResourceId id );
+
   /**
    * Set the glyph load observer
    * @param glyphLoadedInterface pointer to an object which supports the glyphLoadedInterface

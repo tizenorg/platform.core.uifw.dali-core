@@ -631,6 +631,10 @@ void ResourceManager::HandleAtlasUpdateRequest( ResourceId id, ResourceId atlasI
   mImpl->atlasStatus.Update(id, atlasId, loadStatus );
 }
 
+void ResourceManager::HandleCreateGlTextureRequest(ResourceId id)
+{
+  mImpl->mTextureCacheDispatcher.DispatchCreateGlTexture( id );
+}
 
 /********************************************************************************
  ******************** Update thread object direct interface  ********************

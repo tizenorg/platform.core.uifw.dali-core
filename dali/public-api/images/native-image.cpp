@@ -48,6 +48,11 @@ NativeImage& NativeImage::operator=( const NativeImage& rhs )
   return *this;
 }
 
+void NativeImage::CreateGlTexture()
+{
+  GetImplementation(*this).CreateGlTexture();
+}
+
 NativeImage NativeImage::New( NativeImageInterface& resourceData )
 {
   Internal::NativeImagePtr internal = Internal::NativeImage::New( resourceData );
@@ -57,6 +62,12 @@ NativeImage NativeImage::New( NativeImageInterface& resourceData )
 NativeImage NativeImage::DownCast( BaseHandle handle )
 {
   return NativeImage( dynamic_cast<Internal::NativeImage*>( handle.GetObjectPtr()) );
+}
+
+void NativeImage::GlContextCreated()
+{
+  // Derived classes on particular platforms may respond to this but
+  // here we don't care.
 }
 
 } // namespace Dali

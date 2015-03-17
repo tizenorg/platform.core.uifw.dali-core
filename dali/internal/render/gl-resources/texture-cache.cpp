@@ -55,6 +55,32 @@ template <> struct ParameterType< Pixel::Format > : public BasicType< Pixel::For
 namespace SceneGraph
 {
 
+/**
+ * @brief Forward to all textures in container the news that the GL Context is up.
+ */
+void GlContextCreated( TextureContainer& textures )
+{
+  TextureIter end = textures.end();
+  TextureIter iter = textures.begin();
+  for( ; iter != end; ++iter )
+  {
+    (*iter->second).GlContextCreated();
+  }
+}
+
+/**
+ * @brief Forward to all textures in container the news that the GL Context is down.
+ */
+void GlContextDestroyed( TextureContainer& textures )
+{
+  TextureIter end = textures.end();
+  TextureIter iter = textures.begin();
+  for( ; iter != end; ++iter )
+  {
+    (*iter->second).GlContextDestroyed();
+  }
+}
+
 TextureCache::TextureCache( RenderQueue& renderQueue,
                             PostProcessResourceDispatcher& postProcessResourceDispatcher,
                             Context& context)
@@ -116,6 +142,21 @@ void TextureCache::AddFrameBuffer( ResourceId id, NativeImageInterfacePtr native
   // as soon as possible.
   Texture* texture = TextureFactory::NewFrameBufferTexture( nativeImage, mContext );
   mFramebufferTextures.insert(TexturePair(id, texture));
+}
+
+void TextureCache::CreateGlTexture( ResourceId id )
+{
+  TextureIter textureIter = mTextures.find(id);
+  // If we found a non-null texture object pointer for the resource id, force it
+  // to eagerly allocate a backing GL texture:
+  if( textureIter != mTextures.end() )
+  {
+    TexturePointer texturePtr = textureIter->second;
+    if( texturePtr )
+    {
+      texturePtr->CreateGlTexture();
+    }
+  }
 }
 
 void TextureCache::UpdateTexture( ResourceId id, Integration::BitmapPtr bitmap )
@@ -411,21 +452,16 @@ void TextureCache::RemoveObserver( ResourceId id, TextureObserver* observer )
   }
 }
 
+void TextureCache::GlContextCreated()
+{
+  GlContextCreated( mTextures );
+  GlContextCreated( mFramebufferTextures );
+}
+
 void TextureCache::GlContextDestroyed()
 {
-  TextureIter end = mTextures.end();
-  TextureIter iter = mTextures.begin();
-  for( ; iter != end; ++iter )
-  {
-    (*iter->second).GlContextDestroyed(); // map holds intrusive pointers
-  }
-
-  end = mFramebufferTextures.end();
-  iter = mFramebufferTextures.begin();
-  for( ; iter != end; ++iter )
-  {
-    (*iter->second).GlContextDestroyed(); // map holds intrusive pointers
-  }
+  GlContextDestroyed( mTextures );
+  GlContextDestroyed( mFramebufferTextures );
 }
 
 void TextureCache::SetDiscardBitmapsPolicy( ResourcePolicy::Discardable policy )
@@ -493,6 +529,22 @@ void TextureCache::DispatchCreateTextureForNativeImage( ResourceId id, NativeIma
     new (slot) DerivedType( this, &TextureCache::AddNativeImage, id, nativeImage );
   }
 }
+
+void TextureCache::DispatchCreateGlTexture( ResourceId id )
+{
+  // NULL, means being shutdown, so ignore msgs
+  if( mSceneGraphBuffers != NULL )
+  {
+    typedef MessageValue1< TextureCache, ResourceId > DerivedType;
+
+    // Reserve some memory inside the render queue
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+    // Construct message in the render queue memory; note that delete should not be called on the return value
+    new (slot) DerivedType( this, &TextureCache::CreateGlTexture, id );
+  }
+}
+
 
 void TextureCache::DispatchCreateTextureForFrameBuffer( ResourceId id, unsigned int width, unsigned int height, Pixel::Format pixelFormat )
 {

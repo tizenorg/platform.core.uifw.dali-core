@@ -43,85 +43,9 @@ namespace // unnamed namespace
 {
 
 template <class P>
-PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& func, unsigned int sourceCount )
+PropertyConstraint<P>* CreatePropertyConstraint( Constraint::AnyFunction& func )
 {
-  PropertyConstraintBase<P>* propertyConstraint( NULL );
-
-  switch ( sourceCount )
-  {
-    case 0u:
-    {
-      propertyConstraint = new PropertyConstraint0<P>( AnyCast<boost::function<P (const P&)> >( func ) );
-      break;
-    }
-
-    case 1u:
-    {
-      propertyConstraint = new PropertyConstraint1<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
-                                                                                                                  const PropertyInput&)> >( func ) );
-      break;
-    }
-
-    case 2u:
-    {
-      propertyConstraint = new PropertyConstraint2<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&)> >( func ) );
-      break;
-    }
-
-    case 3u:
-    {
-      propertyConstraint = new PropertyConstraint3<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&)> >( func ) );
-      break;
-    }
-
-    case 4u:
-    {
-      propertyConstraint = new PropertyConstraint4<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&)> >( func ) );
-      break;
-    }
-
-    case 5u:
-    {
-      propertyConstraint = new PropertyConstraint5<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&)> >( func ) );
-      break;
-    }
-
-    case 6u:
-    {
-      propertyConstraint = new PropertyConstraint6<P, PropertyInputAccessor>( AnyCast< boost::function<P (const P&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&,
-                                                                                                                  const PropertyInput&)> >( func ) );
-      break;
-    }
-
-
-    default:
-    {
-      // should never come here
-      DALI_ASSERT_ALWAYS( false && "Cannot have more than 6 property constraints" );
-      break;
-    }
-  }
-
-  return propertyConstraint;
+  return new PropertyConstraint<P>( AnyCast< boost::function< P (const P&, const PropertyInputContainer&) > >( func ) );
 }
 
 } // unnamed namespace
@@ -155,7 +79,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
     {
       case Property::BOOLEAN:
       {
-        PropertyConstraintPtr<bool>::Type funcPtr( CreatePropertyConstraint<bool>( mFunc, mSources.size() ) );
+        PropertyConstraintPtr<bool>::Type funcPtr( CreatePropertyConstraint<bool>( mFunc ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<bool>::New( mTargetIndex,
                                                                                          mSources,
@@ -165,7 +89,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::FLOAT:
       {
-        PropertyConstraintPtr<float>::Type funcPtr( CreatePropertyConstraint<float>( mFunc, mSources.size() ) );
+        PropertyConstraintPtr<float>::Type funcPtr( CreatePropertyConstraint<float>( mFunc ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<float>::New( mTargetIndex,
                                                                                           mSources,
@@ -175,7 +99,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::INTEGER:
       {
-        PropertyConstraintPtr<int>::Type funcPtr( CreatePropertyConstraint<int>( mFunc, mSources.size() ) );
+        PropertyConstraintPtr<int>::Type funcPtr( CreatePropertyConstraint<int>( mFunc ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<int>::New( mTargetIndex,
                                                                                         mSources,
@@ -185,7 +109,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::VECTOR2:
       {
-        PropertyConstraintPtr<Vector2>::Type funcPtr( CreatePropertyConstraint<Vector2>( mFunc, mSources.size() ) );
+        PropertyConstraintPtr<Vector2>::Type funcPtr( CreatePropertyConstraint<Vector2>( mFunc ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector2>::New( mTargetIndex,
                                                                                             mSources,
@@ -195,7 +119,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::VECTOR3:
       {
-        PropertyConstraintPtr<Vector3>::Type funcPtr( CreatePropertyConstraint<Vector3>( mFunc, mSources.size() ) );
+        PropertyConstraintPtr<Vector3>::Type funcPtr( CreatePropertyConstraint<Vector3>( mFunc ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector3>::New( mTargetIndex,
                                                                                             mSources,
@@ -205,7 +129,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::VECTOR4:
       {
-        PropertyConstraintPtr<Vector4>::Type funcPtr( CreatePropertyConstraint<Vector4>( mFunc, mSources.size() ) );
+        PropertyConstraintPtr<Vector4>::Type funcPtr( CreatePropertyConstraint<Vector4>( mFunc ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector4>::New( mTargetIndex,
                                                                                             mSources,
@@ -215,7 +139,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::ROTATION:
       {
-        PropertyConstraintPtr<Quaternion>::Type funcPtr( CreatePropertyConstraint<Quaternion>( mFunc, mSources.size() ) );
+        PropertyConstraintPtr<Quaternion>::Type funcPtr( CreatePropertyConstraint<Quaternion>( mFunc ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Quaternion>::New( mTargetIndex,
                                                                                                mSources,
@@ -225,7 +149,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::MATRIX:
       {
-        PropertyConstraintPtr<Matrix>::Type funcPtr( CreatePropertyConstraint<Matrix>( mFunc, mSources.size() ) );
+        PropertyConstraintPtr<Matrix>::Type funcPtr( CreatePropertyConstraint<Matrix>( mFunc ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Matrix>::New( mTargetIndex,
                                                                                            mSources,
@@ -235,7 +159,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::MATRIX3:
       {
-        PropertyConstraintPtr<Matrix3>::Type funcPtr( CreatePropertyConstraint<Matrix3>( mFunc, mSources.size() ) );
+        PropertyConstraintPtr<Matrix3>::Type funcPtr( CreatePropertyConstraint<Matrix3>( mFunc ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Matrix3>::New( mTargetIndex,
                                                                                             mSources,

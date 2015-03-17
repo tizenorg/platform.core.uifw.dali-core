@@ -43,9 +43,16 @@ namespace // unnamed namespace
 {
 
 template <class P>
-PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& func, unsigned int sourceCount )
+PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& func, unsigned int sourceCount, bool useNew = true )
 {
   PropertyConstraintBase<P>* propertyConstraint( NULL );
+
+  if ( useNew )
+  {
+    propertyConstraint = new PropertyConstraintNew<P, PropertyInputAccessor>( AnyCast<boost::function<P (const P&, const PropertyInputContainer&)> >( func ) );
+
+    return propertyConstraint;
+  }
 
   switch ( sourceCount )
   {
@@ -111,7 +118,6 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
                                                                                                                   const PropertyInput&)> >( func ) );
       break;
     }
-
 
     default:
     {

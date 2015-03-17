@@ -42,6 +42,7 @@ class PropertyNotification;
 namespace Internal
 {
 class Constraint;
+class EventThreadServices;
 class Handle;
 class PropertyCondition;
 class PropertyInputImpl;
@@ -458,6 +459,20 @@ private:
    * @param [in] value The new value of the property.
    */
   virtual void SetSceneGraphProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value );
+
+protected:
+  inline EventThreadServices& GetEventThreadServices()
+  {
+    return mEventThreadServices;
+  }
+
+  inline const EventThreadServices& GetEventThreadServices() const
+  {
+    return mEventThreadServices;
+  }
+
+private:
+  EventThreadServices& mEventThreadServices;
 
 private:
 

@@ -81,3 +81,47 @@ int UtcDaliNativeImageDownCast(void)
   DALI_TEST_CHECK(image7);
   END_TEST;
 }
+
+int UtcDaliNativeImageCreateGlTextureN(void)
+{
+  TestApplication application;
+  tet_infoline( "Testing Dali::NativeImage::GenerateGlTexture()" );
+
+  NativeImage image;
+  try
+  {
+    image.CreateGlTexture();
+    tet_printf( "Assertion test failed - no Exception\n" );
+    tet_result( TET_FAIL );
+  }
+  catch( Dali::DaliException& e )
+  {
+    DALI_TEST_PRINT_ASSERT( e );
+    DALI_TEST_ASSERT( e, "image &&", TEST_LOCATION );
+  }
+  END_TEST;
+}
+
+int UtcDaliNativeImageCreateGlTextureP(void)
+{
+  TestApplication application;
+  TestPlatformAbstraction& platform = application.GetPlatform();
+  tet_infoline( "Testing Dali::NativeImage::GenerateGlTexture()" );
+
+  TestNativeImagePointer imageInterface = TestNativeImage::New( 16, 16 );
+  NativeImage image = NativeImage::New( *(imageInterface.Get()) );
+  DALI_TEST_CHECK( image );
+
+  application.SendNotification();
+  application.Render(16);
+
+  image.CreateGlTexture();
+
+  application.SendNotification();
+  application.Render(16);
+
+  DALI_TEST_EQUALS( imageInterface->mExtensionCreateCalls, 1, TEST_LOCATION );
+  DALI_TEST_EQUALS( imageInterface->mTargetTextureCalls, 1, TEST_LOCATION );
+
+  END_TEST;
+}

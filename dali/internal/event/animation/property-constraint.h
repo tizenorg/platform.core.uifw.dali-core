@@ -19,6 +19,8 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/internal/event/animation/property-input-accessor.h>
 #include <dali/internal/event/animation/property-input-indexer.h>
 #include <dali/internal/event/common/property-input-impl.h>
@@ -331,27 +333,31 @@ public:
 
   typedef boost::function< PropertyType (const PropertyType&, const PropertyInput&, const PropertyInput&) > ConstraintFunction;
 
+  typedef std::vector < PropertyInputAccessorType > InputContainer;
+  typedef typename InputContainer::iterator InputContainerIter;
+  typedef typename InputContainer::const_iterator InputContainerConstIter;
+
+  typedef std::vector< PropertyInputIndexer< PropertyInputAccessorType > > InputIndexerContainer;
+
   /**
    * Constructor.
    * @param [in] func A constraint function.
    */
   PropertyConstraint2( const ConstraintFunction& func )
-  : mFunction( func )
+  : mFunction( func ),
+    mInputs()
   {
   }
 
   /**
    * Constructor.
    * @param [in] func A constraint function.
-   * @param [in] input1 A property input.
-   * @param [in] input2 A 2nd property input.
+   * @param [in] inputs Property inputs.
    */
   PropertyConstraint2( const ConstraintFunction& func,
-                       const PropertyInputAccessorType& input1,
-                       const PropertyInputAccessorType& input2 )
+                       const std::vector< PropertyInputAccessorType >& inputs )
   : mFunction( func ),
-    mInput1( input1 ),
-    mInput2( input2 )
+    mInputs( inputs )
   {
   }
 
@@ -367,7 +373,7 @@ public:
    */
   virtual PropertyConstraintBase< PropertyType >* Clone()
   {
-    return new PropertyConstraint2< PropertyType, PropertyInputAccessorType >( mFunction, mInput1, mInput2 );
+    return new PropertyConstraint2< PropertyType, PropertyInputAccessorType >( mFunction, mInputs );
   }
 
   /**
@@ -375,7 +381,7 @@ public:
    */
   virtual PropertyConstraintBase< PropertyType >* CloneComponentFunc()
   {
-    return new PropertyConstraint2< PropertyType, PropertyInputComponentAccessor >( mFunction, mInput1, mInput2 );
+    return new PropertyConstraint2< PropertyType, PropertyInputComponentAccessor >( mFunction );
   }
 
   /**
@@ -385,14 +391,12 @@ public:
   {
     DALI_ASSERT_ALWAYS( 2u > index && "Constraint only has 2 properties" );
 
-    if ( 0u == index )
+    if ( index >= mInputs.size() )
     {
-      mInput1.SetInput( input, componentIndex );
+      mInputs.push_back( PropertyInputAccessorType() );
     }
-    else
-    {
-      mInput2.SetInput( input, componentIndex );
-    }
+
+    mInputs[ index ].SetInput( input, componentIndex );
   }
 
   /**
@@ -400,13 +404,9 @@ public:
    */
   virtual const PropertyInputImpl* GetInput( unsigned int index ) const
   {
-    if ( 0u == index )
+    if ( index < mInputs.size() )
     {
-      return mInput1.GetInput();
-    }
-    else if ( 1u == index )
-    {
-      return mInput2.GetInput();
+      return mInputs[ index ].GetInput();
     }
 
     return NULL;
@@ -417,16 +417,20 @@ public:
    */
   virtual PropertyType Apply( BufferIndex bufferIndex, const PropertyType& current )
   {
-    DALI_ASSERT_DEBUG( NULL != mInput1.GetInput() );
-    DALI_ASSERT_DEBUG( NULL != mInput2.GetInput() );
+    InputIndexerContainer inputIndices;
 
-    const PropertyInputIndexer< PropertyInputAccessorType > input1( bufferIndex, &mInput1 );
-    const PropertyInputIndexer< PropertyInputAccessorType > input2( bufferIndex, &mInput2 );
+    const InputContainerConstIter endIter = mInputs.end();
+    for ( InputContainerConstIter iter = mInputs.begin(); iter != endIter; ++iter )
+    {
+      DALI_ASSERT_DEBUG( NULL != iter->GetInput() );
+      inputIndices.push_back( PropertyInputIndexer< PropertyInputAccessorType >( bufferIndex, &*iter ) );
+    }
 
     return mFunction( current,
-                      input1,
-                      input2 );
+                      inputIndices[0],
+                      inputIndices[1] );
   }
+
 
 private:
 
@@ -440,8 +444,7 @@ private:
 
   ConstraintFunction mFunction;
 
-  PropertyInputAccessorType mInput1;
-  PropertyInputAccessorType mInput2;
+  InputContainer mInputs;
 };
 
 /**
@@ -1094,6 +1097,131 @@ private:
   PropertyInputAccessorType mInput4;
   PropertyInputAccessorType mInput5;
   PropertyInputAccessorType mInput6;
+};
+
+/**
+ * Connects a constraint function with a target property & 2 input properties.
+ */
+template < typename PropertyType, typename PropertyInputAccessorType >
+class PropertyConstraintNew : public PropertyConstraintBase< PropertyType >
+{
+public:
+
+  typedef std::vector < PropertyInputAccessorType > InputContainer;
+  typedef typename InputContainer::iterator InputContainerIter;
+  typedef typename InputContainer::const_iterator InputContainerConstIter;
+
+  typedef std::vector< PropertyInputIndexer< PropertyInputAccessorType > > InputIndexerContainer;
+
+  typedef boost::function< PropertyType (const PropertyType&, const Vector< PropertyInput* >&) > ConstraintFunction;
+
+  /**
+   * Constructor.
+   * @param [in] func A constraint function.
+   */
+  PropertyConstraintNew( const ConstraintFunction& func )
+  : mFunction( func ),
+    mInputs()
+  {
+  }
+
+  /**
+   * Constructor.
+   * @param [in] func A constraint function.
+   * @param [in] inputs Property inputs.
+   */
+  PropertyConstraintNew( const ConstraintFunction& func,
+                         const InputContainer& inputs )
+  : mFunction( func ),
+    mInputs( inputs )
+  {
+  }
+
+  /**
+   * Virtual destructor.
+   */
+  virtual ~PropertyConstraintNew()
+  {
+  }
+
+  /**
+   * @copydoc PropertyConstraintBase::Clone()
+   */
+  virtual PropertyConstraintBase< PropertyType >* Clone()
+  {
+    return new PropertyConstraintNew< PropertyType, PropertyInputAccessorType >( mFunction, mInputs );
+  }
+
+  /**
+   * @copydoc PropertyConstraintBase::CloneComponentFunc()
+   */
+  virtual PropertyConstraintBase< PropertyType >* CloneComponentFunc()
+  {
+    return new PropertyConstraintNew< PropertyType, PropertyInputComponentAccessor >( mFunction );
+  }
+
+  /**
+   * @copydoc PropertyConstraintBase::SetInput()
+   */
+  virtual void SetInput( unsigned int index, int componentIndex, const PropertyInputImpl& input )
+  {
+    DALI_ASSERT_ALWAYS( 2u > index && "Constraint only has 2 properties" );
+
+    if ( index >= mInputs.size() )
+    {
+      mInputs.push_back( PropertyInputAccessorType() );
+    }
+
+    mInputs[ index ].SetInput( input, componentIndex );
+  }
+
+  /**
+   * @copydoc PropertyConstraintBase::GetInput()
+   */
+  virtual const PropertyInputImpl* GetInput( unsigned int index ) const
+  {
+    if ( index < mInputs.size() )
+    {
+      return mInputs[ index ].GetInput();
+    }
+
+    return NULL;
+  }
+
+  /**
+   * @copydoc PropertyConstraintBase::Apply()
+   */
+  virtual PropertyType Apply( BufferIndex bufferIndex, const PropertyType& current )
+  {
+    InputIndexerContainer inputIndices;
+    Vector< PropertyInput* > indices;
+
+    const InputContainerConstIter endIter = mInputs.end();
+    unsigned int index = 0;
+    for ( InputContainerConstIter iter = mInputs.begin(); iter != endIter; ++iter, ++index )
+    {
+      DALI_ASSERT_DEBUG( NULL != iter->GetInput() );
+      inputIndices.push_back( PropertyInputIndexer< PropertyInputAccessorType >( bufferIndex, &*iter ) );
+      indices.PushBack( &inputIndices[ index ] );
+    }
+
+    return mFunction( current, indices );
+  }
+
+
+private:
+
+  // Undefined
+  PropertyConstraintNew(const PropertyConstraintNew&);
+
+  // Undefined
+  PropertyConstraintNew& operator=(const PropertyConstraintNew& rhs);
+
+private:
+
+  ConstraintFunction mFunction;
+
+  InputContainer mInputs;
 };
 
 } // namespace Internal

@@ -24,6 +24,8 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/animation/constraint-source.h>
+#include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/handle.h>
 #include <dali/public-api/object/property.h>
@@ -74,6 +76,14 @@ public:
    * Calling member functions with an uninitialized Dali::Object is not allowed.
    */
   Constraint();
+
+  template <class P, typename T>
+  static Constraint New( bool, Property::Index target,
+                         boost::function<P (const P& current, const Vector< PropertyInput* >& propertyInputs)> func )
+  {
+    Constraint constraint = New( target, PropertyTypes::Get<P>(), func, true );
+    return constraint;
+  }
 
   /**
    * @brief Create a constraint which targets a property.
@@ -385,7 +395,7 @@ private: // Not intended for use by Application developers
    */
   static Constraint New( Property::Index target,
                          Property::Type targetType,
-                         AnyFunction func );
+                         AnyFunction func, bool useNew = false );
 };
 
 } // namespace Dali

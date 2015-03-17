@@ -173,6 +173,10 @@ bool CompressedBitmapTexture::CreateGlTexture()
   return mId != 0;
 }
 
+void CompressedBitmapTexture::GlContextCreated()
+{
+}
+
 bool CompressedBitmapTexture::Init()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);

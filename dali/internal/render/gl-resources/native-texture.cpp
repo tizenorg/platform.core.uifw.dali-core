@@ -80,6 +80,12 @@ bool NativeTexture::HasAlphaChannel() const
 
 bool NativeTexture::CreateGlTexture()
 {
+  if ( mId != 0 )
+  {
+    DALI_LOG_INFO( Debug::Filter::gImage, Debug::General, "GL texture creation duplicate for GL id: %d\n", &mId );
+    return true;
+  }
+
   if( mNativeImage->GlExtensionCreate() )
   {
     mContext.GenTextures( 1, &mId );
@@ -106,11 +112,17 @@ void NativeTexture::GlCleanup()
 {
   Texture::GlCleanup();
 
-  DALI_ASSERT_DEBUG(mNativeImage);
+  DALI_ASSERT_DEBUG( mNativeImage );
 
   mNativeImage->GlExtensionDestroy();
-
   mNativeImage.Reset();
+}
+
+void NativeTexture::GlContextCreated()
+{
+  DALI_ASSERT_DEBUG( mNativeImage );
+  Texture::GlContextCreated();
+  mNativeImage->GlContextCreated();
 }
 
 bool NativeTexture::Init()

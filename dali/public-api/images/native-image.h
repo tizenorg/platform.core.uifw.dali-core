@@ -68,6 +68,11 @@ public:
   NativeImage& operator=( const NativeImage& rhs );
 
   /**
+   * @brief Trigger asynchronous creation of backing GL texture immediately.
+   */
+  void CreateGlTexture();
+
+  /**
    * @brief Create a new NativeImage, which used native resources.
    *
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE
@@ -85,6 +90,13 @@ public:
    * @return handle to a NativeImage or an uninitialized handle.
    */
   static NativeImage DownCast( BaseHandle handle );
+
+  /**
+   * @brief Called to notify implementation of GL Context creation.
+   *
+   * Use to process the loss or gain of a GL context in a derived class
+   */
+  //virtual void GlContextCreated() {} ///@todo Delete this? The copy on NativeImageInterface is in the right place? <--------------------------------------[ToDo]
 
 public: // Not intended for application developers
 

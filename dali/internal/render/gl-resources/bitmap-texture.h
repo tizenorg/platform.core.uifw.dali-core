@@ -79,8 +79,6 @@ public:
    */
   Integration::Bitmap* GetBitmap() { return mBitmap.Get(); }
 
-public:
-
   /**
    * @copydoc Texture::Init
    */
@@ -138,6 +136,11 @@ protected:
    * @copydoc Texture::CreateGlTexture
    */
   virtual bool CreateGlTexture();
+
+ /**
+  * @copydoc GlResourceOwner::GlContextCreated
+  */
+ virtual void GlContextCreated();
 
 private:
 

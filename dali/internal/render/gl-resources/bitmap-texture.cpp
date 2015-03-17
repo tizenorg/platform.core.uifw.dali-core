@@ -335,6 +335,10 @@ bool BitmapTexture::CreateGlTexture()
   return mId != 0;
 }
 
+void BitmapTexture::GlContextCreated()
+{
+}
+
 bool BitmapTexture::Init()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);

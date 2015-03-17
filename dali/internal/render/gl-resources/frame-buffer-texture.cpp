@@ -136,6 +136,10 @@ bool FrameBufferTexture::CreateGlTexture()
   return mId != 0;
 }
 
+void FrameBufferTexture::GlContextCreated()
+{
+}
+
 void FrameBufferTexture::GlCleanup()
 {
   Texture::GlCleanup();

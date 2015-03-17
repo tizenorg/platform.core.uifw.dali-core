@@ -94,6 +94,11 @@ protected:
   virtual bool CreateGlTexture();
 
   /**
+   * @copydoc GlResourceOwner::GlContextCreated
+   */
+  virtual void GlContextCreated();
+
+  /**
    * @copydoc Texture::GlCleanup
    */
   virtual void GlCleanup();

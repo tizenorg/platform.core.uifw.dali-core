@@ -84,6 +84,11 @@ protected:
    */
   virtual void GlCleanup();
 
+  /**
+   * @copydoc Texture::GlContextCreated
+   */
+  virtual void GlContextCreated();
+
 
 private:
 

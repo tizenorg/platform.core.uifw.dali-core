@@ -18,9 +18,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <boost/function.hpp>
-
 // INTERNAL INCLUDES
 #include <dali/internal/common/event-to-update.h>
 #include <dali/internal/common/message.h>

@@ -18,9 +18,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <boost/function.hpp>
-
 // INTERNAL INCLUDES
 #include <dali/internal/common/event-to-update.h>
 #include <dali/internal/common/message.h>
@@ -199,9 +196,9 @@ private:
    * @param[out] propertyOwners The container of property-owners providing the scene-graph properties.
    * @return A connected constraint-function, or NULL if the scene-graph properties are not available.
    */
-  PropertyConstraintBase<PropertyType>* ConnectConstraintFunction( SceneGraph::PropertyOwnerContainer& propertyOwners )
+  PropertyConstraint<PropertyType>* ConnectConstraintFunction( SceneGraph::PropertyOwnerContainer& propertyOwners )
   {
-    PropertyConstraintBase<PropertyType>* func = mUserFunction->Clone();
+    PropertyConstraint<PropertyType>* func = mUserFunction->Clone();
     bool usingComponentFunc( false );
 
     for ( SourceIter iter = mSources.begin(); mSources.end() != iter; ++iter )
@@ -277,7 +274,7 @@ private:
         // Special case where component indices are required
         if ( !usingComponentFunc )
         {
-          PropertyConstraintBase<PropertyType>* componentFunc = func->CloneComponentFunc();
+          PropertyConstraint<PropertyType>* componentFunc = func->CloneComponentFunc();
           usingComponentFunc = true;
 
           // Switch to function supporting component indices
@@ -500,9 +497,9 @@ private:
    * @param[out] propertyOwners The container of property-owners providing the scene-graph properties.
    * @return A connected constraint-function, or NULL if the scene-graph properties are not available.
    */
-  PropertyConstraintBase<float>* ConnectConstraintFunction( SceneGraph::PropertyOwnerContainer& propertyOwners )
+  PropertyConstraint<float>* ConnectConstraintFunction( SceneGraph::PropertyOwnerContainer& propertyOwners )
   {
-    PropertyConstraintBase<float>* func = mUserFunction->Clone();
+    PropertyConstraint<float>* func = mUserFunction->Clone();
     bool usingComponentFunc( false );
 
     for ( SourceIter iter = mSources.begin(); mSources.end() != iter; ++iter )
@@ -578,7 +575,7 @@ private:
         // Special case where component indices are required
         if ( !usingComponentFunc )
         {
-          PropertyConstraintBase<float>* componentFunc = func->CloneComponentFunc();
+          PropertyConstraint<float>* componentFunc = func->CloneComponentFunc();
           usingComponentFunc = true;
 
           // Switch to function supporting component indices

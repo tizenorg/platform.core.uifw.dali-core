@@ -68,6 +68,11 @@ public:
   NativeImage& operator=( const NativeImage& rhs );
 
   /**
+   * @brief Trigger asynchronous creation of backing GL texture immediately.
+   */
+  void CreateGlTexture();
+
+  /**
    * @brief Create a new NativeImage, which used native resources.
    *
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE

@@ -18,6 +18,7 @@
  *
  */
 
+
 // INTERNAL INCLUDES
 #include <dali/public-api/math/vector3.h>
 #include <dali/public-api/math/vector4.h>
@@ -25,6 +26,7 @@
 #include <dali/public-api/math/matrix.h>
 #include <dali/public-api/math/matrix3.h>
 #include <dali/public-api/object/property-input.h>
+#include <dali/public-api/animation/path.h>
 
 namespace Dali
 {
@@ -322,6 +324,73 @@ inline Quaternion LookAt( const Quaternion& current,
 
   return Quaternion( vX, vY, vForward );
 }
+
+/**
+ * @brief Constraint functor to constraint porperties to paths.
+ *
+ * Vector3 properties will be constrained to the position of the path and
+ * Rotation properties will be constrained to follow the tangent of the path
+ * given a forward vector in object's local space.
+ */
+struct PathConstraintFunctor
+{
+  /**
+   * @brief Constructor.
+   *
+   * @param[in] path The path used in the constraint
+   * @param[in] The range of values in the input property which will be mapped to 0..1
+   */
+
+  PathConstraintFunctor(Dali::Path path, const Vector2& range ):mPath(path),mRange(range){}
+
+  /**
+   * @brief Constructor.
+   *
+   * @param[in] path The path used in the constraint
+   * @param[in] The range of values in the input property which will be mapped to 0..1
+   * @param[in] forward Vector in object space which will be aligned with the tangent of the path
+   */
+  PathConstraintFunctor(Dali::Path path, const Vector2& range,const Vector3& forward ):mPath(path),mForward(forward),mRange(range){}
+
+  /**
+   * @brief Functor operator for Vector3 properties
+   *
+   * @param[in] current Current value of the property
+   * @param[in] property The input property used as the parameter for the path
+   *
+   * @return The position of the path at the given parameter.
+   */
+  Vector3 operator()(const Vector3& current,
+                     const PropertyInput& property)
+  {
+    float t = ( property.GetFloat() - mRange.x ) / (mRange.y-mRange.x);
+    Vector3 position, tangent;
+    mPath.Sample( t, position, tangent );
+    return position;
+  }
+
+  /**
+   * @brief Functor operator for Quaternion properties
+   *
+   * @param[in] current Current value of the property
+   * @param[in] property The input property used as the parameter for the path
+   *
+   * @return The rotation which will align the forward vector and the tangent of the path at the given parameter.
+   */
+  Quaternion operator()( const Quaternion& current,
+                         const PropertyInput& property)
+  {
+    float t = ( property.GetFloat() - mRange.x ) / (mRange.y-mRange.x);
+    Vector3 position, tangent;
+    mPath.Sample( t, position, tangent );
+    return Quaternion( mForward, tangent );
+  }
+
+  Dali::Path  mPath;      ///< The path used
+  Vector3     mForward;   ///< Vector in object space which will be aligned with the tangent of the path
+  Vector2     mRange;     ///< The range of values in the input property which will be mapped to 0..1
+};
+
 
 } // namespace Dali
 

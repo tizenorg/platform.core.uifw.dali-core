@@ -59,7 +59,7 @@ inline unsigned int NextPowerOfTwo( unsigned int i )
  */
 inline bool IsPowerOfTwo( unsigned int i )
 {
-  return (i != 0) && ((i & (i - 1)) == 0);
+  return (i != 0U) && ((i & (i - 1U)) == 0U);
 }
 
 /**

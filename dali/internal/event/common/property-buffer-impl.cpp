@@ -45,6 +45,19 @@ const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> PROPERTY_BUFFER_IMPL = { DEFAULT_
 
 } // unnamed namespace
 
+
+unsigned int PropertyBuffer::FormatMetadata::GetComponentOffset( unsigned int index ) const
+{
+  DALI_ASSERT_DEBUG( index >= 0 && index < components.Size() && "Index not within the correct boundaries." );
+  return index > 0 ? components[index-1u].accumulatedSize : 0;
+}
+
+unsigned int PropertyBuffer::FormatMetadata::GetElementSize() const
+{
+  unsigned int numComponents = components.Size();
+  return numComponents ? components[-1].accumulatedSize : 0;
+}
+
 PropertyBufferPtr PropertyBuffer::New()
 {
   return PropertyBufferPtr( new PropertyBuffer() );
@@ -54,6 +67,10 @@ void PropertyBuffer::SetSize( std::size_t size )
 {
   //TODO: MESH_REWORK
   DALI_ASSERT_ALWAYS( false && "MESH_REWORK" );
+
+  mSize = size;
+
+  SizeChanged();
 }
 
 std::size_t PropertyBuffer::GetSize() const
@@ -81,6 +98,43 @@ const SceneGraph::PropertyBuffer* PropertyBuffer::GetPropertyBufferSceneObject()
 {
   return mSceneObject;
 }
+
+void PropertyBuffer::SetType( Dali::PropertyBuffer::Type type )
+{
+  DALI_ASSERT_DEBUG( !mTypeSet && "Type of property buffer can only be set once." );
+
+  switch(type)
+  {
+    case  Dali::PropertyBuffer::STATIC:
+    {
+      mIsAnimatable = false;
+      break;
+    }
+    case  Dali::PropertyBuffer::ANIMATABLE:
+    {
+      mIsAnimatable = true;
+      break;
+    }
+  }
+
+#ifdef DEBUG_ENABLED
+  mTypeSet = true;
+#endif // DEBUG_ENABLED
+}
+
+void PropertyBuffer::SetFormat( Dali::Property::Map& format )
+{
+  DALI_ASSERT_DEBUG( !mFormatSet && "Type of property buffer can only be set once." );
+
+  mFormat = format;
+
+  FormatChanged();
+
+#ifdef DEBUG_ENABLED
+  mFormatSet = true;
+#endif // DEBUG_ENABLED
+}
+
 
 unsigned int PropertyBuffer::GetDefaultPropertyCount() const
 {
@@ -180,10 +234,143 @@ void PropertyBuffer::Disconnect()
   mOnStage = false;
 }
 
-PropertyBuffer::PropertyBuffer()
-: mSceneObject(NULL),
-  mOnStage( false )
+PropertyBuffer::~PropertyBuffer()
 {
+}
+
+PropertyBuffer::PropertyBuffer()
+: mSceneObject( NULL ),
+  mPropertyFormat( NULL ),
+  mSize( 0 ),
+  mIsAnimatable( false ),
+  mOnStage( false )
+#ifdef DEBUG_ENABLED
+  , mTypeSet( false )
+  , mFormatSet( false )
+#endif
+{
+}
+
+void PropertyBuffer::FormatChanged()
+{
+  size_t numComponents = mFormat.Count();
+
+  // Create the format
+  DALI_ASSERT_DEBUG( mPropertyFormat == NULL && "PropertyFormat should not be set yet" );
+  FormatMetadata* propertyFormat = new FormatMetadata();
+  propertyFormat->components.Resize( numComponents );
+
+  unsigned int elementSize = 0;
+  for( size_t i = 0u; i < numComponents; ++i )
+  {
+    StringValuePair component = mFormat.GetPair( i );
+
+    // Get the name
+    propertyFormat->components[i].name = component.first;
+
+    // Get the size
+    Property::Type type = Property::Type( component.second.Get<unsigned int>() );
+    elementSize += GetPropertyImplementationSize( type );
+
+    // write the accumulatedSize
+    propertyFormat->components[i].accumulatedSize = elementSize;
+  }
+
+  // Store it for reference
+  mPropertyFormat = propertyFormat;
+
+  if( mSize )
+  {
+    SizeChanged();
+  }
+}
+
+void PropertyBuffer::SizeChanged()
+{
+  // Check if format and size have been set yet
+  if( !mPropertyFormat )
+  {
+    return;
+  }
+
+  unsigned int bufferSize = mPropertyFormat->GetElementSize() * mSize;
+  mBuffer.Resize( bufferSize );
+
+}
+
+unsigned int GetPropertyImplementationSize( Property::Type& propertyType )
+{
+  unsigned int size = 0u;
+
+  switch( propertyType )
+  {
+    case Property::NONE:
+    case Property::TYPE_COUNT:
+    case Property::STRING:
+    case Property::ARRAY:
+    case Property::MAP:
+    {
+      DALI_ASSERT_ALWAYS( "No size for properties with no type, or dynamic sizes" );
+      break;
+    }
+    case Property::BOOLEAN:
+    {
+      size = sizeof( PropertyImplementationType< Property::BOOLEAN >::Type );
+      break;
+    }
+    case Property::FLOAT:
+    {
+      size = sizeof( PropertyImplementationType< Property::FLOAT >::Type );
+      break;
+    }
+    case Property::INTEGER:
+    {
+      size = sizeof( PropertyImplementationType< Property::INTEGER >::Type );
+      break;
+    }
+    case Property::UNSIGNED_INTEGER:
+    {
+      size = sizeof( PropertyImplementationType< Property::UNSIGNED_INTEGER >::Type );
+      break;
+    }
+    case Property::VECTOR2:
+    {
+      size = sizeof( PropertyImplementationType< Property::VECTOR2 >::Type );
+      break;
+    }
+    case Property::VECTOR3:
+    {
+      size = sizeof( PropertyImplementationType< Property::VECTOR3 >::Type );
+      break;
+    }
+    case Property::VECTOR4:
+    {
+      size = sizeof( PropertyImplementationType< Property::VECTOR4 >::Type );
+      break;
+    }
+    case Property::MATRIX3:
+    {
+      size = sizeof( PropertyImplementationType< Property::MATRIX3 >::Type );
+      break;
+    }
+    case Property::MATRIX:
+    {
+      size = sizeof( PropertyImplementationType< Property::MATRIX >::Type );
+      break;
+    }
+    case Property::RECTANGLE:
+    {
+      size = sizeof( PropertyImplementationType< Property::RECTANGLE >::Type );
+      break;
+    }
+    case Property::ROTATION:
+    {
+      size = sizeof( PropertyImplementationType< Property::ROTATION >::Type );
+      break;
+    }
+  }
+
+  return size;
 }
 
 } // namespace Internal

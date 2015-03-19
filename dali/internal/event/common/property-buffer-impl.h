@@ -22,6 +22,7 @@
 #include <dali/public-api/common/dali-common.h> // DALI_ASSERT_ALWAYS
 #include <dali/public-api/common/intrusive-ptr.h> // Dali::IntrusivePtr
 #include <dali/public-api/object/property-buffer.h> // Dali::PropertyBuffer
+#include <dali/public-api/object/property-map.h> // Dali::Property::Map
 #include <dali/internal/event/common/connectable.h> // Dali::Internal::Connectable
 #include <dali/internal/event/common/object-connector.h> // Dali::Internal::ObjectConnector
 #include <dali/internal/event/common/object-impl.h> // Dali::Internal::Object
@@ -45,6 +46,39 @@ typedef IntrusivePtr<PropertyBuffer> PropertyBufferPtr;
 class PropertyBuffer : public Object, public Connectable
 {
 public:
+
+  /**
+   * Structure that holds name and size of a component in the PropertyBuffer.
+   */
+  struct ComponentMetadata
+  {
+    std::string name;
+    unsigned int accumulatedSize;
+  };
+
+  /**
+   * Struct that holds the metadata of the format of PropertyBuffer.
+   */
+  struct FormatMetadata
+  {
+    Vector<ComponentMetadata> components;
+
+    /**
+     * @brief Get the offset of a component within an element
+     *
+     * @pre index must be within 0 and components.Size()-1
+     *
+     * @return The offset for a component within an element
+     */
+    unsigned int GetComponentOffset( unsigned int index ) const;
+
+    /**
+     * @brief Get the size of an element
+     *
+     * @return The size of an element
+     */
+    unsigned int GetElementSize() const;
+  };
 
   /**
    * @copydoc PropertBuffer::New()
@@ -77,6 +111,24 @@ public:
    * @return the propertyBuffer scene object
    */
   const SceneGraph::PropertyBuffer* GetPropertyBufferSceneObject() const;
+
+  /**
+   * @brief Set the type of PropertyBuffer
+   *
+   * @pre Has not been set yet
+   *
+   * @param[in] type of PropertyBuffer
+   */
+  void SetType( Dali::PropertyBuffer::Type type );
+
+  /**
+   * @brief Set the format of the PropertyBuffer
+   *
+   * @pre Has not been set yet
+   *
+   * @param[in] format of the PropertyBuffer
+   */
+  void SetFormat( Dali::Property::Map& format );
 
 public: // Default property extensions from Object
 
@@ -167,7 +219,7 @@ public: // Functions from Connectable
   virtual bool OnStage() const;
 
   /**
-   * @copydoc Dali::Internal::Connectable::Connect()
+   * @copydoc Dali::Internal::Connectable::Contnect()
    */
   virtual void Connect();
 
@@ -176,17 +228,79 @@ public: // Functions from Connectable
    */
   virtual void Disconnect();
 
+protected:
+  /**
+   * @brief Destructor
+   */
+  ~PropertyBuffer();
+
 private: // implementation
+  /**
+   * @brief Default constructor
+   */
   PropertyBuffer();
+
+  /**
+   * Update the buffer when the format changes
+   */
+  void FormatChanged();
+
+  /**
+   * Update the buffer when the size changes
+   */
+  void SizeChanged();
 
 private: // unimplemented methods
   PropertyBuffer( const PropertyBuffer& );
   PropertyBuffer& operator=( const PropertyBuffer& );
 
 private: // data
-  SceneGraph::PropertyBuffer* mSceneObject;
-  bool mOnStage;
+  SceneGraph::PropertyBuffer* mSceneObject; ///< Update side object
+
+  Property::Map mFormat;  ///< Format of the property buffer
+  const FormatMetadata* mPropertyFormat;  ///< Metadata for the format of the property buffer
+
+  unsigned int mSize; ///< Size of the buffer
+  bool mIsAnimatable; ///< Flag to know if the property buffer is animatable
+
+  Dali::Vector< char > mBuffer;
+
+  bool mOnStage;  ///< Flag to know if the object is on stage
+
+#ifdef DEBUG_ENABLED
+private:
+  bool mTypeSet; // used to ensure the type doesn't change at runtime
+  bool mFormatSet; // used to ensure the format doesn't change at runtime
+#endif // DEBUG_ENABLED
 };
+
+/**
+ * Get the implementation type from a Property::Type
+ */
+template<Property::Type type> struct PropertyImplementationType
+{
+  // typedef ... Type; not defined, only support types declared bellow
+};
+template<> struct PropertyImplementationType< Property::BOOLEAN > { typedef bool Type; };
+template<> struct PropertyImplementationType< Property::FLOAT > { typedef float Type; };
+template<> struct PropertyImplementationType< Property::INTEGER > { typedef int Type; };
+template<> struct PropertyImplementationType< Property::UNSIGNED_INTEGER > { typedef unsigned int Type; };
+template<> struct PropertyImplementationType< Property::VECTOR2 > { typedef Vector2 Type; };
+template<> struct PropertyImplementationType< Property::VECTOR3 > { typedef Vector3 Type; };
+template<> struct PropertyImplementationType< Property::VECTOR4 > { typedef Vector4 Type; };
+template<> struct PropertyImplementationType< Property::MATRIX3 > { typedef Matrix3 Type; };
+template<> struct PropertyImplementationType< Property::MATRIX > { typedef Matrix Type; };
+template<> struct PropertyImplementationType< Property::RECTANGLE > { typedef Rect<int> Type; };
+template<> struct PropertyImplementationType< Property::ROTATION > { typedef Quaternion Type; };
+
+/**
+ * Get the size of the implementation of a Property::Type
+ *
+ * @param[in] propertyType Property::Type used to check the size
+ *
+ * @return Size given by sizeof for the implementation this propertyType
+ */
+unsigned int GetPropertyImplementationSize( Property::Type& propertyType );
 
 } // namespace Internal
 

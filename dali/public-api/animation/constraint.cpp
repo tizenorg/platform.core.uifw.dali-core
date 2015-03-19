@@ -100,13 +100,11 @@ unsigned int Constraint::GetTag() const
 
 Constraint Constraint::New( Property::Index target,
                             Property::Type targetType,
-                            AnyFunction func,
-                            bool useNew )
+                            AnyFunction func )
 {
   return Constraint( new Internal::Constraint( target,
                                                targetType,
-                                               func,
-                                               useNew) );
+                                               func ) );
 }
 
 Constraint Constraint::DownCast( BaseHandle handle )

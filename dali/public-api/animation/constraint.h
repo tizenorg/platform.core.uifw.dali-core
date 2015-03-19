@@ -25,7 +25,6 @@
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/animation/constraint-source.h>
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/handle.h>
 #include <dali/public-api/object/property.h>
@@ -39,6 +38,8 @@ namespace Internal DALI_INTERNAL
 {
 class Constraint;
 }
+
+typedef Vector< PropertyInput* > PropertyInputContainer;
 
 /**
  * @brief An abstract base class for Constraints.
@@ -77,203 +78,20 @@ public:
    */
   Constraint();
 
-  template <class P, typename T>
-  static Constraint New( bool, Property::Index target,
-                         boost::function<P (const P& current, const Vector< PropertyInput* >& propertyInputs)> func )
-  {
-    Constraint constraint = New( target, PropertyTypes::Get<P>(), func, true );
-    return constraint;
-  }
-
   /**
    * @brief Create a constraint which targets a property.
    *
-   * The templated parameter P, is the type of the property to constrain.
    * @param [in] target The index of the property to constrain.
    * @param [in] func A function which returns the constrained property value.
    * @return The new constraint.
-   */
-  template <class P>
-  static Constraint New( Property::Index target,
-                         boost::function<P (const P& current)> func )
-  {
-    return New( target,
-                PropertyTypes::Get<P>(),
-                func );
-  }
-
-  /**
-   * @brief Create a constraint which targets a property.
    *
-   * The templated parameter P, is the type of the property to constrain.
-   * @param [in] target The index of the property to constrain.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] func A function which returns the constrained property value.
-   * @return The new constraint.
+   * @tparam P The type of the property to constraint.
    */
-  template <class P>
+  template < class P >
   static Constraint New( Property::Index target,
-                         ConstraintSource source1,
-                         boost::function<P (const P& current, const PropertyInput& input1)> func )
+                         boost::function< P ( const P& current, const PropertyInputContainer& inputs ) > func )
   {
-    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
-    constraint.AddSource( source1 );
-    return constraint;
-  }
-
-  /**
-   * @brief Create a constraint which targets a property.
-   *
-   * The templated parameter P, is the type of the property to constrain.
-   * @param [in] target The index of the property to constrain.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] source2 The source of a property; the current value will be passed as the 3rd parameter of func.
-   * @param [in] func A function which returns the constrained property value.
-   * @return The new constraint.
-   */
-  template <class P>
-  static Constraint New( Property::Index target,
-                         ConstraintSource source1,
-                         ConstraintSource source2,
-                         boost::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2)> func )
-  {
-    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
-    constraint.AddSource( source1 );
-    constraint.AddSource( source2 );
-    return constraint;
-  }
-
-  /**
-   * @brief Create a constraint which targets a property.
-   *
-   * The templated parameter P, is the type of the property to constrain.
-   * @param [in] target The index of the property to constrain.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] source2 The source of a property; the current value will be passed as the 3rd parameter of func.
-   * @param [in] source3 The source of a property; the current value will be passed as the 4th parameter of func.
-   * @param [in] func A function which returns the constrained property value.
-   * @return The new constraint.
-   */
-  template <class P>
-  static Constraint New( Property::Index target,
-                         ConstraintSource source1,
-                         ConstraintSource source2,
-                         ConstraintSource source3,
-                         boost::function<P (const P& current, const PropertyInput& input1, const PropertyInput& input2, const PropertyInput& input3)> func )
-  {
-    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
-    constraint.AddSource( source1 );
-    constraint.AddSource( source2 );
-    constraint.AddSource( source3 );
-    return constraint;
-  }
-
-  /**
-   * @brief Create a constraint which targets a property.
-   *
-   * The templated parameter P, is the type of the property to constrain.
-   * @param [in] target The index of the property to constrain.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] source2 The source of a property; the current value will be passed as the 3rd parameter of func.
-   * @param [in] source3 The source of a property; the current value will be passed as the 4th parameter of func.
-   * @param [in] source4 The source of a property; the current value will be passed as the 5th parameter of func.
-   * @param [in] func A function which returns the constrained property value.
-   * @return The new constraint.
-   */
-  template <class P>
-  static Constraint New( Property::Index target,
-                         ConstraintSource source1,
-                         ConstraintSource source2,
-                         ConstraintSource source3,
-                         ConstraintSource source4,
-                         boost::function<P (const P& current,
-                                            const PropertyInput& input1,
-                                            const PropertyInput& input2,
-                                            const PropertyInput& input3,
-                                            const PropertyInput& input4)> func )
-  {
-    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
-    constraint.AddSource( source1 );
-    constraint.AddSource( source2 );
-    constraint.AddSource( source3 );
-    constraint.AddSource( source4 );
-    return constraint;
-  }
-
-  /**
-   * @brief Create a constraint which targets a property.
-   *
-   * The templated parameter P, is the type of the property to constrain.
-   * @param [in] target The index of the property to constrain.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] source2 The source of a property; the current value will be passed as the 3rd parameter of func.
-   * @param [in] source3 The source of a property; the current value will be passed as the 4th parameter of func.
-   * @param [in] source4 The source of a property; the current value will be passed as the 5th parameter of func.
-   * @param [in] source5 The source of a property; the current value will be passed as the 6th parameter of func.
-   * @param [in] func A function which returns the constrained property value.
-   * @return The new constraint.
-   */
-  template <class P>
-  static Constraint New( Property::Index target,
-                         ConstraintSource source1,
-                         ConstraintSource source2,
-                         ConstraintSource source3,
-                         ConstraintSource source4,
-                         ConstraintSource source5,
-                         boost::function<P (const P& current,
-                                            const PropertyInput& input1,
-                                            const PropertyInput& input2,
-                                            const PropertyInput& input3,
-                                            const PropertyInput& input4,
-                                            const PropertyInput& input5)> func )
-  {
-    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
-    constraint.AddSource( source1 );
-    constraint.AddSource( source2 );
-    constraint.AddSource( source3 );
-    constraint.AddSource( source4 );
-    constraint.AddSource( source5 );
-    return constraint;
-  }
-
-  /**
-   * @brief Create a constraint which targets a property.
-   *
-   * The templated parameter P, is the type of the property to constrain.
-   * @param [in] target The index of the property to constrain.
-   * @param [in] source1 The source of a property; the current value will be passed as the 2nd parameter of func.
-   * @param [in] source2 The source of a property; the current value will be passed as the 3rd parameter of func.
-   * @param [in] source3 The source of a property; the current value will be passed as the 4th parameter of func.
-   * @param [in] source4 The source of a property; the current value will be passed as the 5th parameter of func.
-   * @param [in] source5 The source of a property; the current value will be passed as the 6th parameter of func.
-   * @param [in] source6 The source of a property; the current value will be passed as the 7th parameter of func.
-   * @param [in] func A function which returns the constrained property value.
-   * @return The new constraint.
-   */
-  template <class P>
-  static Constraint New( Property::Index target,
-                         ConstraintSource source1,
-                         ConstraintSource source2,
-                         ConstraintSource source3,
-                         ConstraintSource source4,
-                         ConstraintSource source5,
-                         ConstraintSource source6,
-                         boost::function<P (const P& current,
-                                            const PropertyInput& input1,
-                                            const PropertyInput& input2,
-                                            const PropertyInput& input3,
-                                            const PropertyInput& input4,
-                                            const PropertyInput& input5,
-                                            const PropertyInput& input6)> func )
-  {
-    Constraint constraint = New( target, PropertyTypes::Get<P>(), func );
-    constraint.AddSource( source1 );
-    constraint.AddSource( source2 );
-    constraint.AddSource( source3 );
-    constraint.AddSource( source4 );
-    constraint.AddSource( source5 );
-    constraint.AddSource( source6 );
-    return constraint;
+    return New( target, PropertyTypes::Get<P>(), func );
   }
 
   /**
@@ -395,7 +213,7 @@ private: // Not intended for use by Application developers
    */
   static Constraint New( Property::Index target,
                          Property::Type targetType,
-                         AnyFunction func, bool useNew = false );
+                         AnyFunction func );
 };
 
 } // namespace Dali

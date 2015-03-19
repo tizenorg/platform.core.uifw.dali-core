@@ -43,13 +43,13 @@ namespace // unnamed namespace
 {
 
 template <class P>
-PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& func, unsigned int sourceCount, bool useNew = false )
+PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& func, unsigned int sourceCount, bool useNew = true )
 {
   PropertyConstraintBase<P>* propertyConstraint( NULL );
 
   if ( useNew )
   {
-    propertyConstraint = new PropertyConstraintNew<P, PropertyInputAccessor>( AnyCast<boost::function<P (const P&, const Vector< PropertyInput* >&)> >( func ) );
+    propertyConstraint = new PropertyConstraintNew<P, PropertyInputAccessor>( AnyCast<boost::function<P (const P&, const PropertyInputContainer&)> >( func ) );
 
     return propertyConstraint;
   }
@@ -119,7 +119,6 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
       break;
     }
 
-
     default:
     {
       // should never come here
@@ -135,8 +134,7 @@ PropertyConstraintBase<P>* CreatePropertyConstraint( Constraint::AnyFunction& fu
 
 Constraint::Constraint( Property::Index targetIndex,
                         Property::Type targetType,
-                        AnyFunction& func,
-                        bool useNew )
+                        AnyFunction& func )
 : mActiveConstraintTemplate(),
   mApplyTime( 0.0f ),
   mTargetIndex( targetIndex ),
@@ -145,8 +143,7 @@ Constraint::Constraint( Property::Index targetIndex,
   mAlphaFunction( Dali::Constraint::DEFAULT_ALPHA_FUNCTION ),
   mFunc( func ),
   mRemoveAction( Dali::Constraint::DEFAULT_REMOVE_ACTION ),
-  mTag( 0 ),
-  mUseNew( useNew )
+  mTag( 0 )
 {
 }
 
@@ -164,7 +161,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
     {
       case Property::BOOLEAN:
       {
-        PropertyConstraintPtr<bool>::Type funcPtr( CreatePropertyConstraint<bool>( mFunc, mSources.size(), mUseNew ) );
+        PropertyConstraintPtr<bool>::Type funcPtr( CreatePropertyConstraint<bool>( mFunc, mSources.size() ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<bool>::New( mTargetIndex,
                                                                                          mSources,
@@ -174,7 +171,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::FLOAT:
       {
-        PropertyConstraintPtr<float>::Type funcPtr( CreatePropertyConstraint<float>( mFunc, mSources.size(), mUseNew ) );
+        PropertyConstraintPtr<float>::Type funcPtr( CreatePropertyConstraint<float>( mFunc, mSources.size() ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<float>::New( mTargetIndex,
                                                                                           mSources,
@@ -184,7 +181,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::INTEGER:
       {
-        PropertyConstraintPtr<int>::Type funcPtr( CreatePropertyConstraint<int>( mFunc, mSources.size(), mUseNew ) );
+        PropertyConstraintPtr<int>::Type funcPtr( CreatePropertyConstraint<int>( mFunc, mSources.size() ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<int>::New( mTargetIndex,
                                                                                         mSources,
@@ -194,7 +191,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::VECTOR2:
       {
-        PropertyConstraintPtr<Vector2>::Type funcPtr( CreatePropertyConstraint<Vector2>( mFunc, mSources.size(), mUseNew ) );
+        PropertyConstraintPtr<Vector2>::Type funcPtr( CreatePropertyConstraint<Vector2>( mFunc, mSources.size() ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector2>::New( mTargetIndex,
                                                                                             mSources,
@@ -204,7 +201,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::VECTOR3:
       {
-        PropertyConstraintPtr<Vector3>::Type funcPtr( CreatePropertyConstraint<Vector3>( mFunc, mSources.size(), mUseNew ) );
+        PropertyConstraintPtr<Vector3>::Type funcPtr( CreatePropertyConstraint<Vector3>( mFunc, mSources.size() ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector3>::New( mTargetIndex,
                                                                                             mSources,
@@ -214,7 +211,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::VECTOR4:
       {
-        PropertyConstraintPtr<Vector4>::Type funcPtr( CreatePropertyConstraint<Vector4>( mFunc, mSources.size(), mUseNew ) );
+        PropertyConstraintPtr<Vector4>::Type funcPtr( CreatePropertyConstraint<Vector4>( mFunc, mSources.size() ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Vector4>::New( mTargetIndex,
                                                                                             mSources,
@@ -224,7 +221,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::ROTATION:
       {
-        PropertyConstraintPtr<Quaternion>::Type funcPtr( CreatePropertyConstraint<Quaternion>( mFunc, mSources.size(), mUseNew ) );
+        PropertyConstraintPtr<Quaternion>::Type funcPtr( CreatePropertyConstraint<Quaternion>( mFunc, mSources.size() ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Quaternion>::New( mTargetIndex,
                                                                                                mSources,
@@ -234,7 +231,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::MATRIX:
       {
-        PropertyConstraintPtr<Matrix>::Type funcPtr( CreatePropertyConstraint<Matrix>( mFunc, mSources.size(), mUseNew ) );
+        PropertyConstraintPtr<Matrix>::Type funcPtr( CreatePropertyConstraint<Matrix>( mFunc, mSources.size() ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Matrix>::New( mTargetIndex,
                                                                                            mSources,
@@ -244,7 +241,7 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
 
       case Property::MATRIX3:
       {
-        PropertyConstraintPtr<Matrix3>::Type funcPtr( CreatePropertyConstraint<Matrix3>( mFunc, mSources.size(), mUseNew ) );
+        PropertyConstraintPtr<Matrix3>::Type funcPtr( CreatePropertyConstraint<Matrix3>( mFunc, mSources.size() ) );
 
         mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<Matrix3>::New( mTargetIndex,
                                                                                             mSources,

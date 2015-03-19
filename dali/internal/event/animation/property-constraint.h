@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/animation/constraint.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/internal/event/animation/property-input-accessor.h>
@@ -71,12 +72,16 @@ public:
    */
   virtual void SetInput( unsigned int index, int componentIndex, const PropertyInputImpl& input ) = 0;
 
+
+private:
   /**
    * Retrieve the input for one of the property constraint parameters.
    * @param [in] index The parameter index.
    * @return The property input, or NULL if no input exists with this index.
    */
   virtual const PropertyInputImpl* GetInput( unsigned int index ) const = 0;
+
+public:
 
   /**
    * Query whether all of the inputs have been initialized.
@@ -1113,7 +1118,7 @@ public:
 
   typedef std::vector< PropertyInputIndexer< PropertyInputAccessorType > > InputIndexerContainer;
 
-  typedef boost::function< PropertyType (const PropertyType&, const Vector< PropertyInput* >&) > ConstraintFunction;
+  typedef boost::function< PropertyType (const PropertyType&, const PropertyInputContainer&) > ConstraintFunction;
 
   /**
    * Constructor.
@@ -1165,8 +1170,6 @@ public:
    */
   virtual void SetInput( unsigned int index, int componentIndex, const PropertyInputImpl& input )
   {
-    DALI_ASSERT_ALWAYS( 2u > index && "Constraint only has 2 properties" );
-
     if ( index >= mInputs.size() )
     {
       mInputs.push_back( PropertyInputAccessorType() );
@@ -1175,6 +1178,7 @@ public:
     mInputs[ index ].SetInput( input, componentIndex );
   }
 
+private:
   /**
    * @copydoc PropertyConstraintBase::GetInput()
    */
@@ -1193,19 +1197,23 @@ public:
    */
   virtual PropertyType Apply( BufferIndex bufferIndex, const PropertyType& current )
   {
-    InputIndexerContainer inputIndices;
-    Vector< PropertyInput* > indices;
+    InputIndexerContainer mInputIndices;
+    PropertyInputContainer mIndices;
+    const unsigned int noOfInputs = mInputs.size();
+
+    mInputIndices.reserve( noOfInputs );
+    mIndices.Reserve( noOfInputs );
 
     const InputContainerConstIter endIter = mInputs.end();
     unsigned int index = 0;
     for ( InputContainerConstIter iter = mInputs.begin(); iter != endIter; ++iter, ++index )
     {
       DALI_ASSERT_DEBUG( NULL != iter->GetInput() );
-      inputIndices.push_back( PropertyInputIndexer< PropertyInputAccessorType >( bufferIndex, &*iter ) );
-      indices.PushBack( &inputIndices[ index ] );
+      mInputIndices.push_back( PropertyInputIndexer< PropertyInputAccessorType >( bufferIndex, &*iter ) );
+      mIndices.PushBack( &mInputIndices[ index ] );
     }
 
-    return mFunction( current, indices );
+    return mFunction( current, mIndices );
   }
 
 

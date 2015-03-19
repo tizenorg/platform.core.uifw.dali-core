@@ -52,8 +52,7 @@ public:
    */
   Constraint( Property::Index target,
               Property::Type targetType,
-              AnyFunction& func,
-              bool useNew );
+              AnyFunction& func );
 
   /**
    * Adds a constraint-source to the constraint
@@ -133,7 +132,6 @@ protected:
   AnyFunction mFunc;
   Dali::Constraint::RemoveAction mRemoveAction;
   unsigned int mTag;
-  bool mUseNew;
 };
 
 } // namespace Internal

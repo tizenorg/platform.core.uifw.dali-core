@@ -78,7 +78,7 @@ struct DALI_IMPORT_API Property
     MATRIX3,         ///< a 3x3 matrix
     MATRIX,          ///< a 4x4 matrix
     RECTANGLE,       ///< an integer array of size=4
-    ROTATION,        ///< either a quaternion or an axis angle rotation
+    ORIENTATION,     ///< either a quaternion or an axis angle rotation
     STRING,          ///< A string type
     ARRAY,           ///< an array of Property::Value
     MAP,             ///< a string key to Property:value mapping

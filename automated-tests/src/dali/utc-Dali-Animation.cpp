@@ -6473,7 +6473,7 @@ int UtcDaliAnimationKeyFrames06(void)
   keyFrames.Add(0.8f, AngleAxis(Degree(90), Vector3::XAXIS));
   keyFrames.Add(1.0f, Quaternion(3.0f, Vector3::YAXIS));
 
-  DALI_TEST_EQUALS(keyFrames.GetType(), Property::ROTATION, TEST_LOCATION);
+  DALI_TEST_EQUALS(keyFrames.GetType(), Property::ORIENTATION, TEST_LOCATION);
 
   try
   {

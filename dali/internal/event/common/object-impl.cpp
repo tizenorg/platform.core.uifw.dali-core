@@ -478,7 +478,7 @@ Property::Value Object::GetProperty(Property::Index index) const
           break;
         }
 
-        case Property::ROTATION:
+        case Property::ORIENTATION:
         {
           const AnimatableProperty<Quaternion>* property = dynamic_cast< const AnimatableProperty<Quaternion>* >( custom->GetSceneGraphProperty() );
           DALI_ASSERT_DEBUG( NULL != property );
@@ -584,7 +584,7 @@ Property::Index Object::RegisterProperty( const std::string& name, const Propert
       break;
     }
 
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       newProperty = new AnimatableProperty<Quaternion>( propertyValue.Get<Quaternion>() );
       break;
@@ -854,7 +854,7 @@ void Object::SetSceneGraphProperty( Property::Index index, const CustomProperty&
       break;
     }
 
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       const AnimatableProperty<Quaternion>* property = dynamic_cast< const AnimatableProperty<Quaternion>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );

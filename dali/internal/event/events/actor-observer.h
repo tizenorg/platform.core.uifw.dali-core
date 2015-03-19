@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/signals/callback.h>
 #include <dali/internal/event/common/object-impl.h>
 
 namespace Dali
@@ -43,21 +42,6 @@ public:
    * Constructor.
    */
   ActorObserver();
-
-  /**
-   * Constructor with a callback which is called when the observed actor is removed from the scene.
-   *
-   * The callback should have the following signature:
-   * @code
-   * void MyCallback( Actor* actor );
-   * @endcode
-   * Where actor is a pointer to the object that has been removed from the scene.
-   *
-   * @param[in]  callback  The callback to connect to.
-   *
-   * @note Ownership of callback is passed onto this class.
-   */
-  ActorObserver( CallbackBase* callback );
 
   /**
    * Non virtual destructor
@@ -115,9 +99,8 @@ private:
   virtual void ObjectDestroyed(Object& object);
 
 private:
-  Actor* mActor;                 ///< Raw pointer to an Actor.
-  bool  mActorDisconnected;      ///< Indicates whether the actor has been disconnected from the scene
-  CallbackBase* mRemoveCallback; ///< Callback to call when the observed actor is removed from the scene
+  Actor* mActor;              ///< Raw pointer to an Actor.
+  bool  mActorDisconnected;   ///< Indicates whether the actor has been disconnected from the scene
 };
 
 } // namespace Internal

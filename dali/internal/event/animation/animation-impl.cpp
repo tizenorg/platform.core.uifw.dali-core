@@ -362,7 +362,7 @@ void Animation::AnimateBy(Property& target, Property::Value& relativeValue, Alph
       break;
     }
 
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       AngleAxis angleAxis = relativeValue.Get<AngleAxis>();
 
@@ -498,7 +498,7 @@ void Animation::AnimateTo(Object& targetObject, Property::Index targetPropertyIn
       break;
     }
 
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       AddAnimatorConnector( AnimatorConnector<Quaternion>::New( targetObject,
                                                                 targetPropertyIndex,
@@ -642,7 +642,7 @@ void Animation::AnimateBetween(Property target, const KeyFrames& keyFrames, Alph
       break;
     }
 
-    case Dali::Property::ROTATION:
+    case Dali::Property::ORIENTATION:
     {
       const KeyFrameQuaternion* kf;
       GetSpecialization(keyFrames, kf);

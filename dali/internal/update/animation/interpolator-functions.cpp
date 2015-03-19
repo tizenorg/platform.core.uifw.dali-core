@@ -142,7 +142,7 @@ CallbackBase* GetDefaultInterpolator( Property::Type type )
       break;
     }
 
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       function = MakeCallback( SlerpQuaternion );
       break;

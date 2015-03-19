@@ -356,7 +356,7 @@ public:
         break;
       }
 
-      case Property::ROTATION:
+      case Property::ORIENTATION:
       {
         debugStream << GetQuaternion( bufferIndex );
         break;

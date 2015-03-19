@@ -194,7 +194,7 @@ Constraint::Constraint( Property::Index targetIndex,
       break;
     }
 
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       PropertyConstraintPtr<Quaternion>::Type funcPtr( CreatePropertyConstraint<Quaternion>( func, sources.size() ) );
 

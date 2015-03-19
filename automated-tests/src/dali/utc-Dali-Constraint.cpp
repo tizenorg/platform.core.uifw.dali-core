@@ -72,7 +72,7 @@ public:
   PropertyInputAbstraction(const Vector4& val) : mType(Dali::Property::VECTOR4), mVector4Data( val )  {}
   PropertyInputAbstraction(const Matrix3& val) : mType(Dali::Property::MATRIX3), mMatrix3Data( val )  {}
   PropertyInputAbstraction(const Matrix& val) : mType(Dali::Property::MATRIX), mMatrixData( val )  {}
-  PropertyInputAbstraction(const Quaternion& val) : mType(Dali::Property::ROTATION), mQuaternionData( val )  {}
+  PropertyInputAbstraction(const Quaternion& val) : mType(Dali::Property::ORIENTATION), mQuaternionData( val )  {}
 
   ~PropertyInputAbstraction() {}
 

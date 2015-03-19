@@ -122,8 +122,8 @@ DALI_PROPERTY( "world-position",       VECTOR3,  false,   false,   true,   Dali:
 DALI_PROPERTY( "world-position-x",     FLOAT,    false,   false,   true,   Dali::Actor::Property::WORLD_POSITION_X     )
 DALI_PROPERTY( "world-position-y",     FLOAT,    false,   false,   true,   Dali::Actor::Property::WORLD_POSITION_Y     )
 DALI_PROPERTY( "world-position-z",     FLOAT,    false,   false,   true,   Dali::Actor::Property::WORLD_POSITION_Z     )
-DALI_PROPERTY( "orientation",          ROTATION, true,    true,    true,   Dali::Actor::Property::ORIENTATION          )
-DALI_PROPERTY( "world-orientation",    ROTATION, false,   false,   true,   Dali::Actor::Property::WORLD_ORIENTATION    )
+DALI_PROPERTY( "orientation",          ORIENTATION, true,    true,    true,   Dali::Actor::Property::ORIENTATION          )
+DALI_PROPERTY( "world-orientation",    ORIENTATION, false,   false,   true,   Dali::Actor::Property::WORLD_ORIENTATION    )
 DALI_PROPERTY( "scale",                VECTOR3,  true,    true,    true,   Dali::Actor::Property::SCALE                )
 DALI_PROPERTY( "scale-x",              FLOAT,    true,    true,    true,   Dali::Actor::Property::SCALE_X              )
 DALI_PROPERTY( "scale-y",              FLOAT,    true,    true,    true,   Dali::Actor::Property::SCALE_Y              )
@@ -2644,7 +2644,7 @@ void Actor::SetSceneGraphProperty( Property::Index index, const CustomProperty& 
       break;
     }
 
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       const AnimatableProperty<Quaternion>* property = dynamic_cast< const AnimatableProperty<Quaternion>* >( entry.GetSceneGraphProperty() );
       DALI_ASSERT_DEBUG( NULL != property );

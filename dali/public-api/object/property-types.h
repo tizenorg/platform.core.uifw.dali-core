@@ -75,9 +75,9 @@ inline Property::Type Get<Matrix3>()          { return Property::MATRIX3;  }
 template <>
 inline Property::Type Get<Matrix>()           { return Property::MATRIX;  }
 template <>
-inline Property::Type Get<AngleAxis>()        { return Property::ROTATION; } // Rotation has two representations
+inline Property::Type Get<AngleAxis>()        { return Property::ORIENTATION; } // Rotation has two representations
 template <>
-inline Property::Type Get<Quaternion>()       { return Property::ROTATION; } // Rotation has two representations
+inline Property::Type Get<Quaternion>()       { return Property::ORIENTATION; } // Rotation has two representations
 template <>
 inline Property::Type Get<std::string>()      { return Property::STRING; }
 template <>

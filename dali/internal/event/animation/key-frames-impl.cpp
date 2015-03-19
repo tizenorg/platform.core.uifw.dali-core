@@ -63,7 +63,7 @@ void KeyFrames::CreateKeyFramesSpec(Property::Type type)
     case Property::VECTOR4:
       mKeyFrames = Internal::KeyFrameVector4::New();
       break;
-    case Property::ROTATION:
+    case Property::ORIENTATION:
       mKeyFrames = Internal::KeyFrameQuaternion::New();
       break;
     default:
@@ -127,7 +127,7 @@ void KeyFrames::Add(float time, Property::Value value, AlphaFunction alpha)
       kf->AddKeyFrame(time, value.Get<Vector4>(), alpha);
       break;
     }
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       Internal::KeyFrameQuaternion* kf = static_cast<Internal::KeyFrameQuaternion*>(mKeyFrames.Get());
       kf->AddKeyFrame(time, value.Get<Quaternion>(), alpha);

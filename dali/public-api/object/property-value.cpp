@@ -294,7 +294,7 @@ Property::Value::Value(const Value& value)
       break;
     }
 
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       mImpl = new Impl( value.Get<Quaternion>() );
       break;
@@ -391,7 +391,7 @@ Property::Value::Value(Type type)
       break;
     }
 
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       mImpl = new Impl( Quaternion(0.f, Vector4::YAXIS) );
       break;
@@ -496,7 +496,7 @@ Property::Value& Property::Value::operator=(const Property::Value& value)
       break;
     }
 
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       mImpl->mValue = value.Get<Quaternion>();
       break;
@@ -618,7 +618,7 @@ void Property::Value::Get(Rect<int>& rect) const
 
 void Property::Value::Get(AngleAxis& angleAxisValue) const
 {
-  DALI_ASSERT_ALWAYS( Property::ROTATION == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::ORIENTATION == GetType() && "Property type invalid" );
 
   // Orientations have two representations
   DALI_ASSERT_DEBUG( typeid(Quaternion) == mImpl->mValue.GetType() ||
@@ -640,7 +640,7 @@ void Property::Value::Get(AngleAxis& angleAxisValue) const
 
 void Property::Value::Get(Quaternion& quaternionValue) const
 {
-  DALI_ASSERT_DEBUG( Property::ROTATION == GetType() && "Property type invalid" );
+  DALI_ASSERT_DEBUG( Property::ORIENTATION == GetType() && "Property type invalid" );
 
   // Orientations have two representations
   DALI_ASSERT_DEBUG( typeid(Quaternion) == mImpl->mValue.GetType() ||
@@ -753,7 +753,7 @@ const std::string& Property::Value::GetKey(const int index) const
     case Property::MATRIX:
     case Property::MATRIX3:
     case Property::RECTANGLE:
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     case Property::STRING:
     case Property::TYPE_COUNT:
     {
@@ -832,7 +832,7 @@ Property::Value& Property::Value::GetItem(const int index) const
     case Property::MATRIX3:
     case Property::MATRIX:
     case Property::RECTANGLE:
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     case Property::STRING:
     case Property::TYPE_COUNT:
     {
@@ -898,7 +898,7 @@ void Property::Value::SetItem(const int index, const Property::Value &value)
     case Property::MATRIX3:
     case Property::MATRIX:
     case Property::RECTANGLE:
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     case Property::STRING:
     case Property::TYPE_COUNT:
     {
@@ -963,7 +963,7 @@ int Property::Value::GetSize() const
     case Property::MATRIX3:
     case Property::MATRIX:
     case Property::RECTANGLE:
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     case Property::STRING:
     case Property::TYPE_COUNT:
     {

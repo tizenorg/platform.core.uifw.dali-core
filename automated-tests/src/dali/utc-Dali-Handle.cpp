@@ -116,7 +116,7 @@ void CheckTypeName(const Property::Type& type)
       DALI_TEST_CHECK( "RECTANGLE" == std::string(PropertyTypes::GetName( type ) ) );
       break;
     }
-    case Property::ROTATION:
+    case Property::ORIENTATION:
     {
       DALI_TEST_CHECK( "ROTATION" == std::string(PropertyTypes::GetName( type ) ) );
       break;
@@ -437,7 +437,7 @@ int UtcDaliHandleGetPropertyType(void)
   DALI_TEST_CHECK( Property::VECTOR3  == actor.GetPropertyType( Actor::Property::ANCHOR_POINT ) );
   DALI_TEST_CHECK( Property::VECTOR3  == actor.GetPropertyType( Actor::Property::SIZE ) );
   DALI_TEST_CHECK( Property::VECTOR3  == actor.GetPropertyType( Actor::Property::POSITION ) );
-  DALI_TEST_CHECK( Property::ROTATION == actor.GetPropertyType( Actor::Property::ORIENTATION ) );
+  DALI_TEST_CHECK( Property::ORIENTATION == actor.GetPropertyType( Actor::Property::ORIENTATION ) );
   DALI_TEST_CHECK( Property::VECTOR3  == actor.GetPropertyType( Actor::Property::SCALE ) );
   DALI_TEST_CHECK( Property::BOOLEAN  == actor.GetPropertyType( Actor::Property::VISIBLE ) );
   DALI_TEST_CHECK( Property::VECTOR4  == actor.GetPropertyType( Actor::Property::COLOR ) );
@@ -457,7 +457,7 @@ int UtcDaliHandleGetPropertyType(void)
   DALI_TEST_CHECK( Property::VECTOR2  == actor.GetPropertyType( vector2Index ) );
   DALI_TEST_CHECK( Property::VECTOR3  == actor.GetPropertyType( vector3Index ) );
   DALI_TEST_CHECK( Property::VECTOR4  == actor.GetPropertyType( vector4Index ) );
-  DALI_TEST_CHECK( Property::ROTATION == actor.GetPropertyType( rotationIndex ) );
+  DALI_TEST_CHECK( Property::ORIENTATION == actor.GetPropertyType( rotationIndex ) );
 
   // Non animatable properties
   Property::Index nonAnimStringIndex = actor.RegisterProperty( "man-from-delmonte", std::string("yes"), Property::READ_WRITE);
@@ -860,12 +860,12 @@ int UtcDaliHandleCreateProperty(void)
   DALI_TEST_CHECK( Property::Value(Property::Value(type)).GetType() == type );
   DALI_TEST_CHECK( PropertyTypes::Get<Rectangle>()       == type );
 
-  type = Property::ROTATION;
+  type = Property::ORIENTATION;
   CheckTypeName(type);
   DALI_TEST_CHECK( Property::Value(Property::Value(type)).GetType() == type );
   DALI_TEST_CHECK( PropertyTypes::Get<Quaternion>()      == type );
 
-  type = Property::ROTATION;
+  type = Property::ORIENTATION;
   CheckTypeName(type);
   DALI_TEST_CHECK( Property::Value(Property::Value(type)).GetType() == type );
   DALI_TEST_CHECK( PropertyTypes::Get<AngleAxis>()       == type );

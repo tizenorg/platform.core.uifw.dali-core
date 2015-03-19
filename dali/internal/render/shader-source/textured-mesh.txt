@@ -10,7 +10,7 @@ attribute highp   vec2    aTexCoord;
 varying   mediump vec2    vTexCoord;
 
 uniform   mat3            uModelViewIT;
-attribute mediump vec3    aNormal;
+attribute highp vec3    aNormal;
 varying   mediump vec3    vNormal;
 
 attribute mediump vec3    aPosition;

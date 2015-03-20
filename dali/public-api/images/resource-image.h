@@ -144,6 +144,10 @@ public:
   ResourceImage& operator=( const ResourceImage& rhs );
 
   /**
+   * @{
+   */
+
+  /**
    * @brief Create an initialised ResourceImage object.
    *
    * @param [in] url The URL of the image file to use.

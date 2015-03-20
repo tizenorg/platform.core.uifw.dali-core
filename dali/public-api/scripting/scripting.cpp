@@ -126,10 +126,10 @@ const unsigned int PIXEL_FORMAT_TABLE_COUNT = sizeof( PIXEL_FORMAT_TABLE ) / siz
 
 const StringEnum< ImageAttributes::ScalingMode > IMAGE_SCALING_MODE_TABLE[] =
 {
-  { "SHRINK_TO_FIT", ImageAttributes::ShrinkToFit },
-  { "SCALE_TO_FILL", ImageAttributes::ScaleToFill },
-  { "FIT_WIDTH",     ImageAttributes::FitWidth    },
-  { "FIT_HEIGHT",    ImageAttributes::FitHeight   },
+  { "SHRINK_TO_FIT", ScalingMode::ShrinkToFit },
+  { "SCALE_TO_FILL", ScalingMode::ScaleToFill },
+  { "FIT_WIDTH",     ScalingMode::FitWidth    },
+  { "FIT_HEIGHT",    ScalingMode::FitHeight   },
 };
 const unsigned int IMAGE_SCALING_MODE_TABLE_COUNT = sizeof( IMAGE_SCALING_MODE_TABLE ) / sizeof( IMAGE_SCALING_MODE_TABLE[0] );
 

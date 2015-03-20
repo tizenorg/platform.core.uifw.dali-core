@@ -22,9 +22,12 @@
 #include <dali/integration-api/glyph-set.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/integration-api/text-array.h>
+#include <dali/public-api/images/image-operations.h>
+#include <dali/public-api/math/vector2-uint-16.h>
 
 namespace Dali
 {
+typedef Vector2Uint16 ImageDimensions;
 
 namespace Integration
 {
@@ -64,7 +67,7 @@ public:
    * to cooperate with other apps and reduce the chance of this one being
    * force-killed in a low memory situation.
    */
-  virtual void Suspend() {} ///!ToDo: Make pure virtual once dali-adaptor patch is in place = 0;
+  virtual void Suspend() = 0;
 
   /**
    * Tell the platform abstraction that Dali is resuming from a pause, such as
@@ -72,7 +75,7 @@ public:
    * It is time to wake up sleeping background threads and recreate memory
    * caches and other temporary data.
    */
-  virtual void Resume() {} ///!ToDo: Make pure virtual once dali-adaptor patch is in place = 0;
+  virtual void Resume() = 0;
 
   // Resource Loading
 
@@ -85,9 +88,11 @@ public:
    * @param[in] attributes The attributes used to load the image
    * @param[out] closestSize Size of the image that will be loaded.
    */
-  virtual void GetClosestImageSize( const std::string& filename,
-                                    const ImageAttributes& attributes,
-                                    Vector2& closestSize ) = 0;
+  virtual ImageDimensions GetClosestImageSize( const std::string& filename,
+                                               ImageDimensions size = ImageDimensions( 0, 0 ),
+                                               ScalingMode scalingMode = ScalingMode::ShrinkToFit,
+                                               SamplingMode samplingMode = SamplingMode::Box,
+                                               bool orientationCorrection = true) = 0;
 
   /**
    * Determine the size of an image the resource loaders will provide when given the same
@@ -98,9 +103,11 @@ public:
    * @param[in] attributes The attributes used to load the image
    * @param[out] closestSize Size of the image that will be loaded.
    */
-  virtual void GetClosestImageSize( ResourcePointer resourceBuffer,
-                                    const ImageAttributes& attributes,
-                                    Vector2& closestSize ) = 0;
+  virtual ImageDimensions GetClosestImageSize( ResourcePointer resourceBuffer,
+                                               ImageDimensions size = ImageDimensions( 0, 0 ),
+                                               ScalingMode scalingMode = ScalingMode::ShrinkToFit,
+                                               SamplingMode samplingMode = SamplingMode::Box,
+                                               bool orientationCorrection = true) = 0;
 
   /**
    * Request a resource from the native filesystem. This is an asynchronous request.

@@ -88,11 +88,11 @@ GlyphImage GlyphImage::New( const Character& character, const TextStyle& style )
     // Get the glyph metrics.
     const Font::Metrics metrics = font.GetMetrics( character );
 
-    // Set the image size.
-    ImageAttributes attributes;
-    attributes.SetSize( metrics.GetWidth(), metrics.GetHeight() );
-
-    image = ResourceImage::New( DALI_EMOTICON_DIR + Internal::ThreadLocalStorage::Get().GetEmojiFactory().GetEmojiFileNameFromCharacter( character.GetImplementation().GetCharacter() ), attributes );
+    // Load the emoticon image, scaled to fit exactly inside the box defined by metrics.GetWidth() & GetHeight():
+    image = ResourceImage::New( DALI_EMOTICON_DIR + Internal::ThreadLocalStorage::Get().GetEmojiFactory().GetEmojiFileNameFromCharacter( character.GetImplementation().GetCharacter() ),
+                                ImageDimensions( metrics.GetWidth() + 0.5f, metrics.GetHeight() + 0.5f ),
+                                ScalingMode::ShrinkToFit,
+                                SamplingMode::BoxThenLinear);
   }
   else
   {

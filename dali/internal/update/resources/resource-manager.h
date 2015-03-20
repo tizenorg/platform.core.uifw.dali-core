@@ -57,6 +57,8 @@ struct ResourceType;
 namespace Internal
 {
 
+class ImageAttributes;
+
 // value types used by messages
 template <> struct ParameterType< Integration::LoadResourcePriority >
 : public BasicType< Integration::LoadResourcePriority > {};

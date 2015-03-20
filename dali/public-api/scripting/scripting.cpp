@@ -21,8 +21,8 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/images/resource-image.h>
-#include <dali/public-api/images/image-attributes.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/internal/common/image-attributes.h>
 #include <dali/internal/event/images/resource-image-impl.h>
 #include <dali/internal/event/images/frame-buffer-image-impl.h>
 #include <dali/internal/event/images/buffer-image-impl.h>
@@ -124,14 +124,26 @@ const StringEnum< Pixel::Format > PIXEL_FORMAT_TABLE[] =
 };
 const unsigned int PIXEL_FORMAT_TABLE_COUNT = sizeof( PIXEL_FORMAT_TABLE ) / sizeof( PIXEL_FORMAT_TABLE[0] );
 
-const StringEnum< ImageAttributes::ScalingMode > IMAGE_SCALING_MODE_TABLE[] =
+const StringEnum< FittingMode::Type > IMAGE_SCALING_MODE_TABLE[] =
 {
-  { "SHRINK_TO_FIT", ImageAttributes::ShrinkToFit },
-  { "SCALE_TO_FILL", ImageAttributes::ScaleToFill },
-  { "FIT_WIDTH",     ImageAttributes::FitWidth    },
-  { "FIT_HEIGHT",    ImageAttributes::FitHeight   },
+  { "SHRINK_TO_FIT", FittingMode::ShrinkToFit },
+  { "SCALE_TO_FILL", FittingMode::ScaleToFill },
+  { "FIT_WIDTH",     FittingMode::FitWidth    },
+  { "FIT_HEIGHT",    FittingMode::FitHeight   },
 };
 const unsigned int IMAGE_SCALING_MODE_TABLE_COUNT = sizeof( IMAGE_SCALING_MODE_TABLE ) / sizeof( IMAGE_SCALING_MODE_TABLE[0] );
+
+const StringEnum< SamplingMode::Type > IMAGE_SAMPLING_MODE_TABLE[] =
+{
+  { "BOX",              SamplingMode::Box            },
+  { "NEAREST",          SamplingMode::Nearest        },
+  { "LINEAR",           SamplingMode::Linear         },
+  { "BOX_THEN_NEAREST", SamplingMode::BoxThenNearest },
+  { "BOX_THEN_LINEAR",  SamplingMode::BoxThenLinear  },
+  { "NO_FILTER",        SamplingMode::NoFilter       },
+  { "DONT_CARE",        SamplingMode::DontCare       },
+};
+const unsigned int IMAGE_SAMPLING_MODE_TABLE_COUNT = sizeof( IMAGE_SAMPLING_MODE_TABLE ) / sizeof( IMAGE_SAMPLING_MODE_TABLE[0] );
 
 } // unnamed namespace
 
@@ -221,12 +233,13 @@ Vector3 GetAnchorConstant( const std::string& value )
 
 Image NewImage( const Property::Value& map )
 {
+  ///@ToDo: Optimize: field retrievals are doing three map lookups per value (HasKey(), GetValue() in assertAlways(), GetValue() for real). Do just one instead.
   Image ret;
 
   std::string filename;
   ResourceImage::LoadPolicy loadPolicy    = Dali::Internal::IMAGE_LOAD_POLICY_DEFAULT;
   Image::ReleasePolicy releasePolicy = Dali::Internal::IMAGE_RELEASE_POLICY_DEFAULT;
-  ImageAttributes attributes         = ImageAttributes::New();
+  Internal::ImageAttributes attributes = Internal::ImageAttributes::New();
 
   if( Property::MAP == map.GetType() )
   {
@@ -294,9 +307,28 @@ Image NewImage( const Property::Value& map )
     field = "scaling-mode";
     if( map.HasKey(field) )
     {
-      DALI_ASSERT_ALWAYS(map.GetValue(field).GetType() == Property::STRING && "Image release-policy property is not a string" );
-      std::string s(map.GetValue(field).Get<std::string>());
-      attributes.SetScalingMode( GetEnumeration< ImageAttributes::ScalingMode >( s.c_str(), IMAGE_SCALING_MODE_TABLE, IMAGE_SCALING_MODE_TABLE_COUNT ) );
+      Property::Value& value = map.GetValue(field);
+      DALI_ASSERT_ALWAYS( value.GetType() == Property::STRING && "Image scaling-mode property is not a string" );
+      std::string s(value.Get<std::string>());
+      attributes.SetScalingMode( GetEnumeration< FittingMode::Type >( s.c_str(), IMAGE_SCALING_MODE_TABLE, IMAGE_SCALING_MODE_TABLE_COUNT ) );
+    }
+
+    field = "sampling-mode";
+    if( map.HasKey(field) )
+    {
+      Property::Value& value = map.GetValue(field);
+      DALI_ASSERT_ALWAYS( value.GetType() == Property::STRING && "Image sampling-mode property is not a string" );
+      std::string s( value.Get<std::string>());
+      attributes.SetFilterMode( GetEnumeration< SamplingMode::Type >( s.c_str(), IMAGE_SAMPLING_MODE_TABLE, IMAGE_SAMPLING_MODE_TABLE_COUNT ) );
+    }
+
+    field = "orientation";
+    if( map.HasKey(field) )
+    {
+      Property::Value& value = map.GetValue(field);
+      DALI_ASSERT_ALWAYS( value.GetType() == Property::BOOLEAN && "Image orientation property is not a boolean" );
+      bool b = value.Get<bool>();
+      attributes.SetOrientationCorrection( b );
     }
 
     if( map.HasKey("type") )
@@ -319,7 +351,7 @@ Image NewImage( const Property::Value& map )
       }
       else if("ResourceImage" == s)
       {
-        ret = ResourceImage::New(filename, attributes, loadPolicy, releasePolicy);
+        ret = ResourceImage::New( filename, loadPolicy, releasePolicy, ImageDimensions( attributes.GetSize().x, attributes.GetSize().y ), attributes.GetScalingMode(), attributes.GetFilterMode(), attributes.GetOrientationCorrection() );
       }
       else
       {
@@ -328,7 +360,7 @@ Image NewImage( const Property::Value& map )
     }
     else
     {
-      ret = ResourceImage::New(filename, attributes, loadPolicy, releasePolicy);
+      ret = ResourceImage::New( filename, loadPolicy, releasePolicy, ImageDimensions( attributes.GetSize().x, attributes.GetSize().y ), attributes.GetScalingMode(), attributes.GetFilterMode(), attributes.GetOrientationCorrection() );
     }
   }
 
@@ -542,9 +574,6 @@ void CreatePropertyMap( Image image, Property::Map& map )
     {
       map[ "filename" ] = resourceImage.GetUrl();
       map[ "load-policy" ] = GetEnumerationName< ResourceImage::LoadPolicy >( resourceImage.GetLoadPolicy(), IMAGE_LOAD_POLICY_TABLE, IMAGE_LOAD_POLICY_TABLE_COUNT );
-
-      ImageAttributes attributes( resourceImage.GetAttributes() );
-      map[ "scaling-mode" ] = GetEnumerationName< ImageAttributes::ScalingMode >( attributes.GetScalingMode(), IMAGE_SCALING_MODE_TABLE, IMAGE_SCALING_MODE_TABLE_COUNT );
     }
 
     int width( image.GetWidth() );

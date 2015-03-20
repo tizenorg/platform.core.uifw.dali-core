@@ -21,8 +21,8 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/images/resource-image.h>
-#include <dali/public-api/images/image-attributes.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/internal/common/image-attributes.h>
 #include <dali/internal/event/images/resource-image-impl.h>
 #include <dali/internal/event/images/frame-buffer-image-impl.h>
 #include <dali/internal/event/images/buffer-image-impl.h>
@@ -124,12 +124,12 @@ const StringEnum< Pixel::Format > PIXEL_FORMAT_TABLE[] =
 };
 const unsigned int PIXEL_FORMAT_TABLE_COUNT = sizeof( PIXEL_FORMAT_TABLE ) / sizeof( PIXEL_FORMAT_TABLE[0] );
 
-const StringEnum< ImageAttributes::ScalingMode > IMAGE_SCALING_MODE_TABLE[] =
+const StringEnum< ScalingMode > IMAGE_SCALING_MODE_TABLE[] =
 {
-  { "SHRINK_TO_FIT", ImageAttributes::ShrinkToFit },
-  { "SCALE_TO_FILL", ImageAttributes::ScaleToFill },
-  { "FIT_WIDTH",     ImageAttributes::FitWidth    },
-  { "FIT_HEIGHT",    ImageAttributes::FitHeight   },
+  { "SHRINK_TO_FIT", ScalingMode::ShrinkToFit },
+  { "SCALE_TO_FILL", ScalingMode::ScaleToFill },
+  { "FIT_WIDTH",     ScalingMode::FitWidth    },
+  { "FIT_HEIGHT",    ScalingMode::FitHeight   },
 };
 const unsigned int IMAGE_SCALING_MODE_TABLE_COUNT = sizeof( IMAGE_SCALING_MODE_TABLE ) / sizeof( IMAGE_SCALING_MODE_TABLE[0] );
 
@@ -226,7 +226,7 @@ Image NewImage( const Property::Value& map )
   std::string filename;
   ResourceImage::LoadPolicy loadPolicy    = Dali::Internal::IMAGE_LOAD_POLICY_DEFAULT;
   Image::ReleasePolicy releasePolicy = Dali::Internal::IMAGE_RELEASE_POLICY_DEFAULT;
-  ImageAttributes attributes         = ImageAttributes::New();
+  Internal::ImageAttributes attributes = Internal::ImageAttributes::New();
 
   if( Property::MAP == map.GetType() )
   {
@@ -296,7 +296,7 @@ Image NewImage( const Property::Value& map )
     {
       DALI_ASSERT_ALWAYS(map.GetValue(field).GetType() == Property::STRING && "Image release-policy property is not a string" );
       std::string s(map.GetValue(field).Get<std::string>());
-      attributes.SetScalingMode( GetEnumeration< ImageAttributes::ScalingMode >( s.c_str(), IMAGE_SCALING_MODE_TABLE, IMAGE_SCALING_MODE_TABLE_COUNT ) );
+      attributes.SetScalingMode( GetEnumeration< ScalingMode >( s.c_str(), IMAGE_SCALING_MODE_TABLE, IMAGE_SCALING_MODE_TABLE_COUNT ) );
     }
 
     if( map.HasKey("type") )
@@ -319,7 +319,7 @@ Image NewImage( const Property::Value& map )
       }
       else if("ResourceImage" == s)
       {
-        ret = ResourceImage::New(filename, attributes, loadPolicy, releasePolicy);
+        ret = ResourceImage::New( filename, loadPolicy, releasePolicy, ImageDimensions( attributes.GetSize().x, attributes.GetSize().y ), attributes.GetScalingMode(), attributes.GetFilterMode(), attributes.GetOrientationCorrection() );
       }
       else
       {
@@ -328,7 +328,7 @@ Image NewImage( const Property::Value& map )
     }
     else
     {
-      ret = ResourceImage::New(filename, attributes, loadPolicy, releasePolicy);
+      ret = ResourceImage::New( filename, loadPolicy, releasePolicy, ImageDimensions( attributes.GetSize().x, attributes.GetSize().y ), attributes.GetScalingMode(), attributes.GetFilterMode(), attributes.GetOrientationCorrection() );
     }
   }
 
@@ -543,8 +543,7 @@ void CreatePropertyMap( Image image, Property::Map& map )
       map[ "filename" ] = resourceImage.GetUrl();
       map[ "load-policy" ] = GetEnumerationName< ResourceImage::LoadPolicy >( resourceImage.GetLoadPolicy(), IMAGE_LOAD_POLICY_TABLE, IMAGE_LOAD_POLICY_TABLE_COUNT );
 
-      ImageAttributes attributes( resourceImage.GetAttributes() );
-      map[ "scaling-mode" ] = GetEnumerationName< ImageAttributes::ScalingMode >( attributes.GetScalingMode(), IMAGE_SCALING_MODE_TABLE, IMAGE_SCALING_MODE_TABLE_COUNT );
+      // This never had a valid scaling mode. These attributes were all default, plus valid x, y post-load. - Internal::ImageAttributes attributes( resourceImage.GetAttributes() );
     }
 
     int width( image.GetWidth() );

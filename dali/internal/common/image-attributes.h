@@ -1,5 +1,5 @@
-#ifndef __DALI_IMAGE_ATTRIBUTES_H__
-#define __DALI_IMAGE_ATTRIBUTES_H__
+#ifndef __DALI_INTERNAL_IMAGE_ATTRIBUTES_H__
+#define __DALI_INTERNAL_IMAGE_ATTRIBUTES_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -18,15 +18,29 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <stdint.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/images/pixel.h>
+#include <dali/public-api/images/image-operations.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/vector2.h>
+#include <dali/public-api/math/vector2-uint-16.h>
+#include <dali/public-api/common/dali-common.h>
+
 
 namespace Dali
 {
+namespace Internal
+{
 
-class ImageAttributes;
+/**
+ * @brief The integer dimensions of an image or a region of an image packed into
+ *        16 bits per component.
+ * @note  This can only be used for images of up to 65535 x 65535 pixels.
+  */
+typedef Vector2Uint16 ImageDimensions;
 
 /**
  * @brief Describes Image properties like dimensions and pixel format and
@@ -62,6 +76,8 @@ class ImageAttributes;
  *   4. Image rows: Limit loaded image resolution to row height using FitHeight mode.
  *
  * @note The aspect ratio of image contents is preserved by all scaling modes, so for example squares in input images stay square after loading.
+ *
+ * @deprecated These features are being rolled into ResourceImage factory functions and ImageAttributes will be removed.
  */
 class DALI_IMPORT_API ImageAttributes
 {
@@ -74,13 +90,14 @@ public:
    * desired image rectangle specified using ImageAttributes.SetSize().
    * All scaling modes preserve the aspect ratio of the image contents.
    */
-  enum ScalingMode
+  typedef Dali::ScalingMode::ScalingModeEnum ScalingMode;
+  /*enum ScalingMode
   {
     ShrinkToFit, ///< Fit full image inside desired width & height, potentially not filling one of either the desired image width or height with pixels.
     ScaleToFill, ///< Image fills whole desired width & height with image data. The image is centred in the desired dimensions, exactly touching in one dimension, with image regions outside the other desired dimension cropped away.
     FitWidth,    ///< Image fills whole width. Height is scaled proportionately to maintain aspect ratio.
     FitHeight    ///< Image fills whole height. Width is scaled proportionately to maintain aspect ratio.
-  };
+  };*/
 
   /**
    * @brief Filtering options, used when resizing images on load to sample original pixels.
@@ -93,7 +110,10 @@ public:
    * ScalingMode, but all other filter modes do if the desired dimensions are
    * `<=` the raw dimensions of the image file.
    */
-  enum FilterMode
+  // typedef Dali::FilterMode FilterMode;
+  //typedef Dali::SamplingMode FilterMode;
+  typedef Dali::SamplingMode::SamplingModeEnum FilterMode;
+  /* enum FilterMode
   {
     Box,            ///< Iteratively box filter to generate an image of 1/2, 1/4, 1/8, ... width and height and
                     ///  approximately the desired size, then if the ScaleToFill scaling mode is enabled, cut away the
@@ -109,7 +129,7 @@ public:
     NoFilter,       ///< No filtering is performed. If the ScaleToFill scaling mode is enabled, the borders of the
                     ///  image may be trimmed to match the aspect ratio of the desired dimensions.
     DontCare        ///< For when the client strongly prefers a cache-hit. Defaults to Box.
-  };
+  };*/
 
   static const ImageAttributes DEFAULT_ATTRIBUTES; ///< Default attributes have no size
 
@@ -183,7 +203,7 @@ public:
    * By default, ShrinkToFit is set.
    * @param [in] scalingMode The desired scaling mode
    */
-  void SetScalingMode(ScalingMode scalingMode);
+  void SetScalingMode( ScalingMode scalingMode );
 
   /**
    * @brief Setter for the FilterMode.
@@ -210,6 +230,8 @@ public:
    *                     transform the pixels of the image as laid-out in memory.
    */
   void SetOrientationCorrection(bool enabled);
+
+  void Reset( ImageDimensions dimensions = ImageDimensions(0, 0), ScalingMode scaling = ScalingMode(), FilterMode sampling = FilterMode(), bool orientationCorrection = true );
 
 
   /**
@@ -315,6 +337,7 @@ DALI_IMPORT_API bool operator==(const ImageAttributes& a, const ImageAttributes&
  */
 DALI_IMPORT_API bool operator!=(const ImageAttributes& a, const ImageAttributes& b);
 
+} // namespace Internal
 } // namespace Dali
 
-#endif // __DALI_IMAGE_ATTRIBUTES_H__
+#endif // __DALI_INTERNAL_IMAGE_ATTRIBUTES_H__

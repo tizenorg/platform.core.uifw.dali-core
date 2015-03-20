@@ -18,15 +18,165 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <stdint.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/images/pixel.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/vector2.h>
+#include <dali/public-api/common/dali-common.h>
+
 
 namespace Dali
 {
 
 class ImageAttributes;
+
+
+/**
+ * @brief Simple class for passing around pairs of small ints.
+ *
+ * These are immutable. If you want to change a value, make a whole new object.
+ * @note One of these can be passed in a single 32 bit integer register on
+ * common architectures.
+ */
+class Vector2Uint16
+{
+public:
+  /**
+   * @brief Default constructor for the (0, 0) vector.
+   */
+  Vector2Uint16() : mData(0) {}
+
+  /**
+   * @brief Constructor taking separate x and y (width and height) parameters.
+   * @param[in] width The width or X dimension of the vector. Make sure it is less than 65536,
+   * @param[in] height The height or Y dimension of the vector. Make sure it is less than 65536,
+   */
+  Vector2Uint16( uint32_t width, uint32_t height )
+  {
+    DALI_ASSERT_DEBUG( width < ( 1u << 16 ) && "Width parameter not representable." );
+    DALI_ASSERT_DEBUG( height < ( 1u << 16 ) && "Height parameter not representable." );
+
+    /* Do equivalent of the code below with one aligned memory access:
+     * mComponents[0] = width;
+     * mComponents[1] = height;
+     * Unit tests make sure this is equivalent.
+     **/
+    mData = (height << 16u) + width;
+  }
+
+  /**
+   * @brief Copy constructor.
+   */
+  Vector2Uint16( const Vector2Uint16& rhs )
+  {
+    mData = rhs.mData;
+  }
+
+  /**
+   * @returns the x dimension stored in this 2-tuple.
+   */
+  uint16_t GetWidth() const
+  {
+    return mComponents[0];
+  }
+
+  /**
+   * @returns the y dimension stored in this 2-tuple.
+   */
+  uint16_t GetHeight() const
+  {
+    return mComponents[1];
+  }
+
+  /**
+   * @returns the x dimension stored in this 2-tuple.
+   */
+  uint16_t GetX()  const
+  {
+    return mComponents[0];
+  }
+
+  /**
+   * @returns the y dimension stored in this 2-tuple.
+   */
+  uint16_t GetY() const
+  {
+    return mComponents[1];
+  }
+
+private:
+  union
+  {
+    // Addressable view of X and Y:
+    uint16_t mComponents[2];
+    // Packed view of X and Y to force alignment and allow a faster copy:
+    uint32_t mData;
+  };
+};
+
+/**
+ * @brief The integer dimensions of an image or a region of an image packed into
+ *        16 bits per component.
+ * @note  This can only be used for images of up to 65535 x 65535 pixels.
+  */
+typedef Vector2Uint16 ImageDimensions;
+
+
+/**
+ * @brief Scaling options, used when resizing images on load to fit desired dimensions.
+ *
+ * A scaling mode controls the region of a loaded image to be mapped to the
+ * desired image rectangle specified using ImageAttributes.SetSize().
+ * All scaling modes preserve the aspect ratio of the image contents.
+ */
+//enum FittingMode
+struct ScalingMode
+{
+enum ScalingModeEnum
+{
+  ShrinkToFit, ///< Fit full image inside desired width & height, potentially not filling one of either the desired image width or height with pixels.
+  ScaleToFill, ///< Image fills whole desired width & height with image data. The image is centred in the desired dimensions, exactly touching in one dimension, with image regions outside the other desired dimension cropped away.
+  FitWidth,    ///< Image fills whole width. Height is scaled proportionately to maintain aspect ratio.
+  FitHeight    ///< Image fills whole height. Width is scaled proportionately to maintain aspect ratio.
+};
+};
+
+/**
+ * @brief Filtering options, used when resizing images on load to sample original pixels.
+ *
+ * A FilterMode controls how pixels in the raw image on-disk are sampled and
+ * combined to generate each pixel of the destination loaded image.
+ *
+ * @note NoFilter and Box modes do not guarantee that the loaded pixel array
+ * exactly matches the rectangle specified by the desired dimensions and
+ * ScalingMode, but all other filter modes do if the desired dimensions are
+ * `<=` the raw dimensions of the image file.
+ */
+struct SamplingMode
+{
+enum SamplingModeEnum
+//enum FilterMode
+{
+  Box,            ///< Iteratively box filter to generate an image of 1/2, 1/4, 1/8, ... width and height and
+                  ///  approximately the desired size. If the ScaleToFill scaling mode is enabled, cut away the
+                  ///  top/bottom or left/right borders of the image to match the aspect ratio of desired dimensions.
+                  ///  This is the default.
+  Nearest,        ///< For each output pixel, read one input pixel.
+  Linear,         ///< For each output pixel, read a quad of four input pixels and write a weighted average of them.
+  BoxThenNearest, ///< Iteratively box filter to generate an image of 1/2, 1/4, 1/8, ... width and height and
+                  ///  approximately the desired size, then for each output pixel, read one pixel from the last level
+                  ///  of box filtering.
+  BoxThenLinear,  ///< Iteratively box filter to almost the right size, then for each output pixel, read four pixels
+                  ///  from the last level of box filtering and write their weighted average.
+  NoFilter,       ///< No filtering is performed. If the ScaleToFill scaling mode is enabled, the borders of the
+                  ///  image may be trimmed to match the aspect ratio of the desired dimensions.
+  DontCare        ///< For when the client strongly prefers a cache-hit to reuse a previously loaded image.
+                  ///  If the cache misses, the loading of the image defaults to Box.
+};
+};
 
 /**
  * @brief Describes Image properties like dimensions and pixel format and
@@ -62,6 +212,8 @@ class ImageAttributes;
  *   4. Image rows: Limit loaded image resolution to row height using FitHeight mode.
  *
  * @note The aspect ratio of image contents is preserved by all scaling modes, so for example squares in input images stay square after loading.
+ *
+ * @deprecated These features are being rolled into ResourceImage factory functions and ImageAttributes will be removed.
  */
 class DALI_IMPORT_API ImageAttributes
 {
@@ -74,13 +226,14 @@ public:
    * desired image rectangle specified using ImageAttributes.SetSize().
    * All scaling modes preserve the aspect ratio of the image contents.
    */
-  enum ScalingMode
+  typedef Dali::ScalingMode::ScalingModeEnum ScalingMode;
+  /*enum ScalingMode
   {
     ShrinkToFit, ///< Fit full image inside desired width & height, potentially not filling one of either the desired image width or height with pixels.
     ScaleToFill, ///< Image fills whole desired width & height with image data. The image is centred in the desired dimensions, exactly touching in one dimension, with image regions outside the other desired dimension cropped away.
     FitWidth,    ///< Image fills whole width. Height is scaled proportionately to maintain aspect ratio.
     FitHeight    ///< Image fills whole height. Width is scaled proportionately to maintain aspect ratio.
-  };
+  };*/
 
   /**
    * @brief Filtering options, used when resizing images on load to sample original pixels.
@@ -93,7 +246,10 @@ public:
    * ScalingMode, but all other filter modes do if the desired dimensions are
    * `<=` the raw dimensions of the image file.
    */
-  enum FilterMode
+  // typedef Dali::FilterMode FilterMode;
+  //typedef Dali::SamplingMode FilterMode;
+  typedef Dali::SamplingMode::SamplingModeEnum FilterMode;
+  /* enum FilterMode
   {
     Box,            ///< Iteratively box filter to generate an image of 1/2, 1/4, 1/8, ... width and height and
                     ///  approximately the desired size, then if the ScaleToFill scaling mode is enabled, cut away the
@@ -109,7 +265,7 @@ public:
     NoFilter,       ///< No filtering is performed. If the ScaleToFill scaling mode is enabled, the borders of the
                     ///  image may be trimmed to match the aspect ratio of the desired dimensions.
     DontCare        ///< For when the client strongly prefers a cache-hit. Defaults to Box.
-  };
+  };*/
 
   static const ImageAttributes DEFAULT_ATTRIBUTES; ///< Default attributes have no size
 

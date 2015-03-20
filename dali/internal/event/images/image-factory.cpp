@@ -296,7 +296,7 @@ bool ImageFactory::CompareAttributes( const Dali::ImageAttributes& requested,
   return (requested.GetScalingMode() ==  actual.GetScalingMode()) &&
           (
             (requested.GetFilterMode() == actual.GetFilterMode()) ||
-            (requested.GetFilterMode() == ImageAttributes::DontCare)
+            (requested.GetFilterMode() == SamplingMode::DontCare)
           ) &&
           (fabsf(requested.GetWidth()  -  actual.GetWidth())  <= actual.GetWidth()  * mMaxScale) &&
           (fabsf(requested.GetHeight() -  actual.GetHeight()) <= actual.GetHeight() * mMaxScale);

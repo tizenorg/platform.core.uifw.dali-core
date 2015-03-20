@@ -25,6 +25,7 @@
 #include <dali/public-api/common/loading-state.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <dali/public-api/images/image-attributes.h> ///< Temp, for the modes and ImageDimensions.
 
 namespace Dali
 {
@@ -144,12 +145,10 @@ public:
   ResourceImage& operator=( const ResourceImage& rhs );
 
   /**
-   * @brief Create an initialised ResourceImage object.
-   *
-   * @param [in] url The URL of the image file to use.
-   * @return A handle to a newly allocated object
+   * @name OldFactoryAPI
+   * @deprecated Going, going, ...
    */
-  static ResourceImage New( const std::string& url );
+  ///@{
 
   /**
    * @brief Create an initialised ResourceImage object.
@@ -180,6 +179,64 @@ public:
    * @return A handle to a newly allocated object
    */
   static ResourceImage New( const std::string& url, const ImageAttributes& attributes, LoadPolicy loadPol, ReleasePolicy releasePol );
+
+  ///@}
+
+  /**
+   * @name NewFactoryAPI
+   * API without ImageAttributes.
+   */
+  ///@{
+
+  /**
+   * @brief Create an initialised ResourceImage object.
+   *
+   * Uses defaults for all options.
+   *
+   * @sa Dali::SamplingMode Dali::ScalingMode
+   * @param [in] url The URL of the image file to use.
+   * @return A handle to a newly allocated object
+   */
+  static ResourceImage New( const std::string& url );
+
+  /**
+   * @brief Create an initialised ResourceImage object.
+   *
+   * @param [in] url The URL of the image file to use.
+   * @param [in] loadPol    The LoadPolicy to apply when loading the image resource.
+   * @param [in] releasePol The ReleasePolicy to apply to Image.
+   * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
+   * @return A handle to a newly allocated object
+   */
+  static ResourceImage New( const std::string& url, LoadPolicy loadPol, ReleasePolicy releasePol, bool orientationCorrection = true );
+
+  /**
+   * @brief Create an initialised ResourceImage object.
+   *
+   * @param [in] url The URL of the image file to use.
+   * @param [in] size The width and height to fit the loaded image to.
+   * @param [in] scalingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
+   * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
+   * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
+   * @return A handle to a newly allocated object
+   */
+  static ResourceImage New( const std::string& url, ImageDimensions size, ScalingMode scalingMode, SamplingMode samplingMode, bool orientationCorrection = true );
+
+  /**
+   * @brief Create an initialised ResourceImage object.
+   *
+   * @param [in] url The URL of the image file to use.
+   * @param [in] loadPol    The LoadPolicy to apply when loading the image resource.
+   * @param [in] releasePol The ReleasePolicy to apply to Image.
+   * @param [in] size The width and height to fit the loaded image to.
+   * @param [in] scalingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
+   * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
+   * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
+   * @return A handle to a newly allocated object
+   */
+  static ResourceImage New( const std::string& url, LoadPolicy loadPol, ReleasePolicy releasePol, ImageDimensions size, ScalingMode scalingMode, SamplingMode samplingMode, bool orientationCorrection = true );
+
+  ///@}
 
   /**
    * @brief Downcast an Object handle to ResourceImage handle.

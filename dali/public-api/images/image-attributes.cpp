@@ -31,8 +31,8 @@ struct ImageAttributes::ImageAttributesImpl
   ImageAttributesImpl()
   :  width(0),
      height(0),
-     scaling(ShrinkToFit),
-     filtering(Box),
+     scaling(Dali::ScalingMode::ShrinkToFit),
+     filtering(SamplingMode::Box),
      mOrientationCorrection(false)
   {
   }

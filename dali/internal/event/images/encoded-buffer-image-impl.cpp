@@ -37,9 +37,10 @@ TypeRegistration mType( typeid( Dali::EncodedBufferImage ), typeid( Dali::Image 
 } // unnamed namespace
 
 EncodedBufferImagePtr EncodedBufferImage::New( const uint8_t * const encodedImage,
-                                               const std::size_t encodedImageByteCount,
-                                               const ImageAttributes& attributes,
-                                               const ReleasePolicy releasePol )
+                                               std::size_t encodedImageByteCount,
+                                               ImageDimensions size, ScalingMode scalingMode, SamplingMode samplingMode,
+                                               bool orientationCorrection,
+                                               ReleasePolicy releasePol )
 {
   DALI_ASSERT_DEBUG( encodedImage && "Null image pointer passed-in for decoding from memory." );
   DALI_ASSERT_DEBUG( encodedImageByteCount > 0U && "Zero size passed for image resource in memory buffer." );
@@ -52,7 +53,7 @@ EncodedBufferImagePtr EncodedBufferImage::New( const uint8_t * const encodedImag
   image->Initialize(); // Second stage initialization
 
   // Replicate the functionality of ImageFactory::load() without the filesystem caching:
-  Dali::Integration::BitmapResourceType resourceType( attributes );
+  Dali::Integration::BitmapResourceType resourceType( size, scalingMode, samplingMode, orientationCorrection );
   RequestBufferPtr buffer( new RequestBuffer );
   buffer->GetVector().Resize( encodedImageByteCount );
   // Resize() won't throw on failure, so avoid a SEGV if the allocation failed:
@@ -61,10 +62,9 @@ EncodedBufferImagePtr EncodedBufferImage::New( const uint8_t * const encodedImag
   memcpy( &(buffer->GetVector()[0]), encodedImage, encodedImageByteCount );
 
   // Get image size from buffer
-  Vector2 size;
-  Internal::ThreadLocalStorage::Get().GetPlatformAbstraction().GetClosestImageSize( buffer, attributes, size );
-  image->mWidth = (unsigned int) size.width;
-  image->mHeight = (unsigned int) size.height;
+  const ImageDimensions expectedSize = Internal::ThreadLocalStorage::Get().GetPlatformAbstraction().GetClosestImageSize( buffer, size, scalingMode, samplingMode, orientationCorrection );
+  image->mWidth = (unsigned int) expectedSize.GetWidth();
+  image->mHeight = (unsigned int) expectedSize.GetHeight();
 
   ResourceClient &resourceClient = ThreadLocalStorage::Get().GetResourceClient();
   ResourceTicketPtr ticket = resourceClient.DecodeResource( resourceType, buffer );

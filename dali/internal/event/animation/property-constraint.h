@@ -46,7 +46,7 @@ public:
 
   typedef std::vector< PropertyInputIndexer< PropertyInputAccessor > > InputIndexerContainer;
 
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyInputContainer&) > ConstraintFunction;
+  typedef boost::function< void ( PropertyType&, const PropertyInputContainer& ) > ConstraintFunction;
 
   /**
    * Create a property constraint.
@@ -167,10 +167,9 @@ public:
   /**
    * Apply the constraint.
    * @param [in] bufferIndex The current update buffer index.
-   * @param [in] current The current property value.
-   * @return The constrained property value.
+   * @param [in,out] current The current property value, will be set to the constrained value upon return.
    */
-  PropertyType Apply( BufferIndex bufferIndex, const PropertyType& current )
+  void Apply( BufferIndex bufferIndex, PropertyType& current )
   {
     InputIndexerContainer mInputIndices;
     PropertyInputContainer mIndices;
@@ -188,7 +187,7 @@ public:
       mIndices.PushBack( &mInputIndices[ index ] );
     }
 
-    return mFunction( current, mIndices );
+    mFunction( current, mIndices );
   }
 
 private:

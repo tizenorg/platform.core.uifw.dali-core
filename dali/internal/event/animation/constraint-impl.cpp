@@ -45,7 +45,7 @@ namespace // unnamed namespace
 template <class P>
 PropertyConstraint<P>* CreatePropertyConstraint( Constraint::AnyFunction& func )
 {
-  return new PropertyConstraint<P>( AnyCast< boost::function< P (const P&, const PropertyInputContainer&) > >( func ) );
+  return new PropertyConstraint<P>( AnyCast< boost::function< void ( P&, const PropertyInputContainer& ) > >( func ) );
 }
 
 } // unnamed namespace

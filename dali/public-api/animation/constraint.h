@@ -89,7 +89,7 @@ public:
    */
   template < class P >
   static Constraint New( Property::Index target,
-                         boost::function< P ( const P& current, const PropertyInputContainer& inputs ) > func )
+                         boost::function< void ( P& current, const PropertyInputContainer& inputs ) > func )
   {
     return New( target, PropertyTypes::Get<P>(), func );
   }

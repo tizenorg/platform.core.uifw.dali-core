@@ -52,7 +52,6 @@ class Constraint : public ConstraintBase
 public:
 
   typedef typename PropertyConstraintPtr< PropertyType >::Type ConstraintFunctionPtr;
-  typedef boost::function< PropertyType (const PropertyType&, const PropertyType&, float progress) > InterpolatorFunc;
 
   /**
    * Create a new scene-graph constraint.
@@ -123,6 +122,8 @@ public:
          ApplyNeeded() )
     {
       const PropertyType& current = mTargetProperty.Get( updateBufferIndex );
+      PropertyType appliedValue = current;
+      mFunc->Apply( updateBufferIndex, appliedValue );
 
       // FINAL_WEIGHT means the constraint is fully-applied, unless weight is still being animated
       if ( ( ! firstApply && ! mWeightInput->IsClean() ) || // We should not rely on the flag state of weight-input on first apply
@@ -131,18 +132,18 @@ public:
         // Constraint is not fully-applied; interpolation between start & final values
         mTargetProperty.Set(
             updateBufferIndex,
-            CallbackBase::ExecuteReturn< PropertyType, const PropertyType&, const PropertyType&, float >( *mInterpolator, current, mFunc->Apply( updateBufferIndex, current ), (*mWeightInput)[updateBufferIndex] ));
+            CallbackBase::ExecuteReturn< PropertyType, const PropertyType&, const PropertyType&, float >( *mInterpolator, current, appliedValue, (*mWeightInput)[updateBufferIndex] ));
       }
       else
       {
         // Constraint is fully-applied; optionally bake the final value
         if ( Dali::Constraint::Bake == mRemoveAction )
         {
-          mTargetProperty.Bake( updateBufferIndex, mFunc->Apply( updateBufferIndex, current ) );
+          mTargetProperty.Bake( updateBufferIndex, appliedValue );
         }
         else
         {
-          mTargetProperty.Set( updateBufferIndex, mFunc->Apply( updateBufferIndex, current ) );
+          mTargetProperty.Set( updateBufferIndex, appliedValue );
         }
       }
 

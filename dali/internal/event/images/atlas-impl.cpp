@@ -273,8 +273,7 @@ void Atlas::ClearCache()
 
 Integration::BitmapPtr Atlas::LoadBitmap( const std::string& url )
 {
-  ImageAttributes loadedAttrs;
-  Integration::BitmapResourceType resourceType( loadedAttrs );
+  Integration::BitmapResourceType resourceType;
   Integration::PlatformAbstraction& platformAbstraction = Internal::ThreadLocalStorage::Get().GetPlatformAbstraction();
 
   Integration::ResourcePointer resource = platformAbstraction.LoadResourceSynchronously(resourceType, url);

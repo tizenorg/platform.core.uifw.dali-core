@@ -104,10 +104,7 @@ int UtcDaliImageGetWidthHeight(void)
   DALI_TEST_EQUALS( image1.GetWidth(), testSize.width, TEST_LOCATION );
   DALI_TEST_EQUALS( image1.GetHeight(), testSize.height, TEST_LOCATION );
 
-  Dali::ImageAttributes imageAttributes;
-  imageAttributes.SetSize(128, 256);
-  imageAttributes.SetScalingMode(Dali::ImageAttributes::FitHeight);
-  Image image2 = ResourceImage::New(gTestImageFilename, imageAttributes);
+  Image image2 = ResourceImage::New( gTestImageFilename, ImageDimensions(128, 256), ScalingMode::ScaleToFill, SamplingMode() );
   DALI_TEST_EQUALS( image2.GetWidth(), 128u, TEST_LOCATION );
   DALI_TEST_EQUALS( image2.GetHeight(), 256u, TEST_LOCATION );
 
@@ -243,10 +240,7 @@ int UtcDaliImageDiscard02(void)
     {
       ImageActor actor;
       {
-        ImageAttributes attrs;
-        const Vector2 requestedSize( 40, 30 );
-        attrs.SetSize( requestedSize.width, requestedSize.height );
-        Image image = ResourceImage::New(gTestImageFilename, attrs);
+        Image image = ResourceImage::New(gTestImageFilename, ImageDimensions( 40, 30 ), ScalingMode(), SamplingMode() );
         actor = ImageActor::New(image);
         Stage::GetCurrent().Add(actor);
 

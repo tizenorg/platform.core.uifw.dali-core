@@ -90,6 +90,7 @@
 #include <dali/public-api/images/frame-buffer-image.h>
 #include <dali/public-api/images/image-attributes.h>
 #include <dali/public-api/images/image.h>
+#include <dali/public-api/images/image-operations.h>
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/images/native-image.h>
 #include <dali/public-api/images/resource-image.h>
@@ -105,6 +106,7 @@
 #include <dali/public-api/math/random.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/vector2.h>
+#include <dali/public-api/math/vector2-uint-16.h>
 #include <dali/public-api/math/vector3.h>
 #include <dali/public-api/math/vector4.h>
 

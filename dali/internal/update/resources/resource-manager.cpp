@@ -26,12 +26,12 @@
 #include <dali/public-api/common/map-wrapper.h>
 #include <dali/public-api/common/set-wrapper.h>
 #include <dali/public-api/math/vector2.h>
-#include <dali/public-api/images/image-attributes.h>
 
 #include <dali/integration-api/glyph-set.h>
 #include <dali/integration-api/debug.h>
 
 #include <dali/internal/common/message.h>
+#include <dali/internal/common/image-attributes.h>
 
 #include <dali/internal/event/common/notification-manager.h>
 #include <dali/internal/event/resources/resource-type-path.h>

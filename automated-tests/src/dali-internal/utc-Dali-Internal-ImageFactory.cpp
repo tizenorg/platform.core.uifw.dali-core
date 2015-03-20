@@ -25,13 +25,14 @@
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/images/image-factory.h>
 #include <dali/internal/event/resources/resource-ticket.h>
+#include <dali/internal/common/image-attributes.h>
 
 using namespace Dali;
 
 using Internal::ResourceTicketPtr;
 using Internal::ImageFactory;
 using Internal::ImageFactoryCache::RequestPtr;
-
+using Internal::ImageAttributes;
 
 namespace
 {
@@ -366,7 +367,7 @@ int UtcDaliImageFactoryReload02(void)
   Vector2 testSize(80.0f, 80.0f);
   application.GetPlatform().SetClosestImageSize(testSize);
 
-  RequestPtr req = imageFactory.RegisterRequest( gTestImageFilename, NULL );
+  RequestPtr req = imageFactory.RegisterRequest( gTestImageFilename, NULL ); /// NULL Attributes go in here to be SEGV'd later below
   ResourceTicketPtr ticket = imageFactory.Load( *req.Get() );
 
   application.SendNotification();
@@ -391,7 +392,7 @@ int UtcDaliImageFactoryReload02(void)
   // emulate load success
   EmulateImageLoaded( application, 80, 80 );
 
-  ResourceTicketPtr ticket3 = imageFactory.Reload( *req.Get() );
+  ResourceTicketPtr ticket3 = imageFactory.Reload( *req.Get() ); ///@ToDo: SEGV HERE <------------------------------
 
   application.SendNotification();
   application.Render();

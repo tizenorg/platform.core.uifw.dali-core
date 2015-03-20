@@ -360,7 +360,7 @@ public: // Message methods
    * @param id The resource id to find the ticket of
    * @param imageAttributes The image attributes to assign to the ticket
    */
-  void UpdateImageTicket( ResourceId id, const Dali::ImageAttributes& imageAttributes ); ///!< Issue #AHC01
+  void UpdateImageTicket( ResourceId id, const ImageAttributes& imageAttributes ); ///!< Issue #AHC01
 
 private:
   ResourceManager& mResourceManager;          ///< The resource manager
@@ -371,9 +371,9 @@ private:
   Impl* mImpl;
 };
 
-inline MessageBase* UpdateImageTicketMessage( ResourceClient& client, ResourceId id, const Dali::ImageAttributes& attrs )
+inline MessageBase* UpdateImageTicketMessage( ResourceClient& client, ResourceId id, const ImageAttributes& attrs )
 {
-  return new MessageValue2< ResourceClient, ResourceId, Dali::ImageAttributes >(
+  return new MessageValue2< ResourceClient, ResourceId, ImageAttributes >(
     &client, &ResourceClient::UpdateImageTicket, id, attrs );
 }
 

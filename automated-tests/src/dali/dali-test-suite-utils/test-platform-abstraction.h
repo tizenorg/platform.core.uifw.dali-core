@@ -98,13 +98,27 @@ public:
    */
   virtual void Resume();
 
-  virtual void GetClosestImageSize( const std::string& filename,
-                                    const ImageAttributes& attributes,
-                                    Vector2& closestSize);
+  virtual ImageDimensions GetClosestImageSize( const std::string& filename,
+                                                 ImageDimensions size,
+                                                 ScalingMode scalingMode,
+                                                 SamplingMode samplingMode,
+                                                 bool orientationCorrection );
+  /**virtual ImageDimensions GetClosestImageSize( const std::string& filename,
+                                               ImageDimensions size = ImageDimensions( 0, 0 ),
+                                               ScalingMode scalingMode = ScalingMode::ShrinkToFit,
+                                               SamplingMode samplingMode = SamplingMode::Box,
+                                               bool orientationCorrection = true );*/
 
-  virtual void GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                                    const ImageAttributes& attributes,
-                                    Vector2& closestSize);
+  virtual ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                                               ImageDimensions size,
+                                               ScalingMode scalingMode,
+                                               SamplingMode samplingMode,
+                                               bool orientationCorrection );
+  /*virtual ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                                                 ImageDimensions size = ImageDimensions( 0, 0 ),
+                                                 ScalingMode scalingMode = ScalingMode::ShrinkToFit,
+                                                 SamplingMode samplingMode = SamplingMode::Box,
+                                                 bool orientationCorrection = true );*/
 
   /**
    * @copydoc PlatformAbstraction::LoadResource()

@@ -21,10 +21,14 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/math/vector2-uint-16.h>
+#include <dali/internal/common/image-attributes.h>
 #include <dali/internal/event/images/encoded-buffer-image-impl.h>
 
 namespace Dali
 {
+
+typedef Vector2Uint16 ImageDimensions;
 
 EncodedBufferImage::EncodedBufferImage()
 {
@@ -35,17 +39,23 @@ EncodedBufferImage::EncodedBufferImage(Internal::EncodedBufferImage* internal)
 {
 }
 
-EncodedBufferImage EncodedBufferImage::New(const uint8_t * const encodedImage, const std::size_t encodedImageByteCount, const ImageAttributes& attributes, const ReleasePolicy releasePol)
+EncodedBufferImage EncodedBufferImage::New( const uint8_t * const encodedImage,
+                                            std::size_t encodedImageByteCount,
+                                            ImageDimensions size, ScalingMode scalingMode, SamplingMode samplingMode,
+                                            ReleasePolicy releasePol,
+                                            bool orientationCorrection )
 {
-  Internal::EncodedBufferImagePtr internal=Internal::EncodedBufferImage::New(encodedImage, encodedImageByteCount, attributes, releasePol);
+  Internal::EncodedBufferImagePtr internal = Internal::EncodedBufferImage::New( encodedImage, encodedImageByteCount, size, scalingMode, samplingMode, orientationCorrection, releasePol );
   EncodedBufferImage image(internal.Get());
   return image;
 }
 
-EncodedBufferImage EncodedBufferImage::New(const uint8_t * const encodedImage, const std::size_t encodedImageByteCount)
+EncodedBufferImage EncodedBufferImage::New( const uint8_t * const encodedImage, const std::size_t encodedImageByteCount )
 {
-  ImageAttributes attributes;
-  Internal::EncodedBufferImagePtr internal = Internal::EncodedBufferImage::New(encodedImage, encodedImageByteCount, attributes, Dali::Image::NEVER);
+  ImageDimensions size(0, 0);
+  ScalingMode scalingMode;
+  SamplingMode samplingMode;
+  Internal::EncodedBufferImagePtr internal = Internal::EncodedBufferImage::New( encodedImage, encodedImageByteCount, size, scalingMode, samplingMode, true, Dali::Image::NEVER );
   EncodedBufferImage image( internal.Get() );
   return image;
 }
@@ -59,12 +69,12 @@ EncodedBufferImage::~EncodedBufferImage()
 {
 }
 
-EncodedBufferImage::EncodedBufferImage(const EncodedBufferImage& handle)
+EncodedBufferImage::EncodedBufferImage( const EncodedBufferImage& handle )
 : Image(handle)
 {
 }
 
-EncodedBufferImage& EncodedBufferImage::operator=(const EncodedBufferImage& rhs)
+EncodedBufferImage& EncodedBufferImage::operator=( const EncodedBufferImage& rhs )
 {
   BaseHandle::operator=(rhs);
   return *this;

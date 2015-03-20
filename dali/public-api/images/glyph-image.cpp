@@ -89,10 +89,11 @@ GlyphImage GlyphImage::New( const Character& character, const TextStyle& style )
     const Font::Metrics metrics = font.GetMetrics( character );
 
     // Set the image size.
-    ImageAttributes attributes;
-    attributes.SetSize( metrics.GetWidth(), metrics.GetHeight() );
+    // Was: ImageAttributes attributes;
+    // Was: attributes.SetSize( metrics.GetWidth(), metrics.GetHeight() ); @note: This was using Box filter mode by default which is not an exact shrink. What is wanted here? <<<<<<<<<<<<<<<<<<<<<,[Todo: advice from a glyphster needed]
 
-    image = ResourceImage::New( DALI_EMOTICON_DIR + Internal::ThreadLocalStorage::Get().GetEmojiFactory().GetEmojiFileNameFromCharacter( character.GetImplementation().GetCharacter() ), attributes );
+    image = ResourceImage::New( DALI_EMOTICON_DIR + Internal::ThreadLocalStorage::Get().GetEmojiFactory().GetEmojiFileNameFromCharacter( character.GetImplementation().GetCharacter() ),
+                                ImageDimensions( metrics.GetWidth() + 0.49f, metrics.GetHeight() + 0.49f ), ScalingMode::ShrinkToFit /* Fit Height better?*/, SamplingMode::BoxThenLinear/* Box Better?*/ );
   }
   else
   {

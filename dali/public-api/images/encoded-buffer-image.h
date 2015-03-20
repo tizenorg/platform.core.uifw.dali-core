@@ -23,7 +23,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/images/image.h>
-#include <dali/public-api/images/image-attributes.h>
+#include <dali/public-api/images/image-operations.h>
+#include <dali/public-api/math/vector2-uint-16.h>
 
 namespace Dali
 {
@@ -32,6 +33,8 @@ namespace Internal DALI_INTERNAL
 {
 class EncodedBufferImage;
 }
+
+typedef Vector2Uint16 ImageDimensions;
 
 
 /**
@@ -88,7 +91,7 @@ public:
    * used once all actors using it have gone off-stage.
    * @return A handle to a newly allocated object.
    */
-  static EncodedBufferImage New(const uint8_t * const encodedImage, std::size_t encodedImageByteCount, const ImageAttributes& attributes, ReleasePolicy releasePol = Image::NEVER);
+  static EncodedBufferImage New( const uint8_t * const encodedImage, std::size_t encodedImageByteCount, ImageDimensions size, ScalingMode scalingMode, SamplingMode samplingMode, ReleasePolicy releasePol = Image::NEVER, bool orientationCorrection = true );
 
   /**
    * @brief Create an initialised image object from an encoded image buffer in memory.
@@ -105,7 +108,7 @@ public:
    * by encodedImage.
    * @return A handle to a newly allocated object.
    */
-  static EncodedBufferImage New(const uint8_t * const encodedImage, std::size_t encodedImageByteCount);
+  static EncodedBufferImage New( const uint8_t * const encodedImage, std::size_t encodedImageByteCount );
 
   /**
    * @brief Downcast an Object handle to EncodedBufferImage.

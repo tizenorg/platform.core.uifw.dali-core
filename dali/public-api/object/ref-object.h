@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
-#include <dali/public-api/common/intrusive-ptr.h>
+#include <dali/public-api/common/intrusive-ptr.h> /// @todo Refactor by removing this include and fixing the errors: RefObject has no dependencies on this class.
 
 namespace Dali
 {

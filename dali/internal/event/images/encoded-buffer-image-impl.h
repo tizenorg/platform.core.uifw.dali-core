@@ -71,7 +71,10 @@ public:
    */
   static EncodedBufferImagePtr New(const uint8_t * const encodedImage,
                                    const std::size_t encodedImageByteCount,
-                                   const ImageAttributes& attributes,
+                                   ImageDimensions size = ImageDimensions(0, 0),
+                                   FittingMode::Type scalingMode = FittingMode::ShrinkToFit,
+                                   SamplingMode::Type samplingMode = SamplingMode::Box,
+                                   bool orientationCorrection = true,
                                    const ReleasePolicy releasePol=Dali::Image::NEVER);
 };
 

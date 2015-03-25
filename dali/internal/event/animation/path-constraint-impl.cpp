@@ -194,9 +194,8 @@ void PathConstraint::Apply( Property source, Property target, const Vector3& for
   {
     //If property is Vector3, contraint its value to the position of the path
 
-    Dali::Constraint constraint = Dali::Constraint::New<Vector3>( target.propertyIndex,
-                                                                  Source(source.object, source.propertyIndex ),
-                                                                  PathConstraintFunctor( mPath, mRange ) );
+    Dali::Constraint constraint = Dali::Constraint::New<Vector3>( target.propertyIndex, PathConstraintFunctor( mPath, mRange ) );
+    constraint.AddSource( Source(source.object, source.propertyIndex ) );
 
     constraint.SetTag( reinterpret_cast<size_t>( this ) );
     constraint.SetRemoveAction( Dali::Constraint::Discard );
@@ -205,9 +204,8 @@ void PathConstraint::Apply( Property source, Property target, const Vector3& for
   else if( propertyType == Dali::Property::ROTATION )
   {
     //If property is Rotation, constraint its value to align the forward vector to the tangent of the path
-    Dali::Constraint constraint = Dali::Constraint::New<Quaternion>( target.propertyIndex,
-                                                                     Source(source.object, source.propertyIndex ),
-                                                                     PathConstraintFunctor( mPath, mRange,forward) );
+    Dali::Constraint constraint = Dali::Constraint::New<Quaternion>( target.propertyIndex, PathConstraintFunctor( mPath, mRange,forward) );
+    constraint.AddSource( Source(source.object, source.propertyIndex ) );
 
     constraint.SetTag( reinterpret_cast<size_t>( this ) );
     constraint.SetRemoveAction( Dali::Constraint::Discard );

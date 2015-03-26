@@ -63,35 +63,34 @@ struct PathConstraintFunctor
   /**
    * @brief Functor operator for Vector3 properties
    *
-   * @param[in] current Current value of the property
-   * @param[in] inputs Contains the input property used as the parameter for the path
+   * @param[in,out] position Current value of the property
+   * @param[in]     inputs Contains the input property used as the parameter for the path
    *
    * @return The position of the path at the given parameter.
    */
-  Vector3 operator()(const Vector3& current,
-                     const PropertyInputContainer& inputs)
+  void operator()( Vector3& position,
+                   const PropertyInputContainer& inputs)
   {
     float t = ( inputs[0]->GetFloat() - mRange.x ) / ( mRange.y-mRange.x );
-    Vector3 position, tangent;
+    Vector3 tangent;
     mPath->Sample( t, position, tangent );
-    return position;
   }
 
   /**
    * @brief Functor operator for Quaternion properties
    *
-   * @param[in] current Current value of the property
-   * @param[in] inputs Contains the input property used as the parameter for the path
+   * @param[in,out] current Current value of the property
+   * @param[in]     inputs Contains the input property used as the parameter for the path
    *
    * @return The rotation which will align the forward vector and the tangent of the path at the given parameter.
    */
-  Quaternion operator()( const Quaternion& current,
-                         const PropertyInputContainer& inputs)
+  void operator()( Quaternion& current,
+                   const PropertyInputContainer& inputs)
   {
     float t = ( inputs[0]->GetFloat() - mRange.x ) / (mRange.y-mRange.x);
     Vector3 position, tangent;
     mPath->Sample( t, position, tangent );
-    return Quaternion( mForward, tangent );
+    current = Quaternion( mForward, tangent );
   }
 
   PathPtr     mPath;      ///< The path used

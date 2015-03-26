@@ -100,7 +100,7 @@ unsigned int Constraint::GetTag() const
 
 Constraint Constraint::New( Property::Index target,
                             Property::Type targetType,
-                            AnyFunction func )
+                            CallbackBase* func )
 {
   return Constraint( new Internal::Constraint( target,
                                                targetType,

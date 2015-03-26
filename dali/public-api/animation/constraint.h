@@ -18,13 +18,11 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <boost/function.hpp>
-
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/animation/constraint-source.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/signals/callback.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/handle.h>
 #include <dali/public-api/object/property.h>
@@ -53,6 +51,199 @@ class DALI_IMPORT_API Constraint : public BaseHandle
 {
 public:
 
+  /**
+   * @brief Template for the Function that is called by the Constraint system.
+   *
+   * Supports:
+   *  - C style functions
+   *  - Static member methods of an object
+   *  - Member functions of a particular class
+   *  - Functors of a particular class
+   *  - If a functor or method is provided, then a copy of the object is made.
+   *
+   * The expected signature of the callback should be:
+   * @code
+   *   void Function( P&, const PropertyInputContainer& );
+   * @endcode
+   *
+   * The P& parameter is an in,out parameter which stores the current value of the property. The callback
+   * should change this value to the desired one. The PropertyInputContainer is a const reference to the property inputs
+   * added to the Constraint in the order they were added via AddSource().
+   *
+   * @tparam  P  The property type to constrain.
+   */
+  template< typename P >
+  class Function : public CallbackBase
+  {
+  public:
+
+    /**
+     * @brief Constructor which connects to the provided C function (or a static member function).
+     *
+     * The expected signature of the function is:
+     * @code
+     *   void MyFunction( P&, const PropertyInputContainer& );
+     * @endcode
+     *
+     * @param[in]  function  The function to call.
+     */
+    Function( void( *function )( P&, const PropertyInputContainer& ) )
+    : CallbackBase( reinterpret_cast< CallbackBase::Function >( function ) ),
+      mCopyConstructorDispatcher( NULL )
+    {
+    }
+
+    /**
+     * @brief Constructor which copies a function object and connects to the functor of that object.
+     *
+     * The function object should have a functor with the following signature:
+     * @code
+     *   void operator()( P&, const PropertyInputContainer& );
+     * @endcode
+     *
+     * @param[in]  object  The object to copy.
+     *
+     * @tparam  T  The type of the object.
+     */
+    template< class T >
+    Function( const T& object )
+    : CallbackBase( reinterpret_cast< void* >( new T( object ) ), // copy the object
+                    NULL, // uses operator() instead of member function
+                    reinterpret_cast< CallbackBase::Dispatcher >( &FunctorDispatcher2< T, P&, const PropertyInputContainer& >::Dispatch ),
+                    reinterpret_cast< CallbackBase::Destructor >( &Destroyer< T >::Delete ) ),
+      mCopyConstructorDispatcher( reinterpret_cast< CopyConstructorDispatcher >( &ObjectCopyConstructorDispatcher< T >::Copy ) )
+    {
+    }
+
+    /**
+     * @brief Constructor which copies a function object and allows a connection to a member method.
+     *
+     * The object should have a method with the signature:
+     * @code
+     *   void MyObject::MyMethod( P&, const PropertyInputContainer& );
+     * @endcode
+     *
+     * @param[in]  object          The object to copy.
+     * @param[in]  memberFunction  The member function to call. This has to be a member of the same class.
+     *
+     * @tparam  T  The type of the object.
+     */
+    template< class T >
+    Function( const T& object, void ( T::*memberFunction ) ( P&, const PropertyInputContainer& ) )
+    : CallbackBase( reinterpret_cast< void* >( new T( object ) ), // copy the object
+                    reinterpret_cast< CallbackBase::MemberFunction >( memberFunction ),
+                    reinterpret_cast< CallbackBase::Dispatcher >( &Dispatcher2< T, P&, const PropertyInputContainer& >::Dispatch ),
+                    reinterpret_cast< CallbackBase::Destructor >( &Destroyer< T >::Delete ) ),
+      mCopyConstructorDispatcher( reinterpret_cast< CopyConstructorDispatcher >( &ObjectCopyConstructorDispatcher< T >::Copy ) )
+    {
+    }
+
+    /**
+     * @brief Clones the Function object.
+     *
+     * The object, if held by this object, is also copied.
+     *
+     * @return A pointer to a newly-allocation Function.
+     */
+    CallbackBase* Clone()
+    {
+      CallbackBase* callback = NULL;
+      if ( mImpl && mImpl->mObjectPointer && mCopyConstructorDispatcher )
+      {
+        callback = new Function( mCopyConstructorDispatcher( reinterpret_cast< UndefinedClass* >( mImpl->mObjectPointer ) ) /* Copy the object */,
+                                 mMemberFunction,
+                                 mImpl->mMemberFunctionDispatcher,
+                                 mImpl->mDestructorDispatcher,
+                                 mCopyConstructorDispatcher );
+      }
+      else
+      {
+        callback = new Function( mFunction );
+      }
+      return callback;
+    }
+
+  private:
+
+    /**
+     * @brief Must not be declared.
+     *
+     * This is used so that no optimisations are done by the compiler when using void*.
+     */
+    class UndefinedClass;
+
+    /**
+     * @brief Used to call the function to copy the stored object
+     */
+    typedef UndefinedClass* (*CopyConstructorDispatcher) ( UndefinedClass* object );
+
+    /**
+     * @brief Copies the actual object in Constraint::Function.
+     *
+     * @tparam  T  The type of the object.
+     */
+    template< class T >
+    struct ObjectCopyConstructorDispatcher
+    {
+      /**
+       * @brief Copy the object stored in Constraint::Function.
+       *
+       * @param[in]  object  The object to copy.
+       *
+       * @return Newly allocated clone of the object.
+       */
+      static UndefinedClass* Copy( const UndefinedClass* object )
+      {
+        T* copy = new T( *reinterpret_cast< const T* >( object ) );
+        return reinterpret_cast< UndefinedClass* >( copy );
+      }
+    };
+
+    /**
+     * @brief Undefined copy constructor
+     */
+    Function( const Function& );
+
+    /**
+     * @brief Undefined assignment operator
+     */
+    Function& operator=( const Function& );
+
+    /**
+     * @brief Constructor used when copying the stored object.
+     *
+     * @param[in]  object                     A newly copied object
+     * @param[in]  memberFunction             The member function of the object.
+     * @param[in]  dispatcher                 Used to call the actual object.
+     * @param[in]  destructor                 Used to delete the owned object.
+     * @param[in]  copyConstructorDispatcher  Used to create a copy of the owned object.
+     */
+    Function( void* object,
+              CallbackBase::MemberFunction memberFunction,
+              CallbackBase::Dispatcher dispatcher,
+              CallbackBase::Destructor destructor,
+              CopyConstructorDispatcher copyConstructorDispatcher )
+    : CallbackBase( object, memberFunction, dispatcher, destructor ),
+      mCopyConstructorDispatcher( copyConstructorDispatcher )
+    {
+    }
+
+    /**
+     * @brief Constructor used when copying a simple stored function.
+     *
+     * @param[in]  function   The function to call.
+     */
+    Function( CallbackBase::Function function )
+    : CallbackBase( function ),
+      mCopyConstructorDispatcher( NULL )
+    {
+    }
+
+    // Data
+
+    CopyConstructorDispatcher mCopyConstructorDispatcher; ///< Function to call to copy the stored object
+  };
+
   typedef Any AnyFunction; ///< Generic function pointer for constraint
 
   /**
@@ -79,19 +270,90 @@ public:
   Constraint();
 
   /**
-   * @brief Create a constraint which targets a property.
+   * @brief Create a constraint which targets a property using a function or a static class member.
    *
-   * @param [in] target The index of the property to constrain.
-   * @param [in] func A function which returns the constrained property value.
+   * The expected signature, for a Vector3 type for example, of the function is:
+   * @code
+   *   void MyFunction( Vector3&, const PropertyInputContainer& );
+   * @endcode
+   *
+   * Create the constraint with this function as follows:
+   * @code
+   *   Constraint constraint = Constraint::New< Vector3 >( CONSTRAINING_PROPERTY_INDEX, &MyFunction );
+   * @endcode
+   *
+   * @param[in]  target    The index of the property to constrain.
+   * @param[in]  function  The function to call to set the constrained property value.
    * @return The new constraint.
    *
-   * @tparam P The type of the property to constraint.
+   * @tparam P The type of the property to constrain.
    */
-  template < class P >
-  static Constraint New( Property::Index target,
-                         boost::function< void ( P& current, const PropertyInputContainer& inputs ) > func )
+  template< class P >
+  static Constraint New( Property::Index target, void( *function )( P&, const PropertyInputContainer& ) )
   {
-    return New( target, PropertyTypes::Get<P>(), func );
+    CallbackBase* func = new Constraint::Function< P >( function );
+    return New( target, PropertyTypes::Get< P >(), func );
+  }
+
+  /**
+   * @brief Create a constraint which targets a property using a functor object.
+   *
+   * The expected structure, for a Vector3 type for example, of the functor object is:
+   * @code
+   *   struct MyObject
+   *   {
+   *     void operator() ( Vector3&, const PropertyInputContainer& );
+   *   };
+   * @endcode
+   *
+   * Create the constraint with this object as follows:
+   * @code
+   *   Constraint constraint = Constraint::New< Vector3 >( CONSTRAINING_PROPERTY_INDEX, MyObject() );
+   * @endcode
+   *
+   * @param[in]  target  The index of the property to constrain.
+   * @param[in]  object  The functor object whose functor is called to set the constrained property value.
+   * @return The new constraint.
+   *
+   * @tparam P The type of the property to constrain.
+   * @tparam T The type of the object.
+   */
+  template< class P, class T >
+  static Constraint New( Property::Index target, const T& object )
+  {
+    CallbackBase* func = new Constraint::Function< P >( object );
+    return New( target, PropertyTypes::Get< P >(), func );
+  }
+
+  /**
+   * @brief Create a constraint which targets a property using an object method.
+   *
+   * The expected structure, for a Vector3 type for example, of the object is:
+   * @code
+   *   struct MyObject
+   *   {
+   *     void MyMethod( Vector3&, const PropertyInputContainer& );
+   *   };
+   * @endcode
+   *
+   * Create the constraint with this object as follows:
+   * @code
+   *   Constraint constraint = Constraint::New< Vector3 >( CONSTRAINING_PROPERTY_INDEX, MyObject(), &MyObject::MyMethod );
+   * @endcode
+   *
+   * @param[in]  target          The index of the property to constrain.
+   * @param[in]  object          The object whose member function is called to set the constrained property value.
+   * @param[in]  memberFunction  The member function to call to set the constrained property value.
+   * @return The new constraint.
+   *
+   * @tparam P The type of the property to constrain.
+   * @tparam T The type of the object.
+   */
+  template< class P, class T >
+  static Constraint New( Property::Index target, const T& object, void ( T::*memberFunction ) ( P&, const PropertyInputContainer& ) )
+  {
+    CallbackBase* func = new Constraint::Function< P >( object, memberFunction );
+    return New( target, PropertyTypes::Get< P >(), func );
   }
 
   /**
@@ -213,7 +475,7 @@ private: // Not intended for use by Application developers
    */
   static Constraint New( Property::Index target,
                          Property::Type targetType,
-                         AnyFunction func );
+                         CallbackBase* func );
 };
 
 } // namespace Dali

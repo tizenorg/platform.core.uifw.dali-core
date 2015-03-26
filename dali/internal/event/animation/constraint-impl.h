@@ -42,8 +42,6 @@ class Constraint : public BaseObject
 {
 public:
 
-  typedef Any AnyFunction;
-
   /**
    * Construct a new constraint which targets a property.
    * @param [in] target The index of the property to constrain.
@@ -52,7 +50,7 @@ public:
    */
   Constraint( Property::Index target,
               Property::Type targetType,
-              AnyFunction& func );
+              CallbackBase* func );
 
   /**
    * Adds a constraint-source to the constraint
@@ -129,7 +127,7 @@ protected:
   Property::Type mTargetType;
   SourceContainer mSources;
   AlphaFunction mAlphaFunction;
-  AnyFunction mFunc;
+  CallbackBase* mFunc;
   Dali::Constraint::RemoveAction mRemoveAction;
   unsigned int mTag;
 };

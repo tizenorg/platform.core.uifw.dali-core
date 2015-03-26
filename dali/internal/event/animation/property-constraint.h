@@ -46,14 +46,14 @@ public:
 
   typedef std::vector< PropertyInputIndexer< PropertyInputAccessor > > InputIndexerContainer;
 
-  typedef boost::function< void ( PropertyType&, const PropertyInputContainer& ) > ConstraintFunction;
+  typedef Dali::Constraint::Function< PropertyType > ConstraintFunction;
 
   /**
    * Create a property constraint.
    */
-  PropertyConstraint( const ConstraintFunction& func )
+  PropertyConstraint( Dali::Constraint::Function< PropertyType >* func )
   : mInputsInitialized( false ),
-    mFunction( func ),
+    mFunction( reinterpret_cast< ConstraintFunction* >( func->Clone() ) ),
     mInputs()
   {
   }
@@ -63,10 +63,10 @@ public:
    * @param [in] func A constraint function.
    * @param [in] inputs Property inputs.
    */
-  PropertyConstraint( const ConstraintFunction& func,
+  PropertyConstraint( Dali::Constraint::Function< PropertyType >* func,
                       const InputContainer& inputs )
   : mInputsInitialized( false ),
-    mFunction( func ),
+    mFunction( reinterpret_cast< ConstraintFunction* >( func->Clone() ) ),
     mInputs( inputs )
   {
   }
@@ -76,6 +76,7 @@ public:
    */
   ~PropertyConstraint()
   {
+    delete mFunction;
   }
 
   /**
@@ -187,7 +188,7 @@ public:
       mIndices.PushBack( &mInputIndices[ index ] );
     }
 
-    mFunction( current, mIndices );
+    CallbackBase::Execute< PropertyType&, const PropertyInputContainer& >( *mFunction, current, mIndices );
   }
 
 private:
@@ -202,7 +203,7 @@ private:
 
   bool mInputsInitialized;
 
-  ConstraintFunction mFunction;
+  ConstraintFunction* mFunction;
 
   InputContainer mInputs;
 };

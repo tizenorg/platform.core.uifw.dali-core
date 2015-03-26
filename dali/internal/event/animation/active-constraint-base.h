@@ -55,7 +55,6 @@ class ActiveConstraintBase : public Object, public Object::Observer
 public:
 
   typedef Dali::Constraint::RemoveAction RemoveAction;
-  typedef Any AnyFunction;
 
   /**
    * Constructor.

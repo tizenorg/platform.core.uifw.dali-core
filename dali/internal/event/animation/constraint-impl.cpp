@@ -18,9 +18,6 @@
 // CLASS HEADER
 #include <dali/internal/event/animation/constraint-impl.h>
 
-// EXTERNAL INCLUDES
-#include <boost/function.hpp>
-
 // INTERNAL INCLUDES
 #include <dali/internal/event/animation/active-constraint-impl.h>
 #include <dali/internal/event/animation/property-constraint-ptr.h>
@@ -43,16 +40,16 @@ namespace // unnamed namespace
 {
 
 template <class P>
-PropertyConstraint<P>* CreatePropertyConstraint( Constraint::AnyFunction& func )
+PropertyConstraint<P>* CreatePropertyConstraint( CallbackBase* func )
 {
-  return new PropertyConstraint<P>( AnyCast< boost::function< void ( P&, const PropertyInputContainer& ) > >( func ) );
+  return new PropertyConstraint<P>( reinterpret_cast< Dali::Constraint::Function< P >* >( func ) );
 }
 
 } // unnamed namespace
 
 Constraint::Constraint( Property::Index targetIndex,
                         Property::Type targetType,
-                        AnyFunction& func )
+                        CallbackBase* func )
 : mActiveConstraintTemplate(),
   mApplyTime( 0.0f ),
   mTargetIndex( targetIndex ),
@@ -240,6 +237,7 @@ unsigned int Constraint::GetTag() const
 
 Constraint::~Constraint()
 {
+  delete mFunc;
 }
 
 } // namespace Internal

@@ -156,7 +156,7 @@ void Geometry::SetSceneGraphProperty( Property::Index index,
                                       const CustomProperty& entry,
                                       const Property::Value& value )
 {
-  GEOMETRY_IMPL.SetSceneGraphProperty( index, entry, value );
+  GEOMETRY_IMPL.SetSceneGraphProperty( this, index, entry, value );
 }
 
 Property::Value Geometry::GetDefaultProperty( Property::Index index ) const
@@ -166,7 +166,7 @@ Property::Value Geometry::GetDefaultProperty( Property::Index index ) const
 
 const SceneGraph::PropertyOwner* Geometry::GetPropertyOwner() const
 {
-  return GEOMETRY_IMPL.GetPropertyOwner();
+  return mSceneObject;
 }
 
 const SceneGraph::PropertyOwner* Geometry::GetSceneObject() const
@@ -176,12 +176,12 @@ const SceneGraph::PropertyOwner* Geometry::GetSceneObject() const
 
 const SceneGraph::PropertyBase* Geometry::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
-  return GEOMETRY_IMPL.GetSceneObjectAnimatableProperty( index );
+  return GEOMETRY_IMPL.GetSceneObjectAnimatableProperty( this, index );
 }
 
 const PropertyInputImpl* Geometry::GetSceneObjectInputProperty( Property::Index index ) const
 {
-  return GEOMETRY_IMPL.GetSceneObjectInputProperty( index );
+  return GEOMETRY_IMPL.GetSceneObjectInputProperty( this, index );
 }
 
 int Geometry::GetPropertyComponentIndex( Property::Index index ) const
@@ -234,7 +234,16 @@ void Geometry::Initialize()
   DALI_ASSERT_ALWAYS( stage && "Stage doesn't exist" );
 
   mSceneObject = new SceneGraph::Geometry();
-  SceneGraph::AddMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetGeometryOwner(), *mSceneObject );
+  AddMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetGeometryOwner(), *mSceneObject );
+}
+
+Geometry::~Geometry()
+{
+  if( Stage::IsInstalled() )
+  {
+    StagePtr stage = Stage::GetCurrent();
+    RemoveMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetGeometryOwner(), *mSceneObject );
+  }
 }
 
 

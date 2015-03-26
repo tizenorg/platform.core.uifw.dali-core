@@ -148,7 +148,7 @@ void Sampler::SetSceneGraphProperty( Property::Index index,
                                       const CustomProperty& entry,
                                       const Property::Value& value )
 {
-  SAMPLER_IMPL.SetSceneGraphProperty( index, entry, value );
+  SAMPLER_IMPL.SetSceneGraphProperty( this, index, entry, value );
 }
 
 Property::Value Sampler::GetDefaultProperty( Property::Index index ) const
@@ -158,7 +158,7 @@ Property::Value Sampler::GetDefaultProperty( Property::Index index ) const
 
 const SceneGraph::PropertyOwner* Sampler::GetPropertyOwner() const
 {
-  return SAMPLER_IMPL.GetPropertyOwner();
+  return mSceneObject;
 }
 
 const SceneGraph::PropertyOwner* Sampler::GetSceneObject() const
@@ -168,12 +168,12 @@ const SceneGraph::PropertyOwner* Sampler::GetSceneObject() const
 
 const SceneGraph::PropertyBase* Sampler::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
-  return SAMPLER_IMPL.GetSceneObjectAnimatableProperty( index );
+  return SAMPLER_IMPL.GetSceneObjectAnimatableProperty( this, index );
 }
 
 const PropertyInputImpl* Sampler::GetSceneObjectInputProperty( Property::Index index ) const
 {
-  return SAMPLER_IMPL.GetSceneObjectInputProperty( index );
+  return SAMPLER_IMPL.GetSceneObjectInputProperty( this, index );
 }
 
 int Sampler::GetPropertyComponentIndex( Property::Index index ) const
@@ -215,6 +215,14 @@ void Sampler::Initialize( const std::string& textureUnitUniformName )
   AddMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetSamplerOwner(), *mSceneObject );
 }
 
+Sampler::~Sampler()
+{
+  if( Stage::IsInstalled() )
+  {
+    StagePtr stage = Stage::GetCurrent();
+    RemoveMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetSamplerOwner(), *mSceneObject );
+  }
+}
 
 } // namespace Internal
 } // namespace Dali

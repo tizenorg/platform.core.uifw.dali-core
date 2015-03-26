@@ -224,7 +224,7 @@ void Material::SetSceneGraphProperty( Property::Index index,
                                       const CustomProperty& entry,
                                       const Property::Value& value )
 {
-  MATERIAL_IMPL.SetSceneGraphProperty( index, entry, value );
+  MATERIAL_IMPL.SetSceneGraphProperty( this, index, entry, value );
 }
 
 Property::Value Material::GetDefaultProperty( Property::Index index ) const
@@ -234,7 +234,8 @@ Property::Value Material::GetDefaultProperty( Property::Index index ) const
 
 const SceneGraph::PropertyOwner* Material::GetPropertyOwner() const
 {
-  return MATERIAL_IMPL.GetPropertyOwner();
+  //return MATERIAL_IMPL.GetPropertyOwner();
+  return mSceneObject;
 }
 
 const SceneGraph::PropertyOwner* Material::GetSceneObject() const
@@ -244,12 +245,12 @@ const SceneGraph::PropertyOwner* Material::GetSceneObject() const
 
 const SceneGraph::PropertyBase* Material::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
-  return MATERIAL_IMPL.GetSceneObjectAnimatableProperty( index );
+  return MATERIAL_IMPL.GetSceneObjectAnimatableProperty( this, index );
 }
 
 const PropertyInputImpl* Material::GetSceneObjectInputProperty( Property::Index index ) const
 {
-  return MATERIAL_IMPL.GetSceneObjectInputProperty( index );
+  return MATERIAL_IMPL.GetSceneObjectInputProperty( this, index );
 }
 
 int Material::GetPropertyComponentIndex( Property::Index index ) const
@@ -301,6 +302,15 @@ void Material::Initialize()
 
   mSceneObject = new SceneGraph::Material();
   AddMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetMaterialOwner(), *mSceneObject );
+}
+
+Material::~Material()
+{
+  if( Stage::IsInstalled() )
+  {
+    StagePtr stage = Stage::GetCurrent();
+    RemoveMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetMaterialOwner(), *mSceneObject );
+  }
 }
 
 } // namespace Internal

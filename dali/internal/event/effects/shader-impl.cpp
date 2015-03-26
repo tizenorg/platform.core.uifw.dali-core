@@ -115,7 +115,7 @@ void Shader::SetSceneGraphProperty( Property::Index index,
                                       const CustomProperty& entry,
                                       const Property::Value& value )
 {
-  SHADER_IMPL.SetSceneGraphProperty( index, entry, value );
+  SHADER_IMPL.SetSceneGraphProperty( this, index, entry, value );
 }
 
 Property::Value Shader::GetDefaultProperty( Property::Index index ) const
@@ -135,12 +135,12 @@ const SceneGraph::PropertyOwner* Shader::GetSceneObject() const
 
 const SceneGraph::PropertyBase* Shader::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
-  return SHADER_IMPL.GetSceneObjectAnimatableProperty( index );
+  return SHADER_IMPL.GetSceneObjectAnimatableProperty( this, index );
 }
 
 const PropertyInputImpl* Shader::GetSceneObjectInputProperty( Property::Index index ) const
 {
-  return SHADER_IMPL.GetSceneObjectInputProperty( index );
+  return SHADER_IMPL.GetSceneObjectInputProperty( this, index );
 }
 
 int Shader::GetPropertyComponentIndex( Property::Index index ) const
@@ -189,9 +189,17 @@ void Shader::Initialize( const std::string& vertexSource, const std::string& fra
 
   // Add shader program to scene-object using a message to the UpdateManager
   SetShaderProgramMessage( updateManager, *mSceneObject, GEOMETRY_TYPE_IMAGE, SHADER_SUBTYPE_ALL, mTicket->GetId(), shaderHash, false );
-
-  //mSceneObject->SendProgramMessage( GEOMETRY_TYPE_IMAGE, SHADER_SUBTYPE_ALL, vertexSource, fragmentSource );
 }
+
+Shader::~Shader()
+{
+  if( Stage::IsInstalled() )
+  {
+    StagePtr stage = Stage::GetCurrent();
+    RemoveShaderMessage( stage->GetUpdateManager(), *mSceneObject);
+  }
+}
+
 
 } // namespace Internal
 } // namespace Dali

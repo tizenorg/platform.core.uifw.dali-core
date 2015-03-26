@@ -123,16 +123,16 @@ Property::Type PropertyBuffer::GetDefaultPropertyType( Property::Index index ) c
 }
 
 void PropertyBuffer::SetDefaultProperty( Property::Index index,
-                                   const Property::Value& propertyValue )
+                                         const Property::Value& propertyValue )
 {
   PROPERTY_BUFFER_IMPL.SetDefaultProperty( index, propertyValue );
 }
 
 void PropertyBuffer::SetSceneGraphProperty( Property::Index index,
-                                      const CustomProperty& entry,
-                                      const Property::Value& value )
+                                            const CustomProperty& entry,
+                                            const Property::Value& value )
 {
-  PROPERTY_BUFFER_IMPL.SetSceneGraphProperty( index, entry, value );
+  PROPERTY_BUFFER_IMPL.SetSceneGraphProperty( this, index, entry, value );
 }
 
 Property::Value PropertyBuffer::GetDefaultProperty( Property::Index index ) const
@@ -152,12 +152,12 @@ const SceneGraph::PropertyOwner* PropertyBuffer::GetSceneObject() const
 
 const SceneGraph::PropertyBase* PropertyBuffer::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
-  return PROPERTY_BUFFER_IMPL.GetSceneObjectAnimatableProperty( index );
+  return PROPERTY_BUFFER_IMPL.GetSceneObjectAnimatableProperty( this, index );
 }
 
 const PropertyInputImpl* PropertyBuffer::GetSceneObjectInputProperty( Property::Index index ) const
 {
-  return PROPERTY_BUFFER_IMPL.GetSceneObjectInputProperty( index );
+  return PROPERTY_BUFFER_IMPL.GetSceneObjectInputProperty( this, index );
 }
 
 int PropertyBuffer::GetPropertyComponentIndex( Property::Index index ) const

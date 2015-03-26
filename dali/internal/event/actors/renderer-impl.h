@@ -69,6 +69,11 @@ public:
   void SetDepthIndex( int depthIndex );
 
   /**
+   * @copydoc Dali::Renderer::GetCurrentDepthIndex()
+   */
+  int GetCurrentDepthIndex() const;
+
+  /**
    * @brief Get the scene graph object ( the node attachment )
    *
    * @return the scene object

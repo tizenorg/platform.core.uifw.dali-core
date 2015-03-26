@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_SCENE_GRAPH_UNIFORM_MAP_PROVIDER_H
-#define DALI_INTERNAL_SCENE_GRAPH_UNIFORM_MAP_PROVIDER_H
+#ifndef DALI_INTERNAL_SCENE_GRAPH_UNIFORM_MAP_DATA_PROVIDER_H
+#define DALI_INTERNAL_SCENE_GRAPH_UNIFORM_MAP_DATA_PROVIDER_H
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -26,30 +26,44 @@ namespace Internal
 {
 namespace SceneGraph
 {
+class UniformMap;
+
 
 /**
  * This class maps uniform names to property value pointers.
- * After the first string lookup, it caches the uniform location to avoid
- * further lookups.
  */
-class UniformMapProvider
+class UniformMapDataProvider
 {
 public:
   /**
    * Constructor
    */
-  UniformMapProvider()
+  UniformMapDataProvider()
   {
   }
 
-  // @todo Force material color?
+  /**
+   * Return true if the uniform map has been changed this frame
+   * Note, this only informs if the uniform mappings have changed,
+   * not if any actual property value has changed.
+   *
+   * @param[in] bufferIndex The buffer index
+   * @return true if the uniform map has changed
+   */
+  virtual bool GetUniformMapChanged( BufferIndex bufferIndex ) const = 0;
+
+  /**
+   * Get the complete map of uniforms to property value addresses
+   * @param[in] bufferIndex The bufferIndex
+   * @return the uniform map
+   */
+  virtual const UniformMap& GetUniformMap( BufferIndex bufferIndex ) const = 0;
 
 protected:
-
   /**
    * No deletion through this interface
    */
-  virtual ~UniformMapProvider()
+  virtual ~UniformMapDataProvider()
   {
   }
 };
@@ -58,4 +72,4 @@ protected:
 } // namespace Internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_SCENE_GRAPH_UNIFORM_MAP_PROVIDER_H
+#endif // DALI_INTERNAL_SCENE_GRAPH_UNIFORM_MAP_DATA_PROVIDER_H

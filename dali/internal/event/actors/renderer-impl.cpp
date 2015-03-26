@@ -55,6 +55,7 @@ void Renderer::SetGeometry( Geometry& geometry )
 {
   mGeometryConnector.Set( geometry, OnStage() );
   const SceneGraph::Geometry* geometrySceneObject = geometry.GetGeometrySceneObject();
+
   SetGeometryMessage( Stage::GetCurrent()->GetUpdateInterface(), *mSceneObject, *geometrySceneObject );
 }
 

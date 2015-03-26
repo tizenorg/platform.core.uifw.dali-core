@@ -26,6 +26,7 @@
 #include <dali/internal/update/animation/scene-graph-constraint-base.h>
 #include <dali/internal/update/common/animatable-property.h>
 #include <dali/internal/update/common/property-owner-messages.h>
+#include <dali/internal/update/common/uniform-map.h>
 #include <dali/internal/event/animation/active-constraint-base.h>
 #include <dali/internal/event/animation/constraint-impl.h>
 #include <dali/internal/event/common/stage-impl.h>
@@ -749,6 +750,27 @@ void Object::DisablePropertyNotifications()
       GetImplementation(*iter).Disable();
     }
   }
+}
+
+void Object::AddUniformMapping( Property::Index propertyIndex, const std::string& uniformName )
+{
+  // Get the address of the property if it's a scene property
+  const PropertyInputImpl* propertyPtr = GetSceneObjectInputProperty( propertyIndex );
+
+  if( propertyPtr != NULL )
+  {
+    SceneGraph::UniformPropertyMapping* map = new SceneGraph::UniformPropertyMapping( uniformName, propertyPtr );
+    const SceneGraph::PropertyOwner* sceneObject = GetSceneObject();
+
+    // Message takes ownership of Uniform map (and will delete it after copy)
+    AddUniformMapMessage( Stage::GetCurrent()->GetUpdateInterface(), *sceneObject, map);
+  }
+}
+
+void Object::RemoveUniformMapping( const std::string& uniformName )
+{
+  const SceneGraph::PropertyOwner* sceneObject = GetSceneObject();
+  RemoveUniformMapMessage( Stage::GetCurrent()->GetUpdateInterface(), *sceneObject, uniformName);
 }
 
 Dali::ActiveConstraint Object::ApplyConstraint( Constraint& constraint )

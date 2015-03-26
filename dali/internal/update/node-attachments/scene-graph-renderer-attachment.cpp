@@ -57,19 +57,61 @@ RendererAttachment::RendererAttachment()
   mRenderer(NULL),
   mMaterial(NULL),
   mGeometry(NULL),
-  mDepthIndex(0)
+  mDepthIndex(0),
+  mRegenerateUniformMap(true)
 {
+  // Observe our own PropertyOwner's uniform map
+  AddUniformMapObserver( *this );
 }
+
 
 RendererAttachment::~RendererAttachment()
 {
+  mMaterial->RemoveConnectionObserver(*this);
+  mGeometry->RemoveConnectionObserver(*this);
+
   mMaterial=NULL;
   mGeometry=NULL;
 }
 
+void RendererAttachment::Initialize2( BufferIndex updateBufferIndex )
+{
+  DALI_ASSERT_DEBUG( mSceneController );
+
+  mRenderer = NewRenderer::New( *mParent, *this, mGeometry, mMaterial );
+  mSceneController->GetRenderMessageDispatcher().AddRenderer( *mRenderer );
+}
+
+void RendererAttachment::OnDestroy2()
+{
+  DALI_ASSERT_DEBUG( mSceneController );
+  mSceneController->GetRenderMessageDispatcher().RemoveRenderer( *mRenderer );
+  mRenderer = NULL;
+}
+
+void RendererAttachment::ConnectedToSceneGraph()
+{
+  mRegenerateUniformMap = true;
+  mParent->AddUniformMapObserver( *this );
+
+  // @todo MESH_REWORK - Create renderer only when staged (and have all connected objects?)
+}
+
+void RendererAttachment::DisconnectedFromSceneGraph()
+{
+  mRegenerateUniformMap = false;
+  mParent->RemoveUniformMapObserver( *this );
+
+  // @todo MESH_REWORK - Destroy renderer when off stage?
+}
+
 void RendererAttachment::SetMaterial( BufferIndex updateBufferIndex, const Material* material)
 {
-  mMaterial = material;
+  DALI_ASSERT_DEBUG( material != NULL && "Material pointer is NULL" );
+
+  mMaterial = const_cast<Material*>(material); // Need this to be non-const to add observer only.
+  mMaterial->AddConnectionObserver( *this );
+  mRegenerateUniformMap = true;
 
   // Tell renderer about a new provider
   if( mRenderer )
@@ -87,7 +129,11 @@ const Material& RendererAttachment::GetMaterial() const
 
 void RendererAttachment::SetGeometry( BufferIndex updateBufferIndex, const Geometry* geometry)
 {
-  mGeometry = geometry;
+  DALI_ASSERT_DEBUG( geometry != NULL && "Geometry pointer is NULL");
+
+  mGeometry = const_cast<Geometry*>(geometry); // Need this to be non-const to add observer only
+  mGeometry->AddConnectionObserver( *this ); // Observe geometry connections / uniform mapping changes
+  mRegenerateUniformMap = true;
 
   // Tell renderer about a new provider
   if( mRenderer )
@@ -125,9 +171,57 @@ const Renderer& RendererAttachment::GetRenderer() const
   return *mRenderer;
 }
 
+// Uniform maps are checked in the following priority order:
+//   Actor
+//     Renderer (this object)
+//       Geometry
+//         VertexBuffers
+//       Material
+//         Samplers
+//         Shader
 void RendererAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
 {
-  // Do nothing
+  mUniformMapChanged[0] = false;
+  mUniformMapChanged[1] = false;
+
+  // @todo MESH_REWORK UNIFORM_MAP re-generate uniform maps if they have changed
+  if( mRegenerateUniformMap )
+  {
+    DALI_ASSERT_DEBUG( mGeometry != NULL && "No geometry available in DoPrepareRender()" );
+    DALI_ASSERT_DEBUG( mMaterial != NULL && "No geometry available in DoPrepareRender()" );
+
+    UniformMap& localMap = mUniformMap[ updateBufferIndex ];
+    localMap.Reset();
+
+    const UniformMap& actorUniformMap = mParent->GetUniformMap();
+    localMap.AddMappings( actorUniformMap );
+    const UniformMap& rendererUniformMap = PropertyOwner::GetUniformMap();
+    localMap.AddMappings( rendererUniformMap );
+    localMap.AddMappings( mGeometry->GetUniformMap() );
+
+    const GeometryDataProvider::VertexBuffers& vertexBuffers = mGeometry->GetVertexBuffers();
+    for( GeometryDataProvider::VertexBuffers::ConstIterator iter = vertexBuffers.Begin(), end = vertexBuffers.End() ;
+         iter != end ;
+         ++iter )
+    {
+      localMap.AddMappings( (*iter)->GetUniformMap() );
+    }
+
+    localMap.AddMappings( mMaterial->GetUniformMap() );
+    const MaterialDataProvider::Samplers& samplers = mMaterial->GetSamplers();
+    for( MaterialDataProvider::Samplers::ConstIterator iter = samplers.Begin(), end = samplers.End();
+         iter != end ;
+         ++iter )
+    {
+      const SceneGraph::Sampler* sampler = static_cast<const SceneGraph::Sampler*>( *iter );
+      localMap.AddMappings( sampler->GetUniformMap() );
+    }
+
+    localMap.AddMappings( mMaterial->GetShader()->GetUniformMap() );
+
+    mUniformMapChanged[updateBufferIndex] = true;
+  }
+  mRegenerateUniformMap = false;
 }
 
 bool RendererAttachment::IsFullyOpaque( BufferIndex updateBufferIndex )
@@ -173,25 +267,6 @@ void RendererAttachment::SizeChanged( BufferIndex updateBufferIndex )
   // Do nothing.
 }
 
-void RendererAttachment::AttachToSceneGraph( SceneController& sceneController, BufferIndex updateBufferIndex )
-{
-  mSceneController = &sceneController;
-}
-
-void RendererAttachment::ConnectToSceneGraph2( BufferIndex updateBufferIndex )
-{
-  DALI_ASSERT_DEBUG( mSceneController );
-  mRenderer = NewRenderer::New( *mParent, mGeometry, mMaterial );
-  mSceneController->GetRenderMessageDispatcher().AddRenderer( *mRenderer );
-}
-
-void RendererAttachment::OnDestroy2()
-{
-  DALI_ASSERT_DEBUG( mSceneController );
-  mSceneController->GetRenderMessageDispatcher().RemoveRenderer( *mRenderer );
-  mRenderer = NULL;
-}
-
 bool RendererAttachment::DoPrepareResources(
   BufferIndex updateBufferIndex,
   ResourceManager& resourceManager )
@@ -203,7 +278,11 @@ bool RendererAttachment::DoPrepareResources(
   bool ready = false;
   mFinishedResourceAcquisition = false;
 
-  if( mGeometry && mMaterial )
+  // Can only be considered ready when all the scene graph objects are connected to the renderer
+  if( ( mGeometry ) &&
+      ( mGeometry->GetVertexBuffers().Count() > 0 ) &&
+      ( mMaterial ) &&
+      ( mMaterial->GetShader() != NULL ) )
   {
     unsigned int completeCount = 0;
     unsigned int neverCount = 0;
@@ -250,10 +329,37 @@ bool RendererAttachment::DoPrepareResources(
     ready = ( completeCount + frameBufferCount >= samplers.Count() ) ;
     mFinishedResourceAcquisition = ( completeCount + neverCount >= samplers.Count() );
   }
+
   return ready;
 }
 
+void RendererAttachment::ConnectionsChanged( PropertyOwner& object )
+{
+  // One of our child objects has changed it's connections. Ensure the uniform
+  // map gets regenerated during PrepareRender
+  mRegenerateUniformMap = true;
+}
 
+void RendererAttachment::ConnectedUniformMapChanged()
+{
+  mRegenerateUniformMap = true;
+}
+
+void RendererAttachment::UniformMappingsChanged( const UniformMap& mappings )
+{
+  // The mappings are either from PropertyOwner base class, or the Actor
+  mRegenerateUniformMap = true;
+}
+
+bool RendererAttachment::GetUniformMapChanged( BufferIndex bufferIndex ) const
+{
+  return mUniformMapChanged[bufferIndex];
+}
+
+const UniformMap& RendererAttachment::GetUniformMap( BufferIndex bufferIndex ) const
+{
+  return mUniformMap[ bufferIndex ];
+}
 
 } // namespace SceneGraph
 } // namespace Internal

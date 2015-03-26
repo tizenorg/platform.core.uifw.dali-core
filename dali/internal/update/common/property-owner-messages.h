@@ -21,15 +21,17 @@
 // INTERNAL INCLUDES
 #include <dali/internal/update/common/property-owner.h>
 #include <dali/internal/common/event-to-update.h>
+#include <string>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace SceneGraph
 {
+class UniformMap;
+class PropertyOwner;
+
 
 // Messages for PropertyOwner
 
@@ -67,6 +69,20 @@ inline void RemoveConstraintMessage( EventToUpdate& eventToUpdate, const Propert
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &owner, &PropertyOwner::RemoveConstraint, &constraint );
+}
+
+inline void AddUniformMapMessage( EventToUpdate& eventToUpdate, const PropertyOwner& owner, UniformPropertyMapping* map )
+{
+  typedef MessageValue1< PropertyOwner, OwnerPointer< UniformPropertyMapping > > LocalType;
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  new (slot) LocalType( &owner, &PropertyOwner::AddUniformMapping, map );
+}
+
+inline void RemoveUniformMapMessage( EventToUpdate& eventToUpdate, const PropertyOwner& owner, const std::string& uniformName )
+{
+  typedef MessageValue1< PropertyOwner, std::string > LocalType;
+  unsigned int* slot = eventToUpdate.ReserveMessageSlot( sizeof( LocalType ) );
+  new (slot) LocalType( &owner, &PropertyOwner::RemoveUniformMapping, uniformName );
 }
 
 } // namespace SceneGraph

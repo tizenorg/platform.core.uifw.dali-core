@@ -234,7 +234,16 @@ void Geometry::Initialize()
   DALI_ASSERT_ALWAYS( stage && "Stage doesn't exist" );
 
   mSceneObject = new SceneGraph::Geometry();
-  SceneGraph::AddMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetGeometryOwner(), *mSceneObject );
+  AddMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetGeometryOwner(), *mSceneObject );
+}
+
+Geometry::~Geometry()
+{
+  if( Stage::IsInstalled() )
+  {
+    StagePtr stage = Stage::GetCurrent();
+    RemoveMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetGeometryOwner(), *mSceneObject );
+  }
 }
 
 

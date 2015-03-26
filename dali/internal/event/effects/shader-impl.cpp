@@ -189,9 +189,17 @@ void Shader::Initialize( const std::string& vertexSource, const std::string& fra
 
   // Add shader program to scene-object using a message to the UpdateManager
   SetShaderProgramMessage( updateManager, *mSceneObject, GEOMETRY_TYPE_IMAGE, SHADER_SUBTYPE_ALL, mTicket->GetId(), shaderHash, false );
-
-  //mSceneObject->SendProgramMessage( GEOMETRY_TYPE_IMAGE, SHADER_SUBTYPE_ALL, vertexSource, fragmentSource );
 }
+
+Shader::~Shader()
+{
+  if( Stage::IsInstalled() )
+  {
+    StagePtr stage = Stage::GetCurrent();
+    RemoveShaderMessage( stage->GetUpdateManager(), *mSceneObject);
+  }
+}
+
 
 } // namespace Internal
 } // namespace Dali

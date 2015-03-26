@@ -210,7 +210,19 @@ public:
    */
   virtual void RemovePropertyNotifications();
 
-  // Constraints
+  /******************************** Uniform Mappings ********************************/
+
+  /**
+   * @copydoc Dali::Handle::AddUniformMapping()
+   */
+  void AddUniformMapping( Property::Index propertyIndex, const std::string& uniformName );
+
+  /**
+   * @copydoc Dali::Handle::RemoveUniformMapping()
+   */
+  void RemoveUniformMapping( const std::string& uniformName );
+
+  /******************************** Constraints ********************************/
 
   /**
    * Apply a constraint to a Object.
@@ -255,7 +267,7 @@ public:
     return PROPERTY_CUSTOM_START_INDEX;
   }
 
-  // To be overridden by deriving classes
+  /********************  To be overridden by deriving classes ********************/
 
   /**
    * Retrieve the scene-graph object added by this object.
@@ -500,4 +512,3 @@ inline const Internal::Object& GetImplementation(const Dali::Handle& object)
 } // namespace Dali
 
 #endif // __DALI_INTERNAL_OBJECT_H__
-

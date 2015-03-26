@@ -303,5 +303,14 @@ void Material::Initialize()
   AddMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetMaterialOwner(), *mSceneObject );
 }
 
+Material::~Material()
+{
+  if( Stage::IsInstalled() )
+  {
+    StagePtr stage = Stage::GetCurrent();
+    RemoveMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetMaterialOwner(), *mSceneObject );
+  }
+}
+
 } // namespace Internal
 } // namespace Dali

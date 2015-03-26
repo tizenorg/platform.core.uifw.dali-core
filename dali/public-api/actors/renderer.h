@@ -109,6 +109,9 @@ public:
    */
   void SetDepthIndex( int depthIndex );
 
+  //@todo No interface to remove geometry / material? I guess you have to throw away
+  // this renderer if you don't want it to work any more...
+
 public:
   /**
    * @brief The constructor

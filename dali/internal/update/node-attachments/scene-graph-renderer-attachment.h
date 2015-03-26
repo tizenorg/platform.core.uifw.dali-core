@@ -19,10 +19,11 @@
 
 #include <dali/internal/update/common/double-buffered.h>
 #include <dali/internal/update/common/property-owner.h>
+#include <dali/internal/update/common/scene-graph-connection-observers.h>
 #include <dali/internal/update/controllers/render-message-dispatcher.h>
 #include <dali/internal/update/controllers/scene-controller.h>
 #include <dali/internal/update/node-attachments/scene-graph-renderable-attachment.h>
-#include <dali/internal/render/data-providers/uniform-map-provider.h>
+#include <dali/internal/render/data-providers/uniform-map-data-provider.h>
 
 namespace Dali
 {
@@ -34,8 +35,16 @@ class Material;
 class Geometry;
 class NewRenderer;
 
-
-class RendererAttachment : public RenderableAttachment, public PropertyOwner, public UniformMapProvider
+/**
+ * The renderer attachment is the SceneGraph equivalent of Dali::Renderer. It is used to create an instance of a geometry and material for rendering, and is attached to an actor.
+ *
+ * It observes it's children (Material and Geometry) for connection change and for uniform map change, and observer's it's actor parent for uniform map change - this allows it to re-generate the uniform maps used by its RenderThread equivalent class.
+ */
+class RendererAttachment : public RenderableAttachment,
+                           public PropertyOwner,
+                           public UniformMapDataProvider,
+                           public UniformMap::Observer,
+                           public ConnectionObservers::Observer
 {
 public:
   /**
@@ -53,6 +62,26 @@ public:
    * Destructor
    */
   virtual ~RendererAttachment();
+
+  /**
+   * @copydoc RenderableAttachment::Initialize2().
+   */
+  virtual void Initialize2( BufferIndex updateBufferIndex );
+
+  /**
+   * @copydoc RenderableAttachment::OnDestroy2().
+   */
+  virtual void OnDestroy2();
+
+  /**
+   * @copydoc NodeAttachment::ConnectedToSceneGraph()
+   */
+  virtual void ConnectedToSceneGraph();
+
+  /**
+   * @copydoc NodeAttachment::DisconnectedFromSceneGraph()
+   */
+  virtual void DisconnectedFromSceneGraph();
 
   /**
    * Set the material for the renderer
@@ -92,11 +121,6 @@ public:
    */
   int GetDepthIndex() const ;
 
-  /**
-   * Initial setup on attaching to the scene graph
-   */
-  void AttachToSceneGraph( SceneController& sceneController, BufferIndex updateBufferIndex );
-
 protected: // From RenderableAttachment
   /**
    * @copydoc RenderableAttachment::GetRenderer().
@@ -123,29 +147,51 @@ protected: // From RenderableAttachment
    */
   virtual void SizeChanged( BufferIndex updateBufferIndex );
 
-/**
-   * @copydoc RenderableAttachment::ConnectToSceneGraph2().
-   */
-  virtual void ConnectToSceneGraph2( BufferIndex updateBufferIndex );
-
-  /**
-   * @copydoc RenderableAttachment::OnDestroy2().
-   */
-  virtual void OnDestroy2();
-
   /**
    * @copydoc RenderableAttachment::DoPrepareResources()
    */
   virtual bool DoPrepareResources( BufferIndex updateBufferIndex,
                                    ResourceManager& resourceManager );
 
+protected: // From ConnectionObserver
+  /**
+   * @copydoc ConnectionObservers::Observer::ConnectionsChanged
+   */
+  virtual void ConnectionsChanged(PropertyOwner& object);
+
+  /**
+   * @copydoc ConnectionObservers::Observer::ConnectedUniformMapChanged
+   */
+  virtual void ConnectedUniformMapChanged();
+
+protected: // From UniformMap::Observer
+  /**
+   * @copydoc UniformMap::Observer::UniformMappingsChanged
+   */
+  virtual void UniformMappingsChanged( const UniformMap& mappings );
+
+protected: // From UniformMapDataProvider
+  /**
+   * @copydoc UniformMapDataProvider::GetUniformMapChanged
+   */
+  virtual bool GetUniformMapChanged( BufferIndex bufferIndex ) const;
+
+  /**
+   * @copydoc UniformMapDataProvider::GetUniformMap
+   */
+  virtual const UniformMap& GetUniformMap( BufferIndex bufferIndex ) const;
+
 private:
   NewRenderer* mRenderer; ///< Raw pointer to the new renderer (that's owned by RenderManager)
 
-  const Material* mMaterial; ///< The material this renderer uses. (Not owned)
-  const Geometry* mGeometry; ///< The geometry this renderer uses. (Not owned)
+  Material* mMaterial; ///< The material this renderer uses. (Not owned)
+  Geometry* mGeometry; ///< The geometry this renderer uses. (Not owned)
+
+  UniformMap mUniformMap[2]; ///< The collected uniform map
+  bool mUniformMapChanged[2]; ///< Records if the uniform map has been altered this frame
 
   int mDepthIndex;     ///< Used only in PrepareRenderInstructions
+  bool mRegenerateUniformMap; ///< True if the uniform map should be regenerated in PrepareRender step
 };
 
 // Messages for RendererAttachment

@@ -215,6 +215,14 @@ void Sampler::Initialize( const std::string& textureUnitUniformName )
   AddMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetSamplerOwner(), *mSceneObject );
 }
 
+Sampler::~Sampler()
+{
+  if( Stage::IsInstalled() )
+  {
+    StagePtr stage = Stage::GetCurrent();
+    RemoveMessage( stage->GetUpdateManager(), stage->GetUpdateManager().GetSamplerOwner(), *mSceneObject );
+  }
+}
 
 } // namespace Internal
 } // namespace Dali

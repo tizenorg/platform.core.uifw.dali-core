@@ -123,21 +123,48 @@ Property::Type PropertyBuffer::GetDefaultPropertyType( Property::Index index ) c
 }
 
 void PropertyBuffer::SetDefaultProperty( Property::Index index,
-                                   const Property::Value& propertyValue )
+                                         const Property::Value& propertyValue )
 {
-  PROPERTY_BUFFER_IMPL.SetDefaultProperty( index, propertyValue );
+  switch( index )
+  {
+    case Dali::PropertyBuffer::Property::SIZE:
+    {
+      SetSize( propertyValue.Get<int>() );
+      break;
+    }
+    case Dali::PropertyBuffer::Property::BUFFER_FORMAT:
+    {
+      DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
+      break;
+    }
+  }
 }
 
 void PropertyBuffer::SetSceneGraphProperty( Property::Index index,
-                                      const CustomProperty& entry,
-                                      const Property::Value& value )
+                                            const CustomProperty& entry,
+                                            const Property::Value& value )
 {
-  PROPERTY_BUFFER_IMPL.SetSceneGraphProperty( index, entry, value );
+  PROPERTY_BUFFER_IMPL.SetSceneGraphProperty( this, index, entry, value );
 }
 
 Property::Value PropertyBuffer::GetDefaultProperty( Property::Index index ) const
 {
-  return PROPERTY_BUFFER_IMPL.GetDefaultProperty( index );
+  Property::Value value;
+
+  switch( index )
+  {
+    case Dali::PropertyBuffer::Property::SIZE:
+    {
+      value = static_cast<int>( GetSize() ); // @todo MESH_REWORK Add a size_t type to PropertyValue
+      break;
+    }
+    case Dali::PropertyBuffer::Property::BUFFER_FORMAT:
+    {
+      DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
+      break;
+    }
+  }
+  return value;
 }
 
 const SceneGraph::PropertyOwner* PropertyBuffer::GetPropertyOwner() const
@@ -152,12 +179,51 @@ const SceneGraph::PropertyOwner* PropertyBuffer::GetSceneObject() const
 
 const SceneGraph::PropertyBase* PropertyBuffer::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
-  return PROPERTY_BUFFER_IMPL.GetSceneObjectAnimatableProperty( index );
+  const SceneGraph::PropertyBase* property = NULL;
+
+  if( OnStage() )
+  {
+    if( index < DEFAULT_PROPERTY_MAX_COUNT )
+    {
+      DALI_ASSERT_ALWAYS( 0 && "Property is not animatable" );
+    }
+    else
+    {
+      DALI_ASSERT_ALWAYS( IsPropertyAnimatable(index) && "Property is not animatable" );
+
+      CustomProperty* custom = FindCustomProperty( index );
+      DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
+
+      property = custom->GetSceneGraphProperty();
+    }
+  }
+
+  return property;
 }
 
 const PropertyInputImpl* PropertyBuffer::GetSceneObjectInputProperty( Property::Index index ) const
 {
-  return PROPERTY_BUFFER_IMPL.GetSceneObjectInputProperty( index );
+  const SceneGraph::PropertyBase* property = NULL;
+
+  if( OnStage() )
+  {
+    if( index < DEFAULT_PROPERTY_MAX_COUNT )
+    {
+      if( index == Dali::PropertyBuffer::Property::SIZE )
+      {
+        // @todo MESH_REWORK
+        DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
+      }
+    }
+    else
+    {
+      CustomProperty* custom = FindCustomProperty( index );
+      DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
+      property = custom->GetSceneGraphProperty();
+    }
+  }
+
+  return property;
 }
 
 int PropertyBuffer::GetPropertyComponentIndex( Property::Index index ) const

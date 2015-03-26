@@ -82,9 +82,12 @@ class Sampler;
 class RendererAttachment;
 
 /**
- * UpdateManager holds a scene graph i.e. a tree of nodes.
+ * UpdateManager maintains a scene graph i.e. a tree of nodes and attachments and
+ * other property owner objects.
  * It controls the Update traversal, in which nodes are repositioned/animated,
- * and organizes the the culling and rendering of the scene.
+ * and organizes the the culling and rendering of the scene graph.
+ * It also maintains the lifecycle of nodes and other property owners that are
+ * disconnected from the scene graph.
  */
 class UpdateManager
 {
@@ -534,6 +537,7 @@ inline void AttachToNodeMessage( UpdateManager& manager, const Node& constParent
   // Scene graph thread can modify this object.
   Node& parent = const_cast< Node& >( constParent );
 
+  // @todo MESH_REWORK Don't pass by owner pointer after merge with SceneGraph::RenderableAttachment
   typedef MessageValue2< UpdateManager, Node*, NodeAttachmentOwner > LocalType;
 
   // Reserve some memory inside the message queue
@@ -545,6 +549,7 @@ inline void AttachToNodeMessage( UpdateManager& manager, const Node& constParent
 
 inline void AttachToSceneGraphMessage( UpdateManager& manager, RendererAttachment* renderer )
 {
+  // @todo MESH_REWORK Pass by owner pointer after merge with SceneGraph::RenderableAttachment
   typedef MessageValue1< UpdateManager, RendererAttachment* > LocalType;
 
   // Reserve some memory inside the message queue

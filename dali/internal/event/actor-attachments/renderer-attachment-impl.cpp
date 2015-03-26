@@ -32,8 +32,9 @@ RendererAttachmentPtr RendererAttachment::New( Stage& stage, const SceneGraph::N
 {
   RendererAttachmentPtr attachment( new RendererAttachment( stage ) );
 
-  // Transfer object ownership of scene-object to message
   SceneGraph::RendererAttachment* sceneObject = renderer.GetRendererSceneObject();
+
+  // Takes ownership of scene object
   AttachToNodeMessage( stage.GetUpdateManager(), parentNode, sceneObject );
 
   // Keep raw pointer for message passing
@@ -52,17 +53,11 @@ RendererAttachment::~RendererAttachment()
 {
 }
 
-SceneGraph::RendererAttachment* RendererAttachment::CreateSceneObject()
-{
-  return SceneGraph::RendererAttachment::New();
-}
-
 const SceneGraph::RendererAttachment& RendererAttachment::GetSceneObject() const
 {
   DALI_ASSERT_DEBUG( mSceneObject != NULL );
   return *mSceneObject;
 }
-
 
 void RendererAttachment::OnStageConnection2()
 {

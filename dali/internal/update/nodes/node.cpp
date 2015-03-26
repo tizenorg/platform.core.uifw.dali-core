@@ -127,7 +127,14 @@ void Node::ConnectChild( Node* childNode, int index )
     mChildren.Insert(mChildren.Begin()+index, childNode);
   }
 
+  // Inform PropertyOwner base class of childNode
   childNode->ConnectToSceneGraph();
+
+  // Inform any node attachments
+  if( childNode->mAttachment )
+  {
+    childNode->mAttachment->ConnectedToSceneGraph();
+  }
 }
 
 void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, std::set<Node*>& connectedNodes,  std::set<Node*>& disconnectedNodes )
@@ -261,6 +268,11 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std
 
   // Remove all child pointers
   mChildren.Clear();
+
+  if( mAttachment )
+  {
+    mAttachment->DisconnectedFromSceneGraph();
+  }
 
   // Move into disconnectedNodes
   std::set<Node*>::size_type removed = connectedNodes.erase( this );

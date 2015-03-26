@@ -106,26 +106,56 @@ Property::Type Shader::GetDefaultPropertyType( Property::Index index ) const
 }
 
 void Shader::SetDefaultProperty( Property::Index index,
-                                   const Property::Value& propertyValue )
+                                 const Property::Value& propertyValue )
 {
-  SHADER_IMPL.SetDefaultProperty( index, propertyValue );
+  switch(index)
+  {
+    case Dali::Shader::Property::PROGRAM:
+    {
+      // @todo MESH_REWORK Set program again?
+      DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
+      break;
+    }
+    case Dali::Shader::Property::SHADER_HINTS:
+    {
+      DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
+      break;
+    }
+  }
 }
 
 void Shader::SetSceneGraphProperty( Property::Index index,
-                                      const CustomProperty& entry,
-                                      const Property::Value& value )
+                                    const CustomProperty& entry,
+                                    const Property::Value& value )
 {
-  SHADER_IMPL.SetSceneGraphProperty( index, entry, value );
+  SHADER_IMPL.SetSceneGraphProperty( this, index, entry, value );
+  OnPropertySet(index, value);
 }
 
 Property::Value Shader::GetDefaultProperty( Property::Index index ) const
 {
-  return SHADER_IMPL.GetDefaultProperty( index );
+  Property::Value value;
+
+  switch(index)
+  {
+    case Dali::Shader::Property::PROGRAM:
+    {
+      DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
+      break;
+    }
+    case Dali::Shader::Property::SHADER_HINTS:
+    {
+      DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
+      break;
+    }
+  }
+
+  return value;
 }
 
 const SceneGraph::PropertyOwner* Shader::GetPropertyOwner() const
 {
-  return SHADER_IMPL.GetPropertyOwner();
+  return mSceneObject;
 }
 
 const SceneGraph::PropertyOwner* Shader::GetSceneObject() const
@@ -135,12 +165,54 @@ const SceneGraph::PropertyOwner* Shader::GetSceneObject() const
 
 const SceneGraph::PropertyBase* Shader::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
-  return SHADER_IMPL.GetSceneObjectAnimatableProperty( index );
+  const SceneGraph::PropertyBase* property = NULL;
+
+  if( OnStage() )
+  {
+    if( index < DEFAULT_PROPERTY_MAX_COUNT )
+    {
+      DALI_ASSERT_ALWAYS( 0 && "Property is not animatable" );
+    }
+    else
+    {
+      DALI_ASSERT_ALWAYS( IsPropertyAnimatable(index) && "Property is not animatable" );
+
+      CustomProperty* custom = FindCustomProperty( index );
+      DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
+
+      property = custom->GetSceneGraphProperty();
+    }
+  }
+
+  return property;
 }
 
 const PropertyInputImpl* Shader::GetSceneObjectInputProperty( Property::Index index ) const
 {
-  return SHADER_IMPL.GetSceneObjectInputProperty( index );
+  const PropertyInputImpl* property = NULL;
+
+  if( OnStage() )
+  {
+    if( index < DEFAULT_PROPERTY_MAX_COUNT )
+    {
+      if( index == Dali::Shader::Property::SHADER_HINTS )
+      {
+        // @todo MESH_REWORK - return the property
+      }
+      else
+      {
+        DALI_ASSERT_ALWAYS( 0 && "Property is not a valid constraint input" );
+      }
+    }
+    else
+    {
+      CustomProperty* custom = FindCustomProperty( index );
+      DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
+      property = custom->GetSceneGraphProperty();
+    }
+  }
+
+  return property;
 }
 
 int Shader::GetPropertyComponentIndex( Property::Index index ) const
@@ -189,9 +261,17 @@ void Shader::Initialize( const std::string& vertexSource, const std::string& fra
 
   // Add shader program to scene-object using a message to the UpdateManager
   SetShaderProgramMessage( updateManager, *mSceneObject, GEOMETRY_TYPE_IMAGE, SHADER_SUBTYPE_ALL, mTicket->GetId(), shaderHash, false );
-
-  //mSceneObject->SendProgramMessage( GEOMETRY_TYPE_IMAGE, SHADER_SUBTYPE_ALL, vertexSource, fragmentSource );
 }
+
+Shader::~Shader()
+{
+  if( Stage::IsInstalled() )
+  {
+    StagePtr stage = Stage::GetCurrent();
+    RemoveShaderMessage( stage->GetUpdateManager(), *mSceneObject);
+  }
+}
+
 
 } // namespace Internal
 } // namespace Dali

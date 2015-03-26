@@ -40,6 +40,9 @@ typedef IntrusivePtr<RendererAttachment>  RendererAttachmentPtr;
 
 /**
  * An attachment for rendering renderers.
+ *
+ * Currently, the Renderer object creates the SceneGraph::RendererAttachment object, not this. It is attached
+ * here as needed.
  */
 class RendererAttachment : public RenderableAttachment
 {
@@ -61,12 +64,6 @@ private:
    * @param[in] stage Used to send messages to scene-graph.
    */
   RendererAttachment(Stage& stage);
-
-  /**
-   * Creates the corresponding scene-graph RendererAttachment.
-   * @return A newly allocated scene object.
-   */
-  static SceneGraph::RendererAttachment* CreateSceneObject();
 
   /**
    * @copydoc Dali::Internal::RenderableAttachment::GetSceneObject()

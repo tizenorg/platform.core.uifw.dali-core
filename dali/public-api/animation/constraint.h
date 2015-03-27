@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/animation/constraint-source.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/signals/callback.h>
@@ -30,7 +29,6 @@
 
 namespace Dali
 {
-struct TimePeriod;
 
 namespace Internal DALI_INTERNAL
 {
@@ -249,8 +247,7 @@ public:
   /**
    * @brief The action that will happen when the constraint is removed.
    *
-   * Constraints can be applied gradually; see SetApplyTime() for more details.
-   * When a constraint is fully-applied the final value may be "baked" i.e. saved permanently.
+   * The final value may be "baked" i.e. saved permanently.
    * Alternatively the constrained value may be discarded when the constraint is removed.
    */
   enum RemoveAction
@@ -259,7 +256,6 @@ public:
     Discard ///< When the constraint is removed, the constrained value is discarded.
   };
 
-  static const AlphaFunction DEFAULT_ALPHA_FUNCTION; ///< AlphaFunctions::Linear
   static const RemoveAction  DEFAULT_REMOVE_ACTION;  ///< Bake
 
   /**
@@ -394,35 +390,6 @@ public:
    * @return A reference to this
    */
   Constraint& operator=(const Constraint& rhs);
-
-  /**
-   * @brief Set the time taken for the constraint to be fully applied.
-   *
-   * The default is zero, meaning that the constraint is applied immediately.
-   * @param [in] timePeriod The constraint will be applied during this time period.
-   */
-  void SetApplyTime( TimePeriod timePeriod );
-
-  /**
-   * @brief Retrieve the time taken for the constraint to be fully applied.
-   *
-   * @return The apply time.
-   */
-  TimePeriod GetApplyTime() const;
-
-  /**
-   * @brief Set the alpha function for a constraint; the default is AlphaFunctions::Linear.
-   *
-   * @param [in] func The alpha function to use when applying/removing the constraint.
-   */
-  void SetAlphaFunction( AlphaFunction func );
-
-  /**
-   * @brief Retrieve the alpha function of a constraint.
-   *
-   * @return The function.
-   */
-  AlphaFunction GetAlphaFunction();
 
   /**
    * @brief Set whether the constraint will "bake" a value when fully-applied.

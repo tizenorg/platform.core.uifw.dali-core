@@ -220,13 +220,6 @@ public:
   Dali::ActiveConstraint ApplyConstraint( Constraint& constraint );
 
   /**
-   * Apply a constraint to a Object.
-   * @param[in] constraint The constraint to apply.
-   * @param[in] weightObject An object with a "weight" float property.
-   */
-  Dali::ActiveConstraint ApplyConstraint( Constraint& constraint, Dali::Handle weightObject );
-
-  /**
    * Remove one constraint from a Object.
    * @param[in] activeConstraint The active constraint to remove.
    */
@@ -445,14 +438,6 @@ private:
    * Enable property notifications in scene graph
    */
   void DisablePropertyNotifications();
-
-  /**
-   * Helper for ApplyConstraint overloads.
-   * @param[in] constraint The constraint to apply.
-   * @param[in] weightObject An object with a "weight" float property, or an empty handle.
-   * @return The new active-constraint which is owned by Object.
-   */
-  ActiveConstraintBase* DoApplyConstraint( Constraint& constraint, Dali::Handle weightObject );
 
   /**
    * Helper to remove active constraints

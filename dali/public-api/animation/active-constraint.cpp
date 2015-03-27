@@ -24,9 +24,6 @@
 namespace Dali
 {
 
-const float ActiveConstraint::FINAL_WEIGHT   = 1.0f;
-const float ActiveConstraint::DEFAULT_WEIGHT = 1.0f;
-
 ActiveConstraint::ActiveConstraint()
 {
 }
@@ -59,21 +56,6 @@ Handle ActiveConstraint::GetTargetObject()
 Property::Index ActiveConstraint::GetTargetProperty()
 {
   return GetImplementation(*this).GetTargetProperty();
-}
-
-void ActiveConstraint::SetWeight( float weight )
-{
-  GetImplementation(*this).SetWeight( weight );
-}
-
-float ActiveConstraint::GetCurrentWeight() const
-{
-  return GetImplementation(*this).GetCurrentWeight();
-}
-
-ActiveConstraintSignalType& ActiveConstraint::AppliedSignal()
-{
-  return GetImplementation(*this).AppliedSignal();
 }
 
 } // namespace Dali

@@ -164,11 +164,6 @@ ActiveConstraint Handle::ApplyConstraint( Constraint constraint )
   return GetImplementation(*this).ApplyConstraint( GetImplementation( constraint ) );
 }
 
-ActiveConstraint Handle::ApplyConstraint( Constraint constraint, Handle weightObject )
-{
-  return GetImplementation(*this).ApplyConstraint( GetImplementation( constraint ), weightObject );
-}
-
 void Handle::RemoveConstraint(ActiveConstraint activeConstraint)
 {
   GetImplementation(*this).RemoveConstraint( activeConstraint );

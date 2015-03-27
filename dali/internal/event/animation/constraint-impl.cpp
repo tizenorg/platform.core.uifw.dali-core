@@ -51,11 +51,9 @@ Constraint::Constraint( Property::Index targetIndex,
                         Property::Type targetType,
                         CallbackBase* func )
 : mActiveConstraintTemplate(),
-  mApplyTime( 0.0f ),
   mTargetIndex( targetIndex ),
   mTargetType( targetType ),
   mSources(),
-  mAlphaFunction( Dali::Constraint::DEFAULT_ALPHA_FUNCTION ),
   mFunc( func ),
   mRemoveAction( Dali::Constraint::DEFAULT_REMOVE_ACTION ),
   mTag( 0 )
@@ -172,37 +170,11 @@ ActiveConstraintBase* Constraint::CreateActiveConstraint()
     }
 
     ActiveConstraintBase& activeConstraintImpl = GetImplementation( mActiveConstraintTemplate );
-    activeConstraintImpl.SetAlphaFunction( mAlphaFunction );
     activeConstraintImpl.SetRemoveAction( mRemoveAction );
     activeConstraintImpl.SetTag( mTag );
   }
 
   return GetImplementation( mActiveConstraintTemplate ).Clone();
-}
-
-void Constraint::SetApplyTime( TimePeriod timePeriod )
-{
-  mApplyTime = timePeriod;
-}
-
-TimePeriod Constraint::GetApplyTime() const
-{
-  return mApplyTime;
-}
-
-void Constraint::SetAlphaFunction( Dali::AlphaFunction func )
-{
-  mAlphaFunction = func;
-
-  if ( mActiveConstraintTemplate )
-  {
-    GetImplementation( mActiveConstraintTemplate ).SetAlphaFunction( func );
-  }
-}
-
-Dali::AlphaFunction Constraint::GetAlphaFunction() const
-{
-  return mAlphaFunction;
 }
 
 void Constraint::SetRemoveAction( Dali::Constraint::RemoveAction action )

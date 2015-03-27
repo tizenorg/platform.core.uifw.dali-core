@@ -36,8 +36,7 @@ namespace SceneGraph
 #endif
 
 ConstraintBase::ConstraintBase( PropertyOwnerContainer& ownerSet )
-: mWeight( Dali::ActiveConstraint::DEFAULT_WEIGHT ),
-  mRemoveAction( Dali::Constraint::DEFAULT_REMOVE_ACTION ),
+: mRemoveAction( Dali::Constraint::DEFAULT_REMOVE_ACTION ),
   mFirstApply( true ),
   mDisconnected( true ),
   mObservedOwners( ownerSet )
@@ -62,7 +61,6 @@ ConstraintBase::~ConstraintBase()
 
 void ConstraintBase::ResetDefaultProperties( BufferIndex updateBufferIndex )
 {
-  // Not used, since the weight property is reset by PropertyOwner
   DALI_ASSERT_DEBUG( false );
 }
 

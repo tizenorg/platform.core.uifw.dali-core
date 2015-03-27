@@ -330,18 +330,6 @@ public:
   ActiveConstraint ApplyConstraint( Constraint constraint );
 
   /**
-   * @brief Constrain one of the properties of an Actor, using a custom weight property.
-   *
-   * This overload is intended to allow a single weight property to be shared by many constraints
-   * e.g. call WeightObject::New() once, and pass the return value into every call to ApplyConstraint().
-   * @pre The Actor has been initialized.
-   * @param[in] constraint The constraint to apply.
-   * @param[in] weightObject An object which is expected to have a float property named "weight".
-   * @return The active-constraint being applied to the actor.
-   */
-  ActiveConstraint ApplyConstraint( Constraint constraint, Handle weightObject );
-
-  /**
    * @brief Remove one constraint from an Object.
    *
    * @pre The Object has been initialized.

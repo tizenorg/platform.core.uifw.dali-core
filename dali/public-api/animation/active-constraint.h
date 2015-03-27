@@ -35,29 +35,10 @@ class ActiveConstraintBase;
 
 /**
  * @brief A constraint which is being applied to an object.
- *
- * Signals
- * | %Signal Name | Method                |
- * |--------------|-----------------------|
- * | applied      | @ref AppliedSignal()  |
  */
 class DALI_IMPORT_API ActiveConstraint : public Handle
 {
 public:
-
-  /**
-   * @brief An enumeration of properties belonging to the ActiveConstraint class.
-   */
-  struct Property
-  {
-    enum
-    {
-      WEIGHT = DEFAULT_OBJECT_PROPERTY_START_INDEX, ///< name "weight", type float
-    };
-  };
-
-  static const float FINAL_WEIGHT;   ///< 1.0f means the constraint is fully-applied, unless weight is still being animated
-  static const float DEFAULT_WEIGHT; ///< 1.0f
 
   /**
    * @brief Create an uninitialized Constraint; this can be initialized with Constraint::New().
@@ -101,31 +82,6 @@ public:
    * @return The target property.
    */
   Dali::Property::Index GetTargetProperty();
-
-  /**
-   * @brief Set the weight of the constraint; this is a value clamped between 0.
-   * 0f and 1.0f.
-   * The default is 1.0f.
-   * 0.0f means the constraint has no effect, and 1.0f means the constraint is fully-applied.
-   * @note This is an asynchronous method; the value written may not match a value subsequently read with GetCurrentWeight().
-   * @param [in] weight The weight.
-   */
-  void SetWeight( float weight );
-
-  /**
-   * @brief Retrieve the current weight of the constraint.
-   *
-   * @return The current weight.
-   */
-  float GetCurrentWeight() const;
-
-  /**
-   * @brief This signal is emitted after the apply-time of the constraint has expired.
-   *
-   * @note A non-zero apply-time must have been set using Constraint::SetApplyTime().
-   * @return A signal object to Connect() with.
-   */
-  ActiveConstraintSignalType& AppliedSignal();
 
 public: // Not intended for use by Application developers
 

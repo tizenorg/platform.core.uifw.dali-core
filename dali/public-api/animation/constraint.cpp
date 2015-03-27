@@ -26,7 +26,6 @@
 namespace Dali
 {
 
-const AlphaFunction            Constraint::DEFAULT_ALPHA_FUNCTION = AlphaFunctions::Linear;
 const Constraint::RemoveAction Constraint::DEFAULT_REMOVE_ACTION  = Constraint::Bake;
 
 Constraint::Constraint()
@@ -56,26 +55,6 @@ Constraint& Constraint::operator=(const Constraint& rhs)
 void Constraint::AddSource( ConstraintSource source )
 {
   GetImplementation( *this ).AddSource( Internal::Source( source ) );
-}
-
-void Constraint::SetApplyTime( TimePeriod timePeriod )
-{
-  GetImplementation(*this).SetApplyTime( timePeriod );
-}
-
-TimePeriod Constraint::GetApplyTime() const
-{
-  return GetImplementation(*this).GetApplyTime();
-}
-
-void Constraint::SetAlphaFunction( AlphaFunction func )
-{
-  GetImplementation(*this).SetAlphaFunction( func );
-}
-
-AlphaFunction Constraint::GetAlphaFunction()
-{
-  return GetImplementation(*this).GetAlphaFunction();
 }
 
 void Constraint::SetRemoveAction(Constraint::RemoveAction action)

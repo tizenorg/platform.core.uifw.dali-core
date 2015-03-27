@@ -772,31 +772,10 @@ void Object::DisablePropertyNotifications()
 
 Dali::ActiveConstraint Object::ApplyConstraint( Constraint& constraint )
 {
-  return Dali::ActiveConstraint( DoApplyConstraint( constraint, Dali::Handle() ) );
-}
-
-Dali::ActiveConstraint Object::ApplyConstraint( Constraint& constraint, Dali::Handle weightObject )
-{
-  return Dali::ActiveConstraint( DoApplyConstraint( constraint, weightObject ) );
-}
-
-ActiveConstraintBase* Object::DoApplyConstraint( Constraint& constraint, Dali::Handle weightObject )
-{
   ActiveConstraintBase* activeConstraintImpl = constraint.CreateActiveConstraint();
   DALI_ASSERT_DEBUG( NULL != activeConstraintImpl );
 
   Dali::ActiveConstraint activeConstraint( activeConstraintImpl );
-
-  if( weightObject )
-  {
-    Object& weightObjectImpl = GetImplementation( weightObject );
-    Property::Index weightIndex = weightObjectImpl.GetPropertyIndex( "weight" );
-
-    if( Property::INVALID_INDEX != weightIndex )
-    {
-      activeConstraintImpl->SetCustomWeightObject( weightObjectImpl, weightIndex );
-    }
-  }
 
   if( !mConstraints )
   {
@@ -804,9 +783,9 @@ ActiveConstraintBase* Object::DoApplyConstraint( Constraint& constraint, Dali::H
   }
   mConstraints->push_back( activeConstraint );
 
-  activeConstraintImpl->FirstApply( *this, constraint.GetApplyTime() );
+  activeConstraintImpl->FirstApply( *this );
 
-  return activeConstraintImpl;
+  return Dali::ActiveConstraint( activeConstraintImpl );
 }
 
 Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const

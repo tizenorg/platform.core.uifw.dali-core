@@ -58,26 +58,6 @@ public:
   void AddSource( Source source );
 
   /**
-   * @copydoc Dali::Constraint::SetApplyTime()
-   */
-  void SetApplyTime( TimePeriod timePeriod );
-
-  /**
-   * @copydoc Dali::Constraint::GetApplyTime()
-   */
-  TimePeriod GetApplyTime() const;
-
-  /**
-   * @copydoc Dali::Constraint::SetAlphaFunction( AlphaFunction func )
-   */
-  void SetAlphaFunction( AlphaFunction func );
-
-  /**
-   * @copydoc Dali::Constraint::GetAlphaFunction()
-   */
-  AlphaFunction GetAlphaFunction() const;
-
-  /**
    * @copydoc Dali::Constraint::SetRemoveAction()
    */
   void SetRemoveAction(Dali::Constraint::RemoveAction action);
@@ -122,11 +102,9 @@ private:
 protected:
 
   Dali::ActiveConstraint mActiveConstraintTemplate; ///< Used to create active constraints
-  TimePeriod mApplyTime;
   Property::Index mTargetIndex;
   Property::Type mTargetType;
   SourceContainer mSources;
-  AlphaFunction mAlphaFunction;
   CallbackBase* mFunc;
   Dali::Constraint::RemoveAction mRemoveAction;
   unsigned int mTag;

@@ -22,10 +22,7 @@
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/event/common/object-impl.h>
 #include <dali/public-api/animation/active-constraint.h>
-#include <dali/public-api/animation/alpha-functions.h>
-#include <dali/public-api/animation/animation.h>
 #include <dali/public-api/animation/constraint.h>
-#include <dali/public-api/animation/time-period.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/internal/event/animation/constraint-source-impl.h>
 
@@ -77,19 +74,11 @@ public:
   virtual ActiveConstraintBase* Clone() = 0;
 
   /**
-   * Set a custom "weight" property.
-   * @param[in] weightObject An object with a "weight" float property.
-   * @param[in] weightIndex The index of the weight property.
-   */
-  void SetCustomWeightObject( Object& weightObject, Property::Index weightIndex );
-
-  /**
    * Called when the ActiveConstraint is first applied.
    * @pre The active-constraint does not already have a parent.
    * @param[in] parent The parent object.
-   * @param[in] applyTime The apply-time for this constraint.
    */
-  void FirstApply( Object& parent, TimePeriod applyTime );
+  void FirstApply( Object& parent );
 
   /**
    * Called when the ActiveConstraint is removed.
@@ -133,31 +122,6 @@ public:
   Property::Index GetTargetProperty();
 
   /**
-   * @copydoc Dali::ActiveConstraint::SetWeight()
-   */
-  void SetWeight( float weight );
-
-  /**
-   * @copydoc Dali::ActiveConstraint::GetCurrentWeight()
-   */
-  float GetCurrentWeight() const;
-
-  /**
-   * @copydoc Dali::ActiveConstraint::AppliedSignal()
-   */
-  ActiveConstraintSignalType& AppliedSignal();
-
-  /**
-   * @copydoc Dali::Constraint::SetAlphaFunction()
-   */
-  void SetAlphaFunction(AlphaFunction func);
-
-  /**
-   * @copydoc Dali::Constraint::GetAlphaFunction()
-   */
-  AlphaFunction GetAlphaFunction() const;
-
-  /**
    * @copydoc Dali::Constraint::SetRemoveAction()
    */
   void SetRemoveAction(RemoveAction action);
@@ -176,17 +140,6 @@ public:
    * @copydoc Dali::Constraint::GetTag()
    */
   unsigned int GetTag() const;
-
-  /**
-   * Connects a callback function with the object's signals.
-   * @param[in] object The object providing the signal.
-   * @param[in] tracker Used to disconnect the signal.
-   * @param[in] signalName The signal to connect to.
-   * @param[in] functor A newly allocated FunctorDelegate.
-   * @return True if the signal was connected.
-   * @post If a signal was connected, ownership of functor was passed to CallbackBase. Otherwise the caller is responsible for deleting the unused functor.
-   */
-  static bool DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor );
 
 public: // Default property extensions from Object
 
@@ -284,12 +237,6 @@ private:
    */
   void StopObservation();
 
-  /**
-   * Helper called after the first apply animation.
-   * @param [in] object The active constraint.
-   */
-  static void FirstApplyFinished( Object* object );
-
   // To be implemented in derived classes
 
   /**
@@ -307,20 +254,8 @@ protected:
 
   const SceneGraph::ConstraintBase* mSceneGraphConstraint;
 
-  const SceneGraph::AnimatableProperty<float>* mCustomWeight;
-
-  float mOffstageWeight;
-
-  AlphaFunction mAlphaFunction;
-
   RemoveAction mRemoveAction;
   unsigned int mTag;
-
-private:
-
-  ActiveConstraintSignalType mAppliedSignal;
-
-  Dali::Animation mApplyAnimation;  ///< Used to automatically animate weight from 0.0f -> 1.0f
 
 };
 

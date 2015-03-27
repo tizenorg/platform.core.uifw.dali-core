@@ -103,7 +103,6 @@ public:
                                                   mSourceCount,
                                                   funcPtr );
 
-    clone->SetAlphaFunction(mAlphaFunction);
     clone->SetRemoveAction(mRemoveAction);
     clone->SetTag( mTag );
 
@@ -169,10 +168,8 @@ private:
       // Connect the constraint
       SceneGraph::ConstraintBase* sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty,
                                                                                      propertyOwners,
-                                                                                     func,
-                                                                                     mCustomWeight );
+                                                                                     func );
       DALI_ASSERT_DEBUG( NULL != sceneGraphConstraint );
-      sceneGraphConstraint->SetInitialWeight( mOffstageWeight );
       sceneGraphConstraint->SetRemoveAction( mRemoveAction );
 
       // object is being used in a separate thread; queue a message to apply the constraint
@@ -324,7 +321,6 @@ public:
                                            mSourceCount,
                                            funcPtr );
 
-    clone->SetAlphaFunction(mAlphaFunction);
     clone->SetRemoveAction(mRemoveAction);
     clone->SetTag( mTag );
 
@@ -400,8 +396,7 @@ private:
 
         sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty,
                                                            propertyOwners,
-                                                           func,
-                                                           mCustomWeight );
+                                                           func );
       }
       else
       {
@@ -414,17 +409,17 @@ private:
           if ( 0 == componentIndex )
           {
             typedef SceneGraph::Constraint< float, PropertyComponentAccessorX<Vector3> > SceneGraphConstraint;
-            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func, mCustomWeight );
+            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func );
           }
           else if ( 1 == componentIndex )
           {
             typedef SceneGraph::Constraint< float, PropertyComponentAccessorY<Vector3> > SceneGraphConstraint;
-            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func, mCustomWeight );
+            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func );
           }
           else if ( 2 == componentIndex )
           {
             typedef SceneGraph::Constraint< float, PropertyComponentAccessorZ<Vector3> > SceneGraphConstraint;
-            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func, mCustomWeight );
+            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func );
           }
         }
         else if ( PropertyTypes::Get< Vector4 >() == targetProperty->GetType() )
@@ -434,28 +429,27 @@ private:
           if ( 0 == componentIndex )
           {
             typedef SceneGraph::Constraint< float, PropertyComponentAccessorX<Vector4> > SceneGraphConstraint;
-            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func, mCustomWeight );
+            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func );
           }
           else if ( 1 == componentIndex )
           {
             typedef SceneGraph::Constraint< float, PropertyComponentAccessorY<Vector4> > SceneGraphConstraint;
-            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func, mCustomWeight );
+            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func );
           }
           else if ( 2 == componentIndex )
           {
             typedef SceneGraph::Constraint< float, PropertyComponentAccessorZ<Vector4> > SceneGraphConstraint;
-            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func, mCustomWeight );
+            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func );
           }
           else if ( 3 == componentIndex )
           {
             typedef SceneGraph::Constraint< float, PropertyComponentAccessorW<Vector4> > SceneGraphConstraint;
-            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func, mCustomWeight );
+            sceneGraphConstraint = SceneGraphConstraint::New( *targetProperty, propertyOwners, func );
           }
         }
       }
 
       DALI_ASSERT_DEBUG( NULL != sceneGraphConstraint );
-      sceneGraphConstraint->SetInitialWeight( mOffstageWeight );
       sceneGraphConstraint->SetRemoveAction( mRemoveAction );
 
         // object is being used in a separate thread; queue a message to apply the constraint

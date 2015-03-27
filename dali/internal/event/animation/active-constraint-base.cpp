@@ -24,7 +24,6 @@
 #include <dali/public-api/object/type-registry.h>
 #include <dali/internal/event/common/event-thread-services.h>
 #include <dali/internal/event/common/property-helper.h>
-#include <dali/internal/event/animation/animation-impl.h>
 #include <dali/internal/update/animation/scene-graph-constraint-base.h>
 #include <dali/internal/update/common/animatable-property.h>
 #include <dali/internal/update/common/property-owner-messages.h>
@@ -37,32 +36,6 @@ namespace Dali
 namespace Internal
 {
 
-namespace // unnamed namespace
-{
-
-// Properties
-
-//              Name        Type   writable animatable constraint-input  enum for index-checking
-DALI_PROPERTY_TABLE_BEGIN
-DALI_PROPERTY( "weight",    FLOAT,   true,     true,    true,   Dali::ActiveConstraint::Property::WEIGHT )
-DALI_PROPERTY_TABLE_END( DEFAULT_OBJECT_PROPERTY_START_INDEX )
-
-// Signals
-
-const char* const SIGNAL_APPLIED = "applied";
-
-BaseHandle Create()
-{
-  // not directly creatable
-  return BaseHandle();
-}
-
-TypeRegistration mType( typeid(Dali::ActiveConstraint), typeid(Dali::Handle), Create );
-
-SignalConnectorType signalConnector1( mType, SIGNAL_APPLIED, &ActiveConstraintBase::DoConnectSignal );
-
-} // unnamed namespace
-
 ActiveConstraintBase::ActiveConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources, unsigned int sourceCount )
 : mTargetPropertyIndex( targetPropertyIndex ),
   mSources( sources ),
@@ -70,12 +43,8 @@ ActiveConstraintBase::ActiveConstraintBase( Property::Index targetPropertyIndex,
   mTargetObject( NULL ),
   mObservedObjects(),
   mSceneGraphConstraint( NULL ),
-  mCustomWeight( NULL ),
-  mOffstageWeight( Dali::ActiveConstraint::DEFAULT_WEIGHT ),
-  mAlphaFunction( Dali::Constraint::DEFAULT_ALPHA_FUNCTION ),
   mRemoveAction( Dali::Constraint::DEFAULT_REMOVE_ACTION ),
-  mTag(0),
-  mApplyAnimation()
+  mTag(0)
 {
   // Skip init when any of the objects have been destroyed
   if ( mSources.size() != mSourceCount )
@@ -100,28 +69,9 @@ ActiveConstraintBase::ActiveConstraintBase( Property::Index targetPropertyIndex,
 ActiveConstraintBase::~ActiveConstraintBase()
 {
   StopObservation();
-
-  // Disconnect from internal animation signals
-  if ( mApplyAnimation )
-  {
-    GetImplementation(mApplyAnimation).SetFinishedCallback( NULL, NULL );
-  }
 }
 
-void ActiveConstraintBase::SetCustomWeightObject( Object& weightObject, Property::Index weightIndex )
-{
-  const SceneGraph::PropertyBase* base = weightObject.GetSceneObjectAnimatableProperty( weightIndex );
-  const SceneGraph::AnimatableProperty<float>* sceneProperty = dynamic_cast< const SceneGraph::AnimatableProperty<float>* >( base );
-
-  if( sceneProperty )
-  {
-    mCustomWeight = sceneProperty;
-
-    ObserveObject( weightObject );
-  }
-}
-
-void ActiveConstraintBase::FirstApply( Object& parent, TimePeriod applyTime )
+void ActiveConstraintBase::FirstApply( Object& parent )
 {
   DALI_ASSERT_ALWAYS( NULL == mTargetObject && "Parent of ActiveConstraint already set" );
 
@@ -131,23 +81,6 @@ void ActiveConstraintBase::FirstApply( Object& parent, TimePeriod applyTime )
     mTargetObject = &parent;
 
     ConnectConstraint();
-  }
-
-  if ( applyTime.durationSeconds > 0.0f )
-  {
-    DALI_ASSERT_DEBUG( !mApplyAnimation );
-
-    // Set start weight
-    SetWeight( 0.0f );
-
-    // Automatically animate (increase) the weight, until the constraint is fully applied
-    mApplyAnimation = Dali::Animation::New( applyTime.delaySeconds + applyTime.durationSeconds );
-    Dali::ActiveConstraint self( this );
-    mApplyAnimation.AnimateTo( Property( self, Dali::ActiveConstraint::Property::WEIGHT ), Dali::ActiveConstraint::FINAL_WEIGHT, mAlphaFunction, applyTime );
-    mApplyAnimation.Play();
-
-    // Chain "Finish" to "Applied" signal
-    GetImplementation(mApplyAnimation).SetFinishedCallback( &ActiveConstraintBase::FirstApplyFinished, this );
   }
 }
 
@@ -226,63 +159,6 @@ Property::Index ActiveConstraintBase::GetTargetProperty()
   return mTargetPropertyIndex;
 }
 
-void ActiveConstraintBase::SetWeight( float weight )
-{
-  if ( mSceneGraphConstraint )
-  {
-    BakeWeightMessage( GetEventThreadServices(), *mSceneGraphConstraint, weight );
-  }
-  else
-  {
-    mOffstageWeight = weight;
-  }
-}
-
-float ActiveConstraintBase::GetCurrentWeight() const
-{
-  float currentWeight( mOffstageWeight );
-
-  if ( mSceneGraphConstraint )
-  {
-    currentWeight = mSceneGraphConstraint->GetWeight( GetEventThreadServices().GetEventBufferIndex() );
-  }
-
-  return currentWeight;
-}
-
-ActiveConstraintSignalType& ActiveConstraintBase::AppliedSignal()
-{
-  return mAppliedSignal;
-}
-
-bool ActiveConstraintBase::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
-{
-  bool connected( true );
-  ActiveConstraintBase* constraint = dynamic_cast<ActiveConstraintBase*>(object);
-
-  if ( 0 == strcmp( signalName.c_str(), SIGNAL_APPLIED ) )
-  {
-    constraint->AppliedSignal().Connect( tracker, functor );
-  }
-  else
-  {
-    // signalName does not match any signal
-    connected = false;
-  }
-
-  return connected;
-}
-
-void ActiveConstraintBase::SetAlphaFunction( AlphaFunction alphaFunc )
-{
-  mAlphaFunction = alphaFunc;
-}
-
-AlphaFunction ActiveConstraintBase::GetAlphaFunction() const
-{
-  return mAlphaFunction;
-}
-
 void ActiveConstraintBase::SetRemoveAction( ActiveConstraintBase::RemoveAction action )
 {
   mRemoveAction = action;
@@ -305,88 +181,50 @@ unsigned int ActiveConstraintBase::GetTag() const
 
 unsigned int ActiveConstraintBase::GetDefaultPropertyCount() const
 {
-  return DEFAULT_PROPERTY_COUNT;
+  return 0;
 }
 
 void ActiveConstraintBase::GetDefaultPropertyIndices( Property::IndexContainer& indices ) const
 {
-  indices.reserve( DEFAULT_PROPERTY_COUNT );
-
-  for ( int i = 0; i < DEFAULT_PROPERTY_COUNT; ++i )
-  {
-    indices.push_back( i );
-  }
 }
 
 const char* ActiveConstraintBase::GetDefaultPropertyName( Property::Index index ) const
 {
-  if ( ( index >= 0 ) && ( index < DEFAULT_PROPERTY_COUNT ) )
-  {
-    return DEFAULT_PROPERTY_DETAILS[index].name;
-  }
-  else
-  {
-    return NULL;
-  }
+  return NULL;
 }
 
 Property::Index ActiveConstraintBase::GetDefaultPropertyIndex( const std::string& name ) const
 {
-  Property::Index index = Property::INVALID_INDEX;
-
-  // Only one name to compare with...
-  if( 0 == strcmp( name.c_str(), DEFAULT_PROPERTY_DETAILS[0].name ) ) // Don't want to convert rhs to string
-  {
-    index = 0;
-  }
-
-  return index;
+  return Property::INVALID_INDEX;
 }
 
 bool ActiveConstraintBase::IsDefaultPropertyWritable( Property::Index index ) const
 {
-  return DEFAULT_PROPERTY_DETAILS[ index ].writable;
+  return false;
 }
 
 bool ActiveConstraintBase::IsDefaultPropertyAnimatable( Property::Index index ) const
 {
-  return DEFAULT_PROPERTY_DETAILS[ index ].animatable;
+  return false;
 }
 
 bool ActiveConstraintBase::IsDefaultPropertyAConstraintInput( Property::Index index ) const
 {
-  return DEFAULT_PROPERTY_DETAILS[ index ].constraintInput;
+  return false;
 }
 
 Property::Type ActiveConstraintBase::GetDefaultPropertyType( Property::Index index ) const
 {
-  if ( ( index >= 0 ) && ( index < DEFAULT_PROPERTY_COUNT ) )
-  {
-    return DEFAULT_PROPERTY_DETAILS[index].type;
-  }
-
-  // Index out-of-range
   return Property::NONE;
 }
 
 void ActiveConstraintBase::SetDefaultProperty( Property::Index index, const Property::Value& propertyValue )
 {
-  if( Dali::ActiveConstraint::Property::WEIGHT == index )
-  {
-    SetWeight( propertyValue.Get<float>() );
-  }
 }
 
 Property::Value ActiveConstraintBase::GetDefaultProperty( Property::Index index ) const
 {
-  Property::Value value;
-
-  if( Dali::ActiveConstraint::Property::WEIGHT == index )
-  {
-    value = GetCurrentWeight();
-  }
-
-  return value;
+  return Property::Value();
 }
 
 const SceneGraph::PropertyOwner* ActiveConstraintBase::GetSceneObject() const
@@ -396,28 +234,12 @@ const SceneGraph::PropertyOwner* ActiveConstraintBase::GetSceneObject() const
 
 const SceneGraph::PropertyBase* ActiveConstraintBase::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
-  DALI_ASSERT_DEBUG( 0 == index ); // only 1 property supported
-
-  // This method should only return a property which is part of the scene-graph
-  if ( !mSceneGraphConstraint )
-  {
-    return NULL;
-  }
-
-  return &mSceneGraphConstraint->mWeight;
+  return NULL;
 }
 
 const PropertyInputImpl* ActiveConstraintBase::GetSceneObjectInputProperty( Property::Index index ) const
 {
-  DALI_ASSERT_DEBUG( 0 == index ); // only 1 property supported
-
-  // This method should only return a property which is part of the scene-graph
-  if ( !mSceneGraphConstraint )
-  {
-    return NULL;
-  }
-
-  return &mSceneGraphConstraint->mWeight;
+  return NULL;
 }
 
 void ActiveConstraintBase::SceneObjectAdded( Object& object )
@@ -439,9 +261,6 @@ void ActiveConstraintBase::SceneObjectRemoved( Object& object )
 
   if ( mSceneGraphConstraint )
   {
-    // Preserve the previous weight
-    mOffstageWeight = mSceneGraphConstraint->GetWeight( GetEventThreadServices().GetEventBufferIndex() );
-
     const SceneGraph::PropertyOwner* propertyOwner = mTargetObject ? mTargetObject->GetSceneObject() : NULL;
 
     if( propertyOwner )
@@ -490,29 +309,6 @@ void ActiveConstraintBase::StopObservation()
   }
 
   mObservedObjects.Clear();
-}
-
-void ActiveConstraintBase::FirstApplyFinished( Object* object )
-{
-  // trust the object is correct as its set in FirstApply (in this same file)
-  ActiveConstraintBase* self = static_cast<ActiveConstraintBase*>( object );
-
-  // This is necessary when the constraint was not added to scene-graph during the animation
-  self->SetWeight( Dali::ActiveConstraint::FINAL_WEIGHT );
-
-  // The animation is no longer needed
-  GetImplementation(self->mApplyAnimation).SetFinishedCallback( NULL, NULL );
-  self->mApplyAnimation.Reset();
-
-  // Chain "Finish" to "Applied" signal
-
-  if ( !self->mAppliedSignal.Empty() )
-  {
-    Dali::ActiveConstraint handle( self );
-    self->mAppliedSignal.Emit( handle );
-  }
-
-  // WARNING - this constraint may now have been deleted; don't do anything else here
 }
 
 } // namespace Internal

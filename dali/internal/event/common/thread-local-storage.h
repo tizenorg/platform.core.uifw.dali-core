@@ -41,6 +41,11 @@ class ResourceManager;
 class ImageFactory;
 class ShaderFactory;
 class GestureEventProcessor;
+<<<<<<< HEAD
+=======
+class EmojiFactory;
+class RelayoutController;
+>>>>>>> origin/tizen
 
 namespace SceneGraph
 {
@@ -144,6 +149,12 @@ public:
    * @return A reference to the gesture event processor.
    */
   GestureEventProcessor& GetGestureEventProcessor();
+
+  /**
+   * Return the relayout controller
+   * @Return Return a reference to the relayout controller
+   */
+  RelayoutController& GetRelayoutController();
 
 private:
 

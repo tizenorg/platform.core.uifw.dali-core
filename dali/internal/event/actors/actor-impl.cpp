@@ -2569,7 +2569,7 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
 }
 
 // TODO: This method needs to be removed
-void Actor::SetSceneGraphProperty( Property::Index index, const CustomProperty& entry, const Property::Value& value )
+void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata& entry, const Property::Value& value )
 {
   OnPropertySet(index, value);
 
@@ -2991,9 +2991,15 @@ const PropertyBase* Actor::GetSceneObjectAnimatableProperty( Property::Index ind
     return property;
   }
 
-  if ( static_cast<unsigned int>(index) >= DEFAULT_PROPERTY_MAX_COUNT )
+  if ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX && index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX )
   {
-    CustomProperty* custom = FindCustomProperty( index );
+    AnimatablePropertyMetadata* animatable = FindAnimatableProperty( index );
+    DALI_ASSERT_ALWAYS( animatable && "Property index is invalid" );
+    property = animatable->GetSceneGraphProperty();
+  }
+  else if ( index >= DEFAULT_PROPERTY_MAX_COUNT )
+  {
+    CustomPropertyMetadata* custom = FindCustomProperty( index );
     DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
 
     property = custom->GetSceneGraphProperty();
@@ -3096,9 +3102,15 @@ const PropertyInputImpl* Actor::GetSceneObjectInputProperty( Property::Index ind
     return property;
   }
 
-  if ( index >= DEFAULT_PROPERTY_MAX_COUNT )
+  if ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX && index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX )
   {
-    CustomProperty* custom = FindCustomProperty( index );
+    AnimatablePropertyMetadata* animatable = FindAnimatableProperty( index );
+    DALI_ASSERT_ALWAYS( animatable && "Property index is invalid" );
+    property = animatable->GetSceneGraphProperty();
+  }
+  else if ( index >= DEFAULT_PROPERTY_MAX_COUNT )
+  {
+    CustomPropertyMetadata* custom = FindCustomProperty( index );
     DALI_ASSERT_ALWAYS( custom && "Property index is invalid" );
     property = custom->GetSceneGraphProperty();
   }

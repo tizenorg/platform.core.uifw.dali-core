@@ -27,8 +27,7 @@ namespace Dali
 {
 namespace Internal
 {
-
-class CustomProperty;
+class PropertyMetadata;
 class PropertyInputImpl;
 
 namespace SceneGraph
@@ -67,7 +66,7 @@ struct ObjectImplHelper
 
     for ( int i = 0; i < DEFAULT_PROPERTY_COUNT; ++i )
     {
-      indices.push_back( DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX + i );
+      indices.push_back( DEFAULT_OBJECT_PROPERTY_START_INDEX + i );
     }
   }
 
@@ -75,7 +74,7 @@ struct ObjectImplHelper
   {
     const char* name = NULL;
 
-    if( index >= DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX && index < DEFAULT_PROPERTY_COUNT )
+    if( index >= DEFAULT_OBJECT_PROPERTY_START_INDEX && index < DEFAULT_PROPERTY_COUNT )
     {
       name = DEFAULT_PROPERTY_DETAILS[index].name;
     }
@@ -105,7 +104,7 @@ struct ObjectImplHelper
   {
     bool isWritable = false;
 
-    if( index >= DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX && index < DEFAULT_PROPERTY_COUNT )
+    if( index >= DEFAULT_OBJECT_PROPERTY_START_INDEX && index < DEFAULT_PROPERTY_COUNT )
     {
       isWritable = DEFAULT_PROPERTY_DETAILS[index].writable;
     }
@@ -117,7 +116,7 @@ struct ObjectImplHelper
   {
     bool isAnimatable = false;
 
-    if( index >= DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX && index < DEFAULT_PROPERTY_COUNT )
+    if( index >= DEFAULT_OBJECT_PROPERTY_START_INDEX && index < DEFAULT_PROPERTY_COUNT )
     {
       isAnimatable =  DEFAULT_PROPERTY_DETAILS[index].animatable;
     }
@@ -129,7 +128,7 @@ struct ObjectImplHelper
   {
     bool isConstraintInput = false;
 
-    if( index >= DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX && index < DEFAULT_PROPERTY_COUNT )
+    if( index >= DEFAULT_OBJECT_PROPERTY_START_INDEX && index < DEFAULT_PROPERTY_COUNT )
     {
       isConstraintInput = DEFAULT_PROPERTY_DETAILS[index].constraintInput;
     }
@@ -141,7 +140,7 @@ struct ObjectImplHelper
   {
     Property::Type type = Property::NONE;
 
-    if( index >= DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX && index < DEFAULT_PROPERTY_COUNT )
+    if( index >= DEFAULT_OBJECT_PROPERTY_START_INDEX && index < DEFAULT_PROPERTY_COUNT )
     {
       type =  DEFAULT_PROPERTY_DETAILS[index].type;
     }
@@ -157,7 +156,7 @@ struct ObjectImplHelper
   }
 
   void SetSceneGraphProperty( Property::Index index,
-                              const CustomProperty& entry,
+                              const PropertyMetadata& entry,
                               const Property::Value& value ) const
   {
     // TODO: MESH_REWORK

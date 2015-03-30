@@ -1186,11 +1186,6 @@ unsigned int UpdateManager::KeepUpdatingCheck( float elapsedSeconds ) const
     keepUpdatingRequest |= KeepUpdating::STAGE_KEEP_RENDERING;
   }
 
-  if ( !mImpl->messageQueue.WasEmpty() )
-  {
-    keepUpdatingRequest |= KeepUpdating::INCOMING_MESSAGES;
-  }
-
   if ( IsAnimationRunning() ||
        mImpl->animationFinishedDuringUpdate )
   {

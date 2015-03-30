@@ -24,6 +24,7 @@
 #include <dali/public-api/object/type-registry.h>
 #include <dali/internal/event/common/event-thread-services.h>
 #include <dali/internal/event/common/property-helper.h>
+#include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/update/animation/scene-graph-constraint-base.h>
 #include <dali/internal/update/common/animatable-property.h>
 #include <dali/internal/update/common/property-owner-messages.h>
@@ -44,7 +45,8 @@ ActiveConstraintBase::ActiveConstraintBase( Property::Index targetPropertyIndex,
   mObservedObjects(),
   mSceneGraphConstraint( NULL ),
   mRemoveAction( Dali::Constraint::DEFAULT_REMOVE_ACTION ),
-  mTag(0)
+  mTag(0),
+  mEventThreadServices( *Stage::GetCurrent() )
 {
   // Skip init when any of the objects have been destroyed
   if ( mSources.size() != mSourceCount )
@@ -107,9 +109,6 @@ void ActiveConstraintBase::OnParentSceneObjectRemoved()
 {
   if ( mSceneGraphConstraint )
   {
-    // Notify base class that the scene-graph constraint is being removed
-    OnSceneObjectRemove();
-
     // mSceneGraphConstraint will be deleted in update-thread, remove dangling pointer
     mSceneGraphConstraint = NULL;
   }
@@ -128,9 +127,6 @@ void ActiveConstraintBase::BeginRemove()
   if ( propertyOwner &&
        mSceneGraphConstraint )
   {
-    // Notify base class that the scene-graph constraint is being removed
-    OnSceneObjectRemove();
-
     // Remove from scene-graph
     RemoveConstraintMessage( GetEventThreadServices(), *propertyOwner, *(mSceneGraphConstraint) );
 
@@ -142,11 +138,6 @@ void ActiveConstraintBase::BeginRemove()
 Object* ActiveConstraintBase::GetParent()
 {
   return mTargetObject;
-}
-
-bool ActiveConstraintBase::Supports( Capability capability ) const
-{
-  return false; // switch-off support for dynamic properties
 }
 
 Dali::Handle ActiveConstraintBase::GetTargetObject()
@@ -179,69 +170,6 @@ unsigned int ActiveConstraintBase::GetTag() const
   return mTag;
 }
 
-unsigned int ActiveConstraintBase::GetDefaultPropertyCount() const
-{
-  return 0;
-}
-
-void ActiveConstraintBase::GetDefaultPropertyIndices( Property::IndexContainer& indices ) const
-{
-}
-
-const char* ActiveConstraintBase::GetDefaultPropertyName( Property::Index index ) const
-{
-  return NULL;
-}
-
-Property::Index ActiveConstraintBase::GetDefaultPropertyIndex( const std::string& name ) const
-{
-  return Property::INVALID_INDEX;
-}
-
-bool ActiveConstraintBase::IsDefaultPropertyWritable( Property::Index index ) const
-{
-  return false;
-}
-
-bool ActiveConstraintBase::IsDefaultPropertyAnimatable( Property::Index index ) const
-{
-  return false;
-}
-
-bool ActiveConstraintBase::IsDefaultPropertyAConstraintInput( Property::Index index ) const
-{
-  return false;
-}
-
-Property::Type ActiveConstraintBase::GetDefaultPropertyType( Property::Index index ) const
-{
-  return Property::NONE;
-}
-
-void ActiveConstraintBase::SetDefaultProperty( Property::Index index, const Property::Value& propertyValue )
-{
-}
-
-Property::Value ActiveConstraintBase::GetDefaultProperty( Property::Index index ) const
-{
-  return Property::Value();
-}
-
-const SceneGraph::PropertyOwner* ActiveConstraintBase::GetSceneObject() const
-{
-  return mSceneGraphConstraint;
-}
-
-const SceneGraph::PropertyBase* ActiveConstraintBase::GetSceneObjectAnimatableProperty( Property::Index index ) const
-{
-  return NULL;
-}
-
-const PropertyInputImpl* ActiveConstraintBase::GetSceneObjectInputProperty( Property::Index index ) const
-{
-  return NULL;
-}
-
 void ActiveConstraintBase::SceneObjectAdded( Object& object )
 {
   // Should not be getting callbacks when mSources has been cleared
@@ -256,9 +184,6 @@ void ActiveConstraintBase::SceneObjectAdded( Object& object )
 
 void ActiveConstraintBase::SceneObjectRemoved( Object& object )
 {
-  // Notify base class that the scene-graph constraint is being removed
-  OnSceneObjectRemove();
-
   if ( mSceneGraphConstraint )
   {
     const SceneGraph::PropertyOwner* propertyOwner = mTargetObject ? mTargetObject->GetSceneObject() : NULL;

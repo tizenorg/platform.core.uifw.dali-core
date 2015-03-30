@@ -21,11 +21,10 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/animation/constraint-source.h>
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/signals/callback.h>
-#include <dali/public-api/object/any.h>
-#include <dali/public-api/object/handle.h>
+#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/property.h>
 #include <dali/public-api/object/property-input.h>
+#include <dali/public-api/signals/callback.h>
 
 namespace Dali
 {
@@ -241,8 +240,6 @@ public:
 
     CopyConstructorDispatcher mCopyConstructorDispatcher; ///< Function to call to copy the stored object
   };
-
-  typedef Any AnyFunction; ///< Generic function pointer for constraint
 
   /**
    * @brief The action that will happen when the constraint is removed.

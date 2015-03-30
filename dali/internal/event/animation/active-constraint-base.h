@@ -20,10 +20,10 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/owner-pointer.h>
-#include <dali/internal/event/common/object-impl.h>
 #include <dali/public-api/animation/active-constraint.h>
 #include <dali/public-api/animation/constraint.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/object/base-object.h>
 #include <dali/internal/event/animation/constraint-source-impl.h>
 
 namespace Dali
@@ -33,6 +33,7 @@ namespace Internal
 {
 
 class EventThreadServices;
+class Object;
 typedef Dali::Vector<Object*>     ObjectContainer;
 typedef ObjectContainer::Iterator ObjectIter;
 
@@ -47,7 +48,7 @@ class AnimatableProperty;
 /**
  * An abstract base class for active constraints.
  */
-class ActiveConstraintBase : public Object, public Object::Observer
+class ActiveConstraintBase : public BaseObject, public Object::Observer
 {
 public:
 
@@ -107,11 +108,6 @@ public:
   Object* GetParent();
 
   /**
-   * @copydoc Dali::Internal::Object::Supports()
-   */
-  virtual bool Supports( Object::Capability capability ) const;
-
-  /**
    * @copydoc Dali::ActiveConstraint::GetTargetObject()
    */
   Dali::Handle GetTargetObject();
@@ -141,74 +137,7 @@ public:
    */
   unsigned int GetTag() const;
 
-public: // Default property extensions from Object
-
-  /**
-   * @copydoc Dali::Internal::Object::GetDefaultPropertyCount()
-   */
-  virtual unsigned int GetDefaultPropertyCount() const;
-
-  /**
-   * @copydoc Dali::Internal::Object::GetDefaultPropertyIndices()
-   */
-  virtual void GetDefaultPropertyIndices( Property::IndexContainer& indices ) const;
-
-  /**
-   * @copydoc Dali::Internal::Object::GetDefaultPropertyName()
-   */
-  virtual const char* GetDefaultPropertyName( Property::Index index ) const;
-
-  /**
-   * @copydoc Dali::Internal::Object::GetDefaultPropertyIndex()
-   */
-  virtual Property::Index GetDefaultPropertyIndex( const std::string& name ) const;
-
-  /**
-   * @copydoc Dali::Internal::Object::IsDefaultPropertyWritable()
-   */
-  virtual bool IsDefaultPropertyWritable( Property::Index index ) const;
-
-  /**
-   * @copydoc Dali::Internal::Object::IsDefaultPropertyAnimatable()
-   */
-  virtual bool IsDefaultPropertyAnimatable( Property::Index index ) const;
-
-  /**
-   * @copydoc Dali::Internal::Object::IsDefaultPropertyAConstraintInput()
-   */
-  virtual bool IsDefaultPropertyAConstraintInput( Property::Index index ) const;
-
-  /**
-   * @copydoc Dali::Internal::Object::GetDefaultPropertyType()
-   */
-  virtual Property::Type GetDefaultPropertyType( Property::Index index ) const;
-
-  /**
-   * @copydoc Dali::Internal::Object::SetDefaultProperty()
-   */
-  virtual void SetDefaultProperty( Property::Index index, const Property::Value& propertyValue );
-
-  /**
-   * @copydoc Dali::Internal::Object::GetDefaultProperty()
-   */
-  virtual Property::Value GetDefaultProperty( Property::Index index ) const;
-
-  /**
-   * @copydoc Dali::Internal::Object::GetSceneObject()
-   */
-  virtual const SceneGraph::PropertyOwner* GetSceneObject() const;
-
-  /**
-   * @copydoc Dali::Internal::Object::GetSceneObjectAnimatableProperty()
-   */
-  virtual const SceneGraph::PropertyBase* GetSceneObjectAnimatableProperty( Property::Index index ) const;
-
-  /**
-   * @copydoc Dali::Internal::Object::GetSceneObjectInputProperty()
-   */
-  virtual const PropertyInputImpl* GetSceneObjectInputProperty( Property::Index index ) const;
-
-public: // Object::Observer methods
+private: // Object::Observer methods
 
   /**
    * @copydoc Object::Observer::SceneObjectAdded()
@@ -245,6 +174,34 @@ private:
   virtual void ConnectConstraint() = 0;
 
 protected:
+
+  /**
+   * Get the event thread services object - used for sending messages to the scene graph
+   * Assert if called from the wrong thread.
+   * This is intentionally inline for performance reasons.
+   *
+   * @return The event thread services object
+   */
+  inline EventThreadServices& GetEventThreadServices()
+  {
+    DALI_ASSERT_DEBUG( EventThreadServices::IsCoreRunning() );
+    return mEventThreadServices;
+  }
+
+  /**
+   * Get the event thread services object - used for sending messages to the scene graph
+   * Assert if called from the wrong thread
+   * This is intentionally inline for performance reasons.
+   *
+   * @return The event thread services object
+   */
+  inline const EventThreadServices& GetEventThreadServices() const
+  {
+    DALI_ASSERT_DEBUG( EventThreadServices::IsCoreRunning() );
+    return mEventThreadServices;
+  }
+
+protected:
   Property::Index mTargetPropertyIndex;
   SourceContainer mSources;
   const unsigned int mSourceCount;
@@ -257,6 +214,8 @@ protected:
   RemoveAction mRemoveAction;
   unsigned int mTag;
 
+private:
+  EventThreadServices& mEventThreadServices;
 };
 
 } // namespace Internal

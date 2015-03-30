@@ -26,6 +26,7 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/handle.h>
 #include <dali/public-api/object/property.h>
+#include <dali/public-api/object/property-index-ranges.h>
 #include <dali/public-api/object/property-input.h>
 #include <dali/public-api/object/property-notification.h>
 #include <dali/internal/common/owner-container.h>

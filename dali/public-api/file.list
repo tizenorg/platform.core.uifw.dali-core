@@ -136,7 +136,6 @@ public_api_core_actors_header_files =  \
 
 public_api_core_animation_header_files = \
   $(public_api_src_dir)/animation/active-constraint.h \
-  $(public_api_src_dir)/animation/active-constraint-declarations.h \
   $(public_api_src_dir)/animation/alpha-functions.h \
   $(public_api_src_dir)/animation/animation.h \
   $(public_api_src_dir)/animation/constraint.h \

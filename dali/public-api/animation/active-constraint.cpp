@@ -29,7 +29,7 @@ ActiveConstraint::ActiveConstraint()
 }
 
 ActiveConstraint::ActiveConstraint( Internal::ActiveConstraintBase* constraint )
-: Handle( constraint )
+: BaseHandle( constraint )
 {
 }
 
@@ -38,7 +38,7 @@ ActiveConstraint::~ActiveConstraint()
 }
 
 ActiveConstraint::ActiveConstraint(const ActiveConstraint& handle)
-: Handle( handle )
+: BaseHandle( handle )
 {
 }
 

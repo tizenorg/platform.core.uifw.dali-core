@@ -19,11 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/animation/active-constraint-declarations.h>
-#include <dali/public-api/object/any.h>
-#include <dali/public-api/object/handle.h>
+#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/property.h>
-#include <dali/public-api/object/property-index-ranges.h>
 
 namespace Dali
 {
@@ -36,7 +33,7 @@ class ActiveConstraintBase;
 /**
  * @brief A constraint which is being applied to an object.
  */
-class DALI_IMPORT_API ActiveConstraint : public Handle
+class DALI_IMPORT_API ActiveConstraint : public BaseHandle
 {
 public:
 

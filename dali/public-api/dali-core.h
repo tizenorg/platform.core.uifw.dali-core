@@ -32,7 +32,6 @@
 #include <dali/public-api/actors/text-actor.h>
 #include <dali/public-api/actors/sampling.h>
 
-#include <dali/public-api/animation/active-constraint-declarations.h>
 #include <dali/public-api/animation/active-constraint.h>
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/animation/animation.h>

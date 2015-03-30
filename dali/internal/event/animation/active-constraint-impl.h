@@ -177,9 +177,6 @@ private:
 
       // Keep a raw-pointer to the scene-graph constraint
       mSceneGraphConstraint = sceneGraphConstraint;
-
-      // Notify Object base-class that the scene-graph constraint has been added
-      OnSceneObjectAdd();
     }
   }
 
@@ -457,9 +454,6 @@ private:
 
       // Keep a raw-pointer to the scene-graph constraint
       mSceneGraphConstraint = sceneGraphConstraint;
-
-      // Notify Object base-class that the scene-graph constraint has been added
-      OnSceneObjectAdd();
     }
   }
 

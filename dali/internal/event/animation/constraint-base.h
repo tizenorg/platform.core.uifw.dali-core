@@ -20,7 +20,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/owner-pointer.h>
-#include <dali/public-api/animation/active-constraint.h>
 #include <dali/public-api/animation/constraint.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/object/base-object.h>
@@ -48,7 +47,7 @@ class AnimatableProperty;
 /**
  * An abstract base class for active constraints.
  */
-class ActiveConstraintBase : public BaseObject, public Object::Observer
+class ConstraintBase : public BaseObject, public Object::Observer
 {
 public:
 
@@ -60,18 +59,18 @@ public:
    * @param[in] targetPropertyIndex The index of the property being constrained.
    * @param[in] sources The sources of the input properties.
    */
-  ActiveConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources );
+  ConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources );
 
   /**
    * Virtual destructor.
    */
-  virtual ~ActiveConstraintBase();
+  virtual ~ConstraintBase();
 
   /**
    * Clone an active-constraint.
    * @return A new active-constraint.
    */
-  virtual ActiveConstraintBase* Clone() = 0;
+  virtual ConstraintBase* Clone() = 0;
 
   /**
    * Adds a constraint source to the constraint
@@ -81,14 +80,14 @@ public:
   void AddSource( Source source );
 
   /**
-   * Called when the ActiveConstraint is first applied.
+   * Called when the Constraint is first applied.
    * @pre The active-constraint does not already have a parent.
    * @param[in] parent The parent object.
    */
   void FirstApply( Object& parent );
 
   /**
-   * Called when the ActiveConstraint is removed.
+   * Called when the Constraint is removed.
    */
   void BeginRemove();
 
@@ -114,12 +113,12 @@ public:
   Object* GetParent();
 
   /**
-   * @copydoc Dali::ActiveConstraint::GetTargetObject()
+   * @copydoc Dali::Constraint::GetTargetObject()
    */
   Dali::Handle GetTargetObject();
 
   /**
-   * @copydoc Dali::ActiveConstraint::GetTargetProperty()
+   * @copydoc Dali::Constraint::GetTargetProperty()
    */
   Property::Index GetTargetProperty();
 
@@ -227,22 +226,22 @@ private:
 
 // Helpers for public-api forwarding methods
 
-inline Internal::ActiveConstraintBase& GetImplementation(Dali::ActiveConstraint& constraint)
+inline Internal::ConstraintBase& GetImplementation(Dali::Constraint& constraint)
 {
-  DALI_ASSERT_ALWAYS( constraint && "ActiveConstraint handle is empty" );
+  DALI_ASSERT_ALWAYS( constraint && "Constraint handle is empty" );
 
   BaseObject& handle = constraint.GetBaseObject();
 
-  return static_cast<Internal::ActiveConstraintBase&>(handle);
+  return static_cast<Internal::ConstraintBase&>(handle);
 }
 
-inline const Internal::ActiveConstraintBase& GetImplementation(const Dali::ActiveConstraint& constraint)
+inline const Internal::ConstraintBase& GetImplementation(const Dali::Constraint& constraint)
 {
-  DALI_ASSERT_ALWAYS( constraint && "ActiveConstraint handle is empty" );
+  DALI_ASSERT_ALWAYS( constraint && "Constraint handle is empty" );
 
   const BaseObject& handle = constraint.GetBaseObject();
 
-  return static_cast<const Internal::ActiveConstraintBase&>(handle);
+  return static_cast<const Internal::ConstraintBase&>(handle);
 }
 
 } // namespace Dali

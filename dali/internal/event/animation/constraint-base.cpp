@@ -16,10 +16,9 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/event/animation/active-constraint-base.h>
+#include <dali/internal/event/animation/constraint-base.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/animation/active-constraint.h>
 #include <dali/public-api/object/handle.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/internal/event/common/event-thread-services.h>
@@ -37,7 +36,7 @@ namespace Dali
 namespace Internal
 {
 
-ActiveConstraintBase::ActiveConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources )
+ConstraintBase::ConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources )
 : mTargetPropertyIndex( targetPropertyIndex ),
   mSources( sources ),
   mTargetObject( NULL ),
@@ -49,26 +48,26 @@ ActiveConstraintBase::ActiveConstraintBase( Property::Index targetPropertyIndex,
 {
 }
 
-ActiveConstraintBase::~ActiveConstraintBase()
+ConstraintBase::~ConstraintBase()
 {
   StopObservation();
 }
 
-void ActiveConstraintBase::AddSource( Source source )
+void ConstraintBase::AddSource( Source source )
 {
   mSources.push_back( source );
 }
 
-void ActiveConstraintBase::FirstApply( Object& parent )
+void ConstraintBase::FirstApply( Object& parent )
 {
-  DALI_ASSERT_ALWAYS( NULL == mTargetObject && "Parent of ActiveConstraint already set" );
+  DALI_ASSERT_ALWAYS( NULL == mTargetObject && "Parent of Constraint already set" );
 
   // Observe the objects providing properties
   for ( SourceIter iter = mSources.begin(); mSources.end() != iter; ++iter )
   {
     if ( OBJECT_PROPERTY == iter->sourceType )
     {
-      DALI_ASSERT_ALWAYS( NULL != iter->object && "ActiveConstraint source object not found" );
+      DALI_ASSERT_ALWAYS( NULL != iter->object && "Constraint source object not found" );
 
       ObserveObject( *(iter->object) );
     }
@@ -79,7 +78,7 @@ void ActiveConstraintBase::FirstApply( Object& parent )
   ConnectConstraint();
 }
 
-void ActiveConstraintBase::OnParentDestroyed()
+void ConstraintBase::OnParentDestroyed()
 {
   // Stop observing the remaining objects
   StopObservation();
@@ -89,7 +88,7 @@ void ActiveConstraintBase::OnParentDestroyed()
   mSources.clear();
 }
 
-void ActiveConstraintBase::OnParentSceneObjectAdded()
+void ConstraintBase::OnParentSceneObjectAdded()
 {
   if ( NULL == mSceneGraphConstraint &&
        mTargetObject )
@@ -98,7 +97,7 @@ void ActiveConstraintBase::OnParentSceneObjectAdded()
   }
 }
 
-void ActiveConstraintBase::OnParentSceneObjectRemoved()
+void ConstraintBase::OnParentSceneObjectRemoved()
 {
   if ( mSceneGraphConstraint )
   {
@@ -107,7 +106,7 @@ void ActiveConstraintBase::OnParentSceneObjectRemoved()
   }
 }
 
-void ActiveConstraintBase::BeginRemove()
+void ConstraintBase::BeginRemove()
 {
   // Stop observing the remaining objects
   StopObservation();
@@ -128,42 +127,42 @@ void ActiveConstraintBase::BeginRemove()
   }
 }
 
-Object* ActiveConstraintBase::GetParent()
+Object* ConstraintBase::GetParent()
 {
   return mTargetObject;
 }
 
-Dali::Handle ActiveConstraintBase::GetTargetObject()
+Dali::Handle ConstraintBase::GetTargetObject()
 {
   return Dali::Handle( mTargetObject );
 }
 
-Property::Index ActiveConstraintBase::GetTargetProperty()
+Property::Index ConstraintBase::GetTargetProperty()
 {
   return mTargetPropertyIndex;
 }
 
-void ActiveConstraintBase::SetRemoveAction( ActiveConstraintBase::RemoveAction action )
+void ConstraintBase::SetRemoveAction( ConstraintBase::RemoveAction action )
 {
   mRemoveAction = action;
 }
 
-ActiveConstraintBase::RemoveAction ActiveConstraintBase::GetRemoveAction() const
+ConstraintBase::RemoveAction ConstraintBase::GetRemoveAction() const
 {
   return mRemoveAction;
 }
 
-void ActiveConstraintBase::SetTag(const unsigned int tag)
+void ConstraintBase::SetTag(const unsigned int tag)
 {
   mTag = tag;
 }
 
-unsigned int ActiveConstraintBase::GetTag() const
+unsigned int ConstraintBase::GetTag() const
 {
   return mTag;
 }
 
-void ActiveConstraintBase::SceneObjectAdded( Object& object )
+void ConstraintBase::SceneObjectAdded( Object& object )
 {
   if ( NULL == mSceneGraphConstraint &&
        mTargetObject )
@@ -172,7 +171,7 @@ void ActiveConstraintBase::SceneObjectAdded( Object& object )
   }
 }
 
-void ActiveConstraintBase::SceneObjectRemoved( Object& object )
+void ConstraintBase::SceneObjectRemoved( Object& object )
 {
   if ( mSceneGraphConstraint )
   {
@@ -189,7 +188,7 @@ void ActiveConstraintBase::SceneObjectRemoved( Object& object )
   }
 }
 
-void ActiveConstraintBase::ObjectDestroyed( Object& object )
+void ConstraintBase::ObjectDestroyed( Object& object )
 {
   // Remove object pointer from observation set
   ObjectIter iter = std::find( mObservedObjects.Begin(), mObservedObjects.End(), &object );
@@ -205,7 +204,7 @@ void ActiveConstraintBase::ObjectDestroyed( Object& object )
   mSources.clear();
 }
 
-void ActiveConstraintBase::ObserveObject( Object& object )
+void ConstraintBase::ObserveObject( Object& object )
 {
   ObjectIter iter = std::find( mObservedObjects.Begin(), mObservedObjects.End(), &object );
   if ( mObservedObjects.End() == iter )
@@ -215,7 +214,7 @@ void ActiveConstraintBase::ObserveObject( Object& object )
   }
 }
 
-void ActiveConstraintBase::StopObservation()
+void ConstraintBase::StopObservation()
 {
   const ObjectIter end = mObservedObjects.End();
   for( ObjectIter iter = mObservedObjects.Begin(); iter != end; ++iter )

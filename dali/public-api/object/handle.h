@@ -32,7 +32,6 @@
 namespace Dali
 {
 
-class ActiveConstraint;
 class Constraint;
 class PropertyNotification;
 class PropertyCondition;
@@ -325,17 +324,17 @@ public:
    * of the constraint, will not affect actors which are already being constrained.
    * @pre The Actor has been initialized.
    * @param[in] constraint The constraint to apply.
-   * @return The active-constraint being applied to the actor.
+   * @return The constraint being applied to the actor.
    */
-  ActiveConstraint ApplyConstraint( Constraint constraint );
+  Constraint ApplyConstraint( Constraint constraint );
 
   /**
    * @brief Remove one constraint from an Object.
    *
    * @pre The Object has been initialized.
-   * @param[in] activeConstraint The active-constraint to remove.
+   * @param[in] constraint The active-constraint to remove.
    */
-  void RemoveConstraint( ActiveConstraint activeConstraint );
+  void RemoveConstraint( Constraint constraint );
 
   /**
    * @brief Remove all constraints from an Object.

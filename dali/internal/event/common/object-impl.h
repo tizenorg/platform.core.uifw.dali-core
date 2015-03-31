@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/animation/active-constraint.h>
 #include <dali/public-api/animation/constraint.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
@@ -42,7 +41,7 @@ class PropertyNotification;
 
 namespace Internal
 {
-class Constraint;
+class ConstraintBase;
 class EventThreadServices;
 class Handle;
 class PropertyCondition;
@@ -56,9 +55,9 @@ class PropertyBase;
 class PropertyOwner;
 }
 
-typedef std::vector< Dali::ActiveConstraint >     ActiveConstraintContainer;
-typedef ActiveConstraintContainer::iterator       ActiveConstraintIter;
-typedef ActiveConstraintContainer::const_iterator ActiveConstraintConstIter;
+typedef std::vector< Dali::Constraint >     ConstraintContainer;
+typedef ConstraintContainer::iterator       ConstraintIter;
+typedef ConstraintContainer::const_iterator ConstraintConstIter;
 
 /**
  * A base class for objects which optionally provide properties.
@@ -218,13 +217,13 @@ public:
    * Apply a constraint to a Object.
    * @param[in] constraint The constraint to apply.
    */
-  Dali::ActiveConstraint ApplyConstraint( Constraint& constraint );
+  Dali::Constraint ApplyConstraint( ConstraintBase& constraint );
 
   /**
    * Remove one constraint from a Object.
-   * @param[in] activeConstraint The active constraint to remove.
+   * @param[in] constraint The constraint to remove.
    */
-  void RemoveConstraint( Dali::ActiveConstraint activeConstraint );
+  void RemoveConstraint( Dali::Constraint constraint );
 
   /**
    * Remove all constraints from a Object.
@@ -441,9 +440,9 @@ private:
   void DisablePropertyNotifications();
 
   /**
-   * Helper to remove active constraints
+   * Helper to remove constraints
    */
-  void RemoveConstraint( ActiveConstraint& constraint, bool isInScenegraph );
+  void RemoveConstraint( Dali::Constraint& constraint, bool isInScenegraph );
 
   /**
    * Get the value of the property.
@@ -508,7 +507,7 @@ private:
 
   Dali::Vector<Observer*> mObservers;
 
-  ActiveConstraintContainer* mConstraints;               ///< Container of owned active-constraints.
+  ConstraintContainer* mConstraints;               ///< Container of owned -constraints.
 
   typedef std::vector< Dali::PropertyNotification >     PropertyNotificationContainer;
   typedef PropertyNotificationContainer::iterator       PropertyNotificationContainerIter;

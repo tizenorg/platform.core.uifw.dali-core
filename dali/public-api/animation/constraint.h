@@ -29,9 +29,11 @@
 namespace Dali
 {
 
+class Handle;
+
 namespace Internal DALI_INTERNAL
 {
-class Constraint;
+class ConstraintBase;
 }
 
 typedef Vector< PropertyInput* > PropertyInputContainer;
@@ -350,13 +352,6 @@ public:
   }
 
   /**
-   * Adds a constraint source to the constraint
-   *
-   * @param[in] source The constraint source input to add
-   */
-  void AddSource( ConstraintSource source );
-
-  /**
    * @brief Downcast an Object handle to Constraint handle.
    *
    * If handle points to a Constraint object the
@@ -387,6 +382,27 @@ public:
    * @return A reference to this
    */
   Constraint& operator=(const Constraint& rhs);
+
+  /**
+   * Adds a constraint source to the constraint
+   *
+   * @param[in] source The constraint source input to add
+   */
+  void AddSource( ConstraintSource source );
+
+  /**
+   * @brief Retrieve the object which this constraint is targeting.
+   *
+   * @return The target object.
+   */
+  Handle GetTargetObject();
+
+  /**
+   * @brief Retrieve the property which this constraint is targeting.
+   *
+   * @return The target property.
+   */
+  Dali::Property::Index GetTargetProperty();
 
   /**
    * @brief Set whether the constraint will "bake" a value when fully-applied.
@@ -425,7 +441,7 @@ public: // Not intended for use by Application developers
    * @brief This constructor is used by Dali New() methods
    * @param [in] constraint A pointer to a newly allocated Dali resource
    */
-  explicit DALI_INTERNAL Constraint( Internal::Constraint* constraint );
+  explicit DALI_INTERNAL Constraint( Internal::ConstraintBase* constraint );
 
 private: // Not intended for use by Application developers
 

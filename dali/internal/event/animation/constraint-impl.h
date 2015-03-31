@@ -53,7 +53,7 @@ public:
               CallbackBase* func );
 
   /**
-   * Adds a constraint-source to the constraint
+   * @copydoc Dali::Constraint::AddSource()
    */
   void AddSource( Source source );
 
@@ -102,12 +102,7 @@ private:
 protected:
 
   Dali::ActiveConstraint mActiveConstraintTemplate; ///< Used to create active constraints
-  Property::Index mTargetIndex;
-  Property::Type mTargetType;
-  SourceContainer mSources;
   CallbackBase* mFunc;
-  Dali::Constraint::RemoveAction mRemoveAction;
-  unsigned int mTag;
 };
 
 } // namespace Internal

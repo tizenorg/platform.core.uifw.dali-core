@@ -37,10 +37,9 @@ namespace Dali
 namespace Internal
 {
 
-ActiveConstraintBase::ActiveConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources, unsigned int sourceCount )
+ActiveConstraintBase::ActiveConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources )
 : mTargetPropertyIndex( targetPropertyIndex ),
   mSources( sources ),
-  mSourceCount( sourceCount ),
   mTargetObject( NULL ),
   mObservedObjects(),
   mSceneGraphConstraint( NULL ),
@@ -48,24 +47,6 @@ ActiveConstraintBase::ActiveConstraintBase( Property::Index targetPropertyIndex,
   mTag(0),
   mEventThreadServices( *Stage::GetCurrent() )
 {
-  // Skip init when any of the objects have been destroyed
-  if ( mSources.size() != mSourceCount )
-  {
-    // Discard all object pointers
-    mTargetObject = NULL;
-    mSources.clear();
-  }
-
-  // Observe the objects providing properties
-  for ( SourceIter iter = mSources.begin(); mSources.end() != iter; ++iter )
-  {
-    if ( OBJECT_PROPERTY == iter->sourceType )
-    {
-      DALI_ASSERT_ALWAYS( NULL != iter->object && "ActiveConstraint source object not found" );
-
-      ObserveObject( *(iter->object) );
-    }
-  }
 }
 
 ActiveConstraintBase::~ActiveConstraintBase()
@@ -73,13 +54,29 @@ ActiveConstraintBase::~ActiveConstraintBase()
   StopObservation();
 }
 
+void ActiveConstraintBase::AddSource( Source source )
+{
+  mSources.push_back( source );
+}
+
 void ActiveConstraintBase::FirstApply( Object& parent )
 {
   DALI_ASSERT_ALWAYS( NULL == mTargetObject && "Parent of ActiveConstraint already set" );
 
   // No need to do anything, if the source objects are gone
-  if( mSources.size() == mSourceCount )
+  if( ! mSources.empty() )
   {
+    // Observe the objects providing properties
+    for ( SourceIter iter = mSources.begin(); mSources.end() != iter; ++iter )
+    {
+      if ( OBJECT_PROPERTY == iter->sourceType )
+      {
+        DALI_ASSERT_ALWAYS( NULL != iter->object && "ActiveConstraint source object not found" );
+
+        ObserveObject( *(iter->object) );
+      }
+    }
+
     mTargetObject = &parent;
 
     ConnectConstraint();
@@ -172,9 +169,6 @@ unsigned int ActiveConstraintBase::GetTag() const
 
 void ActiveConstraintBase::SceneObjectAdded( Object& object )
 {
-  // Should not be getting callbacks when mSources has been cleared
-   DALI_ASSERT_DEBUG( mSources.size() == mSourceCount );
-
   if ( NULL == mSceneGraphConstraint &&
        mTargetObject )
   {

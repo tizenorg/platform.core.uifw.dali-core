@@ -78,7 +78,7 @@ public:
                                     SourceContainer& sources,
                                     ConstraintFunctionPtr func )
   {
-    return new ActiveConstraint< PropertyType >( targetIndex, sources, sources.size(), func );
+    return new ActiveConstraint< PropertyType >( targetIndex, sources, func );
   }
 
   /**
@@ -100,7 +100,6 @@ public:
 
     clone = new ActiveConstraint< PropertyType >( mTargetIndex,
                                                   mSources,
-                                                  mSourceCount,
                                                   funcPtr );
 
     clone->SetRemoveAction(mRemoveAction);
@@ -116,9 +115,8 @@ private:
    */
   ActiveConstraint( Property::Index targetIndex,
                     SourceContainer& sources,
-                    unsigned int sourceCount,
                     ConstraintFunctionPtr& func )
-  : ActiveConstraintBase( targetIndex, sources, sourceCount ),
+  : ActiveConstraintBase( targetIndex, sources ),
     mTargetIndex( targetIndex ),
     mUserFunction( func )
   {
@@ -137,7 +135,7 @@ private:
   {
     // Should not come here any objects have been destroyed
     DALI_ASSERT_DEBUG( NULL != mTargetObject );
-    DALI_ASSERT_DEBUG( mSources.size() == mSourceCount );
+    DALI_ASSERT_DEBUG( ! mSources.empty() );
 
     // Guard against double connections
     DALI_ASSERT_DEBUG( NULL == mSceneGraphConstraint );
@@ -293,7 +291,7 @@ public:
                                     SourceContainer& sources,
                                     ConstraintFunctionPtr func )
   {
-    return new ActiveConstraint< float >( targetIndex, sources, sources.size(), func );
+    return new ActiveConstraint< float >( targetIndex, sources, func );
   }
 
   /**
@@ -315,7 +313,6 @@ public:
 
     clone = new ActiveConstraint< float >( mTargetIndex,
                                            mSources,
-                                           mSourceCount,
                                            funcPtr );
 
     clone->SetRemoveAction(mRemoveAction);
@@ -331,9 +328,8 @@ private:
    */
   ActiveConstraint( Property::Index targetIndex,
                     SourceContainer& sources,
-                    unsigned int sourceCount,
                     ConstraintFunctionPtr& func )
-  : ActiveConstraintBase( targetIndex, sources, sourceCount ),
+  : ActiveConstraintBase( targetIndex, sources ),
     mTargetIndex( targetIndex ),
     mUserFunction( func )
   {
@@ -352,7 +348,7 @@ private:
   {
     // Should not come here any objects have been destroyed
     DALI_ASSERT_DEBUG( NULL != mTargetObject );
-    DALI_ASSERT_DEBUG( mSources.size() == mSourceCount );
+    DALI_ASSERT_DEBUG( ! mSources.empty() );
 
     // Guard against double connections
     DALI_ASSERT_DEBUG( NULL == mSceneGraphConstraint );

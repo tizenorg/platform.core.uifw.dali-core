@@ -59,9 +59,8 @@ public:
    * @param[in] messageController Used to send messages to the update-thread.
    * @param[in] targetPropertyIndex The index of the property being constrained.
    * @param[in] sources The sources of the input properties.
-   * @param[in] sourceCount The original number of sources; this may not match sources.size() if objects have died.
    */
-  ActiveConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources, unsigned int sourceCount );
+  ActiveConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources );
 
   /**
    * Virtual destructor.
@@ -73,6 +72,13 @@ public:
    * @return A new active-constraint.
    */
   virtual ActiveConstraintBase* Clone() = 0;
+
+  /**
+   * Adds a constraint source to the constraint
+   *
+   * @param[in] source The constraint source input to add
+   */
+  void AddSource( Source source );
 
   /**
    * Called when the ActiveConstraint is first applied.
@@ -204,7 +210,6 @@ protected:
 protected:
   Property::Index mTargetPropertyIndex;
   SourceContainer mSources;
-  const unsigned int mSourceCount;
 
   Object* mTargetObject; ///< The object owns the active-constraint.
   ObjectContainer mObservedObjects; // We don't observe the same object twice

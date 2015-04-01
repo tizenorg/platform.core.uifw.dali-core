@@ -141,10 +141,14 @@ public:
 
   /**
    * Constructor for metadata of animatable property
+   * @param [in] newName The name of the animatable property.
+   * @param [in] newType The type ID of the animatable property.
    * @param [in] newProperty A pointer to the scene-graph owned property.
    */
-  AnimatablePropertyMetadata( Property::Type newType,
+  AnimatablePropertyMetadata( const std::string& newName,
+                        Property::Type newType,
                         const SceneGraph::PropertyBase* newProperty )
+  : name(newName)
   {
     type = newType;
     mProperty = newProperty;
@@ -153,9 +157,12 @@ public:
 
   /**
    * Constructor for metadata of animatable property
+   * @param [in] newName The name of the animatable property.
    * @param [in] newValue The value of the scene-graph owned property.
    */
-  AnimatablePropertyMetadata( Property::Value newValue )
+  AnimatablePropertyMetadata( const std::string& newName,
+                        Property::Value newValue )
+  : name(newName)
   {
     type = newValue.GetType();
     value = newValue;
@@ -168,6 +175,8 @@ public:
   {
     return true ;
   }
+
+  std::string name;       ///< The name of the property
 
 private:
 

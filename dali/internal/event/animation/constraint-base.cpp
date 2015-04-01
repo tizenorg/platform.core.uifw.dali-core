@@ -85,7 +85,8 @@ void ConstraintBase::OnParentDestroyed()
 
   // Discard all object pointers
   mTargetObject = NULL;
-  mSources.clear();
+
+  // Do not discard sources as we may clone this constraint for another object
 }
 
 void ConstraintBase::OnParentSceneObjectAdded()
@@ -111,8 +112,7 @@ void ConstraintBase::BeginRemove()
   // Stop observing the remaining objects
   StopObservation();
 
-  // Discard all object pointers
-  mSources.clear();
+  // Do not clear mSources as we may apply this constraint again
 
   const SceneGraph::PropertyOwner* propertyOwner = mTargetObject ? mTargetObject->GetSceneObject() : NULL;
 
@@ -201,7 +201,8 @@ void ConstraintBase::ObjectDestroyed( Object& object )
   // Discard all object & scene-graph pointers
   mSceneGraphConstraint = NULL;
   mTargetObject = NULL;
-  mSources.clear();
+
+  // Do not discard sources as we may clone this constraint for another object
 }
 
 void ConstraintBase::ObserveObject( Object& object )

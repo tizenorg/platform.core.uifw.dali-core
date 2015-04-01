@@ -320,13 +320,10 @@ public:
   /**
    * @brief Constrain one of the properties of an Actor.
    *
-   * @note The constraint will be copied by the Actor. This means that modifying the apply-time etc.
-   * of the constraint, will not affect actors which are already being constrained.
    * @pre The Actor has been initialized.
    * @param[in] constraint The constraint to apply.
-   * @return The constraint being applied to the actor.
    */
-  Constraint ApplyConstraint( Constraint constraint );
+  void ApplyConstraint( Constraint constraint );
 
   /**
    * @brief Remove one constraint from an Object.

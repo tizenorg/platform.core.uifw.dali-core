@@ -50,23 +50,25 @@ public:
 
   /**
    * Create a property constraint.
+   *
+   * @param[in]  func  A constraint function. Ownership of this callback-function is passed to this object.
    */
   PropertyConstraint( Dali::Constraint::Function< PropertyType >* func )
   : mInputsInitialized( false ),
-    mFunction( reinterpret_cast< ConstraintFunction* >( func->Clone() ) ),
+    mFunction( func ),
     mInputs()
   {
   }
 
   /**
    * Constructor.
-   * @param [in] func A constraint function.
-   * @param [in] inputs Property inputs.
+   * @param [in]  func    A constraint function. Ownership of this callback-function is passed to this object.
+   * @param [in]  inputs  Property inputs.
    */
   PropertyConstraint( Dali::Constraint::Function< PropertyType >* func,
                       const InputContainer& inputs )
   : mInputsInitialized( false ),
-    mFunction( reinterpret_cast< ConstraintFunction* >( func->Clone() ) ),
+    mFunction( func ),
     mInputs( inputs )
   {
   }
@@ -81,10 +83,14 @@ public:
 
   /**
    * Clone a property constraint.
+   *
+   * @return The clone of the property-constraint.
+   *
+   * @note This function will create a copy of the stored constraint function for the clone.
    */
   PropertyConstraint< PropertyType >* Clone()
   {
-    return new PropertyConstraint< PropertyType >( mFunction, mInputs );
+    return new PropertyConstraint< PropertyType >( reinterpret_cast< ConstraintFunction* >( mFunction->Clone() ), mInputs );
   }
 
   /**

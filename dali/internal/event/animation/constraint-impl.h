@@ -75,8 +75,8 @@ public:
    * @return A newly allocated active-constraint.
    */
   static ConstraintBase* New( Property::Index targetIndex,
-                                    SourceContainer& sources,
-                                    ConstraintFunctionPtr func )
+                              SourceContainer& sources,
+                              ConstraintFunctionPtr func )
   {
     return new Constraint< PropertyType >( targetIndex, sources, func );
   }
@@ -114,8 +114,8 @@ private:
    * Private constructor; see also Constraint::New().
    */
   Constraint( Property::Index targetIndex,
-                    SourceContainer& sources,
-                    ConstraintFunctionPtr& func )
+              SourceContainer& sources,
+              ConstraintFunctionPtr& func )
   : ConstraintBase( targetIndex, sources ),
     mTargetIndex( targetIndex ),
     mUserFunction( func )
@@ -287,8 +287,8 @@ public:
    * @return A newly allocated active-constraint.
    */
   static ConstraintBase* New( Property::Index targetIndex,
-                                    SourceContainer& sources,
-                                    ConstraintFunctionPtr func )
+                              SourceContainer& sources,
+                              ConstraintFunctionPtr func )
   {
     return new Constraint< float >( targetIndex, sources, func );
   }
@@ -311,8 +311,8 @@ public:
     ConstraintFunctionPtr funcPtr( mUserFunction->Clone() );
 
     clone = new Constraint< float >( mTargetIndex,
-                                           mSources,
-                                           funcPtr );
+                                     mSources,
+                                     funcPtr );
 
     clone->SetRemoveAction(mRemoveAction);
     clone->SetTag( mTag );
@@ -326,8 +326,8 @@ private:
    * Private constructor; see also Constraint::New().
    */
   Constraint( Property::Index targetIndex,
-                    SourceContainer& sources,
-                    ConstraintFunctionPtr& func )
+              SourceContainer& sources,
+              ConstraintFunctionPtr& func )
   : ConstraintBase( targetIndex, sources ),
     mTargetIndex( targetIndex ),
     mUserFunction( func )

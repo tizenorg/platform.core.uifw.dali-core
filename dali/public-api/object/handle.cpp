@@ -158,9 +158,9 @@ void Handle::RemovePropertyNotifications()
   GetImplementation(*this).RemovePropertyNotifications();
 }
 
-Constraint Handle::ApplyConstraint( Constraint constraint )
+void Handle::ApplyConstraint( Constraint constraint )
 {
-  return GetImplementation(*this).ApplyConstraint( GetImplementation( constraint ) );
+  GetImplementation(*this).ApplyConstraint( GetImplementation( constraint ) );
 }
 
 void Handle::RemoveConstraint(Constraint constraint)

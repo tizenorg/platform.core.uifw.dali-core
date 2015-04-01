@@ -769,23 +769,6 @@ void Object::DisablePropertyNotifications()
   }
 }
 
-Dali::Constraint Object::ApplyConstraint( ConstraintBase& constraint )
-{
-  ConstraintBase* constraintCloneImpl = constraint.Clone();
-  DALI_ASSERT_DEBUG( constraintCloneImpl );
-  Dali::Constraint constraintClone( constraintCloneImpl );
-
-  if( !mConstraints )
-  {
-    mConstraints = new ConstraintContainer;
-  }
-  mConstraints->push_back( constraintClone );
-
-  constraintCloneImpl->FirstApply( *this );
-
-  return constraintClone;
-}
-
 Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
 {
   Property::Value value;
@@ -1010,6 +993,17 @@ const TypeInfo* Object::GetTypeInfo() const
   }
 
   return mTypeInfo;
+}
+
+void Object::ApplyConstraint( ConstraintBase& constraint )
+{
+  if( !mConstraints )
+  {
+    mConstraints = new ConstraintContainer;
+  }
+  mConstraints->push_back( Dali::Constraint( &constraint ) );
+
+  constraint.FirstApply( *this );
 }
 
 void Object::RemoveConstraint( Dali::Constraint& constraint, bool isInScenegraph )

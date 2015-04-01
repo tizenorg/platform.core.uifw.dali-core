@@ -18,9 +18,6 @@
 // CLASS HEADER
 #include <dali/internal/update/animation/scene-graph-constraint.h>
 
-// INTERNAL INCLUDES
-#include <dali/public-api/animation/active-constraint.h>
-
 namespace Dali
 {
 

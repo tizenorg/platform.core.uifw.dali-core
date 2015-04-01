@@ -67,8 +67,8 @@ public:
   virtual ~ConstraintBase();
 
   /**
-   * Clone an active-constraint.
-   * @return A new active-constraint.
+   * Clone a constraint.
+   * @return A new constraint.
    */
   virtual ConstraintBase* Clone() = 0;
 
@@ -81,7 +81,7 @@ public:
 
   /**
    * Called when the Constraint is first applied.
-   * @pre The active-constraint does not already have a parent.
+   * @pre The constraint does not already have a parent.
    * @param[in] parent The parent object.
    */
   void FirstApply( Object& parent );
@@ -107,7 +107,7 @@ public:
   void OnParentSceneObjectRemoved();
 
   /**
-   * Retrieve the parent of the active-constraint.
+   * Retrieve the parent of the constraint.
    * @return The parent object, or NULL.
    */
   Object* GetParent();
@@ -210,7 +210,7 @@ protected:
   Property::Index mTargetPropertyIndex;
   SourceContainer mSources;
 
-  Object* mTargetObject; ///< The object owns the active-constraint.
+  Object* mTargetObject; ///< The object owns the constraint.
   ObjectContainer mObservedObjects; // We don't observe the same object twice
 
   const SceneGraph::ConstraintBase* mSceneGraphConstraint;

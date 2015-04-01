@@ -68,15 +68,15 @@ public:
   typedef typename PropertyConstraintPtr<PropertyType>::Type ConstraintFunctionPtr;
 
   /**
-   * Construct a new active-constraint.
+   * Construct a new constraint.
    * @param[in] targetIndex The index of the property to constrain.
    * @param[in] sources The sources of the input properties passed to func.
    * @param[in] func The constraint function.
    * @return A newly allocated active-constraint.
    */
   static ConstraintBase* New( Property::Index targetIndex,
-                                    SourceContainer& sources,
-                                    ConstraintFunctionPtr func )
+                              SourceContainer& sources,
+                              ConstraintFunctionPtr func )
   {
     return new Constraint< PropertyType >( targetIndex, sources, func );
   }
@@ -114,8 +114,8 @@ private:
    * Private constructor; see also Constraint::New().
    */
   Constraint( Property::Index targetIndex,
-                    SourceContainer& sources,
-                    ConstraintFunctionPtr& func )
+              SourceContainer& sources,
+              ConstraintFunctionPtr& func )
   : ConstraintBase( targetIndex, sources ),
     mTargetIndex( targetIndex ),
     mUserFunction( func )
@@ -280,15 +280,15 @@ public:
   typedef typename PropertyConstraintPtr<float>::Type ConstraintFunctionPtr;
 
   /**
-   * Construct a new active-constraint.
+   * Construct a new constraint.
    * @param[in] targetIndex The index of the property to constrain.
    * @param[in] sources The sources of the input properties passed to func.
    * @param[in] func The constraint function.
-   * @return A newly allocated active-constraint.
+   * @return A newly allocated constraint.
    */
   static ConstraintBase* New( Property::Index targetIndex,
-                                    SourceContainer& sources,
-                                    ConstraintFunctionPtr func )
+                              SourceContainer& sources,
+                              ConstraintFunctionPtr func )
   {
     return new Constraint< float >( targetIndex, sources, func );
   }
@@ -311,8 +311,8 @@ public:
     ConstraintFunctionPtr funcPtr( mUserFunction->Clone() );
 
     clone = new Constraint< float >( mTargetIndex,
-                                           mSources,
-                                           funcPtr );
+                                     mSources,
+                                     funcPtr );
 
     clone->SetRemoveAction(mRemoveAction);
     clone->SetTag( mTag );
@@ -326,8 +326,8 @@ private:
    * Private constructor; see also Constraint::New().
    */
   Constraint( Property::Index targetIndex,
-                    SourceContainer& sources,
-                    ConstraintFunctionPtr& func )
+              SourceContainer& sources,
+              ConstraintFunctionPtr& func )
   : ConstraintBase( targetIndex, sources ),
     mTargetIndex( targetIndex ),
     mUserFunction( func )

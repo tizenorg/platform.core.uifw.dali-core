@@ -352,16 +352,6 @@ public:
   }
 
   /**
-   * @brief Downcast an Object handle to Constraint handle.
-   *
-   * If handle points to a Constraint object the
-   * downcast produces valid handle. If not the returned handle is left uninitialized.
-   * @param[in] handle to An object
-   * @return handle to a Constraint object or an uninitialized handle
-   */
-  static Constraint DownCast( BaseHandle handle );
-
-  /**
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
@@ -382,6 +372,16 @@ public:
    * @return A reference to this
    */
   Constraint& operator=(const Constraint& rhs);
+
+  /**
+   * @brief Downcast an Object handle to Constraint handle.
+   *
+   * If handle points to a Constraint object the
+   * downcast produces valid handle. If not the returned handle is left uninitialized.
+   * @param[in] handle to An object
+   * @return handle to a Constraint object or an uninitialized handle
+   */
+  static Constraint DownCast( BaseHandle handle );
 
   /**
    * Adds a constraint source to the constraint
@@ -434,6 +434,13 @@ public:
    * @return The tag
    */
   unsigned int GetTag() const;
+
+  /**
+   * @brief The create a clones of the constraint.
+   *
+   * @return The new constraint.
+   */
+  Constraint Clone();
 
 public: // Not intended for use by Application developers
 

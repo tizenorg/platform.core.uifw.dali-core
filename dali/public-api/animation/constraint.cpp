@@ -30,10 +30,10 @@ namespace Dali
 namespace // unnamed namespace
 {
 
-template <class P>
-Internal::PropertyConstraint<P>* CreatePropertyConstraint( CallbackBase* func )
+template < class P >
+Internal::PropertyConstraint< P >* CreatePropertyConstraint( CallbackBase* func )
 {
-  return new Internal::PropertyConstraint<P>( reinterpret_cast< Dali::Constraint::Function< P >* >( func ) );
+  return new Internal::PropertyConstraint< P >( reinterpret_cast< Dali::Constraint::Function< P >* >( func ) );
 }
 
 } // unnamed namespace
@@ -44,8 +44,8 @@ Constraint::Constraint()
 {
 }
 
-Constraint::Constraint(Internal::ConstraintBase* constraint)
-: BaseHandle(constraint)
+Constraint::Constraint( Internal::ConstraintBase* constraint )
+: BaseHandle( constraint )
 {
 }
 
@@ -53,15 +53,20 @@ Constraint::~Constraint()
 {
 }
 
-Constraint::Constraint(const Constraint& handle)
+Constraint::Constraint( const Constraint& handle )
 : BaseHandle(handle)
 {
 }
 
-Constraint& Constraint::operator=(const Constraint& rhs)
+Constraint& Constraint::operator=( const Constraint& rhs )
 {
-  BaseHandle::operator=(rhs);
+  BaseHandle::operator=( rhs );
   return *this;
+}
+
+Constraint Constraint::DownCast( BaseHandle handle )
+{
+  return Constraint( dynamic_cast<Dali::Internal::ConstraintBase*>(handle.GetObjectPtr()) );
 }
 
 void Constraint::AddSource( ConstraintSource source )
@@ -99,6 +104,11 @@ unsigned int Constraint::GetTag() const
   return GetImplementation(*this).GetTag();
 }
 
+Constraint Constraint::Clone( )
+{
+  return Constraint( GetImplementation( *this ).Clone() );
+}
+
 Constraint Constraint::New( Property::Index targetIndex,
                             Property::Type targetType,
                             CallbackBase* func )
@@ -110,19 +120,19 @@ Constraint Constraint::New( Property::Index targetIndex,
   {
     case Property::BOOLEAN:
     {
-      Internal::PropertyConstraintPtr<bool>::Type funcPtr( CreatePropertyConstraint<bool>( func ) );
+      Internal::PropertyConstraintPtr< bool >::Type funcPtr( CreatePropertyConstraint< bool >( func ) );
 
-      constraint = Dali::Constraint( Internal::Constraint<bool>::New( targetIndex,
-                                                            sources,
-                                                            funcPtr ) );
+      constraint = Dali::Constraint( Internal::Constraint< bool >::New( targetIndex,
+                                                                        sources,
+                                                                        funcPtr ) );
       break;
     }
 
     case Property::FLOAT:
     {
-      Internal::PropertyConstraintPtr<float>::Type funcPtr( CreatePropertyConstraint<float>( func ) );
+      Internal::PropertyConstraintPtr< float >::Type funcPtr( CreatePropertyConstraint< float >( func ) );
 
-      constraint = Dali::Constraint( Internal::Constraint<float>::New( targetIndex,
+      constraint = Dali::Constraint( Internal::Constraint< float >::New( targetIndex,
                                                                          sources,
                                                                          funcPtr ) );
       break;
@@ -130,9 +140,9 @@ Constraint Constraint::New( Property::Index targetIndex,
 
     case Property::INTEGER:
     {
-      Internal::PropertyConstraintPtr<int>::Type funcPtr( CreatePropertyConstraint<int>( func ) );
+      Internal::PropertyConstraintPtr< int >::Type funcPtr( CreatePropertyConstraint< int >( func ) );
 
-      constraint = Dali::Constraint( Internal::Constraint<int>::New( targetIndex,
+      constraint = Dali::Constraint( Internal::Constraint< int >::New( targetIndex,
                                                                        sources,
                                                                        funcPtr ) );
       break;
@@ -140,9 +150,9 @@ Constraint Constraint::New( Property::Index targetIndex,
 
     case Property::VECTOR2:
     {
-      Internal::PropertyConstraintPtr<Vector2>::Type funcPtr( CreatePropertyConstraint<Vector2>( func ) );
+      Internal::PropertyConstraintPtr< Vector2 >::Type funcPtr( CreatePropertyConstraint< Vector2 >( func ) );
 
-      constraint = Dali::Constraint( Internal::Constraint<Vector2>::New( targetIndex,
+      constraint = Dali::Constraint( Internal::Constraint< Vector2 >::New( targetIndex,
                                                                            sources,
                                                                            funcPtr ) );
       break;
@@ -150,9 +160,9 @@ Constraint Constraint::New( Property::Index targetIndex,
 
     case Property::VECTOR3:
     {
-      Internal::PropertyConstraintPtr<Vector3>::Type funcPtr( CreatePropertyConstraint<Vector3>( func ) );
+      Internal::PropertyConstraintPtr< Vector3 >::Type funcPtr( CreatePropertyConstraint< Vector3 >( func ) );
 
-      constraint = Dali::Constraint( Internal::Constraint<Vector3>::New( targetIndex,
+      constraint = Dali::Constraint( Internal::Constraint< Vector3 >::New( targetIndex,
                                                                            sources,
                                                                            funcPtr ) );
       break;
@@ -160,9 +170,9 @@ Constraint Constraint::New( Property::Index targetIndex,
 
     case Property::VECTOR4:
     {
-      Internal::PropertyConstraintPtr<Vector4>::Type funcPtr( CreatePropertyConstraint<Vector4>( func ) );
+      Internal::PropertyConstraintPtr< Vector4 >::Type funcPtr( CreatePropertyConstraint< Vector4 >( func ) );
 
-      constraint = Dali::Constraint( Internal::Constraint<Vector4>::New( targetIndex,
+      constraint = Dali::Constraint( Internal::Constraint< Vector4 >::New( targetIndex,
                                                                            sources,
                                                                            funcPtr ) );
       break;
@@ -170,9 +180,9 @@ Constraint Constraint::New( Property::Index targetIndex,
 
     case Property::ROTATION:
     {
-      Internal::PropertyConstraintPtr<Quaternion>::Type funcPtr( CreatePropertyConstraint<Quaternion>( func ) );
+      Internal::PropertyConstraintPtr< Quaternion >::Type funcPtr( CreatePropertyConstraint< Quaternion >( func ) );
 
-      constraint = Dali::Constraint( Internal::Constraint<Quaternion>::New( targetIndex,
+      constraint = Dali::Constraint( Internal::Constraint< Quaternion >::New( targetIndex,
                                                                               sources,
                                                                               funcPtr ) );
       break;
@@ -180,9 +190,9 @@ Constraint Constraint::New( Property::Index targetIndex,
 
     case Property::MATRIX:
     {
-      Internal::PropertyConstraintPtr<Matrix>::Type funcPtr( CreatePropertyConstraint<Matrix>( func ) );
+      Internal::PropertyConstraintPtr< Matrix >::Type funcPtr( CreatePropertyConstraint< Matrix >( func ) );
 
-      constraint = Dali::Constraint( Internal::Constraint<Matrix>::New( targetIndex,
+      constraint = Dali::Constraint( Internal::Constraint< Matrix >::New( targetIndex,
                                                                           sources,
                                                                           funcPtr ) );
       break;
@@ -192,7 +202,7 @@ Constraint Constraint::New( Property::Index targetIndex,
     {
       Internal::PropertyConstraintPtr<Matrix3>::Type funcPtr( CreatePropertyConstraint<Matrix3>( func ) );
 
-      constraint = Dali::Constraint( Internal::Constraint<Matrix3>::New( targetIndex,
+      constraint = Dali::Constraint( Internal::Constraint< Matrix3 >::New( targetIndex,
                                                                            sources,
                                                                            funcPtr ) );
       break;
@@ -205,14 +215,7 @@ Constraint Constraint::New( Property::Index targetIndex,
     }
   }
 
-  delete func;
-
   return constraint;
-}
-
-Constraint Constraint::DownCast( BaseHandle handle )
-{
-  return Constraint( dynamic_cast<Dali::Internal::ConstraintBase*>(handle.GetObjectPtr()) );
 }
 
 } // namespace Dali

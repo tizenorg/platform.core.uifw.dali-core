@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/animation/active-constraint.h>
 #include <dali/public-api/animation/alpha-functions.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/signals/callback.h>

@@ -217,7 +217,7 @@ public:
    * Apply a constraint to a Object.
    * @param[in] constraint The constraint to apply.
    */
-  Dali::Constraint ApplyConstraint( ConstraintBase& constraint );
+  void ApplyConstraint( ConstraintBase& constraint );
 
   /**
    * Remove one constraint from a Object.

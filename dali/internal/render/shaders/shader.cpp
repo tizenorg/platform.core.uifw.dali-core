@@ -351,14 +351,14 @@ void Shader::SetUniforms( Context& context,
         // switch based on property type to use correct GL uniform setter
         switch ( property.GetType() )
         {
-          case Property::FLOAT :
-          {
-            program.SetUniform1f( loc, property.GetFloat( bufferIndex ) );
-            break;
-          }
           case Property::INTEGER :
           {
             program.SetUniform1i( loc, property.GetInteger( bufferIndex ) );
+            break;
+          }
+          case Property::FLOAT :
+          {
+            program.SetUniform1f( loc, property.GetFloat( bufferIndex ) );
             break;
           }
           case Property::VECTOR2 :
@@ -453,6 +453,7 @@ void Shader::SetUniforms( Context& context,
           default :
           {
             // Only float and Vector properties are passed as uniforms; other types are ignored.
+            // @todo MESH_REWORK Fail silently, loudly or assert? (Unsigned int isn't currently supported)
             break;
           }
         }

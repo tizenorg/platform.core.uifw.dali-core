@@ -144,16 +144,6 @@ Constraint::Constraint( Property::Index targetIndex,
       break;
     }
 
-    case Property::FLOAT:
-    {
-      PropertyConstraintPtr<float>::Type funcPtr( CreatePropertyConstraint<float>( func, sources.size() ) );
-
-      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<float>::New( targetIndex,
-                                                                                        sources,
-                                                                                        funcPtr ) );
-      break;
-    }
-
     case Property::INTEGER:
     {
       PropertyConstraintPtr<int>::Type funcPtr( CreatePropertyConstraint<int>( func, sources.size() ) );
@@ -161,6 +151,26 @@ Constraint::Constraint( Property::Index targetIndex,
       mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<int>::New( targetIndex,
                                                                                       sources,
                                                                                       funcPtr ) );
+      break;
+    }
+
+    case Property::UNSIGNED_INTEGER:
+    {
+      PropertyConstraintPtr<unsigned int>::Type funcPtr( CreatePropertyConstraint<unsigned int>( func, sources.size() ) );
+
+      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<unsigned int>::New( targetIndex,
+                                                                                               sources,
+                                                                                               funcPtr ) );
+      break;
+    }
+
+    case Property::FLOAT:
+    {
+      PropertyConstraintPtr<float>::Type funcPtr( CreatePropertyConstraint<float>( func, sources.size() ) );
+
+      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<float>::New( targetIndex,
+                                                                                        sources,
+                                                                                        funcPtr ) );
       break;
     }
 

@@ -39,14 +39,19 @@ bool LerpBoolean( const bool& current, const bool& target, float progress )
   return current;
 }
 
-float LerpFloat( const float& current, const float& target, float progress )
-{
-  return current + ((target - current) * progress);
-}
-
 int LerpInteger( const int& current, const int& target, float progress )
 {
   return static_cast<int>( current + ( (target - current) * progress ) + 0.5f );
+}
+
+unsigned int LerpUnsignedInteger( const unsigned int& current, const unsigned int& target, float progress )
+{
+  return static_cast<unsigned int>( current + ( (target - current) * progress ) + 0.5f );
+}
+
+float LerpFloat( const float& current, const float& target, float progress )
+{
+  return current + ((target - current) * progress);
 }
 
 Dali::Vector2 LerpVector2( const Dali::Vector2& current, const Dali::Vector2& target, float progress )
@@ -112,15 +117,21 @@ CallbackBase* GetDefaultInterpolator( Property::Type type )
       break;
     }
 
-    case Property::FLOAT:
-    {
-      function = MakeCallback( LerpFloat );
-      break;
-    }
-
     case Property::INTEGER:
     {
       function = MakeCallback( LerpInteger );
+      break;
+    }
+
+    case Property::UNSIGNED_INTEGER:
+    {
+      function = MakeCallback( LerpUnsignedInteger );
+      break;
+    }
+
+    case Property::FLOAT:
+    {
+      function = MakeCallback( LerpFloat );
       break;
     }
 

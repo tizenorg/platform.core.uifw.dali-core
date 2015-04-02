@@ -69,16 +69,18 @@ public:
 
   /**
    * Construct a new constraint.
+   * @param[in] object The property-owning object.
    * @param[in] targetIndex The index of the property to constrain.
    * @param[in] sources The sources of the input properties passed to func.
    * @param[in] func The constraint function.
    * @return A newly allocated active-constraint.
    */
-  static ConstraintBase* New( Property::Index targetIndex,
+  static ConstraintBase* New( Object& object,
+                              Property::Index targetIndex,
                               SourceContainer& sources,
                               ConstraintFunctionPtr func )
   {
-    return new Constraint< PropertyType >( targetIndex, sources, func );
+    return new Constraint< PropertyType >( object, targetIndex, sources, func );
   }
 
   /**
@@ -90,15 +92,18 @@ public:
   }
 
   /**
-   * @copydoc ConstraintBase::Clone()
+   * @copydoc ConstraintBase::CloneForObject()
    */
-  virtual ConstraintBase* Clone()
+  virtual ConstraintBase* CloneForObject( Object& object )
   {
+    DALI_ASSERT_ALWAYS( !mSourceDestroyed && "An input source object has been destroyed" );
+
     ConstraintBase* clone( NULL );
 
     ConstraintFunctionPtr funcPtr( mUserFunction->Clone() );
 
-    clone = new Constraint< PropertyType >( mTargetIndex,
+    clone = new Constraint< PropertyType >( object,
+                                            mTargetIndex,
                                             mSources,
                                             funcPtr );
 
@@ -113,10 +118,11 @@ private:
   /**
    * Private constructor; see also Constraint::New().
    */
-  Constraint( Property::Index targetIndex,
+  Constraint( Object& object,
+              Property::Index targetIndex,
               SourceContainer& sources,
               ConstraintFunctionPtr& func )
-  : ConstraintBase( targetIndex, sources ),
+  : ConstraintBase( object, targetIndex, sources ),
     mTargetIndex( targetIndex ),
     mUserFunction( func )
   {
@@ -281,16 +287,18 @@ public:
 
   /**
    * Construct a new constraint.
+   * @param[in] object The property-owning object.
    * @param[in] targetIndex The index of the property to constrain.
    * @param[in] sources The sources of the input properties passed to func.
    * @param[in] func The constraint function.
    * @return A newly allocated constraint.
    */
-  static ConstraintBase* New( Property::Index targetIndex,
+  static ConstraintBase* New( Object& object,
+                              Property::Index targetIndex,
                               SourceContainer& sources,
                               ConstraintFunctionPtr func )
   {
-    return new Constraint< float >( targetIndex, sources, func );
+    return new Constraint< float >( object, targetIndex, sources, func );
   }
 
   /**
@@ -302,15 +310,18 @@ public:
   }
 
   /**
-   * @copydoc ConstraintBase::Clone()
+   * @copydoc ConstraintBase::CloneForObject()
    */
-  virtual ConstraintBase* Clone()
+  virtual ConstraintBase* CloneForObject( Object& object )
   {
+    DALI_ASSERT_ALWAYS( !mSourceDestroyed && "An input source object has been destroyed" );
+
     ConstraintBase* clone( NULL );
 
     ConstraintFunctionPtr funcPtr( mUserFunction->Clone() );
 
-    clone = new Constraint< float >( mTargetIndex,
+    clone = new Constraint< float >( object,
+                                     mTargetIndex,
                                      mSources,
                                      funcPtr );
 
@@ -325,10 +336,11 @@ private:
   /**
    * Private constructor; see also Constraint::New().
    */
-  Constraint( Property::Index targetIndex,
+  Constraint( Object& object,
+              Property::Index targetIndex,
               SourceContainer& sources,
               ConstraintFunctionPtr& func )
-  : ConstraintBase( targetIndex, sources ),
+  : ConstraintBase( object, targetIndex, sources ),
     mTargetIndex( targetIndex ),
     mUserFunction( func )
   {

@@ -193,7 +193,7 @@ public:
        */
       static UndefinedClass* Copy( const UndefinedClass* object )
       {
-        T* copy = new T( *reinterpret_cast< const T* >( object ) );
+        T* copy = new T( *( reinterpret_cast< const T* >( object ) ) );
         return reinterpret_cast< UndefinedClass* >( copy );
       }
     };
@@ -277,6 +277,7 @@ public:
    *   Constraint constraint = Constraint::New< Vector3 >( CONSTRAINING_PROPERTY_INDEX, &MyFunction );
    * @endcode
    *
+   * @param[in]  handle    The handle to the property-owning object.
    * @param[in]  target    The index of the property to constrain.
    * @param[in]  function  The function to call to set the constrained property value.
    * @return The new constraint.
@@ -284,10 +285,10 @@ public:
    * @tparam P The type of the property to constrain.
    */
   template< class P >
-  static Constraint New( Property::Index target, void( *function )( P&, const PropertyInputContainer& ) )
+  static Constraint New( Handle handle, Property::Index target, void( *function )( P&, const PropertyInputContainer& ) )
   {
     CallbackBase* func = new Constraint::Function< P >( function );
-    return New( target, PropertyTypes::Get< P >(), func );
+    return New( handle, target, PropertyTypes::Get< P >(), func );
   }
 
   /**
@@ -306,6 +307,7 @@ public:
    *   Constraint constraint = Constraint::New< Vector3 >( CONSTRAINING_PROPERTY_INDEX, MyObject() );
    * @endcode
    *
+   * @param[in]  handle  The handle to the property-owning object.
    * @param[in]  target  The index of the property to constrain.
    * @param[in]  object  The functor object whose functor is called to set the constrained property value.
    * @return The new constraint.
@@ -314,10 +316,10 @@ public:
    * @tparam T The type of the object.
    */
   template< class P, class T >
-  static Constraint New( Property::Index target, const T& object )
+  static Constraint New( Handle handle, Property::Index target, const T& object )
   {
     CallbackBase* func = new Constraint::Function< P >( object );
-    return New( target, PropertyTypes::Get< P >(), func );
+    return New( handle, target, PropertyTypes::Get< P >(), func );
   }
 
   /**
@@ -336,6 +338,7 @@ public:
    *   Constraint constraint = Constraint::New< Vector3 >( CONSTRAINING_PROPERTY_INDEX, MyObject(), &MyObject::MyMethod );
    * @endcode
    *
+   * @param[in]  handle          The handle to the property-owning object.
    * @param[in]  target          The index of the property to constrain.
    * @param[in]  object          The object whose member function is called to set the constrained property value.
    * @param[in]  memberFunction  The member function to call to set the constrained property value.
@@ -345,10 +348,10 @@ public:
    * @tparam T The type of the object.
    */
   template< class P, class T >
-  static Constraint New( Property::Index target, const T& object, void ( T::*memberFunction ) ( P&, const PropertyInputContainer& ) )
+  static Constraint New( Handle handle, Property::Index target, const T& object, void ( T::*memberFunction ) ( P&, const PropertyInputContainer& ) )
   {
     CallbackBase* func = new Constraint::Function< P >( object, memberFunction );
-    return New( target, PropertyTypes::Get< P >(), func );
+    return New( handle, target, PropertyTypes::Get< P >(), func );
   }
 
   /**
@@ -361,9 +364,9 @@ public:
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
-   * @param [in] handle A reference to the copied handle
+   * @param [in]  constraint  A reference to the copied handle
    */
-  Constraint(const Constraint& handle);
+  Constraint( const Constraint& constraint );
 
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
@@ -371,24 +374,34 @@ public:
    * @param [in] rhs  A reference to the copied handle
    * @return A reference to this
    */
-  Constraint& operator=(const Constraint& rhs);
+  Constraint& operator=( const Constraint& rhs );
 
   /**
    * @brief Downcast an Object handle to Constraint handle.
    *
    * If handle points to a Constraint object the
    * downcast produces valid handle. If not the returned handle is left uninitialized.
-   * @param[in] handle to An object
+   * @param[in]  baseHandle  to An object
    * @return handle to a Constraint object or an uninitialized handle
    */
-  static Constraint DownCast( BaseHandle handle );
+  static Constraint DownCast( BaseHandle baseHandle );
 
   /**
-   * Adds a constraint source to the constraint
+   * @brief Adds a constraint source to the constraint
    *
    * @param[in] source The constraint source input to add
    */
   void AddSource( ConstraintSource source );
+
+  /**
+   * @brief Applies this constraint.
+   */
+  void Apply();
+
+  /**
+   * @brief Removes this constraint.
+   */
+  void Remove();
 
   /**
    * @brief Retrieve the object which this constraint is targeting.
@@ -436,11 +449,13 @@ public:
   unsigned int GetTag() const;
 
   /**
-   * @brief The create a clones of the constraint.
+   * @brief Creates a clones of this constraint for another object.
+   *
+   * @param[in]  handle  The handle to the property-owning object this constraint is to be cloned for.
    *
    * @return The new constraint.
    */
-  Constraint Clone();
+  Constraint CloneForObject( Handle handle );
 
 public: // Not intended for use by Application developers
 
@@ -455,14 +470,13 @@ private: // Not intended for use by Application developers
   /**
    * @brief Construct a new constraint which targets a property.
    *
-   * @param [in] target The index of the property to constrain.
-   * @param [in] targetType The type of the constrained property.
-   * @param [in] func The constraint function.
+   * @param[in]  handle  The handle to the property-owning object.
+   * @param[in]  target  The index of the property to constrain.
+   * @param[in]  target  Type The type of the constrained property.
+   * @param[in]  func    The constraint function.
    * @return The new constraint.
    */
-  static Constraint New( Property::Index target,
-                         Property::Type targetType,
-                         CallbackBase* func );
+  static Constraint New( Handle handle, Property::Index target, Property::Type targetType, CallbackBase* func );
 };
 
 } // namespace Dali

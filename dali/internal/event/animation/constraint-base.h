@@ -55,11 +55,12 @@ public:
 
   /**
    * Constructor.
+   * @param[in] object The property owning object.
    * @param[in] messageController Used to send messages to the update-thread.
    * @param[in] targetPropertyIndex The index of the property being constrained.
    * @param[in] sources The sources of the input properties.
    */
-  ConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources );
+  ConstraintBase( Object& object, Property::Index targetPropertyIndex, SourceContainer& sources );
 
   /**
    * Virtual destructor.
@@ -67,10 +68,11 @@ public:
   virtual ~ConstraintBase();
 
   /**
-   * Clone a constraint.
+   * Clone this constraint for another object.
+   * @param[in]  object  The object to clone this constraint for
    * @return A new constraint.
    */
-  virtual ConstraintBase* Clone() = 0;
+  virtual ConstraintBase* CloneForObject( Object& object ) = 0;
 
   /**
    * Adds a constraint source to the constraint
@@ -81,30 +83,20 @@ public:
 
   /**
    * Called when the Constraint is first applied.
-   * @pre The constraint does not already have a parent.
-   * @param[in] parent The parent object.
    */
-  void FirstApply( Object& parent );
+  void Apply();
 
   /**
    * Called when the Constraint is removed.
    */
-  void BeginRemove();
+  void Remove();
 
   /**
-   * Called when the target object is destroyed.
+   * Called when the Constraint is removed.
+   *
+   * @note This removes the scene-object as well but then does not call back into the target-object.
    */
-  void OnParentDestroyed();
-
-  /**
-   * Called when the target object is connected to the scene-graph
-   */
-  void OnParentSceneObjectAdded();
-
-  /**
-   * Called when the target object is disconnected from the scene-graph
-   */
-  void OnParentSceneObjectRemoved();
+  void RemoveInternal();
 
   /**
    * Retrieve the parent of the constraint.
@@ -207,19 +199,16 @@ protected:
   }
 
 protected:
-  Property::Index mTargetPropertyIndex;
-  SourceContainer mSources;
-
+  EventThreadServices& mEventThreadServices;
   Object* mTargetObject; ///< The object owns the constraint.
-  ObjectContainer mObservedObjects; // We don't observe the same object twice
-
   const SceneGraph::ConstraintBase* mSceneGraphConstraint;
-
+  SourceContainer mSources;
+  ObjectContainer mObservedObjects; // We don't observe the same object twice
+  Property::Index mTargetPropertyIndex;
   RemoveAction mRemoveAction;
   unsigned int mTag;
-
-private:
-  EventThreadServices& mEventThreadServices;
+  bool mApplied:1; ///< Whether the constraint has been applied
+  bool mSourceDestroyed:1; ///< Is set to true if any of our input source objects are destroyed
 };
 
 } // namespace Internal

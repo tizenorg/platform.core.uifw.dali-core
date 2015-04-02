@@ -36,94 +36,84 @@ namespace Dali
 namespace Internal
 {
 
-ConstraintBase::ConstraintBase( Property::Index targetPropertyIndex, SourceContainer& sources )
-: mTargetPropertyIndex( targetPropertyIndex ),
-  mSources( sources ),
-  mTargetObject( NULL ),
-  mObservedObjects(),
+ConstraintBase::ConstraintBase( Object& object, Property::Index targetPropertyIndex, SourceContainer& sources )
+: mEventThreadServices( *Stage::GetCurrent() ),
+  mTargetObject( &object ),
   mSceneGraphConstraint( NULL ),
+  mSources( sources ),
+  mObservedObjects(),
+  mTargetPropertyIndex( targetPropertyIndex ),
   mRemoveAction( Dali::Constraint::DEFAULT_REMOVE_ACTION ),
-  mTag(0),
-  mEventThreadServices( *Stage::GetCurrent() )
+  mTag( 0 ),
+  mApplied( false ),
+  mSourceDestroyed( false )
 {
+  ObserveObject( object );
 }
 
 ConstraintBase::~ConstraintBase()
 {
   StopObservation();
+
+  RemoveInternal();
 }
 
 void ConstraintBase::AddSource( Source source )
 {
   mSources.push_back( source );
+
+  // Observe the object providing this property
+  if ( OBJECT_PROPERTY == source.sourceType )
+  {
+    DALI_ASSERT_ALWAYS( NULL != source.object && "Constraint source object not found" );
+
+    ObserveObject( *source.object );
+  }
 }
 
-void ConstraintBase::FirstApply( Object& parent )
+void ConstraintBase::Apply()
 {
-  DALI_ASSERT_ALWAYS( NULL == mTargetObject && "Parent of Constraint already set" );
+  DALI_ASSERT_ALWAYS( mTargetObject && "Target object has been destroyed" );
+  DALI_ASSERT_ALWAYS( !mApplied && "Constraint has already been applied" );
+  DALI_ASSERT_ALWAYS( !mSourceDestroyed && "An input source object has been destroyed" );
 
-  // Observe the objects providing properties
-  for ( SourceIter iter = mSources.begin(); mSources.end() != iter; ++iter )
-  {
-    if ( OBJECT_PROPERTY == iter->sourceType )
-    {
-      DALI_ASSERT_ALWAYS( NULL != iter->object && "Constraint source object not found" );
-
-      ObserveObject( *(iter->object) );
-    }
-  }
-
-  mTargetObject = &parent;
-
+  mApplied = true;
   ConnectConstraint();
+
+  mTargetObject->ApplyConstraint( *this );
 }
 
-void ConstraintBase::OnParentDestroyed()
+void ConstraintBase::Remove()
 {
-  // Stop observing the remaining objects
-  StopObservation();
+  RemoveInternal();
 
-  // Discard all object pointers
-  mTargetObject = NULL;
-
-  // Do not discard sources as we may clone this constraint for another object
-}
-
-void ConstraintBase::OnParentSceneObjectAdded()
-{
-  if ( NULL == mSceneGraphConstraint &&
-       mTargetObject )
+  if( mTargetObject )
   {
-    ConnectConstraint();
+    mTargetObject->RemoveConstraint( *this );
   }
 }
 
-void ConstraintBase::OnParentSceneObjectRemoved()
+void ConstraintBase::RemoveInternal()
 {
-  if ( mSceneGraphConstraint )
+  if ( mApplied )
   {
-    // mSceneGraphConstraint will be deleted in update-thread, remove dangling pointer
-    mSceneGraphConstraint = NULL;
-  }
-}
+    mApplied = false;
 
-void ConstraintBase::BeginRemove()
-{
-  // Stop observing the remaining objects
-  StopObservation();
+    // Guard against constraint sending messages during core destruction
+    if( Stage::IsInstalled() )
+    {
+      const SceneGraph::PropertyOwner* propertyOwner = mTargetObject ? mTargetObject->GetSceneObject() : NULL;
 
-  // Do not clear mSources as we may apply this constraint again
+      if ( propertyOwner &&
+           mSceneGraphConstraint )
+      {
+        // Remove from scene-graph
+        RemoveConstraintMessage( GetEventThreadServices(), *propertyOwner, *(mSceneGraphConstraint) );
 
-  const SceneGraph::PropertyOwner* propertyOwner = mTargetObject ? mTargetObject->GetSceneObject() : NULL;
-
-  if ( propertyOwner &&
-       mSceneGraphConstraint )
-  {
-    // Remove from scene-graph
-    RemoveConstraintMessage( GetEventThreadServices(), *propertyOwner, *(mSceneGraphConstraint) );
-
-    // mSceneGraphConstraint will be deleted in update-thread, remove dangling pointer
-    mSceneGraphConstraint = NULL;
+        // mSceneGraphConstraint will be deleted in update-thread, remove dangling pointer
+        mSceneGraphConstraint = NULL;
+      }
+    }
   }
 }
 
@@ -164,7 +154,8 @@ unsigned int ConstraintBase::GetTag() const
 
 void ConstraintBase::SceneObjectAdded( Object& object )
 {
-  if ( NULL == mSceneGraphConstraint &&
+  if ( mApplied &&
+       ( NULL == mSceneGraphConstraint ) &&
        mTargetObject )
   {
     ConnectConstraint();
@@ -175,12 +166,16 @@ void ConstraintBase::SceneObjectRemoved( Object& object )
 {
   if ( mSceneGraphConstraint )
   {
-    const SceneGraph::PropertyOwner* propertyOwner = mTargetObject ? mTargetObject->GetSceneObject() : NULL;
-
-    if( propertyOwner )
+    // An input property owning source has been deleted, need to tell the scene-graph-constraint owner to remove it
+    if ( &object != mTargetObject )
     {
-      // Remove from scene-graph
-      RemoveConstraintMessage( GetEventThreadServices(), *propertyOwner, *(mSceneGraphConstraint) );
+      const SceneGraph::PropertyOwner* propertyOwner = mTargetObject ? mTargetObject->GetSceneObject() : NULL;
+
+      if( propertyOwner )
+      {
+        // Remove from scene-graph
+        RemoveConstraintMessage( GetEventThreadServices(), *propertyOwner, *(mSceneGraphConstraint) );
+      }
     }
 
     // mSceneGraphConstraint will be deleted in update-thread, remove dangling pointer
@@ -195,14 +190,29 @@ void ConstraintBase::ObjectDestroyed( Object& object )
   DALI_ASSERT_DEBUG( mObservedObjects.End() != iter );
   mObservedObjects.Erase( iter );
 
-  // Stop observing the remaining objects
-  StopObservation();
+  if ( &object != mTargetObject )
+  {
+    // Constraint is not useful anymore as an input-source has been destroyed
+    mSourceDestroyed = true;
+
+    // Stop observing the remaining objects
+    StopObservation();
+
+    // Clear our sources as well
+    mSources.clear();
+
+    // We should remove ourselves from the target-object's constraints as well
+    if ( mTargetObject )
+    {
+      mTargetObject->RemoveConstraint( *this );
+    }
+  }
+
+  // NOTE: We do not clear our sources if our target-object is destroyed because we may want to clone this constraint for another target
 
   // Discard all object & scene-graph pointers
   mSceneGraphConstraint = NULL;
   mTargetObject = NULL;
-
-  // Do not discard sources as we may clone this constraint for another object
 }
 
 void ConstraintBase::ObserveObject( Object& object )

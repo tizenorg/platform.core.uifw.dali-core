@@ -318,22 +318,6 @@ public:
   // Constraints
 
   /**
-   * @brief Constrain one of the properties of an Actor.
-   *
-   * @pre The Actor has been initialized.
-   * @param[in] constraint The constraint to apply.
-   */
-  void ApplyConstraint( Constraint constraint );
-
-  /**
-   * @brief Remove one constraint from an Object.
-   *
-   * @pre The Object has been initialized.
-   * @param[in] constraint The constraint to remove.
-   */
-  void RemoveConstraint( Constraint constraint );
-
-  /**
    * @brief Remove all constraints from an Object.
    *
    * @pre The object has been initialized.
@@ -343,7 +327,7 @@ public:
   /**
    * @brief Remove all the constraint from the Object with a matching tag.
    *
-   * @pre The Object has been intialized.
+   * @pre The Object has been initialized.
    * @param[in] tag The tag of the constraints which will be removed
    */
   void RemoveConstraints( unsigned int tag );

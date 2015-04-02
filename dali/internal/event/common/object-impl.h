@@ -214,16 +214,16 @@ public:
   // Constraints
 
   /**
-   * Apply a constraint to a Object.
+   * Apply a constraint to an Object.
    * @param[in] constraint The constraint to apply.
    */
   void ApplyConstraint( ConstraintBase& constraint );
 
   /**
-   * Remove one constraint from a Object.
+   * Remove one constraint from an Object.
    * @param[in] constraint The constraint to remove.
    */
-  void RemoveConstraint( Dali::Constraint constraint );
+  void RemoveConstraint( ConstraintBase& constraint );
 
   /**
    * Remove all constraints from a Object.
@@ -438,11 +438,6 @@ private:
    * Enable property notifications in scene graph
    */
   void DisablePropertyNotifications();
-
-  /**
-   * Helper to remove constraints
-   */
-  void RemoveConstraint( Dali::Constraint& constraint, bool isInScenegraph );
 
   /**
    * Get the value of the property.

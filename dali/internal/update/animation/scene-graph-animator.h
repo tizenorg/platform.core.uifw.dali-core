@@ -394,6 +394,11 @@ struct AnimatorFunctionBase
     return property;
   }
 
+  virtual float operator()(float progress, const unsigned short& property)
+  {
+    return property;
+  }
+
   virtual float operator()(float progress, const float& property)
   {
     return property;
@@ -480,6 +485,36 @@ struct AnimateToUnsignedInteger : public AnimatorFunctionBase
   }
 
   unsigned int mTarget;
+};
+
+struct AnimateByUnsignedShort : public AnimatorFunctionBase
+{
+  AnimateByUnsignedShort(const unsigned short& relativeValue)
+  : mRelative(relativeValue)
+  {
+  }
+
+  float operator()(float alpha, const unsigned short& property)
+  {
+    return static_cast<unsigned short>(property + mRelative * alpha + 0.5f );
+  }
+
+  unsigned short mRelative;
+};
+
+struct AnimateToUnsignedShort : public AnimatorFunctionBase
+{
+  AnimateToUnsignedShort(const unsigned short& targetValue)
+  : mTarget(targetValue)
+  {
+  }
+
+  float operator()(float alpha, const unsigned short& property)
+  {
+    return static_cast<unsigned short>(property + ((mTarget - property) * alpha) + 0.5f);
+  }
+
+  unsigned short mTarget;
 };
 
 struct AnimateByFloat : public AnimatorFunctionBase
@@ -764,6 +799,26 @@ struct KeyFrameUnsignedIntegerFunctor : public AnimatorFunctionBase
   }
 
   KeyFrameUnsignedIntegerPtr mKeyFrames;
+  Interpolation mInterpolation;
+};
+
+struct KeyFrameUnsignedShortFunctor : public AnimatorFunctionBase
+{
+  KeyFrameUnsignedShortFunctor(KeyFrameUnsignedShortPtr keyFrames, Interpolation interpolation)
+  : mKeyFrames(keyFrames),mInterpolation(interpolation)
+  {
+  }
+
+  float operator()(float progress, const unsigned short& property)
+  {
+    if(mKeyFrames->IsActive(progress))
+    {
+      return mKeyFrames->GetValue(progress, mInterpolation);
+    }
+    return property;
+  }
+
+  KeyFrameUnsignedShortPtr mKeyFrames;
   Interpolation mInterpolation;
 };
 

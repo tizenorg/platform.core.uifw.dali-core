@@ -30,6 +30,7 @@ const char* const PROPERTY_TYPE_NAMES[ Property::TYPE_COUNT ] =
   "FLOAT",
   "INTEGER",
   "UNSIGNED_INTEGER",
+  "UNSIGNED_SHORT",
   "VECTOR2",
   "VECTOR3",
   "VECTOR4",

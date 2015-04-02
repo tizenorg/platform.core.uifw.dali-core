@@ -89,6 +89,14 @@ private:
   static bool EvalUnsignedInteger( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
+   * Checks if unsigned short integer is LessThan
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalUnsignedShort( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
    * Checks if float is LessThan
    * @param[in] value The value being examined.
    * @param[in] arg The supplied arguments for the condition.
@@ -179,6 +187,14 @@ private:
    * @return Condition result (true if condition met, false if not)
    */
   static bool EvalUnsignedInteger( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
+   * Checks if unsigned short integer is GreaterThan
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalUnsignedShort( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if float is GreaterThan
@@ -273,6 +289,14 @@ private:
   static bool EvalUnsignedInteger( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
+   * Checks if unsigned short integer is Inside
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalUnsignedShort( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
    * Checks if float is Inside
    * @param[in] value The value being examined.
    * @param[in] arg The supplied arguments for the condition.
@@ -363,6 +387,14 @@ private:
    * @return Condition result (true if condition met, false if not)
    */
   static bool EvalUnsignedInteger( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
+
+  /**
+   * Checks if unsigned short integer is Outside
+   * @param[in] value The value being examined.
+   * @param[in] arg The supplied arguments for the condition.
+   * @return Condition result (true if condition met, false if not)
+   */
+  static bool EvalUnsignedShort( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg );
 
   /**
    * Checks if float is Outside

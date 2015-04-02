@@ -107,6 +107,14 @@ public:
   }
 
   /**
+   * @copydoc Dali::Internal::PropertyInput::GetUnsignedShort()
+   */
+  virtual const unsigned short& GetUnsignedShort() const
+  {
+    return mInput->GetConstraintInputUnsignedShort( mBufferIndex );
+  }
+
+  /**
    * @copydoc Dali::Internal::PropertyInput::GetFloat()
    */
   virtual const float& GetFloat() const

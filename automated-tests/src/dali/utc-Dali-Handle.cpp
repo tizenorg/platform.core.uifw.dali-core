@@ -358,6 +358,7 @@ int UtcDaliHandleGetPropertyType(void)
   Property::Index floatIndex    = actor.RegisterProperty( "float-property",    float(123.0f) );
   Property::Index intIndex      = actor.RegisterProperty( "int-property",      123 );
   Property::Index unsignedIntIndex = actor.RegisterProperty( "unsigned-int-property", 456u );
+  Property::Index unsignedShortIndex = actor.RegisterProperty( "unsigned-short-property", (unsigned short) 65535u );
   Property::Index vector2Index  = actor.RegisterProperty( "vector2-property",  Vector2(1.0f, 2.0f) );
   Property::Index vector3Index  = actor.RegisterProperty( "vector3-property",  Vector3(1.0f, 2.0f, 3.0f) );
   Property::Index vector4Index  = actor.RegisterProperty( "vector4-property",  Vector4(1.0f, 2.0f, 3.0f, 4.0f) );
@@ -367,6 +368,7 @@ int UtcDaliHandleGetPropertyType(void)
   DALI_TEST_CHECK( Property::FLOAT    == actor.GetPropertyType( floatIndex ) );
   DALI_TEST_CHECK( Property::INTEGER  == actor.GetPropertyType( intIndex ) );
   DALI_TEST_CHECK( Property::UNSIGNED_INTEGER  == actor.GetPropertyType( unsignedIntIndex ) );
+  DALI_TEST_CHECK( Property::UNSIGNED_SHORT  == actor.GetPropertyType( unsignedShortIndex ) );
   DALI_TEST_CHECK( Property::VECTOR2  == actor.GetPropertyType( vector2Index ) );
   DALI_TEST_CHECK( Property::VECTOR3  == actor.GetPropertyType( vector3Index ) );
   DALI_TEST_CHECK( Property::VECTOR4  == actor.GetPropertyType( vector4Index ) );
@@ -743,6 +745,7 @@ int UtcDaliHandleRegisterPropertyTypes(void)
     { "Property::FLOAT",            1.0f,              true  },
     { "Property::INTEGER",          1,                 true  },
     { "Property::UNSIGNED_INTEGER", 1u,                true  },
+    { "Property::UNSIGNED_SHORT",   (unsigned short)1u,true  },
     { "Property::VECTOR2",          Vector2::ONE,      true  },
     { "Property::VECTOR3",          Vector3::ONE,      true  },
     { "Property::VECTOR4",          Vector4::ONE,      true  },

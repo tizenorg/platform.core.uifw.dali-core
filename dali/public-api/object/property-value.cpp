@@ -70,6 +70,12 @@ struct Property::Value::Impl
   {
   }
 
+  Impl(unsigned short unsignedShortValue)
+  : mType( PropertyTypes::Get<unsigned short>() ),
+    mValue( unsignedShortValue )
+  {
+  }
+
   Impl(const Vector2& vectorValue)
   : mType( PropertyTypes::Get<Vector2>() ),
     mValue( vectorValue )
@@ -170,6 +176,12 @@ Property::Value::Value(unsigned int unsignedIntegerValue)
 : mImpl( NULL )
 {
   mImpl = new Impl( unsignedIntegerValue );
+}
+
+Property::Value::Value(unsigned short unsignedShortValue)
+: mImpl( NULL )
+{
+  mImpl = new Impl( unsignedShortValue );
 }
 
 Property::Value::Value(const Vector2& vectorValue)
@@ -273,6 +285,12 @@ Property::Value::Value(const Value& value)
       break;
     }
 
+    case Property::UNSIGNED_SHORT:
+    {
+      mImpl = new Impl( value.Get<unsigned short>() );
+      break;
+    }
+
     case Property::VECTOR2:
     {
       mImpl = new Impl( value.Get<Vector2>() );
@@ -367,6 +385,12 @@ Property::Value::Value(Type type)
     case Property::UNSIGNED_INTEGER:
     {
       mImpl = new Impl( 0U );
+      break;
+    }
+
+    case Property::UNSIGNED_SHORT:
+    {
+      mImpl = new Impl( (unsigned short)0u );
       break;
     }
 
@@ -475,6 +499,12 @@ Property::Value& Property::Value::operator=(const Property::Value& value)
       break;
     }
 
+    case Property::UNSIGNED_SHORT:
+    {
+      mImpl->mValue = value.Get<unsigned short>();
+      break;
+    }
+
     case Property::VECTOR2:
     {
       mImpl->mValue = value.Get<Vector2>();
@@ -577,6 +607,13 @@ void Property::Value::Get(unsigned int& unsignedIntegerValue) const
   DALI_ASSERT_DEBUG( Property::UNSIGNED_INTEGER == GetType() && "Property type invalid" );
 
   unsignedIntegerValue = AnyCast<unsigned int>(mImpl->mValue);
+}
+
+void Property::Value::Get(unsigned short& unsignedShortValue) const
+{
+  DALI_ASSERT_DEBUG( Property::UNSIGNED_SHORT == GetType() && "Property type invalid" );
+
+  unsignedShortValue = AnyCast<unsigned short>(mImpl->mValue);
 }
 
 void Property::Value::Get(Vector2& vectorValue) const
@@ -747,6 +784,7 @@ const std::string& Property::Value::GetKey(const int index) const
     case Property::BOOLEAN:
     case Property::FLOAT:
     case Property::UNSIGNED_INTEGER:
+    case Property::UNSIGNED_SHORT:
     case Property::INTEGER:
     case Property::VECTOR2:
     case Property::VECTOR3:
@@ -827,6 +865,7 @@ Property::Value& Property::Value::GetItem(const int index) const
     case Property::FLOAT:
     case Property::INTEGER:
     case Property::UNSIGNED_INTEGER:
+    case Property::UNSIGNED_SHORT:
     case Property::VECTOR2:
     case Property::VECTOR3:
     case Property::VECTOR4:
@@ -893,6 +932,7 @@ void Property::Value::SetItem(const int index, const Property::Value &value)
     case Property::FLOAT:
     case Property::INTEGER:
     case Property::UNSIGNED_INTEGER:
+    case Property::UNSIGNED_SHORT:
     case Property::VECTOR2:
     case Property::VECTOR3:
     case Property::VECTOR4:
@@ -958,6 +998,7 @@ int Property::Value::GetSize() const
     case Property::FLOAT:
     case Property::INTEGER:
     case Property::UNSIGNED_INTEGER:
+    case Property::UNSIGNED_SHORT:
     case Property::VECTOR2:
     case Property::VECTOR3:
     case Property::VECTOR4:
@@ -1026,6 +1067,11 @@ std::ostream& operator<< (std::ostream& stream, const Property::Value& value )
     case Dali::Property::UNSIGNED_INTEGER:
     {
       stream << AnyCast<unsigned int>(impl.mValue);
+      break;
+    }
+    case Dali::Property::UNSIGNED_SHORT:
+    {
+      stream << AnyCast<unsigned short>(impl.mValue);
       break;
     }
     case Dali::Property::RECTANGLE:

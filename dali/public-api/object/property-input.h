@@ -83,6 +83,14 @@ public:
   virtual const unsigned int& GetUnsignedInteger() const = 0;
 
   /**
+   * @brief Retrieve a short integer value.
+   *
+   * @pre GetType() returns Property::UNSIGNED_SHORT.
+   * @return The integer value.
+   */
+  virtual const unsigned short& GetUnsignedShort() const = 0;
+
+  /**
    * @brief Retrieve a Vector2 value.
    *
    * @pre GetType() returns Property::VECTOR2.

@@ -74,6 +74,13 @@ public:
   Value(unsigned int unsignedIntegerValue);
 
   /**
+   * @brief Create an unsigned short integer property value.
+   *
+   * @param [in] unsignedShortValue An unsigned short integer value.
+   */
+  Value(unsigned short unsignedShortValue);
+
+  /**
    * @brief Create a float property value.
    *
    * @param [in] floatValue A floating-point value.
@@ -243,6 +250,14 @@ public:
    * @param [out] unsignedIntegerValue On return, an unsigned integer value.
    */
   void Get(unsigned int& unsignedIntegerValue) const;
+
+  /**
+   * @brief Retrieve an unsigned short integer value.
+   *
+   * @pre GetType() returns Property::UNSIGNED_SHORT.
+   * @param [out] unsignedShortValue On return, an unsigned short integer value.
+   */
+  void Get(unsigned short& unsignedShortValue) const;
 
   /**
    * @brief Retrieve an integer rectangle.

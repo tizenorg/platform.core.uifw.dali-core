@@ -9122,3 +9122,46 @@ int UtcDaliAnimationCustomUnsignedIntProperty(void)
   DALI_TEST_EQUALS( actor.GetProperty<unsigned int>(index), 20u, TEST_LOCATION );
   END_TEST;
 }
+
+
+
+int UtcDaliAnimationCustomUnsignedShortProperty(void)
+{
+  TestApplication application;
+
+  Actor actor = Actor::New();
+  Stage::GetCurrent().Add(actor);
+  unsigned short startValue(100u);
+
+  Property::Index index = actor.RegisterProperty("an-index", startValue);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), startValue, TEST_LOCATION );
+
+  // Build the animation
+  float durationSeconds(1.0f);
+  Animation animation = Animation::New(durationSeconds);
+  animation.AnimateTo( Property(actor, index), (unsigned short) 300u );
+
+  // Start the animation
+  animation.Play();
+
+  bool signalReceived(false);
+  AnimationFinishCheck finishCheck(signalReceived);
+  animation.FinishedSignal().Connect(&application, finishCheck);
+
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*500.0f)/* 50% progress */);
+
+  // We didn't expect the animation to finish yet
+  application.SendNotification();
+  finishCheck.CheckSignalNotReceived();
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), (unsigned short)200u, TEST_LOCATION );
+
+  application.SendNotification();
+  application.Render(static_cast<unsigned int>(durationSeconds*500.0f) + 1u/*just beyond the animation duration*/);
+
+  // We did expect the animation to finish
+  application.SendNotification();
+  finishCheck.CheckSignalReceived();
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), (unsigned int)300u, TEST_LOCATION );
+  END_TEST;
+}

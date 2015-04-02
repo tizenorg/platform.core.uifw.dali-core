@@ -242,6 +242,7 @@ typedef KeyFrameBaseSpec<float>          KeyFrameNumber;
 typedef KeyFrameBaseSpec<bool>           KeyFrameBoolean;
 typedef KeyFrameBaseSpec<int>            KeyFrameInteger;
 typedef KeyFrameBaseSpec<unsigned int>   KeyFrameUnsignedInteger;
+typedef KeyFrameBaseSpec<unsigned short> KeyFrameUnsignedShort;
 typedef KeyFrameBaseSpec<Vector2>        KeyFrameVector2;
 typedef KeyFrameBaseSpec<Vector3>        KeyFrameVector3;
 typedef KeyFrameBaseSpec<Vector4>        KeyFrameVector4;
@@ -251,6 +252,7 @@ typedef IntrusivePtr<KeyFrameBoolean>         KeyFrameBooleanPtr;
 typedef IntrusivePtr<KeyFrameNumber>          KeyFrameNumberPtr;
 typedef IntrusivePtr<KeyFrameInteger>         KeyFrameIntegerPtr;
 typedef IntrusivePtr<KeyFrameUnsignedInteger> KeyFrameUnsignedIntegerPtr;
+typedef IntrusivePtr<KeyFrameUnsignedShort>   KeyFrameUnsignedShortPtr;
 typedef IntrusivePtr<KeyFrameVector2>         KeyFrameVector2Ptr;
 typedef IntrusivePtr<KeyFrameVector3>         KeyFrameVector3Ptr;
 typedef IntrusivePtr<KeyFrameVector4>         KeyFrameVector4Ptr;
@@ -295,6 +297,16 @@ inline void GetSpecialization(Internal::KeyFrames& keyFrames, Internal::KeyFrame
 inline void GetSpecialization(const Internal::KeyFrames& keyFrames, const Internal::KeyFrameUnsignedInteger*& keyFrameSpec)
 {
   keyFrameSpec = static_cast<const Internal::KeyFrameUnsignedInteger*>(keyFrames.GetKeyFramesBase());
+}
+
+inline void GetSpecialization(Internal::KeyFrames& keyFrames, Internal::KeyFrameUnsignedShort*& keyFrameSpec)
+{
+  keyFrameSpec = static_cast<Internal::KeyFrameUnsignedShort*>(keyFrames.GetKeyFramesBase());
+}
+
+inline void GetSpecialization(const Internal::KeyFrames& keyFrames, const Internal::KeyFrameUnsignedShort*& keyFrameSpec)
+{
+  keyFrameSpec = static_cast<const Internal::KeyFrameUnsignedShort*>(keyFrames.GetKeyFramesBase());
 }
 
 inline void GetSpecialization(Internal::KeyFrames& keyFrames, Internal::KeyFrameVector2*& keyFrameSpec)

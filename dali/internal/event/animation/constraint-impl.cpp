@@ -164,6 +164,16 @@ Constraint::Constraint( Property::Index targetIndex,
       break;
     }
 
+    case Property::UNSIGNED_SHORT:
+    {
+      PropertyConstraintPtr<unsigned short>::Type funcPtr( CreatePropertyConstraint<unsigned short>( func, sources.size() ) );
+
+      mActiveConstraintTemplate = Dali::ActiveConstraint( ActiveConstraint<unsigned short>::New( targetIndex,
+                                                                                               sources,
+                                                                                               funcPtr ) );
+      break;
+    }
+
     case Property::FLOAT:
     {
       PropertyConstraintPtr<float>::Type funcPtr( CreatePropertyConstraint<float>( func, sources.size() ) );

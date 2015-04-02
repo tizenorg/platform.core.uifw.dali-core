@@ -59,6 +59,7 @@ static const unsigned int SET_FLAG   = 0x02; ///< Indicates that the value was S
 template <class T>
 class AnimatableProperty;
 
+
 /**
  * Base class to reduce code size from the templates.
  */
@@ -649,6 +650,181 @@ private:
 private:
   DoubleBuffered<unsigned int> mValue; ///< The double-buffered property value
   unsigned int mBaseValue;             ///< Reset to this base value at the beginning of each frame
+};
+
+/**
+ * An unsigned short integer animatable property of a scene-graph object.
+ */
+template <>
+class AnimatableProperty<unsigned short> : public AnimatablePropertyBase
+{
+public:
+  /**
+   * Create an animatable property.
+   * @param [in] initialValue The initial value of the property.
+   */
+  AnimatableProperty( unsigned short initialValue )
+  : mValue( initialValue ),
+    mBaseValue( initialValue )
+  {
+  }
+
+  /**
+   * Virtual destructor.
+   */
+  virtual ~AnimatableProperty()
+  {
+  }
+
+  /**
+   * @copydoc Dali::Internal::SceneGraph::PropertyBase::GetType()
+   */
+  virtual Dali::Property::Type GetType() const
+  {
+    return Dali::PropertyTypes::Get<unsigned short>();
+  }
+
+  /**
+   * @copydoc Dali::Internal::SceneGraph::PropertyBase::ResetToBaseValue()
+   */
+  virtual void ResetToBaseValue(BufferIndex updateBufferIndex)
+  {
+    if (CLEAN_FLAG != mDirtyFlags)
+    {
+      mValue[updateBufferIndex] = mBaseValue;
+
+      mDirtyFlags = ( mDirtyFlags >> 1 );
+    }
+  }
+
+  /**
+   * @copydoc Dali::Internal::PropertyInputImpl::GetUnsignedShort()
+   */
+  virtual const unsigned short& GetUnsignedShort( BufferIndex bufferIndex ) const
+  {
+    return mValue[ bufferIndex ];
+  }
+
+  /**
+   * Set the property value. This will only persist for the current frame; the property
+   * will be reset with the base value, at the beginning of the next frame.
+   * @param[in] bufferIndex The buffer to write.
+   * @param[in] value The new property value.
+   */
+  void Set(BufferIndex bufferIndex, unsigned short value)
+  {
+    mValue[bufferIndex] = value;
+    OnSet();
+  }
+
+  /**
+   * Change the property value by a relative amount.
+   * @param[in] bufferIndex The buffer to write.
+   * @param[in] delta The property will change by this amount.
+   */
+  void SetRelative(BufferIndex bufferIndex, unsigned short delta)
+  {
+    mValue[bufferIndex] = mValue[bufferIndex] + delta;
+    OnSet();
+  }
+
+  /**
+   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
+   */
+  unsigned short& Get(size_t bufferIndex)
+  {
+    return mValue[bufferIndex];
+  }
+
+  /**
+   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
+   */
+  const unsigned short& Get(size_t bufferIndex) const
+  {
+    return mValue[bufferIndex];
+  }
+
+  /**
+   * Retrieve the property value.
+   * @param[in] bufferIndex The buffer to read.
+   * @return The property value.
+   */
+  unsigned short& operator[](size_t bufferIndex)
+  {
+    return mValue[bufferIndex];
+  }
+
+  /**
+   * Retrieve the property value.
+   * @param[in] bufferIndex The buffer to read.
+   * @return The property value.
+   */
+  const unsigned short& operator[](size_t bufferIndex) const
+  {
+    return mValue[bufferIndex];
+  }
+
+  /**
+   * Set both the property value & base value.
+   * @param[in] bufferIndex The buffer to write for the property value.
+   * @param[in] value The new property value.
+   */
+  void Bake(BufferIndex bufferIndex, unsigned short value)
+  {
+    mValue[bufferIndex] = value;
+    mBaseValue = mValue[bufferIndex];
+
+    OnBake();
+  }
+
+  /**
+   * Change the property value & base value by a relative amount.
+   * @param[in] bufferIndex The buffer to write for the local property value.
+   * @param[in] delta The property will change by this amount.
+   */
+  void BakeRelative(BufferIndex bufferIndex, unsigned short delta)
+  {
+    mValue[bufferIndex] = mValue[bufferIndex] + delta;
+    mBaseValue = mValue[bufferIndex];
+
+    OnBake();
+  }
+
+  /**
+   * Sets both double-buffered values & the base value.
+   * This should only be used when the owning object has not been connected to the scene-graph.
+   * @param[in] value The new property value.
+   */
+  void SetInitial(const unsigned short& value)
+  {
+    mValue[0]  = value;
+    mValue[1]  = mValue[0];
+    mBaseValue = mValue[0];
+  }
+
+  /**
+   * Change both double-buffered values & the base value by a relative amount.
+   * This should only be used when the owning object has not been connected to the scene-graph.
+   * @param[in] delta The property will change by this amount.
+   */
+  void SetInitialRelative(const unsigned short& delta)
+  {
+    mValue[0] = mValue[0] + delta;
+    mValue[1] = mValue[0];
+    mBaseValue = mValue[0];
+  }
+
+private:
+
+  // Undefined
+  AnimatableProperty(const AnimatableProperty& property);
+
+  // Undefined
+  AnimatableProperty& operator=(const AnimatableProperty& rhs);
+
+private:
+  DoubleBuffered<unsigned short> mValue;  ///< The double-buffered property value
+  unsigned short mBaseValue; ///< Reset to this base value at the beginning of each frame
 };
 
 

@@ -76,6 +76,7 @@ template <typename T> struct ParameterType< T* > : public BasicType< T* > {};
 template <typename T> struct ParameterType< const T* > : public BasicType< const T* > {};
 template <> struct ParameterType< int > : public BasicType< int > {};
 template <> struct ParameterType< unsigned int > : public BasicType< unsigned int > {};
+template <> struct ParameterType< unsigned short > : public BasicType< unsigned short > {};
 template <> struct ParameterType< float > : public BasicType< float > {};
 template <> struct ParameterType< bool > : public BasicType< bool > {};
 template <> struct ParameterType< short int > : public BasicType< short int > {};

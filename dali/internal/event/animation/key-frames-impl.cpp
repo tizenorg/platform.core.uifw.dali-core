@@ -54,6 +54,9 @@ void KeyFrames::CreateKeyFramesSpec(Property::Type type)
     case Property::UNSIGNED_INTEGER:
       mKeyFrames = Internal::KeyFrameUnsignedInteger::New();
       break;
+    case Property::UNSIGNED_SHORT:
+      mKeyFrames = Internal::KeyFrameUnsignedShort::New();
+      break;
     case Property::FLOAT:
       mKeyFrames = Internal::KeyFrameNumber::New();
       break;
@@ -110,6 +113,12 @@ void KeyFrames::Add(float time, Property::Value value, AlphaFunction alpha)
     {
       Internal::KeyFrameUnsignedInteger* kf = static_cast<Internal::KeyFrameUnsignedInteger*>(mKeyFrames.Get());
       kf->AddKeyFrame(time, value.Get<unsigned int>(), alpha);
+      break;
+    }
+    case Property::UNSIGNED_SHORT:
+    {
+      Internal::KeyFrameUnsignedShort* kf = static_cast<Internal::KeyFrameUnsignedShort*>(mKeyFrames.Get());
+      kf->AddKeyFrame(time, value.Get<unsigned short>(), alpha);
       break;
     }
     case Property::FLOAT:

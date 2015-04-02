@@ -54,6 +54,11 @@ ConditionFunction LessThan::GetFunction(Property::Type valueType)
       function = LessThan::EvalUnsignedInteger;
       break;
     }
+    case Property::UNSIGNED_SHORT:
+    {
+      function = LessThan::EvalUnsignedShort;
+      break;
+    }
     case Property::FLOAT:
     {
       function = LessThan::EvalFloat;
@@ -100,6 +105,12 @@ bool LessThan::EvalUnsignedInteger( const Dali::PropertyInput& value, PropertyNo
 {
   const unsigned int arg0 = arg[0];
   return (value.GetUnsignedInteger() < arg0);
+}
+
+bool LessThan::EvalUnsignedShort( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
+{
+  const unsigned short arg0 = arg[0];
+  return (value.GetUnsignedShort() < arg0);
 }
 
 bool LessThan::EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
@@ -154,6 +165,11 @@ ConditionFunction GreaterThan::GetFunction(Property::Type valueType)
       function = GreaterThan::EvalUnsignedInteger;
       break;
     }
+    case Property::UNSIGNED_SHORT:
+    {
+      function = GreaterThan::EvalUnsignedShort;
+      break;
+    }
     case Property::FLOAT:
     {
       function = GreaterThan::EvalFloat;
@@ -200,6 +216,11 @@ bool GreaterThan::EvalUnsignedInteger( const Dali::PropertyInput& value, Propert
 {
   const unsigned int arg0 = arg[0];
   return (value.GetUnsignedInteger() > arg0);
+}
+bool GreaterThan::EvalUnsignedShort( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
+{
+  const unsigned short arg0 = arg[0];
+  return (value.GetUnsignedShort() > arg0);
 }
 
 bool GreaterThan::EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
@@ -254,6 +275,11 @@ ConditionFunction Inside::GetFunction(Property::Type valueType)
       function = Inside::EvalUnsignedInteger;
       break;
     }
+    case Property::UNSIGNED_SHORT:
+    {
+      function = Inside::EvalUnsignedShort;
+      break;
+    }
     case Property::FLOAT:
     {
       function = Inside::EvalFloat;
@@ -300,6 +326,12 @@ bool Inside::EvalUnsignedInteger( const Dali::PropertyInput& value, PropertyNoti
 {
   const unsigned int valueUInt = value.GetUnsignedInteger();
   return ( (valueUInt > arg[0]) && (valueUInt < arg[1]) );
+}
+
+bool Inside::EvalUnsignedShort( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
+{
+  const unsigned short valueUShort = value.GetUnsignedShort();
+  return ( (valueUShort > arg[0]) && (valueUShort < arg[1]) );
 }
 
 bool Inside::EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
@@ -354,6 +386,11 @@ ConditionFunction Outside::GetFunction(Property::Type valueType)
       function = Outside::EvalUnsignedInteger;
       break;
     }
+    case Property::UNSIGNED_SHORT:
+    {
+      function = Outside::EvalUnsignedShort;
+      break;
+    }
     case Property::FLOAT:
     {
       function = Outside::EvalFloat;
@@ -400,6 +437,12 @@ bool Outside::EvalUnsignedInteger( const Dali::PropertyInput& value, PropertyNot
 {
   const unsigned int valueUInt = value.GetUnsignedInteger();
   return ( (valueUInt < arg[0]) || (valueUInt > arg[1]) );
+}
+
+bool Outside::EvalUnsignedShort( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )
+{
+  const unsigned short valueUShort = value.GetUnsignedShort();
+  return ( (valueUShort < arg[0]) || (valueUShort > arg[1]) );
 }
 
 bool Outside::EvalFloat( const Dali::PropertyInput& value, PropertyNotification::RawArgumentContainer& arg )

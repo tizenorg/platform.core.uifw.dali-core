@@ -49,6 +49,11 @@ unsigned int LerpUnsignedInteger( const unsigned int& current, const unsigned in
   return static_cast<unsigned int>( current + ( (target - current) * progress ) + 0.5f );
 }
 
+unsigned short LerpUnsignedShort( const unsigned short& current, const unsigned short& target, float progress )
+{
+  return static_cast<unsigned short>( current + ( (target - current) * progress ) + 0.5f );
+}
+
 float LerpFloat( const float& current, const float& target, float progress )
 {
   return current + ((target - current) * progress);
@@ -126,6 +131,12 @@ CallbackBase* GetDefaultInterpolator( Property::Type type )
     case Property::UNSIGNED_INTEGER:
     {
       function = MakeCallback( LerpUnsignedInteger );
+      break;
+    }
+
+    case Property::UNSIGNED_SHORT:
+    {
+      function = MakeCallback( LerpUnsignedShort );
       break;
     }
 

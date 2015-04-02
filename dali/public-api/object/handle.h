@@ -215,6 +215,7 @@ public:
    *       - Property::FLOAT
    *       - Property::INTEGER
    *       - Property::UNSIGNED_INTEGER
+   *       - Property::UNSIGNED_SHORT
    *       - Property::VECTOR2
    *       - Property::VECTOR3
    *       - Property::VECTOR4
@@ -238,6 +239,7 @@ public:
    *       - Property::FLOAT
    *       - Property::INTEGER
    *       - Property::UNSIGNED_INTEGER
+   *       - Property::UNSIGNED_SHORT
    *       - Property::VECTOR2
    *       - Property::VECTOR3
    *       - Property::VECTOR4

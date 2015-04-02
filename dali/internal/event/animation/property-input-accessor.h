@@ -116,6 +116,14 @@ public:
   }
 
   /**
+   * @copydoc Dali::Internal::PropertyInputImpl::GetConstraintInputUnsignedShort() const
+   */
+  const unsigned short& GetConstraintInputUnsignedShort( BufferIndex updateBufferIndex ) const
+  {
+    return mInput->GetConstraintInputUnsignedShort( updateBufferIndex );
+  }
+
+  /**
    * @copydoc Dali::Internal::PropertyInputImpl::GetConstraintInputFloat()
    */
   const float& GetConstraintInputFloat( BufferIndex updateBufferIndex ) const
@@ -279,6 +287,16 @@ public:
     DALI_ASSERT_DEBUG( mComponentIndex < 0 && "Did not expect valid component index" );
 
     return mInput->GetConstraintInputUnsignedInteger( updateBufferIndex );
+  }
+
+  /**
+   * @copydoc Dali::Internal::PropertyInputImpl::GetConstraintInputUnsignedShort() const
+   */
+  const unsigned short& GetConstraintInputUnsignedShort( BufferIndex updateBufferIndex ) const
+  {
+    DALI_ASSERT_DEBUG( mComponentIndex < 0 && "Did not expect valid component index" );
+
+    return mInput->GetConstraintInputUnsignedShort( updateBufferIndex );
   }
 
   /**

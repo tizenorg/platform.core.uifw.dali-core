@@ -343,6 +343,17 @@ void Animation::AnimateBy(Property& target, Property::Value& relativeValue, Alph
       break;
     }
 
+    case Property::UNSIGNED_SHORT:
+    {
+      AddAnimatorConnector( AnimatorConnector<unsigned short>::New( object,
+                                                                    target.propertyIndex,
+                                                                    target.componentIndex,
+                                                                    new AnimateByUnsignedShort(relativeValue.Get<unsigned short>()),
+                                                                    alpha,
+                                                                    period ) );
+      break;
+    }
+
     case Property::FLOAT:
     {
       AddAnimatorConnector( AnimatorConnector<float>::New( object,
@@ -474,6 +485,17 @@ void Animation::AnimateTo(Object& targetObject, Property::Index targetPropertyIn
                                                                   targetPropertyIndex,
                                                                   componentIndex,
                                                                   new AnimateToUnsignedInteger( destinationValue.Get<unsigned int>() ),
+                                                                  alpha,
+                                                                  period ) );
+      break;
+    }
+
+    case Property::UNSIGNED_SHORT:
+    {
+      AddAnimatorConnector( AnimatorConnector<unsigned short>::New( targetObject,
+                                                                  targetPropertyIndex,
+                                                                  componentIndex,
+                                                                  new AnimateToUnsignedShort( destinationValue.Get<unsigned short>() ),
                                                                   alpha,
                                                                   period ) );
       break;
@@ -627,12 +649,26 @@ void Animation::AnimateBetween(Property target, const KeyFrames& keyFrames, Alph
       const KeyFrameUnsignedInteger* kf;
       GetSpecialization(keyFrames, kf);
       KeyFrameUnsignedIntegerPtr kfCopy = KeyFrameUnsignedInteger::Clone(*kf);
-      AddAnimatorConnector( AnimatorConnector<int>::New( object,
-                                                         target.propertyIndex,
-                                                         target.componentIndex,
-                                                         new KeyFrameUnsignedIntegerFunctor(kfCopy,interpolation),
-                                                         alpha,
-                                                         period ) );
+      AddAnimatorConnector( AnimatorConnector<unsigned int>::New( object,
+                                                                  target.propertyIndex,
+                                                                  target.componentIndex,
+                                                                  new KeyFrameUnsignedIntegerFunctor(kfCopy,interpolation),
+                                                                  alpha,
+                                                                  period ) );
+      break;
+    }
+
+    case Dali::Property::UNSIGNED_SHORT:
+    {
+      const KeyFrameUnsignedShort* kf;
+      GetSpecialization(keyFrames, kf);
+      KeyFrameUnsignedShortPtr kfCopy = KeyFrameUnsignedShort::Clone(*kf);
+      AddAnimatorConnector( AnimatorConnector<unsigned short>::New( object,
+                                                                    target.propertyIndex,
+                                                                    target.componentIndex,
+                                                                    new KeyFrameUnsignedShortFunctor(kfCopy,interpolation),
+                                                                    alpha,
+                                                                    period ) );
       break;
     }
 

@@ -65,6 +65,8 @@ inline Property::Type Get<int>()              { return Property::INTEGER;  }
 template <>
 inline Property::Type Get<unsigned int>()     { return Property::UNSIGNED_INTEGER;  }
 template <>
+inline Property::Type Get<unsigned short>()   { return Property::UNSIGNED_SHORT;  }
+template <>
 inline Property::Type Get<Vector2>()          { return Property::VECTOR2;  }
 template <>
 inline Property::Type Get<Vector3>()          { return Property::VECTOR3;  }

@@ -366,6 +366,11 @@ void Shader::SetUniforms( Context& context,
             program.SetUniform1i( loc, property.GetUnsignedInteger( bufferIndex ) );
             break;
           }
+          case Property::UNSIGNED_SHORT :
+          {
+            program.SetUniform1i( loc, property.GetUnsignedShort( bufferIndex ) );
+            break;
+          }
           case Property::FLOAT :
           {
             program.SetUniform1f( loc, property.GetFloat( bufferIndex ) );

@@ -67,6 +67,7 @@ public:
   PropertyInputAbstraction(const bool& val) : mType(Dali::Property::BOOLEAN), mBoolData( val )  {}
   PropertyInputAbstraction(const int& val) : mType(Dali::Property::INTEGER), mIntData( val )  {}
   PropertyInputAbstraction(const unsigned int& val) : mType(Dali::Property::UNSIGNED_INTEGER), mUIntData( val )  {}
+  PropertyInputAbstraction(const unsigned short& val) : mType(Dali::Property::UNSIGNED_SHORT), mUIntShortData( val )  {}
   PropertyInputAbstraction(const float& val) : mType(Dali::Property::FLOAT), mFloatData( val )  {}
   PropertyInputAbstraction(const Vector2& val) : mType(Dali::Property::VECTOR2), mVector2Data( val )  {}
   PropertyInputAbstraction(const Vector3& val) : mType(Dali::Property::VECTOR3), mVector3Data( val )  {}
@@ -83,6 +84,7 @@ public:
 
   const int& GetInteger() const { return mIntData; }
   const unsigned int& GetUnsignedInteger() const { return mUIntData; }
+  const unsigned short& GetUnsignedShort() const { return mUIntShortData; }
 
   const float& GetFloat() const { return mFloatData; }
   const Vector2& GetVector2() const { return mVector2Data; }
@@ -99,6 +101,7 @@ private:
   bool mBoolData;
   int mIntData;
   unsigned int mUIntData;
+  unsigned short mUIntShortData;
   float mFloatData;
   Vector2 mVector2Data;
   Vector3 mVector3Data;
@@ -218,6 +221,21 @@ struct TestAlwaysEqualOrGreaterThanConstraintUnsignedInteger
   unsigned int mValue;
 };
 
+struct TestAlwaysEqualOrGreaterThanConstraintUnsignedShort
+{
+  TestAlwaysEqualOrGreaterThanConstraintUnsignedShort( unsigned short value )
+  : mValue( value )
+  {
+  }
+
+  unsigned short operator()( unsigned const short& current )
+  {
+    return ( current < mValue ) ? mValue : current;
+  }
+
+  unsigned short mValue;
+};
+
 struct TestAlwaysEqualOrGreaterThanConstraintVector2
 {
   TestAlwaysEqualOrGreaterThanConstraintVector2( Vector2 value )
@@ -304,7 +322,7 @@ struct TestConstraintInteger
 
 struct TestConstraintUnsignedInteger
 {
-  TestConstraintUnsignedInteger( int value )
+  TestConstraintUnsignedInteger( unsigned int value )
   : mValue( value )
   {
   }
@@ -315,6 +333,21 @@ struct TestConstraintUnsignedInteger
   }
 
   unsigned int mValue;
+};
+
+struct TestConstraintUnsignedShort
+{
+  TestConstraintUnsignedShort( unsigned short value )
+  : mValue( value )
+  {
+  }
+
+  unsigned short operator()( const unsigned short& current )
+  {
+    return mValue;
+  }
+
+  unsigned short mValue;
 };
 
 struct TestConstraintVector2
@@ -882,6 +915,91 @@ int UtcDaliConstraintNewUnsignedInteger(void)
   DALI_TEST_EQUALS( actor.GetProperty<unsigned int>(index), 1, TEST_LOCATION );
   application.Render(0);
   DALI_TEST_EQUALS( actor.GetProperty<unsigned int>(index), 1, TEST_LOCATION );
+  END_TEST;
+}
+
+
+int UtcDaliConstraintNewUnsignedShort(void)
+{
+  TestApplication application;
+
+  Actor actor = Actor::New();
+
+  // Register an integer property
+  unsigned short startValue( 1u );
+  Property::Index index = actor.RegisterProperty( "test-property", startValue );
+  Stage::GetCurrent().Add(actor);
+  DALI_TEST_CHECK( actor.GetProperty<unsigned short>(index) == startValue );
+
+  /**
+   * Test that the Constraint is correctly applied on a clean Node
+   */
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_CHECK( actor.GetProperty<unsigned short>(index) == startValue );
+  application.Render(0);
+  DALI_TEST_CHECK( actor.GetProperty<unsigned short>(index) == startValue );
+  application.Render(0);
+  DALI_TEST_CHECK( actor.GetProperty<unsigned short>(index) == startValue );
+
+  // Apply constraint
+
+  unsigned short minValue( 2u );
+  Constraint constraint = Constraint::New<unsigned short>( index, TestAlwaysEqualOrGreaterThanConstraintUnsignedShort( minValue ) );
+
+  actor.ApplyConstraint( constraint );
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), startValue, TEST_LOCATION );
+
+  application.SendNotification();
+  application.Render(0);
+
+  // Constraint should be fully applied
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), minValue, TEST_LOCATION );
+
+  // Check that nothing has changed after a couple of buffer swaps
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), minValue, TEST_LOCATION );
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), minValue, TEST_LOCATION );
+
+  // Set to greater than 2f, the constraint will allow this
+  actor.SetProperty( index, (unsigned short) 3u );
+
+  application.SendNotification();
+  application.Render(0);
+
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), (unsigned short)3u, TEST_LOCATION );
+
+  // Check that nothing has changed after a couple of buffer swaps
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), (unsigned short)3u, TEST_LOCATION );
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), (unsigned short)3u, TEST_LOCATION );
+
+  // Set to less than 2, the constraint will NOT allow this
+  actor.SetProperty( index, (unsigned short)1u );
+
+  application.SendNotification();
+  application.Render(0);
+
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), minValue/*not 1*/, TEST_LOCATION );
+
+  // Check that nothing has changed after a couple of buffer swaps
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), minValue, TEST_LOCATION );
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), minValue, TEST_LOCATION );
+
+  // Remove the constraint, then set new value
+  actor.RemoveConstraints();
+  actor.SetProperty( index, (unsigned short) 1u );
+
+  // Constraint should have been removed
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), (unsigned short) 1u, TEST_LOCATION );
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), (unsigned short) 1u, TEST_LOCATION );
   END_TEST;
 }
 
@@ -1556,6 +1674,7 @@ int UtcDaliConstraintNewOffStageInteger(void)
   END_TEST;
 }
 
+
 int UtcDaliConstraintNewOffStageUnsignedInteger(void)
 {
   TestApplication application;
@@ -1642,6 +1761,96 @@ int UtcDaliConstraintNewOffStageUnsignedInteger(void)
   DALI_TEST_EQUALS( actor.GetProperty<unsigned int>(index), startValue, TEST_LOCATION );
   application.Render(0);
   DALI_TEST_EQUALS( actor.GetProperty<unsigned int>(index), startValue, TEST_LOCATION );
+  END_TEST;
+}
+
+
+int UtcDaliConstraintNewOffStageUnsignedShort(void)
+{
+  TestApplication application;
+
+  Actor actor = Actor::New();
+
+  // Register an integer property
+  unsigned short startValue(1);
+  Property::Index index = actor.RegisterProperty( "test-property", startValue );
+  DALI_TEST_CHECK( actor.GetProperty<unsigned short>(index) == startValue );
+
+  // Apply constraint to off-stage Actor
+  unsigned short constrainedValue( 2 );
+  Constraint constraint = Constraint::New<unsigned short>( index, TestConstraintUnsignedShort( constrainedValue ) );
+  actor.ApplyConstraint( constraint );
+
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), startValue, TEST_LOCATION );
+
+  // Add actor to stage
+  Stage::GetCurrent().Add(actor);
+  application.SendNotification();
+  application.Render(0);
+
+  // Constraint should be fully applied
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), constrainedValue, TEST_LOCATION );
+
+  // Check that nothing has changed after a couple of buffer swaps
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), constrainedValue, TEST_LOCATION );
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), constrainedValue, TEST_LOCATION );
+
+  // Take the actor off-stage
+  Stage::GetCurrent().Remove(actor);
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), constrainedValue, TEST_LOCATION );
+
+  // Set back to startValue; the constraint will not prevent this
+  actor.SetProperty( index, startValue );
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), startValue, TEST_LOCATION );
+
+  // Add actor to stage (2nd time)
+  Stage::GetCurrent().Add(actor);
+  application.SendNotification();
+  application.Render(0);
+
+  // Constraint should be fully applied (2nd time)
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), constrainedValue, TEST_LOCATION );
+
+  // Check that nothing has changed after a couple of buffer swaps
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), constrainedValue, TEST_LOCATION );
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), constrainedValue, TEST_LOCATION );
+
+  // Take the actor off-stage (2nd-time)
+  Stage::GetCurrent().Remove(actor);
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), constrainedValue, TEST_LOCATION );
+
+  // Remove the constraint, and set back to startValue
+  actor.RemoveConstraints();
+  actor.SetProperty( index, startValue );
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), startValue, TEST_LOCATION );
+
+  // Add actor to stage (3rd time)
+  Stage::GetCurrent().Add(actor);
+  application.SendNotification();
+  application.Render(0);
+
+  // Constraint should be gone
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), startValue, TEST_LOCATION );
+
+  // Check that nothing has changed after a couple of buffer swaps
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), startValue, TEST_LOCATION );
+  application.Render(0);
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(index), startValue, TEST_LOCATION );
   END_TEST;
 }
 

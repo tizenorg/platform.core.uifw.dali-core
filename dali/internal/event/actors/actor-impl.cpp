@@ -2971,6 +2971,17 @@ void Actor::SetSceneGraphProperty( Property::Index index, const PropertyMetadata
       break;
     }
 
+    case Property::UNSIGNED_SHORT:
+    {
+      const AnimatableProperty< unsigned short >* property = dynamic_cast< const AnimatableProperty< unsigned short >* >( entry.GetSceneGraphProperty() );
+      DALI_ASSERT_DEBUG( NULL != property );
+
+      // property is being used in a separate thread; queue a message to set the property
+      SceneGraph::NodePropertyMessage<unsigned short>::Send( GetEventThreadServices(), mNode, property, &AnimatableProperty<unsigned short>::Bake, value.Get<unsigned short>() );
+
+      break;
+    }
+
     case Property::FLOAT:
     {
       const AnimatableProperty< float >* property = dynamic_cast< const AnimatableProperty< float >* >( entry.GetSceneGraphProperty() );

@@ -274,6 +274,8 @@ protected:
 
   unsigned int  mImageWidth;   ///< width of the original image (may be smaller than texture width)
   unsigned int  mImageHeight;  ///< height of the original image (may be smaller than texture height)
+
+  bool          mYInverted;    ///< Whether the image is y-inverted
 };
 
 } // namespace Internal

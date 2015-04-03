@@ -96,7 +96,8 @@ Texture::Texture(Context&      context,
   mWidth(width),
   mHeight(height),
   mImageWidth(imageWidth),
-  mImageHeight(imageHeight)
+  mImageHeight(imageHeight),
+  mYInverted( true )
 {
 }
 
@@ -183,11 +184,23 @@ void Texture::MapUV(unsigned int numVerts, float* verts, unsigned int stride, co
   float uScale = fabsf(uv.u2 - uv.u0);
   float vScale = fabsf(uv.v2 - uv.v0);
 
-  for (unsigned int i = 0; i < numVerts; ++i)
+  if( mYInverted )
   {
-    verts[0] = uv.u0 + verts[0] * uScale;
-    verts[1] = uv.v0 + verts[1] * vScale;
-    verts += stride;
+    for( unsigned int i = 0; i < numVerts; ++i )
+    {
+      verts[0] = uv.u0 + verts[0] * uScale;
+      verts[1] = uv.v0 + verts[1] * vScale;
+      verts += stride;
+    }
+  }
+  else
+  {
+    for( unsigned int i = 0; i < numVerts; ++i )
+    {
+      verts[0] = uv.u0 + verts[0] * uScale;
+      verts[1] = 1.0f - (uv.v0 + verts[1] * vScale);
+      verts += stride;
+    }
   }
 }
 

@@ -39,6 +39,8 @@ NativeTexture::NativeTexture(NativeImageInterface* nativeImg, Context& context)
           nativeImg->GetHeight()),
           mNativeImage(nativeImg)
 {
+  mYInverted = nativeImg->IsYInverted();
+
   DALI_LOG_INFO( Debug::Filter::gImage, Debug::General, "NativeTexture created 0x%x\n", &nativeImg );
 }
 

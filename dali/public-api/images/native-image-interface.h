@@ -85,6 +85,13 @@ public:
   */
   virtual bool RequiresBlending() const = 0;
 
+  /**
+   * @brief Query whether an image is y-inverted.
+   *
+   * @return true if an image is y-inverted, otherwise false.
+   */
+  virtual bool IsYInverted() const = 0;
+
 protected:
 
   /**

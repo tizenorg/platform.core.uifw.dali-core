@@ -38,6 +38,7 @@ public:
   inline virtual unsigned int GetWidth() const {return mWidth;};
   inline virtual unsigned int GetHeight() const {return mHeight;};
   inline virtual bool RequiresBlending() const {return true;};
+  inline virtual bool IsYInverted() const {return true;};
 
 private:
   TestNativeImage(int width, int height);

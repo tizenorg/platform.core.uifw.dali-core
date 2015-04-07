@@ -185,7 +185,7 @@ private:
 
 protected:
 
-  NodeDataProvider& mDataProvider;
+  NodeDataProvider& mDataProvider;        // @todo MESH_REWORK rename to mNodeDataProvider. Shouldn't it be const?
   Context* mContext;
   TextureCache* mTextureCache;
   Shader* mShader;

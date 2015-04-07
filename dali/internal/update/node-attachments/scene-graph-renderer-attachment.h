@@ -25,7 +25,7 @@
 #include <dali/internal/update/controllers/render-message-dispatcher.h>
 #include <dali/internal/update/controllers/scene-controller.h>
 #include <dali/internal/update/node-attachments/scene-graph-renderable-attachment.h>
-#include <dali/internal/render/data-providers/uniform-map-data-provider.h>
+#include <dali/internal/render/data-providers/data-providers.h>
 
 namespace Dali
 {
@@ -194,8 +194,16 @@ private:
   /**
    * Add any new mappings from map into the current map.
    * This doesn't override any existing mappings.
+   * @param[in] localMap The map of collected uniforms.
+   * @param[in] map The map to import into the local map
    */
   void AddMappings( CollectedUniformMap& localMap, const UniformMap& map );
+
+  /**
+   * Create a new data providers object to send the data providers to the NewRenderer object
+   * @return A new DataProviders object.
+   */
+  DataProviders* NewDataProviders();
 
 private:
   NewRenderer* mRenderer; ///< Raw pointer to the new renderer (that's owned by RenderManager)
@@ -206,7 +214,7 @@ private:
   CollectedUniformMap mCollectedUniformMap[2];
   int mRegenerateUniformMap;  ///< 2 if the map should be regenerated, 1 if it should be copied.
   bool mUniformMapChanged[2]; ///< Records if the uniform map has been altered this frame
-  bool mResendChildPointers;
+  bool mResendDataProviders;  ///< True if the data providers should be resent to the renderer
 
 public: // Properties
 

@@ -26,7 +26,8 @@
 #include <dali/internal/update/common/property-owner.h>
 #include <dali/internal/update/common/scene-graph-connection-observers.h>
 #include <dali/internal/update/common/uniform-map.h>
-#include <dali/internal/render/data-providers/material-data-provider.h>
+#include <dali/internal/render/data-providers/data-providers.h>
+#include <dali/internal/render/data-providers/sampler-data-provider.h>
 
 namespace Dali
 {
@@ -106,7 +107,7 @@ public: // MaterialDataProvider implementation
    * Get the samplers this material uses.
    * @return the samplers
    */
-  virtual const Samplers& GetSamplers() const;
+  virtual const DataProviders::Samplers& GetSamplers() const;
 
 public: // UniformMap::Observer
   /**
@@ -127,7 +128,7 @@ public: // Property data
 
 private:
   const Shader* mShader;
-  Samplers mSamplers; // Not owned
+  DataProviders::Samplers mSamplers; // Not owned
   ConnectionObservers mConnectionObservers;
 
   // @todo MESH_REWORK add property values for cull face mode, blending options, blend color

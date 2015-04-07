@@ -29,7 +29,6 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/actors/mesh-actor.h>
 #include <dali/public-api/actors/renderable-actor.h>
-#include <dali/public-api/actors/text-actor.h>
 #include <dali/public-api/actors/sampling.h>
 
 #include <dali/public-api/animation/active-constraint-declarations.h>
@@ -92,7 +91,6 @@
 #include <dali/public-api/images/distance-field.h>
 #include <dali/public-api/images/encoded-buffer-image.h>
 #include <dali/public-api/images/frame-buffer-image.h>
-#include <dali/public-api/images/glyph-image.h>
 #include <dali/public-api/images/image-attributes.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/images/native-image-interface.h>
@@ -152,13 +150,6 @@
 #include <dali/public-api/shader-effects/shader-effect.h>
 
 #include <dali/public-api/size-negotiation/relayout-container.h>
-
-#include <dali/public-api/text/font-parameters.h>
-#include <dali/public-api/text/font.h>
-#include <dali/public-api/text/text-actor-parameters.h>
-#include <dali/public-api/text/text-style.h>
-#include <dali/public-api/text/text.h>
-#include <dali/public-api/text/utf8.h>
 
 #include <dali/public-api/dali-core-version.h>
 

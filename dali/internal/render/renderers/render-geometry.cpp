@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "render-geometry.h"
+#include <dali/internal/render/renderers/render-geometry.h>
 
 #include <dali/internal/common/buffer-index.h>
 #include <dali/internal/update/geometry/scene-graph-geometry.h>
@@ -32,7 +32,8 @@ namespace SceneGraph
 {
 
 RenderGeometry::RenderGeometry()
-: mDataNeedsUploading( true )
+: mDataNeedsUploading( true ),
+  mShaderChanged( true )
 {
 }
 
@@ -47,19 +48,6 @@ void RenderGeometry::GlContextCreated( Context& context )
 
 void RenderGeometry::GlContextDestroyed()
 {
-  for( GpuBuffers::Iterator iter=mVertexBuffers.Begin(); iter != mVertexBuffers.End(); ++iter )
-  {
-    GpuBuffer* gpuBuffer = *iter;
-    if( gpuBuffer )
-    {
-      gpuBuffer->GlContextDestroyed();
-    }
-  }
-
-  if( mIndexBuffer )
-  {
-    mIndexBuffer->GlContextDestroyed();
-  }
 }
 
 void RenderGeometry::UploadAndDraw(
@@ -69,7 +57,7 @@ void RenderGeometry::UploadAndDraw(
   const RenderDataProvider* dataProviders )
 {
   UploadVertexData( context, bufferIndex, dataProviders );
-  BindBuffers();
+  BindBuffers( context, bufferIndex );
   EnableVertexAttributes( context, program );
   Draw( context, bufferIndex, dataProviders );
   DisableVertexAttributes( context, program );
@@ -105,42 +93,35 @@ void RenderGeometry::DoUpload(
 
   for( unsigned int i=0; i<vertexBuffers.Count(); ++i)
   {
-    const PropertyBuffer* vertexBuffer = vertexBuffers[i];
+    const PropertyBufferDataProvider* vertexBuffer = vertexBuffers[i];
 
-    // @todo MESH_REWORK STATIC_DRAW or DYNAMIC_DRAW depends on property buffer type (static / animated)
-    GpuBuffer* vertexGpuBuffer = new GpuBuffer( context, GpuBuffer::ARRAY_BUFFER, GpuBuffer::STATIC_DRAW );
+    RenderPropertyBuffer* propertyBuffer = new RenderPropertyBuffer( *vertexBuffer, false );
 
-    std::size_t dataSize = vertexBuffer->GetDataSize( bufferIndex );
-    vertexGpuBuffer->UpdateDataBuffer( dataSize, vertexBuffer->GetData( bufferIndex ) );
-    vertexGpuBuffer->SetStride( vertexBuffer->GetElementSize( bufferIndex ) );
+    propertyBuffer->DoUpload( context, bufferIndex );
 
-    mVertexBuffers.PushBack( vertexGpuBuffer );
+    mVertexBuffers.PushBack( propertyBuffer );
   }
 
   // Index buffer
-  const PropertyBuffer* indexBuffer = dataProvider->GetIndexBuffer();
+  const PropertyBufferDataProvider* indexBuffer = dataProvider->GetIndexBuffer();
   if( indexBuffer )
   {
-    GpuBuffer* indexGpuBuffer = new GpuBuffer( context, GpuBuffer::ELEMENT_ARRAY_BUFFER, GpuBuffer::STATIC_DRAW );
+    mIndexBuffer = new RenderPropertyBuffer( *indexBuffer, true );
 
-    unsigned int dataSize = indexBuffer->GetDataSize( bufferIndex );
-    indexGpuBuffer->UpdateDataBuffer( dataSize, indexBuffer->GetData( bufferIndex ) );
-
-    mIndexBuffer.Reset();
-    mIndexBuffer = indexGpuBuffer;
+    mIndexBuffer->DoUpload( context, bufferIndex );
   }
 }
 
-void RenderGeometry::BindBuffers()
+void RenderGeometry::BindBuffers( Context& context, BufferIndex bufferIndex )
 {
-  for( GpuBuffers::Iterator iter=mVertexBuffers.Begin(); iter != mVertexBuffers.End(); ++iter )
+  for( unsigned int i = 0; i < mVertexBuffers.Count(); ++i )
   {
-    (*iter)->Bind();
+    mVertexBuffers[i]->BindBuffer( context, program );
   }
 
   if( mIndexBuffer )
   {
-    mIndexBuffer->Bind();
+    mIndexBuffer->BindBuffer( context, program );
   }
 }
 

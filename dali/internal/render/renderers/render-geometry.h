@@ -17,10 +17,13 @@
  * limitations under the License.
  */
 
+#include <dali/public-api/common/dali-vector.h>
+#include <dali/integration-api/gl-defines.h>
 #include <dali/internal/common/buffer-index.h>
 #include <dali/internal/common/owner-container.h>
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/render/data-providers/render-data-provider.h>
+#include <dali/internal/render/renderers/render-renderer-property-buffer.h>
 
 namespace Dali
 {
@@ -43,7 +46,6 @@ class GeometryDataProvider;
 class RenderGeometry
 {
 public:
-  typedef OwnerContainer< GpuBuffer* > GpuBuffers;
 
   /**
    * Constructor. Creates a render geometry object with no GPU buffers.
@@ -107,8 +109,11 @@ private:
 
   /**
    * Bind the geometry buffers
+   * @param[in] context The GL context
+   * @param[in] bufferIndex The current buffer index
    */
-  void BindBuffers();
+  void BindBuffers( Context& context,
+                    BufferIndex bufferIndex );
 
   /**
    * Enable the vertex attributes for each vertex buffer from the corresponding
@@ -137,10 +142,13 @@ private:
              const RenderDataProvider* dataProviders );
 
 private:
-  GpuBuffers mVertexBuffers;
-  OwnerPointer< GpuBuffer > mIndexBuffer;
+  // PropertyBuffers
+  OwnerPointer< RenderPropertyBuffer > mIndexBuffer;
+  OwnerContainer< RenderPropertyBuffer* > mVertexBuffers;
 
+  // Booleans
   bool mDataNeedsUploading;
+  bool mShaderChanged;
 };
 
 } // namespace SceneGraph

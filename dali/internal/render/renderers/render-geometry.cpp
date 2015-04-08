@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "render-geometry.h"
+#include <dali/internal/render/renderers/render-geometry.h>
 
 #include <dali/internal/common/buffer-index.h>
 #include <dali/internal/update/geometry/scene-graph-geometry.h>
@@ -31,7 +31,8 @@ namespace SceneGraph
 {
 
 RenderGeometry::RenderGeometry()
-: mDataNeedsUploading( true )
+: mDataNeedsUploading( true ),
+  mShaderChanged( true )
 {
 }
 

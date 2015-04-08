@@ -20,6 +20,7 @@
 #include <dali/internal/common/buffer-index.h>
 #include <dali/internal/update/common/property-owner.h>
 #include <dali/internal/event/common/event-thread-services.h>
+#include <dali/internal/render/data-providers/property-buffer-data-provider.h>
 
 namespace Dali
 {
@@ -66,7 +67,7 @@ struct Format
 
 } // PropertyBufferMetadata
 
-class PropertyBuffer : public PropertyOwner
+class PropertyBuffer : public PropertyOwner, public PropertyBufferDataProvider
 {
 public:
 
@@ -86,18 +87,6 @@ public:
   virtual ~PropertyBuffer();
 
   /**
-   * Get the size of the property buffer in bytes
-   * @return the size in bytes
-   */
-  std::size_t GetDataSize( BufferIndex bufferIndex ) const;
-
-  /**
-   * Get the size of an element of the buffer in bytes
-   * @return the element size in bytes
-   */
-  std::size_t GetElementSize( BufferIndex bufferIndex ) const;
-
-  /**
    * Set the format of the buffer
    * @param[in] format The format for the PropertyBuffer
    */
@@ -113,12 +102,6 @@ public:
   void SetSize( unsigned int size );
 
   /**
-   * Get the property buffer data
-   * @return the property buffer's data array
-   */
-  const void* GetData( BufferIndex bufferIndex ) const;
-
-  /**
    * Connect the object to the scene graph
    *
    * @param[in] sceneController The scene controller - used for sending messages to render thread
@@ -130,6 +113,48 @@ public:
    * Disconnect the object from the scene graph
    */
   void DisconnectFromSceneGraph( SceneController& sceneController, BufferIndex bufferIndex );
+
+public: // PropertyBufferDataProvider
+
+  /**
+   * @copydoc PropertyBufferDataProvider::HasDataChanged( BufferIndex bufferIndex )
+   */
+  virtual bool HasDataChanged( BufferIndex bufferIndex ) const;
+
+  /**
+   * @copydoc PropertyBufferDataProvider::HasDataChanged( BufferIndex bufferIndex )
+   */
+  virtual unsigned int GetAttributeCount( BufferIndex bufferIndex ) const;
+
+  /**
+   * @copydoc PropertyBufferDataProvider::GetAttributeName( BufferIndex bufferIndex, unsigned int index )
+   */
+  virtual const std::string& GetAttributeName( BufferIndex bufferIndex, unsigned int index ) const;
+
+  /**
+   * @copydoc PropertyBufferDataProvider::GetData( BufferIndex bufferIndex )
+   */
+  virtual const void* GetData( BufferIndex bufferIndex ) const;
+
+  /**
+   * @copydoc PropertyBufferDataProvider::GetDataSize( BufferIndex bufferIndex )
+   */
+  virtual size_t GetDataSize( BufferIndex bufferIndex ) const;
+
+  /**
+   * @copydoc PropertyBufferDataProvider::GetElementSize( BufferIndex bufferIndex )
+   */
+  virtual size_t GetElementSize( BufferIndex bufferIndex ) const;
+
+  /**
+   * @copydoc PropertyBufferDataProvider::GetElementCount( BufferIndex bufferIndex )
+   */
+  virtual unsigned int GetElementCount( BufferIndex bufferIndex ) const;
+
+  /**
+   * @copydoc PropertyBufferDataProvider::GetGpuBufferId
+   */
+  virtual unsigned int GetGpuBufferId( BufferIndex bufferIndex ) const;
 
 private:
   OwnerPointer<PropertyBufferMetadata::Format> mFormat; ///< Format of the buffer

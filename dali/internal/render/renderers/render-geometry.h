@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 
+#include <dali/public-api/common/dali-vector.h>
+#include <dali/integration-api/gl-defines.h>
 #include <dali/internal/common/buffer-index.h>
 #include <dali/internal/common/owner-container.h>
 #include <dali/internal/common/owner-pointer.h>
@@ -136,10 +138,13 @@ private:
              const GeometryDataProvider& geometry );
 
 private:
+  // GpuBuffers
   GpuBuffers mVertexBuffers;
   OwnerPointer< GpuBuffer > mIndexBuffer;
 
+  // Booleans
   bool mDataNeedsUploading;
+  bool mShaderChanged;
 };
 
 } // namespace SceneGraph

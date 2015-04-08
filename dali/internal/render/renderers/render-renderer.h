@@ -48,12 +48,12 @@ class UniformMapDataProvider;
  */
 class NewRenderer : public Renderer
 {
-private:
-  struct UniformIndexMap;
-
 public:
   typedef Integration::ResourceId ResourceId;
 
+  class PropertyBuffer;
+
+public:
   /**
    * Create a new renderer instance
    * @param[in] nodeDataProvider The node data provider
@@ -144,6 +144,8 @@ public: // Implementation of GlResourceOwner
   virtual void GlCleanup();
 
 private:
+  struct UniformIndexMap;
+
   /**
    * Set the uniforms from properties according to the uniform map
    * @param[in] program The shader program on which to set the uniforms.
@@ -216,7 +218,6 @@ public:
   const GeometryDataProvider* mGeometryDataProvider;
 
 private:
-
   RenderGeometry mRenderGeometry;
 
   struct TextureUnitUniformIndex

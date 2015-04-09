@@ -19,9 +19,9 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/event/animation/constrainer.h>
 #include <dali/internal/event/animation/path-impl.h>
-#include <dali/internal/event/common/object-impl.h>
-#include <dali/public-api/animation/path-constraint.h>
+#include <dali/public-api/animation/path-constrainer.h>
 
 namespace Dali
 {
@@ -29,9 +29,9 @@ namespace Dali
 namespace Internal
 {
 
-typedef IntrusivePtr<PathConstraint>  PathConstraintPtr;
-typedef Dali::Vector<Object*>         ObjectContainer;
-typedef ObjectContainer::Iterator     ObjectIter;
+typedef IntrusivePtr<PathConstrainer>   PathConstrainerPtr;
+typedef Dali::Vector<Object*>           ObjectContainer;
+typedef ObjectContainer::Iterator       ObjectIter;
 
 /**
  * @brief Constraint functor to constraint properties to paths.
@@ -99,43 +99,26 @@ struct PathConstraintFunctor
 };
 
 /**
- * @brief A PathConstraint used to constraint properties to a path
+ * @brief A PathConstrainer used to constraint properties to a path
  */
-class PathConstraint : public Object, public Object::Observer
+class PathConstrainer : public Constrainer
 {
 public:
 
   /**
-   * Create a new PathConstraint
-   * @param[in] path The path used in the constraint
-   * @param[in] range The range of values in the input property which will be mapped to 0..1
-   * @return A smart-pointer to the newly allocated PathConstraint.
+   * Create a new PathConstrainer
+   * @return A smart-pointer to the newly allocated PathConstrainer.
    */
-  static PathConstraint* New( Path& path, const Vector2& range );
-
-
+  static PathConstrainer* New();
 
 protected:
+
   /**
    * virtual destructor
    */
-  virtual ~PathConstraint();
+  virtual ~PathConstrainer();
 
 private:
-  /**
-   * @copydoc Dali::Internal::Object::Observer::SceneObjectAdded()
-   */
-  virtual void SceneObjectAdded(Object& object){}
-
-  /**
-   * @copydoc Dali::Internal::Object::Observer::SceneObjectAdded()
-   */
-  virtual void SceneObjectRemoved(Object& object){}
-
-  /**
-   * @copydoc Dali::Internal::Object::Observer::ObjectDestroyed()
-   */
-  virtual void ObjectDestroyed(Object& object);
 
   /**
    * @copydoc Dali::Internal::Object::GetDefaultPropertyCount()
@@ -187,71 +170,43 @@ private:
    */
   virtual Property::Value GetDefaultProperty( Property::Index index ) const;
 
-  /**
-   * @copydoc Dali::Internal::Object::GetSceneObject()
-   */
-  virtual const SceneGraph::PropertyOwner* GetSceneObject() const{ return NULL; }
-
-  /**
-   * @copydoc Dali::Internal::Object::GetSceneObjectAnimatableProperty()
-   */
-  virtual const SceneGraph::PropertyBase* GetSceneObjectAnimatableProperty( Property::Index index ) const{ return NULL; }
-
-  /**
-   * @copydoc Dali::Internal::Object::GetSceneObjectInputProperty()
-   */
-  virtual const PropertyInputImpl* GetSceneObjectInputProperty( Property::Index index ) const{ return NULL; }
-
 public:
 
   /**
-   * @copydoc Dali::PathConstraint::Apply
+   * @copydoc Dali::PathConstrainer::Apply
    */
-  void Apply( Property source, Property target, const Vector3& forward );
-
-  /**
-   * @copydoc Dali::PathConstraint::Remove
-   */
-  void Remove( Dali::Handle& target );
-
+  void Apply( Property source, Property target, const Vector2& range );
 
 private:
-  /**
-   * Constructor
-   * @param[in] path The path used in the constraint
-   * @param[in] range The range of values in the input property which will be mapped to 0..1
-   */
-  PathConstraint( Path& path, const Vector2& range );
+
+  //Constructor
+  PathConstrainer();
 
   // Undefined
-  PathConstraint();
+  PathConstrainer(const PathConstrainer&);
 
   // Undefined
-  PathConstraint(const PathConstraint&);
+  PathConstrainer& operator=(const PathConstrainer& rhs);
 
-  // Undefined
-  PathConstraint& operator=(const PathConstraint& rhs);
-
-  PathPtr           mPath;              ///< The path used to constrain objects
-  ObjectContainer   mObservedObjects;   ///< The list of object which have been constrained by the PathConstraint
-  Vector2           mRange;             ///< The range of values in the input property which will be mapped to 0..1
+  PathPtr mPath;    ///< The path used to constrain objects
+  Vector3 mForward; ///< Vector in object space which will be aligned with the tangent of the path
 };
 
 } // Internal
 
 // Get impl of handle
-inline Internal::PathConstraint& GetImplementation(Dali::PathConstraint& pathConstraint)
+inline Internal::PathConstrainer& GetImplementation(Dali::PathConstrainer& pathConstrainer)
 {
-  DALI_ASSERT_ALWAYS( pathConstraint && "PathConstraint handle is empty" );
-  Dali::RefObject& object = pathConstraint.GetBaseObject();
-  return static_cast<Internal::PathConstraint&>(object);
+  DALI_ASSERT_ALWAYS( pathConstrainer && "PathConstrainer handle is empty" );
+  Dali::RefObject& object = pathConstrainer.GetBaseObject();
+  return static_cast<Internal::PathConstrainer&>(object);
 }
 
-inline const Internal::PathConstraint& GetImplementation(const Dali::PathConstraint& pathConstraint)
+inline const Internal::PathConstrainer& GetImplementation(const Dali::PathConstrainer& pathConstrainer)
 {
-  DALI_ASSERT_ALWAYS( pathConstraint && "PathConstraint handle is empty" );
-  const Dali::RefObject& object = pathConstraint.GetBaseObject();
-  return static_cast<const Internal::PathConstraint&>(object);
+  DALI_ASSERT_ALWAYS( pathConstrainer && "PathConstrainer handle is empty" );
+  const Dali::RefObject& object = pathConstrainer.GetBaseObject();
+  return static_cast<const Internal::PathConstrainer&>(object);
 }
 
 } // Dali

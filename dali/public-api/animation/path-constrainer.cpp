@@ -19,53 +19,53 @@
 #include <dali/public-api/animation/path-constraint.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/event/animation/path-constraint-impl.h>
+#include <dali/internal/event/animation/path-constrainer-impl.h>
 #include <dali/internal/event/animation/path-impl.h>
 
 namespace Dali
 {
 
-PathConstraint PathConstraint::New( Dali::Path path, const Vector2& range )
+PathConstrainer PathConstrainer::New()
 {
-  Internal::PathConstraint* internal = Internal::PathConstraint::New(GetImplementation(path), range);
-  return PathConstraint(internal);
+  Internal::PathConstrainer* internal = Internal::PathConstrainer::New();
+  return PathConstrainer(internal);
 }
 
-PathConstraint PathConstraint::DownCast( BaseHandle handle )
+PathConstrainer PathConstrainer::DownCast( BaseHandle handle )
 {
-  return PathConstraint( dynamic_cast<Dali::Internal::PathConstraint*>(handle.GetObjectPtr()) );
+  return PathConstrainer( dynamic_cast<Dali::Internal::PathConstrainer*>(handle.GetObjectPtr()) );
 }
 
-PathConstraint::PathConstraint()
-{
-}
-
-PathConstraint::~PathConstraint()
+PathConstrainer::PathConstrainer()
 {
 }
 
-PathConstraint::PathConstraint(const PathConstraint& handle)
+PathConstrainer::~PathConstrainer()
+{
+}
+
+PathConstrainer::PathConstrainer(const PathConstrainer& handle)
 :Handle(handle)
 {
 }
 
-PathConstraint::PathConstraint(Internal::PathConstraint* internal)
+PathConstrainer::PathConstrainer(Internal::PathConstrainer* internal)
 : Handle(internal)
 {
 }
 
-PathConstraint& PathConstraint::operator=(const PathConstraint& rhs)
+PathConstrainer& PathConstrainer::operator=(const PathConstrainer& rhs)
 {
   BaseHandle::operator=(rhs);
   return *this;
 }
 
-void PathConstraint::Apply( Dali::Property source, Dali::Property target, const Vector3& forward )
+void PathConstrainer::Apply( Dali::Property source, Dali::Property target, const Vector2& range )
 {
-  GetImplementation(*this).Apply( source, target, forward );
+  GetImplementation(*this).Apply( source, target, range );
 }
 
-void PathConstraint::Remove( Dali::Handle target )
+void PathConstrainer::Remove( Dali::Handle target )
 {
   GetImplementation(*this).Remove( target );
 }

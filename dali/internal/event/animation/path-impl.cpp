@@ -144,6 +144,8 @@ Property::Value Path::GetDefaultProperty( Property::Index index ) const
   Property::Value value;
   if( index == Dali::Path::Property::POINTS )
   {
+    Property::Array propertyArray;
+    value = Property::Value(propertyArray);
     size_t pointCount( mPoint.Size() );
     for( size_t i( 0 ); i != pointCount; ++i )
     {
@@ -152,6 +154,8 @@ Property::Value Path::GetDefaultProperty( Property::Index index ) const
   }
   else if( index == Dali::Path::Property::CONTROL_POINTS )
   {
+    Property::Array propertyArray;
+    value = Property::Value(propertyArray);
     size_t controlpointCount( mControlPoint.Size() );
     for( size_t i( 0 ); i != controlpointCount; ++i )
     {

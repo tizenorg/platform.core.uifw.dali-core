@@ -423,7 +423,7 @@ void RelayoutController::Relayout()
     //    These controls are paired with the parent/stage size and added to the stack.
     const Vector2 stageSize = Dali::Stage::GetCurrent().GetSize();
 
-    for( RawActorList::Iterator it = mDirtyLayoutSubTrees.Begin(), itEnd = mDirtyLayoutSubTrees.End(); it != itEnd; ++it )
+    for( RawActorList::Iterator it = mDirtyLayoutSubTrees.Begin(); it != mDirtyLayoutSubTrees.End(); )
     {
       BaseObject* dirtyActor = *it;
 
@@ -438,11 +438,19 @@ void RelayoutController::Relayout()
         {
           Dali::Actor parent = actor.GetParent();
           QueueActor( actor, *mRelayoutStack, ( parent ) ? Vector2( parent.GetTargetSize() ) : stageSize );
+
+          it = mDirtyLayoutSubTrees.Erase( it );
+        }
+        else
+        {
+          ++it;
         }
       }
+      else
+      {
+        ++it;
+      }
     }
-
-    mDirtyLayoutSubTrees.Clear();
 
     // 2. Iterate through the stack until it's empty.
     if( mRelayoutStack->Size() > 0 )

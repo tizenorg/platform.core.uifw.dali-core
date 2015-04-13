@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <cmath>
+#include <string.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/stage.h>

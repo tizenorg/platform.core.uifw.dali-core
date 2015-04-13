@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/event/animation/animation-impl.h>
 
+// EXTERNAL INCLUDES
+#include <string.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/animation/alpha-functions.h>

@@ -23,6 +23,7 @@
 #include <string>
 #include <map>
 #include <cstdio>
+#include <string.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-core.h>

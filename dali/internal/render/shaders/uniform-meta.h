@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
+#include <string.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/math/compile-time-math.h>

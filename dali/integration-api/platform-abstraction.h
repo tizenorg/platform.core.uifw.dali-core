@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/resource-cache.h>
 
 namespace Dali
@@ -28,7 +27,6 @@ namespace Dali
 namespace Integration
 {
 
-class Bitmap;
 class DynamicsFactory;
 
 

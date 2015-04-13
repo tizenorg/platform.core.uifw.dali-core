@@ -26,6 +26,7 @@
 #include "test-render-controller.h"
 #include <dali/public-api/common/dali-common.h>
 #include <dali/integration-api/resource-policies.h>
+#include <dali/integration-api/debug.h>
 
 namespace Dali
 {

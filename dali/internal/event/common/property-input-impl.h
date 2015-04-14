@@ -43,6 +43,7 @@ namespace Internal
 static const bool DUMMY_BOOLEAN_VALUE( false );
 static const float DUMMY_FLOAT_VALUE( 0.0f );
 static const int DUMMY_INTEGER_VALUE( 0 );
+static const unsigned int DUMMY_UNSIGNED_INTEGER_VALUE( 0u );
 static const Vector2 DUMMY_VECTOR2_VALUE( 0.0f, 0.0f );
 static const Vector3 DUMMY_VECTOR3_VALUE( 0.0f, 0.0f, 0.0f );
 static const Vector4 DUMMY_VECTOR4_VALUE( 0.0f, 0.0f, 0.0f, 0.0f );
@@ -117,6 +118,18 @@ public:
   {
     DALI_ASSERT_ALWAYS( false && "Property type mismatch" );
     return DUMMY_INTEGER_VALUE;
+  }
+
+  /**
+   * Retrieve an unsigned integer value.
+   * @pre GetType() returns Property::UNSIGNED_INTEGER.
+   * @param[in] bufferIndex The buffer to read from.
+   * @return The unsigned integer value.
+   */
+  virtual const unsigned int& GetUnsignedInteger( BufferIndex bufferIndex ) const
+  {
+    DALI_ASSERT_ALWAYS( false && "Property type mismatch" );
+    return DUMMY_UNSIGNED_INTEGER_VALUE;
   }
 
   /**

@@ -37,7 +37,7 @@ RenderPropertyBuffer::~RenderPropertyBuffer()
 {
 }
 
-void RenderPropertyBuffer::DoUpload( Context& context, BufferIndex bufferIndex )
+void RenderPropertyBuffer::Upload( Context& context, BufferIndex bufferIndex )
 {
   bool hasGpuBuffer = NULL != mGpuBuffer;
 
@@ -51,10 +51,12 @@ void RenderPropertyBuffer::DoUpload( Context& context, BufferIndex bufferIndex )
 
     if( mIsIndexBuffer )
     {
+      // TODO: MES_REWORK Use DYNAMIC_DRAW for animated property-buffers
       mGpuBuffer = new GpuBuffer( context, GpuBuffer::ELEMENT_ARRAY_BUFFER, GpuBuffer::STATIC_DRAW );
     }
     else
     {
+      // TODO: MES_REWORK Use DYNAMIC_DRAW for animated property-buffers
       mGpuBuffer = new GpuBuffer( context, GpuBuffer::ARRAY_BUFFER, GpuBuffer::STATIC_DRAW );
     }
   }

@@ -47,6 +47,7 @@ public:
   /**
    * Constructor. Creates a render geometry object with no GPU buffers.
    * @param[in] propertyBufferDataProvider The property-buffer  data provider (to fetch geometry from)
+   * @param[in] isIndexBuffer Whether or not this property buffer is an index-buffer
    */
   RenderPropertyBuffer( const PropertyBufferDataProvider& propertyBufferDataProvider, bool isIndexBuffer );
 
@@ -60,7 +61,7 @@ public:
    * @param[in] context The GL context
    * @param[in] bufferIndex The current buffer index
    */
-  void DoUpload( Context& context, BufferIndex bufferIndex );
+  void Upload( Context& context, BufferIndex bufferIndex );
 
   /**
    * Bind the geometry buffers
@@ -102,7 +103,8 @@ private:
   Vector<GLint> mAttributesLocation;                ///< Location of the attributes for the property buffer in this renderer.
   GpuBuffer* mGpuBuffer;                            ///< Pointer to the GpuBuffer associated with this RenderPropertyBuffer
 
-  bool mIsIndexBuffer;
+  // TODO: MESH_REWORK : use a proper type not a boolean
+  bool mIsIndexBuffer;  ///< If this propertyBuffer is an index-buffer
 };
 
 } // namespace SceneGraph

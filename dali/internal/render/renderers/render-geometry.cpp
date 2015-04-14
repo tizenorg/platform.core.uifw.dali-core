@@ -69,15 +69,12 @@ void RenderGeometry::UploadAndDraw(
     mIndexBuffer->BindBuffer( context, program );
   }
 
-//  BindBuffers( context, bufferIndex, program );
-//  EnableVertexAttributes( context, bufferIndex, program );
   Draw( context, bufferIndex, dataProviders );
 
   for( unsigned int i = 0; i < mVertexBuffers.Count(); ++i )
   {
     mVertexBuffers[i]->DisableVertexAttributes( context, bufferIndex, program );
   }
-  //DisableVertexAttributes( context, bufferIndex, program );
 }
 
 void RenderGeometry::GeometryUpdated()
@@ -114,7 +111,7 @@ void RenderGeometry::DoUpload(
 
     RenderPropertyBuffer* propertyBuffer = new RenderPropertyBuffer( *vertexBuffer, false );
 
-    propertyBuffer->DoUpload( context, bufferIndex );
+    propertyBuffer->Upload( context, bufferIndex );
 
     mVertexBuffers.PushBack( propertyBuffer );
   }
@@ -125,7 +122,7 @@ void RenderGeometry::DoUpload(
   {
     mIndexBuffer = new RenderPropertyBuffer( *indexBuffer, true );
 
-    mIndexBuffer->DoUpload( context, bufferIndex );
+    mIndexBuffer->Upload( context, bufferIndex );
   }
 }
 
@@ -179,18 +176,35 @@ void RenderGeometry::Draw( Context& context, BufferIndex bufferIndex, const Rend
   {
     case Dali::Geometry::TRIANGLES:
     {
-      context.DrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0);
+      if( numIndices )
+      {
+        context.DrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0);
+      }
+      else
+      {
+        const PropertyBufferDataProvider* firstVertexBuffer = dataProvider->GetVertexBuffers()[0];
+        unsigned int numVertices = firstVertexBuffer->GetElementCount( bufferIndex );
+        context.DrawArrays( GL_TRIANGLES, 0, numVertices );
+      }
       break;
     }
     case Dali::Geometry::LINES:
     {
-      context.DrawElements(GL_LINES, numIndices, GL_UNSIGNED_SHORT, 0);
+      if( numIndices )
+      {
+        context.DrawElements(GL_LINES, numIndices, GL_UNSIGNED_SHORT, 0);
+      }
+      else
+      {
+        const PropertyBufferDataProvider* firstVertexBuffer = dataProvider->GetVertexBuffers()[0];
+        unsigned int numVertices = firstVertexBuffer->GetElementCount( bufferIndex );
+        context.DrawArrays( GL_LINES, 0, numVertices );
+      }
       break;
     }
     case Dali::Geometry::POINTS:
     {
       const PropertyBufferDataProvider* firstVertexBuffer = dataProvider->GetVertexBuffers()[0];
-
       unsigned int numVertices = firstVertexBuffer->GetElementCount( bufferIndex );
       context.DrawArrays(GL_POINTS, 0, numVertices );
       break;

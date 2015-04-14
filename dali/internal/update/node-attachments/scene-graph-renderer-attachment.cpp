@@ -212,8 +212,8 @@ void RendererAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
 
       AddMappings( localMap, mGeometry->GetUniformMap() );
 
-      const GeometryDataProvider::VertexBuffers& vertexBuffers = mGeometry->GetVertexBuffers();
-      for( GeometryDataProvider::VertexBuffers::ConstIterator iter = vertexBuffers.Begin(), end = vertexBuffers.End() ;
+      const RenderDataProvider::VertexBuffers& vertexBuffers = mGeometry->GetVertexBuffers();
+      for( RenderDataProvider::VertexBuffers::ConstIterator iter = vertexBuffers.Begin(), end = vertexBuffers.End() ;
            iter != end ;
            ++iter )
       {

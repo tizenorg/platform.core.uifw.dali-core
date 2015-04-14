@@ -37,7 +37,7 @@ RenderPropertyBuffer::~RenderPropertyBuffer()
 {
 }
 
-void RenderPropertyBuffer::DoUpload( Context& context, BufferIndex bufferIndex )
+void RenderPropertyBuffer::Upload( Context& context, BufferIndex bufferIndex )
 {
   bool hasGpuBuffer = NULL != mGpuBuffer;
 

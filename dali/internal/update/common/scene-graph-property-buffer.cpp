@@ -42,7 +42,7 @@ unsigned int Format::GetElementSize() const
 
 
 PropertyBuffer::PropertyBuffer()
-: mRenderBufferData( NULL ),
+: mRenderBufferData(NULL),
   mSize(0u)
 {
 }
@@ -56,10 +56,9 @@ void PropertyBuffer::SetFormat( PropertyBufferMetadata::Format* format )
   mFormat = format;
 }
 
-//TODO:: MESH_REWORK  Remove this, should be a property
-void PropertyBuffer::SetSize( unsigned int size )
+void PropertyBuffer::SetSize( BufferIndex bufferIndex, unsigned int size )
 {
-  mSize = size;
+  mSize.Set(bufferIndex, size);
 }
 
 void PropertyBuffer::SetData( PropertyBufferDataProvider::BufferType* data )
@@ -138,7 +137,7 @@ std::size_t PropertyBuffer::GetDataSize( BufferIndex bufferIndex ) const
   DALI_ASSERT_DEBUG( mFormat && "Format should be set ");
 
   //TODO: MESH_REWORK mSize should be double buffered
-  return mFormat->GetElementSize() * mSize;
+  return mFormat->GetElementSize() * mSize[ bufferIndex ];
 }
 
 std::size_t PropertyBuffer::GetElementSize( BufferIndex bufferIndex ) const
@@ -148,7 +147,7 @@ std::size_t PropertyBuffer::GetElementSize( BufferIndex bufferIndex ) const
 
 unsigned int PropertyBuffer::GetElementCount( BufferIndex bufferIndex ) const
 {
-  return mSize;
+  return mSize[bufferIndex];
 }
 
 unsigned int PropertyBuffer::GetGpuBufferId( BufferIndex bufferIndex ) const
@@ -159,6 +158,11 @@ unsigned int PropertyBuffer::GetGpuBufferId( BufferIndex bufferIndex ) const
   return 0;
 }
 
+void PropertyBuffer::ResetDefaultProperties( BufferIndex updateBufferIndex )
+{
+  // Age the double buffered properties
+  mSize.CopyPrevious(updateBufferIndex);
+}
 
 } // namespace SceneGraph
 } // namespace Internal

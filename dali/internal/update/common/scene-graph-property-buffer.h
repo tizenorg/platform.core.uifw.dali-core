@@ -18,8 +18,9 @@
  */
 
 #include <dali/internal/common/buffer-index.h>
-#include <dali/internal/update/common/property-owner.h>
 #include <dali/internal/event/common/event-thread-services.h>
+#include <dali/internal/update/common/double-buffered-property.h>
+#include <dali/internal/update/common/property-owner.h>
 #include <dali/internal/render/data-providers/property-buffer-data-provider.h>
 
 namespace Dali
@@ -93,8 +94,13 @@ public:
    */
   void SetData( PropertyBufferDataProvider::BufferType* data );
 
-  //TODO:: MESH_REWORK  Remove this, should be a property
-  void SetSize( unsigned int size );
+  /**
+   * Set the number of elements
+   *
+   * @param[in] bufferIndex Index for double buffered values
+   * @param[in] size The number of elements
+   */
+  void SetSize( BufferIndex bufferIndex, unsigned int size );
 
   /**
    * Connect the object to the scene graph
@@ -161,13 +167,18 @@ public: // PropertyBufferDataProvider
    */
   virtual unsigned int GetGpuBufferId( BufferIndex bufferIndex ) const;
 
+protected: // From PropertyOwner
+  /**
+   * @copydoc Dali::Internal::SceneGraph::PropertyOwner::ResetDefaultProperties()
+   */
+  virtual void ResetDefaultProperties( BufferIndex updateBufferIndex );
+
 private:
   OwnerPointer<PropertyBufferMetadata::Format> mFormat; ///< Format of the buffer
   OwnerPointer<PropertyBufferDataProvider::BufferType> mBufferData; ///< Data
   PropertyBufferDataProvider::BufferType* mRenderBufferData;
 
-  //TODO: MESH_REWORK should be double buffered property
-  unsigned int mSize; ///< Size of the buffer
+  DoubleBufferedProperty<unsigned int>  mSize; ///< Number of Elements in the buffer
 };
 
 inline void SetFormatMessage( EventThreadServices& eventThreadServices,
@@ -183,12 +194,11 @@ inline void SetFormatMessage( EventThreadServices& eventThreadServices,
   new (slot) LocalType( &propertyBuffer, &PropertyBuffer::SetFormat, format );
 }
 
-//TODO:: MESH_REWORK  Remove this, should be a property
 inline void SetSizeMessage( EventThreadServices& eventThreadServices,
                             const PropertyBuffer& propertyBuffer,
                             unsigned int size )
 {
-  typedef MessageValue1< PropertyBuffer, unsigned int > LocalType;
+  typedef MessageDoubleBuffered1 < PropertyBuffer, unsigned int > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );

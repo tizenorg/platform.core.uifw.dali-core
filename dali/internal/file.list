@@ -162,6 +162,7 @@ internal_src_files = \
   $(internal_src_dir)/update/animation/scene-graph-animation.cpp \
   $(internal_src_dir)/update/animation/scene-graph-constraint-base.cpp \
   $(internal_src_dir)/update/common/discard-queue.cpp \
+  $(internal_src_dir)/update/common/double-buffered-property.cpp \
   $(internal_src_dir)/update/common/property-base.cpp \
   $(internal_src_dir)/update/common/property-owner-messages.cpp \
   $(internal_src_dir)/update/common/property-condition-functions.cpp \

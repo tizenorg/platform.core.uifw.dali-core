@@ -86,7 +86,7 @@ void Geometry::ClearIndexBuffer()
 
 void Geometry::SetGeometryType( BufferIndex bufferIndex, Geometry::GeometryType geometryType )
 {
-  mGeometryType[bufferIndex] = geometryType;
+  mGeometryType.Set( bufferIndex, geometryType);
 }
 
 const GeometryDataProvider::VertexBuffers& Geometry::GetVertexBuffers() const

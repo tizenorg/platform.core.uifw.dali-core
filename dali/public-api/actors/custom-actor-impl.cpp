@@ -38,11 +38,12 @@ void CustomActorImpl::OnPropertySet( Property::Index index, Property::Value prop
 {
 }
 
-CustomActorImpl::CustomActorImpl(bool requiresTouchEvents)
+CustomActorImpl::CustomActorImpl( bool requiresTouchEvents, bool relayoutEnabled )
 : mOwner(NULL),
   mRequiresTouchEvents(requiresTouchEvents),
   mRequiresHoverEvents(false),
-  mRequiresMouseWheelEvents(false)
+  mRequiresMouseWheelEvents(false),
+  mRelayoutEnabled( relayoutEnabled )
 {
 }
 
@@ -76,6 +77,11 @@ void CustomActorImpl::SetRequiresHoverEvents(bool requiresHoverEvents)
 bool CustomActorImpl::RequiresMouseWheelEvents() const
 {
   return mRequiresMouseWheelEvents;
+}
+
+bool CustomActorImpl::IsRelayoutEnabled() const
+{
+  return mRelayoutEnabled;
 }
 
 void CustomActorImpl::SetRequiresMouseWheelEvents(bool requiresMouseWheelEvents)

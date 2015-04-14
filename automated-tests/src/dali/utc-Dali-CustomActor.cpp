@@ -56,7 +56,7 @@ struct TestCustomActor : public CustomActorImpl
    * Constructor
    */
   TestCustomActor()
-  : CustomActorImpl( true ), // requires touch
+  : CustomActorImpl( true, false ), // requires touch, relayout enabled
     mDaliProperty( Property::INVALID_INDEX ),
     mSizeSet( Vector3::ZERO ),
     mTargetSize( Vector3::ZERO )
@@ -451,7 +451,7 @@ public:
    * Constructor
    */
   SimpleTestCustomActor()
-  : CustomActorImpl( true ) // requires touch
+  : CustomActorImpl( true, true ) // requires touch, relayout enabled
   {
   }
 

@@ -25,8 +25,8 @@ int UtcDaliDegreeConstructors01(void)
   // Default constructor, does not initialise the value
   Degree degree0( 0.0f );
 
-  // Test float assignment operator
-  degree0 = 180.0f;
+  // Test assignment operator
+  degree0 = Degree(180.0f);
   DALI_TEST_EQUALS( float(degree0), 180.0f, 0.001f, TEST_LOCATION );
 
   // Constructor from float value
@@ -37,10 +37,6 @@ int UtcDaliDegreeConstructors01(void)
   Degree degree2( Radian( Math::PI ) );
   DALI_TEST_EQUALS( float(degree2), 180.0f, 0.001f, TEST_LOCATION );
 
-  // Assignment from Radian
-  Degree degree3( 0.0f );
-  degree3 = Radian( Math::PI );
-  DALI_TEST_EQUALS( float(degree3), 180.0f, 0.001f, TEST_LOCATION );
   END_TEST;
 }
 
@@ -62,8 +58,8 @@ int UtcDaliDegreeComparison01(void)
   Degree degree4( 90.0f );
   Radian radian0( Math::PI );
 
-  DALI_TEST_CHECK( degree3 == radian0 );
-  DALI_TEST_CHECK( degree4 != radian0 );
+  DALI_TEST_CHECK( degree3 == Degree(radian0) );
+  DALI_TEST_CHECK( degree4 != Degree(radian0) );
 
   // Comparison with float
   Degree degree5( 90.0f );
@@ -85,18 +81,14 @@ int UtcDaliDegreeCastOperators01(void)
   const float& value0( degree0 );
   DALI_TEST_EQUALS( value0, 180.0f, 0.001f, TEST_LOCATION );
 
-  degree0 = 90.0f;
-  DALI_TEST_EQUALS( value0, 90.0f, 0.001f, TEST_LOCATION );
+  degree0 = Degree( 90.0f );
+  DALI_TEST_EQUALS( degree0, Degree(90.0f), 0.001f, TEST_LOCATION );
 
-  float& value1( degree0 );
+  float value1( degree0 );
   DALI_TEST_EQUALS( value1, 90.0f, 0.001f, TEST_LOCATION );
 
-  value1 = 180.0f;
-  DALI_TEST_EQUALS( float(degree0), 180.0f, 0.001f, TEST_LOCATION );
   END_TEST;
 }
-
-
 
 int UtcDaliDegreeCastOperatorEquals(void)
 {
@@ -123,29 +115,5 @@ int UtcDaliDegreeCastOperatorNotEquals(void)
   DALI_TEST_EQUALS(a != a, false, TEST_LOCATION);
   DALI_TEST_EQUALS(a != b, false, TEST_LOCATION);
   DALI_TEST_EQUALS(a != c, true, TEST_LOCATION);
-  END_TEST;
-}
-
-int UtcDaliDegreeCastOperatorLessThan(void)
-{
-  TestApplication application;
-
-  Degree a(45.0f);
-  Degree b(90.0f);
-  Degree c(180.0f);
-  Degree d(360.0f);
-  Degree e(-180.0f);
-
-  DALI_TEST_EQUALS(a < a, false, TEST_LOCATION);
-  DALI_TEST_EQUALS(a < b, true, TEST_LOCATION);
-  DALI_TEST_EQUALS(a < c, true, TEST_LOCATION);
-  DALI_TEST_EQUALS(a < d, true, TEST_LOCATION);
-  DALI_TEST_EQUALS(a < e, false, TEST_LOCATION);
-
-  DALI_TEST_EQUALS(b < a, false, TEST_LOCATION);
-  DALI_TEST_EQUALS(b < b, false, TEST_LOCATION);
-  DALI_TEST_EQUALS(c < b, false, TEST_LOCATION);
-  DALI_TEST_EQUALS(d < b, false, TEST_LOCATION);
-  DALI_TEST_EQUALS(e < b, true, TEST_LOCATION);
   END_TEST;
 }

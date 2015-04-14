@@ -40,7 +40,6 @@ class GeometryDataProvider
 {
 public:
   typedef Dali::Geometry::GeometryType GeometryType;
-  typedef Dali::Vector< const PropertyBufferDataProvider* > VertexBuffers;
 
   /**
    * Constructor. Nothing to do as a pure interface.

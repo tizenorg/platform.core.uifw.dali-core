@@ -28,6 +28,7 @@
 #include <dali/internal/update/common/scene-graph-connection-observers.h>
 #include <dali/internal/update/common/scene-graph-property-buffer.h>
 #include <dali/internal/render/data-providers/geometry-data-provider.h>
+#include <dali/internal/render/data-providers/render-data-provider.h>
 
 namespace Dali
 {
@@ -80,6 +81,7 @@ public:
 
   /**
    * Set the type of geometry to draw (Points, Lines, Triangles, etc)
+   * @param[in] bufferIndex Index for double buffered values
    * @param[in] geometryType The geometry type
    */
   void SetGeometryType( BufferIndex bufferIndex, GeometryType geometryType );
@@ -119,7 +121,7 @@ public: // UniformMap::Observer
    * Get the vertex buffers of the geometry
    * @return A const reference to the vertex buffers
    */
-  const GeometryDataProvider::VertexBuffers& GetVertexBuffers() const;
+  const RenderDataProvider::VertexBuffers& GetVertexBuffers() const;
 
   /**
    * Get the index buffer of the geometry
@@ -130,12 +132,14 @@ public: // UniformMap::Observer
 public: // GeometryDataProvider
   /**
    * Get the type of geometry to draw
+   * @param[in] bufferIndex Index for double buffered values
    */
   virtual GeometryType GetGeometryType( BufferIndex bufferIndex ) const;
 
   /**
    * Returns true if this geometry requires depth testing, e.g. if it is
    * a set of vertices with z != 0
+   * @param[in] bufferIndex Index for double buffered values
    */
   virtual bool GetRequiresDepthTesting( BufferIndex bufferIndex ) const;
 
@@ -146,7 +150,7 @@ protected: // From PropertyOwner
   virtual void ResetDefaultProperties( BufferIndex updateBufferIndex );
 
 private:
-  VertexBuffers mVertexBuffers; ///< The vertex buffers
+  RenderDataProvider::VertexBuffers mVertexBuffers; ///< The vertex buffers
   const PropertyBuffer* mIndexBuffer;  ///< The index buffer if required
   ConnectionObservers mConnectionObservers;
 

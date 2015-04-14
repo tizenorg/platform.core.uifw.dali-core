@@ -215,8 +215,6 @@ ImageActor::ImageActor()
   mUsingNaturalSize(true),
   mInternalSetSize(false)
 {
-  // Size negotiate disabled by default, so turn it on for this actor
-  SetRelayoutEnabled( true );
 }
 
 ImageActor::~ImageActor()

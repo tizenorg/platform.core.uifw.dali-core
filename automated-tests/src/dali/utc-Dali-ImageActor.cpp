@@ -181,7 +181,6 @@ int UtcDaliImageActorSetSize01(void)
 
   BufferImage img = BufferImage::New( 1,1 );
   ImageActor actor = ImageActor::New( img );
-  actor.SetRelayoutEnabled( false );
 
   ShaderEffect effect = ShaderEffect::New( " ", " ", GEOMETRY_TYPE_IMAGE, ShaderEffect::HINT_GRID );
   actor.SetShaderEffect( effect );
@@ -210,7 +209,6 @@ int UtcDaliImageActorGetCurrentSize01(void)
   Vector2 initialImageSize(100, 50);
   BufferImage image = BufferImage::New( initialImageSize.width, initialImageSize.height );
   ImageActor actor = ImageActor::New( image );
-  actor.SetRelayoutEnabled( false );
   Stage::GetCurrent().Add(actor);
 
   application.SendNotification();
@@ -258,7 +256,6 @@ int UtcDaliImageActorGetCurrentSize02(void)
 
   Image image = ResourceImage::New("image.jpg");
   ImageActor actor = ImageActor::New( image );
-  actor.SetRelayoutEnabled( false );
   Stage::GetCurrent().Add(actor);
 
   application.SendNotification(); // Flush update messages
@@ -311,7 +308,6 @@ int UtcDaliImageActorGetCurrentSize03(void)
   attrs.SetSize( requestedSize.width, requestedSize.height );
   Image image = ResourceImage::New("image.jpg", attrs);
   ImageActor actor = ImageActor::New( image );
-  actor.SetRelayoutEnabled( false );
   Stage::GetCurrent().Add(actor);
 
   application.SendNotification(); // Flush update messages
@@ -365,7 +361,6 @@ int UtcDaliImageActorGetCurrentSize04(void)
   attrs.SetSize( requestedSize.width, requestedSize.height );
   Image image = ResourceImage::New("image.jpg", attrs);
   ImageActor actor = ImageActor::New( image );
-  actor.SetRelayoutEnabled( false );
   Stage::GetCurrent().Add(actor);
 
   application.SendNotification(); // Flush update messages
@@ -450,7 +445,6 @@ int UtcDaliImageActorGetCurrentSize05(void)
   attrs.SetSize( requestedSize.width, requestedSize.height );
   Image image = ResourceImage::New("image.jpg", attrs);
   ImageActor actor = ImageActor::New( image );
-  actor.SetRelayoutEnabled( false );
   Stage::GetCurrent().Add(actor);
 
   application.SendNotification(); // Flush update messages
@@ -530,7 +524,6 @@ int UtcDaliImageActorNaturalPixelAreaSize01(void)
   attrs.SetSize( requestedSize.width, requestedSize.height );
   Image image = ResourceImage::New("image.jpg", attrs);
   ImageActor actor = ImageActor::New( image );
-  actor.SetRelayoutEnabled( false );
   Stage::GetCurrent().Add(actor);
 
   application.SendNotification(); // Flush update messages
@@ -594,7 +587,6 @@ int UtcDaliImageActorNaturalPixelAreaSize02(void)
   attrs.SetSize( requestedSize.width, requestedSize.height );
   Image image = ResourceImage::New("image.jpg", attrs);
   ImageActor actor = ImageActor::New( image );
-  actor.SetRelayoutEnabled( false );
   Stage::GetCurrent().Add(actor);
 
   application.SendNotification(); // Flush update messages

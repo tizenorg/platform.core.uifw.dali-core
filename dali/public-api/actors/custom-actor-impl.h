@@ -273,8 +273,9 @@ protected: // For derived classes
   /**
    * @brief Create a CustomActorImpl.
    * @param[in] requiresTouchEvents True if the OnTouchEvent() callback is required.
+   * @param[in] relayoutEnabled True if relayout is enabled on the custom actor.
    */
-  CustomActorImpl(bool requiresTouchEvents);
+  CustomActorImpl( bool requiresTouchEvents, bool relayoutEnabled );
 
   /**
    * @brief Set whether the custom actor requires hover events.
@@ -354,12 +355,19 @@ public: // Not intended for application developers
    */
   bool RequiresMouseWheelEvents() const;
 
+  /**
+   * @brief Called when ownership of the CustomActorImpl is passed to a CustomActor.
+   * @return Return true if relayout is enabled on the custom actor
+   */
+  bool IsRelayoutEnabled() const;
+
 private:
 
   Internal::CustomActor* mOwner;  ///< Internal owner of this custom actor implementation
   bool mRequiresTouchEvents;      ///< Whether the OnTouchEvent() callback is required
   bool mRequiresHoverEvents;      ///< Whether the OnHoverEvent() callback is required
   bool mRequiresMouseWheelEvents; ///< Whether the OnMouseWheelEvent() callback is required
+  bool mRelayoutEnabled;          ///< Whether relayout is enabled on the custom actor
 };
 
 } // namespace Dali

@@ -191,7 +191,7 @@ struct MyTestCustomActor : public CustomActorImpl
   typedef Signal< void ()> SignalType;
   typedef Signal< void (float)> SignalTypeFloat;
 
-  MyTestCustomActor() : CustomActorImpl( true ) // requires touch
+  MyTestCustomActor() : CustomActorImpl( true, true ) // requires touch, relayout enabled
   { }
 
   virtual ~MyTestCustomActor()

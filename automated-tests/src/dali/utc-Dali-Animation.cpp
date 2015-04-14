@@ -5431,9 +5431,9 @@ int UtcDaliAnimationAnimateToActorRotationAngleAxis(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);
@@ -5488,9 +5488,9 @@ int UtcDaliAnimationAnimateToActorRotationQuaternion(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);
@@ -5546,9 +5546,9 @@ int UtcDaliAnimationAnimateToActorRotationAlphaFunction(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);
@@ -5603,9 +5603,9 @@ int UtcDaliAnimationAnimateToActorRotationTimePeriod(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);
@@ -5664,9 +5664,9 @@ int UtcDaliAnimationAnimateToActorRotationAlphaFunctionTimePeriod(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);
@@ -6448,7 +6448,7 @@ int UtcDaliAnimationKeyFrames05(void)
 
   try
   {
-    keyFrames.Add(0.7f, Quaternion(1.717f, Vector3::XAXIS));
+    keyFrames.Add(0.7f, Quaternion(Radian(1.717f), Vector3::XAXIS));
   }
   catch (Dali::DaliException& e)
   {
@@ -6466,12 +6466,12 @@ int UtcDaliAnimationKeyFrames06(void)
   KeyFrames keyFrames = KeyFrames::New();
   DALI_TEST_EQUALS(keyFrames.GetType(), Property::NONE, TEST_LOCATION);
 
-  keyFrames.Add(0.0f, Quaternion(1.717f, Vector3::XAXIS));
-  keyFrames.Add(0.2f, Quaternion(2.0f, Vector3::XAXIS));
-  keyFrames.Add(0.4f, Quaternion(3.0f, Vector3::ZAXIS));
-  keyFrames.Add(0.6f, Quaternion(4.0f, Vector3(1.0f, 1.0f, 1.0f)));
+  keyFrames.Add(0.0f, Quaternion(Radian(1.717f), Vector3::XAXIS));
+  keyFrames.Add(0.2f, Quaternion(Radian(2.0f), Vector3::XAXIS));
+  keyFrames.Add(0.4f, Quaternion(Radian(3.0f), Vector3::ZAXIS));
+  keyFrames.Add(0.6f, Quaternion(Radian(4.0f), Vector3(1.0f, 1.0f, 1.0f)));
   keyFrames.Add(0.8f, AngleAxis(Degree(90), Vector3::XAXIS));
-  keyFrames.Add(1.0f, Quaternion(3.0f, Vector3::YAXIS));
+  keyFrames.Add(1.0f, Quaternion(Radian(3.0f), Vector3::YAXIS));
 
   DALI_TEST_EQUALS(keyFrames.GetType(), Property::ROTATION, TEST_LOCATION);
 
@@ -6958,7 +6958,7 @@ int UtcDaliAnimationAnimateBetweenActorRotation01(void)
   application.Render(static_cast<unsigned int>(durationSeconds*500.0f)+1);
   application.SendNotification();
 
-  Quaternion check = Quaternion::FromAxisAngle(Vector4::ZAXIS, Radian(Degree(60)));
+  Quaternion check( Radian(Degree(60)), Vector3::ZAXIS );
 
   DALI_TEST_EQUALS( actor.GetCurrentOrientation(), check, 0.001f, TEST_LOCATION );
   finishCheck.CheckSignalReceived();
@@ -7006,22 +7006,22 @@ int UtcDaliAnimationAnimateBetweenActorRotation02(void)
 
   application.Render(static_cast<unsigned int>(durationSeconds*250.0f)/* 25% progress */);
   application.SendNotification();
-  check = Quaternion::FromAxisAngle(Vector4::XAXIS, Radian(Degree(90)));
+  check = Quaternion( Radian(Degree(90)), Vector3::XAXIS );
   DALI_TEST_EQUALS( actor.GetCurrentOrientation(), check, 0.001f, TEST_LOCATION );
 
   application.Render(static_cast<unsigned int>(durationSeconds*250.0f)/* 50% progress */);
   application.SendNotification();
-  check = Quaternion::FromAxisAngle(Vector4::XAXIS, Radian(Degree(120)));
+  check = Quaternion( Radian(Degree(120)), Vector3::XAXIS );
   DALI_TEST_EQUALS( actor.GetCurrentOrientation(), check, 0.001f, TEST_LOCATION );
 
   application.Render(static_cast<unsigned int>(durationSeconds*250.0f)/* 75% progress */);
   application.SendNotification();
-  check = Quaternion::FromAxisAngle(Vector4(0.5f, 0.5f, 0.0f, 0.0f), Radian(Degree(101.5)));
+  check = Quaternion( Radian(Degree(101.5)), Vector3(0.5f, 0.5f, 0.0f) );
   DALI_TEST_EQUALS( actor.GetCurrentOrientation(), check, 0.001f, TEST_LOCATION );
 
   application.Render(static_cast<unsigned int>(durationSeconds*250.0f)+1/* 100% progress */);
   application.SendNotification();
-  check = Quaternion::FromAxisAngle(Vector4::YAXIS, Radian(Degree(120)));
+  check = Quaternion( Radian(Degree(120)), Vector3::YAXIS );
   DALI_TEST_EQUALS( actor.GetCurrentOrientation(), check, 0.001f, TEST_LOCATION );
 
   // We did expect the animation to finish
@@ -7067,7 +7067,7 @@ int UtcDaliAnimationAnimateBetweenActorRotation01Cubic(void)
   application.Render(static_cast<unsigned int>(durationSeconds*500.0f)+1);
   application.SendNotification();
 
-  Quaternion check = Quaternion::FromAxisAngle(Vector4::ZAXIS, Radian(Degree(60)));
+  Quaternion check( Radian(Degree(60)), Vector3::ZAXIS );
 
   DALI_TEST_EQUALS( actor.GetCurrentOrientation(), check, 0.001f, TEST_LOCATION );
   finishCheck.CheckSignalReceived();
@@ -7116,22 +7116,22 @@ int UtcDaliAnimationAnimateBetweenActorRotation02Cubic(void)
 
   application.Render(static_cast<unsigned int>(durationSeconds*250.0f)/* 25% progress */);
   application.SendNotification();
-  check = Quaternion::FromAxisAngle(Vector4::XAXIS, Radian(Degree(90)));
+  check = Quaternion( Radian(Degree(90)), Vector3::XAXIS );
   DALI_TEST_EQUALS( actor.GetCurrentOrientation(), check, 0.001f, TEST_LOCATION );
 
   application.Render(static_cast<unsigned int>(durationSeconds*250.0f)/* 50% progress */);
   application.SendNotification();
-  check = Quaternion::FromAxisAngle(Vector4::XAXIS, Radian(Degree(120)));
+  check = Quaternion( Radian(Degree(120)), Vector3::XAXIS );
   DALI_TEST_EQUALS( actor.GetCurrentOrientation(), check, 0.001f, TEST_LOCATION );
 
   application.Render(static_cast<unsigned int>(durationSeconds*250.0f)/* 75% progress */);
   application.SendNotification();
-  check = Quaternion::FromAxisAngle(Vector4(0.5f, 0.5f, 0.0f, 0.0f), Radian(Degree(101.5)));
+  check = Quaternion( Radian(Degree(101.5)), Vector3(0.5f, 0.5f, 0.0f ) );
   DALI_TEST_EQUALS( actor.GetCurrentOrientation(), check, 0.001f, TEST_LOCATION );
 
   application.Render(static_cast<unsigned int>(durationSeconds*250.0f)+1/* 100% progress */);
   application.SendNotification();
-  check = Quaternion::FromAxisAngle(Vector4::YAXIS, Radian(Degree(120)));
+  check = Quaternion( Radian(Degree(120)), Vector3::YAXIS );
   DALI_TEST_EQUALS( actor.GetCurrentOrientation(), check, 0.001f, TEST_LOCATION );
 
   // We did expect the animation to finish
@@ -7428,9 +7428,9 @@ int UtcDaliAnimationAnimateByPropertyOrientationQuaternion(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);
@@ -7485,16 +7485,16 @@ int UtcDaliAnimationAnimateByPropertyOrientationQuaternionAlpha(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);
   Animation animation = Animation::New(durationSeconds);
   Degree relativeRotationDegrees(360.0f);
   Radian relativeRotationRadians(relativeRotationDegrees);
-  animation.AnimateBy( Property( actor, Actor::Property::ORIENTATION ), Quaternion( relativeRotationRadians, Vector3::YAXIS ), AlphaFunctions::EaseIn );
+  animation.AnimateBy( Property( actor, Actor::Property::ORIENTATION ), Quaternion( Radian( relativeRotationRadians ), Vector3::YAXIS ), AlphaFunctions::EaseIn );
 
   // Start the animation
   animation.Play();
@@ -7542,9 +7542,9 @@ int UtcDaliAnimationAnimateByPropertyOrientationQuaternionAlphaTimePeriod(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);
@@ -7552,7 +7552,7 @@ int UtcDaliAnimationAnimateByPropertyOrientationQuaternionAlphaTimePeriod(void)
   Degree relativeRotationDegrees(360.0f);
   Radian relativeRotationRadians(relativeRotationDegrees);
   float delay = 0.3f;
-  animation.AnimateBy( Property( actor, Actor::Property::ORIENTATION ), Quaternion( relativeRotationRadians, Vector3::YAXIS ),
+  animation.AnimateBy( Property( actor, Actor::Property::ORIENTATION ), Quaternion( Radian( relativeRotationRadians ), Vector3::YAXIS ),
                        AlphaFunctions::EaseIn, TimePeriod( delay, durationSeconds - delay ) );
 
   // Start the animation
@@ -7604,16 +7604,16 @@ int UtcDaliAnimationAnimateToPropertyOrientationQuaternion(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);
   Animation animation = Animation::New(durationSeconds);
   Degree targetRotationDegrees(90.0f);
   Radian targetRotationRadians(targetRotationDegrees);
-  Quaternion targetRotation(targetRotationRadians, Vector3::YAXIS);
+  Quaternion targetRotation( Radian( targetRotationRadians ), Vector3::YAXIS);
   animation.AnimateTo( Property( actor, Actor::Property::ORIENTATION ), targetRotation );
 
   // Start the animation
@@ -7662,9 +7662,9 @@ int UtcDaliAnimationAnimateToPropertyOrientationQuaternionAlpha(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);
@@ -7720,9 +7720,9 @@ int UtcDaliAnimationAnimateToPropertyOrientationQuaternionAlphaTimePeriod(void)
   TestApplication application;
 
   Actor actor = Actor::New();
-  actor.SetOrientation(Quaternion(0.0f, Vector3::YAXIS));
+  actor.SetOrientation(Quaternion(Radian(0.0f), Vector3::YAXIS));
   Stage::GetCurrent().Add(actor);
-  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(0.0f, Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetCurrentOrientation(), Quaternion(Radian(0.0f), Vector3::YAXIS), ROTATION_EPSILON, TEST_LOCATION );
 
   // Build the animation
   float durationSeconds(1.0f);

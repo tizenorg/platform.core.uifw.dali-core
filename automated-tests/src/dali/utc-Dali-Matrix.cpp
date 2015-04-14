@@ -95,7 +95,7 @@ int UtcDaliMatrixOrthoNormalize0(void)
     Vector4 axis(cosf(f*0.001f), cosf(f*0.02f), cosf(f*0.03f), 0.0f);
     axis.Normalize();
 
-    m.SetTransformComponents( Vector3::ONE, Quaternion(1.0f, axis), Vector3::ZERO );
+    m.SetTransformComponents( Vector3::ONE, Quaternion(Radian(1.0f), axis), Vector3::ZERO );
     m.OrthoNormalize();
   }
 
@@ -124,7 +124,7 @@ int UtcDaliMatrixOrthoNormalize1(void)
 
     Matrix m0;
     m0.SetIdentity();
-    m0.SetTransformComponents( Vector3::ONE, Quaternion(1.0f, axis), center );
+    m0.SetTransformComponents( Vector3::ONE, Quaternion(Radian(1.0f), axis), center );
 
     Matrix m1(m0);
     m1.OrthoNormalize();
@@ -151,7 +151,7 @@ int UtcDaliMatrixInvert01(void)
 
     Matrix m0;
     m0.SetIdentity();
-    m0.SetTransformComponents( Vector3::ONE, Quaternion(1.0f, axis), center );
+    m0.SetTransformComponents( Vector3::ONE, Quaternion(Radian(1.0f), axis), center );
 
     Matrix m1(m0);
     m1.Invert();
@@ -190,7 +190,7 @@ int UtcDaliMatrixInvertTransform01(void)
 
     Matrix m0;
     m0.SetIdentity();
-    m0.SetTransformComponents( Vector3::ONE, Quaternion(1.0f, axis), center );
+    m0.SetTransformComponents( Vector3::ONE, Quaternion(Radian(1.0f), axis), center );
 
     Matrix m1;
     m0.InvertTransform(m1);

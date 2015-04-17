@@ -41,9 +41,9 @@ DynamicsNotifier::~DynamicsNotifier()
 
 void DynamicsNotifier::CollisionImpact( Integration::DynamicsCollisionData* collisionData )
 {
-  if( Stage::GetCurrent()->GetDynamicsWorld() )
+  if( DynamicsWorld::Get() )
   {
-    Stage::GetCurrent()->GetDynamicsWorld()->CollisionImpact(collisionData);
+    DynamicsWorld::Get()->CollisionImpact(collisionData);
   }
   delete collisionData;
 }
@@ -54,9 +54,9 @@ void DynamicsNotifier::CollisionScrape( Integration::DynamicsCollisionData* coll
 
 void DynamicsNotifier::CollisionDisperse( Integration::DynamicsCollisionData* collisionData )
 {
-  if( Stage::GetCurrent()->GetDynamicsWorld() )
+  if( DynamicsWorld::Get() )
   {
-    Stage::GetCurrent()->GetDynamicsWorld()->CollisionDisperse(collisionData);
+    DynamicsWorld::Get()->CollisionDisperse(collisionData);
   }
   delete collisionData;
 }

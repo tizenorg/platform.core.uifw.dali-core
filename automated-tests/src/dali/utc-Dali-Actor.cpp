@@ -2951,7 +2951,6 @@ int UtcDaliActorOnRelayoutSignal(void)
   Actor actor = Actor::New();
   actor.SetName( "actor" );
   actor.OnRelayoutSignal().Connect( OnRelayoutCallback );
-  actor.SetRelayoutEnabled( true );
 
   // Sanity check
   DALI_TEST_CHECK( gOnRelayoutCallBackCalled == 0 );

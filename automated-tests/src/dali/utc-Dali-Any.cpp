@@ -68,21 +68,27 @@ void utc_dali_any_cleanup(void)
   test_return_value = TET_PASS;
 }
 
-int UtcDaliAnyConstructors(void)
+int UtcDaliAnyConstructorP(void)
 {
-  TestApplication application;
+  tet_infoline(" UtcDaliAnyConstructorP");
 
-  tet_infoline("Test Any constructors.");
-
-  // Test default constructor.
-  Any value;
-
-  DALI_TEST_CHECK( typeid( void ) == value.GetType() );
+  // Test default constructor
+  Any value1;
+  DALI_TEST_CHECK( typeid( void ) == value1.GetType() );
 
   // Test constructor Any( const Type& )
-  Any value1 = 4u;
+  Any value2 = 1.0f;
+  DALI_TEST_CHECK( typeid( float ) == value2.GetType() );
+  END_TEST;
+}
+
+int UtcDaliAnyCopyConstructorP(void)
+{
+  tet_infoline("UtcDaliAnyCopyConstructorP");
 
   // Test constructor Any( const Any& )
+  Any value;
+  Any value1 = 4u;
   Any value2 = value1;
 
   // Test constructor Any( const Any& ) with a non initialized Any
@@ -101,11 +107,9 @@ int UtcDaliAnyConstructors(void)
   END_TEST;
 }
 
-int UtcDaliAnyAssignmentOperators(void)
+int UtcDaliAnyAssignmentOperatorP(void)
 {
-  TestApplication application;
-
-  tet_infoline("Test assignment operators.");
+  tet_infoline("UtcDaliAnyAssignmentOperatorP");
 
   float fValue = 0.f;
 
@@ -163,11 +167,9 @@ int UtcDaliAnyAssignmentOperators(void)
   END_TEST;
 }
 
-int UtcDaliAnyNegativeAssignmentOperators(void)
+int UtcDaliAnyAssignmentOperatorN(void)
 {
-  TestApplication application;
-
-  tet_infoline("Test assignment operators.");
+  tet_infoline("UtcDaliAnyAssignmentOperatorN");
 
   Any value1 = 4.f;
   Any value2 = 5u;
@@ -195,27 +197,21 @@ int UtcDaliAnyNegativeAssignmentOperators(void)
   END_TEST;
 }
 
-int UtcDaliAnyGetType(void)
+int UtcDaliAnyGetTypeP(void)
 {
-  TestApplication application;
-
-  tet_infoline("Test GetType().");
+  tet_infoline("UtcDaliAnyGetTypeP");
 
   Any value;
-
   DALI_TEST_CHECK( typeid( void ) == value.GetType() );
 
   value = 5.f;
-
   DALI_TEST_CHECK( typeid( float ) == value.GetType() );
   END_TEST;
 }
 
-int UtcDaliAnyGet(void)
+int UtcDaliAnyGetP(void)
 {
-  TestApplication application;
-
-  tet_infoline("Test Get().");
+  tet_infoline("UtcDaliAnyGetP");
 
   Any value1( 5.f );
 
@@ -273,10 +269,9 @@ int UtcDaliAnyGet(void)
   END_TEST;
 }
 
-int UtcDaliAnyNegativeGet(void)
+int UtcDaliAnyGetN(void)
 {
-  TestApplication application;
-  tet_infoline("Test Get().");
+  tet_infoline("UtcDaliAnyGetN");
 
   Any value1;
   Any value2( 5.f );
@@ -319,3 +314,109 @@ int UtcDaliAnyNegativeGet(void)
   uiValue++;  // supresss warning from unused variable
   END_TEST;
 }
+
+int UtcDaliAnyConstructorFromEmptyN(void)
+{
+  tet_infoline("UtcDaliAnyConstructorN");
+  Any value1;
+  Any value2(value1);
+  bool assert = false;
+  float value = 0.0f;
+
+  try
+  {
+    value = value1.Get<float>();
+  }
+  catch ( ... )
+  {
+    assert = true;
+  }
+
+  if( assert )
+  {
+    tet_result( TET_PASS );
+  }
+  else
+  {
+    tet_result( TET_FAIL );
+  }
+  value++;
+  END_TEST;
+}
+
+int UtcDaliAnyAssignmentOperatorFromEmptyN(void)
+{
+  tet_infoline("UtcDaliAnyAssignmentOperatorN");
+  Any value1;
+  Any value2( 0 );
+  value2 = value1;
+  bool assert = false;
+  float value = 0.0f;
+
+  try
+  {
+    value = value1.Get<float>();
+  }
+  catch ( ... )
+  {
+    assert = true;
+  }
+
+  if( assert )
+  {
+    tet_result( TET_PASS );
+  }
+  else
+  {
+    tet_result( TET_FAIL );
+  }
+  value++;
+  END_TEST;
+
+}
+
+int UtcDaliAnyGetPointerP(void)
+{
+  tet_infoline("UtcDaliAnyGetPointerP");
+  Any value( 1.0f );
+  float* fPtr = value.GetPointer< float >();
+  DALI_TEST_CHECK( fPtr );
+  END_TEST;
+}
+
+int UtcDaliAnyGetPointerN(void)
+{
+  tet_infoline("UtcDaliAnyGetPointerN");
+  Any value1;
+  Any value2( 1.0f );
+  bool assert = false;
+  unsigned int* ptr;
+
+  // Test GetPointer from uninitialized Any
+  DALI_TEST_CHECK( value1.GetPointer< float >() == NULL );
+
+
+  // Test GetPointer from incorrect type
+  try
+  {
+    ptr = value2.GetPointer< unsigned int >();
+  }
+  catch ( ... )
+  {
+    assert = true;
+  }
+
+  if( assert )
+  {
+    tet_result( TET_PASS );
+  }
+  else
+  {
+    tet_result( TET_FAIL );
+  }
+
+  ptr++;
+  END_TEST;
+}
+
+

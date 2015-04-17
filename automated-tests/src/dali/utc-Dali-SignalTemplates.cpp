@@ -310,6 +310,12 @@ public:
     ++mHandledCount;
   }
 
+  void VoidSlotVoidAlternative()
+  {
+     mHandled = true;
+     ++mHandledCount;
+  }
+
   void VoidSlotIntRef( int& p1 )
   {
     mIntParam1 = p1;
@@ -925,91 +931,281 @@ static float StaticFloatCallbackFloatValueFloatValue( float value1, float value2
   return value1 + value2;
 }
 
+
+
+/**
+ * test functor, we store a reference to a bool which is outside of the functor
+ * so when the functor is copied, the copy can reference the original data
+ */
+struct TestFunctor
+{
+  TestFunctor( bool& functorCalled):
+    mFunctorCalled( functorCalled )
+  {
+  };
+
+  void operator()()
+  {
+    mFunctorCalled = true;
+  }
+
+  bool& mFunctorCalled;
+};
+
+struct VoidFunctorVoid
+{
+  VoidFunctorVoid( bool& functorCalled):
+    mFunctorCalled( functorCalled )
+  {
+
+  }
+
+  void operator()()
+  {
+    mFunctorCalled = true;
+  }
+
+  bool& mFunctorCalled;
+};
+
 } // anon namespace
 
 
-int UtcDaliSignalEmptyCheck(void)
+/*******************************************
+ *
+ * Start of Utc test cases.
+ * Test cases performed in order of API listed in dali-signal.h
+ * UtcDaliSignal + FunctionName + P=positive test, N = Negative test
+ *
+ */
+
+int UtcDaliSignalEmptyP(void)
 {
-  // Test that Empty() check works before & after signal connection
+  TestApplication app; // Create core for debug logging
+
+  // Test that Empty() is true, when no slots connected to the signal
 
   {
     TestSignals::VoidRetNoParamSignal signal;
     DALI_TEST_CHECK( signal.Empty() );
+  }
+
+  // Test that Empty() is true, when a slot has connected and disconnected
+  {
+    TestSignals::VoidRetNoParamSignal signal;
     TestSlotHandler handler;
     signal.Connect( &handler, &TestSlotHandler::VoidSlotVoid );
-    DALI_TEST_CHECK( ! signal.Empty() );
+    signal.Disconnect( &handler, &TestSlotHandler::VoidSlotVoid );
+    DALI_TEST_CHECK( signal.Empty() );
   }
 
-  {
-    TestSignals::VoidRet1ValueParamSignal signal;
-    DALI_TEST_CHECK( signal.Empty() );
-    TestSlotHandler handler;
-    signal.Connect( &handler, &TestSlotHandler::VoidSlotIntValue );
-    DALI_TEST_CHECK( ! signal.Empty() );
-  }
-
-  {
-    TestSignals::VoidRet1RefParamSignal signal;
-    DALI_TEST_CHECK( signal.Empty() );
-    TestSlotHandler handler;
-    signal.Connect( &handler, &TestSlotHandler::VoidSlotIntRef );
-    DALI_TEST_CHECK( ! signal.Empty() );
-  }
-
-  {
-    TestSignals::VoidRet2ValueParamSignal signal;
-    DALI_TEST_CHECK( signal.Empty() );
-    TestSlotHandler handler;
-    signal.Connect( &handler, &TestSlotHandler::VoidSlotIntValueIntValue );
-    DALI_TEST_CHECK( ! signal.Empty() );
-  }
-
-  {
-    TestSignals::BoolRet1ValueParamSignal signal;
-    DALI_TEST_CHECK( signal.Empty() );
-    TestSlotHandler handler;
-    signal.Connect( &handler, &TestSlotHandler::BoolSlotFloatValue );
-    DALI_TEST_CHECK( ! signal.Empty() );
-  }
-
-  {
-    TestSignals::BoolRet2ValueParamSignal signal;
-    DALI_TEST_CHECK( signal.Empty() );
-    TestSlotHandler handler;
-    signal.Connect( &handler, &TestSlotHandler::BoolSlotFloatValueIntValue );
-    DALI_TEST_CHECK( ! signal.Empty() );
-  }
-
-  {
-    TestSignals::IntRet2ValueParamSignal signal;
-    DALI_TEST_CHECK( signal.Empty() );
-    TestSlotHandler handler;
-    signal.Connect( &handler, &TestSlotHandler::IntSlotFloatValueIntValue );
-    DALI_TEST_CHECK( ! signal.Empty() );
-  }
-
-  {
-    TestSignals::FloatRet0ParamSignal signal;
-    DALI_TEST_CHECK( signal.Empty() );
-    TestSlotHandler handler;
-    signal.Connect( &handler, &TestSlotHandler::FloatSlotVoid );
-    DALI_TEST_CHECK( ! signal.Empty() );
-  }
-
-  {
-    TestSignals::FloatRet2ValueParamSignal signal;
-    DALI_TEST_CHECK( signal.Empty() );
-    TestSlotHandler handler;
-    signal.Connect(&handler, &TestSlotHandler::FloatSlotFloatValueFloatValue);
-    DALI_TEST_CHECK( ! signal.Empty() );
-  }
   END_TEST;
 }
 
+int UtcDaliSignalEmptyN(void)
+{
+  TestApplication app; // Create core for debug logging
+
+  // Test that Empty() is false after signal connection
+  TestSignals::VoidRetNoParamSignal signal;
+  TestSlotHandler handler;
+  signal.Connect( &handler, &TestSlotHandler::VoidSlotVoid );
+  DALI_TEST_CHECK( ! signal.Empty() );
+
+  END_TEST;
+}
+
+int UtcDaliSignalGetConnectionCountP(void)
+{
+  TestApplication app; // Create core for debug logging
+
+  TestSignals::VoidRetNoParamSignal signal;
+  TestSlotHandler handler;
+  signal.Connect( &handler, &TestSlotHandler::VoidSlotVoid );
+  DALI_TEST_CHECK( signal.GetConnectionCount() == 1 );
+
+  TestSlotHandler handler2;
+  signal.Connect( &handler2, &TestSlotHandler::VoidSlotVoid );
+  DALI_TEST_CHECK( signal.GetConnectionCount() == 2 );
+
+  END_TEST;
+}
+
+int UtcDaliSignalGetConnectionCountN(void)
+{
+  TestApplication app; // Create core for debug logging
+  TestSignals::VoidRetNoParamSignal signal;
+  DALI_TEST_CHECK( signal.GetConnectionCount() == 0 );
+  END_TEST;
+}
+
+
+int UtcDaliSignalConnectP(void)
+{
+  TestApplication app; // Create core for debug logging
+
+  // there 5 different connection functions
+  // we go through them here in order of definition in dali-signal.h
+  {
+    // test static function: void Connect( void (*func)() )
+
+    TestSignals::VoidRetNoParamSignal signal;
+    signal.Connect( StaticVoidCallbackVoid );
+    DALI_TEST_CHECK( ! signal.Empty() );
+  }
+
+  {
+    // test member function: Connect( X* obj, void (X::*func)() ))
+    TestSignals::VoidRetNoParamSignal signal;
+    TestSlotHandler handler;
+    signal.Connect( &handler, &TestSlotHandler::VoidSlotVoid );
+    DALI_TEST_CHECK( ! signal.Empty() );
+    signal.Emit();
+    DALI_TEST_CHECK( handler.mHandled == true );
+
+  }
+
+  {
+    // test slot delegate: Connect( SlotDelegate<X>& delegate, void (X::*func)() )
+    TestSignals::VoidRetNoParamSignal signal;
+    TestSlotDelegateHandler handler;
+    signal.Connect( handler.mSlotDelegate, &TestSlotDelegateHandler::VoidSlotVoid );
+    DALI_TEST_CHECK( ! signal.Empty() );
+    signal.Emit();
+    DALI_TEST_CHECK( handler.mHandled == true );
+  }
+
+  {
+     //  test function object: Connect( ConnectionTrackerInterface* connectionTracker, const X& func )
+     TestSlotHandler handler;
+     TestSignals::VoidRetNoParamSignal signal;
+     bool functorCalled(false);
+     TestFunctor functor( functorCalled );
+     signal.Connect( &handler, functor );
+     DALI_TEST_CHECK( ! signal.Empty() );
+     signal.Emit();
+     DALI_TEST_CHECK( functorCalled == true );
+  }
+
+  {
+    // test function object using FunctorDelegate.
+    // :Connect( ConnectionTrackerInterface* connectionTracker, FunctorDelegate* delegate )
+    TestSlotHandler handler;
+    TestSignals::VoidRetNoParamSignal signal;
+    bool functorDelegateCalled(false);
+    signal.Connect( &handler, FunctorDelegate::New( VoidFunctorVoid(functorDelegateCalled) ));
+    DALI_TEST_CHECK( ! signal.Empty() );
+    signal.Emit();
+    DALI_TEST_CHECK( functorDelegateCalled == true );
+  }
+
+  END_TEST;
+}
+
+int UtcDaliSignalConnectN(void)
+{
+  // for negative test we try to connect a null connection tracker to the signal
+  // then a null function
+
+  TestSignals::VoidRetNoParamSignal signal;
+  TestSlotHandler *nullHandler( NULL );
+  try
+  {
+    signal.Connect( nullHandler , &TestSlotHandler::VoidSlotVoid  );
+    DALI_TEST_CHECK( nullHandler );
+  }
+  catch (Dali::DaliException& e)
+  {
+    // Tests that a negative test of an assertion succeeds
+    DALI_TEST_PRINT_ASSERT( e );
+    DALI_TEST_CHECK( signal.Empty() );
+  }
+
+  END_TEST;
+
+}
+
+
+int UtcDaliSignalDisconnectP(void)
+{
+  TestApplication app; // Create core for debug logging
+
+  // there 3 different disconnect functions
+  // we go through them here in order of definition in dali-signal.h
+  {
+    // test static function:  Disconnect( void (*func)( Arg0 arg0 ) )
+
+    TestSignals::VoidRetNoParamSignal signal;
+    signal.Connect( StaticVoidCallbackVoid );
+    DALI_TEST_CHECK( ! signal.Empty() );
+    signal.Disconnect( StaticVoidCallbackVoid );
+    DALI_TEST_CHECK( signal.Empty() );
+  }
+
+  {
+    // test member function: Disconnect( X* obj, void (X::*func)( Arg0 arg0 ) )
+    TestSignals::VoidRetNoParamSignal signal;
+    TestSlotHandler handler;
+    signal.Connect( &handler, &TestSlotHandler::VoidSlotVoid );
+    DALI_TEST_CHECK( ! signal.Empty() );
+    signal.Disconnect( &handler, &TestSlotHandler::VoidSlotVoid  );
+    DALI_TEST_CHECK( signal.Empty() );
+  }
+
+  {
+    // test slot delegate: Disconnect( SlotDelegate<X>& delegate, void (X::*func)( Arg0 arg0 ) )
+    TestSignals::VoidRetNoParamSignal signal;
+    TestSlotDelegateHandler handler;
+    signal.Connect( handler.mSlotDelegate, &TestSlotDelegateHandler::VoidSlotVoid );
+    DALI_TEST_CHECK( ! signal.Empty() );
+    signal.Disconnect( handler.mSlotDelegate, &TestSlotDelegateHandler::VoidSlotVoid );
+    DALI_TEST_CHECK( signal.Empty() );
+  }
+
+  END_TEST;
+}
+
+int UtcDaliSignalDisconnectN(void)
+{
+  // for negative test we perform two negative tests
+  // 1. Disconnect using a null connection tracker
+  {
+    TestSignals::VoidRetNoParamSignal signal;
+    TestSlotHandler handler;
+    TestSlotHandler* nullHandler(NULL );
+    signal.Connect( &handler , &TestSlotHandler::VoidSlotVoid  );
+    DALI_TEST_CHECK( !signal.Empty() );
+
+    try
+    {
+      signal.Disconnect( nullHandler , &TestSlotHandler::VoidSlotVoidAlternative  );
+      DALI_TEST_CHECK(signal.Empty() );
+    }
+    catch(Dali::DaliException& e)
+    {
+      // Tests that a negative test of an assertion succeeds
+      DALI_TEST_PRINT_ASSERT( e );
+      DALI_TEST_CHECK( !signal.Empty() );
+    }
+  }
+
+  // 2. try to disconnect from the wrong signal
+  {
+    TestSignals::VoidRetNoParamSignal signal;
+    TestSlotHandler handler;
+
+    signal.Connect( &handler , &TestSlotHandler::VoidSlotVoid  );
+    DALI_TEST_CHECK( !signal.Empty() );
+    signal.Disconnect( &handler , &TestSlotHandler::VoidSlotVoidAlternative  );
+    DALI_TEST_CHECK( !signal.Empty() );
+  }
+
+  END_TEST;
+
+}
 int UtcDaliSignalEmptyCheckSlotDestruction(void)
 {
   // Test that signal disconnect works when slot is destroyed (goes out of scope)
-
   {
     TestSignals::VoidRetNoParamSignal signal;
     {

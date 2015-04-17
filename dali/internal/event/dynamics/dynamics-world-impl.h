@@ -79,11 +79,28 @@ private:
   DynamicsWorld& operator=(const DynamicsWorld&);
 
 public:
+
   /**
-   * Singleton getter
-   * @return A pointer to the dynamics world if it is installed
+   * @copydoc Dali::DynamicsWorld::GetInstance()
+   */
+  static DynamicsWorldPtr GetInstance( DynamicsWorldConfigPtr configuration );
+
+  /**
+   * @copydoc Dali::DynamicsWorld::Get()
    */
   static DynamicsWorldPtr Get();
+
+  /**
+   * @copydoc Dali::DynamicsWorld::DestroyInstance()
+   */
+  static void DestroyInstance();
+
+  /**
+   * Gets the instance of the Dynamics Notifier, if created with GetInstance().
+   *
+   * @return The DynamicsNotifier instance.
+   */
+  static DynamicsNotifier& GetNotifier();
 
   /**
    * Connects a callback function with the object's signals.
@@ -176,6 +193,10 @@ public:
 
 private:
   typedef std::map< SceneGraph::DynamicsBody*, Actor* > BodyContainer;
+
+  // Static instances of Dynamics objects used by the static creation and getter methods.
+  static DynamicsWorldPtr mDynamicsWorldInstance;
+  static DynamicsNotifier mDynamicsNotifierInstance;
 
   int           mDebugMode;
   SceneGraph::DynamicsWorld* mDynamicsWorld;

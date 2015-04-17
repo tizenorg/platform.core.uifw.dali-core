@@ -24,12 +24,16 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/dynamics/dynamics-collision-data.h>
+#include <dali/integration-api/dynamics/dynamics-factory-intf.h>
 #include <dali/integration-api/dynamics/dynamics-world-settings.h>
+#include <dali/integration-api/platform-abstraction.h>
 #include <dali/internal/event/actors/actor-impl.h>
 #include <dali/internal/event/common/stage-impl.h>
+#include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/dynamics/dynamics-body-impl.h>
 #include <dali/internal/event/dynamics/dynamics-collision-impl.h>
 #include <dali/internal/event/dynamics/dynamics-joint-impl.h>
+#include <dali/internal/event/dynamics/dynamics-notifier.h>
 #include <dali/internal/event/dynamics/dynamics-world-config-impl.h>
 #include <dali/internal/update/dynamics/scene-graph-dynamics-body.h>
 #include <dali/internal/update/dynamics/scene-graph-dynamics-world.h>
@@ -41,6 +45,12 @@ namespace Dali
 namespace Internal
 {
 
+// Static variable declarations
+
+__thread Dali::Integration::DynamicsFactory* sDynamicsFactoryInstance( NULL );
+Dali::Internal::DynamicsWorldPtr Dali::Internal::DynamicsWorld::mDynamicsWorldInstance( NULL );
+Dali::Internal::DynamicsNotifier Dali::Internal::DynamicsWorld::mDynamicsNotifierInstance;
+
 namespace
 {
 
@@ -50,8 +60,8 @@ const char* const SIGNAL_COLLISION = "collision";
 
 BaseHandle Create()
 {
-  DynamicsWorldPtr p = Stage::GetCurrent()->GetDynamicsWorld();
-  return Dali::DynamicsWorld(p.Get());
+  DynamicsWorldPtr p = DynamicsWorld::Get();
+  return Dali::DynamicsWorld( p.Get() );
 }
 
 TypeRegistration mType( typeid(Dali::DynamicsWorld), typeid(Dali::Handle), Create );
@@ -78,9 +88,60 @@ DynamicsWorld::DynamicsWorld(const std::string& name)
   DALI_LOG_INFO(Debug::Filter::gDynamics, Debug::Verbose, "%s - (\"%s\")\n", __PRETTY_FUNCTION__, name.c_str());
 }
 
+DynamicsWorldPtr DynamicsWorld::GetInstance( DynamicsWorldConfigPtr configuration )
+{
+  if( !sDynamicsFactoryInstance )
+  {
+    sDynamicsFactoryInstance = ThreadLocalStorage::Get().GetPlatformAbstraction().GetDynamicsFactory();
+  }
+
+  if( sDynamicsFactoryInstance && !mDynamicsWorldInstance )
+  {
+    if( sDynamicsFactoryInstance->InitializeDynamics( *( configuration->GetSettings() ) ) )
+    {
+      StagePtr stage = Stage::GetCurrent();
+      if( stage != NULL )
+      {
+        mDynamicsWorldInstance = DynamicsWorld::New();
+        mDynamicsWorldInstance->Initialize( *stage, *sDynamicsFactoryInstance, configuration );
+      }
+    }
+  }
+
+  return mDynamicsWorldInstance;
+}
+
+DynamicsWorldPtr DynamicsWorld::Get()
+{
+  if( mDynamicsWorldInstance )
+  {
+    return mDynamicsWorldInstance;
+  }
+
+  return DynamicsWorldPtr();
+}
+
+DynamicsNotifier& DynamicsWorld::GetNotifier()
+{
+  return mDynamicsNotifierInstance;
+}
+
+void DynamicsWorld::DestroyInstance()
+{
+  if( mDynamicsWorldInstance )
+  {
+    StagePtr stage = Stage::GetCurrent();
+    if( stage != NULL )
+    {
+      mDynamicsWorldInstance->Terminate( *stage );
+    }
+    mDynamicsWorldInstance = NULL;
+  }
+}
+
 void DynamicsWorld::Initialize(Stage& stage, Integration::DynamicsFactory& dynamicsFactory, DynamicsWorldConfigPtr config)
 {
-  mDynamicsWorld = new SceneGraph::DynamicsWorld( stage.GetDynamicsNotifier(),
+  mDynamicsWorld = new SceneGraph::DynamicsWorld( DynamicsWorld::GetNotifier(),
                                                   stage.GetNotificationManager(),
                                                   dynamicsFactory );
 
@@ -112,18 +173,6 @@ void DynamicsWorld::Terminate(Stage& stage)
 DynamicsWorld::~DynamicsWorld()
 {
   DALI_LOG_INFO(Debug::Filter::gDynamics, Debug::Verbose, "%s\n", __PRETTY_FUNCTION__);
-}
-
-DynamicsWorldPtr DynamicsWorld::Get()
-{
-  DynamicsWorldPtr world;
-
-  StagePtr stage = Stage::GetCurrent();
-  if( stage != NULL )
-  {
-    world = stage->GetDynamicsWorld();
-  }
-  return world;
 }
 
 bool DynamicsWorld::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )

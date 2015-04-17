@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 #include <dali/public-api/dali-core.h>
+#include <dali/public-api/dynamics/dynamics-world.h>
 #include <dali-test-suite-utils.h>
 
 
@@ -41,8 +42,8 @@ int UtcDaliDynamicsBodyConfigNew(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -77,8 +78,8 @@ int UtcDaliDynamicsBodyConfigConstructor(void)
 
   DALI_TEST_CHECK( !config );
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -107,8 +108,8 @@ int UtcDaliDynamicsBodyConfigType(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -143,8 +144,8 @@ int UtcDaliDynamicsBodyConfigSetShape01(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -179,8 +180,8 @@ int UtcDaliDynamicsBodyConfigSetShape02(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -216,8 +217,8 @@ int UtcDaliDynamicsBodyConfigGetShape(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -247,8 +248,8 @@ int UtcDaliDynamicsBodyConfigMass(void)
 
   const float testMass = 1.23f;
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -285,8 +286,8 @@ int UtcDaliDynamicsBodyConfigElasticity(void)
 
   const float testElasticity = 0.87f;
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -323,8 +324,8 @@ int UtcDaliDynamicsBodyConfigFriction(void)
 
   const float testFriction= 0.87f;
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -361,8 +362,8 @@ int UtcDaliDynamicsBodyConfigLinearDamping(void)
 
   const float testDamping = 0.123f;
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -399,8 +400,8 @@ int UtcDaliDynamicsBodyConfigAngularDamping(void)
 
   const float testDamping = 0.123f;
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -437,8 +438,8 @@ int UtcDaliDynamicsBodyConfigLinearSleepVelocity(void)
 
   const float testSleepVelocity = 0.123f;
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -475,8 +476,8 @@ int UtcDaliDynamicsBodyConfigAngularSleepVelocity(void)
 
   const float testSleepVelocity = 0.123f;
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -513,8 +514,8 @@ int UtcDaliDynamicsBodyConfigCollisionGroup(void)
 
   const short int testGroup = 0x1234;
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -551,8 +552,8 @@ int UtcDaliDynamicsBodyConfigCollisionMask(void)
 
   const short int testMask = 0x7ffe;
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -589,8 +590,8 @@ int UtcDaliDynamicsBodyConfigAnchorHardness(void)
 
   const float testHardness = 0.87f;
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -627,8 +628,8 @@ int UtcDaliDynamicsBodyConfigVolumeConservation(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {
@@ -660,8 +661,8 @@ int UtcDaliDynamicsBodyConfigShapeConservation(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( !world )
   {

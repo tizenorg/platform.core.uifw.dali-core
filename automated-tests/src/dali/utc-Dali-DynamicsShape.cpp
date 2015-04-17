@@ -18,6 +18,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <dali/public-api/dali-core.h>
+#include <dali/public-api/dynamics/dynamics-world.h>
 #include <dali-test-suite-utils.h>
 
 using namespace Dali;
@@ -38,8 +39,8 @@ int UtcDaliDynamicsShapeConstructor(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( world )
   {
@@ -77,8 +78,8 @@ int UtcDaliDynamicsShapeNewCapsule(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( world )
   {
@@ -112,8 +113,8 @@ int UtcDaliDynamicsShapeNewCone(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( world )
   {
@@ -146,8 +147,8 @@ int UtcDaliDynamicsShapeNewCube(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( world )
   {
@@ -179,8 +180,8 @@ int UtcDaliDynamicsShapeNewCylinder(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( world )
   {
@@ -212,8 +213,8 @@ int UtcDaliDynamicsShapeNewMesh(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( world )
   {
@@ -245,8 +246,8 @@ int UtcDaliDynamicsShapeNewSphere(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( world )
   {
@@ -278,8 +279,8 @@ int UtcDaliDynamicsShapeGetType(void)
   application.Render();
   application.Render();
 
-  DynamicsWorldConfig worldConfig(DynamicsWorldConfig::New());
-  DynamicsWorld world( Stage::GetCurrent().InitializeDynamics(worldConfig) );
+  DynamicsWorldConfig worldConfig( DynamicsWorldConfig::New() );
+  DynamicsWorld world( DynamicsWorld::GetInstance( worldConfig ) );
 
   if( world )
   {

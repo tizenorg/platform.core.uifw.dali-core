@@ -23,44 +23,6 @@
 
 using namespace Dali;
 
-int UtcDaliStageInitializeDynamics(void)
-{
-#if !defined(DYNAMICS_SUPPORT)
-  tet_infoline("No dynamics support compiled\n");
-  return 0;
-#endif
-  TestApplication application;
-
-  Stage stage = Stage::GetCurrent();
-  TraceCallStack& trace = application.GetPlatform().GetTrace();
-  trace.Enable(true);
-  DALI_TEST_CHECK( stage.InitializeDynamics( DynamicsWorldConfig::New() ) );
-  DALI_TEST_CHECK( trace.FindMethod( "GetDynamicsFactory" ) );
-  DALI_TEST_CHECK( trace.FindMethod( "DynamicsFactory::InitializeDynamics" ) );
-  END_TEST;
-}
-
-int UtcDaliStageGetDynamicsWorld(void)
-{
-  TestApplication application;
-
-  Stage stage = Stage::GetCurrent();
-
-  DALI_TEST_CHECK( !stage.GetDynamicsWorld() );
-  END_TEST;
-}
-
-int UtcDaliStageTerminateDynamics(void)
-{
-  TestApplication application;
-
-  Stage stage = Stage::GetCurrent();
-
-  stage.TerminateDynamics();
-
-  DALI_TEST_CHECK( !stage.GetDynamicsWorld() );
-  END_TEST;
-}
 
 int UtcDaliDynamicsWorldConstructor(void)
 {

@@ -63,20 +63,20 @@ public:
    * @param[in] collisionData Contains information about the colliding bodies, their
    *                          points of contact, and impact magnitude
    */
-  void CollisionImpact( Integration::DynamicsCollisionData* collisionData );
+  virtual void CollisionImpact( Integration::DynamicsCollisionData* collisionData ) = 0;
 
   /**
    * Invoked when the simulation detects two bodies already in collision scraping against each other.
    * @param[in] collisionData Contains information about the colliding bodies, their
    *                          points of contact, and impact magnitude
    */
-  void CollisionScrape( Integration::DynamicsCollisionData* collisionData );
+  virtual void CollisionScrape( Integration::DynamicsCollisionData* collisionData ) = 0;
 
   /**
    * Invoked when the simulation detects two previously colliding bodies moving apart.
    * @param[in] collisionData Contains information about the colliding bodies.
    */
-  void CollisionDisperse( Integration::DynamicsCollisionData* collisionData );
+  virtual void CollisionDisperse( Integration::DynamicsCollisionData* collisionData ) = 0;
 }; // class DynamicsNotifier
 
 inline MessageBase* CollisionImpactMessage( DynamicsNotifier& dynamicsNotifier, Integration::DynamicsCollisionData* collisionData )

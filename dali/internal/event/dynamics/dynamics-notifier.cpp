@@ -39,28 +39,6 @@ DynamicsNotifier::~DynamicsNotifier()
 {
 }
 
-void DynamicsNotifier::CollisionImpact( Integration::DynamicsCollisionData* collisionData )
-{
-  if( Stage::GetCurrent()->GetDynamicsWorld() )
-  {
-    Stage::GetCurrent()->GetDynamicsWorld()->CollisionImpact(collisionData);
-  }
-  delete collisionData;
-}
-
-void DynamicsNotifier::CollisionScrape( Integration::DynamicsCollisionData* collisionData )
-{
-}
-
-void DynamicsNotifier::CollisionDisperse( Integration::DynamicsCollisionData* collisionData )
-{
-  if( Stage::GetCurrent()->GetDynamicsWorld() )
-  {
-    Stage::GetCurrent()->GetDynamicsWorld()->CollisionDisperse(collisionData);
-  }
-  delete collisionData;
-}
-
 } // namespace Internal
 
 } // namespace Dali

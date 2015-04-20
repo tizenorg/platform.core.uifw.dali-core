@@ -253,6 +253,39 @@ public:
   Property::Index RegisterProperty( const std::string& name, const Property::Value& propertyValue, Property::AccessMode accessMode );
 
   /**
+   * @brief Register a new property of a known type
+   *
+   * Convienience function to register a property of a known type
+   * @sa RegisterProperty( const std::string& name, const Property::Value& propertyValue, Property::AccessMode accessMode )
+   * @param [in] name The name of the property.
+   * @param [in] value The new value of the property.
+   * @return The index of the property
+   */
+  template<typename Type>
+  Property::Index RegisterProperty( const std::string& name, Type value )
+  {
+    Property::Value propertyValue(static_cast<Type>(value));
+    return RegisterProperty( name, propertyValue );
+  }
+
+  /**
+   * @brief Register a new property of a known type
+   *
+   * Convienience function to register a property of a known type
+   * @sa RegisterProperty( const std::string& name, const Property::Value& propertyValue, Property::AccessMode accessMode )
+   * @param [in] name The name of the property.
+   * @param [in] value The new value of the property.
+   * @param [in] accessMode The property access mode (writable, animatable etc).
+   * @return The index of the property
+   */
+  template <typename Type>
+  Property::Index RegisterProperty( const std::string& name, Type value, Property::AccessMode accessMode )
+  {
+    Property::Value propertyValue(static_cast<Type>(value));
+    return RegisterProperty( name, propertyValue, accessMode );
+  }
+
+  /**
    * @brief Retrieve a property value.
    *
    * @param [in] index The index of the property.
@@ -273,6 +306,22 @@ public:
     Property::Value value = GetProperty(index);
 
     return T( value.Get<T>() );
+  }
+
+  /**
+   * @brief Convenience function for setting a property of a known type.
+   *
+   * @pre The property types match i.e. T is equal to GetPropertyType(index) or can be
+   * successfully cast.
+   * @param[in] index The index of the property.
+   * @param[in] value The new value of the property
+   */
+
+  template<typename Type>
+  void SetProperty( Property::Index index, const Type& value )
+  {
+    Property::Value propertyValue(static_cast<const Type&>(value));
+    SetProperty( index, propertyValue );
   }
 
   /**

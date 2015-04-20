@@ -130,13 +130,13 @@ struct Property::Value::Impl
   {
   }
 
-  Impl(Property::Map container)
+  Impl(const Property::Map& container)
     : mType( PropertyTypes::Get<Property::Map >() ),
       mValue( container )
   {
   }
 
-  Impl(Property::Array container)
+  Impl(const Property::Array& container)
     : mType( PropertyTypes::Get<Property::Array >() ),
       mValue( container )
   {
@@ -241,12 +241,12 @@ Property::Value::Value(const char *stringValue)
   mImpl = new Impl( std::string(stringValue) );
 }
 
-Property::Value::Value(Property::Array &arrayValue)
+Property::Value::Value(const Property::Array& arrayValue)
 {
   mImpl = new Impl( arrayValue );
 }
 
-Property::Value::Value(Property::Map &mapValue)
+Property::Value::Value(const Property::Map& mapValue)
 {
   mImpl = new Impl( mapValue );
 }

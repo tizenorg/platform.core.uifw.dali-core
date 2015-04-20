@@ -55,6 +55,11 @@ void CheckTypeName(const Property::Type& type)
       DALI_TEST_CHECK( "UNSIGNED_INTEGER" == std::string(PropertyTypes::GetName( type ) ) );
       break;
     }
+    case Property::UNSIGNED_SHORT:
+    {
+      DALI_TEST_CHECK( "UNSIGNED_SHORT" == std::string(PropertyTypes::GetName( type ) ) );
+      break;
+    }
     case Property::VECTOR2:
     {
       DALI_TEST_CHECK( "VECTOR2" == std::string(PropertyTypes::GetName( type ) ) );

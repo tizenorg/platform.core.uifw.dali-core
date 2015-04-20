@@ -805,3 +805,317 @@ int UtcDaliHandleCustomProperty(void)
   DALI_TEST_CHECK( handle.GetProperty<float>(index) == 5.0f );
   END_TEST;
 }
+
+
+int UtcDaliHandleRegisterTypedProperty(void)
+{
+  tet_infoline("Test RegisterProperty with a templated type");
+  TestApplication application;
+
+  Actor actor = Actor::New();
+
+  Property::Index intIndex    = actor.RegisterProperty<int>( "int-type", 99 );
+  Property::Index uintIndex   = actor.RegisterProperty<unsigned int>( "unsigned-int-type", 75000 );
+  Property::Index ushortIndex = actor.RegisterProperty<unsigned short>( "unsigned-short-int-type", 65535u );
+  Property::Index floatIndex  = actor.RegisterProperty<float>( "float-type", 99 );
+  Property::Index vec2Index   = actor.RegisterProperty<Vector2>( "vec2-type", Vector2(99, 10) );
+  Property::Index vec3Index   = actor.RegisterProperty<Vector3>( "vec3-type", Vector3(100, 200, 300) );
+  Property::Index vec4Index   = actor.RegisterProperty<Vector4>( "vec4-type", Vector4(2000, 3000, 4000, 5000) );
+
+  DALI_TEST_EQUALS( actor.GetProperty(intIndex).GetType(), Property::INTEGER, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<int>(intIndex), 99, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( actor.GetProperty(uintIndex).GetType(), Property::UNSIGNED_INTEGER, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned int>(uintIndex), 75000, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( actor.GetProperty(ushortIndex).GetType(), Property::UNSIGNED_SHORT, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(ushortIndex), (unsigned short)65535u, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( actor.GetProperty(floatIndex).GetType(), Property::FLOAT, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<float>(floatIndex), 99.0f, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( actor.GetProperty(vec2Index).GetType(), Property::VECTOR2, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<Vector2>(vec2Index), Vector2(99, 10), TEST_LOCATION );
+
+  DALI_TEST_EQUALS( actor.GetProperty(vec3Index).GetType(), Property::VECTOR3, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<Vector3>(vec3Index), Vector3(100, 200, 300), TEST_LOCATION );
+
+  DALI_TEST_EQUALS( actor.GetProperty(vec4Index).GetType(), Property::VECTOR4, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<Vector4>(vec4Index), Vector4(2000, 3000, 4000, 5000), TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliHandleRegisterTypedPropertyN(void)
+{
+  tet_infoline("Test RegisterProperty with an incorrectly typed value");
+  TestApplication application;
+
+  Actor actor = Actor::New();
+
+  Property::Index intIndex    = actor.RegisterProperty<int>( "int-type", 12.5f );
+  Property::Index uintIndex   = actor.RegisterProperty<unsigned int>( "unsigned-int-type", pow(2, 31)-1 );
+  Property::Index ushortIndex = actor.RegisterProperty<unsigned short>( "unsigned-short-int-type", pow(2,16)-1 );
+
+  DALI_TEST_EQUALS( actor.GetProperty<int>(intIndex), 12, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned int>(uintIndex), (unsigned int)(pow(2,31)-1), TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(ushortIndex), (unsigned short)(pow(2,16)-1), TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliHandleSetTypedProperty(void)
+{
+  tet_infoline("Test SetProperty with a templated type");
+  TestApplication application;
+
+  Actor actor = Actor::New();
+
+  Property::Index intIndex1    = actor.RegisterProperty<int>( "int-1", 99 );
+  Property::Index intIndex2    = actor.RegisterProperty( "int-2", 99 );
+  Property::Index uintIndex1    = actor.RegisterProperty<unsigned int>( "unsigned-int-1", 75000 );
+  Property::Index uintIndex2    = actor.RegisterProperty( "unsigned-int-2", 75000u );
+  Property::Index ushortIndex1 = actor.RegisterProperty<unsigned short>( "unsigned-short-int-1", 65535u );
+  Property::Index ushortIndex2 = actor.RegisterProperty<unsigned short>( "unsigned-short-int-2", (unsigned short) 65535u );
+  Property::Index floatIndex1  = actor.RegisterProperty<float>( "float-1", 99 );
+  Property::Index floatIndex2  = actor.RegisterProperty( "float-2", 99.0f );
+  Property::Index vec2Index1  = actor.RegisterProperty<Vector2>( "vec2-1", Vector2(99, 10) );
+  Property::Index vec2Index2  = actor.RegisterProperty( "vec2-2", Vector2(99, 10) );
+  Property::Index vec3Index1  = actor.RegisterProperty<Vector3>( "vec3-1", Vector3(100, 200, 300) );
+  Property::Index vec3Index2  = actor.RegisterProperty( "vec3-2", Vector3(100, 200, 300) );
+  Property::Index vec4Index1  = actor.RegisterProperty<Vector4>( "vec4-1", Vector4(2000, 3000, 4000, 5000) );
+  Property::Index vec4Index2  = actor.RegisterProperty( "vec4-2", Vector4(2000, 3000, 4000, 5000) );
+
+  actor.SetProperty<int>(intIndex1, 200);
+  actor.SetProperty<int>(intIndex2, 200);
+  actor.SetProperty<unsigned int>(uintIndex1, 200);
+  actor.SetProperty<unsigned int>(uintIndex2, 200);
+  actor.SetProperty<unsigned short>(ushortIndex1, 200);
+  actor.SetProperty<unsigned short>(ushortIndex2, 200);
+  actor.SetProperty<float>(floatIndex1, 200);
+  actor.SetProperty<float>(floatIndex2, 200);
+  actor.SetProperty<Vector2>(vec2Index1, Vector2(200, 200));
+  actor.SetProperty<Vector2>(vec2Index2, Vector2(200, 200));
+  actor.SetProperty<Vector3>(vec3Index1, Vector3(200, 200, 200));
+  actor.SetProperty<Vector3>(vec3Index2, Vector3(200, 200, 200));
+  actor.SetProperty<Vector4>(vec4Index1, Vector4(200, 200, 200, 200));
+  actor.SetProperty<Vector4>(vec4Index2, Vector4(200, 200, 200, 200));
+
+  application.SendNotification();
+  application.Render();
+
+  DALI_TEST_EQUALS( actor.GetProperty<int>(intIndex1), 200, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<int>(intIndex2), 200, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned int>(uintIndex1), 200, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned int>(uintIndex2), 200, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(ushortIndex1), (unsigned short)200, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<unsigned short>(ushortIndex2), (unsigned short)200, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<float>(floatIndex1), 200.0f, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<float>(floatIndex2), 200.0f, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<Vector2>(vec2Index1), Vector2(200, 200), TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<Vector2>(vec2Index2), Vector2(200, 200), TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<Vector3>(vec3Index1), Vector3(200, 200, 200), TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<Vector3>(vec3Index2), Vector3(200, 200, 200), TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<Vector4>(vec4Index1), Vector4(200, 200, 200, 200), TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetProperty<Vector4>(vec4Index2), Vector4(200, 200, 200, 200), TEST_LOCATION );
+
+  END_TEST;
+}
+
+
+int UtcDaliHandleSetTypedPropertyN(void)
+{
+  tet_infoline("Test SetProperty with a templated value of the wrong type");
+  TestApplication application;
+
+  Actor actor = Actor::New();
+
+  Property::Index intIndex    = actor.RegisterProperty<int>( "int-type", 99 );
+  Property::Index uintIndex   = actor.RegisterProperty<unsigned int>( "unsigned-int-type", 75000 );
+  Property::Index ushortIndex = actor.RegisterProperty<unsigned short>( "unsigned-short-int-type", 65535u );
+  Property::Index floatIndex  = actor.RegisterProperty<float>( "float-type", 99 );
+  Property::Index vec2Index   = actor.RegisterProperty<Vector2>( "vec2-type", Vector2(99, 10) );
+
+  try
+  {
+    actor.SetProperty<float>(intIndex, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::INTEGER", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<unsigned int>(intIndex, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::INTEGER", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<unsigned short>(intIndex, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::INTEGER", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+
+  try
+  {
+    actor.SetProperty<float>(uintIndex, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::UNSIGNED_INTEGER", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<unsigned short>(uintIndex, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::UNSIGNED_INTEGER", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<int>(uintIndex, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::UNSIGNED_INTEGER", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<float>(ushortIndex, 2000000);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::UNSIGNED_SHORT", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<int>(ushortIndex, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::UNSIGNED_SHORT", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<unsigned int>(ushortIndex, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::UNSIGNED_SHORT", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<int>(floatIndex, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::FLOAT", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<unsigned short>(floatIndex, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::FLOAT", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<Vector2>(floatIndex, Vector2(200, 300));
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::FLOAT", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<float>(vec2Index, 200);
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::VECTOR2", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<Vector3>(vec2Index, Vector3(200, 200, 300));
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::VECTOR2", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  try
+  {
+    actor.SetProperty<Vector4>(vec2Index, Vector4(200, 200, 200, 200));
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException(e))
+  {
+    DALI_TEST_ASSERT(e, "Property::VECTOR2", TEST_LOCATION);
+    DALI_TEST_PRINT_ASSERT( e );
+    tet_result(TET_PASS);
+  }
+
+  END_TEST;
+}

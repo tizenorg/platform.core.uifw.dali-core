@@ -169,14 +169,14 @@ public:
    *
    * @param [in] arrayValue An array
    */
-  Value(Property::Array& arrayValue);
+  Value(const Property::Array& arrayValue);
 
   /**
    * @brief Create a map property value.
    *
    * @param [in] mapValue An array
    */
-  Value(Property::Map& mapValue);
+  Value(const Property::Map& mapValue);
 
   /**
    * @brief Explicitly set a type and initialize it.

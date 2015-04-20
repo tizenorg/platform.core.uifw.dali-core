@@ -6,7 +6,6 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali")
 
 SET(TC_SOURCES
-        utc-Dali-ActiveConstraint.cpp
         utc-Dali-Actor.cpp
         utc-Dali-AlphaFunctions.cpp
         utc-Dali-AngleAxis.cpp
@@ -16,8 +15,6 @@ SET(TC_SOURCES
         utc-Dali-BaseHandle.cpp
         utc-Dali-BufferImage.cpp
         utc-Dali-CameraActor.cpp
-        utc-Dali-Character.cpp
-        utc-Dali-Constraint.cpp
         utc-Dali-Context.cpp
         utc-Dali-CustomActor.cpp
         utc-Dali-Degree.cpp
@@ -27,13 +24,12 @@ SET(TC_SOURCES
         utc-Dali-DynamicsWorld.cpp
         utc-Dali-DynamicsWorldConfig.cpp
         utc-Dali-EncodedBufferImage.cpp
-        utc-Dali-Font.cpp
-        utc-Dali-FontParameters.cpp
         utc-Dali-FrameBufferImage.cpp
         utc-Dali-Geometry.cpp
         utc-Dali-Gesture.cpp
         utc-Dali-GestureDetector.cpp
         utc-Dali-Handle.cpp
+        utc-Dali-Hash.cpp
         utc-Dali-HitTestAlgorithm.cpp
         utc-Dali-HoverProcessing.cpp
         utc-Dali-Image.cpp
@@ -81,13 +77,9 @@ SET(TC_SOURCES
         utc-Dali-Stage.cpp
         utc-Dali-TapGesture.cpp
         utc-Dali-TapGestureDetector.cpp
-        utc-Dali-Text.cpp
-        utc-Dali-TextActor.cpp
-        utc-Dali-TextStyle.cpp
         utc-Dali-TouchEventCombiner.cpp
         utc-Dali-TouchProcessing.cpp
         utc-Dali-TypeRegistry.cpp
-        utc-Dali-Utf8.cpp
         utc-Dali-Vector.cpp
         utc-Dali-Vector2.cpp
         utc-Dali-Vector3.cpp

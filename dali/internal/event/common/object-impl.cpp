@@ -27,7 +27,6 @@
 #include <dali/internal/update/common/animatable-property.h>
 #include <dali/internal/update/common/property-owner-messages.h>
 #include <dali/internal/update/common/uniform-map.h>
-#include <dali/internal/event/animation/active-constraint-base.h>
 #include <dali/internal/event/animation/constraint-impl.h>
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/common/property-notification-impl.h>
@@ -87,17 +86,6 @@ void Object::RemoveObserver(Observer& observer)
 
 void Object::OnSceneObjectAdd()
 {
-  // Notification for this object's constraints
-  if( mConstraints )
-  {
-    const ActiveConstraintConstIter endIter = mConstraints->end();
-    for ( ActiveConstraintIter iter = mConstraints->begin(); endIter != iter; ++iter )
-    {
-      ActiveConstraintBase& baseConstraint = GetImplementation( *iter );
-      baseConstraint.OnParentSceneObjectAdded();
-    }
-  }
-
   // Notification for observers
   for( ConstObserverIter iter = mObservers.Begin(),  endIter =  mObservers.End(); iter != endIter; ++iter)
   {
@@ -110,17 +98,6 @@ void Object::OnSceneObjectAdd()
 
 void Object::OnSceneObjectRemove()
 {
-  // Notification for this object's constraints
-  if( mConstraints )
-  {
-    const ActiveConstraintConstIter endIter = mConstraints->end();
-    for ( ActiveConstraintIter iter = mConstraints->begin(); endIter != iter; ++iter )
-    {
-      ActiveConstraintBase& baseConstraint = GetImplementation( *iter );
-      baseConstraint.OnParentSceneObjectRemoved();
-    }
-  }
-
   // Notification for observers
   for( ConstObserverIter iter = mObservers.Begin(), endIter = mObservers.End(); iter != endIter; ++iter )
   {
@@ -402,13 +379,13 @@ void Object::SetProperty( Property::Index index, const Property::Value& property
     if(!animatableProperty)
     {
       const TypeInfo* typeInfo( GetTypeInfo() );
-      if (typeInfo && Property::INVALID_INDEX == RegisterSceneGraphProperty(typeInfo->GetPropertyName(index), index, propertyValue))
-      {
-        DALI_LOG_ERROR("Cannot register property\n");
-      }
-      else
+      if (!typeInfo)
       {
         DALI_LOG_ERROR("Cannot find property index\n");
+      }
+      else if ( Property::INVALID_INDEX == RegisterSceneGraphProperty( typeInfo->GetPropertyName( index ), index, propertyValue ) )
+      {
+        DALI_LOG_ERROR("Cannot register property\n");
       }
     }
     else
@@ -631,7 +608,7 @@ Property::Index Object::RegisterSceneGraphProperty(const std::string& name, Prop
     }
     else
     {
-      mAnimatableProperties.PushBack( new AnimatablePropertyMetadata( propertyValue.GetType(), property ) );
+      mAnimatableProperties.PushBack( new AnimatablePropertyMetadata( index, propertyValue.GetType(), property ) );
     }
 
     // queue a message to add the property
@@ -682,6 +659,23 @@ Dali::PropertyNotification Object::AddPropertyNotification(Property::Index index
     if ( index <= PROPERTY_REGISTRATION_MAX_INDEX )
     {
       DALI_ASSERT_ALWAYS( false && "Property notification added to event side only property." );
+    }
+    else if ( ( index >= ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX ) && ( index <= ANIMATABLE_PROPERTY_REGISTRATION_MAX_INDEX ) )
+    {
+      // check whether the animatable property is registered already, if not then register one.
+      AnimatablePropertyMetadata* animatable = FindAnimatableProperty( index );
+      if( !animatable )
+      {
+        const TypeInfo* typeInfo( GetTypeInfo() );
+        if ( typeInfo )
+        {
+          if( Property::INVALID_INDEX != RegisterSceneGraphProperty( typeInfo->GetPropertyName( index ), index, Property::Value( typeInfo->GetPropertyType( index ) ) ) )
+          {
+            animatable = FindAnimatableProperty( index );
+          }
+        }
+      }
+      DALI_ASSERT_ALWAYS( animatable && "Property index is invalid" );
     }
     else if ( mCustomProperties.Count() > 0 )
     {
@@ -820,45 +814,6 @@ void Object::RemoveUniformMapping( const std::string& uniformName )
 {
   const SceneGraph::PropertyOwner* sceneObject = GetSceneObject();
   RemoveUniformMapMessage( GetEventThreadServices(), *sceneObject, uniformName);
-}
-
-Dali::ActiveConstraint Object::ApplyConstraint( Constraint& constraint )
-{
-  return Dali::ActiveConstraint( DoApplyConstraint( constraint, Dali::Handle() ) );
-}
-
-Dali::ActiveConstraint Object::ApplyConstraint( Constraint& constraint, Dali::Handle weightObject )
-{
-  return Dali::ActiveConstraint( DoApplyConstraint( constraint, weightObject ) );
-}
-
-ActiveConstraintBase* Object::DoApplyConstraint( Constraint& constraint, Dali::Handle weightObject )
-{
-  ActiveConstraintBase* activeConstraintImpl = constraint.CreateActiveConstraint();
-  DALI_ASSERT_DEBUG( NULL != activeConstraintImpl );
-
-  Dali::ActiveConstraint activeConstraint( activeConstraintImpl );
-
-  if( weightObject )
-  {
-    Object& weightObjectImpl = GetImplementation( weightObject );
-    Property::Index weightIndex = weightObjectImpl.GetPropertyIndex( "weight" );
-
-    if( Property::INVALID_INDEX != weightIndex )
-    {
-      activeConstraintImpl->SetCustomWeightObject( weightObjectImpl, weightIndex );
-    }
-  }
-
-  if( !mConstraints )
-  {
-    mConstraints = new ActiveConstraintContainer;
-  }
-  mConstraints->push_back( activeConstraint );
-
-  activeConstraintImpl->FirstApply( *this, constraint.GetApplyTime() );
-
-  return activeConstraintImpl;
 }
 
 Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
@@ -1087,56 +1042,23 @@ const TypeInfo* Object::GetTypeInfo() const
   return mTypeInfo;
 }
 
-void Object::RemoveConstraint( ActiveConstraint& constraint, bool isInScenegraph )
+void Object::ApplyConstraint( ConstraintBase& constraint )
 {
-  // guard against constraint sending messages during core destruction
-  if ( Stage::IsInstalled() )
+  if( !mConstraints )
   {
-    if( isInScenegraph )
-    {
-      ActiveConstraintBase& baseConstraint = GetImplementation( constraint );
-      baseConstraint.BeginRemove();
-    }
+    mConstraints = new ConstraintContainer;
   }
+  mConstraints->push_back( Dali::Constraint( &constraint ) );
 }
 
-void Object::RemoveConstraint( Dali::ActiveConstraint activeConstraint )
+void Object::RemoveConstraint( ConstraintBase& constraint )
 {
-  // guard against constraint sending messages during core destruction
-  if( mConstraints && Stage::IsInstalled() )
+  DALI_ASSERT_DEBUG( mConstraints );
+
+  ConstraintIter it( std::find( mConstraints->begin(), mConstraints->end(), Dali::Constraint( &constraint ) ) );
+  if( it != mConstraints->end() )
   {
-    bool isInSceneGraph( NULL != GetSceneObject() );
-
-    ActiveConstraintIter it( std::find( mConstraints->begin(), mConstraints->end(), activeConstraint ) );
-    if( it !=  mConstraints->end() )
-    {
-      RemoveConstraint( *it, isInSceneGraph );
-      mConstraints->erase( it );
-    }
-  }
-}
-
-void Object::RemoveConstraints( unsigned int tag )
-{
-  // guard against constraint sending messages during core destruction
-  if( mConstraints && Stage::IsInstalled() )
-  {
-    bool isInSceneGraph( NULL != GetSceneObject() );
-
-    ActiveConstraintIter iter( mConstraints->begin() );
-    while(iter != mConstraints->end() )
-    {
-      ActiveConstraintBase& constraint = GetImplementation( *iter );
-      if( constraint.GetTag() == tag )
-      {
-        RemoveConstraint( *iter, isInSceneGraph );
-        iter = mConstraints->erase( iter );
-      }
-      else
-      {
-        ++iter;
-      }
-    }
+    mConstraints->erase( it );
   }
 }
 
@@ -1149,15 +1071,43 @@ void Object::RemoveConstraints()
     const SceneGraph::PropertyOwner* propertyOwner = GetSceneObject();
     if ( NULL != propertyOwner )
     {
-      const ActiveConstraintConstIter endIter = mConstraints->end();
-      for ( ActiveConstraintIter iter = mConstraints->begin(); endIter != iter; ++iter )
+      const ConstraintConstIter endIter = mConstraints->end();
+      for ( ConstraintIter iter = mConstraints->begin(); endIter != iter; ++iter )
       {
-        RemoveConstraint( *iter, true );
+        GetImplementation( *iter ).RemoveInternal();
       }
     }
 
     delete mConstraints;
     mConstraints = NULL;
+  }
+}
+
+void Object::RemoveConstraints( unsigned int tag )
+{
+  // guard against constraint sending messages during core destruction
+  if( mConstraints && Stage::IsInstalled() )
+  {
+    ConstraintIter iter( mConstraints->begin() );
+    while(iter != mConstraints->end() )
+    {
+      ConstraintBase& constraint = GetImplementation( *iter );
+      if( constraint.GetTag() == tag )
+      {
+        GetImplementation( *iter ).RemoveInternal();
+        iter = mConstraints->erase( iter );
+      }
+      else
+      {
+        ++iter;
+      }
+    }
+
+    if ( mConstraints->empty() )
+    {
+      delete mConstraints;
+      mConstraints = NULL;
+    }
   }
 }
 
@@ -1168,18 +1118,6 @@ void Object::SetTypeInfo( const TypeInfo* typeInfo )
 
 Object::~Object()
 {
-  // Notification for this object's constraints
-  // (note that the ActiveConstraint handles may outlive the Object)
-  if( mConstraints )
-  {
-    const ActiveConstraintConstIter endIter = mConstraints->end();
-    for ( ActiveConstraintIter iter = mConstraints->begin(); endIter != iter; ++iter )
-    {
-      ActiveConstraintBase& baseConstraint = GetImplementation( *iter );
-      baseConstraint.OnParentDestroyed();
-    }
-  }
-
   // Notification for observers
   for( ConstObserverIter iter = mObservers.Begin(), endIter =  mObservers.End(); iter != endIter; ++iter)
   {
@@ -1206,16 +1144,15 @@ CustomPropertyMetadata* Object::FindCustomProperty( Property::Index index ) cons
 
 AnimatablePropertyMetadata* Object::FindAnimatableProperty( Property::Index index ) const
 {
-  AnimatablePropertyMetadata* property( NULL );
-  int arrayIndex = index - ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX;
-  if( arrayIndex >= 0 )
+  for ( int arrayIndex = 0; arrayIndex < (int)mAnimatableProperties.Count(); arrayIndex++ )
   {
-    if( arrayIndex < (int)mAnimatableProperties.Count() )
+    AnimatablePropertyMetadata* property = static_cast<AnimatablePropertyMetadata*>( mAnimatableProperties[ arrayIndex ] );
+    if( property->index == index )
     {
-      property = static_cast<AnimatablePropertyMetadata*>(mAnimatableProperties[ arrayIndex ]);
+      return property;
     }
   }
-  return property;
+  return NULL;
 }
 
 } // namespace Internal

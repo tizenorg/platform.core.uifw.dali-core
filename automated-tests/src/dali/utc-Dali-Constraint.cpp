@@ -2425,7 +2425,7 @@ int UtcDaliConstraintSetAlphaFunction(void)
   // Test the alpha-function itself
 
   AlphaFunction func = constraint.GetAlphaFunction();
-  DALI_TEST_EQUALS(func(0.1f), 0.1f, TEST_LOCATION); // Default is Linear
+  DALI_TEST_EQUALS(func.GetPredefinedFunction(), AlphaFunction::DEFAULT, TEST_LOCATION); // Default is Linear
 
   // Test that the alpha-function is used correctly
 
@@ -2486,9 +2486,9 @@ int UtcDaliConstraintSetAlphaFunction(void)
 
   // Change to non-linear alpha and retest
 
-  constraint.SetAlphaFunction(AlphaFunctions::EaseIn);
+  constraint.SetAlphaFunction(AlphaFunction::EASE_IN);
   func = constraint.GetAlphaFunction();
-  DALI_TEST_CHECK(func(0.1f) < 0.09f);
+  DALI_TEST_EQUALS(func.GetPredefinedFunction(), AlphaFunction::EASE_IN, TEST_LOCATION);
 
   actor.ApplyConstraint( constraint );
 
@@ -2522,7 +2522,7 @@ int UtcDaliConstraintGetAlphaFunction(void)
   Constraint constraint = Constraint::New<Vector4>( Actor::Property::COLOR, TestConstraint() );
 
   AlphaFunction func = constraint.GetAlphaFunction();
-  DALI_TEST_EQUALS(func(0.5f), 0.5f, TEST_LOCATION); // Default is Linear
+  DALI_TEST_EQUALS(func.GetPredefinedFunction(), AlphaFunction::DEFAULT, TEST_LOCATION);
   END_TEST;
 }
 

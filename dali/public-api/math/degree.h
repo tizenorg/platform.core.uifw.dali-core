@@ -18,9 +18,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <ostream>
-
 // INTERNAL INCLUDES
 #include <dali/public-api/common/constants.h>
 #include <dali/public-api/common/dali-common.h>
@@ -41,7 +38,7 @@ struct Degree
   /**
    * @brief default constructor, initialises to 0.
    */
-  Degree()
+  inline Degree()
   : degree( 0.f )
   { }
 
@@ -50,7 +47,7 @@ struct Degree
    *
    * @param[in] value The initial value in degrees.
    */
-  explicit Degree( float value )
+  inline explicit Degree( float value )
   : degree( value )
   { }
 
@@ -104,18 +101,6 @@ inline bool operator!=( const Degree& lhs, const Degree& rhs )
 inline Degree Clamp( Degree angle, float min, float max )
 {
   return Degree( Clamp<float>( angle.degree, min, max ) );
-}
-
-/**
- * @brief Stream a degree value
- * @param [in] ostream The output stream to use.
- * @param [in] angle in Degree.
- * @return The output stream.
- */
-inline std::ostream& operator<<( std::ostream& ostream, Degree angle )
-{
-  ostream << angle.degree;
-  return ostream;
 }
 
 } // namespace Dali

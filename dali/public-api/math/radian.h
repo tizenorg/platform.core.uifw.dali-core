@@ -18,9 +18,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <ostream>
-
 // INTERNAL INCLUDES
 #include <dali/public-api/common/constants.h>
 #include <dali/public-api/common/dali-common.h>
@@ -40,7 +37,7 @@ struct Radian
   /**
    * @brief default constructor, initialises to 0.
    */
-  Radian()
+  inline Radian()
   : radian( 0.f )
   { }
 
@@ -49,7 +46,7 @@ struct Radian
    *
    * @param[in] value The initial value in radians.
    */
-  explicit Radian( float value )
+  inline explicit Radian( float value )
   : radian( value )
   { }
 
@@ -58,7 +55,7 @@ struct Radian
    *
    * @param[in] degree The initial value in degrees.
    */
-  Radian( Degree degree )
+  inline Radian( Degree degree )
   : radian( degree.degree * Math::PI_OVER_180 )
   { }
 
@@ -68,7 +65,7 @@ struct Radian
    * @param[in] value Float value in radians
    * @return a reference to this object
    */
-  Radian& operator=( float value )
+  inline Radian& operator=( float value )
   {
     radian = value;
     return *this;
@@ -80,7 +77,7 @@ struct Radian
    * @param[in] degree The value in degrees.
    * @return a reference to this object
    */
-  Radian& operator=( Degree degree )
+  inline Radian& operator=( Degree degree )
   {
     radian = degree.degree * Math::PI_OVER_180;
     return *this;
@@ -90,7 +87,7 @@ struct Radian
    * @brief Conversion to float
    * @return the float value of this Radian
    */
-  operator float() const
+  inline operator float() const
   {
     return radian;
   }
@@ -292,18 +289,6 @@ inline Radian operator-( Radian in )
 inline Radian Clamp( Radian angle, float min, float max )
 {
   return Radian( Clamp<float>( angle.radian, min, max ) );
-}
-
-/**
- * @brief Stream a radian value
- * @param [in] ostream The output stream to use.
- * @param [in] angle in Radian.
- * @return The output stream.
- */
-inline std::ostream& operator<<( std::ostream& ostream, Radian angle )
-{
-  ostream << angle.radian;
-  return ostream;
 }
 
 } // namespace Dali

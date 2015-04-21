@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/math/degree.h>
 #include <dali/public-api/math/radian.h>
 #include <dali/public-api/math/vector3.h>
 
@@ -42,17 +41,6 @@ struct AngleAxis
   AngleAxis()
   : angle(0.0f),
     axis(0.0f, 0.0f, 0.0f)
-  { }
-
-  /**
-   * @brief Create an angle-axis pair.
-   *
-   * @param[in] initialAngle The initial angle in degrees.
-   * @param[in] initialAxis The initial axis.
-   */
-  AngleAxis( Degree initialAngle, Vector3 initialAxis )
-  : angle( initialAngle ),
-    axis( initialAxis )
   { }
 
   /**

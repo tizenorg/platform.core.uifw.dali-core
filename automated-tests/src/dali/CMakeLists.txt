@@ -45,7 +45,7 @@ SET(TC_SOURCES
         utc-Dali-Matrix3.cpp
         utc-Dali-MeshActor.cpp
         utc-Dali-MeshData.cpp
-        utc-Dali-MouseWheelEvent.cpp
+        utc-Dali-WheelEvent.cpp
         utc-Dali-Mutex.cpp
         utc-Dali-NativeImage.cpp
         utc-Dali-NinePatchImages.cpp

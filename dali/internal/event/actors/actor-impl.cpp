@@ -240,7 +240,7 @@ DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const char* const SIGNAL_TOUCHED = "touched";
 const char* const SIGNAL_HOVERED = "hovered";
-const char* const SIGNAL_MOUSE_WHEEL_EVENT = "mouse-wheel-event";
+const char* const SIGNAL_WHEEL_EVENT = "wheel-event";
 const char* const SIGNAL_ON_STAGE = "on-stage";
 const char* const SIGNAL_OFF_STAGE = "off-stage";
 
@@ -2120,9 +2120,9 @@ bool Actor::GetHoverRequired() const
   return !mHoveredSignal.Empty() || mDerivedRequiresHover;
 }
 
-bool Actor::GetMouseWheelEventRequired() const
+bool Actor::GetWheelEventRequired() const
 {
-  return !mMouseWheelEventSignal.Empty() || mDerivedRequiresMouseWheelEvent;
+  return !mWheelEventSignal.Empty() || mDerivedRequiresWheelEvent;
 }
 
 bool Actor::IsHittable() const
@@ -2184,20 +2184,20 @@ bool Actor::EmitHoverEventSignal( const HoverEvent& event )
   return consumed;
 }
 
-bool Actor::EmitMouseWheelEventSignal( const MouseWheelEvent& event )
+bool Actor::EmitWheelEventSignal( const WheelEvent& event )
 {
   bool consumed = false;
 
-  if( !mMouseWheelEventSignal.Empty() )
+  if( !mWheelEventSignal.Empty() )
   {
     Dali::Actor handle( this );
-    consumed = mMouseWheelEventSignal.Emit( handle, event );
+    consumed = mWheelEventSignal.Emit( handle, event );
   }
 
   if( !consumed )
   {
     // Notification for derived classes
-    consumed = OnMouseWheelEvent( event );
+    consumed = OnWheelEvent( event );
   }
 
   return consumed;
@@ -2213,9 +2213,9 @@ Dali::Actor::HoverSignalType& Actor::HoveredSignal()
   return mHoveredSignal;
 }
 
-Dali::Actor::MouseWheelEventSignalType& Actor::MouseWheelEventSignal()
+Dali::Actor::WheelEventSignalType& Actor::WheelEventSignal()
 {
-  return mMouseWheelEventSignal;
+  return mWheelEventSignal;
 }
 
 Dali::Actor::OnStageSignalType& Actor::OnStageSignal()
@@ -2246,9 +2246,9 @@ bool Actor::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tra
   {
     actor->HoveredSignal().Connect( tracker, functor );
   }
-  else if( 0 == strcmp( signalName.c_str(), SIGNAL_MOUSE_WHEEL_EVENT ) )
+  else if( 0 == strcmp( signalName.c_str(), SIGNAL_WHEEL_EVENT ) )
   {
-    actor->MouseWheelEventSignal().Connect( tracker, functor );
+    actor->WheelEventSignal().Connect( tracker, functor );
   }
   else if( 0 == strcmp( signalName.c_str(), SIGNAL_ON_STAGE ) )
   {
@@ -2278,7 +2278,7 @@ Actor::Actor( DerivedType derivedType )
         mDynamicsData( NULL ),
 #endif
         mGestureData( NULL ), mAttachment(), mTargetSize( 0.0f, 0.0f, 0.0f ), mName(), mId( ++mActorCounter ), // actor ID is initialised to start from 1, and 0 is reserved
-        mIsRoot( ROOT_LAYER == derivedType ), mIsRenderable( RENDERABLE == derivedType ), mIsLayer( LAYER == derivedType || ROOT_LAYER == derivedType ), mIsOnStage( false ), mIsDynamicsRoot( false ), mSensitive( true ), mLeaveRequired( false ), mKeyboardFocusable( false ), mDerivedRequiresTouch( false ), mDerivedRequiresHover( false ), mDerivedRequiresMouseWheelEvent( false ), mOnStageSignalled( false ), mInheritOrientation( true ), mInheritScale( true ), mDrawMode( DrawMode::NORMAL ), mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ), mColorMode( Node::DEFAULT_COLOR_MODE )
+        mIsRoot( ROOT_LAYER == derivedType ), mIsRenderable( RENDERABLE == derivedType ), mIsLayer( LAYER == derivedType || ROOT_LAYER == derivedType ), mIsOnStage( false ), mIsDynamicsRoot( false ), mSensitive( true ), mLeaveRequired( false ), mKeyboardFocusable( false ), mDerivedRequiresTouch( false ), mDerivedRequiresHover( false ), mDerivedRequiresWheelEvent( false ), mOnStageSignalled( false ), mInheritOrientation( true ), mInheritScale( true ), mDrawMode( DrawMode::NORMAL ), mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ), mColorMode( Node::DEFAULT_COLOR_MODE )
 {
 }
 

@@ -219,6 +219,109 @@ inline bool TryReuseCachedRenderers( Layer& layer,
   return retValue;
 }
 
+
+/**
+ * Function which sorts render items by depth index then by instance
+ * ptrs of shader/geometry/material.
+ * @param lhs item
+ * @param rhs item
+ * @return true if left item is greater than right
+ */
+bool CompareItems( const RendererWithSortAttributes& lhs, const RendererWithSortAttributes& rhs )
+{
+  // @todo MESH_REWORK Consider replacing all these sortAttributes with a single long int that
+  // encapsulates the same data (e.g. the middle-order bits of the ptrs)
+  if( lhs.depthIndex == rhs.depthIndex )
+  {
+    if( lhs.shader == rhs.shader )
+    {
+      if( lhs.material == rhs.material )
+      {
+        return lhs.geometry > lhs.geometry;
+      }
+      return lhs.material > rhs.material;
+    }
+    return lhs.shader > rhs.shader;;
+  }
+  return lhs.depthIndex > rhs.depthIndex;
+}
+/**
+ * Function which sorts the render items by depth index then by Z function,
+ * then by instance ptrs of shader/geometry/material.
+ * @param lhs item
+ * @param rhs item
+ * @return true if left item is greater than right
+ */
+bool CompareItemsWithZValue( const RendererWithSortAttributes& lhs, const RendererWithSortAttributes& rhs )
+{
+  // @todo MESH_REWORK Consider replacing all these sortAttributes with a single long int that
+  // encapsulates the same data (e.g. the middle-order bits of the ptrs)
+
+  if( lhs.depthIndex == rhs.depthIndex )
+  {
+    if( Equals(lhs.zValue, rhs.zValue) )
+    {
+      if( lhs.shader == rhs.shader )
+      {
+        if( lhs.material == rhs.material )
+        {
+          return lhs.geometry > lhs.geometry;
+        }
+        return lhs.material > rhs.material;
+      }
+      return lhs.shader > rhs.shader;;
+    }
+    return lhs.zValue > rhs.zValue;
+  }
+  return lhs.depthIndex > rhs.depthIndex;
+}
+
+inline void SortOpaqueRenderItems(
+  BufferIndex bufferIndex,
+  RenderList& opaqueRenderList,
+  Layer& layer,
+  RenderItemSortingHelper& sortingHelper )
+{
+  const size_t renderableCount = opaqueRenderList.Count();
+  // reserve space if needed
+  const unsigned int oldcapacity = sortingHelper.size();
+  if( oldcapacity < renderableCount )
+  {
+    sortingHelper.reserve( renderableCount );
+    // add real objects (reserve does not construct objects)
+    sortingHelper.insert( sortingHelper.begin() + oldcapacity,
+                          (renderableCount - oldcapacity),
+                          RendererWithSortAttributes() );
+  }
+  else
+  {
+    // clear extra elements from helper, does not decrease capability
+    sortingHelper.resize( renderableCount );
+  }
+
+  for( size_t index = 0; index < renderableCount; ++index )
+  {
+    RenderItem& item = opaqueRenderList.GetItem( index );
+
+    //@todo MESH_REWORK After merge of RenderableAttachment and RendererAttachment, should instead store the renderable ptr and get the fields directly
+    layer.opaqueRenderables[index]->SetSortAttributes( bufferIndex, sortingHelper[ index ] );
+
+    // the default sorting function should get inlined here
+    sortingHelper[ index ].zValue = 0;
+    sortingHelper[ index ].renderItem = &item;
+  }
+
+  // Sort the renderers by depth index, then by instance
+  std::sort( sortingHelper.begin(), sortingHelper.end(), CompareItems );
+
+  // Repopulate the render items in the render list based on the sorting helper
+  RenderItemContainer::Iterator renderListIter = opaqueRenderList.GetContainer().Begin();
+  for( unsigned int index = 0; index < renderableCount; ++index, ++renderListIter )
+  {
+    *renderListIter = sortingHelper[ index ].renderItem;
+  }
+}
+
 /**
  * Add opaque renderers from the layer onto the next free render list
  * @param updateBufferIndex to use
@@ -235,8 +338,10 @@ inline void AddOpaqueRenderers( BufferIndex updateBufferIndex,
                                 bool transparentRenderablesExist,
                                 bool stencilRenderablesExist,
                                 RenderInstruction& instruction,
+                                RendererSortingHelper& sortingHelper,
                                 bool tryReuseRenderList )
 {
+  const size_t renderableCount = layer.opaqueRenderables.size();
   RenderList& opaqueRenderList = instruction.GetNextFreeRenderList( layer.opaqueRenderables.size() );
   opaqueRenderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
 
@@ -255,18 +360,14 @@ inline void AddOpaqueRenderers( BufferIndex updateBufferIndex,
 
   // opaque flags can only be set after renderers are added
   SetOpaqueRenderFlags(opaqueRenderList, transparentRenderablesExist, stencilRenderablesExist, layer.IsDepthTestDisabled() );
+
+  // sorting is only needed if more than 1 item
+  if( renderableCount > 1 )
+  {
+    SortOpaqueRenderItems( updateBufferIndex, opaqueRenderList, layer, sortingHelper.opaque );
+  }
 }
 
-/**
- * Function which sorts based on the calculated depth values ordering them back to front
- * @param lhs item
- * @param rhs item
- * @return true if left item is greater than right
- */
-bool SortByDepthSortValue( const RendererWithSortValue& lhs, const RendererWithSortValue& rhs )
-{
-  return lhs.first > rhs.first;
-}
 
 /**
  * Sort transparent render items
@@ -274,7 +375,7 @@ bool SortByDepthSortValue( const RendererWithSortValue& lhs, const RendererWithS
  * @param layer where the renderers are from
  * @param sortingHelper to use for sorting the renderitems (to avoid reallocating)
  */
-inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer& layer, RendererSortingHelper& sortingHelper )
+inline void SortTransparentRenderItems( BufferIndex bufferIndex, RenderList& transparentRenderList, Layer& layer, RenderItemSortingHelper& sortingHelper )
 {
   const size_t renderableCount = transparentRenderList.Count();
   // reserve space if needed
@@ -285,13 +386,14 @@ inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer
     // add real objects (reserve does not construct objects)
     sortingHelper.insert( sortingHelper.begin() + oldcapacity,
                           (renderableCount - oldcapacity),
-                          RendererWithSortValue( 0.0f, NULL ) );
+                          RendererWithSortAttributes() );
   }
   else
   {
     // clear extra elements from helper, does not decrease capability
     sortingHelper.resize( renderableCount );
   }
+
   // calculate the sorting value, once per item by calling the layers sort function
   // Using an if and two for-loops rather than if inside for as its better for branch prediction
   if( layer.UsesDefaultSortFunction() )
@@ -299,12 +401,15 @@ inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer
     for( size_t index = 0; index < renderableCount; ++index )
     {
       RenderItem& item = transparentRenderList.GetItem( index );
+
+      //@todo MESH_REWORK After merge of RenderableAttachment and RendererAttachment, should instead store the renderable ptr and get the fields directly
+      layer.transparentRenderables[index]->SetSortAttributes( bufferIndex, sortingHelper[ index ] );
+
       // the default sorting function should get inlined here
-      sortingHelper[ index ].first = Internal::Layer::ZValue(
-          item.GetModelViewMatrix().GetTranslation3(),
-          layer.transparentRenderables[ index ]->GetSortModifier() );
+      sortingHelper[ index ].zValue = Internal::Layer::ZValue( item.GetModelViewMatrix().GetTranslation3() );
+
       // keep the renderitem pointer in the helper so we can quickly reorder items after sort
-      sortingHelper[ index ].second = &item;
+      sortingHelper[ index ].renderItem = &item;
     }
   }
   else
@@ -313,22 +418,23 @@ inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer
     for( size_t index = 0; index < renderableCount; ++index )
     {
       RenderItem& item = transparentRenderList.GetItem( index );
-      sortingHelper[ index ].first = (*sortFunction)(
-          item.GetModelViewMatrix().GetTranslation3(),
-          layer.transparentRenderables[ index ]->GetSortModifier() );
+
+      layer.transparentRenderables[index]->SetSortAttributes( bufferIndex, sortingHelper[ index ] );
+      sortingHelper[ index ].zValue = (*sortFunction)( item.GetModelViewMatrix().GetTranslation3() );
+
       // keep the renderitem pointer in the helper so we can quickly reorder items after sort
-      sortingHelper[ index ].second = &item;
+      sortingHelper[ index ].renderItem = &item;
     }
   }
 
   // sort the renderers back to front, Z Axis point from near plane to far plane
-  std::sort( sortingHelper.begin(), sortingHelper.end(), SortByDepthSortValue );
+  std::sort( sortingHelper.begin(), sortingHelper.end(), CompareItemsWithZValue );
 
   // reorder/repopulate the renderitems in renderlist to correct order based on sortinghelper
   RenderItemContainer::Iterator renderListIter = transparentRenderList.GetContainer().Begin();
   for( unsigned int index = 0; index < renderableCount; ++index, ++renderListIter )
   {
-    *renderListIter = sortingHelper[ index ].second;
+    *renderListIter = sortingHelper[ index ].renderItem;
   }
 }
 
@@ -355,6 +461,7 @@ inline void AddTransparentRenderers( BufferIndex updateBufferIndex,
   const size_t renderableCount = layer.transparentRenderables.size();
   RenderList& transparentRenderList = instruction.GetNextFreeRenderList( renderableCount );
   transparentRenderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
+
   // transparent flags are independent of the amount of transparent renderers
   SetTransparentRenderFlags( transparentRenderList, opaqueRenderablesExist, stencilRenderablesExist, layer.IsDepthTestDisabled() );
 
@@ -373,7 +480,7 @@ inline void AddTransparentRenderers( BufferIndex updateBufferIndex,
   // sorting is only needed if more than 1 item
   if( renderableCount > 1 )
   {
-    SortTransparentRenderItems( transparentRenderList, layer, sortingHelper );
+    SortTransparentRenderItems( updateBufferIndex, transparentRenderList, layer, sortingHelper.transparent );
   }
 }
 
@@ -487,6 +594,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                           transparentRenderablesExist,
                           stencilRenderablesExist,
                           instruction,
+                          sortingHelper,
                           tryReuseRenderList );
     }
 
@@ -501,6 +609,9 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                                sortingHelper,
                                tryReuseRenderList );
     }
+
+    // @todo MESH_REWORK Mark opaque and transparent render lists as interleaveable.
+    // ( Saves having to have a pair of lists for each depth index )
 
     if ( overlayRenderablesExist )
     {

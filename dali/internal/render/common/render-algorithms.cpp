@@ -143,6 +143,8 @@ void ProcessRenderInstruction( const RenderInstruction& instruction,
       NULL != projectionMatrix )
   {
     const RenderListContainer::SizeType count = instruction.RenderListCount();
+
+    // @todo MESH_REWORK process interleavable lists simultaneously
     for( RenderListContainer::SizeType index = 0; index < count; ++index )
     {
       const RenderList* renderList = instruction.GetRenderList( index );

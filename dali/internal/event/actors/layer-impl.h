@@ -46,10 +46,10 @@ public:
   /**
    * @copydoc Dali::Layer::ZValue(const Vector3&, float)
    */
-  static float ZValue(const Vector3& position, float sortModifier)
+  static float ZValue(const Vector3& position)
   {
     // inlined so we avoid a function call when sorting renderers
-    return position.z + sortModifier;
+    return position.z; // + sortModifier;
   }
 
   /**

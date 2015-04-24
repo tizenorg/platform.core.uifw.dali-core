@@ -77,7 +77,8 @@ public:
   : mNextFree( 0 ),
     mRenderFlags( 0u ),
     mClippingBox( NULL ),
-    mSourceLayer( NULL )
+    mSourceLayer( NULL ),
+    mInterleave(false)
   {
   }
 
@@ -283,6 +284,16 @@ public:
     mSourceLayer = layer;
   }
 
+  bool GetInterleave() const
+  {
+    return mInterleave;
+  }
+
+  void SetInterleave(bool interleave)
+  {
+    mInterleave = interleave;
+  }
+
 private:
 
   /*
@@ -294,11 +305,11 @@ private:
   RenderItemContainer mItems; ///< Each item is a renderer and matrix pair
   RenderItemContainer::SizeType mNextFree;              ///< index for the next free item to use
 
-  unsigned int mRenderFlags; ///< The render flags
+  unsigned int mRenderFlags;    ///< The render flags
 
-  ClippingBox* mClippingBox; ///< The clipping box, in window coordinates, when clipping is enabled
-  Layer* mSourceLayer;       ///< The originating layer where the renderers are from
-
+  ClippingBox* mClippingBox;    ///< The clipping box, in window coordinates, when clipping is enabled
+  Layer*       mSourceLayer;    ///< The originating layer where the renderers are from
+  bool         mInterleave;     ///< True if render list should be interleaved
 };
 
 } // namespace SceneGraph

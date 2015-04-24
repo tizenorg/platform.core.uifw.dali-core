@@ -83,9 +83,6 @@ ResourceImagePtr ResourceImage::New( const std::string& url, const ImageAttribut
     image = new ResourceImage( loadPol, releasePol );
     image->Initialize();
 
-    // consider the requested size as natural size, 0 means we don't (yet) know it
-    image->mWidth = attributes.GetWidth();
-    image->mHeight = attributes.GetHeight();
     image->mRequest = image->mImageFactory.RegisterRequest( url, &attributes );
 
     if( Dali::ResourceImage::IMMEDIATE == loadPol )

@@ -93,30 +93,106 @@ int UtcDaliImageGetReleasePolicy(void)
   END_TEST;
 }
 
-int UtcDaliImageGetWidthHeight(void)
+int UtcDaliImageGetWidthP(void)
 {
   TestApplication application;
 
-  tet_infoline("UtcDaliImageGetWidthHeight - Image::GetWidth() & Image::GetHeight");
+  tet_infoline("UtcDaliImageGetWidthP()");
 
   Vector2 testSize(8.0f, 16.0f);
   application.GetPlatform().SetClosestImageSize(testSize);
   Image image1 = ResourceImage::New(gTestImageFilename);
   DALI_TEST_EQUALS( image1.GetWidth(), testSize.width, TEST_LOCATION );
-  DALI_TEST_EQUALS( image1.GetHeight(), testSize.height, TEST_LOCATION );
 
+  // Upscaling ignored:
   Image image2 = ResourceImage::New( gTestImageFilename, ImageDimensions(128, 256), FittingMode::SCALE_TO_FILL, SamplingMode::DEFAULT );
-  DALI_TEST_EQUALS( image2.GetWidth(), 128u, TEST_LOCATION );
-  DALI_TEST_EQUALS( image2.GetHeight(), 256u, TEST_LOCATION );
+  DALI_TEST_EQUALS( image2.GetWidth(), testSize.width, TEST_LOCATION );
+
+  // Downscaling obeyed:
+  const Vector2 downscaledSize( 4.0f, 8.0f );
+  application.GetPlatform().SetClosestImageSize( downscaledSize );
+  Image image2_1 = ResourceImage::New( gTestImageFilename, ImageDimensions::FromFloatVec2( downscaledSize ), FittingMode::SCALE_TO_FILL, SamplingMode::DEFAULT );
+  DALI_TEST_EQUALS( image2_1.GetWidth(), downscaledSize.width, TEST_LOCATION );
 
   Image image3 = FrameBufferImage::New(16, 32);
   DALI_TEST_EQUALS(image3.GetWidth(), 16u, TEST_LOCATION);
-  DALI_TEST_EQUALS(image3.GetHeight(), 32u, TEST_LOCATION);
 
   TestNativeImagePointer nativeImage = TestNativeImage::New(32, 64);
   Image image4 = NativeImage::New(*(nativeImage.Get()));
   DALI_TEST_EQUALS(image4.GetWidth(), 32u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliImageGetWidthN(void)
+{
+  TestApplication application;
+
+  tet_infoline("UtcDaliImageGetWidthN()");
+
+  Image image;
+  try
+  {
+    unsigned int width = image.GetWidth();
+    width = width;
+  }
+  catch (Dali::DaliException(e))
+  {
+    DALI_TEST_PRINT_ASSERT( e );
+    DALI_TEST_ASSERT(e, "Image handle is empty", TEST_LOCATION);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliImageGetHeightP(void)
+{
+  TestApplication application;
+
+  tet_infoline("UtcDaliImageGetHeightP()");
+
+  Vector2 testSize(8.0f, 16.0f);
+  application.GetPlatform().SetClosestImageSize(testSize);
+  Image image1 = ResourceImage::New(gTestImageFilename);
+  DALI_TEST_EQUALS( image1.GetHeight(), testSize.height, TEST_LOCATION );
+
+  // Upscaling ignored:
+  Image image2 = ResourceImage::New( gTestImageFilename, ImageDimensions(128, 256), FittingMode::SCALE_TO_FILL, SamplingMode::DEFAULT );
+  DALI_TEST_EQUALS( image2.GetHeight(), testSize.height, TEST_LOCATION );
+
+  // Downscaling obeyed:
+  const Vector2 downscaledSize( 4.0f, 8.0f );
+  application.GetPlatform().SetClosestImageSize( downscaledSize );
+  Image image2_1 = ResourceImage::New( gTestImageFilename, ImageDimensions::FromFloatVec2( downscaledSize ), FittingMode::SCALE_TO_FILL, SamplingMode::DEFAULT );
+  DALI_TEST_EQUALS( image2_1.GetHeight(), downscaledSize.height, TEST_LOCATION );
+
+  Image image3 = FrameBufferImage::New(16, 32);
+  DALI_TEST_EQUALS(image3.GetHeight(), 32u, TEST_LOCATION);
+
+  TestNativeImagePointer nativeImage = TestNativeImage::New(32, 64);
+  Image image4 = NativeImage::New(*(nativeImage.Get()));
   DALI_TEST_EQUALS(image4.GetHeight(), 64u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliImageGetHeightN(void)
+{
+  TestApplication application;
+
+  tet_infoline("UtcDaliImageGetHeightN()");
+
+  Image image;
+  try
+  {
+    unsigned int width = image.GetHeight();
+    width = width;
+  }
+  catch (Dali::DaliException(e))
+  {
+    DALI_TEST_PRINT_ASSERT( e );
+    DALI_TEST_ASSERT(e, "Image handle is empty", TEST_LOCATION);
+  }
 
   END_TEST;
 }
@@ -241,6 +317,7 @@ int UtcDaliImageDiscard02(void)
     {
       ImageActor actor;
       {
+        application.GetPlatform().SetClosestImageSize( Vector2( 40, 30 ) );
         Image image = ResourceImage::New(gTestImageFilename, ImageDimensions( 40, 30 ) );
         actor = ImageActor::New(image);
         Stage::GetCurrent().Add(actor);

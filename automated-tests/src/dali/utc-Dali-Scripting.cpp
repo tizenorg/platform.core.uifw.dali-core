@@ -495,6 +495,9 @@ int UtcDaliScriptingNewImage(void)
   // float width and height
   map[ "width" ] = (float) 10.0f;
   map[ "height" ] = (float) 20.0f;
+  map[ "fitting-mode" ] = "SCALE_TO_FILL";
+  map[ "sampling-mode" ] = "LINEAR";
+  application.GetPlatform().SetClosestImageSize( Vector2( 10, 20 ) );
   {
     Image image = NewImage( map );
     DALI_TEST_EQUALS( image.GetWidth(), 10.0f, TEST_LOCATION );
@@ -504,6 +507,9 @@ int UtcDaliScriptingNewImage(void)
   // int width and height
   map[ "width"] = (int) 50;
   map[ "height" ] = (int) 70;
+  map[ "fitting-mode" ] = "SCALE_TO_FILL";
+  map[ "sampling-mode" ] = "LINEAR";
+  application.GetPlatform().SetClosestImageSize( Vector2( 50, 70 ) );
   {
     Image image = NewImage( map );
     DALI_TEST_EQUALS( image.GetWidth(), 50u, TEST_LOCATION );
@@ -916,6 +922,7 @@ int UtcDaliScriptingCreatePropertyMapImage(void)
 
   // Change values
   {
+    application.GetPlatform().SetClosestImageSize( Vector2( 300, 400 ) );
     ResourceImage image = ResourceImage::New( "MY_PATH", ResourceImage::ON_DEMAND, Image::UNUSED, ImageDimensions( 300, 400 ), FittingMode::FIT_WIDTH );
 
     Property::Map map;

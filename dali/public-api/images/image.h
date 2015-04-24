@@ -126,20 +126,16 @@ public:
   ReleasePolicy GetReleasePolicy() const;
 
   /**
-   * @brief Returns the width of the image.
+   * @brief Returns the width of the image in pixels.
    *
-   * Returns either the requested width or the actual loaded width if no specific size was requested.
-   *
-   * @return width of the image in pixels.
+   * @return Width of the image in pixels.
    */
   unsigned int GetWidth() const;
 
   /**
-   * @brief Returns the height of the image.
+   * @brief Returns the height of the image in pixels.
    *
-   * Returns either the requested height or the actual loaded height if no specific size was requested.
-   *
-   * @return height of the image in pixels.
+   * @return Height of the image in pixels.
    */
   unsigned int GetHeight() const;
 

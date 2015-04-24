@@ -117,14 +117,14 @@ int UtcDaliFixedSizeMemoryPoolStressTest(void)
   const size_t initialCapacity = 32;
   const size_t maximumCapacity = 1024;
 
-  const unsigned int numObjects = 1024 * 1024;
+  const int numObjects = 1024 * 1024;
 
   Internal::FixedSizeMemoryPool memoryPool( Internal::TypeSizeWithAlignment< TestObject >::size, initialCapacity, maximumCapacity );
 
   Dali::Vector<TestObject*> objects;
   objects.Reserve( numObjects );
 
-  for( unsigned int i = 0; i < numObjects; ++i )
+  for( int i = 0; i < numObjects; ++i )
   {
     TestObject* testObject = new ( memoryPool.Allocate() ) TestObject();
     DALI_TEST_CHECK( testObject );
@@ -134,7 +134,7 @@ int UtcDaliFixedSizeMemoryPoolStressTest(void)
 
   DALI_TEST_EQUALS( gTestObjectConstructed, numObjects, TEST_LOCATION );
 
-  for( unsigned int i = 0; i < numObjects; ++i )
+  for( int i = 0; i < numObjects; ++i )
   {
     objects[i]->~TestObject();
     memoryPool.Free( objects[i] );

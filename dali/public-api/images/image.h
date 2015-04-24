@@ -128,7 +128,9 @@ public:
   /**
    * @brief Returns the width of the image.
    *
-   * Returns either the requested width or the actual loaded width if no specific size was requested.
+   * Returns the actual width of the image, calculating that if necessary for
+   * image subtypes that require asynchronous background processing which has
+   * not completed yet.
    *
    * @return width of the image in pixels.
    */
@@ -137,7 +139,9 @@ public:
   /**
    * @brief Returns the height of the image.
    *
-   * Returns either the requested height or the actual loaded height if no specific size was requested.
+   * Returns the actual height of the image, calculating that if necessary for
+   * image subtypes that require asynchronous background processing which has
+   * not completed yet.
    *
    * @return height of the image in pixels.
    */

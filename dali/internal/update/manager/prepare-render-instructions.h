@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/buffer-index.h>
+#include <dali/internal/update/common/sort-attributes.h>
 #include <dali/internal/update/manager/sorted-layers.h>
 
 namespace Dali
@@ -32,8 +33,20 @@ namespace SceneGraph
 {
 class RenderTracker;
 class RenderItem;
-typedef std::pair< float, RenderItem* > RendererWithSortValue;
-typedef std::vector< RendererWithSortValue > RendererSortingHelper;
+
+struct RendererWithSortAttributes
+{
+  RendererWithSortAttributes()
+  : sortAttributes(),
+    renderItem( NULL )
+  {
+  }
+
+  SortAttributes sortAttributes;
+  RenderItem*    renderItem;
+};
+
+typedef std::vector< RendererWithSortAttributes > RendererSortingHelper;
 
 class RenderTask;
 class RenderInstructionContainer;

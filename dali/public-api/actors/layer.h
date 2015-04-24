@@ -88,7 +88,7 @@ public:
    * A high return value means that the actor will be positioned further away by the sort algorithm.
    * @see RenderableActor::SetSortModifier
    */
-  typedef float (*SortFunctionType)(const Vector3& position, float sortModifier);
+  typedef float (*SortFunctionType)( const Vector3& position );
 
   /**
    * @brief Create an empty Layer handle.
@@ -294,10 +294,9 @@ public:
    * We return a negative z value as in our translation, a low z means that it should
    * be sorted further away and a high z means that it should be closer.
    * @param[in] position     position of actor in view space
-   * @param[in] sortModifier additional sort modifer
    * @return depth
    */
-  static float ZValue(const Vector3& position, float sortModifier);
+  static float ZValue(const Vector3& position );
 
   /**
    * @brief This allows the user to specify the sort function that the layer should use.

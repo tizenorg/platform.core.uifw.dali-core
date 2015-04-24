@@ -41,6 +41,7 @@ namespace SceneGraph
 {
 class Renderer;
 class Shader;
+class SortAttributes;
 
 /**
  * RenderableAttachments are responsible for preparing textures, meshes, matrices etc. during the Update.
@@ -236,7 +237,6 @@ public: // API for derived classes
    */
   virtual void DoGetScaleForSize( const Vector3& nodeSize, Vector3& scaling );
 
-
   /**
    * Set the sort-modifier for the attachment.
    * @param[in] modifier The depth-sort modifier.
@@ -244,14 +244,10 @@ public: // API for derived classes
   void SetSortModifier(float modifier);
 
   /**
-   * Retrieve the sort-modifier for the attachment.
-   * @return The sort-modifier.
+   * Write the attachment's sort attributes to the passed in reference
+   * @param[out] sortAttribues
    */
-  float GetSortModifier() const
-  {
-    // inlined as its called a lot when sorting transparent renderers
-    return mSortModifier;
-  }
+  virtual void SetSortAttributes( BufferIndex bufferIndex, SortAttributes& sortAttributes );
 
 private:
 

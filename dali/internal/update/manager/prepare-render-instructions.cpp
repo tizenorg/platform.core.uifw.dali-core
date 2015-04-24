@@ -255,17 +255,39 @@ inline void AddOpaqueRenderers( BufferIndex updateBufferIndex,
 
   // opaque flags can only be set after renderers are added
   SetOpaqueRenderFlags(opaqueRenderList, transparentRenderablesExist, stencilRenderablesExist, layer.IsDepthTestDisabled() );
+
+  // @todo Sort the opaque renderers by depth index then by instance ptrs of shader/geometry/material
 }
 
 /**
- * Function which sorts based on the calculated depth values ordering them back to front
+ * Function which sorts the transparent renderers by depth index then by Z function,
+ * then by instance ptrs of shader/geometry/material.
  * @param lhs item
  * @param rhs item
  * @return true if left item is greater than right
  */
-bool SortByDepthSortValue( const RendererWithSortValue& lhs, const RendererWithSortValue& rhs )
+bool SortByDepthSortValue( const RendererWithSortAttributes& lhs, const RendererWithSortAttributes& rhs )
 {
-  return lhs.first > rhs.first;
+  const SortAttributes& attr1 = lhs.sortAttributes;
+  const SortAttributes& attr2 = rhs.sortAttributes;
+
+  if( attr1.depthIndex == attr2.depthIndex )
+  {
+    if( Equals(attr1.zValue, attr2.zValue) )
+    {
+      if( attr1.shader == attr2.shader )
+      {
+        if( attr1.material == attr2.material )
+        {
+          return attr1.geometry > attr2.geometry;
+        }
+        return attr1.material > attr2.material;
+      }
+      return attr1.shader > attr2.shader;;
+    }
+    return attr1.zValue > attr2.zValue;
+  }
+  return attr1.depthIndex > attr2.depthIndex;
 }
 
 /**
@@ -274,7 +296,7 @@ bool SortByDepthSortValue( const RendererWithSortValue& lhs, const RendererWithS
  * @param layer where the renderers are from
  * @param sortingHelper to use for sorting the renderitems (to avoid reallocating)
  */
-inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer& layer, RendererSortingHelper& sortingHelper )
+inline void SortTransparentRenderItems( BufferIndex bufferIndex, RenderList& transparentRenderList, Layer& layer, RendererSortingHelper& sortingHelper )
 {
   const size_t renderableCount = transparentRenderList.Count();
   // reserve space if needed
@@ -285,13 +307,14 @@ inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer
     // add real objects (reserve does not construct objects)
     sortingHelper.insert( sortingHelper.begin() + oldcapacity,
                           (renderableCount - oldcapacity),
-                          RendererWithSortValue( 0.0f, NULL ) );
+                          RendererWithSortAttributes() );
   }
   else
   {
     // clear extra elements from helper, does not decrease capability
     sortingHelper.resize( renderableCount );
   }
+
   // calculate the sorting value, once per item by calling the layers sort function
   // Using an if and two for-loops rather than if inside for as its better for branch prediction
   if( layer.UsesDefaultSortFunction() )
@@ -299,12 +322,14 @@ inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer
     for( size_t index = 0; index < renderableCount; ++index )
     {
       RenderItem& item = transparentRenderList.GetItem( index );
+
       // the default sorting function should get inlined here
-      sortingHelper[ index ].first = Internal::Layer::ZValue(
-          item.GetModelViewMatrix().GetTranslation3(),
-          layer.transparentRenderables[ index ]->GetSortModifier() );
+      layer.transparentRenderables[index]->SetSortAttributes( bufferIndex, sortingHelper[ index ].sortAttributes );
+
+      sortingHelper[ index ].sortAttributes.zValue = Internal::Layer::ZValue( item.GetModelViewMatrix().GetTranslation3() );
+
       // keep the renderitem pointer in the helper so we can quickly reorder items after sort
-      sortingHelper[ index ].second = &item;
+      sortingHelper[ index ].renderItem = &item;
     }
   }
   else
@@ -313,11 +338,12 @@ inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer
     for( size_t index = 0; index < renderableCount; ++index )
     {
       RenderItem& item = transparentRenderList.GetItem( index );
-      sortingHelper[ index ].first = (*sortFunction)(
-          item.GetModelViewMatrix().GetTranslation3(),
-          layer.transparentRenderables[ index ]->GetSortModifier() );
+
+      layer.transparentRenderables[index]->SetSortAttributes( bufferIndex, sortingHelper[ index ].sortAttributes );
+      sortingHelper[ index ].sortAttributes.zValue = (*sortFunction)( item.GetModelViewMatrix().GetTranslation3() );
+
       // keep the renderitem pointer in the helper so we can quickly reorder items after sort
-      sortingHelper[ index ].second = &item;
+      sortingHelper[ index ].renderItem = &item;
     }
   }
 
@@ -328,7 +354,7 @@ inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer
   RenderItemContainer::Iterator renderListIter = transparentRenderList.GetContainer().Begin();
   for( unsigned int index = 0; index < renderableCount; ++index, ++renderListIter )
   {
-    *renderListIter = sortingHelper[ index ].second;
+    *renderListIter = sortingHelper[ index ].renderItem;
   }
 }
 
@@ -373,7 +399,7 @@ inline void AddTransparentRenderers( BufferIndex updateBufferIndex,
   // sorting is only needed if more than 1 item
   if( renderableCount > 1 )
   {
-    SortTransparentRenderItems( transparentRenderList, layer, sortingHelper );
+    SortTransparentRenderItems( updateBufferIndex, transparentRenderList, layer, sortingHelper );
   }
 }
 

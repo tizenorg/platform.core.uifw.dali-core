@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/resource-declarations.h>
 #include <dali/public-api/actors/renderable-actor.h>
+#include <dali/internal/update/common/sort-attributes.h>
 #include <dali/internal/update/nodes/node.h>
 #include <dali/internal/update/resources/resource-manager.h>
 #include <dali/internal/update/resources/complete-status-manager.h>
@@ -250,6 +251,13 @@ void RenderableAttachment::SetSortModifier(float modifier)
   mSortModifier = modifier;
 }
 
+void RenderableAttachment::SetSortAttributes( BufferIndex bufferIndex, SortAttributes& sortAttributes )
+{
+  sortAttributes.depthIndex = static_cast<int>(mSortModifier);
+  sortAttributes.shader = mShader;
+  sortAttributes.material = NULL;
+  sortAttributes.geometry = NULL;
+}
 
 } // namespace SceneGraph
 

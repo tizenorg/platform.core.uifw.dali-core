@@ -126,20 +126,30 @@ public:
   ReleasePolicy GetReleasePolicy() const;
 
   /**
-   * @brief Returns the width of the image.
+   * @brief Returns the width of the image in pixels.
    *
-   * Returns either the requested width or the actual loaded width if no specific size was requested.
+   * Returns the width of the image in pixels.
    *
-   * @return width of the image in pixels.
+   * If called on a derived class which requires background processing such as
+   * ResourceImage or EncodedBufferImage, this can require file IO on the event
+   * thread. Wait for ResourceImage::LoadingFinishedSignal before calling this
+   * function to avoid that synchronous IO.
+   *
+   * @return Width of the image in pixels.
    */
   unsigned int GetWidth() const;
 
   /**
-   * @brief Returns the height of the image.
+   * @brief Returns the height of the image in pixels.
    *
-   * Returns either the requested height or the actual loaded height if no specific size was requested.
+   * Returns the height of the image in pixels.
    *
-   * @return height of the image in pixels.
+   * If called on a derived class which requires background processing such as
+   * ResourceImage or EncodedBufferImage, this can require file IO on the event
+   * thread. Wait for ResourceImage::LoadingFinishedSignal before calling this
+   * function to avoid that synchronous IO.
+   *
+   * @return Height of the image in pixels.
    */
   unsigned int GetHeight() const;
 

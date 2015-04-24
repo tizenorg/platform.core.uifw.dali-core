@@ -105,9 +105,17 @@ int UtcDaliImageGetWidthHeight(void)
   DALI_TEST_EQUALS( image1.GetWidth(), testSize.width, TEST_LOCATION );
   DALI_TEST_EQUALS( image1.GetHeight(), testSize.height, TEST_LOCATION );
 
+  // Upscaling ignored:
   Image image2 = ResourceImage::New( gTestImageFilename, ImageDimensions(128, 256), FittingMode::SCALE_TO_FILL, SamplingMode::DEFAULT );
-  DALI_TEST_EQUALS( image2.GetWidth(), 128u, TEST_LOCATION );
-  DALI_TEST_EQUALS( image2.GetHeight(), 256u, TEST_LOCATION );
+  DALI_TEST_EQUALS( image2.GetWidth(), testSize.width, TEST_LOCATION );
+  DALI_TEST_EQUALS( image2.GetHeight(), testSize.height, TEST_LOCATION );
+
+  // Downscaling obeyed:
+  const Vector2 downscaledSize( 4.0f, 8.0f );
+  application.GetPlatform().SetClosestImageSize( downscaledSize );
+  Image image2_1 = ResourceImage::New( gTestImageFilename, ImageDimensions::FromFloatVec2( downscaledSize ), FittingMode::SCALE_TO_FILL, SamplingMode::DEFAULT );
+  DALI_TEST_EQUALS( image2_1.GetWidth(), downscaledSize.width, TEST_LOCATION );
+  DALI_TEST_EQUALS( image2_1.GetHeight(), downscaledSize.height, TEST_LOCATION );
 
   Image image3 = FrameBufferImage::New(16, 32);
   DALI_TEST_EQUALS(image3.GetWidth(), 16u, TEST_LOCATION);
@@ -241,6 +249,7 @@ int UtcDaliImageDiscard02(void)
     {
       ImageActor actor;
       {
+        application.GetPlatform().SetClosestImageSize( Vector2( 40, 30 ) );
         Image image = ResourceImage::New(gTestImageFilename, ImageDimensions( 40, 30 ) );
         actor = ImageActor::New(image);
         Stage::GetCurrent().Add(actor);

@@ -292,13 +292,13 @@ int UtcDaliImageActorGetCurrentSize03(void)
   TestApplication application;
   tet_infoline("Positive test for Dali::ImageActor::GetCurrentSize - Test that using an image resource with a requested size sets the actor size with it's nearest size immediately rather than on load");
 
-  const Vector2 closestImageSize( 80, 45);
-  application.GetPlatform().SetClosestImageSize(closestImageSize);
-
   Vector2 requestedSize( 40, 30 );
-  Image image = ResourceImage::New("image.jpg", ImageDimensions( requestedSize.x, requestedSize.y ), FittingMode::DEFAULT, SamplingMode::DEFAULT );
+  const Vector2 closestImageSize = requestedSize;
+  application.GetPlatform().SetClosestImageSize( closestImageSize );
+
+  Image image = ResourceImage::New( "image.jpg", ImageDimensions( requestedSize.x, requestedSize.y ), FittingMode::SCALE_TO_FILL, SamplingMode::BOX_THEN_LINEAR );
   ImageActor actor = ImageActor::New( image );
-  Stage::GetCurrent().Add(actor);
+  Stage::GetCurrent().Add( actor );
 
   application.SendNotification(); // Flush update messages
   application.Render();           // Process resource request
@@ -330,11 +330,11 @@ int UtcDaliImageActorGetCurrentSize04(void)
   TestApplication application;
   tet_infoline("Positive test for Dali::ImageActor::GetCurrentSize - check a new image doesn't change a set actor size");
 
-  const Vector2 closestImageSize( 80, 45);
-  application.GetPlatform().SetClosestImageSize(closestImageSize);
-
   Vector2 requestedSize( 40, 30 );
-  Image image = ResourceImage::New("image.jpg", ImageDimensions( requestedSize.x, requestedSize.y ), FittingMode::DEFAULT, SamplingMode::DEFAULT );
+  const Vector2 closestImageSize = requestedSize;
+  application.GetPlatform().SetClosestImageSize( closestImageSize );
+
+  Image image = ResourceImage::New( "image.jpg", ImageDimensions( requestedSize.x, requestedSize.y ), FittingMode::SCALE_TO_FILL, SamplingMode::BOX_THEN_LINEAR );
   ImageActor actor = ImageActor::New( image );
   Stage::GetCurrent().Add(actor);
 
@@ -371,7 +371,7 @@ int UtcDaliImageActorGetCurrentSize04(void)
   application.GetPlatform().SetClosestImageSize(image2ClosestSize);
 
   const Vector2 request2Size( 100, 100 );
-  Image image2 = ResourceImage::New("image.jpg", ImageDimensions( request2Size.x, request2Size.y ), FittingMode::DEFAULT, SamplingMode::DEFAULT );
+  Image image2 = ResourceImage::New("image.jpg", ImageDimensions( request2Size.x, request2Size.y ), FittingMode::SCALE_TO_FILL, SamplingMode::BOX_THEN_LINEAR );
   actor.SetImage(image2);
 
   application.SendNotification(); // Flush update messages
@@ -406,11 +406,11 @@ int UtcDaliImageActorGetCurrentSize05(void)
   TestApplication application;
   tet_infoline("Positive test for Dali::ImageActor::GetCurrentSize - check a new image doens't change actor size until load complete");
 
-  Vector2 closestImageSize( 80, 45);
-  application.GetPlatform().SetClosestImageSize(closestImageSize);
-
   Vector2 requestedSize( 40, 30 );
-  Image image = ResourceImage::New("image.jpg", ImageDimensions( requestedSize.x, requestedSize.y ), FittingMode::DEFAULT, SamplingMode::DEFAULT );
+  Vector2 closestImageSize = requestedSize;
+  application.GetPlatform().SetClosestImageSize( closestImageSize );
+
+  Image image = ResourceImage::New("image.jpg", ImageDimensions( requestedSize.x, requestedSize.y ), FittingMode::SCALE_TO_FILL, SamplingMode::BOX_THEN_LINEAR );
   ImageActor actor = ImageActor::New( image );
   Stage::GetCurrent().Add(actor);
 
@@ -435,11 +435,11 @@ int UtcDaliImageActorGetCurrentSize05(void)
 
   // Load a different image
 
-  Vector2 image2ClosestSize = Vector2(240, 150);
-  application.GetPlatform().SetClosestImageSize(image2ClosestSize);
-
   const Vector2 requestedSize2( 100, 100 );
-  Image image2 = ResourceImage::New("image.jpg", ImageDimensions( requestedSize2.x, requestedSize2.y ), FittingMode::DEFAULT, SamplingMode::DEFAULT );
+  Vector2 image2ClosestSize = requestedSize2;
+  application.GetPlatform().SetClosestImageSize( image2ClosestSize );
+
+  Image image2 = ResourceImage::New("image.jpg", ImageDimensions( requestedSize2.x, requestedSize2.y ), FittingMode::SCALE_TO_FILL, SamplingMode::BOX_THEN_LINEAR );
   actor.SetImage(image2);
 
   application.SendNotification(); // Flush update messages
@@ -482,10 +482,10 @@ int UtcDaliImageActorNaturalPixelAreaSize01(void)
 //Clearing the pixel area will not change actor size, and the actor will show the whole image.
 
 
-  Vector2 closestImageSize( 80, 45);
-  application.GetPlatform().SetClosestImageSize(closestImageSize);
-
   Vector2 requestedSize( 40, 30 );
+  Vector2 closestImageSize = requestedSize;
+  application.GetPlatform().SetClosestImageSize( closestImageSize );
+
   Image image = ResourceImage::New("image.jpg", ImageDimensions( requestedSize.x, requestedSize.y ), FittingMode::DEFAULT, SamplingMode::DEFAULT );
   ImageActor actor = ImageActor::New( image );
   Stage::GetCurrent().Add(actor);
@@ -543,11 +543,11 @@ int UtcDaliImageActorNaturalPixelAreaSize02(void)
 //Clearing the pixel area will not change actor size, and the actor will show the whole image.
 
 
-  Vector2 closestImageSize( 80, 45);
-  application.GetPlatform().SetClosestImageSize(closestImageSize);
-
   Vector2 requestedSize( 40, 30 );
-  Image image = ResourceImage::New("image.jpg", ImageDimensions( requestedSize.x, requestedSize.y ), FittingMode::DEFAULT, SamplingMode::DEFAULT );
+  Vector2 closestImageSize = requestedSize;
+  application.GetPlatform().SetClosestImageSize( closestImageSize );
+
+  Image image = ResourceImage::New("image.jpg", ImageDimensions( requestedSize.x, requestedSize.y ), FittingMode::SCALE_TO_FILL, SamplingMode::BOX_THEN_LINEAR );
   ImageActor actor = ImageActor::New( image );
   Stage::GetCurrent().Add(actor);
 

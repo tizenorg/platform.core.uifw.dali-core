@@ -97,7 +97,7 @@ enum Type
 }
 
 /**
- * @brief Different types of alignment.
+ * @brief Horizontal alignment types
  */
 namespace HorizontalAlignment
 {
@@ -109,6 +109,9 @@ enum Type
 };
 }
 
+/**
+ * @brief Vertical alignment types
+ */
 namespace VerticalAlignment
 {
 enum Type

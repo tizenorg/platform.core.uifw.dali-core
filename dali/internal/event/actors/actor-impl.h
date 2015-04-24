@@ -1112,6 +1112,34 @@ public:
   Vector2 GetPadding( Dimension::Type dimension ) const;
 
   /**
+   * @brief Set the horizontal alignment
+   *
+   * @param[in] alignment The value of the alignment to set
+   */
+  void SetHorizontalAlignment( HorizontalAlignment::Type alignment );
+
+  /**
+   * @brief Return the value of the horizontal alignment
+   *
+   * @return Return the value of the horizontal alignment
+   */
+  HorizontalAlignment::Type GetHorizontalAlignment() const;
+
+  /**
+   * @brief Set the vertical alignment
+   *
+   * @param[in] alignment The value of the alignment to set
+   */
+  void SetVerticalAlignment( VerticalAlignment::Type alignment );
+
+  /**
+   * @brief Return the value of the vertical alignment
+   *
+   * @return Return the value of the vertical alignment
+   */
+  VerticalAlignment::Type GetVerticalAlignment() const;
+
+  /**
    * Return the actor size for a given dimension
    *
    * @param[in] dimension The dimension to retrieve the size for

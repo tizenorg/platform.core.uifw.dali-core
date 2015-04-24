@@ -97,6 +97,30 @@ DALI_ENUM_TO_STRING_TABLE_END( Type )
 } // unnamed namespace
 } // SizeScalePolicy
 
+namespace HorizontalAlignment
+{
+namespace
+{
+// Enumeration to / from string conversion tables
+DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )DALI_ENUM_TO_STRING( LEFT )
+DALI_ENUM_TO_STRING( CENTER )
+DALI_ENUM_TO_STRING( RIGHT )
+DALI_ENUM_TO_STRING_TABLE_END( Type )
+} // unnamed namespace
+} // HorizontalAlignment
+
+namespace VerticalAlignment
+{
+namespace
+{
+// Enumeration to / from string conversion tables
+DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )DALI_ENUM_TO_STRING( TOP )
+DALI_ENUM_TO_STRING( CENTER )
+DALI_ENUM_TO_STRING( BOTTOM )
+DALI_ENUM_TO_STRING_TABLE_END( Type )
+} // unnamed namespace
+} // VerticalAlignment
+
 namespace Internal
 {
 
@@ -109,7 +133,13 @@ ActorContainer Actor::mNullChildren;
 struct Actor::RelayoutData
 {
   RelayoutData()
-      : sizeModeFactor( Vector3::ONE ), preferredSize( Vector2::ZERO ), sizeSetPolicy( SizeScalePolicy::USE_SIZE_SET ), relayoutEnabled( false ), insideRelayout( false )
+      : sizeModeFactor( Vector3::ONE ),
+        preferredSize( Vector2::ZERO ),
+        sizeSetPolicy( SizeScalePolicy::USE_SIZE_SET ),
+        horizontalAlignment( HorizontalAlignment::LEFT ),
+        verticalAlignment( VerticalAlignment::TOP ),
+        relayoutEnabled( false ),
+        insideRelayout( false )
   {
     // Set size negotiation defaults
     for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
@@ -143,7 +173,9 @@ struct Actor::RelayoutData
 
   Vector2 preferredSize;                               ///< The preferred size of the actor
 
-  SizeScalePolicy::Type sizeSetPolicy :3;            ///< Policy to apply when setting size. Enough room for the enum
+  SizeScalePolicy::Type sizeSetPolicy :3;              ///< Policy to apply when setting size. Enough room for the enum.
+  HorizontalAlignment::Type horizontalAlignment :3;    ///< Horizontal alignment policy. Enough room for the enum.
+  VerticalAlignment::Type verticalAlignment :3;        ///< Vertical alignment policy. Enough room for the enum.
 
   bool relayoutEnabled :1;                   ///< Flag to specify if this actor should be included in size negotiation or not (defaults to true)
   bool insideRelayout :1;                    ///< Locking flag to prevent recursive relayouts on size set
@@ -234,6 +266,8 @@ DALI_PROPERTY( "height-for-width", BOOLEAN, true, false, false, Dali::Actor::Pro
 DALI_PROPERTY( "padding", VECTOR4, true, false, false, Dali::Actor::Property::PADDING )
 DALI_PROPERTY( "minimum-size", VECTOR2, true, false, false, Dali::Actor::Property::MINIMUM_SIZE )
 DALI_PROPERTY( "maximum-size", VECTOR2, true, false, false, Dali::Actor::Property::MAXIMUM_SIZE )
+DALI_PROPERTY( "horizontal-container-alignment", STRING, true, false, false, Dali::Actor::Property::HORIZONTAL_CONTAINER_ALIGNMENT )
+DALI_PROPERTY( "vertical-container-alignment", STRING, true, false, false, Dali::Actor::Property::VERTICAL_CONTAINER_ALIGNMENT )
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 // Signals
@@ -2897,6 +2931,18 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
       break;
     }
 
+    case Dali::Actor::Property::HORIZONTAL_CONTAINER_ALIGNMENT:
+    {
+      SetHorizontalAlignment( Scripting::GetEnumeration< HorizontalAlignment::Type >( property.Get< std::string >().c_str(), HorizontalAlignment::TypeTable, HorizontalAlignment::TypeTableCount ) );
+      break;
+    }
+
+    case Dali::Actor::Property::VERTICAL_CONTAINER_ALIGNMENT:
+    {
+      SetVerticalAlignment( Scripting::GetEnumeration< VerticalAlignment::Type >( property.Get< std::string >().c_str(), VerticalAlignment::TypeTable, VerticalAlignment::TypeTableCount ) );
+      break;
+    }
+
     default:
     {
       // this can happen in the case of a non-animatable default property so just do nothing
@@ -3390,6 +3436,18 @@ Property::Value Actor::GetDefaultProperty( Property::Index index ) const
     case Dali::Actor::Property::MAXIMUM_SIZE:
     {
       value = Vector2( GetMaximumSize( Dimension::WIDTH ), GetMaximumSize( Dimension::HEIGHT ) );
+      break;
+    }
+
+    case Dali::Actor::Property::HORIZONTAL_CONTAINER_ALIGNMENT:
+    {
+      value = Scripting::GetLinearEnumerationName< HorizontalAlignment::Type >( GetHorizontalAlignment(), HorizontalAlignment::TypeTable, HorizontalAlignment::TypeTableCount );
+      break;
+    }
+
+    case Dali::Actor::Property::VERTICAL_CONTAINER_ALIGNMENT:
+    {
+      value = Scripting::GetLinearEnumerationName< VerticalAlignment::Type >( GetVerticalAlignment(), VerticalAlignment::TypeTable, VerticalAlignment::TypeTableCount );
       break;
     }
 
@@ -3963,6 +4021,34 @@ Vector2 Actor::GetPadding( Dimension::Type dimension ) const
   }
 
   return Vector2( 0.0f, 0.0f );   // Default
+}
+
+void Actor::SetHorizontalAlignment( HorizontalAlignment::Type alignment )
+{
+  EnsureRelayoutData();
+
+  mRelayoutData->horizontalAlignment = alignment;
+}
+
+HorizontalAlignment::Type Actor::GetHorizontalAlignment() const
+{
+  EnsureRelayoutData();
+
+  return mRelayoutData->horizontalAlignment;
+}
+
+void Actor::SetVerticalAlignment( VerticalAlignment::Type alignment )
+{
+  EnsureRelayoutData();
+
+  mRelayoutData->verticalAlignment = alignment;
+}
+
+VerticalAlignment::Type Actor::GetVerticalAlignment() const
+{
+  EnsureRelayoutData();
+
+  return mRelayoutData->verticalAlignment;
 }
 
 void Actor::SetLayoutNegotiated( bool negotiated, Dimension::Type dimension )

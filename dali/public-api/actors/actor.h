@@ -300,6 +300,8 @@ public:
       PADDING,                                            ///< name "padding",               type Vector4
       MINIMUM_SIZE,                                       ///< name "minimum-size",          type Vector2
       MAXIMUM_SIZE,                                       ///< name "maximum-size",          type Vector2
+      HORIZONTAL_CONTAINER_ALIGNMENT,                     ///< name "horizontal-container-alignment", type std::string
+      VERTICAL_CONTAINER_ALIGNMENT,                       ///< name "vertical-container-alignment",   type std::string
     };
   };
 

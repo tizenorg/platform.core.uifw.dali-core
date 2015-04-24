@@ -355,6 +355,8 @@ void Object::SetProperty( Property::Index index, const Property::Value& property
 {
   DALI_ASSERT_ALWAYS(index > Property::INVALID_INDEX && "Property index is out of bounds" );
 
+  bool propertySet( true );
+
   if ( index < DEFAULT_PROPERTY_MAX_COUNT )
   {
     SetDefaultProperty( index, propertyValue );
@@ -406,14 +408,24 @@ void Object::SetProperty( Property::Index index, const Property::Value& property
       else if( custom->IsWritable() )
       {
         custom->value = propertyValue;
-        OnPropertySet(index, propertyValue);
       }
-      // trying to set value on read only property is no-op
+      else
+      {
+        // trying to set value on read only property is no-op
+        propertySet = false;
+      }
     }
     else
     {
       DALI_LOG_ERROR("Invalid property index\n");
     }
+  }
+
+  // Let derived classes know that a property has been set
+  // TODO: We should not call this for read-only properties, SetDefaultProperty() && TypeInfo::SetProperty() should return a bool, which would be true if the property is set
+  if ( propertySet )
+  {
+    OnPropertySet(index, propertyValue);
   }
 }
 

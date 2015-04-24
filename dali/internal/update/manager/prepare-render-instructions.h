@@ -32,15 +32,52 @@ namespace SceneGraph
 {
 class RenderTracker;
 class RenderItem;
-typedef std::pair< float, RenderItem* > RendererWithSortValue;
-typedef std::vector< RendererWithSortValue > RendererSortingHelper;
+class Shader;
+class Material;
+class Geometry;
+
+struct RendererWithSortAttributes
+{
+  RendererWithSortAttributes()
+  : renderItem( NULL ),
+    shader(NULL),
+    material(NULL),
+    geometry(NULL),
+    zValue(0.0f),
+    depthIndex(0)
+  {
+  }
+
+  RenderItem* renderItem;
+  Shader*     shader;
+  Material*   material;
+  Geometry*   geometry;
+  float       zValue;     // The zValue of the given renderer (either distance from camera, or a custom calculated value)
+  int         depthIndex; // The depth index for the given renderer
+};
+
+typedef std::vector< RendererWithSortAttributes > RenderItemSortingHelper;
+
+struct RendererSortingHelper
+{
+  RenderItemSortingHelper transparent;
+  RenderItemSortingHelper opaque;
+};
 
 class RenderTask;
 class RenderInstructionContainer;
 
 /**
- * Sorts and prepares the list of opaque/transparent renderable attachments for each layer.
- * Whilst iterating through each layer, update the attachments ModelView matrices
+ * Sorts and prepares the list of opaque/transparent renderable
+ * attachments for each layer.  Whilst iterating through each layer,
+ * update the attachments ModelView matrices
+ *
+ * The opaque and transparent render lists are sorted first by depth
+ * index, then by Z (for transparent only), then by shader, material
+ * and geometry. The render algorithm should then work through both
+ * lists simultaneously, working through opaque then transparent
+ * items at each depth index, resetting the flags appropriately.
+ *
  * @param[in] updateBufferIndex The current update buffer index.
  * @param[in] sortedLayers The layers containing lists of opaque/transparent renderables.
  * @param[in] renderTask The rendering task information.

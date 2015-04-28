@@ -40,7 +40,7 @@ Material::Material()
   mBlendingMode(Dali::BlendingMode::AUTO),
   mBlendingOptions(DEFAULT_BLENDING_EQUATION_ALPHA),
   mShader(NULL),
-  mBlendingEnabled(false)
+  mBlendPolicy(OPAQUE)
 {
   // Observe own property-owner's uniform map
   AddUniformMapObserver( *this );
@@ -94,25 +94,31 @@ void Material::RemoveSampler( Sampler* sampler )
 
 void Material::PrepareRender( BufferIndex bufferIndex )
 {
-  mBlendingEnabled[bufferIndex] = false; // The best default
+  mBlendPolicy = OPAQUE;
+
+  // @todo MESH_REWORK Add dirty flags to reduce processing.
 
   switch(mBlendingMode[bufferIndex])
   {
     case BlendingMode::OFF:
     {
-      mBlendingEnabled[bufferIndex] = false;
+      mBlendPolicy = OPAQUE;
       break;
     }
     case BlendingMode::ON:
     {
-      mBlendingEnabled[bufferIndex] = true;
+      mBlendPolicy = TRANSPARENT;
       break;
     }
     case BlendingMode::AUTO:
     {
       bool opaque = true;
 
-      //  @todo: MESH_REWORK - Change hints for new SceneGraphShader
+      //  @todo: MESH_REWORK - Change hints for new SceneGraphShader:
+      // If shader hint OUTPUT_IS_OPAQUE is enabled, set policy to ALWAYS_OPAQUE
+      // If shader hint OUTPUT_IS_TRANSPARENT is enabled, set policy to ALWAYS_TRANSPARENT
+      // else test remainder, and set policy to either ALWAYS_TRANSPARENT or USE_ACTOR_COLOR
+
       if( mShader->GeometryHintEnabled( Dali::ShaderEffect::HINT_BLENDING ) )
       {
         opaque = false;
@@ -149,7 +155,7 @@ void Material::PrepareRender( BufferIndex bufferIndex )
         opaque = (opaqueCount == affectingCount);
       }
 
-      mBlendingEnabled[bufferIndex] = ! opaque;
+      mBlendPolicy = opaque ? Material::USE_ACTOR_COLOR : Material::TRANSPARENT;
     }
   }
 }
@@ -159,9 +165,9 @@ Vector<Sampler*>& Material::GetSamplers()
   return mSamplers;
 }
 
-bool Material::GetBlendingEnabled( BufferIndex bufferIndex ) const
+Material::BlendPolicy Material::GetBlendPolicy() const
 {
-  return mBlendingEnabled[bufferIndex];
+  return mBlendPolicy;
 }
 
 void Material::SetBlendingOptions( BufferIndex updateBufferIndex, unsigned int options )

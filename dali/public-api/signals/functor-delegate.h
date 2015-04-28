@@ -20,6 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+//todor del
+#include <iostream>
 
 namespace Dali
 {
@@ -56,6 +58,7 @@ struct FunctorDestroyer
   {
     // FunctorDelegate owns the object but we're the only one who knows the real type so need
     // to delete by "downcasting" from void* to the correct type
+    std::cout << "todor: ,,,,,,,,,,,,,,, FunctorDelegate::Delete" << std::endl;
     delete reinterpret_cast< T* >( functorPtr );
   }
 };

@@ -140,6 +140,7 @@
 #include <dali/public-api/signals/connection-tracker.h>
 #include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/signals/functor-delegate.h>
+#include <dali/public-api/signals/signal-delegate.h>
 #include <dali/public-api/signals/signal-slot-connections.h>
 #include <dali/public-api/signals/signal-slot-observers.h>
 #include <dali/public-api/signals/slot-delegate.h>

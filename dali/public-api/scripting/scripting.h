@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor-enumerations.h>
 #include <dali/public-api/actors/draw-mode.h>
+#include <dali/public-api/animation/animation.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/shader-effects/shader-effect.h>
 #include <dali/public-api/object/property-map.h>
@@ -310,6 +311,14 @@ DALI_IMPORT_API void CreatePropertyMap( Actor actor, Property::Map& map );
  * @param[out] map This map is cleared and a property map of the image is filled in
  */
 DALI_IMPORT_API void CreatePropertyMap( Image image, Property::Map& map );
+
+/**
+ * @brief Creates description data required to create an Animation object from a property map.
+ *
+ * @param[in] map The property value map containing the animation description
+ * @param[out] outputAnimationData Resultant data retreived from the property map is written here
+ */
+DALI_IMPORT_API void NewAnimation( const Property::Map& map, Dali::Animation::AnimationData& outputAnimationData );
 
 }
 

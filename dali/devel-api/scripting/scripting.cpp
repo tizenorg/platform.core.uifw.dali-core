@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
+#include <dali/public-api/animation/animation.h>
 #include <dali/public-api/images/resource-image.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/object/property-array.h>
@@ -597,7 +598,6 @@ void CreatePropertyMap( Image image, Property::Map& map )
   }
 }
 
-
 DALI_IMPORT_API bool SetRotation( const Property::Value& value, Quaternion& quaternion )
 {
   bool done = false;
@@ -623,6 +623,107 @@ DALI_IMPORT_API bool SetRotation( const Property::Value& value, Quaternion& quat
   }
 
   return done;
+}
+
+void NewAnimation( const Property::Map& map, Dali::Animation::AnimationData& outputAnimationData )
+{
+  // Note: Builder cannot currently pass generic Property::Maps "{" that are nested, so currently we can only have one AnimateTo per animation.
+  Animation::AnimationDataElement element;
+  element.alphaFunction = AlphaFunction::LINEAR;
+  element.timePeriodDelay = 0.0f;
+  element.timePeriodDuration = 1.0f;
+
+  // Now set the properties, or create children
+  for( unsigned int i = 0, animationMapCount = map.Count(); i < animationMapCount; ++i )
+  {
+    const StringValuePair& pair( map.GetPair( i ) );
+    const std::string& key( pair.first );
+    const Property::Value& value( pair.second );
+
+    if( key == "actor" )
+    {
+      element.actor = value.Get< std::string >();
+    }
+    else if( key == "property" )
+    {
+      element.property = value.Get< std::string >();
+    }
+    else if( key == "value" )
+    {
+      element.value = value;
+    }
+    else if( key == "alpha-function" )
+    {
+      std::string alphaFunctionValue = value.Get< std::string >();
+
+      if( alphaFunctionValue == "LINEAR" )
+      {
+        element.alphaFunction = AlphaFunction::LINEAR;
+      }
+      else if( alphaFunctionValue == "REVERSE" )
+      {
+        element.alphaFunction = AlphaFunction::REVERSE;
+      }
+      else if( alphaFunctionValue == "EASE_IN_SQUARE" )
+      {
+        element.alphaFunction = AlphaFunction::EASE_IN_SQUARE;
+      }
+      else if( alphaFunctionValue == "EASE_OUT_SQUARE" )
+      {
+        element.alphaFunction = AlphaFunction::EASE_OUT_SQUARE;
+      }
+      else if( alphaFunctionValue == "EASE_IN" )
+      {
+        element.alphaFunction = AlphaFunction::EASE_IN;
+      }
+      else if( alphaFunctionValue == "EASE_OUT" )
+      {
+        element.alphaFunction = AlphaFunction::EASE_OUT;
+      }
+      else if( alphaFunctionValue == "EASE_IN_OUT" )
+      {
+        element.alphaFunction = AlphaFunction::EASE_IN_OUT;
+      }
+      else if( alphaFunctionValue == "EASE_IN_SINE" )
+      {
+        element.alphaFunction = AlphaFunction::EASE_IN_SINE;
+      }
+      else if( alphaFunctionValue == "EASE_OUT_SINE" )
+      {
+        element.alphaFunction = AlphaFunction::EASE_OUT_SINE;
+      }
+      else if( alphaFunctionValue == "EASE_IN_OUT_SINE" )
+      {
+        element.alphaFunction = AlphaFunction::EASE_IN_OUT_SINE;
+      }
+      else if( alphaFunctionValue == "BOUNCE" )
+      {
+        element.alphaFunction = AlphaFunction::BOUNCE;
+      }
+      else if( alphaFunctionValue == "SIN" )
+      {
+        element.alphaFunction = AlphaFunction::SIN;
+      }
+      else if( alphaFunctionValue == "EASE_OUT_BACK" )
+      {
+        element.alphaFunction = AlphaFunction::EASE_OUT_BACK;
+      }
+    }
+    else if( key == "time-period" )
+    {
+      Property::Array timeArray = value.Get< Property::Array >();
+
+      // TODO: Builder treats "{" within a Property::Map as a Property::Array.
+      // This means there is no key to determine what the values belong to.
+      if( timeArray.Size() >= 2 )
+      {
+        element.timePeriodDelay = timeArray[0].Get< float >();
+        element.timePeriodDuration = timeArray[1].Get< float >();
+      }
+    }
+  }
+
+  outputAnimationData.push_back( element );
 }
 
 } // namespace scripting

@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor-enumerations.h>
 #include <dali/public-api/actors/draw-mode.h>
+#include <dali/public-api/animation/animation.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/shader-effects/shader-effect.h>
 #include <dali/public-api/object/property-map.h>
@@ -319,6 +320,14 @@ DALI_IMPORT_API void CreatePropertyMap( Image image, Property::Map& map );
  * @return true if quaternion was set
  */
 DALI_IMPORT_API bool SetRotation( const Property::Value& value, Quaternion& quaternion );
+
+/**
+ * @brief Creates description data required to create an Animation object from a property map.
+ *
+ * @param[in] map The property value map containing the animation description
+ * @param[out] outputAnimationData Resultant data retreived from the property map is written here
+ */
+DALI_IMPORT_API void NewAnimation( const Property::Map& map, Dali::Animation::AnimationData& outputAnimationData );
 
 }
 

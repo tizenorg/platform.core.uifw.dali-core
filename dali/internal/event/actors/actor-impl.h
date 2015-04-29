@@ -46,6 +46,7 @@ struct KeyEvent;
 struct TouchEvent;
 struct HoverEvent;
 struct MouseWheelEvent;
+class  Animation;
 
 namespace Internal
 {
@@ -1223,6 +1224,20 @@ public:
    */
   float GetMaximumSize( Dimension::Type dimension ) const;
 
+  /**
+   * @brief Callback called when an animation animating size on this actor has finished
+   *
+   * @param[in] animation The animation that is running
+   */
+  void OnAnimationFinish( Dali::Animation& animation );
+
+  /**
+   * @brief Callback called when an animation animating size on this actor has finished and this is the root actor being animated
+   *
+   * @param[in] animation The animation that is running
+   */
+  void OnAnimationFinishRoot( Dali::Animation& animation );
+
 #ifdef DYNAMICS_SUPPORT
 
   // Dynamics
@@ -1534,7 +1549,7 @@ public:
    * @param[in] animation The animation that resized the actor
    * @param[in] targetSize The new target size of the actor
    */
-  void NotifySizeAnimation( Animation& animation, const Vector3& targetSize );
+  void NotifySizeAnimation( Animation& animation, const Vector3& targetSize, Dimension::Type dimension = Dimension::ALL_DIMENSIONS );
 
   /**
    * For use in derived classes.
@@ -1877,6 +1892,8 @@ protected:
   Dali::Actor::OnStageSignalType           mOnStageSignal;
   Dali::Actor::OffStageSignalType          mOffStageSignal;
   Dali::Actor::OnRelayoutSignalType        mOnRelayoutSignal;
+
+  SlotDelegate<Actor> mSlotDelegate;
 
   Vector3         mTargetSize;       ///< Event-side storage for size (not a pointer as most actors will have a size)
   Vector3         mTargetPosition;   ///< Event-side storage for position (not a pointer as most actors will have a position)

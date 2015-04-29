@@ -44,6 +44,7 @@
 #include <dali/internal/event/common/type-info-impl.h>
 #include <dali/internal/event/actor-attachments/actor-attachment-impl.h>
 #include <dali/internal/event/animation/constraint-impl.h>
+#include <dali/internal/event/animation/animation-impl.h>
 #include <dali/internal/event/common/projection.h>
 #include <dali/internal/event/size-negotiation/relayout-controller-impl.h>
 #include <dali/internal/update/common/animatable-property.h>
@@ -109,7 +110,12 @@ ActorContainer Actor::mNullChildren;
 struct Actor::RelayoutData
 {
   RelayoutData()
-      : sizeModeFactor( Vector3::ONE ), preferredSize( Vector2::ZERO ), sizeSetPolicy( SizeScalePolicy::USE_SIZE_SET ), relayoutEnabled( false ), insideRelayout( false )
+      : sizeModeFactor( Vector3::ONE ),
+        preferredSize( Vector2::ZERO ),
+        sizeSetPolicy( SizeScalePolicy::USE_SIZE_SET ),
+        relayoutEnabled( false ),
+        insideRelayout( false ),
+        isChildAnimation( false )
   {
     // Set size negotiation defaults
     for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
@@ -147,6 +153,7 @@ struct Actor::RelayoutData
 
   bool relayoutEnabled :1;                   ///< Flag to specify if this actor should be included in size negotiation or not (defaults to true)
   bool insideRelayout :1;                    ///< Locking flag to prevent recursive relayouts on size set
+  bool isChildAnimation :1;                  ///< Flag to indicate the actor is currently a child of another animating Actor
 };
 
 #ifdef DYNAMICS_SUPPORT
@@ -1217,8 +1224,122 @@ void Actor::NotifySizeAnimation( Animation& animation, const Vector3& targetSize
 {
   mTargetSize = targetSize;
 
+  // Give deriving classes a chance to update their calculations
+  OnLayoutNegotiated( mTargetSize.width, Dimension::WIDTH );
+  OnLayoutNegotiated( mTargetSize.height, Dimension::HEIGHT );
+
+  // If animating, the actor will relayout at the target size
+  SetRelayoutEnabled( false );
+
+  animation.FinishedSignal().Connect( mSlotDelegate, &Internal::Actor::OnAnimationFinish );
+
+  // Spread animations down tree
+  for( unsigned int i = 0, count = GetChildCount(); i < count; ++i )
+  {
+    Dali::Actor child = GetChildAt( i );
+    Actor& childImpl = GetImplementation( child );
+
+    childImpl.SetRelayoutChildAnimating( true );
+
+    const bool animateWidth = childImpl.RelayoutDependentOnParent( Dimension::WIDTH );
+    const bool animateHeight = childImpl.RelayoutDependentOnParent( Dimension::HEIGHT );
+
+    if( animateWidth && animateHeight )
+    {
+      Property property( child, Dali::Actor::Property::SIZE );
+      Property::Value value( Vector3( CalculateChildSize( child, Dimension::WIDTH ), CalculateChildSize( child, Dimension::HEIGHT ), 0.0f ) );
+
+      animation.AnimateTo( property, value );
+    }
+    else if( animateWidth )
+    {
+      Property property( child, Dali::Actor::Property::SIZE_WIDTH );
+      Property::Value value( CalculateChildSize( child, Dimension::WIDTH ) );
+
+      animation.AnimateTo( property, value );
+    }
+    else if( animateHeight )
+    {
+      Property property( child, Dali::Actor::Property::SIZE_HEIGHT );
+      Property::Value value( CalculateChildSize( child, Dimension::HEIGHT ) );
+
+      animation.AnimateTo( property, value );
+    }
+  }
+
   // Notify deriving classes
   OnSizeAnimation( animation, targetSize );
+}
+
+void Actor::NotifySizeAnimation( Animation& animation, float targetSize, Dimension::Type dimension )
+{
+  if( dimension & Dimension::WIDTH )
+  {
+    mTargetSize.width = targetSize;
+  }
+
+  if( dimension & Dimension::HEIGHT )
+  {
+    mTargetSize.height = targetSize;
+  }
+
+  // Give deriving classes a chance to update their calculations
+  OnLayoutNegotiated( targetSize, dimension );
+
+  // If animating, the actor will relayout at the target size
+  SetRelayoutEnabled( false );
+
+  animation.FinishedSignal().Connect( mSlotDelegate, &Internal::Actor::OnAnimationFinish );
+
+  // Spread animations down tree
+  for( unsigned int i = 0, count = GetChildCount(); i < count; ++i )
+  {
+    Dali::Actor child = GetChildAt( i );
+    Actor& childImpl = GetImplementation( child );
+
+    childImpl.SetRelayoutChildAnimating( true );
+
+    if( childImpl.RelayoutDependentOnParent( dimension ) )
+    {
+      Property property( child, ( dimension & Dimension::WIDTH ) ? Dali::Actor::Property::SIZE_WIDTH : Dali::Actor::Property::SIZE_HEIGHT );
+      Property::Value value( CalculateChildSize( child, dimension ) );
+
+      animation.AnimateTo( property, value );
+    }
+  }
+
+  // Notify deriving classes
+  OnSizeAnimation( animation, targetSize, dimension );
+}
+
+void Actor::OnAnimationFinish( Dali::Animation& animation )
+{
+  SetRelayoutEnabled( true );
+
+  if( mRelayoutData )
+  {
+    if( mRelayoutData->isChildAnimation )
+    {
+      // Is child so relayout
+      RelayoutRequest();
+    }
+    else
+    {
+      // Is parent so set the preferred size
+      SetPreferredSize( mTargetSize.GetVectorXY() );    // Will convert resize policies to FIXED
+    }
+
+    SetRelayoutChildAnimating( false );
+  }
+
+  animation.FinishedSignal().Disconnect( mSlotDelegate, &Internal::Actor::OnAnimationFinish );
+}
+
+void Actor::SetRelayoutChildAnimating( bool animating )
+{
+  EnsureRelayoutData();
+
+  mRelayoutData->isChildAnimation = animating;
 }
 
 void Actor::SetWidth( float width )
@@ -2253,10 +2374,31 @@ Actor::Actor( DerivedType derivedType )
   mAnchorPoint( NULL ),
   mRelayoutData( NULL ),
 #ifdef DYNAMICS_SUPPORT
-        mDynamicsData( NULL ),
+  mDynamicsData( NULL ),
 #endif
-        mGestureData( NULL ), mAttachment(), mTargetSize( 0.0f, 0.0f, 0.0f ), mName(), mId( ++mActorCounter ), // actor ID is initialised to start from 1, and 0 is reserved
-        mIsRoot( ROOT_LAYER == derivedType ), mIsRenderable( RENDERABLE == derivedType ), mIsLayer( LAYER == derivedType || ROOT_LAYER == derivedType ), mIsOnStage( false ), mIsDynamicsRoot( false ), mSensitive( true ), mLeaveRequired( false ), mKeyboardFocusable( false ), mDerivedRequiresTouch( false ), mDerivedRequiresHover( false ), mDerivedRequiresMouseWheelEvent( false ), mOnStageSignalled( false ), mInheritOrientation( true ), mInheritScale( true ), mDrawMode( DrawMode::NORMAL ), mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ), mColorMode( Node::DEFAULT_COLOR_MODE )
+  mGestureData( NULL ),
+  mAttachment(),
+  mSlotDelegate( this ),
+  mTargetSize( 0.0f, 0.0f, 0.0f ),
+  mName(),
+  mId( ++mActorCounter ), // actor ID is initialised to start from 1, and 0 is reserved
+  mIsRoot( ROOT_LAYER == derivedType ),
+  mIsRenderable( RENDERABLE == derivedType ),
+  mIsLayer( LAYER == derivedType || ROOT_LAYER == derivedType ),
+  mIsOnStage( false ),
+  mIsDynamicsRoot( false ),
+  mSensitive( true ),
+  mLeaveRequired( false ),
+  mKeyboardFocusable( false ),
+  mDerivedRequiresTouch( false ),
+  mDerivedRequiresHover( false ),
+  mDerivedRequiresMouseWheelEvent( false ),
+  mOnStageSignalled( false ),
+  mInheritOrientation( true ),
+  mInheritScale( true ),
+  mDrawMode( DrawMode::NORMAL ),
+  mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ),
+  mColorMode( Node::DEFAULT_COLOR_MODE )
 {
 }
 
@@ -4017,7 +4159,7 @@ float Actor::GetWidthForHeight( float height )
 
 float Actor::GetLatestSize( Dimension::Type dimension ) const
 {
-  return IsLayoutNegotiated( dimension ) ? GetNegotiatedDimension( dimension ) : GetSize( dimension );
+  return ( IsRelayoutEnabled() && IsLayoutNegotiated( dimension ) ) ? GetNegotiatedDimension( dimension ) : GetSize( dimension );
 }
 
 float Actor::GetRelayoutSize( Dimension::Type dimension ) const

@@ -46,6 +46,7 @@ struct KeyEvent;
 struct TouchEvent;
 struct HoverEvent;
 struct MouseWheelEvent;
+class  Animation;
 
 namespace Internal
 {
@@ -1211,6 +1212,20 @@ public:
    */
   float GetMaximumSize( Dimension::Type dimension ) const;
 
+  /**
+   * @brief Callback called when an animation animating size on this actor has finished
+   *
+   * @param[in] animation The animation that is running
+   */
+  void OnAnimationFinish( Dali::Animation& animation );
+
+  /**
+   * @brief Specify that the child is animating under a parent Actor
+   *
+   * @param[in] animating The flag to say it is animating or not
+   */
+  void SetRelayoutChildAnimating( bool animating );
+
 #ifdef DYNAMICS_SUPPORT
 
   // Dynamics
@@ -1525,10 +1540,31 @@ public:
   void NotifySizeAnimation( Animation& animation, const Vector3& targetSize );
 
   /**
+   * This should only be called by Animation, when the actor is resized using Animation::Resize().
+   *
+   * @param[in] animation The animation that resized the actor
+   * @param[in] targetSize The new target size of the actor
+   * @param[in] dimension A flag specifying width or height that is being animated
+   */
+  void NotifySizeAnimation( Animation& animation, float targetSize, Dimension::Type dimension );
+
+  /**
    * For use in derived classes.
    * This should only be called by Animation, when the actor is resized using Animation::Resize().
    */
   virtual void OnSizeAnimation( Animation& animation, const Vector3& targetSize )
+  {
+  }
+
+  /**
+   * For use in derived classes.
+   * This should only be called by Animation, when the actor is resized using Animation::Resize().
+   *
+   * @param[in] animation The animation that resized the actor
+   * @param[in] targetSize The new target size of the actor
+   * @param[in] dimension A flag specifying width or height that is being animated
+   */
+  virtual void OnSizeAnimation( Animation& animation, float targetSize, Dimension::Type dimension )
   {
   }
 
@@ -1865,6 +1901,8 @@ protected:
   Dali::Actor::OnStageSignalType           mOnStageSignal;
   Dali::Actor::OffStageSignalType          mOffStageSignal;
   Dali::Actor::OnRelayoutSignalType        mOnRelayoutSignal;
+
+  SlotDelegate<Actor> mSlotDelegate;
 
   Vector3         mTargetSize;       ///< Event-side storage for size (not a pointer as most actors will have a size)
   Vector3         mTargetPosition;   ///< Event-side storage for position (not a pointer as most actors will have a position)

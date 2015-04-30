@@ -144,8 +144,8 @@ void RelayoutController::RequestRelayout( Dali::Actor& actor, Dimension::Type di
     return;
   }
 
-  Dali::ActorContainer potentialRedundantSubRoots;
-  Dali::ActorContainer topOfSubTreeStack;
+  ActorContainer potentialRedundantSubRoots;
+  ActorContainer topOfSubTreeStack;
 
   topOfSubTreeStack.push_back( actor );
 
@@ -232,7 +232,7 @@ void RelayoutController::RequestRelayoutTree( Dali::Actor& actor )
   }
 }
 
-void RelayoutController::PropagateAll( Dali::Actor& actor, Dimension::Type dimension, Dali::ActorContainer& topOfSubTreeStack, Dali::ActorContainer& potentialRedundantSubRoots )
+void RelayoutController::PropagateAll( Dali::Actor& actor, Dimension::Type dimension, ActorContainer& topOfSubTreeStack, ActorContainer& potentialRedundantSubRoots )
 {
   // Only set dirty flag if doing relayout and not already marked as dirty
   Actor& actorImpl = GetImplementation( actor );

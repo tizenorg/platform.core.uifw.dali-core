@@ -25,6 +25,7 @@
 
 #include <dali/internal/common/memory-pool-object-allocator.h>
 #include <dali/internal/event/size-negotiation/memory-pool-relayout-container.h>
+#include <dali/internal/event/actors/actor-impl.h>
 
 namespace Dali
 {
@@ -163,7 +164,7 @@ private:
    * @param[in] topOfSubTreeStack The top of the sub tree that this actor is in
    * @param[in] potentialRedundantSubRoots Actors collected as potentially already being included in relayout
    */
-  void PropagateAll( Dali::Actor& actor, Dimension::Type dimension, Dali::ActorContainer& topOfSubTreeStack, Dali::ActorContainer& potentialRedundantSubRoots );
+  void PropagateAll( Dali::Actor& actor, Dimension::Type dimension, ActorContainer& topOfSubTreeStack, ActorContainer& potentialRedundantSubRoots );
 
   /**
    * Queue an actor on the relayout container

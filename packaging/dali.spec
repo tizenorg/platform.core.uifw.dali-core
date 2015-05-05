@@ -58,6 +58,7 @@ LDFLAGS+=" -Wl,--rpath=$PREFIX/lib -Wl,--as-needed -Wl,--gc-sections -lgcc_s -lg
 %ifarch %{arm}
 CXXFLAGS+=" -D_ARCH_ARM_ -mfpu=neon"
 %endif
+CXXFLAGS+=" -std=gnu++11"
 
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen

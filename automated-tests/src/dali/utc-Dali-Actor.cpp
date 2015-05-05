@@ -69,6 +69,7 @@ int SimulateTouchForSetOverlayHitTest(TestApplication& app)
   app.Render(1);
   app.SendNotification();
   app.Render(1);
+  DALI_TEST_CHECK( false );
   END_TEST;
 }
 

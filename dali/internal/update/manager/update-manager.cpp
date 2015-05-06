@@ -54,7 +54,6 @@
 #include <dali/internal/update/manager/update-manager-debug.h>
 #include <dali/internal/update/node-attachments/scene-graph-camera-attachment.h>
 #include <dali/internal/update/node-attachments/scene-graph-renderer-attachment.h>
-#include <dali/internal/update/node-attachments/scene-graph-image-attachment.h>
 #include <dali/internal/update/nodes/node.h>
 #include <dali/internal/update/nodes/scene-graph-layer.h>
 #include <dali/internal/update/queue/update-message-queue.h>
@@ -433,9 +432,9 @@ void UpdateManager::AttachToNode( Node* node, NodeAttachment* attachment )
   node->Attach( *attachment ); // node takes ownership
 
   // @todo MESH_REWORK Remove after merge of SceneGraph::RenderableAttachment and SceneGraph::RendererAttachment
-  if( dynamic_cast<SceneGraph::ImageAttachment*>( attachment ) != NULL )
+  if( dynamic_cast<SceneGraph::RenderableAttachment*>( attachment ) != NULL )
   {
-    attachment->Initialize( *mImpl->sceneController, mSceneGraphBuffers.GetUpdateBufferIndex() );
+    DALI_ASSERT_DEBUG( dynamic_cast<SceneGraph::RendererAttachment*>( attachment ) != NULL );
   }
 }
 

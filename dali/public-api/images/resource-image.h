@@ -42,14 +42,14 @@ class ResourceImage;
  *
  * When the ResourceImage is created, resource loading will be attempted unless
  * the ResourceImage is created with IMMEDIATE loading policy or a compatible resource is found in cache.
- * In case of loading images ON_DEMAND, resource loading will only be attempted if the associated ImageActor
- * is put on Stage.
+ * In case of loading images ON_DEMAND, resource loading will only be attempted if the associated
+ * Sampler is put on Stage.
  * Scaling of images to a desired smaller size can be requested by providing desired dimensions,
  * scaling mode and filter mode to to ResourceImage::New().
  *
  * <i>LoadPolicies</i>
  * - IMMEDIATE: acquire image resource when creating ResourceImage.
- * - ON_DEMAND: only load in case the associated ImageActor is put on Stage
+ * - ON_DEMAND: only load in case the associated Sampler is put on Stage
  *
  * <i>Resolution of conflicting policies</i>
  * If the same image is created more than once with conflicting policies, LoadPolicy "IMMEDIATE" overrides "ON_DEMAND".

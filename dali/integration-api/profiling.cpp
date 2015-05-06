@@ -26,12 +26,10 @@
 
 #include <dali/internal/event/actors/actor-impl.h>
 #include <dali/internal/event/actors/camera-actor-impl.h>
-#include <dali/internal/event/actors/image-actor-impl.h>
 #include <dali/internal/event/actors/layer-impl.h>
 
 #include <dali/internal/event/actor-attachments/actor-attachment-impl.h>
 #include <dali/internal/event/actor-attachments/camera-attachment-impl.h>
-#include <dali/internal/event/actor-attachments/image-attachment-impl.h>
 
 #include <dali/internal/event/animation/animation-impl.h>
 #include <dali/internal/event/animation/animator-connector.h>
@@ -52,12 +50,10 @@
 
 #include <dali/internal/update/node-attachments/node-attachment.h>
 #include <dali/internal/update/node-attachments/scene-graph-camera-attachment.h>
-#include <dali/internal/update/node-attachments/scene-graph-image-attachment.h>
 
 #include <dali/internal/update/resources/bitmap-metadata.h>
 
 #include <dali/internal/render/gl-resources/bitmap-texture.h>
-#include <dali/internal/render/renderers/scene-graph-image-renderer.h>
 
 using Dali::Internal::GestureEventProcessor;
 using Dali::Internal::ThreadLocalStorage;
@@ -107,12 +103,6 @@ const int CAMERA_ACTOR_MEMORY_SIZE(
   sizeof( Internal::CameraAttachment ) +
   sizeof( Internal::SceneGraph::Node ) +
   sizeof( Internal::SceneGraph::CameraAttachment ) );
-const int IMAGE_ACTOR_MEMORY_SIZE(
-  sizeof( Internal::ImageActor ) +
-  sizeof( Internal::ImageAttachment ) +
-  sizeof( Internal::SceneGraph::Node ) +
-  sizeof( Internal::SceneGraph::ImageAttachment ) +
-  sizeof( Internal::SceneGraph::ImageRenderer ));
 const int LAYER_MEMORY_SIZE(
   sizeof( Internal::Layer ) +
   sizeof( Internal::ActorAttachment ) +

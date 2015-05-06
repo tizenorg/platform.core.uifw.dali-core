@@ -38,8 +38,8 @@ typedef Uint16Pair ImageDimensions;
 
 
 /**
- * @brief EncodedBufferImage represents an image resource that can be added to
- * ImageActors.
+ * @brief EncodedBufferImage represents an image resource that can be
+ * assigned to Samplers.
  *
  * A memory buffer of encoded image data is provided by the application and
  * decoded asynchronously on a background thread to fill the image's

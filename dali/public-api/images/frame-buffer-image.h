@@ -34,8 +34,7 @@ class FrameBufferImage;
 /**
  * @brief FrameBufferImage represents a GLES Frame Buffer Object and contains the result
  * of an 'off screen' render pass of a RenderTask.
- * The FrameBufferImage can then be used with an ImageActor (with optional shader
- * effects) and rendered to the screen.
+ * The FrameBufferImage can then be assigned to Samplers and rendered to the screen.
  */
 class DALI_IMPORT_API FrameBufferImage : public Image
 {
@@ -70,7 +69,7 @@ public:
    * @param [in] releasePolicy The ReleasePolicy to apply to the FrameBufferImage.
    *
    * Note that there is no need for a LoadPolicy - by definition it is always OnDemand, since there is no point in the FrameBufferImage existing unless someone is rendering to
-   * it, or it is being used as an input (e.g. ShaderEffect / ImageActor).
+   * it, or it is being used as an input (e.g. Sampler).
    *
    * @post When the FrameBufferImage is first used as a render target, an exception may be thrown if pixelFormat is not supported on the hardware platform.
    * @return A handle to a new instance of a FrameBufferImage.
@@ -84,7 +83,7 @@ public:
    * @param [in] image       The native image.
    *
    * Note that there is no need for a LoadPolicy - by definition it is always OnDemand, since there is no point in the FrameBufferImage existing unless someone is rendering to
-   * it, or it is being used as an input (e.g. ShaderEffect / ImageActor).
+   * it, or it is being used as an input (e.g. Sampler).
    *
    * @post When the FrameBufferImage is first used as a render target, an exception may be thrown if the NativeImage cannot be mapped to a texture.
    * @return A handle to a new instance of a FrameBufferImage.
@@ -99,7 +98,7 @@ public:
    * @param [in] releasePolicy The ReleasePolicy to apply to the FrameBufferImage.
    *
    * Note that there is no need for a LoadPolicy - by definition it is always OnDemand, since there is no point in the FrameBufferImage existing unless someone is rendering to
-   * it, or it is being used as an input (e.g. ShaderEffect / ImageActor).
+   * it, or it is being used as an input (e.g. Sampler).
    *
    * @post When the FrameBufferImage is first used as a render target, an exception may be thrown if the NativeImage cannot be mapped to a texture.
    * @return A handle to a new instance of a FrameBufferImage.

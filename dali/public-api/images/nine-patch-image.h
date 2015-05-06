@@ -34,7 +34,7 @@ class NinePatchImage;
 
 
 /**
- * @brief NinePatchImage represents an image resource that can be added to ImageActors.
+ * @brief NinePatchImage represents an image resource that can be assigned to Samplers.
  * It contains a bitmap that is synchronously loaded from the file system that contains
  * a 9 patch border - a 1 pixel border that describes the stretch borders and the child
  * area.
@@ -43,7 +43,7 @@ class NinePatchImage;
  * remove the border from it's bitmap. An API can be used to obtain a BufferImage with
  * the border removed.
  *
- * Adding this image to an ImageActor using an Image handle will automatically convert
+ * Adding this image to a Sampler using an Image handle will automatically convert
  * to use the cropped BufferImage - if you don't retain a handle to this object, it will
  * be automatically destroyed.
  */

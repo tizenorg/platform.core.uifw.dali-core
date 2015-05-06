@@ -31,7 +31,7 @@ class NativeImage;
 }
 
 /**
- * @brief NativeImage represents an image resource that can be added to ImageActors.
+ * @brief NativeImage represents an image resource that can be assigned to Samplers.
  * Its data is provided by native resources, such as shared bitmap memory or pixmap from X11 or ECORE-X11, etc.
  */
 class DALI_IMPORT_API  NativeImage : public Image

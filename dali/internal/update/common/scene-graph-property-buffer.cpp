@@ -69,10 +69,12 @@ void PropertyBuffer::SetData(  BufferIndex bufferIndex, PropertyBufferDataProvid
 
 void PropertyBuffer::ConnectToSceneGraph( SceneController& sceneController, BufferIndex bufferIndex )
 {
+  // TODO: MESH_REWORK: Get resource ID from PropertyBufferCache
 }
 
 void PropertyBuffer::DisconnectFromSceneGraph( SceneController& sceneController, BufferIndex bufferIndex )
 {
+  // TODO: MESH_REWORK: Release object from PropertyBufferCache, the id should not be requested anymore after this
 }
 
 bool PropertyBuffer::HasDataChanged( BufferIndex bufferIndex ) const

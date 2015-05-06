@@ -30,13 +30,11 @@ namespace Internal
 class Actor;
 class CameraActor;
 class CustomActor;
-class ImageActor;
 class Layer;
 
 typedef IntrusivePtr<Actor>       ActorPtr;
 typedef IntrusivePtr<CameraActor> CameraActorPtr;
 typedef IntrusivePtr<CustomActor> CustomActorPtr;
-typedef IntrusivePtr<ImageActor>  ImageActorPtr;
 typedef IntrusivePtr<Layer>       LayerPtr;
 
 } // namespace Internal

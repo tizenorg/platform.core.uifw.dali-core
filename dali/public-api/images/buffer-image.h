@@ -37,7 +37,8 @@ typedef Rect<unsigned int>    RectArea;     ///< rectangular area (x,y,w,h)
 
 
 /**
- * @brief BufferImage represents an image resource that can be added to ImageActors.
+ * @brief BufferImage represents an image resource that can be assigned
+ * to Samplers.
  * Its pixel buffer data is provided by the application developer.
  *
  * Care should be taken with pixel data allocated by the application,
@@ -50,7 +51,7 @@ typedef Rect<unsigned int>    RectArea;     ///< rectangular area (x,y,w,h)
  * SignalUploaded.
  *
  * Similarly, once the image is on stage (i.e. it's being used by an
- * ImageActor that is on stage), the application should only write to
+ * Sampler that is on stage), the application should only write to
  * the buffer after receiving a SignalUploaded, then call Update()
  * once the write is finished. This avoids the pixel data being changed
  * whilst it's being copied to GL. Writing to the buffer without waiting
@@ -61,7 +62,7 @@ typedef Rect<unsigned int>    RectArea;     ///< rectangular area (x,y,w,h)
  * regard for the actual content of the channel, and will be blended.
  *
  * If the image is opaque and blending is not required, then the user
- * should call ImageActor::SetUseImageAlpha(false) on the containing actor.
+ * should call Sampler::SetAffectsTransparency(false) on the sampler.
  */
 class DALI_IMPORT_API BufferImage : public Image
 {

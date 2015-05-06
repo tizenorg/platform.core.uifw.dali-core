@@ -106,14 +106,14 @@ PropertyCondition StepCondition(float stepAmount, float referenceValue)
   return condition;
 }
 
-PropertyCondition VariableStepCondition(const std::vector<float>& stepAmount)
+PropertyCondition VariableStepCondition(Dali::Vector<float>& stepAmount)
 {
   PropertyCondition condition;
   GetImplementation(condition).type = Internal::PropertyCondition::VariableStep;
   GetImplementation(condition).arguments.push_back(Property::Value(0.0f)); // current step
-  int size = stepAmount.size();
+  int size = stepAmount.Size();
   GetImplementation(condition).arguments.push_back(Property::Value(static_cast<float>(size))); // store number of steps
-  for( std::vector<float>::const_iterator it = stepAmount.begin(), endIt = stepAmount.end(); it != endIt; ++it )
+  for( Vector<float>::ConstIterator it = stepAmount.Begin(), endIt = stepAmount.End(); it != endIt; ++it )
   {
     GetImplementation(condition).arguments.push_back(Property::Value( *it ));
   }

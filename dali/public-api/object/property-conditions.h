@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/property.h>
 
@@ -174,7 +174,7 @@ DALI_IMPORT_API PropertyCondition StepCondition(float stepAmount, float initialV
  * @param[in] steps List of values to receive notifications for as a property crosses them
  * @return A property condition function object
  */
-DALI_IMPORT_API PropertyCondition VariableStepCondition(const std::vector<float>& steps);
+DALI_IMPORT_API PropertyCondition VariableStepCondition(const Dali::Vector<float>& steps);
 
 } // namespace Dali
 

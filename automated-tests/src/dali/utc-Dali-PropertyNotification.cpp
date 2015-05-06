@@ -814,13 +814,13 @@ int UtcDaliPropertyNotificationVariableStep(void)
   Actor actor = Actor::New();
   Stage::GetCurrent().Add(actor);
 
-  std::vector<float> values;
+  Dali::Vector<float> values;
 
   const float averageStep = 100.0f;
 
   for( int i = 1 ; i < 10 ; i++ )
   {
-    values.push_back(i * averageStep + (i % 2 == 0 ? -(averageStep * 0.2f) : (averageStep * 0.2f)));
+    values.PushBack(i * averageStep + (i % 2 == 0 ? -(averageStep * 0.2f) : (averageStep * 0.2f)));
   }
   // float
   PropertyNotification notification = actor.AddPropertyNotification( Actor::Property::POSITION, 0, VariableStepCondition(values) );
@@ -830,7 +830,7 @@ int UtcDaliPropertyNotificationVariableStep(void)
   actor.SetPosition(Vector3(values[0] - averageStep, 0.0f, 0.0f));
   Wait(application, DEFAULT_WAIT_PERIOD);
 
-  for( unsigned int i = 0 ; i < values.size() - 1 ; ++i )
+  for( unsigned int i = 0 ; i < values.Size() - 1 ; ++i )
   {
     gCallBackCalled = false;
     // set position half way between the current values

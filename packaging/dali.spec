@@ -7,6 +7,8 @@ License:    Apache-2.0
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-core.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
+%define enable_dali_smack_rules 1
+
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 BuildRequires:  pkgconfig
@@ -84,7 +86,8 @@ LDFLAGS="${LDFLAGS:-%optflags}" ; export LDFLAGS;
       --localstatedir=%{_localstatedir} \
       --sharedstatedir=%{_sharedstatedir} \
       --mandir=%{_mandir} \
-      --infodir=%{_infodir}
+      --infodir=%{_infodir} \
+      --enable-debug
 
 make %{?jobs:-j%jobs}
 

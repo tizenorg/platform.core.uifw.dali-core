@@ -155,7 +155,7 @@ void PropertyOwner::RemoveConstraint( ConstraintBase* constraint )
   }
 
   // Should not come here
-  DALI_ASSERT_DEBUG( false && "Constraint missing in RemoveConstraint" );
+  //DALI_ASSERT_DEBUG( false && "Constraint missing in RemoveConstraint" );
 }
 
 PropertyOwner::PropertyOwner()

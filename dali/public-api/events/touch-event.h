@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/events/touch-point.h>
 

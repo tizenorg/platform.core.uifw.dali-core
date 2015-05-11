@@ -22,8 +22,6 @@
 #include <dali/public-api/actors/actor-enumerations.h>
 #include <dali/public-api/actors/blending.h>
 #include <dali/public-api/actors/camera-actor.h>
-#include <dali/public-api/actors/custom-actor-impl.h>
-#include <dali/public-api/actors/custom-actor.h>
 #include <dali/public-api/actors/draw-mode.h>
 #include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/actors/layer.h>
@@ -41,7 +39,6 @@
 #include <dali/public-api/animation/path-constraint.h>
 #include <dali/public-api/animation/time-period.h>
 
-#include <dali/public-api/common/compile-time-assert.h>
 #include <dali/public-api/common/constants.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/dali-vector.h>
@@ -49,16 +46,7 @@
 #include <dali/public-api/common/loading-state.h>
 #include <dali/public-api/common/mutex.h>
 #include <dali/public-api/common/stage.h>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/common/view-mode.h>
-
-#include <dali/public-api/dynamics/dynamics-body.h>
-#include <dali/public-api/dynamics/dynamics-body-config.h>
-#include <dali/public-api/dynamics/dynamics-collision.h>
-#include <dali/public-api/dynamics/dynamics-joint.h>
-#include <dali/public-api/dynamics/dynamics-shape.h>
-#include <dali/public-api/dynamics/dynamics-world-config.h>
-#include <dali/public-api/dynamics/dynamics-world.h>
 
 #include <dali/public-api/events/gesture-detector.h>
 #include <dali/public-api/events/gesture.h>

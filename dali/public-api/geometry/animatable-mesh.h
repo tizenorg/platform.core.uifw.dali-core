@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/object/handle.h>
 #include <dali/public-api/geometry/animatable-vertex.h>
 #include <dali/public-api/modeling/material.h>

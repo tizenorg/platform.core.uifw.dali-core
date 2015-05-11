@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/constants.h>
-#include <dali/public-api/common/compile-time-assert.h>
+#include <dali/devel-api/common/compile-time-assert.h>
 #include <dali/integration-api/platform-abstraction.h>
 #include <dali/internal/render/common/render-manager.h>
 #include <dali/integration-api/debug.h>

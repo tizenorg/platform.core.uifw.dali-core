@@ -22,7 +22,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/shader-data.h>

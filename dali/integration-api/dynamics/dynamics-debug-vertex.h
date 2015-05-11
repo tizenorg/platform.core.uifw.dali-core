@@ -19,7 +19,7 @@
  */
 
 // INTERNAL HEADERS
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/math/vector3.h>
 #include <dali/public-api/math/vector4.h>
 

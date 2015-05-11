@@ -19,7 +19,7 @@
 #include <dali/public-api/object/property-map.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 
 namespace Dali
 {

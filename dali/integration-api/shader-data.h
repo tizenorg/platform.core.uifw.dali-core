@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/object/ref-object.h>
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/resource-declarations.h>
 
 namespace Dali

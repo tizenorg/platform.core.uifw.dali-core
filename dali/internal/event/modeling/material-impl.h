@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/common/constants.h>
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/modeling/material.h>

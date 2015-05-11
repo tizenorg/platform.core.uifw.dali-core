@@ -19,7 +19,7 @@
 #include <dali/internal/update/queue/update-message-queue.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/common/mutex.h>
 #include <dali/integration-api/render-controller.h>
 #include <dali/internal/common/message.h>

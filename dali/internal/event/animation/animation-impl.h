@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/animation/animation.h>
 #include <dali/public-api/object/base-object.h>

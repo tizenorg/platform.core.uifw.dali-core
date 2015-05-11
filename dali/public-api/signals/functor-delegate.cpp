@@ -19,7 +19,7 @@
 #include <dali/public-api/signals/functor-delegate.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/compile-time-assert.h>
+#include <dali/devel-api/common/compile-time-assert.h>
 
 namespace Dali
 {

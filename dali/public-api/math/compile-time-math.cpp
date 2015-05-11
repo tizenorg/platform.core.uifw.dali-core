@@ -19,7 +19,7 @@
 #include <dali/public-api/math/compile-time-math.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/compile-time-assert.h>
+#include <dali/devel-api/common/compile-time-assert.h>
 
 namespace Dali
 {

@@ -26,7 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/constants.h>
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/math/math-utils.h>
 

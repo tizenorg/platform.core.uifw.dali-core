@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/event/actors/actor-impl.h>
 #include <dali/internal/event/actors/actor-declarations.h>
-#include <dali/public-api/actors/custom-actor.h>
+#include <dali/devel-api/actors/custom-actor.h>
 #include <dali/public-api/animation/animation.h>
 
 namespace Dali

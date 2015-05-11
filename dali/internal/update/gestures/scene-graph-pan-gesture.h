@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/events/pan-gesture.h>
 #include <dali/internal/update/common/property-owner.h>
 #include <dali/internal/update/gestures/gesture-properties.h>

@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
-#include <dali/public-api/actors/custom-actor-impl.h>
+#include <dali/devel-api/actors/custom-actor-impl.h>
 
 namespace Dali
 {

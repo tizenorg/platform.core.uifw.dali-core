@@ -22,7 +22,7 @@
 
 // INTERNAL INCLUDES
 #include <cstring>
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/common/dali-common.h>
 
 namespace Dali

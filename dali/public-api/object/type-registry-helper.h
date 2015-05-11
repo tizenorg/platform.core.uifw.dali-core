@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/compile-time-assert.h>
+#include <dali/devel-api/common/compile-time-assert.h>
 #include <dali/public-api/object/type-registry.h>
 
 namespace Dali

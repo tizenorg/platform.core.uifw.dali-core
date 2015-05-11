@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/actors/custom-actor-impl.h>
+#include <dali/devel-api/actors/custom-actor-impl.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>

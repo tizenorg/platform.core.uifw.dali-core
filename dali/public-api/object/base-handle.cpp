@@ -107,7 +107,7 @@ Dali::RefObject* BaseHandle::GetObjectPtr() const
   return mObjectHandle.Get();
 }
 
-bool BaseHandle::DoConnectSignal( ConnectionTrackerInterface* connectionTracker, const std::string& signalName, FunctorDelegate* functor )
+bool BaseHandle::ConnectSignal( ConnectionTrackerInterface* connectionTracker, const std::string& signalName, FunctorDelegate* functor )
 {
   return GetImplementation(*this).DoConnectSignal( connectionTracker, signalName, functor );
 }

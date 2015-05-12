@@ -112,7 +112,7 @@ public:
   template <class T>
   bool ConnectSignal( ConnectionTrackerInterface* connectionTracker, const std::string& signalName, const T& functor )
   {
-    return DoConnectSignal( connectionTracker, signalName, FunctorDelegate::New( functor ) );
+    return ConnectSignal( connectionTracker, signalName, FunctorDelegate::New( functor ) );
   }
 
   /**
@@ -209,7 +209,7 @@ public:
    */
   Dali::RefObject* GetObjectPtr() const;
 
-private:
+public: // Not intended for application developers.
 
   /**
    * @brief Not intended for application developers.
@@ -219,8 +219,9 @@ private:
    * @param [in] functorDelegate A newly allocatated functor delegate (takes ownership).
    * @return True if the signal was available.
    */
-  bool DoConnectSignal( ConnectionTrackerInterface* connectionTracker, const std::string& signalName, FunctorDelegate* functorDelegate );
+  bool ConnectSignal( ConnectionTrackerInterface* connectionTracker, const std::string& signalName, FunctorDelegate* functorDelegate );
 
+private:
   /**
    * @brief Used by the safe bool idiom.
    *

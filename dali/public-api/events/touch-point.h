@@ -20,6 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
+#include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/common/type-traits.h>
 #include <dali/public-api/math/vector2.h>
 
 namespace Dali
@@ -114,9 +116,12 @@ struct DALI_IMPORT_API TouchPoint
   Vector2 screen;
 };
 
-typedef std::vector<TouchPoint> TouchPointContainer; ///< Container of touch points.
-typedef TouchPointContainer::iterator TouchPointContainerIterator; ///< Iterator for Dali::TouchPointContainer
-typedef TouchPointContainer::const_iterator TouchPointContainerConstIterator; ///< Const iterator for Dali::TouchPointContainer
+// Allow Vector2 to be treated as a POD type
+template <> struct TypeTraits< TouchPoint > : public BasicTypes< TouchPoint > { enum { IS_TRIVIAL_TYPE = true }; };
+
+typedef Vector<TouchPoint> TouchPointContainer; ///< Container of touch points.
+typedef TouchPointContainer::Iterator TouchPointContainerIterator; ///< Iterator for Dali::TouchPointContainer
+typedef TouchPointContainer::ConstIterator TouchPointContainerConstIterator; ///< Const iterator for Dali::TouchPointContainer
 
 } // namespace Dali
 

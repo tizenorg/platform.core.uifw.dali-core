@@ -45,24 +45,24 @@ MultiPointEvent::~MultiPointEvent()
 
 void MultiPointEvent::AddPoint(const TouchPoint& point)
 {
-  points.push_back(point);
+  points.PushBack(point);
 }
 
 TouchPoint& MultiPointEvent::GetPoint(unsigned int point)
 {
-  DALI_ASSERT_ALWAYS(point < points.size() && "MultiPointEvent: Point index out of bounds");
+  DALI_ASSERT_ALWAYS(point < points.Size() && "MultiPointEvent: Point index out of bounds");
   return points[point];
 }
 
 const TouchPoint& MultiPointEvent::GetPoint(unsigned int point) const
 {
-  DALI_ASSERT_ALWAYS(point < points.size() && "MultiPointEvent: Point index out of bounds");
+  DALI_ASSERT_ALWAYS(point < points.Size() && "MultiPointEvent: Point index out of bounds");
   return points[point];
 }
 
 unsigned int MultiPointEvent::GetPointCount() const
 {
-  return points.size();
+  return points.Size();
 }
 
 } // namespace Integration

@@ -320,7 +320,7 @@ void TouchResampler::Update()
 
 bool TouchResampler::GetNextTouchEvent( Dali::Integration::TouchEvent& touchEvent, unsigned int time )
 {
-  touchEvent.points.clear();
+  touchEvent.points.Clear();
   touchEvent.time = 0u;
 
   return mTouchPointsTracker->GetNextTouchEvent( touchEvent, time );

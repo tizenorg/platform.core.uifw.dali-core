@@ -40,12 +40,12 @@ TouchEvent::~TouchEvent()
 
 unsigned int TouchEvent::GetPointCount() const
 {
-  return points.size();
+  return points.Size();
 }
 
 const TouchPoint& TouchEvent::GetPoint(unsigned int point) const
 {
-  DALI_ASSERT_ALWAYS( point < points.size() && "No point at index" );
+  DALI_ASSERT_ALWAYS( point < points.Size() && "No point at index" );
   return points[point];
 }
 

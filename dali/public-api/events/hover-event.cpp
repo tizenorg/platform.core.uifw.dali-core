@@ -40,12 +40,12 @@ HoverEvent::~HoverEvent()
 
 unsigned int HoverEvent::GetPointCount() const
 {
-  return points.size();
+  return points.Size();
 }
 
 const TouchPoint& HoverEvent::GetPoint(unsigned int point) const
 {
-  DALI_ASSERT_ALWAYS( point < points.size() && "No point at index" );
+  DALI_ASSERT_ALWAYS( point < points.Size() && "No point at index" );
   return points[point];
 }
 

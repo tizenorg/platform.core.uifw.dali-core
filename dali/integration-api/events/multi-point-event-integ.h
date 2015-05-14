@@ -63,7 +63,7 @@ public:
   /**
    * @copydoc Dali::MultiPointEvent::points
    */
-  std::vector<TouchPoint> points;
+  Vector< TouchPoint > points;
 
   /**
    * @copydoc Dali::MultiPointEvent::time

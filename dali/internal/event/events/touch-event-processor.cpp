@@ -144,7 +144,7 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
 {
   DALI_LOG_TRACE_METHOD( gLogFilter );
 
-  DALI_ASSERT_ALWAYS( !event.points.empty() && "Empty TouchEvent sent from Integration\n" );
+  DALI_ASSERT_ALWAYS( event.points.Size() && "Empty TouchEvent sent from Integration\n" );
 
   Stage& stage = mStage;
 
@@ -159,7 +159,7 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
   if ( event.points[0].state == TouchPoint::Interrupted )
   {
     Dali::Actor consumingActor;
-    touchEvent.points.push_back(event.points[0]);
+    touchEvent.points.PushBack(event.points[0]);
 
     Actor* lastPrimaryHitActor( mLastPrimaryHitActor.GetActor() );
     if ( lastPrimaryHitActor )
@@ -210,7 +210,7 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
 
   Dali::RenderTask currentRenderTask;
 
-  for ( TouchPointContainerConstIterator iter = event.points.begin(), beginIter = event.points.begin(), endIter = event.points.end(); iter != endIter; ++iter )
+  for ( TouchPointContainerConstIterator iter = event.points.Begin(), beginIter = event.points.Begin(), endIter = event.points.End(); iter != endIter; ++iter )
   {
     HitTestAlgorithm::Results hitTestResults;
     HitTestAlgorithm::HitTest( stage, iter->screen, hitTestResults );
@@ -219,7 +219,7 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
     newPoint.hitActor = hitTestResults.actor;
     newPoint.local = hitTestResults.actorCoordinates;
 
-    touchEvent.points.push_back( newPoint );
+    touchEvent.points.PushBack( newPoint );
 
     DALI_LOG_INFO( gLogFilter, Debug::General, "  State(%s), Screen(%.0f, %.0f), HitActor(%p, %s), Local(%.2f, %.2f)\n",
                    TOUCH_POINT_STATE[iter->state], iter->screen.x, iter->screen.y,
@@ -408,7 +408,7 @@ void TouchEventProcessor::OnObservedActorDisconnected( Actor* actor )
   {
     Dali::Actor handle( actor );
     TouchEvent touchEvent( 0 );
-    touchEvent.points.push_back( TouchPoint( 0, TouchPoint::Interrupted, 0.0f, 0.0f ) );
+    touchEvent.points.PushBack( TouchPoint( 0, TouchPoint::Interrupted, 0.0f, 0.0f ) );
     touchEvent.points[0].hitActor = handle;
 
     Dali::Actor eventConsumer = EmitTouchSignals( handle, touchEvent );

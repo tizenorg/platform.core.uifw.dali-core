@@ -166,7 +166,7 @@ void HoverEventProcessor::ProcessHoverEvent( const Integration::HoverEvent& even
 {
   DALI_LOG_TRACE_METHOD( gLogFilter );
 
-  DALI_ASSERT_ALWAYS( !event.points.empty() && "Empty HoverEvent sent from Integration\n" );
+  DALI_ASSERT_ALWAYS( event.points.Size() && "Empty HoverEvent sent from Integration\n" );
 
   Stage& stage = mStage;
 
@@ -181,7 +181,7 @@ void HoverEventProcessor::ProcessHoverEvent( const Integration::HoverEvent& even
   if ( event.points[0].state == TouchPoint::Interrupted )
   {
     Dali::Actor consumingActor;
-    hoverEvent.points.push_back(event.points[0]);
+    hoverEvent.points.PushBack(event.points[0]);
 
     Actor* lastPrimaryHitActor( mLastPrimaryHitActor.GetActor() );
     if ( lastPrimaryHitActor )
@@ -231,7 +231,7 @@ void HoverEventProcessor::ProcessHoverEvent( const Integration::HoverEvent& even
 
   Dali::RenderTask currentRenderTask;
 
-  for ( TouchPointContainerConstIterator iter = event.points.begin(), beginIter = event.points.begin(), endIter = event.points.end(); iter != endIter; ++iter )
+  for ( TouchPointContainerConstIterator iter = event.points.Begin(), beginIter = event.points.Begin(), endIter = event.points.End(); iter != endIter; ++iter )
   {
     HitTestAlgorithm::Results hitTestResults;
     ActorHoverableCheck actorHoverableCheck;
@@ -241,7 +241,7 @@ void HoverEventProcessor::ProcessHoverEvent( const Integration::HoverEvent& even
     newPoint.hitActor = hitTestResults.actor;
     newPoint.local = hitTestResults.actorCoordinates;
 
-    hoverEvent.points.push_back( newPoint );
+    hoverEvent.points.PushBack( newPoint );
 
     DALI_LOG_INFO( gLogFilter, Debug::General, "  State(%s), Screen(%.0f, %.0f), HitActor(%p, %s), Local(%.2f, %.2f)\n",
                    TOUCH_POINT_STATE[iter->state], iter->screen.x, iter->screen.y,

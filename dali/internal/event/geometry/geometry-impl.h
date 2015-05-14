@@ -103,6 +103,11 @@ public:
    */
   const SceneGraph::Geometry* GetGeometrySceneObject() const;
 
+  /**
+   * @copydoc Dali::Geometry::DisableFrustumCull()
+   */
+  void DisableFrustumCull();
+
 public: // Default property extensions from Object
 
   /**

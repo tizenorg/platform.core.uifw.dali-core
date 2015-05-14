@@ -96,6 +96,11 @@ bool Geometry::GetRequiresDepthTesting() const
   return GetImplementation(*this).GetRequiresDepthTesting();
 }
 
+void Geometry::DisableFrustumCull()
+{
+  GetImplementation(*this).DisableFrustumCull();
+}
+
 Geometry::Geometry( Internal::Geometry* pointer )
 : Handle( pointer )
 {

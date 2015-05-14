@@ -20,6 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/event/actors/layer-impl.h> // for the default sorting function
+#include <dali/internal/update/geometry/scene-graph-geometry.h>
+#include <dali/internal/update/node-attachments/scene-graph-renderer-attachment.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/update/manager/sorted-layers.h>
 #include <dali/internal/update/render-tasks/scene-graph-render-task.h>
@@ -143,19 +145,125 @@ inline void SetStencilRenderFlags( RenderList& renderList )
 inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
                                      RenderList& renderList,
                                      RenderableAttachment& renderable,
-                                     const Matrix& viewMatrix )
+                                     const Matrix& viewMatrix,
+                                     const SceneGraph::CameraAttachment::FrustumPlanes& frustum )
 {
-  const Renderer& renderer = renderable.GetRenderer();
 
-  // Get the next free RenderItem
-  RenderItem& item = renderList.GetNextFreeItem();
-  item.SetRenderer( const_cast< Renderer* >( &renderer ) );
+  // Check for clip against view frustum
+  Matrix mvm;
+  const Node& parentNode = renderable.GetParent();
+  const Matrix& worldMatrix = parentNode.GetWorldMatrix( updateBufferIndex );
+  Matrix::Multiply( mvm, worldMatrix, viewMatrix );
 
-  // calculate MV matrix onto the item
-  Matrix& modelViewMatrix = item.GetModelViewMatrix();
-  const Matrix& worldMatrix = renderable.GetParent().GetWorldMatrix( updateBufferIndex );
+  RendererAttachment& rendererAttachment = dynamic_cast< RendererAttachment& >( renderable );
+  const Geometry& geometry = rendererAttachment.GetGeometry();
+  float radius = geometry.mRadius[ updateBufferIndex ];
 
-  Matrix::Multiply( modelViewMatrix, worldMatrix, viewMatrix );
+  bool outside = false;
+  if ( geometry.IsFrustumCulled() )
+  {
+
+    // Get the geometry extents for frustum checking
+    const Vector3& position = worldMatrix.GetTranslation3();
+    const Vector3& localCenter = geometry.mCenter[ updateBufferIndex ];
+    const Vector3& size = parentNode.GetSize( updateBufferIndex );
+
+    Vector3 center = position + ( localCenter * size );
+
+    // If the size components are all the same, then we can do a quick bounding sphere check
+    if ( fabsf( size.x - size.y ) <= Math::MACHINE_EPSILON_1 * size.x && fabsf( size.x - size.z ) <= Math::MACHINE_EPSILON_1 * size.x )
+    {
+      radius *= size.x;
+      for ( uint32_t i = 0; i < 6; ++i )
+      {
+        if ( ( frustum.mPlanes[ i ].mDistance + frustum.mPlanes[ i ].mNormal.Dot( center ) ) < -radius )
+        {
+          outside = true;
+          break;
+        }
+      }
+    }
+
+    if ( !outside )
+    {
+      // Check against AABB of model
+      Vector3 extents = geometry.mHalfExtents[ updateBufferIndex ] * size;
+      Vector3 tln = center + Vector3( -extents );
+      Vector3 trn = center + Vector3( extents.x, -extents.y, -extents.z );
+      Vector3 bln = center + Vector3( -extents.x, extents.y, -extents.z );
+      Vector3 brn = center + Vector3( extents.x, extents.y, -extents.z );
+      Vector3 tlf = center + Vector3( -extents.x, -extents.y, extents.z );
+      Vector3 trf = center + Vector3( extents.x, -extents.y, extents.z );
+      Vector3 blf = center + Vector3( -extents.x, extents.y, extents.z );
+      Vector3 brf = center + Vector3( extents.x, extents.y, extents.z );
+
+      outside = false;
+
+      for ( uint32_t i = 0; i < 6; ++i )
+      {
+        if ( frustum.mPlanes[ i ].mDistance + frustum.mPlanes[ i ].mNormal.Dot( tln ) >= 0 )
+        {
+          continue;
+        }
+
+        if ( frustum.mPlanes[ i ].mDistance + frustum.mPlanes[ i ].mNormal.Dot( trn ) >= 0 )
+        {
+          continue;
+        }
+
+        if ( frustum.mPlanes[ i ].mDistance + frustum.mPlanes[ i ].mNormal.Dot( bln ) >= 0 )
+        {
+          continue;
+        }
+
+        if ( frustum.mPlanes[ i ].mDistance + frustum.mPlanes[ i ].mNormal.Dot( brn ) >= 0 )
+        {
+          continue;
+        }
+
+        if ( frustum.mPlanes[ i ].mDistance + frustum.mPlanes[ i ].mNormal.Dot( tlf ) >= 0 )
+        {
+          continue;
+        }
+
+         if ( frustum.mPlanes[ i ].mDistance + frustum.mPlanes[ i ].mNormal.Dot( trf ) >= 0 )
+        {
+          continue;
+        }
+
+         if ( frustum.mPlanes[ i ].mDistance + frustum.mPlanes[ i ].mNormal.Dot( blf ) >= 0 )
+        {
+          continue;
+        }
+
+        if ( frustum.mPlanes[ i ].mDistance + frustum.mPlanes[ i ].mNormal.Dot( brf ) >= 0 )
+        {
+          continue;
+        }
+        outside = true;
+
+        // TODO log when object is culled ?
+        //std::cout << "Clipped by AABB!" << std::endl;
+        break;
+      }
+    }
+    else
+    {
+      // TODO log when object is culled ?
+      //std::cout << "Clipped by Bounding Sphere!" << std::endl;
+    }
+  }
+  if ( !outside )
+  {
+    // Get the next free RenderItem
+    RenderItem& item = renderList.GetNextFreeItem();
+    const Renderer& renderer = renderable.GetRenderer();
+    item.SetRenderer( const_cast< Renderer* >( &renderer ) );
+
+    // save MV matrix onto the item
+    Matrix& modelViewMatrix = item.GetModelViewMatrix();
+    modelViewMatrix = mvm;
+  }
 }
 
 /**
@@ -168,14 +276,15 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
                                       RenderList& renderList,
                                       RenderableAttachmentContainer& attachments,
-                                      const Matrix& viewMatrix )
+                                      const Matrix& viewMatrix,
+                                      const SceneGraph::CameraAttachment::FrustumPlanes& frustum )
 {
   // Add renderer for each attachment
   const RenderableAttachmentIter endIter = attachments.end();
   for ( RenderableAttachmentIter iter = attachments.begin(); iter != endIter; ++iter )
   {
     RenderableAttachment& attachment = **iter;
-    AddRendererToRenderList( updateBufferIndex, renderList, attachment, viewMatrix );
+    AddRendererToRenderList( updateBufferIndex, renderList, attachment, viewMatrix, frustum );
   }
 }
 
@@ -232,6 +341,7 @@ inline bool TryReuseCachedRenderers( Layer& layer,
 inline void AddOpaqueRenderers( BufferIndex updateBufferIndex,
                                 Layer& layer,
                                 const Matrix& viewMatrix,
+                                const SceneGraph::CameraAttachment::FrustumPlanes& frustum,
                                 bool transparentRenderablesExist,
                                 bool stencilRenderablesExist,
                                 RenderInstruction& instruction,
@@ -251,7 +361,7 @@ inline void AddOpaqueRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, opaqueRenderList, layer.opaqueRenderables, viewMatrix );
+  AddRenderersToRenderList( updateBufferIndex, opaqueRenderList, layer.opaqueRenderables, viewMatrix, frustum );
 
   // opaque flags can only be set after renderers are added
   SetOpaqueRenderFlags(opaqueRenderList, transparentRenderablesExist, stencilRenderablesExist, layer.IsDepthTestDisabled() );
@@ -346,6 +456,7 @@ inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer
 inline void AddTransparentRenderers( BufferIndex updateBufferIndex,
                                      Layer& layer,
                                      const Matrix& viewMatrix,
+                                     const SceneGraph::CameraAttachment::FrustumPlanes& frustum,
                                      bool opaqueRenderablesExist,
                                      bool stencilRenderablesExist,
                                      RenderInstruction& instruction,
@@ -368,7 +479,7 @@ inline void AddTransparentRenderers( BufferIndex updateBufferIndex,
   }
   transparentRenderList.SetSourceLayer( &layer );
 
-  AddRenderersToRenderList( updateBufferIndex, transparentRenderList, layer.transparentRenderables, viewMatrix );
+  AddRenderersToRenderList( updateBufferIndex, transparentRenderList, layer.transparentRenderables, viewMatrix, frustum );
 
   // sorting is only needed if more than 1 item
   if( renderableCount > 1 )
@@ -389,6 +500,7 @@ inline void AddTransparentRenderers( BufferIndex updateBufferIndex,
 inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
                                  Layer& layer,
                                  const Matrix& viewMatrix,
+                                 const SceneGraph::CameraAttachment::FrustumPlanes& frustum,
                                  bool stencilRenderablesExist,
                                  RenderInstruction& instruction,
                                  bool tryReuseRenderList )
@@ -405,7 +517,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, viewMatrix );
+  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, viewMatrix, frustum );
 }
 
 /**
@@ -419,6 +531,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
 inline void AddStencilRenderers( BufferIndex updateBufferIndex,
                                  Layer& layer,
                                  const Matrix& viewMatrix,
+                                 const SceneGraph::CameraAttachment::FrustumPlanes& frustum,
                                  RenderInstruction& instruction,
                                  bool tryReuseRenderList )
 {
@@ -434,7 +547,7 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, viewMatrix );
+  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, viewMatrix, frustum );
 }
 
 /**
@@ -460,6 +573,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
   bool viewMatrixHasNotChanged = !renderTask.ViewMatrixUpdated();
 
   const Matrix& viewMatrix = renderTask.GetViewMatrix( updateBufferIndex );
+  const SceneGraph::CameraAttachment::FrustumPlanes& frustum = renderTask.GetFrustum( updateBufferIndex );
 
   const SortedLayersIter endIter = sortedLayers.end();
   for ( SortedLayersIter iter = sortedLayers.begin(); iter != endIter; ++iter )
@@ -476,7 +590,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
     if( stencilRenderablesExist &&
         ( opaqueRenderablesExist || transparentRenderablesExist || overlayRenderablesExist ) )
     {
-      AddStencilRenderers( updateBufferIndex, layer, viewMatrix, instruction, tryReuseRenderList );
+      AddStencilRenderers( updateBufferIndex, layer, viewMatrix, frustum, instruction, tryReuseRenderList );
     }
 
     if ( opaqueRenderablesExist )
@@ -484,6 +598,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
       AddOpaqueRenderers( updateBufferIndex,
                           layer,
                           viewMatrix,
+                          frustum,
                           transparentRenderablesExist,
                           stencilRenderablesExist,
                           instruction,
@@ -495,6 +610,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
       AddTransparentRenderers( updateBufferIndex,
                                layer,
                                viewMatrix,
+                               frustum,
                                opaqueRenderablesExist,
                                stencilRenderablesExist,
                                instruction,
@@ -504,7 +620,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
 
     if ( overlayRenderablesExist )
     {
-      AddOverlayRenderers( updateBufferIndex, layer, viewMatrix, stencilRenderablesExist,
+      AddOverlayRenderers( updateBufferIndex, layer, viewMatrix, frustum, stencilRenderablesExist,
                            instruction, tryReuseRenderList );
     }
   }

@@ -126,6 +126,14 @@ const SceneGraph::Geometry* Geometry::GetGeometrySceneObject() const
   return mSceneObject;
 }
 
+void Geometry::DisableFrustumCull()
+{
+  if ( mSceneObject )
+  {
+    mSceneObject->DisableFrustumCull();
+  }
+}
+
 unsigned int Geometry::GetDefaultPropertyCount() const
 {
   return GEOMETRY_IMPL.GetDefaultPropertyCount();

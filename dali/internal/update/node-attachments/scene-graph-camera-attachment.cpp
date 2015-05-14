@@ -293,6 +293,11 @@ const Matrix& CameraAttachment::GetViewMatrix( BufferIndex bufferIndex ) const
   return mViewMatrix[ bufferIndex ];
 }
 
+const SceneGraph::CameraAttachment::FrustumPlanes& CameraAttachment::GetFrustum( BufferIndex bufferIndex ) const
+{
+  return mFrustum[ bufferIndex ];
+}
+
 const Matrix& CameraAttachment::GetInverseViewProjectionMatrix( BufferIndex bufferIndex ) const
 {
   return mInverseViewProjection[ bufferIndex ];
@@ -333,14 +338,17 @@ void CameraAttachment::Update( BufferIndex updateBufferIndex, const Node& owning
   {
     // either has actually changed so recalculate
     Matrix::Multiply( mInverseViewProjection[ updateBufferIndex ], mViewMatrix[ updateBufferIndex ], mProjectionMatrix[ updateBufferIndex ] );
+    UpdateFrustum( updateBufferIndex );
+
     // ignore the error, if the view projection is incorrect (non inversible) then you will have tough times anyways
     static_cast< void >( mInverseViewProjection[ updateBufferIndex ].Invert() );
   }
   else if( viewUpdateCount == COPY_PREVIOUS_MATRIX || projectionUpdateCount == COPY_PREVIOUS_MATRIX )
   {
     // neither has actually changed, but we might copied previous frames value so need to
-    // copy the previous inverse as well
+    // copy the previous inverse and frustum as well
     mInverseViewProjection[updateBufferIndex] = mInverseViewProjection[updateBufferIndex ? 0 : 1];
+    mFrustum[ updateBufferIndex ] = mFrustum[ updateBufferIndex ? 0 : 1 ];
   }
 }
 
@@ -386,6 +394,68 @@ unsigned int CameraAttachment::UpdateViewMatrix( BufferIndex updateBufferIndex, 
     --mUpdateViewFlag;
   }
   return retval;
+}
+
+void CameraAttachment::UpdateFrustum( BufferIndex updateBufferIndex, bool normalize )
+{
+
+  // Extract the clip matrix planes
+  Matrix clipMatrix;
+  Matrix::Multiply( clipMatrix, mViewMatrix[ updateBufferIndex ], mProjectionMatrix[ updateBufferIndex ] );
+
+  const float* cm = clipMatrix.AsFloat();
+  FrustumPlanes& planes = mFrustum[ updateBufferIndex ];
+
+  // Left
+  planes.mPlanes[ 0 ].mNormal.x = cm[ 3 ]  + cm[ 0 ]; // column 4 + column 1
+  planes.mPlanes[ 0 ].mNormal.y = cm[ 7 ]  + cm[ 4 ];
+  planes.mPlanes[ 0 ].mNormal.z = cm[ 11 ] + cm[ 8 ];
+  planes.mPlanes[ 0 ].mDistance = cm[ 15 ] + cm[ 12 ];
+
+  // Right
+  planes.mPlanes[ 1 ].mNormal.x = cm[ 3 ]  - cm[ 0 ]; // column 4 - column 1
+  planes.mPlanes[ 1 ].mNormal.y = cm[ 7 ]  - cm[ 4 ];
+  planes.mPlanes[ 1 ].mNormal.z = cm[ 11 ] - cm[ 8 ];
+  planes.mPlanes[ 1 ].mDistance = cm[ 15 ] - cm[ 12 ];
+
+  // Bottom
+  planes.mPlanes[ 2 ].mNormal.x = cm[ 3 ]  + cm[ 1 ]; // column 4 + column 2
+  planes.mPlanes[ 2 ].mNormal.y = cm[ 7 ]  + cm[ 5 ];
+  planes.mPlanes[ 2 ].mNormal.z = cm[ 11 ] + cm[ 9 ];
+  planes.mPlanes[ 2 ].mDistance = cm[ 15 ] + cm[ 13 ];
+
+  // Top
+  planes.mPlanes[ 3 ].mNormal.x = cm[ 3 ]  - cm[ 1 ]; // column 4 - column 2
+  planes.mPlanes[ 3 ].mNormal.y = cm[ 7 ]  - cm[ 5 ];
+  planes.mPlanes[ 3 ].mNormal.z = cm[ 11 ] - cm[ 9 ];
+  planes.mPlanes[ 3 ].mDistance = cm[ 15 ] - cm[ 13 ];
+
+  // Near
+  planes.mPlanes[ 4 ].mNormal.x = cm[ 3 ]  + cm[ 2 ]; // column 4 + column 3
+  planes.mPlanes[ 4 ].mNormal.y = cm[ 7 ]  + cm[ 6 ];
+  planes.mPlanes[ 4 ].mNormal.z = cm[ 11 ] + cm[ 10 ];
+  planes.mPlanes[ 4 ].mDistance = cm[ 15 ] + cm[ 14 ];
+
+  // Far
+  planes.mPlanes[ 5 ].mNormal.x = cm[ 3 ]  - cm[ 2 ]; // column 4 - column 3
+  planes.mPlanes[ 5 ].mNormal.y = cm[ 7 ]  - cm[ 6 ];
+  planes.mPlanes[ 5 ].mNormal.z = cm[ 11 ] - cm[ 10 ];
+  planes.mPlanes[ 5 ].mDistance = cm[ 15 ] - cm[ 14 ];
+
+  if ( normalize )
+  {
+    for ( unsigned int i = 0; i < 6; ++i )
+    {
+      // Normalize planes to ensure correct bounding distance checking
+      Plane& plane = planes.mPlanes[ i ];
+      float l = 1.0f / plane.mNormal.Length();
+      plane.mNormal.x *= l;
+      plane.mNormal.y *= l;
+      plane.mNormal.z *= l;
+      plane.mDistance *= l;
+    }
+  }
+  mFrustum[ updateBufferIndex ? 0 : 1 ] = planes;
 }
 
 unsigned int CameraAttachment::UpdateProjection( BufferIndex updateBufferIndex )

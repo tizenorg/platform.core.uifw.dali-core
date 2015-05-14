@@ -68,7 +68,7 @@ FrameBufferImage::FrameBufferImage(unsigned int width, unsigned int height, Pixe
 }
 
 FrameBufferImage::FrameBufferImage( NativeImageInterface& nativeImage )
-: Image(),
+: Image( IMAGE_RELEASE_POLICY_DEFAULT ),
   mNativeImage(&nativeImage)
 {
   mWidth = nativeImage.GetWidth();

@@ -153,7 +153,7 @@ protected:
   /**
    * Constructor, with default parameters
    */
-  Image( ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
+  Image( ReleasePolicy releasePol );
 
   /**
    * Second stage initialization

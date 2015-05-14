@@ -41,7 +41,7 @@ TypeRegistration mType( typeid(Dali::NativeImage), typeid(Dali::Image), NULL );
 }
 
 NativeImage::NativeImage()
-: Image()
+: Image( IMAGE_RELEASE_POLICY_DEFAULT )
 {
 }
 

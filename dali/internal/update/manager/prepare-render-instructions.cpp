@@ -20,6 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/event/actors/layer-impl.h> // for the default sorting function
+#include <dali/internal/update/geometry/scene-graph-geometry.h>
+#include <dali/internal/update/node-attachments/scene-graph-renderer-attachment.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/update/manager/sorted-layers.h>
 #include <dali/internal/update/render-tasks/scene-graph-render-task.h>
@@ -143,19 +145,54 @@ inline void SetStencilRenderFlags( RenderList& renderList )
 inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
                                      RenderList& renderList,
                                      RenderableAttachment& renderable,
-                                     const Matrix& viewMatrix )
+                                     const Matrix& viewMatrix,
+                                     SceneGraph::CameraAttachment& cameraAttachment )
 {
-  const Renderer& renderer = renderable.GetRenderer();
 
-  // Get the next free RenderItem
-  RenderItem& item = renderList.GetNextFreeItem();
-  item.SetRenderer( const_cast< Renderer* >( &renderer ) );
+  // Check for clip against view frustum
+  Matrix mvm;
+  const Node& parentNode = renderable.GetParent();
+  const Matrix& worldMatrix = parentNode.GetWorldMatrix( updateBufferIndex );
+  Matrix::Multiply( mvm, worldMatrix, viewMatrix );
 
-  // calculate MV matrix onto the item
-  Matrix& modelViewMatrix = item.GetModelViewMatrix();
-  const Matrix& worldMatrix = renderable.GetParent().GetWorldMatrix( updateBufferIndex );
+  RendererAttachment& rendererAttachment = dynamic_cast< RendererAttachment& >( renderable );
+  const Geometry& geometry = rendererAttachment.GetGeometry();
+  float radius = geometry.mRadius[ updateBufferIndex ];
 
-  Matrix::Multiply( modelViewMatrix, worldMatrix, viewMatrix );
+  bool inside = true;
+  if ( geometry.IsFrustumCulled() )
+  {
+
+    // Get the geometry extents for frustum checking
+    const Vector3& position = worldMatrix.GetTranslation3();
+    const Vector3& localCenter = geometry.mCenter[ updateBufferIndex ];
+    const Vector3& size = parentNode.GetSize( updateBufferIndex );
+    Vector3 center = position + ( localCenter * size );
+
+    // If the size components are all the same, then we can do a quick bounding sphere check
+    if ( fabsf( size.x - size.y ) <= Math::MACHINE_EPSILON_1 * size.x && fabsf( size.x - size.z ) <= Math::MACHINE_EPSILON_1 * size.x )
+    {
+      inside = cameraAttachment.CheckSphereInFrustum( updateBufferIndex, center, radius * size.x );
+    }
+
+    if ( inside )
+    {
+      // Check against AABB of model
+      inside = cameraAttachment.CheckAABBInFrustum( updateBufferIndex, center, geometry.mHalfExtents[ updateBufferIndex ] * size );
+    }
+  }
+
+  if ( inside )
+  {
+    // Get the next free RenderItem
+    RenderItem& item = renderList.GetNextFreeItem();
+    const Renderer& renderer = renderable.GetRenderer();
+    item.SetRenderer( const_cast< Renderer* >( &renderer ) );
+
+    // save MV matrix onto the item
+    Matrix& modelViewMatrix = item.GetModelViewMatrix();
+    modelViewMatrix = mvm;
+  }
 }
 
 /**
@@ -168,14 +205,15 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
                                       RenderList& renderList,
                                       RenderableAttachmentContainer& attachments,
-                                      const Matrix& viewMatrix )
+                                      const Matrix& viewMatrix,
+                                      SceneGraph::CameraAttachment& cameraAttachment )
 {
   // Add renderer for each attachment
   const RenderableAttachmentIter endIter = attachments.end();
   for ( RenderableAttachmentIter iter = attachments.begin(); iter != endIter; ++iter )
   {
     RenderableAttachment& attachment = **iter;
-    AddRendererToRenderList( updateBufferIndex, renderList, attachment, viewMatrix );
+    AddRendererToRenderList( updateBufferIndex, renderList, attachment, viewMatrix, cameraAttachment );
   }
 }
 
@@ -224,6 +262,7 @@ inline bool TryReuseCachedRenderers( Layer& layer,
  * @param updateBufferIndex to use
  * @param layer to get the renderers from
  * @param viewmatrix for the camera from rendertask
+ * @param cameraAttachment to use the view frustum
  * @param transparentRenderersExist is true if there is transparent renderers in this layer
  * @param stencilRenderablesExist is true if there are stencil renderers on this layer
  * @param instruction to fill in
@@ -232,6 +271,7 @@ inline bool TryReuseCachedRenderers( Layer& layer,
 inline void AddOpaqueRenderers( BufferIndex updateBufferIndex,
                                 Layer& layer,
                                 const Matrix& viewMatrix,
+                                SceneGraph::CameraAttachment& cameraAttachment,
                                 bool transparentRenderablesExist,
                                 bool stencilRenderablesExist,
                                 RenderInstruction& instruction,
@@ -251,7 +291,7 @@ inline void AddOpaqueRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, opaqueRenderList, layer.opaqueRenderables, viewMatrix );
+  AddRenderersToRenderList( updateBufferIndex, opaqueRenderList, layer.opaqueRenderables, viewMatrix, cameraAttachment );
 
   // opaque flags can only be set after renderers are added
   SetOpaqueRenderFlags(opaqueRenderList, transparentRenderablesExist, stencilRenderablesExist, layer.IsDepthTestDisabled() );
@@ -346,6 +386,7 @@ inline void SortTransparentRenderItems( RenderList& transparentRenderList, Layer
 inline void AddTransparentRenderers( BufferIndex updateBufferIndex,
                                      Layer& layer,
                                      const Matrix& viewMatrix,
+                                     SceneGraph::CameraAttachment& cameraAttachment,
                                      bool opaqueRenderablesExist,
                                      bool stencilRenderablesExist,
                                      RenderInstruction& instruction,
@@ -368,7 +409,7 @@ inline void AddTransparentRenderers( BufferIndex updateBufferIndex,
   }
   transparentRenderList.SetSourceLayer( &layer );
 
-  AddRenderersToRenderList( updateBufferIndex, transparentRenderList, layer.transparentRenderables, viewMatrix );
+  AddRenderersToRenderList( updateBufferIndex, transparentRenderList, layer.transparentRenderables, viewMatrix, cameraAttachment );
 
   // sorting is only needed if more than 1 item
   if( renderableCount > 1 )
@@ -389,6 +430,7 @@ inline void AddTransparentRenderers( BufferIndex updateBufferIndex,
 inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
                                  Layer& layer,
                                  const Matrix& viewMatrix,
+                                 SceneGraph::CameraAttachment& cameraAttachment,
                                  bool stencilRenderablesExist,
                                  RenderInstruction& instruction,
                                  bool tryReuseRenderList )
@@ -405,7 +447,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, viewMatrix );
+  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, viewMatrix, cameraAttachment );
 }
 
 /**
@@ -419,6 +461,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
 inline void AddStencilRenderers( BufferIndex updateBufferIndex,
                                  Layer& layer,
                                  const Matrix& viewMatrix,
+                                 SceneGraph::CameraAttachment& cameraAttachment,
                                  RenderInstruction& instruction,
                                  bool tryReuseRenderList )
 {
@@ -434,7 +477,7 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, viewMatrix );
+  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, viewMatrix, cameraAttachment );
 }
 
 /**
@@ -460,6 +503,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
   bool viewMatrixHasNotChanged = !renderTask.ViewMatrixUpdated();
 
   const Matrix& viewMatrix = renderTask.GetViewMatrix( updateBufferIndex );
+  SceneGraph::CameraAttachment& cameraAttachment = renderTask.GetCameraAttachment();
 
   const SortedLayersIter endIter = sortedLayers.end();
   for ( SortedLayersIter iter = sortedLayers.begin(); iter != endIter; ++iter )
@@ -476,7 +520,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
     if( stencilRenderablesExist &&
         ( opaqueRenderablesExist || transparentRenderablesExist || overlayRenderablesExist ) )
     {
-      AddStencilRenderers( updateBufferIndex, layer, viewMatrix, instruction, tryReuseRenderList );
+      AddStencilRenderers( updateBufferIndex, layer, viewMatrix, cameraAttachment, instruction, tryReuseRenderList );
     }
 
     if ( opaqueRenderablesExist )
@@ -484,6 +528,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
       AddOpaqueRenderers( updateBufferIndex,
                           layer,
                           viewMatrix,
+                          cameraAttachment,
                           transparentRenderablesExist,
                           stencilRenderablesExist,
                           instruction,
@@ -495,6 +540,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
       AddTransparentRenderers( updateBufferIndex,
                                layer,
                                viewMatrix,
+                               cameraAttachment,
                                opaqueRenderablesExist,
                                stencilRenderablesExist,
                                instruction,
@@ -504,7 +550,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
 
     if ( overlayRenderablesExist )
     {
-      AddOverlayRenderers( updateBufferIndex, layer, viewMatrix, stencilRenderablesExist,
+      AddOverlayRenderers( updateBufferIndex, layer, viewMatrix, cameraAttachment, stencilRenderablesExist,
                            instruction, tryReuseRenderList );
     }
   }

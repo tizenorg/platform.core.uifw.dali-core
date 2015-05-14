@@ -178,6 +178,11 @@ public:
    */
   bool GetRequiresDepthTesting() const;
 
+  /**
+   * @brief Disable frustum culling on this geometry
+   */
+  void DisableFrustumCull();
+
 public:
   /**
    * @brief The constructor

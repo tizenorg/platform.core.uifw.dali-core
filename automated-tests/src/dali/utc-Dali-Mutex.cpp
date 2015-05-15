@@ -19,7 +19,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <dali/public-api/dali-core.h>
+#include <dali/devel-api/common/mutex.h>
 #include <dali-test-suite-utils.h>
+
 
 using Dali::Mutex;
 

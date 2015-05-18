@@ -1169,6 +1169,20 @@ public:
   bool IsLayoutNegotiated( Dimension::Type dimension = Dimension::ALL_DIMENSIONS ) const;
 
   /**
+   * @brief provides the Actor implementation of GetHeightForWidth
+   * @param width to use.
+   * @return the height based on the width.
+   */
+  float GetHeightForWidthBase( float width );
+
+  /**
+   * @brief provides the Actor implementation of GetWidthForHeight
+   * @param height to use.
+   * @return the width based on the height.
+   */
+  float GetWidthForHeightBase( float height );
+
+  /**
    * @brief Calculate the size for a child
    *
    * @param[in] child The child actor to calculate the size for
@@ -1884,6 +1898,7 @@ protected:
   bool mDerivedRequiresHover                       : 1; ///< Whether the derived actor type requires hover event signals
   bool mDerivedRequiresMouseWheelEvent             : 1; ///< Whether the derived actor type requires mouse wheel event signals
   bool mOnStageSignalled                           : 1; ///< Set to true before OnStageConnection signal is emitted, and false before OnStageDisconnection
+  bool mInsideOnSizeSet                            : 1; ///< Whether we are inside OnSizeSet
   bool mInheritOrientation                         : 1; ///< Cached: Whether the parent's orientation should be inherited.
   bool mInheritScale                               : 1; ///< Cached: Whether the parent's scale should be inherited.
   DrawMode::Type mDrawMode                         : 2; ///< Cached: How the actor and its children should be drawn

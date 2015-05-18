@@ -1194,7 +1194,13 @@ void Actor::SetSize( const Vector3& size )
 
 void Actor::SetSizeInternal( const Vector3& size )
 {
-  if( NULL != mNode )
+  // dont allow recursive loop
+  DALI_ASSERT_ALWAYS( !mInsideOnSizeSet && "Cannot call SetSize from OnSizeSet" );
+  // check that we have a node AND the new size width, height or depth is at least a little bit different from the old one
+  if( ( NULL != mNode )&&
+      ( ( fabsf( mTargetSize.width - size.width  ) > Math::MACHINE_EPSILON_1 )||
+        ( fabsf( mTargetSize.height- size.height ) > Math::MACHINE_EPSILON_1 )||
+        ( fabsf( mTargetSize.depth - size.depth  ) > Math::MACHINE_EPSILON_1 ) ) )
   {
     mTargetSize = size;
 
@@ -1202,7 +1208,9 @@ void Actor::SetSizeInternal( const Vector3& size )
     SceneGraph::NodePropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mSize, &AnimatableProperty<Vector3>::Bake, mTargetSize );
 
     // Notification for derived classes
+    mInsideOnSizeSet = true;
     OnSizeSet( mTargetSize );
+    mInsideOnSizeSet = false;
 
     // Raise a relayout request if the flag is not locked
     if( mRelayoutData && !mRelayoutData->insideRelayout )
@@ -2252,10 +2260,31 @@ Actor::Actor( DerivedType derivedType )
   mAnchorPoint( NULL ),
   mRelayoutData( NULL ),
 #ifdef DYNAMICS_SUPPORT
-        mDynamicsData( NULL ),
+  mDynamicsData( NULL ),
 #endif
-        mGestureData( NULL ), mAttachment(), mTargetSize( 0.0f, 0.0f, 0.0f ), mName(), mId( ++mActorCounter ), // actor ID is initialised to start from 1, and 0 is reserved
-        mIsRoot( ROOT_LAYER == derivedType ), mIsRenderable( RENDERABLE == derivedType ), mIsLayer( LAYER == derivedType || ROOT_LAYER == derivedType ), mIsOnStage( false ), mIsDynamicsRoot( false ), mSensitive( true ), mLeaveRequired( false ), mKeyboardFocusable( false ), mDerivedRequiresTouch( false ), mDerivedRequiresHover( false ), mDerivedRequiresMouseWheelEvent( false ), mOnStageSignalled( false ), mInheritOrientation( true ), mInheritScale( true ), mDrawMode( DrawMode::NORMAL ), mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ), mColorMode( Node::DEFAULT_COLOR_MODE )
+  mGestureData( NULL ),
+  mAttachment(),
+  mTargetSize( 0.0f, 0.0f, 0.0f ),
+  mName(),
+  mId( ++mActorCounter ), // actor ID is initialised to start from 1, and 0 is reserved
+  mIsRoot( ROOT_LAYER == derivedType ),
+  mIsRenderable( RENDERABLE == derivedType ),
+  mIsLayer( LAYER == derivedType || ROOT_LAYER == derivedType ),
+  mIsOnStage( false ),
+  mIsDynamicsRoot( false ),
+  mSensitive( true ),
+  mLeaveRequired( false ),
+  mKeyboardFocusable( false ),
+  mDerivedRequiresTouch( false ),
+  mDerivedRequiresHover( false ),
+  mDerivedRequiresMouseWheelEvent( false ),
+  mOnStageSignalled( false ),
+  mInsideOnSizeSet( false ),
+  mInheritOrientation( true ),
+  mInheritScale( true ),
+  mDrawMode( DrawMode::NORMAL ),
+  mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ),
+  mColorMode( Node::DEFAULT_COLOR_MODE )
 {
 }
 
@@ -3988,10 +4017,38 @@ bool Actor::IsLayoutNegotiated( Dimension::Type dimension ) const
   return false;
 }
 
-float Actor::CalculateChildSize( const Dali::Actor& child, Dimension::Type dimension )
+float Actor::GetHeightForWidthBase( float width )
 {
-  // Could be overridden in derived classes.
-  return CalculateChildSizeBase( child, dimension );
+  float height = 0.0f;
+
+  const Vector3 naturalSize = GetNaturalSize();
+  if( naturalSize.width > 0.0f )
+  {
+    height = naturalSize.height * width / naturalSize.width;
+  }
+  else // we treat 0 as 1:1 aspect ratio
+  {
+    height = width;
+  }
+
+  return height;
+}
+
+float Actor::GetWidthForHeightBase( float height )
+{
+  float width = 0.0f;
+
+  const Vector3 naturalSize = GetNaturalSize();
+  if( naturalSize.height > 0.0f )
+  {
+    width = naturalSize.width * height / naturalSize.height;
+  }
+  else // we treat 0 as 1:1 aspect ratio
+  {
+    width = height;
+  }
+
+  return width;
 }
 
 float Actor::CalculateChildSizeBase( const Dali::Actor& child, Dimension::Type dimension )
@@ -4021,32 +4078,22 @@ float Actor::CalculateChildSizeBase( const Dali::Actor& child, Dimension::Type d
   }
 }
 
+float Actor::CalculateChildSize( const Dali::Actor& child, Dimension::Type dimension )
+{
+  // Can be overridden in derived class
+  return CalculateChildSizeBase( child, dimension );
+}
+
 float Actor::GetHeightForWidth( float width )
 {
-  // Could be overridden in derived classes.
-  float height = 0.0f;
-
-  const Vector3 naturalSize = GetNaturalSize();
-  if( naturalSize.width > 0.0f )
-  {
-    height = naturalSize.height * width / naturalSize.width;
-  }
-
-  return height;
+  // Can be overridden in derived class
+  return GetHeightForWidthBase( width );
 }
 
 float Actor::GetWidthForHeight( float height )
 {
-  // Could be overridden in derived classes.
-  float width = 0.0f;
-
-  const Vector3 naturalSize = GetNaturalSize();
-  if( naturalSize.height > 0.0f )
-  {
-    width = naturalSize.width * height / naturalSize.height;
-  }
-
-  return width;
+  // Can be overridden in derived class
+  return GetWidthForHeightBase( height );
 }
 
 float Actor::GetLatestSize( Dimension::Type dimension ) const

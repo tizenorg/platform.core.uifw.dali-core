@@ -29,7 +29,7 @@ using namespace Dali;
 using Dali::Property;
 using Dali::Internal::PropertyImplementationType;
 
-Dali::GLenum GetPropertyImplementationSize( Property::Type& propertyType )
+Dali::GLenum GetPropertyImplementationGlType( Property::Type& propertyType )
 {
   Dali::GLenum type = GL_BYTE;
 
@@ -40,13 +40,14 @@ Dali::GLenum GetPropertyImplementationSize( Property::Type& propertyType )
     case Property::STRING:
     case Property::ARRAY:
     case Property::MAP:
+    case Property::RECTANGLE:
+    case Property::ROTATION:
     {
-      DALI_ASSERT_ALWAYS( "No type for properties with no type, or dynamic sizes" );
+      // types not supported by gl
       break;
     }
     case Property::BOOLEAN:
     {
-      DALI_ASSERT_ALWAYS( "" );
       type = GL_BYTE;
       break;
     }
@@ -57,47 +58,37 @@ Dali::GLenum GetPropertyImplementationSize( Property::Type& propertyType )
     }
     case Property::UNSIGNED_INTEGER:
     {
-      type = sizeof( PropertyImplementationType< Property::UNSIGNED_INTEGER >::Type );
+      type = GL_SHORT;
       break;
     }
     case Property::FLOAT:
     {
-      type = sizeof( PropertyImplementationType< Property::FLOAT >::Type );
+      type = GL_FLOAT;
       break;
     }
     case Property::VECTOR2:
     {
-      type = sizeof( PropertyImplementationType< Property::VECTOR2 >::Type );
+      type = GL_FLOAT;
       break;
     }
     case Property::VECTOR3:
     {
-      type = sizeof( PropertyImplementationType< Property::VECTOR3 >::Type );
+      type = GL_FLOAT;
       break;
     }
     case Property::VECTOR4:
     {
-      type = sizeof( PropertyImplementationType< Property::VECTOR4 >::Type );
+      type = GL_FLOAT;
       break;
     }
     case Property::MATRIX3:
     {
-      type = sizeof( PropertyImplementationType< Property::MATRIX3 >::Type );
+      type = GL_FLOAT;
       break;
     }
     case Property::MATRIX:
     {
-      type = sizeof( PropertyImplementationType< Property::MATRIX >::Type );
-      break;
-    }
-    case Property::RECTANGLE:
-    {
-      type = sizeof( PropertyImplementationType< Property::RECTANGLE >::Type );
-      break;
-    }
-    case Property::ROTATION:
-    {
-      type = sizeof( PropertyImplementationType< Property::ROTATION >::Type );
+      type = GL_FLOAT;
       break;
     }
   }
@@ -114,8 +105,8 @@ void UploadAttribute( Dali::Internal::Context& context,
 {
   // TODO: MESH_REWORK  Matrices need multiple calls to this function
   context.VertexAttribPointer( attributeLocation,
-                               attributeSize  / sizeof(Dali::Internal::GetPropertyImplementationSize(attributeType)),
-                               GL_FLOAT, // TODO: MESH_REWORK get the correct type
+                               attributeSize  / Dali::Internal::GetPropertyImplementationSize(attributeType),
+                               GetPropertyImplementationGlType(attributeType),
                                GL_FALSE,  // Not normalized
                                elementSize,
                                (void*)attributeOffset );

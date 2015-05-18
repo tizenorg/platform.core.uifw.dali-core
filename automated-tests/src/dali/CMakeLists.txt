@@ -17,6 +17,9 @@ SET(TC_SOURCES
         utc-Dali-BufferImage.cpp
         utc-Dali-CameraActor.cpp
         utc-Dali-Constrainer.cpp
+        utc-Dali-Constraint.cpp
+        utc-Dali-Constraints.cpp
+        utc-Dali-ConstraintSource.cpp
         utc-Dali-Context.cpp
         utc-Dali-ConnectionTracker.cpp
         utc-Dali-CustomActor.cpp

@@ -66,6 +66,8 @@ public:
    */
   void SetRenderDataProvider( RenderDataProvider* dataProviders );
 
+  void SetGeometryUpdated();
+
 public: // Implementation of Renderer
   /**
    * @copydoc SceneGraph::Renderer::RequiresDepthTest()

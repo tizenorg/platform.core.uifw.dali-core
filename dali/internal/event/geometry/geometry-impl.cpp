@@ -40,6 +40,7 @@ DALI_PROPERTY( "geometry-type",         STRING,   true, false,  true, Dali::Geom
 DALI_PROPERTY( "geometry-center",       VECTOR3,  true, true,   true, Dali::Geometry::Property::GEOMETRY_CENTER )
 DALI_PROPERTY( "geometry-half-extents", VECTOR3,  true, true,   true, Dali::Geometry::Property::GEOMETRY_HALF_EXTENTS )
 DALI_PROPERTY( "requires-depth-test",   BOOLEAN,  true, false,  true, Dali::Geometry::Property::REQUIRES_DEPTH_TEST )
+DALI_PROPERTY( "frustum-culled",        BOOLEAN,  true, false,  true, Dali::Geometry::Property::FRUSTUM_CULLED )
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> GEOMETRY_IMPL = { DEFAULT_PROPERTY_DETAILS };
@@ -193,6 +194,11 @@ void Geometry::SetDefaultProperty( Property::Index index,
       SceneGraph::DoubleBufferedPropertyMessage<bool>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mRequiresDepthTest, &SceneGraph::DoubleBufferedProperty<bool>::Set, propertyValue.Get<bool>() );
       break;
     }
+    case Dali::Geometry::Property::FRUSTUM_CULLED :
+    {
+      SceneGraph::DoubleBufferedPropertyMessage<bool>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mFrustumCull, &SceneGraph::DoubleBufferedProperty<bool>::Set, propertyValue.Get<bool>() );
+      break;
+    }
   }
 }
 
@@ -241,6 +247,14 @@ Property::Value Geometry::GetDefaultProperty( Property::Index index ) const
       if( mSceneObject )
       {
         value = mSceneObject->mRequiresDepthTest[bufferIndex];
+      }
+      break;
+    }
+    case Dali::Geometry::Property::FRUSTUM_CULLED :
+    {
+      if( mSceneObject )
+      {
+        value = mSceneObject->mFrustumCull[bufferIndex];
       }
       break;
     }

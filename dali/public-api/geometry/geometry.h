@@ -63,6 +63,7 @@ public:
       GEOMETRY_CENTER,                                      ///< name "geometry-center",        type VECTOR3
       GEOMETRY_HALF_EXTENTS,                                ///< name "geometry-half-extents",  type VECTOR3
       REQUIRES_DEPTH_TEST,                                  ///< name "requires-depth-testing", type BOOLEAN
+      FRUSTUM_CULLED,                                       ///> name "frustum-culled",         type BOOLEAN
     };
   };
 

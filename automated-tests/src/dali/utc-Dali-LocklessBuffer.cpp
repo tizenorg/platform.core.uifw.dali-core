@@ -19,7 +19,7 @@
 
 #include <stdlib.h>
 #include <dali/public-api/dali-core.h>
-#include <dali/integration-api/lockless-buffer.h>
+#include <dali/integration-api/common/lockless-buffer.h>
 #include <dali-test-suite-utils.h>
 
 using namespace Dali;

@@ -59,9 +59,19 @@ public:
   void SetGeometry( Geometry& geometry );
 
   /**
+   * @copydoc Dali::Renderer::GetGeometry()
+   */
+  GeometryPtr GetGeometry() const;
+
+  /**
    * @copydoc Dali::Renderer::SetMaterial()
    */
   void SetMaterial( Material& material );
+
+  /**
+   * @copydoc Dali::Renderer::GetMaterial()
+   */
+  MaterialPtr GetMaterial() const;
 
   /**
    * @copydoc Dali::Renderer::SetDepthIndex()

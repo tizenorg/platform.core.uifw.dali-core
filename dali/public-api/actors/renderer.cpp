@@ -62,10 +62,22 @@ void Renderer::SetGeometry( Geometry& geometry )
   GetImplementation(*this).SetGeometry( GetImplementation(geometry) );
 }
 
+Geometry Renderer::GetGeometry() const
+{
+  Internal::GeometryPtr geometryPtr( GetImplementation(*this).GetGeometry() );
+  return Dali::Geometry( geometryPtr.Get() );
+}
+
 void Renderer::SetMaterial( Material& material )
 {
   DALI_ASSERT_ALWAYS( material && "Material handle not initialized" );
   GetImplementation(*this).SetMaterial( GetImplementation(material) );
+}
+
+Material Renderer::GetMaterial() const
+{
+  Internal::MaterialPtr materialPtr( GetImplementation(*this).GetMaterial() );
+  return Dali::Material( materialPtr.Get() );
 }
 
 void Renderer::SetDepthIndex( int depthIndex )

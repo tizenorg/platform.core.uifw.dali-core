@@ -60,11 +60,21 @@ void Renderer::SetGeometry( Geometry& geometry )
   SetGeometryMessage( GetEventThreadServices(), *mSceneObject, *geometrySceneObject );
 }
 
+GeometryPtr Renderer::GetGeometry() const
+{
+  return mGeometryConnector.Get();
+}
+
 void Renderer::SetMaterial( Material& material )
 {
   mMaterialConnector.Set( material, OnStage() );
   const SceneGraph::Material* materialSceneObject = material.GetMaterialSceneObject();
   SetMaterialMessage( GetEventThreadServices(), *mSceneObject, *materialSceneObject );
+}
+
+MaterialPtr Renderer::GetMaterial() const
+{
+  return mMaterialConnector.Get();
 }
 
 void Renderer::SetDepthIndex( int depthIndex )

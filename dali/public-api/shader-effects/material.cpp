@@ -81,6 +81,12 @@ void Material::RemoveSampler( std::size_t index )
   GetImplementation(*this).RemoveSampler( index );
 }
 
+Sampler Material::GetSamplerAt( unsigned int index ) const
+{
+  Internal::SamplerPtr samplerPtr( GetImplementation(*this).GetSamplerAt(index) );
+  return Dali::Sampler( samplerPtr.Get() );
+}
+
 void Material::SetFaceCullingMode( FaceCullingMode cullingMode )
 {
   GetImplementation(*this).SetFaceCullingMode( cullingMode );

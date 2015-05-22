@@ -90,6 +90,11 @@ void Material::RemoveSampler( std::size_t index )
   mSamplerConnectors.erase( mSamplerConnectors.begin() + index );
 }
 
+SamplerPtr Material::GetSamplerAt( unsigned int index ) const
+{
+  return mSamplerConnectors[index].Get();
+}
+
 void Material::SetFaceCullingMode( Dali::Material::FaceCullingMode cullingMode )
 {
   if( NULL != mSceneObject )

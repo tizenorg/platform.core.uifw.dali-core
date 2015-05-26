@@ -82,7 +82,56 @@ int UtcDaliMaterialDownCast02(void)
   END_TEST;
 }
 
+int UtcDaliMaterialSetShader(void)
+{
+  TestApplication application;
 
+  tet_infoline("Test SetShader(shader) ");
+
+  Shader shader1 = Shader::New( "vertexSrc1", "fragmentSrc1" );
+  Property::Index colorIndex1 = shader1.RegisterProperty( "fade-color", Color::CYAN );
+  shader1.AddUniformMapping( colorIndex1, std::string("uFadeColor") );
+
+  Shader shader2 = Shader::New( "vertexSrc1", "fragmentSrc1" );
+  Property::Index colorIndex2 = shader2.RegisterProperty( "fade-color", Color::MAGENTA );
+  shader2.AddUniformMapping( colorIndex2, std::string("uFadeColor") );
+
+  // shader1
+  Material material = Material::New(shader1);
+
+  Geometry geometry = CreateQuadGeometry();
+  Renderer renderer = Renderer::New( geometry, material );
+
+  Actor actor = Actor::New();
+  actor.AddRenderer(renderer);
+  actor.SetSize(400, 400);
+  Stage::GetCurrent().Add(actor);
+
+  TestGlAbstraction& gl = application.GetGlAbstraction();
+  application.SendNotification();
+  application.Render(0);
+  Vector4 actualValue(Vector4::ZERO);
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
+  DALI_TEST_EQUALS( actualValue, Color::CYAN, TEST_LOCATION );
+
+  // shader2
+  material.SetShader( shader2 );
+
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
+  DALI_TEST_EQUALS( actualValue, Color::MAGENTA, TEST_LOCATION );
+
+  // shader1
+  material.SetShader( shader1 );
+
+  application.SendNotification();
+  application.Render(0);
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
+  DALI_TEST_EQUALS( actualValue, Color::CYAN, TEST_LOCATION );
+
+  END_TEST;
+}
 
 int UtcDaliMaterialBlendingOptions01(void)
 {
@@ -568,6 +617,98 @@ int UtcDaliMaterialSetBlendMode08(void)
   END_TEST;
 }
 
+int UtcDaliMaterialGetBlendMode(void)
+{
+  TestApplication application;
+
+  tet_infoline("Test GetBlendMode()");
+
+  Shader shader = Shader::New( "vertexSrc", "fragmentSrc", Shader::HINT_OUTPUT_IS_OPAQUE );
+  Material material = Material::New(shader);
+
+  // default value
+  DALI_TEST_EQUALS( material.GetBlendMode(), BlendingMode::OFF, TEST_LOCATION );
+
+  // AUTO
+  material.SetBlendMode(BlendingMode::AUTO);
+  DALI_TEST_EQUALS( material.GetBlendMode(), BlendingMode::AUTO, TEST_LOCATION );
+
+  // ON
+  material.SetBlendMode(BlendingMode::ON);
+  DALI_TEST_EQUALS( material.GetBlendMode(), BlendingMode::ON, TEST_LOCATION );
+
+  // OFF
+  material.SetBlendMode(BlendingMode::OFF);
+  DALI_TEST_EQUALS( material.GetBlendMode(), BlendingMode::OFF, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliMaterialSetBlendColor(void)
+{
+  TestApplication application;
+
+  tet_infoline("Test SetBlendColor(color)");
+
+  Geometry geometry = CreateQuadGeometry();
+  Shader shader = Shader::New( "vertexSrc", "fragmentSrc", Shader::HINT_OUTPUT_IS_OPAQUE );
+  Material material = Material::New(shader);
+  material.SetProperty(Material::Property::COLOR, Color::WHITE);
+  BufferImage image = BufferImage::New( 50, 50, Pixel::RGBA8888 );
+  Sampler sampler = Sampler::New( image, "sTexture" );
+  material.AddSampler( sampler );
+  Renderer renderer = Renderer::New( geometry, material );
+
+  Actor actor = Actor::New();
+  actor.AddRenderer(renderer);
+  actor.SetSize(400, 400);
+  Stage::GetCurrent().Add(actor);
+
+  TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
+  glAbstraction.EnableCullFaceCallTrace(true);
+
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( glAbstraction.GetLastBlendColor(), Color::WHITE, TEST_LOCATION );
+
+  material.SetBlendColor( Color::MAGENTA );
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( glAbstraction.GetLastBlendColor(), Color::MAGENTA, TEST_LOCATION );
+
+  Vector4 color( 0.1f, 0.2f, 0.3f, 0.4f );
+  material.SetBlendColor( color );
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( glAbstraction.GetLastBlendColor(), color, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliMaterialGetBlendColor(void)
+{
+  TestApplication application;
+
+  tet_infoline("Test GetBlendColor()");
+
+  Shader shader = Shader::New( "vertexSrc", "fragmentSrc", Shader::HINT_OUTPUT_IS_OPAQUE );
+  Material material = Material::New(shader);
+
+  DALI_TEST_EQUALS( material.GetBlendColor(), Color::WHITE, TEST_LOCATION );
+
+  material.SetBlendColor( Color::MAGENTA );
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( material.GetBlendColor(), Color::MAGENTA, TEST_LOCATION );
+
+  Vector4 color( 0.1f, 0.2f, 0.3f, 0.4f );
+  material.SetBlendColor( color );
+  application.SendNotification();
+  application.Render();
+  DALI_TEST_EQUALS( material.GetBlendColor(), color, TEST_LOCATION );
+
+  END_TEST;
+}
 
 int UtcDaliMaterialConstraint01(void)
 {

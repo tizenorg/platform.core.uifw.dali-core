@@ -88,6 +88,35 @@ int UtcDaliPropertyBufferDownCast02(void)
   END_TEST;
 }
 
+int UtcDaliPropertyBufferCopyConstructor(void)
+{
+  TestApplication application;
+
+  PropertyBuffer propertyBuffer = CreatePropertyBuffer();
+
+  PropertyBuffer propertyBufferCopy(propertyBuffer);
+
+  DALI_TEST_EQUALS( (bool)propertyBufferCopy, true, TEST_LOCATION );
+  DALI_TEST_EQUALS( propertyBufferCopy.GetSize(), 4u, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliPropertyBufferAssignmentOperator(void)
+{
+  TestApplication application;
+
+  PropertyBuffer propertyBuffer = CreatePropertyBuffer();
+
+  PropertyBuffer propertyBuffer2;
+  DALI_TEST_EQUALS( (bool)propertyBuffer2, false, TEST_LOCATION );
+
+  propertyBuffer2 = propertyBuffer;
+  DALI_TEST_EQUALS( (bool)propertyBuffer2, true, TEST_LOCATION );
+  DALI_TEST_EQUALS( propertyBuffer2.GetSize(), 4u, TEST_LOCATION );
+
+  END_TEST;
+}
 
 int UtcDaliPropertyBufferConstraint01(void)
 {
@@ -135,67 +164,6 @@ int UtcDaliPropertyBufferConstraint01(void)
   END_TEST;
 }
 
-int UtcDaliPropertyBufferConstraint02(void)
-{
-  TestApplication application;
-
-  tet_infoline("Test that a uniform map propertyBuffer property can be constrained");
-
-  Shader shader = Shader::New( "VertexSource", "FragmentSource" );
-  Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
-
-  PropertyBuffer propertyBuffer = CreatePropertyBuffer();
-  Geometry geometry = CreateQuadGeometryFromBuffer(propertyBuffer);
-  Renderer renderer = Renderer::New( geometry, material );
-
-  Actor actor = Actor::New();
-  actor.AddRenderer(renderer);
-  actor.SetSize(400, 400);
-  Stage::GetCurrent().Add(actor);
-  application.SendNotification();
-  application.Render(0);
-
-  Vector4 initialColor = Color::WHITE;
-  Property::Index colorIndex = propertyBuffer.RegisterProperty( "fade-color", initialColor );
-  propertyBuffer.AddUniformMapping( colorIndex, std::string("uFadeColor") );
-
-  TestGlAbstraction& gl = application.GetGlAbstraction();
-
-  application.SendNotification();
-  application.Render(0);
-
-  Vector4 actualValue(Vector4::ZERO);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, initialColor, TEST_LOCATION );
-
-  // Apply constraint
-  Constraint constraint = Constraint::New<Vector4>( propertyBuffer, colorIndex, TestConstraintNoBlue );
-  constraint.Apply();
-  application.SendNotification();
-  application.Render(0);
-
-   // Expect no blue component in either buffer - yellow
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::YELLOW, TEST_LOCATION );
-
-  application.Render(0);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::YELLOW, TEST_LOCATION );
-
-  propertyBuffer.RemoveConstraints();
-  propertyBuffer.SetProperty(colorIndex, Color::WHITE );
-  application.SendNotification();
-  application.Render(0);
-
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::WHITE, TEST_LOCATION );
-
-  END_TEST;
-}
-
-
-
 int UtcDaliPropertyBufferAnimatedProperty01(void)
 {
   TestApplication application;
@@ -237,60 +205,6 @@ int UtcDaliPropertyBufferAnimatedProperty01(void)
   application.Render(500);
 
   DALI_TEST_EQUALS( propertyBuffer.GetProperty<Vector4>(colorIndex), Color::TRANSPARENT, TEST_LOCATION );
-
-  END_TEST;
-}
-
-int UtcDaliPropertyBufferAnimatedProperty02(void)
-{
-  TestApplication application;
-
-  tet_infoline("Test that a uniform map propertyBuffer property can be animated");
-
-  Shader shader = Shader::New("VertexSource", "FragmentSource");
-  Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
-
-  PropertyBuffer propertyBuffer = CreatePropertyBuffer();
-  Geometry geometry = CreateQuadGeometryFromBuffer(propertyBuffer);
-  Renderer renderer = Renderer::New( geometry, material );
-
-  Actor actor = Actor::New();
-  actor.AddRenderer(renderer);
-  actor.SetSize(400, 400);
-  Stage::GetCurrent().Add(actor);
-  application.SendNotification();
-  application.Render(0);
-
-  Vector4 initialColor = Color::WHITE;
-  Property::Index colorIndex = propertyBuffer.RegisterProperty( "fade-color", initialColor );
-  propertyBuffer.AddUniformMapping( colorIndex, std::string("uFadeColor") );
-
-  TestGlAbstraction& gl = application.GetGlAbstraction();
-
-  application.SendNotification();
-  application.Render(0);
-
-  Vector4 actualValue(Vector4::ZERO);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, initialColor, TEST_LOCATION );
-
-  Animation  animation = Animation::New(1.0f);
-  KeyFrames keyFrames = KeyFrames::New();
-  keyFrames.Add(0.0f, initialColor);
-  keyFrames.Add(1.0f, Color::TRANSPARENT);
-  animation.AnimateBetween( Property( propertyBuffer, colorIndex ), keyFrames );
-  animation.Play();
-
-  application.SendNotification();
-  application.Render(500);
-
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::WHITE * 0.5f, TEST_LOCATION );
-
-  application.Render(500);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::TRANSPARENT, TEST_LOCATION );
 
   END_TEST;
 }
@@ -409,7 +323,7 @@ int UtcDaliPropertyBufferSetData02(void)
   END_TEST;
 }
 
-int UtcDaliPropertyBufferSetSize01(void)
+int UtcDaliPropertyBufferSetGetSize01(void)
 {
   TestApplication application;
 
@@ -426,6 +340,32 @@ int UtcDaliPropertyBufferSetSize01(void)
   propertyBuffer.SetSize( 10u );
   size = propertyBuffer.GetSize();
   DALI_TEST_EQUALS( size, 10u, TEST_LOCATION );
+
+  END_TEST;
+}
+
+//Todo: also test that the SetSize function is equivalent to setting the property SIZE
+int UtcDaliPropertyBufferSetGetSize02(void)
+{
+  TestApplication application;
+
+  Property::Map texturedQuadVertexFormat;
+  texturedQuadVertexFormat["aPosition"] = Property::VECTOR2;
+  texturedQuadVertexFormat["aVertexCoord"] = Property::VECTOR2;
+
+  unsigned int size = 5u;
+  PropertyBuffer propertyBuffer = PropertyBuffer::New( texturedQuadVertexFormat, size );
+  DALI_TEST_EQUALS( propertyBuffer.GetProperty<unsigned int>(PropertyBuffer::Property::SIZE), size, TEST_LOCATION );
+  DALI_TEST_EQUALS( propertyBuffer.GetSize(), size, TEST_LOCATION );
+
+  size += 3u;
+  propertyBuffer.SetSize( size );
+  DALI_TEST_EQUALS( propertyBuffer.GetProperty<unsigned int>(PropertyBuffer::Property::SIZE), size, TEST_LOCATION );
+  DALI_TEST_EQUALS( propertyBuffer.GetSize(), size, TEST_LOCATION );
+
+  size += 2u;
+  propertyBuffer.SetProperty(PropertyBuffer::Property::SIZE, size );
+  DALI_TEST_EQUALS( propertyBuffer.GetSize(), size, TEST_LOCATION );
 
   END_TEST;
 }

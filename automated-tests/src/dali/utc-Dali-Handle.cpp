@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <dali/public-api/dali-core.h>
 #include "dali-test-suite-utils/dali-test-suite-utils.h"
+#include <mesh-builder.h>
 
 using namespace Dali;
 
@@ -800,5 +801,113 @@ int UtcDaliHandleCustomProperty(void)
   DALI_TEST_CHECK( handle.GetProperty<float>(index) == 5.0f );
   application.Render(0);
   DALI_TEST_CHECK( handle.GetProperty<float>(index) == 5.0f );
+  END_TEST;
+}
+
+int UctDaliHandleAddRemoveUniformMapping(void)
+{
+  TestApplication application;
+  Image image = BufferImage::New( 64, 64, Pixel::RGBA8888 );
+  Sampler sampler = Sampler::New(image, "sTexture");
+  sampler.SetUniformName( "sEffectTexture" );
+
+  Shader shader = Shader::New("VertexSource", "FragmentSource");
+  Material material = Material::New( shader );
+  material.AddSampler( sampler );
+  material.SetProperty(Material::Property::COLOR, Color::WHITE);
+
+  PropertyBuffer vertexBuffer = CreatePropertyBuffer();
+  Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
+  Renderer renderer = Renderer::New( geometry, material );
+
+  Actor actor = Actor::New();
+  actor.AddRenderer(renderer);
+  actor.SetSize(400, 400);
+  Stage::GetCurrent().Add(actor);
+  application.SendNotification();
+  application.Render(0);
+
+  std::string fadeColorUniformName("uFadeColor");
+
+  Property::Index rendererFadeColorIndex = renderer.RegisterProperty( "fade-color-a", Color::RED );
+  renderer.AddUniformMapping( rendererFadeColorIndex, fadeColorUniformName );
+
+  Property::Index actorFadeColorIndex = actor.RegisterProperty( "fade-color-b", Color::GREEN );
+  actor.AddUniformMapping( actorFadeColorIndex, fadeColorUniformName );
+
+  Property::Index materialFadeColorIndex = material.RegisterProperty( "fade-color-c", Color::BLUE );
+  material.AddUniformMapping( materialFadeColorIndex, fadeColorUniformName );
+
+  Property::Index samplerFadeColorIndex = sampler.RegisterProperty( "fade-color-d", Color::CYAN );
+  sampler.AddUniformMapping( samplerFadeColorIndex, fadeColorUniformName );
+
+  Property::Index shaderFadeColorIndex = shader.RegisterProperty( "fade-color-e", Color::MAGENTA );
+  shader.AddUniformMapping( shaderFadeColorIndex, fadeColorUniformName );
+
+  Property::Index geometryFadeColorIndex = geometry.RegisterProperty( "fade-color-f", Color::YELLOW );
+  geometry.AddUniformMapping( geometryFadeColorIndex, fadeColorUniformName );
+
+  Property::Index vertexFadeColorIndex = vertexBuffer.RegisterProperty( "fade-color-g", Color::BLACK );
+  vertexBuffer.AddUniformMapping( vertexFadeColorIndex, fadeColorUniformName );
+
+
+  TestGlAbstraction& gl = application.GetGlAbstraction();
+
+  application.SendNotification();
+  application.Render(0);
+
+  // Expect that the renderer's fade color property is accessed
+  Vector4 actualValue(Vector4::ZERO);
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
+  DALI_TEST_EQUALS( actualValue, Color::RED, TEST_LOCATION );
+
+  //------remove the uniform mapping from renderer
+  renderer.RemoveUniformMapping(fadeColorUniformName);
+  application.SendNotification();
+  application.Render(0);
+  // Expect that the actor's fade color property is accessed
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
+  DALI_TEST_EQUALS( actualValue, Color::GREEN, TEST_LOCATION );
+
+  //------remove the uniform mapping from actor
+  actor.RemoveUniformMapping(fadeColorUniformName);
+  application.SendNotification();
+  application.Render(0);
+  // Expect that the material's fade color property is accessed
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
+  DALI_TEST_EQUALS( actualValue, Color::BLUE, TEST_LOCATION );
+
+  //------remove the uniform mapping from material
+  material.RemoveUniformMapping(fadeColorUniformName);
+  application.SendNotification();
+  application.Render(0);
+  // Expect that the sampler's fade color property is accessed
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
+  DALI_TEST_EQUALS( actualValue, Color::CYAN, TEST_LOCATION );
+
+  //------remove the uniform mapping from sampler
+  sampler.RemoveUniformMapping(fadeColorUniformName);
+  application.SendNotification();
+  application.Render(0);
+  // Expect that the shader's fade color property is accessed
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
+  DALI_TEST_EQUALS( actualValue, Color::MAGENTA, TEST_LOCATION );
+
+  //------remove the uniform mapping from shader
+  shader.RemoveUniformMapping(fadeColorUniformName);
+  application.SendNotification();
+  application.Render(0);
+  // Expect that the geometry's fade color property is accessed
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
+  DALI_TEST_EQUALS( actualValue, Color::YELLOW, TEST_LOCATION );
+
+  //------remove the uniform mapping from geometry
+  geometry.RemoveUniformMapping(fadeColorUniformName);
+  application.SendNotification();
+  application.Render(0);
+  // Expect that the vertexBuffer's fade color property is accessed
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
+  DALI_TEST_EQUALS( actualValue, Color::BLACK, TEST_LOCATION );
+
   END_TEST;
 }

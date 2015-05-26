@@ -364,6 +364,35 @@ int UtcDaliPropertyNotificationGetNotifyMode(void)
   END_TEST;
 }
 
+int UtcDaliPropertyNotificationGetNotifyResult(void)
+{
+  TestApplication application;
+  tet_infoline(" UtcDaliPropertyNotificationGetNotifyMode");
+
+  Actor actor = Actor::New();
+
+  PropertyNotification notification = actor.AddPropertyNotification(Actor::Property::POSITION_X,
+                                                                    GreaterThanCondition(100.0f));
+  notification.SetNotifyMode(PropertyNotification::NotifyOnChanged);
+  notification.NotifySignal().Connect( &TestCallback );
+
+  actor.SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+  Wait(application, DEFAULT_WAIT_PERIOD);
+
+  bool notifyResult = notification.GetNotifyResult();
+
+  DALI_TEST_EQUALS( notifyResult, false, TEST_LOCATION );
+
+  // actor.SetPosition(Vector3(101.0f, 0.0f, 0.0f));
+  // Wait(application, DEFAULT_WAIT_PERIOD);
+
+  // notifyResult = notification.GetNotifyResult();
+
+  // DALI_TEST_EQUALS( notifyResult, true, TEST_LOCATION );
+
+  END_TEST;
+}
+
 int UtcDaliPropertyNotificationGreaterThan(void)
 {
   TestApplication application;

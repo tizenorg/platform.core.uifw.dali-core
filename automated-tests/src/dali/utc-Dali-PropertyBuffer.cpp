@@ -90,6 +90,35 @@ int UtcDaliPropertyBufferDownCast02(void)
   END_TEST;
 }
 
+int UtcDaliPropertyBufferCopyConstructor(void)
+{
+  TestApplication application;
+
+  PropertyBuffer propertyBuffer = CreatePropertyBuffer();
+
+  PropertyBuffer propertyBufferCopy(propertyBuffer);
+
+  DALI_TEST_EQUALS( (bool)propertyBufferCopy, true, TEST_LOCATION );
+  DALI_TEST_EQUALS( propertyBufferCopy.GetSize(), 4, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliPropertyBufferAssignmentOperator(void)
+{
+  TestApplication application;
+
+  PropertyBuffer propertyBuffer = CreatePropertyBuffer();
+
+  PropertyBuffer propertyBuffer2;
+  DALI_TEST_EQUALS( (bool)propertyBuffer2, false, TEST_LOCATION );
+
+  propertyBuffer2 = propertyBuffer;
+  DALI_TEST_EQUALS( (bool)propertyBuffer2, true, TEST_LOCATION );
+  DALI_TEST_EQUALS( propertyBuffer2.GetSize(), 4, TEST_LOCATION );
+
+  END_TEST;
+}
 
 int UtcDaliPropertyBufferConstraint01(void)
 {
@@ -413,7 +442,7 @@ int UtcDaliPropertyBufferSetData02(void)
   END_TEST;
 }
 
-int UtcDaliPropertyBufferSetSize01(void)
+int UtcDaliPropertyBufferSetGetSize01(void)
 {
   TestApplication application;
 
@@ -435,4 +464,31 @@ int UtcDaliPropertyBufferSetSize01(void)
 
   END_TEST;
 }
+
+//Todo: also test that the SetSize function is equivalent to setting the property SIZE
+/*int UtcDaliPropertyBufferSetGetSize02(void)git s
+{
+  TestApplication application;
+
+  Property::Map texturedQuadVertexFormat;
+  texturedQuadVertexFormat["aPosition"] = Property::VECTOR2;
+  texturedQuadVertexFormat["aVertexCoord"] = Property::VECTOR2;
+
+  unsigned int size = 5u;
+  PropertyBuffer propertyBuffer = PropertyBuffer::New( PropertyBuffer::STATIC,
+                                                       texturedQuadVertexFormat, size );
+  DALI_TEST_EQUALS( propertyBuffer.GetProperty<unsigned int>(PropertyBuffer::Property::SIZE), size, TEST_LOCATION );
+  DALI_TEST_EQUALS( propertyBuffer.GetSize(), size, TEST_LOCATION );
+
+  size += 3u;
+  propertyBuffer.SetSize( size );
+  DALI_TEST_EQUALS( propertyBuffer.GetProperty<unsigned int>(PropertyBuffer::Property::SIZE), size, TEST_LOCATION );
+  DALI_TEST_EQUALS( propertyBuffer.GetSize(), size, TEST_LOCATION );
+
+  size += 2u;
+  propertyBuffer.SetProperty(PropertyBuffer::Property::SIZE, size );
+  DALI_TEST_EQUALS( propertyBuffer.GetSize(), size, TEST_LOCATION );
+
+  END_TEST;
+}*/
 

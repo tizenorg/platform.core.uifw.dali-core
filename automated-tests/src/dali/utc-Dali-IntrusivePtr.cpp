@@ -340,6 +340,8 @@ int UtcDaliIntrusivePtrResetTN(void)
   END_TEST;
 }
 
+
+
 int UtcDaliIntrusivePtrOperatorBooleanTypeP(void)
 {
   tet_infoline( "Positive Test for Dali::IntrusivePtr::operator Booleantype()" );
@@ -347,6 +349,11 @@ int UtcDaliIntrusivePtrOperatorBooleanTypeP(void)
   IntrusivePtr<Counted> counted( new Counted );
   DALI_TEST_CHECK( counted.operator BooleanType() != 0 );
   DALI_TEST_CHECK( counted );
+
+  typedef void (IntrusivePtr<Counted>::*BoolIdiomFunc)() const;
+  BoolIdiomFunc func = static_cast<BoolIdiomFunc>( counted.operator BooleanType() );
+  ((counted).*func)(); // purely for test coverage
+
   counted.Reset();
   DALI_TEST_CHECK( counted.operator BooleanType() == 0 );
 

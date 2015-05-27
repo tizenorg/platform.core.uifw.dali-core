@@ -116,6 +116,28 @@ int UtcDaliVector2CopyConstructor03P(void)
   END_TEST;
 }
 
+int UtcDaliVector2AssignP(void)
+{
+  TestApplication application;
+  Vector2 v1(10.0f, 20.0f);
+  Vector2 r0(11.0f, 22.0f);
+
+  v1 = r0;
+  DALI_TEST_EQUALS(v1, r0, TEST_LOCATION);
+  END_TEST;
+}
+
+int UtcDaliVector2AssignP02(void)
+{
+  TestApplication application;
+  Vector2 v1(10.0f, 20.0f);
+  Vector4 r0(11.0f, 22.0f, 33.f, 44.f);
+
+  v1 = r0;
+  DALI_TEST_EQUALS(v1, Vector2(r0.x, r0.y), TEST_LOCATION);
+  END_TEST;
+}
+
 int UtcDaliVector2AddP(void)
 {
   TestApplication application;

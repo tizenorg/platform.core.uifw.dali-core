@@ -111,6 +111,16 @@ public:
    */
   void RemoveConnectionObserver(ConnectionChangePropagator::Observer& observer);
 
+  /**
+   * @brief Determine if object should be frustum culled.
+   *
+   * @return Whether object is frustum culled or not?
+   */
+  bool IsFrustumCulled( BufferIndex bufferIndex ) const
+  {
+    return mFrustumCull[ bufferIndex ];
+  }
+
 public: // UniformMap::Observer
   /**
    * @copydoc UniformMap::Observer::UniformMappingsChanged
@@ -150,15 +160,25 @@ protected: // From PropertyOwner
   virtual void ResetDefaultProperties( BufferIndex updateBufferIndex );
 
 private:
+
+  /**
+   * @brief Calculate the extents of geometry contained in a vertex buffer.
+   *
+   * @param[in] vertexBuffer pointer to a vertex buffer.
+   */
+  void CalculateExtents( PropertyBuffer* vertexBuffer );
+
   Vector<PropertyBuffer*> mVertexBuffers; ///< The vertex buffers
   PropertyBuffer* mIndexBuffer;  ///< The index buffer if required
   ConnectionChangePropagator mConnectionObservers;
 
 public: // Properties
-  AnimatableProperty<Vector3>  mCenter;
-  AnimatableProperty<Vector3>  mHalfExtents;
-  DoubleBufferedProperty<int>  mGeometryType;
-  DoubleBufferedProperty<bool> mRequiresDepthTest;
+  AnimatableProperty<Vector3>   mCenter;
+  AnimatableProperty<Vector3>   mHalfExtents;
+  AnimatableProperty<float>     mRadius;
+  DoubleBufferedProperty<int>   mGeometryType;
+  DoubleBufferedProperty<bool>  mRequiresDepthTest;
+  DoubleBufferedProperty<bool>  mFrustumCull;
 };
 
 inline void AddVertexBufferMessage( EventThreadServices& eventThreadServices , const Geometry& geometry, const PropertyBuffer& vertexBuffer )

@@ -574,6 +574,20 @@ int UtcDaliTypeRegistryAssignmentOperatorP(void)
   END_TEST;
 }
 
+int UtcDaliTypeRegistryAssignP(void)
+{
+  TestApplication application;
+
+  TypeRegistry registry = TypeRegistry::Get();
+  TypeRegistry registry2;
+  registry2 = registry;
+  DALI_TEST_CHECK( registry2 );
+
+  DALI_TEST_CHECK( registry.GetTypeInfo( "Actor" ).GetName() == copy.GetTypeInfo( "Actor" ).GetName() );
+
+  END_TEST;
+}
+
 int UtcDaliTypeRegistryGetTypeInfoFromTypeNameP(void)
 {
   TestApplication application;

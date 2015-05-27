@@ -347,6 +347,9 @@ int UtcDaliIntrusivePtrOperatorBooleanTypeP(void)
   IntrusivePtr<Counted> counted( new Counted );
   DALI_TEST_CHECK( counted.operator BooleanType() != 0 );
   DALI_TEST_CHECK( counted );
+
+  static_cast< void (IntrusivePtr<Counted>::boolIdiomFunc*)()>(counted)(); // for coverage
+
   counted.Reset();
   DALI_TEST_CHECK( counted.operator BooleanType() == 0 );
 

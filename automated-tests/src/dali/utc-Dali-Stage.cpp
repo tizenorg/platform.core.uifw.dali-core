@@ -206,6 +206,17 @@ int UtcDaliStageGetCurrent(void)
   END_TEST;
 }
 
+int UtcDaliStageAssign(void)
+{
+  TestApplication application;
+  Stage stage = Stage::GetCurrent();
+  Stage stage2;
+  stage2 = stage;
+
+  DALI_TEST_CHECK(stage2);
+  END_TEST;
+}
+
 int UtcDaliStageIsInstalled(void)
 {
   DALI_TEST_CHECK(!Stage::IsInstalled());

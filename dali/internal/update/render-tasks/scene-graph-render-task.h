@@ -26,6 +26,7 @@
 #include <dali/internal/event/common/event-thread-services.h>
 #include <dali/internal/update/common/property-owner.h>
 #include <dali/internal/update/common/animatable-property.h>
+#include <dali/internal/update/node-attachments/scene-graph-camera-attachment.h>
 
 namespace Dali
 {
@@ -279,6 +280,14 @@ public:
    * @return The view-matrix.
    */
   const Matrix& GetViewMatrix( BufferIndex bufferIndex ) const;
+
+  /**
+   * @brief Retrieve the camera attachment.
+   * @pre GetCameraNode() returns a node with valid CameraAttachment.
+   *
+   * @return The camera attachment.
+   */
+  SceneGraph::CameraAttachment& GetCameraAttachment() const;
 
   /**
    * Retrieve the projection-matrix; this is double buffered for input handling.

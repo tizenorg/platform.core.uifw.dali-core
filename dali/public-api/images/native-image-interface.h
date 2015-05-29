@@ -85,6 +85,16 @@ public:
   */
   virtual bool RequiresBlending() const = 0;
 
+  /**
+   * @brief Retrieve the extension for the interface.
+   *
+   * @return The extension if available, NULL otherwise
+   */
+  virtual Extension* GetExtension()
+  {
+    return NULL;
+  }
+
 protected:
 
   /**

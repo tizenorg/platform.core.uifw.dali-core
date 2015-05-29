@@ -301,7 +301,7 @@ Property::Value::Value(const Value& value)
     case Property::ROTATION:
     {
       // Orientations have two representations
-      DALI_ASSERT_DEBUG( typeid(Quaternion) == value.mImpl->mValue.GetType() ||
+      DALI_ASSERT_ALWAYS( typeid(Quaternion) == value.mImpl->mValue.GetType() ||
                          typeid(AngleAxis)  == value.mImpl->mValue.GetType() );
 
       if ( typeid(Quaternion) == value.mImpl->mValue.GetType() )
@@ -514,7 +514,7 @@ Property::Value& Property::Value::operator=(const Property::Value& value)
     case Property::ROTATION:
     {
       // Orientations have two representations
-      DALI_ASSERT_DEBUG( typeid(Quaternion) == value.mImpl->mValue.GetType() ||
+      DALI_ASSERT_ALWAYS( typeid(Quaternion) == value.mImpl->mValue.GetType() ||
                          typeid(AngleAxis)  == value.mImpl->mValue.GetType() );
 
       if ( typeid(Quaternion) == value.mImpl->mValue.GetType() )
@@ -576,68 +576,68 @@ Property::Type Property::Value::GetType() const
 
 void Property::Value::Get(bool& boolValue) const
 {
-  DALI_ASSERT_DEBUG( Property::BOOLEAN == GetType() && "Property type invalid" );  // AnyCast does asserted type checking
+  DALI_ASSERT_ALWAYS( Property::BOOLEAN == GetType() && "Property type invalid" );  // AnyCast does asserted type checking
 
   boolValue = AnyCast<bool>(mImpl->mValue);
 }
 
 void Property::Value::Get(float& floatValue) const
 {
-  DALI_ASSERT_DEBUG( Property::FLOAT == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::FLOAT == GetType() && "Property type invalid" );
 
   floatValue = AnyCast<float>(mImpl->mValue);
 }
 
 void Property::Value::Get(int& integerValue) const
 {
-  DALI_ASSERT_DEBUG( Property::INTEGER == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::INTEGER == GetType() && "Property type invalid" );
 
   integerValue = AnyCast<int>(mImpl->mValue);
 }
 
 void Property::Value::Get(unsigned int& unsignedIntegerValue) const
 {
-  DALI_ASSERT_DEBUG( Property::UNSIGNED_INTEGER == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::UNSIGNED_INTEGER == GetType() && "Property type invalid" );
 
   unsignedIntegerValue = AnyCast<unsigned int>(mImpl->mValue);
 }
 
 void Property::Value::Get(Vector2& vectorValue) const
 {
-  DALI_ASSERT_DEBUG( Property::VECTOR2 == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::VECTOR2 == GetType() && "Property type invalid" );
 
   vectorValue = AnyCast<Vector2>(mImpl->mValue);
 }
 
 void Property::Value::Get(Vector3& vectorValue) const
 {
-  DALI_ASSERT_DEBUG( Property::VECTOR3 == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::VECTOR3 == GetType() && "Property type invalid" );
 
   vectorValue = AnyCast<Vector3>(mImpl->mValue);
 }
 
 void Property::Value::Get(Vector4& vectorValue) const
 {
-  DALI_ASSERT_DEBUG( Property::VECTOR4 == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::VECTOR4 == GetType() && "Property type invalid" );
 
   vectorValue = AnyCast<Vector4>(mImpl->mValue);
 }
 
 void Property::Value::Get(Matrix3& matrixValue) const
 {
-  DALI_ASSERT_DEBUG( Property::MATRIX3 == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::MATRIX3 == GetType() && "Property type invalid" );
   matrixValue = AnyCast<Matrix3>(mImpl->mValue);
 }
 
 void Property::Value::Get(Matrix& matrixValue) const
 {
-  DALI_ASSERT_DEBUG( Property::MATRIX == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::MATRIX == GetType() && "Property type invalid" );
   matrixValue = AnyCast<Matrix>(mImpl->mValue);
 }
 
 void Property::Value::Get(Rect<int>& rect) const
 {
-  DALI_ASSERT_DEBUG( Property::RECTANGLE == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::RECTANGLE == GetType() && "Property type invalid" );
 
   rect = AnyCast<Rect<int> >(mImpl->mValue);
 }
@@ -647,7 +647,7 @@ void Property::Value::Get(AngleAxis& angleAxisValue) const
   DALI_ASSERT_ALWAYS( Property::ROTATION == GetType() && "Property type invalid" );
 
   // Orientations have two representations
-  DALI_ASSERT_DEBUG( typeid(Quaternion) == mImpl->mValue.GetType() ||
+  DALI_ASSERT_ALWAYS( typeid(Quaternion) == mImpl->mValue.GetType() ||
                      typeid(AngleAxis)  == mImpl->mValue.GetType() );
 
   if ( typeid(Quaternion) == mImpl->mValue.GetType() )
@@ -664,10 +664,10 @@ void Property::Value::Get(AngleAxis& angleAxisValue) const
 
 void Property::Value::Get(Quaternion& quaternionValue) const
 {
-  DALI_ASSERT_DEBUG( Property::ROTATION == GetType() && "Property type invalid" );
+  DALI_ASSERT_ALWAYS( Property::ROTATION == GetType() && "Property type invalid" );
 
   // Orientations have two representations
-  DALI_ASSERT_DEBUG( typeid(Quaternion) == mImpl->mValue.GetType() ||
+  DALI_ASSERT_ALWAYS( typeid(Quaternion) == mImpl->mValue.GetType() ||
                typeid(AngleAxis)  == mImpl->mValue.GetType() );
 
   if ( typeid(Quaternion) == mImpl->mValue.GetType() )
@@ -684,32 +684,32 @@ void Property::Value::Get(Quaternion& quaternionValue) const
 
 void Property::Value::Get(std::string &out) const
 {
-  DALI_ASSERT_DEBUG(Property::STRING == GetType() && "Property type invalid");
+  DALI_ASSERT_ALWAYS(Property::STRING == GetType() && "Property type invalid");
 
   out = AnyCast<std::string>(mImpl->mValue);
 }
 
 void Property::Value::Get(Property::Array &out) const
 {
-  DALI_ASSERT_DEBUG(Property::ARRAY == GetType() && "Property type invalid");
+  DALI_ASSERT_ALWAYS(Property::ARRAY == GetType() && "Property type invalid");
 
   out = AnyCast<Property::Array>(mImpl->mValue);
 }
 
 void Property::Value::Get(Property::Map &out) const
 {
-  DALI_ASSERT_DEBUG(Property::MAP == GetType() && "Property type invalid");
+  DALI_ASSERT_ALWAYS(Property::MAP == GetType() && "Property type invalid");
 
   out = AnyCast<Property::Map>(mImpl->mValue);
 }
 
 Property::Value& Property::Value::GetValue(const std::string& key) const
 {
-  DALI_ASSERT_DEBUG(Property::MAP == GetType() && "Property type invalid");
+  DALI_ASSERT_ALWAYS(Property::MAP == GetType() && "Property type invalid");
 
   Property::Map *container = AnyCast<Property::Map>(&(mImpl->mValue));
 
-  DALI_ASSERT_DEBUG(container);
+  DALI_ASSERT_ALWAYS(container);
 
   if(container)
   {
@@ -732,7 +732,7 @@ bool Property::Value::HasKey(const std::string& key) const
   {
     Property::Map *container = AnyCast<Property::Map>(&(mImpl->mValue));
 
-    DALI_ASSERT_DEBUG(container && "Property::Map has no container?");
+    DALI_ASSERT_ALWAYS(container && "Property::Map has no container?");
 
     if(container)
     {
@@ -755,7 +755,7 @@ const std::string& Property::Value::GetKey(const int index) const
     case Property::MAP:
     {
       Property::Map *container = AnyCast<Property::Map>(&(mImpl->mValue));
-      DALI_ASSERT_DEBUG(container && "Property::Map has no container?");
+      DALI_ASSERT_ALWAYS(container && "Property::Map has no container?");
       if(container)
       {
         if(0 <= index && index < static_cast<int>(container->Count()))
@@ -794,7 +794,7 @@ const std::string& Property::Value::GetKey(const int index) const
 
 void Property::Value::SetValue(const std::string& key, const Property::Value &value)
 {
-  DALI_ASSERT_DEBUG(Property::MAP == GetType() && "Property type invalid");
+  DALI_ASSERT_ALWAYS(Property::MAP == GetType() && "Property type invalid");
 
   Property::Map *container = AnyCast<Property::Map>(&(mImpl->mValue));
 
@@ -812,7 +812,7 @@ Property::Value& Property::Value::GetItem(const int index) const
     {
       Property::Map *container = AnyCast<Property::Map>(&(mImpl->mValue));
 
-      DALI_ASSERT_DEBUG(container && "Property::Map has no container?");
+      DALI_ASSERT_ALWAYS(container && "Property::Map has no container?");
       if(container)
       {
         DALI_ASSERT_ALWAYS(index < static_cast<int>(container->Count()) && "Property array index invalid");
@@ -827,7 +827,7 @@ Property::Value& Property::Value::GetItem(const int index) const
     {
       Property::Array *container = AnyCast<Property::Array>(&(mImpl->mValue));
 
-      DALI_ASSERT_DEBUG(container && "Property::Map has no container?");
+      DALI_ASSERT_ALWAYS(container && "Property::Map has no container?");
       if(container)
       {
         DALI_ASSERT_ALWAYS(index < static_cast<int>(container->Size()) && "Property array index invalid");
@@ -927,7 +927,7 @@ void Property::Value::SetItem(const int index, const Property::Value &value)
 
 int Property::Value::AppendItem(const Property::Value &value)
 {
-  DALI_ASSERT_DEBUG(Property::ARRAY == GetType() && "Property type invalid");
+  DALI_ASSERT_ALWAYS(Property::ARRAY == GetType() && "Property type invalid");
 
   Property::Array *container = AnyCast<Property::Array>(&(mImpl->mValue));
 

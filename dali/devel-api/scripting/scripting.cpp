@@ -533,8 +533,9 @@ void CreatePropertyMap( Actor actor, Property::Map& map )
     // Default properties
     Property::IndexContainer indices;
     actor.GetPropertyIndices( indices );
-    const Property::IndexContainer::const_iterator endIter = indices.end();
-    for ( Property::IndexContainer::iterator iter = indices.begin(); iter != endIter; ++iter )
+    const Property::IndexContainer::ConstIterator endIter = indices.End();
+
+    for ( Property::IndexContainer::Iterator iter = indices.Begin(); iter != endIter; ++iter )
     {
       map[ actor.GetPropertyName( *iter ) ] = actor.GetProperty( *iter );
     }

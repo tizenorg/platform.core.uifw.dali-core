@@ -98,9 +98,14 @@ public:
   void AddDirection( Radian direction, Radian threshold );
 
   /**
-   * @copydoc Dali::PanGestureDetector::GetAngles()
+   * @copydoc Dali::PanGestureDetector::GetAngleCount()
    */
-  const AngleContainer& GetAngles() const;
+  size_t GetAngleCount() const;
+
+  /**
+   * @copydoc Dali::PanGestureDetector::GetAngle()
+   */
+  AngleThresholdPair GetAngle(size_t index) const;
 
   /**
    * @copydoc Dali::PanGestureDetector::ClearAngles()

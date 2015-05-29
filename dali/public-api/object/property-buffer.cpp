@@ -76,11 +76,6 @@ void PropertyBuffer::SetData( void* data )
   GetImplementation(*this).SetData( data );
 }
 
-Dali::Property::Index PropertyBuffer::GetPropertyIndex( const std::string name, std::size_t index )
-{
-  return GetImplementation(*this).GetPropertyIndex( name, index );
-}
-
 PropertyBuffer::PropertyBuffer( Internal::PropertyBuffer* pointer )
 : Handle( pointer )
 {

@@ -183,13 +183,6 @@ void PropertyBuffer::SetData( const void* data )
                               new SceneGraph::PropertyBuffer::BufferType( mBuffer ) );
 }
 
-Dali::Property::Index PropertyBuffer::GetPropertyIndex( const std::string name, std::size_t index )
-{
-  //TODO: MESH_REWORK
-  DALI_ASSERT_ALWAYS( false && "MESH_REWORK" );
-  return 0;
-}
-
 const SceneGraph::PropertyBuffer* PropertyBuffer::GetPropertyBufferSceneObject() const
 {
   return mSceneObject;

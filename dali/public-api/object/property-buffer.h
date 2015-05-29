@@ -80,7 +80,6 @@ public:
   enum Type
   {
     STATIC,     ///< The property buffer properties will not be animatable
-    ANIMATABLE, ///< The property buffer properties will be animatable
     TYPE_COUNT, ///< Number of different types
   };
 
@@ -179,21 +178,6 @@ public:
    * @param[in] data A pointer to the data that will be copied to the buffer.
    */
   void SetData( void* data );
-
-  /**
-   * @brief Get the property index for a value in the buffer
-   *
-   * @param[in] name Name of the component
-   * @param[in] index Index of the object in the buffer
-   *
-   * Indices are calculated as follows:
-   *   NumberOfComponents * index + OffsetOf( name )
-   * Example:
-   *   For a PropertyBuffer with 2 components {"position", "normal"}
-   *   The Property::Index for the property "position" in the 20th object would be:
-   *     Property::Index( 2 * 19 + 0 ) => Property::Index( 38 )
-   */
-  Dali::Property::Index GetPropertyIndex( const std::string name, std::size_t index );
 
 public:
   /**

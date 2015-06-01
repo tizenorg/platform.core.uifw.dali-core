@@ -406,6 +406,14 @@ public:
    */
   void DiscardDeadResources( BufferIndex updateBufferIndex );
 
+#ifdef DEBUG_RENDER_ONCE
+  /**
+   * Prints a message if a "render once" render-task is waiting for a resource.
+   * @param[in] id The id of the resource which might not be loaded.
+   */
+  void PrintRenderOnceDebug( ResourceId id ) const;
+#endif
+
 private:
   struct ResourceManagerImpl;
   ResourceManagerImpl* mImpl;

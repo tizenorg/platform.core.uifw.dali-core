@@ -152,6 +152,12 @@ static bool AddRenderablesForTask( BufferIndex updateBufferIndex,
 
         DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "Testing renderable:%p ready:%s complete:%s\n", renderable, ready?"T":"F", complete?"T":"F");
 
+        if( !complete &&
+            renderTask.IsRenderOnce() )
+        {
+          // TODO
+        }
+
         resourcesFinished = !complete ? complete : resourcesFinished;
 
         if( ready ) // i.e. some resources are ready

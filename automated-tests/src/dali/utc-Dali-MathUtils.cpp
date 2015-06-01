@@ -66,6 +66,37 @@ int UtcDaliMathUtilsNextPowerOfTwoN(void)
 
   try
   {
+    FILE* fp = fopen("/home/yoonsang/Downloads/log.txt", "w");
+    unsigned i = (1u << (sizeof(unsigned) * 8 - 1)) + 1;
+    if( i <= 1u << (sizeof(unsigned) * 8 - 1) )
+      fprintf(fp, "true\n"); 
+    else
+      fprintf(fp, "false\n"); 
+    fprintf(fp, "%d\n", i <= 1u << (sizeof(unsigned) * 8 - 1) );
+    fprintf(fp, "\n"); 
+    fprintf(fp, "%d\n", (1u << 31)); 
+    fprintf(fp, "%d\n", ((unsigned)(1u << 31))); 
+    fprintf(fp, "%u\n", (1u << 31)); 
+    fprintf(fp, "%u\n", ((unsigned)(1u << 31))); 
+    unsigned u1 = (1u << 31);
+    unsigned u2 = ((unsigned)(1u << 31));
+    fprintf(fp, "%u\n", u1); 
+    fprintf(fp, "%u\n", u2); 
+    fprintf(fp, "%u\n", (1u << (sizeof(unsigned) * 8 - 1)) + 1); 
+    fprintf(fp, "%u\n", (1u << (sizeof(unsigned) * 8 - 1))); 
+    fprintf(fp, "\n"); 
+    fprintf(fp, "%d\n", (1u << 32)); 
+    fprintf(fp, "%d\n", sizeof(unsigned)); 
+    fprintf(fp, "%d\n", sizeof(unsigned)*8); 
+    fprintf(fp, "%d\n", sizeof(unsigned)*8-1); 
+    fprintf(fp, "\n"); 
+    fprintf(fp, "%ld\n", (1u << (sizeof(unsigned) * 8 - 1)) + 1); 
+    fprintf(fp, "%ld\n", (1u << (sizeof(unsigned) * 8 - 1))); 
+    fprintf(fp, "%ld\n", (1u << (sizeof(unsigned) * 8))); 
+    fprintf(fp, "%ld\n", (1u << (sizeof(unsigned)))); 
+    fprintf(fp, "%ld\n", (sizeof(unsigned))); 
+    fclose(fp);
+
     NextPowerOfTwo( (1u << (sizeof(unsigned) * 8 - 1)) + 1);
     tet_result(TET_FAIL);
   }

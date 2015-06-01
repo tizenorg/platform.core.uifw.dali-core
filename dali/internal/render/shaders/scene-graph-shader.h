@@ -303,6 +303,7 @@ public:
 
   /**
    * Determine if subtypes are required for the given geometry type
+   * @deprecate
    * @param[in] geometryType The type of the object (geometry) that is to be rendered.
    * @return TRUE if subtypes are required, FALSE if there is only one subtype available
    */
@@ -310,6 +311,7 @@ public:
 
   /**
    * Get the program associated with the given type and subtype
+   * @deprecate
    * @param[in]  context      the context used to render.
    * @param[in]  type         the type of the object (geometry) that is being rendered.
    * @param[in]  subType      Identifier for geometry types with specialised default shaders
@@ -320,6 +322,13 @@ public:
                        GeometryType type,
                        ShaderSubTypes subType,
                        unsigned int& programIndex );
+
+  /**
+   * Get the program built for this shader
+   * @deprecate
+   * @return the program to use.
+   */
+  Program* GetProgram();
 
   /**
    * Sets the shader specific uniforms including custom uniforms
@@ -345,7 +354,8 @@ private: // Data
   Integration::ResourceId        mRenderTextureId;  ///< Copy of the texture ID for the render thread
   Integration::ResourceId        mUpdateTextureId;  ///< Copy of the texture ID for update thread
 
-  std::vector<ProgramContainer>  mPrograms;         ///< 2D array of Program*. Access by [Log<GEOMETRY_TYPE_XXX>::value][index]. An index of 0 selects the default program for that geometry type.
+  //std::vector<ProgramContainer>  mPrograms;         ///< 2D array of Program*. Access by [Log<GEOMETRY_TYPE_XXX>::value][index]. An index of 0 selects the default program for that geometry type.
+  Program*                       mProgram;
 
   typedef OwnerContainer< UniformMeta* > UniformMetaContainer;
   UniformMetaContainer           mUniformMetadata;     ///< A container of owned UniformMeta values; one for each property in PropertyOwner::mDynamicProperties

@@ -146,6 +146,13 @@ public:
    */
   virtual bool IsFullyOpaque( BufferIndex updateBufferIndex );
 
+#ifdef DEBUG_RENDER_ONCE
+  /**
+   * Prints a message if a "render once" render-task is waiting for a resource.
+   */
+  virtual void PrintRenderOnceDebug();
+#endif
+
 protected:
 
   /**

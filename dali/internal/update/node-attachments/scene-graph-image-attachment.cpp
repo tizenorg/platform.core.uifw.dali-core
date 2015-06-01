@@ -348,6 +348,11 @@ bool ImageAttachment::IsFullyOpaque( BufferIndex updateBufferIndex )
   return opaque;
 }
 
+void ImageAttachment::PrintRenderOnceDebug()
+{
+  
+}
+
 } // namespace SceneGraph
 
 } // namespace Internal

@@ -37,7 +37,7 @@ Modifications to scripts:
 Added mechanism to build and execute tests with finer granularity.
 Added option to generate tests for executing on desktop
 
-Copyright (c) 2014 Samsung Electronics Co., Ltd.
+Copyright (c) 2015 Samsung Electronics Co., Ltd.
 
 Authors:
         Steele, David <david.steele@partner.samsung.com>

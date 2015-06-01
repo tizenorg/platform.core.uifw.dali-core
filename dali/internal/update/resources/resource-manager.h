@@ -321,7 +321,7 @@ public: // Used by ResourceClient
    * @param[in] id The ID of a bitmap/texture resource.
    * @return true if the bitmap or texture has finished loading
    */
-  bool IsResourceLoaded(ResourceId id);
+  bool IsResourceLoaded(ResourceId id) const;
 
   /**
    * Check if a resource has failed to load, e.g. file not found, etc.
@@ -405,6 +405,15 @@ public:
    * @param[in] updateBufferIndex The current update buffer index.
    */
   void DiscardDeadResources( BufferIndex updateBufferIndex );
+
+#ifdef DEBUG_RENDER_ONCE
+  /**
+   * Prints a message if a "render once" render-task is waiting for a resource.
+   * @param[in] attachmentType The type of attachment to warn about.
+   * @param[in] id The id of the resource which might not be loaded.
+   */
+  void PrintRenderOnceDebug( const char* attachmentType, ResourceId id ) const;
+#endif
 
 private:
   struct ResourceManagerImpl;

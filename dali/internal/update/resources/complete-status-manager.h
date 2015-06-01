@@ -112,6 +112,15 @@ public:
    */
   CompleteState GetStatus( Integration::ResourceId id );
 
+  /**
+   * Helper to retrieve ResourceManager for debugging purposes.
+   * @return The resource manager.
+   */
+  const ResourceManager& GetResourceManager() const
+  {
+    return mResourceManager;
+  }
+
 private:
   /**
    * Factory method to create a ResourceTracker or GlResourceTracker for this resource id.

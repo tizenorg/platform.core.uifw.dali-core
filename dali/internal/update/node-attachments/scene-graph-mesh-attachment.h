@@ -156,6 +156,12 @@ public:
                                 const Mesh*               mesh,
                                 const BoneNodeContainer&  boneNodes,
                                 BoneTransforms&           boneTransforms );
+#ifdef DEBUG_RENDER_ONCE
+  /**
+   * Prints a message if a "render once" render-task is waiting for a resource.
+   */
+  virtual void PrintRenderOnceDebug( const ResourceManager& resourceManager ) const;
+#endif
 
 private:
 

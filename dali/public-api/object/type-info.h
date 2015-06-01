@@ -164,21 +164,6 @@ public:
    */
   std::string GetSignalName(size_t index);
 
-/**
-   * @brief Retrieve the number of propertys for this type.
-   *
-   * @return The count
-   */
-  size_t GetPropertyCount() const;
-
-  /**
-   * @brief Retrieve the property name for the index.
-   *
-   * @param[in] index Index to lookup
-   * @return property name or empty string where index is invalid
-   */
-  std::string GetPropertyName(size_t index);
-
   // Properties
 
   /**
@@ -191,6 +176,8 @@ public:
 
   /**
    * @brief Given a property index, retrieve the property name associated with it.
+   *
+   * @exception DaliException If index is not valid.
    *
    * @param[in] index The property index.
    * @return The name of the property at the given index.

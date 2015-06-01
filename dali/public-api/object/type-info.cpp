@@ -85,17 +85,6 @@ std::string TypeInfo::GetSignalName(size_t index)
   return GetImplementation(*this).GetSignalName(index);
 }
 
-size_t TypeInfo::GetPropertyCount() const
-{
-  return GetImplementation(*this).GetPropertyCount();
-}
-
-std::string TypeInfo::GetPropertyName(size_t index)
-{
-  return GetImplementation(*this).GetPropertyName(index);
-}
-
-
 void TypeInfo::GetPropertyIndices( Property::IndexContainer& indices ) const
 {
   indices.Clear(); // We do not want to clear the container if called internally, so only clear here

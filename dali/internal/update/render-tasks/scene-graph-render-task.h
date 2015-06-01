@@ -39,6 +39,7 @@ namespace SceneGraph
 {
 class Node;
 class CameraAttachment;
+class RenderableAttachment;
 class RenderInstruction;
 
 /**
@@ -310,6 +311,10 @@ public:
    * @return A pointer to the camera used by the RenderTask
    */
   Node* GetCamera() const;
+
+#ifdef DEBUG_RENDER_ONCE
+  void PrintRenderOnceDebug( const RenderableAttachment& renderable ) const;
+#endif
 
 private:
 

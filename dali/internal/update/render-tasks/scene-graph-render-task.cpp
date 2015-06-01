@@ -489,6 +489,12 @@ Node* RenderTask::GetCamera() const
   return mCameraNode;
 }
 
+void RenderTask::PrintRenderOnceDebug( const RenderableAttachment& renderable ) const
+{
+  const ResourceManager& resourceManager = mCompleteStatusManager.GetResourceManager();
+  renderable.PrintRenderOnceDebug( resourceManager );
+}
+
 void RenderTask::ResetDefaultProperties( BufferIndex updateBufferIndex )
 {
   // Reset default properties

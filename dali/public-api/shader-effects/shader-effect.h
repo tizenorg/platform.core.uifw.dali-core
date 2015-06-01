@@ -69,6 +69,7 @@ enum GeometryType
   GEOMETRY_TYPE_UNTEXTURED_MESH = 0x02, ///< Complex meshes, with flat color
   GEOMETRY_TYPE_TEXTURED_MESH = 0x04,   ///< Complex meshes, with texture
   GEOMETRY_TYPE_LAST = 0x08
+  //GEOMETRY_TYPE_LAST = 0x02 ///@todo Why does this go up in the power of 2 sequence? ---------------------------------[ToDo]
 };
 
 /**

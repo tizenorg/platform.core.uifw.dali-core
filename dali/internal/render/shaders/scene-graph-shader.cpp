@@ -236,7 +236,6 @@ void Shader::SetCoordinateTypeInRender( unsigned int index, Dali::ShaderEffect::
 }
 
 void Shader::SetProgram( GeometryType geometryType,
-                         ShaderSubTypes subType,
                          Integration::ResourceId resourceId,
                          Integration::ShaderDataPtr shaderData,
                          ProgramCache* programCache,
@@ -246,14 +245,10 @@ void Shader::SetProgram( GeometryType geometryType,
 
   Program* program = Program::New( *programCache, shaderData, modifiesGeometry );
 
-  ShaderSubTypes theSubType = subType;
-  if( subType == SHADER_SUBTYPE_ALL )
-  {
-    theSubType = SHADER_DEFAULT;
-  }
+  const ShaderSubTypes theSubType = SHADER_DEFAULT;
 
   const unsigned int geometryIndex = GetGeometryTypeIndex( geometryType );
-  if(subType == SHADER_SUBTYPE_ALL)
+  if(theSubType == SHADER_SUBTYPE_ALL)
   {
     mPrograms[geometryIndex].Resize(1);
     mPrograms[geometryIndex][theSubType] = program;
@@ -264,6 +259,7 @@ void Shader::SetProgram( GeometryType geometryType,
     mPrograms[geometryIndex][theSubType] = program;
     mPrograms[geometryIndex].mUseDefaultForAllSubtypes = false;
   }
+  ///@todo Clear out above ----------------------------------------------------------------[ToDo]
 }
 
 bool Shader::AreSubtypesRequired(GeometryType geometryType)

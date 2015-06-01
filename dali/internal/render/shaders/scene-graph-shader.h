@@ -287,16 +287,15 @@ public:
   void SetCoordinateTypeInRender( unsigned int index, Dali::ShaderEffect::UniformCoordinateType type );
 
   /**
-   * Set the program for a geometry type and subtype
+   * @brief Set the program for a geometry type.
    * @param[in] geometryType      The type of the object (geometry) that is to be rendered.
-   * @param[in] subType           The subtype, one of ShaderSubTypes.
    * @param[in] resourceId        The resource ID for the program.
    * @param[in] shaderData        The program's vertex/fragment source and optionally compiled bytecode
    * @param[in] programCache      Owner of the Programs
    * @param[in] modifiesGeometry  True if the vertex shader changes geometry
    */
-  void SetProgram( GeometryType geometryType,
-                   Internal::ShaderSubTypes subType,
+  void SetProgram( /** @deprecate This is currently ignored and will soon disappear. */
+                   GeometryType geometryType,
                    Integration::ResourceId resourceId,
                    Integration::ShaderDataPtr shaderData,
                    ProgramCache* programCache,

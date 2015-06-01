@@ -79,6 +79,29 @@ typedef ShaderCache::iterator                    ShaderCacheIter;
 typedef ShaderCache::size_type                   ShaderCacheSize;
 typedef std::pair<ResourceId, ShaderDataPtr>     ShaderDataPair;
 
+#ifdef DEBUG_RENDER_ONCE
+struct DebugInfo
+{
+  DebugInfo()
+  : id( 0 ),
+    type( "Unknown" ),
+    path( "" )
+  {
+  }
+
+  DebugInfo( ResourceId id, const std::string& type, const std::string& path )
+  : id( id ),
+    type( type ),
+    path( path )
+  {
+  }
+
+  ResourceId id;
+  std::string type;
+  std::string path;
+};
+#endif // DEBUG_RENDER_ONCE
+
 static inline bool RemoveId( LiveRequestContainer& container, ResourceId id )
 {
   return container.erase(id) != 0;
@@ -155,6 +178,10 @@ struct ResourceManager::ResourceManagerImpl
   BitmapMetadataCache mBitmapMetadata;
   MeshCache           mMeshes;
   ShaderCache         mShaders;
+
+#ifdef DEBUG_RENDER_ONCE
+  std::vector<DebugInfo> mDebugContainer; // Copy of all the resource URLs for debug purposes only
+#endif
 };
 
 ResourceManager::ResourceManager( PlatformAbstraction& platformAbstraction,
@@ -277,6 +304,11 @@ void ResourceManager::HandleLoadResourceRequest( ResourceId id, const ResourceTy
 
   // Make the load request last
   mImpl->mPlatformAbstraction.LoadResource(ResourceRequest(id, *typePath.type, typePath.path, priority));
+
+#ifdef DEBUG_RENDER_ONCE
+  // Copy all resource URLs for debug purposes only
+  mImpl->mDebugContainer.push_back( DebugInfo( id, "Async Load", typePath.path ) );
+#endif
 }
 
 void ResourceManager::HandleDecodeResourceRequest(
@@ -292,6 +324,11 @@ void ResourceManager::HandleDecodeResourceRequest(
 
   // Make the load request, stuffing the buffer of encoded bytes into the same field used when saving resources:
   mImpl->mPlatformAbstraction.LoadResource(ResourceRequest(id, *typePath.type, "", buffer, priority));
+
+#ifdef DEBUG_RENDER_ONCE
+  // Copy all resource URLs for debug purposes only
+  mImpl->mDebugContainer.push_back( DebugInfo( id, "Async Decode", typePath.path ) );
+#endif
 }
 
 void ResourceManager::HandleAddBitmapImageRequest( ResourceId id, BitmapPtr bitmap )
@@ -302,6 +339,11 @@ void ResourceManager::HandleAddBitmapImageRequest( ResourceId id, BitmapPtr bitm
   mImpl->oldCompleteRequests.insert(id);
   mImpl->mBitmapMetadata.insert(BitmapMetadataPair(id, BitmapMetadata::New( bitmap.Get() )));
   mImpl->mTextureCacheDispatcher.DispatchCreateTextureForBitmap( id, bitmap.Get() );
+
+#ifdef DEBUG_RENDER_ONCE
+  // Copy all resource URLs for debug purposes only
+  mImpl->mDebugContainer.push_back( DebugInfo( id, "BitmapImage", "" ) );
+#endif
 }
 
 void ResourceManager::HandleAddNativeImageRequest(ResourceId id, NativeImageInterfacePtr nativeImage)
@@ -313,6 +355,11 @@ void ResourceManager::HandleAddNativeImageRequest(ResourceId id, NativeImageInte
 
   mImpl->mBitmapMetadata.insert(BitmapMetadataPair(id, BitmapMetadata::New(nativeImage)));
   mImpl->mTextureCacheDispatcher.DispatchCreateTextureForNativeImage( id, nativeImage );
+
+#ifdef DEBUG_RENDER_ONCE
+  // Copy all resource URLs for debug purposes only
+  mImpl->mDebugContainer.push_back( DebugInfo( id, "NativeImage", "" ) );
+#endif
 }
 
 void ResourceManager::HandleAddFrameBufferImageRequest( ResourceId id, unsigned int width, unsigned int height, Pixel::Format pixelFormat )
@@ -327,6 +374,11 @@ void ResourceManager::HandleAddFrameBufferImageRequest( ResourceId id, unsigned 
   mImpl->mBitmapMetadata.insert(BitmapMetadataPair(id, bitmapMetadata));
 
   mImpl->mTextureCacheDispatcher.DispatchCreateTextureForFrameBuffer( id, width, height, pixelFormat );
+
+#ifdef DEBUG_RENDER_ONCE
+  // Copy all resource URLs for debug purposes only
+  mImpl->mDebugContainer.push_back( DebugInfo( id, "FBO", "" ) );
+#endif
 }
 
 void ResourceManager::HandleAddFrameBufferImageRequest( ResourceId id, NativeImageInterfacePtr nativeImage )
@@ -342,6 +394,11 @@ void ResourceManager::HandleAddFrameBufferImageRequest( ResourceId id, NativeIma
   mImpl->mBitmapMetadata.insert(BitmapMetadataPair(id, bitmapMetadata));
 
   mImpl->mTextureCacheDispatcher.DispatchCreateTextureForFrameBuffer( id, nativeImage );
+
+#ifdef DEBUG_RENDER_ONCE
+  // Copy all resource URLs for debug purposes only
+  mImpl->mDebugContainer.push_back( DebugInfo( id, "NativeImage FBO", "" ) );
+#endif
 }
 
 void ResourceManager::HandleAllocateTextureRequest( ResourceId id, unsigned int width, unsigned int height, Pixel::Format pixelFormat )
@@ -350,6 +407,11 @@ void ResourceManager::HandleAllocateTextureRequest( ResourceId id, unsigned int 
 
   mImpl->oldCompleteRequests.insert(id);
   mImpl->mTextureCacheDispatcher.DispatchCreateTexture( id, width, height, pixelFormat, true /* true = clear the texture */ );
+
+#ifdef DEBUG_RENDER_ONCE
+  // Copy all resource URLs for debug purposes only
+  mImpl->mDebugContainer.push_back( DebugInfo( id, "Texture", "" ) );
+#endif
 }
 
 void ResourceManager::HandleAllocateMeshRequest( ResourceId id, MeshData* meshData )
@@ -366,6 +428,11 @@ void ResourceManager::HandleAllocateMeshRequest( ResourceId id, MeshData* meshDa
 
   // Let NotificationManager know that the resource manager needs to do some processing
   NotifyTickets();
+
+#ifdef DEBUG_RENDER_ONCE
+  // Copy all resource URLs for debug purposes only
+  mImpl->mDebugContainer.push_back( DebugInfo( id, "Mesh", "" ) );
+#endif
 }
 
 void ResourceManager::HandleLoadShaderRequest( ResourceId id, const ResourceTypePath& typePath )
@@ -390,6 +457,11 @@ void ResourceManager::HandleLoadShaderRequest( ResourceId id, const ResourceType
     // Let NotificationManager know that the resource manager needs to do some processing
     NotifyTickets();
   }
+
+#ifdef DEBUG_RENDER_ONCE
+  // Copy all resource URLs for debug purposes only
+  mImpl->mDebugContainer.push_back( DebugInfo( id, "Shader", "" ) );
+#endif
 }
 
 void ResourceManager::HandleUpdateBitmapAreaRequest( ResourceId textureId, const RectArea& area )
@@ -608,7 +680,7 @@ void ResourceManager::HandleCreateGlTextureRequest(ResourceId id)
  ******************** Update thread object direct interface  ********************
  ********************************************************************************/
 
-bool ResourceManager::IsResourceLoaded(ResourceId id)
+bool ResourceManager::IsResourceLoaded(ResourceId id) const
 {
   bool loaded = false;
 
@@ -960,6 +1032,25 @@ void ResourceManager::DiscardDeadResources( BufferIndex updateBufferIndex )
     mImpl->deadRequests.erase(iter++);
   }
 }
+
+#ifdef DEBUG_RENDER_ONCE
+
+void ResourceManager::PrintRenderOnceDebug( const char* attachmentType, ResourceId id ) const
+{
+  for( unsigned int i=0; i<mImpl->mDebugContainer.size(); ++i )
+  {
+    if( mImpl->mDebugContainer[i].id == id &&
+        !IsResourceLoaded(id) )
+    {
+      DALI_LOG_ERROR( "RenderTask Waiting for %s resource ID: %d type: %s path: %s\n", attachmentType, id, mImpl->mDebugContainer[i].type.c_str(), mImpl->mDebugContainer[i].path.c_str() );
+      return;
+    }
+  }
+
+  DALI_LOG_ERROR( "RenderTask Waiting for Unknown resource!\n" );
+}
+
+#endif // DEBUG_RENDER_ONCE
 
 } // namespace Internal
 

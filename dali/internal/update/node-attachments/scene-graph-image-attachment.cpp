@@ -358,6 +358,20 @@ bool ImageAttachment::IsFullyOpaque( BufferIndex updateBufferIndex )
   return opaque;
 }
 
+#ifdef DEBUG_RENDER_ONCE
+void ImageAttachment::PrintRenderOnceDebug( const ResourceManager& resourceManager ) const
+{
+  if( mTextureId != 0 )
+  {
+    resourceManager.PrintRenderOnceDebug( "ImageAttachment", mTextureId );
+  }
+  else
+  {
+    DALI_LOG_ERROR( "RenderTask Waiting for ImageAttachment mTextureId == NULL\n" );
+  }
+}
+#endif
+
 } // namespace SceneGraph
 
 } // namespace Internal

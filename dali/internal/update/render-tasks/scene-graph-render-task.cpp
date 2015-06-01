@@ -24,6 +24,7 @@
 #include <dali/internal/update/resources/complete-status-manager.h>
 #include <dali/internal/update/nodes/node.h>
 #include <dali/internal/update/node-attachments/scene-graph-camera-attachment.h>
+#include <dali/internal/update/node-attachments/scene-graph-renderable-attachment.h>
 #include <dali/internal/render/common/render-instruction.h>
 
 #include <dali/internal/update/render-tasks/scene-graph-render-task-debug.h>
@@ -487,6 +488,15 @@ bool RenderTask::GetViewportEnabled( BufferIndex bufferIndex ) const
 Node* RenderTask::GetCamera() const
 {
   return mCameraNode;
+}
+
+void RenderTask::PrintRenderOnceDebug( const RenderableAttachment& renderable ) const
+{
+  if( mCompleteStatusManager )
+  {
+    const ResourceManager& resourceManager = mCompleteStatusManager->GetResourceManager();
+    renderable.PrintRenderOnceDebug( resourceManager );
+  }
 }
 
 void RenderTask::ResetDefaultProperties( BufferIndex updateBufferIndex )

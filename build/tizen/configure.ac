@@ -61,7 +61,7 @@ AC_ARG_ENABLE([dynamics],
               [dynamics_support=no])
 
 if test "x$enable_debug" = "xyes"; then
-  DALI_CFLAGS="$DALI_CFLAGS -DDEBUG_ENABLED"
+  DALI_CFLAGS="$DALI_CFLAGS -DDEBUG_ENABLED -DDEBUG_RENDER_ONCE"
 fi
 
 if test "x$enable_debug" = "xno" -a "x$enable_exportall" = "xno"; then

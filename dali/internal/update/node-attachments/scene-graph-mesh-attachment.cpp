@@ -192,6 +192,16 @@ void MeshAttachment::CalculateBoneTransforms( BufferIndex               updateBu
   }
 }
 
+#ifdef DEBUG_RENDER_ONCE
+void MeshAttachment::PrintRenderOnceDebug( const ResourceManager& resourceManager ) const
+{
+  if( !mResourcesReady )
+  {
+    DALI_LOG_ERROR( "RenderTask Waiting for MeshAttachment ???\n" );
+  }
+}
+#endif
+
 /*
  * Go through each mesh resource and material resource. If any of the resources aren't yet ready,
  * stop and return false.

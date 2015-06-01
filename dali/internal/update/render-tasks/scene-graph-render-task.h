@@ -39,6 +39,7 @@ namespace SceneGraph
 {
 class Node;
 class CameraAttachment;
+class RenderableAttachment;
 class RenderInstruction;
 
 /**
@@ -310,6 +311,14 @@ public:
    * @return A pointer to the camera used by the RenderTask
    */
   Node* GetCamera() const;
+
+#ifdef DEBUG_RENDER_ONCE
+  /**
+   * Prints a message if a "render once" render-task is waiting for a resource.
+   * @param[in] renderable The attachment which may be waiting for resources.
+   */
+  void PrintRenderOnceDebug( const RenderableAttachment& renderable ) const;
+#endif
 
 private:
 

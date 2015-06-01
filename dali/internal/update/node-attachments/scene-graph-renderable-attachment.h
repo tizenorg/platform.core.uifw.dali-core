@@ -276,6 +276,13 @@ public: // API for derived classes
    */
   virtual void DoGetScaleForSize( const Vector3& nodeSize, Vector3& scaling );
 
+#ifdef DEBUG_RENDER_ONCE
+  /**
+   * Prints a message if a "render once" render-task is waiting for a resource.
+   */
+  virtual void PrintRenderOnceDebug( const ResourceManager& resourceManager ) const {}
+#endif
+
 protected:
 
   /**

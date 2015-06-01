@@ -103,18 +103,13 @@ inline unsigned int GetGeometryTypeIndex(GeometryType type)
 Shader::Shader( Dali::ShaderEffect::GeometryHints& hints )
 : mGeometryHints( hints ),
   mGridDensity( Dali::ShaderEffect::DEFAULT_GRID_DENSITY ),
-  mTexture( NULL ),
+  mTexture( 0 ),
   mRenderTextureId( 0 ),
   mUpdateTextureId( 0 ),
-  mRenderQueue(NULL),
-  mTextureCache(NULL)
+  mProgram( 0 ),
+  mRenderQueue( 0 ),
+  mTextureCache( 0 )
 {
-  // Create enough size for all default types and sub-types
-  mPrograms.resize(Log<GEOMETRY_TYPE_LAST>::value);
-  for( unsigned int i = 0; i < Log<GEOMETRY_TYPE_LAST>::value; ++i)
-  {
-    mPrograms[ i ].Resize(SHADER_SUBTYPE_LAST);
-  }
 }
 
 Shader::~Shader()
@@ -236,42 +231,22 @@ void Shader::SetCoordinateTypeInRender( unsigned int index, Dali::ShaderEffect::
 }
 
 void Shader::SetProgram( GeometryType geometryType,
-                         ShaderSubTypes subType,
                          Integration::ResourceId resourceId,
                          Integration::ShaderDataPtr shaderData,
                          ProgramCache* programCache,
                          bool modifiesGeometry )
 {
-  DALI_LOG_TRACE_METHOD_FMT(Debug::Filter::gShader, "%d %d\n", (int)geometryType, resourceId);
+  DALI_LOG_TRACE_METHOD_FMT(Debug::Filter::gShader, "%d\n", resourceId);
 
   Program* program = Program::New( *programCache, shaderData, modifiesGeometry );
-
-  ShaderSubTypes theSubType = subType;
-  if( subType == SHADER_SUBTYPE_ALL )
-  {
-    theSubType = SHADER_DEFAULT;
-  }
-
-  const unsigned int geometryIndex = GetGeometryTypeIndex( geometryType );
-  if(subType == SHADER_SUBTYPE_ALL)
-  {
-    mPrograms[geometryIndex].Resize(1);
-    mPrograms[geometryIndex][theSubType] = program;
-    mPrograms[geometryIndex].mUseDefaultForAllSubtypes = true;
-  }
-  else
-  {
-    mPrograms[geometryIndex][theSubType] = program;
-    mPrograms[geometryIndex].mUseDefaultForAllSubtypes = false;
-  }
+  mProgram = program;
+  //@note: Contents of mPrograms were never previously deleted. Should we manage the lifetime of this now? (surely yes)  ------------------------- [ToDo]
 }
 
 bool Shader::AreSubtypesRequired(GeometryType geometryType)
 {
   DALI_ASSERT_DEBUG(geometryType < GEOMETRY_TYPE_LAST);
-  unsigned int programType = GetGeometryTypeIndex( geometryType );
-
-  return ! mPrograms[ programType ].mUseDefaultForAllSubtypes;
+  return false;
 }
 
 Program* Shader::GetProgram( Context& context,
@@ -286,7 +261,12 @@ Program* Shader::GetProgram( Context& context,
 
   DALI_ASSERT_DEBUG((unsigned int)subType < mPrograms[ programIndex ].Count());
 
-  return mPrograms[ programIndex ][ subType ];
+  return mProgram;
+}
+
+Program* Shader::GetProgram()
+{
+  return mProgram;
 }
 
 

@@ -238,9 +238,8 @@ void Shader::SetProgram( GeometryType geometryType,
 {
   DALI_LOG_TRACE_METHOD_FMT(Debug::Filter::gShader, "%d\n", resourceId);
 
-  Program* program = Program::New( *programCache, shaderData, modifiesGeometry );
-  mProgram = program;
-  //@note: Contents of mPrograms were never previously deleted. Should we manage the lifetime of this now? (surely yes)  ------------------------- [ToDo]
+  mProgram = Program::New( *programCache, shaderData, modifiesGeometry );
+  // The program cache owns the Program object so we don't need to worry here.
 }
 
 bool Shader::AreSubtypesRequired(GeometryType geometryType)
@@ -256,10 +255,6 @@ Program* Shader::GetProgram( Context& context,
 {
   DALI_ASSERT_DEBUG(type < GEOMETRY_TYPE_LAST);
   DALI_DEBUG_OSTREAM(debugStream);
-
-  programIndex = GetGeometryTypeIndex( type );
-
-  DALI_ASSERT_DEBUG((unsigned int)subType < mPrograms[ programIndex ].Count());
 
   return mProgram;
 }

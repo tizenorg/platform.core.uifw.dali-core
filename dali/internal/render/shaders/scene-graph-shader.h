@@ -354,7 +354,6 @@ private: // Data
   Integration::ResourceId        mRenderTextureId;  ///< Copy of the texture ID for the render thread
   Integration::ResourceId        mUpdateTextureId;  ///< Copy of the texture ID for update thread
 
-  //std::vector<ProgramContainer>  mPrograms;         ///< 2D array of Program*. Access by [Log<GEOMETRY_TYPE_XXX>::value][index]. An index of 0 selects the default program for that geometry type.
   Program*                       mProgram;
 
   typedef OwnerContainer< UniformMeta* > UniformMetaContainer;

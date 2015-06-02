@@ -352,6 +352,7 @@ inline void SortOpaqueRenderItems(
  * @param viewmatrix for the camera from rendertask
  * @param transparentRenderersExist is true if there is transparent renderers in this layer
  * @param stencilRenderablesExist is true if there are stencil renderers on this layer
+ * @param disableDepthTest is true if depth test should be disabled on this layer
  * @param instruction to fill in
  * @param tryReuseRenderList whether to try to reuse the cached items from the instruction
  */
@@ -360,6 +361,7 @@ inline void AddOpaqueRenderers( BufferIndex updateBufferIndex,
                                 const Matrix& viewMatrix,
                                 bool transparentRenderablesExist,
                                 bool stencilRenderablesExist,
+                                bool disableDepthTest,
                                 RenderInstruction& instruction,
                                 RendererSortingHelper& sortingHelper,
                                 bool tryReuseRenderList )
@@ -375,7 +377,8 @@ inline void AddOpaqueRenderers( BufferIndex updateBufferIndex,
     {
       // reset the flags as other layers might have changed
       // opaque flags can only be set after renderers are added
-      SetOpaqueRenderFlags(opaqueRenderList, transparentRenderablesExist, stencilRenderablesExist, layer.IsDepthTestDisabled() );
+      bool depthTestDisabled = layer.IsDepthTestDisabled() || disableDepthTest;
+      SetOpaqueRenderFlags( opaqueRenderList, transparentRenderablesExist, stencilRenderablesExist, depthTestDisabled );
       return;
     }
   }
@@ -602,6 +605,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
     const bool opaqueRenderablesExist( !layer.opaqueRenderables.empty() );
     const bool transparentRenderablesExist( !layer.transparentRenderables.empty() );
     const bool overlayRenderablesExist( !layer.overlayRenderables.empty() );
+    const bool disableDepthTest( layer.GetBehavior() == Dali::Layer::LAYER_2D );
     const bool tryReuseRenderList( viewMatrixHasNotChanged && layer.CanReuseRenderers(renderTask.GetCamera()) );
 
     // Ignore stencils if there's nothing to test
@@ -618,6 +622,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                           viewMatrix,
                           transparentRenderablesExist,
                           stencilRenderablesExist,
+                          disableDepthTest,
                           instruction,
                           sortingHelper,
                           tryReuseRenderList );

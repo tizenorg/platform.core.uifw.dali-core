@@ -152,6 +152,19 @@ public:
   }
 
   /**
+   * @copydoc Dali::Layer::SetBehavior()
+   */
+  void SetBehavior( Dali::Layer::Behavior behavior );
+
+  /**
+   * @copydoc Dali::Layer::GetBehavior()
+   */
+  Dali::Layer::Behavior GetBehavior() const
+  {
+    return mBehavior;
+  }
+
+  /**
    * @copydoc Dali::Layer::SetDepthTestDisabled()
    */
   void SetDepthTestDisabled( bool disable );
@@ -287,6 +300,8 @@ private:
   // These properties not animatable; the actor side has the most up-to-date values
   ClippingBox mClippingBox;                     ///< The clipping box, in window coordinates
   Dali::Layer::SortFunctionType mSortFunction;  ///< Used to sort semi-transparent geometry
+
+  Dali::Layer::Behavior mBehavior;              ///< Behavior of the layer
 
   bool mIsClipping:1;                           ///< True when clipping is enabled
   bool mDepthTestDisabled:1;                    ///< Whether depth test is disabled.

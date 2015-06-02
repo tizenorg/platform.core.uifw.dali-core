@@ -103,12 +103,12 @@ inline unsigned int GetGeometryTypeIndex(GeometryType type)
 Shader::Shader( Dali::ShaderEffect::GeometryHints& hints )
 : mGeometryHints( hints ),
   mGridDensity( Dali::ShaderEffect::DEFAULT_GRID_DENSITY ),
-  mTexture( 0 ),
+  mTexture( NULL ),
   mRenderTextureId( 0 ),
   mUpdateTextureId( 0 ),
-  mProgram( 0 ),
-  mRenderQueue( 0 ),
-  mTextureCache( 0 )
+  mProgram( NULL ),
+  mRenderQueue( NULL ),
+  mTextureCache( NULL )
 {
 }
 
@@ -239,6 +239,7 @@ void Shader::SetProgram( GeometryType geometryType,
   DALI_LOG_TRACE_METHOD_FMT(Debug::Filter::gShader, "%d\n", resourceId);
 
   mProgram = Program::New( *programCache, shaderData, modifiesGeometry );
+  // Implement: mProgram = programCache->GetProgram( shaderData, modifiesGeometry );
   // The program cache owns the Program object so we don't need to worry here.
 }
 

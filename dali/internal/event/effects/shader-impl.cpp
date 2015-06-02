@@ -279,6 +279,7 @@ void Shader::Initialize(
 
   // Add shader program to scene-object using a message to the UpdateManager
   SetShaderProgramMessage( updateManager, *mSceneObject, GEOMETRY_TYPE_IMAGE, mTicket->GetId(), shaderHash, false );
+  // Francisico said: we don't need this in internal code.
 }
 
 Shader::~Shader()

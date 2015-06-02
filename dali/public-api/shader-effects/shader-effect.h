@@ -75,6 +75,9 @@ enum GeometryType
 /**
  * @brief Shader effects provide a visual effect for actors.
  *
+ * @deprecated Use classes Dali::Shader, Dali::Material, and Dali::Sampler to implement
+ * any new programmable shading effects.
+ *
  * For a Custom shader you can provide the vertex and fragment shader code as strings.
  * These shader snippets get concatenated with the default attributes and uniforms.
  * For a vertex shader this part contains the following code:
@@ -207,7 +210,8 @@ public:
    *
    * @param vertexShader code for the effect. If you pass in an empty string, the default version will be used
    * @param fragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param type GeometryType to define the shape of the geometry
+   * @param type GeometryType to define the shape of the geometry. Only GEOMETRY_TYPE_IMAGE is accepted for this
+   *        parameter. Any other value will lead to an error.
    * @param hints GeometryHints to define the geometry of the rendered object
    * @return A handle to a shader effect
    */
@@ -222,7 +226,8 @@ public:
    * @param vertexShader code for the effect. If you pass in an empty string, the default version will be used
    * @param fragmentShaderPrefix code for the effect. It will be inserted before the default uniforms (ideal for \#defines)
    * @param fragmentShader code for the effect. If you pass in an empty string, the default version will be used
-   * @param type GeometryType to define the shape of the geometry
+   * @param type GeometryType to define the shape of the geometry. Only GEOMETRY_TYPE_IMAGE is accepted for this
+   *        parameter. Any other value will lead to an error.
    * @param hints GeometryHints to define the geometry of the rendered object
    * @return A handle to a shader effect
    */

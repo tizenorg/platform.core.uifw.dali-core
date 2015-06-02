@@ -38,7 +38,8 @@ SceneGraph::Layer* Layer::New()
 Layer::Layer()
 : mSortFunction( Dali::Layer::ZValue ),
   mClippingBox( 0,0,0,0 ),
-  mLastCamera(0),
+  mLastCamera( NULL ),
+  mBehaviour( Dali::Layer::LAYER_2D ),
   mIsClipping( false ),
   mDepthTestDisabled( false ),
   mIsDefaultSortFunction( true )
@@ -81,6 +82,11 @@ void Layer::SetClipping(bool enabled)
 void Layer::SetClippingBox(const Dali::ClippingBox& box)
 {
   mClippingBox.Set(box.x, box.y, box.width, box.height);
+}
+
+void Layer::SetBehaviour( Dali::Layer::Behaviour behaviour )
+{
+  mBehaviour = behaviour;
 }
 
 void Layer::SetDepthTestDisabled( bool disable )

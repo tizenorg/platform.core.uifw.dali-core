@@ -35,6 +35,8 @@ class RenderableAttachment;
 // value types used by messages
 template <> struct ParameterType< Dali::Layer::SortFunctionType >
 : public BasicType< Dali::Layer::SortFunctionType > {};
+template <> struct ParameterType< Dali::Layer::Behaviour >
+: public BasicType< Dali::Layer::Behaviour > {};
 
 namespace SceneGraph
 {
@@ -122,6 +124,21 @@ public:
   }
 
   /**
+   * Sets the behaviour of the layer
+   * @param [in] behaviour The behaviour of the layer
+   */
+  void SetBehaviour( Dali::Layer::Behaviour behaviour );
+
+  /**
+   * Retrieves the behaviour of the layer.
+   * @return The behaviour
+   */
+  Dali::Layer::Behaviour GetBehaviour() const
+  {
+    return mBehaviour;
+  }
+
+  /**
    * @copydoc Dali::Layer::SetDepthTestDisabled()
    */
   void SetDepthTestDisabled( bool disable );
@@ -193,6 +210,8 @@ private:
   ClippingBox mClippingBox;           ///< The clipping box, in window coordinates
   Node* mLastCamera;                  ///< Pointer to the last camera that has rendered the layer
 
+  Dali::Layer::Behaviour mBehaviour;  ///< The behaviour of the layer
+
   bool mAllChildTransformsClean[ 2 ]; ///< True if all child nodes transforms are clean,
                                       /// double buffered as we need two clean frames before we can reuse N-1 for N+1
                                       /// this allows us to cache render items when layer is "static"
@@ -250,6 +269,22 @@ inline void SetClippingBoxMessage( EventThreadServices& eventThreadServices, con
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &layer, &Layer::SetClippingBox, clippingbox );
+}
+
+/**
+ * Create a message to set the behaviour of a layer
+ * @param[in] layer The layer
+ * @param[in] behaviour The behaviour
+ */
+inline void SetBehaviourMessage( EventThreadServices& eventThreadServices, const Layer& layer, Dali::Layer::Behaviour behaviour )
+{
+  typedef MessageValue1< Layer, Dali::Layer::Behaviour > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &layer, &Layer::SetBehaviour, behaviour );
 }
 
 /**

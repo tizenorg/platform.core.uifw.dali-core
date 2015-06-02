@@ -22,6 +22,7 @@
 #include <cstring> // for strcmp
 
 // INTERNAL INCLUDES
+#include <dali/public-api/actors/layer.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/internal/event/actors/layer-list.h>
@@ -32,6 +33,16 @@ using Dali::Internal::SceneGraph::UpdateManager;
 
 namespace Dali
 {
+
+namespace
+{
+typedef Dali::Layer::Behaviour Behaviour;
+
+DALI_ENUM_TO_STRING_TABLE_BEGIN( Behaviour )
+DALI_ENUM_TO_STRING( Dali::Layer::LAYER_2D )
+DALI_ENUM_TO_STRING( Dali::Layer::LAYER_3D )
+DALI_ENUM_TO_STRING_TABLE_END( Behaviour )
+} // namespace
 
 namespace Internal
 {
@@ -45,6 +56,7 @@ namespace
 DALI_PROPERTY_TABLE_BEGIN
 DALI_PROPERTY( "clipping-enable",   BOOLEAN,    true,    false,   true,   Dali::Layer::Property::CLIPPING_ENABLE )
 DALI_PROPERTY( "clipping-box",      RECTANGLE,  true,    false,   true,   Dali::Layer::Property::CLIPPING_BOX    )
+DALI_PROPERTY( "behaviour",         STRING,     true,    false,   false,  Dali::Layer::Property::BEHAVIOUR       )
 DALI_PROPERTY_TABLE_END( DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX )
 
 // Actions
@@ -67,6 +79,7 @@ TypeAction a3( mType, ACTION_RAISE_TO_TOP, &Layer::DoAction );
 TypeAction a4( mType, ACTION_LOWER_TO_BOTTOM, &Layer::DoAction );
 
 } // unnamed namespace
+
 
 LayerPtr Layer::New()
 {
@@ -233,6 +246,14 @@ void Layer::SetClippingBox(int x, int y, int width, int height)
     // layerNode is being used in a separate thread; queue a message to set the value
     SetClippingBoxMessage( GetEventThreadServices(), GetSceneLayerOnStage(), clippingBox );
   }
+}
+
+void Layer::SetBehaviour( Dali::Layer::Behaviour behaviour )
+{
+  mBehaviour = behaviour;
+
+  // notify update side object
+  SetBehaviourMessage( GetEventThreadServices(), GetSceneLayerOnStage(), behaviour );
 }
 
 void Layer::SetDepthTestDisabled( bool disable )
@@ -447,6 +468,12 @@ void Layer::SetDefaultProperty( Property::Index index, const Property::Value& pr
       {
         Rect<int> clippingBox( propertyValue.Get<Rect<int> >() );
         SetClippingBox( clippingBox.x, clippingBox.y, clippingBox.width, clippingBox.height );
+        break;
+      }
+      case Dali::Layer::Property::BEHAVIOUR:
+      {
+        Behaviour behaviour = Scripting::GetEnumeration< Behaviour >( propertyValue.Get< std::string >().c_str(), BehaviourTable, BehaviourTableCount );
+        SetBehaviour( behaviour );
         break;
       }
       default:

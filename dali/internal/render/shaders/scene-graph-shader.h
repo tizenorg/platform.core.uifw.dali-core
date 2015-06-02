@@ -294,7 +294,7 @@ public:
    * @param[in] programCache      Owner of the Programs
    * @param[in] modifiesGeometry  True if the vertex shader changes geometry
    */
-  void SetProgram( /** @deprecate This is currently ignored and will soon disappear. */
+  void SetProgram( /** @deprecated This is currently ignored and will soon disappear. */
                    GeometryType geometryType,
                    Integration::ResourceId resourceId,
                    Integration::ShaderDataPtr shaderData,
@@ -303,7 +303,7 @@ public:
 
   /**
    * Determine if subtypes are required for the given geometry type
-   * @deprecate
+   * @deprecated
    * @param[in] geometryType The type of the object (geometry) that is to be rendered.
    * @return TRUE if subtypes are required, FALSE if there is only one subtype available
    */
@@ -311,7 +311,7 @@ public:
 
   /**
    * Get the program associated with the given type and subtype
-   * @deprecate
+   * @deprecated
    * @param[in]  context      the context used to render.
    * @param[in]  type         the type of the object (geometry) that is being rendered.
    * @param[in]  subType      Identifier for geometry types with specialised default shaders
@@ -325,7 +325,7 @@ public:
 
   /**
    * Get the program built for this shader
-   * @deprecate
+   * @deprecated
    * @return the program to use.
    */
   Program* GetProgram();

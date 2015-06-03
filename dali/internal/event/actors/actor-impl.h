@@ -1564,17 +1564,19 @@ protected:
   /**
    * Called on a child during Add() when the parent actor is connected to the Stage.
    * @param[in] stage The stage.
+   * @param[in] parentDepth The depth of the parent in the hierarchy
    * @param[in] index If set, it is only used for positioning the actor within the parent's child list.
    */
-  void ConnectToStage( int index = -1 );
+  void ConnectToStage( unsigned int parentDepth, int index = -1 );
 
   /**
    * Helper for ConnectToStage, to recursively connect a tree of actors.
    * This is atomic i.e. not interrupted by user callbacks.
    * @param[in] index If set, it is only used for positioning the actor within the parent's child list.
+   * @param[in] depth The depth in the hierarchy of the actor
    * @param[out] connectionList On return, the list of connected actors which require notification.
    */
-  void RecursiveConnectToStage( ActorContainer& connectionList, int index = -1 );
+  void RecursiveConnectToStage( ActorContainer& connectionList, unsigned int depth, int index = -1 );
 
   /**
    * Connect the Node associated with this Actor to the scene-graph.
@@ -1623,6 +1625,17 @@ protected:
    * @return Return the Z dimension for this size
    */
   float CalculateSizeZ( const Vector2& size ) const;
+
+  /**
+   * Return the depth in the hierarchy of the actor.
+   * The value returned is only valid if the actor is on the stage.
+   *
+   * @return Depth of the actor in the hierarchy
+   */
+  unsigned int GetDepth() const
+  {
+    return mDepth;
+  }
 
 public:
   // Default property extensions from Object
@@ -1761,7 +1774,7 @@ private:
    * For use in external (CustomActor) derived classes.
    * This is called after the atomic ConnectToStage() traversal has been completed.
    */
-  virtual void OnStageConnectionExternal()
+  virtual void OnStageConnectionExternal(unsigned int depth)
   {
   }
 
@@ -1894,6 +1907,7 @@ protected:
   DrawMode::Type mDrawMode                         : 2; ///< Cached: How the actor and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode : 2; ///< Cached: Determines how position is inherited
   ColorMode mColorMode                             : 2; ///< Cached: Determines whether mWorldColor is inherited
+  unsigned int mDepth                              :12; ///< The depth in the hierarchy of the actor. Only 4096 levels of depth are supported
 
 private:
 

@@ -109,7 +109,7 @@ struct TestCustomActor : public CustomActorImpl
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
     AddToCallStacks("OnStageConnection");
   }
@@ -233,10 +233,10 @@ struct TestCustomActorVariant1 : public TestCustomActor
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection(unsigned int depth)
   {
     // Chain up first
-    TestCustomActor::OnStageConnection();
+    TestCustomActor::OnStageConnection(depth);
 
     // Add the child
     Self().Add( mChildToAdd );
@@ -258,10 +258,10 @@ struct TestCustomActorVariant2 : public TestCustomActor
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection(unsigned int depth)
   {
     // Chain up first
-    TestCustomActor::OnStageConnection();
+    TestCustomActor::OnStageConnection(depth);
 
     // Remove all the children
     for( unsigned int i=0, num=Self().GetChildCount(); i<num; ++i )
@@ -336,10 +336,10 @@ struct TestCustomActorVariant5 : public TestCustomActor
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection(unsigned int depth)
   {
     // Chain up first
-    TestCustomActor::OnStageConnection();
+    TestCustomActor::OnStageConnection(depth);
 
     // Take parent off-stage
     Actor parent = Self().GetParent();
@@ -461,7 +461,7 @@ public:
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection(unsigned int depth)
   {
   }
   virtual void OnStageDisconnection()

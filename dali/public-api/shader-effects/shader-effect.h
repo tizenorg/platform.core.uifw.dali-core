@@ -368,25 +368,6 @@ public:
    */
   void AttachExtension( Extension *object );
 
-  /**
-   * @brief Retrieve the attached extension object.
-   *
-   * This object can be set with the AttachExtension function.
-   * @return implementation Pointer to a Extension.
-   * @pre An extension needs to be attached previously.
-   */
-  Extension& GetExtension();
-
-  /**
-   * @brief Retrieve the attached extension object.
-   *
-   * This object can be set with the AttachExtension function.
-   * @return implementation Pointer to a Extension.
-   * @pre An extension needs to be attached previously.
-   */
-  const Extension& GetExtension() const;
-
-
 public: // Not intended for application developers
 
   /**

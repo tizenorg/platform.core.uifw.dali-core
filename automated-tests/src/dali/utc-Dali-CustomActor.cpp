@@ -59,7 +59,8 @@ struct TestCustomActor : public CustomActorImpl
   : CustomActorImpl( ActorFlags( REQUIRES_TOUCH_EVENTS | REQUIRES_MOUSE_WHEEL_EVENTS | REQUIRES_HOVER_EVENTS | DISABLE_SIZE_NEGOTIATION ) ),
     mDaliProperty( Property::INVALID_INDEX ),
     mSizeSet( Vector3::ZERO ),
-    mTargetSize( Vector3::ZERO )
+    mTargetSize( Vector3::ZERO ),
+    mDepth(0u)
   {
   }
 
@@ -109,9 +110,10 @@ struct TestCustomActor : public CustomActorImpl
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
     AddToCallStacks("OnStageConnection");
+    mDepth = depth;
   }
   virtual void OnStageDisconnection()
   {
@@ -217,6 +219,7 @@ struct TestCustomActor : public CustomActorImpl
   std::vector< std::string > mMethodsCalled;
   Vector3 mSizeSet;
   Vector3 mTargetSize;
+  unsigned int mDepth;
 };
 
 /**
@@ -233,10 +236,10 @@ struct TestCustomActorVariant1 : public TestCustomActor
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
     // Chain up first
-    TestCustomActor::OnStageConnection();
+    TestCustomActor::OnStageConnection( depth );
 
     // Add the child
     Self().Add( mChildToAdd );
@@ -258,10 +261,10 @@ struct TestCustomActorVariant2 : public TestCustomActor
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
     // Chain up first
-    TestCustomActor::OnStageConnection();
+    TestCustomActor::OnStageConnection( depth );
 
     // Remove all the children
     for( unsigned int i=0, num=Self().GetChildCount(); i<num; ++i )
@@ -336,10 +339,10 @@ struct TestCustomActorVariant5 : public TestCustomActor
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
     // Chain up first
-    TestCustomActor::OnStageConnection();
+    TestCustomActor::OnStageConnection( depth );
 
     // Take parent off-stage
     Actor parent = Self().GetParent();
@@ -461,7 +464,7 @@ public:
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
   }
   virtual void OnStageDisconnection()
@@ -706,6 +709,11 @@ public:
 
   virtual void OnCalculateRelayoutSize( Dimension::Type dimension )
   {
+  }
+
+  unsigned int GetDepth()
+  {
+    return GetImpl().mDepth;
   }
 
 private:
@@ -1724,5 +1732,58 @@ int UtcDaliCustomActorDoAction(void)
 
   // Check that the custom actor is now visible
   DALI_TEST_CHECK(custom.IsVisible() == true);
+  END_TEST;
+}
+
+int UtcDaliCustomActorOnConnectionDepth(void)
+{
+  TestApplication application;
+  tet_infoline("Testing Dali::CustomActor::OnStageConnection() hierarchy depth");
+
+  Stage stage = Stage::GetCurrent();
+
+  /* Build tree of actors:
+   *
+   *                      Depth
+   *
+   *       A (parent)       1
+   *      / \
+   *     B   C              2
+   *    / \   \
+   *   D   E   F            3
+   *
+   * OnStageConnection should return 1 for A, 2 for B and C, and 3 for D, E and F.
+   */
+
+  TestCustomActor actorA = TestCustomActor::New();
+  stage.Add( actorA );
+
+  TestCustomActor actorB = TestCustomActor::New();
+  actorA.Add( actorB );
+
+  TestCustomActor actorC = TestCustomActor::New();
+  actorA.Add( actorC );
+
+  TestCustomActor actorD = TestCustomActor::New();
+  actorB.Add( actorD );
+
+  TestCustomActor actorE = TestCustomActor::New();
+  actorB.Add( actorE );
+
+  TestCustomActor actorF = TestCustomActor::New();
+  actorC.Add( actorF );
+
+  // Excercise the message passing to Update thread
+  application.SendNotification();
+  application.Render();
+  application.Render();
+
+  DALI_TEST_EQUALS( 1u, actorA.GetDepth(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 2u, actorB.GetDepth(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 2u, actorC.GetDepth(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 3u, actorD.GetDepth(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 3u, actorE.GetDepth(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 3u, actorF.GetDepth(), TEST_LOCATION );
+
   END_TEST;
 }

@@ -348,11 +348,16 @@ public:
 
 private: // Data
 
+  // Maybe remove?:
   Dali::ShaderEffect::GeometryHints mGeometryHints;    ///< shader geometry hints for building the geometry
   float                          mGridDensity;      ///< grid density
+
+  // Remove:(We use general samplers now right?)
   Texture*                       mTexture;          ///< Raw Pointer to Texture
   Integration::ResourceId        mRenderTextureId;  ///< Copy of the texture ID for the render thread
   Integration::ResourceId        mUpdateTextureId;  ///< Copy of the texture ID for update thread
+
+  // Keep:
 
   Program*                       mProgram;
 

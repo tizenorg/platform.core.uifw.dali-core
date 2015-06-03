@@ -89,7 +89,7 @@ public:
    *    / \   \
    *   D   E   F
    */
-  virtual void OnStageConnection() = 0;
+  virtual void OnStageConnection(unsigned int depth) = 0;
 
   /**
    * @brief Called after the actor has been disconnected from the stage.

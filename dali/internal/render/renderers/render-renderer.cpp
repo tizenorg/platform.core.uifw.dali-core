@@ -78,13 +78,6 @@ bool NewRenderer::CheckResources()
   return true;
 }
 
-void NewRenderer::ResolveGeometryTypes( BufferIndex bufferIndex, GeometryType& outType, ShaderSubTypes& outSubType )
-{
-  // @todo MESH_REWORK Remove after merge
-
-  // Do nothing
-}
-
 bool NewRenderer::IsOutsideClipSpace( Context& context, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
 {
   // @todo MESH_REWORK Add clipping

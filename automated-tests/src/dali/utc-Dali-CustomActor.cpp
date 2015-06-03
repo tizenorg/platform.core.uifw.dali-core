@@ -21,7 +21,7 @@
 
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
-#include <dali/integration-api/events/wheel-event-integ.h>
+#include <dali/integration-api/events/mouse-wheel-event-integ.h>
 #include <dali/integration-api/events/key-event-integ.h>
 
 #include "dali-test-suite-utils/dali-test-suite-utils.h"
@@ -43,7 +43,6 @@ namespace
 {
 
 std::vector< std::string > MasterCallStack;
-bool gOnRelayout = false;
 
 } // anon namespace
 
@@ -61,18 +60,10 @@ struct TestCustomActor : public CustomActorImpl
     mDaliProperty( Property::INVALID_INDEX ),
     mSizeSet( Vector3::ZERO ),
     mTargetSize( Vector3::ZERO ),
-    mNego( false )
+    mDepth(0u)
   {
   }
 
-  TestCustomActor(bool nego)
-  : CustomActorImpl( ActorFlags( REQUIRES_TOUCH_EVENTS | REQUIRES_WHEEL_EVENTS | REQUIRES_HOVER_EVENTS ) ),
-    mDaliProperty( Property::INVALID_INDEX ),
-    mSizeSet( Vector3::ZERO ),
-    mTargetSize( Vector3::ZERO ),
-    mNego( nego )
-  {
-  }
   /**
    * Destructor
    */
@@ -119,9 +110,10 @@ struct TestCustomActor : public CustomActorImpl
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
     AddToCallStacks("OnStageConnection");
+    mDepth = depth;
   }
   virtual void OnStageDisconnection()
   {
@@ -159,9 +151,9 @@ struct TestCustomActor : public CustomActorImpl
     AddToCallStacks("OnHoverEvent");
     return true;
   }
-  virtual bool OnWheelEvent(const WheelEvent& event)
+  virtual bool OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    AddToCallStacks("OnWheelEvent");
+    AddToCallStacks("OnMouseWheelEvent");
     return true;
   }
   virtual bool OnKeyEvent(const KeyEvent& event)
@@ -194,7 +186,6 @@ struct TestCustomActor : public CustomActorImpl
 
   virtual void OnRelayout( const Vector2& size, RelayoutContainer& container )
   {
-    gOnRelayout = true;
   }
 
   virtual void OnSetResizePolicy( ResizePolicy::Type policy, Dimension::Type dimension )
@@ -221,38 +212,14 @@ struct TestCustomActor : public CustomActorImpl
 
   void SetDaliProperty(std::string s)
   {
-    Self().SetProperty(mDaliProperty, s);
-  }
-  void TestRelayoutRequest()
-  {
-    RelayoutRequest();
-  }
-
-  float TestGetHeightForWidthBase( float width )
-  {
-    return GetHeightForWidthBase( width );
-  }
-
-  float TestGetWidthForHeightBase( float height )
-  {
-    return GetWidthForHeightBase( height );
-  }
-
-  float TestCalculateChildSizeBase( const Dali::Actor& child, Dimension::Type dimension )
-  {
-    return CalculateChildSizeBase( child, dimension );
-  }
-
-  bool TestRelayoutDependentOnChildrenBase( Dimension::Type dimension )
-  {
-    return RelayoutDependentOnChildrenBase( dimension );
+    Self().SetProperty(mDaliProperty, s) ;
   }
 
   Property::Index mDaliProperty;
   std::vector< std::string > mMethodsCalled;
   Vector3 mSizeSet;
   Vector3 mTargetSize;
-  bool mNego;
+  unsigned int mDepth;
 };
 
 /**
@@ -269,10 +236,10 @@ struct TestCustomActorVariant1 : public TestCustomActor
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
     // Chain up first
-    TestCustomActor::OnStageConnection();
+    TestCustomActor::OnStageConnection( depth );
 
     // Add the child
     Self().Add( mChildToAdd );
@@ -294,10 +261,10 @@ struct TestCustomActorVariant2 : public TestCustomActor
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
     // Chain up first
-    TestCustomActor::OnStageConnection();
+    TestCustomActor::OnStageConnection( depth );
 
     // Remove all the children
     for( unsigned int i=0, num=Self().GetChildCount(); i<num; ++i )
@@ -372,10 +339,10 @@ struct TestCustomActorVariant5 : public TestCustomActor
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
     // Chain up first
-    TestCustomActor::OnStageConnection();
+    TestCustomActor::OnStageConnection( depth );
 
     // Take parent off-stage
     Actor parent = Self().GetParent();
@@ -497,7 +464,7 @@ public:
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection()
+  virtual void OnStageConnection( unsigned int depth )
   {
   }
   virtual void OnStageDisconnection()
@@ -523,7 +490,7 @@ public:
   {
     return true;
   }
-  virtual bool OnWheelEvent(const WheelEvent& event)
+  virtual bool OnMouseWheelEvent(const MouseWheelEvent& event)
   {
     return true;
   }
@@ -597,17 +564,6 @@ public:
   {
     Impl::TestCustomActor* impl = new Impl::TestCustomActor;
     TestCustomActor custom( *impl ); // takes ownership
-
-    impl->Initialize();
-
-    return custom;
-  }
-
-  static TestCustomActor NewNegoSize()
-  {
-    Impl::TestCustomActor* impl = new Impl::TestCustomActor( true );
-    TestCustomActor custom( *impl ); // takes ownership
-    custom.SetName( "SizeNegotiationActor" );
 
     impl->Initialize();
 
@@ -755,29 +711,9 @@ public:
   {
   }
 
-  void TestRelayoutRequest()
+  unsigned int GetDepth()
   {
-    GetImpl().TestRelayoutRequest();
-  }
-
-  float TestGetHeightForWidthBase( float width )
-  {
-    return GetImpl().TestGetHeightForWidthBase( width );
-  }
-
-  float TestGetWidthForHeightBase( float height )
-  {
-    return GetImpl().TestGetWidthForHeightBase( height );
-  }
-
-  float TestCalculateChildSizeBase( const Dali::Actor& child, Dimension::Type dimension )
-  {
-    return GetImpl().TestCalculateChildSizeBase( child, dimension );
-  }
-
-  bool TestRelayoutDependentOnChildrenBase( Dimension::Type dimension )
-  {
-    return GetImpl().TestRelayoutDependentOnChildrenBase( dimension );
+    return GetImpl().mDepth;
   }
 
 private:
@@ -1588,7 +1524,7 @@ int UtcDaliCustomActorOnPropertySet(void)
   TestCustomActor custom = TestCustomActor::New();
   DALI_TEST_EQUALS( 0, (int)(custom.GetMethodsCalled().size()), TEST_LOCATION );
 
-  custom.SetDaliProperty("yes");
+  custom.SetDaliProperty("yes") ;
 
   DALI_TEST_EQUALS( 1, (int)(custom.GetMethodsCalled().size()), TEST_LOCATION );
   DALI_TEST_EQUALS( "OnPropertySet", custom.GetMethodsCalled()[ 0 ], TEST_LOCATION );
@@ -1718,13 +1654,13 @@ int UtcDaliCustomActorOnWheelEvent(void)
   application.SendNotification();
   application.Render();
 
-  // simulate a wheel event
+  // simulate a mouse wheel event
   Vector2 screenCoordinates( 10.0f, 10.0f );
-  Integration::WheelEvent event( Integration::WheelEvent::MOUSE_WHEEL, 0, 0u, screenCoordinates, 1, 1000u );
+  Integration::MouseWheelEvent event(0, 0u, screenCoordinates, 1, 1000u);
   application.ProcessEvent( event );
 
   DALI_TEST_EQUALS( 1, (int)(custom.GetMethodsCalled().size()), TEST_LOCATION );
-  DALI_TEST_EQUALS( "OnWheelEvent", custom.GetMethodsCalled()[ 0 ], TEST_LOCATION );
+  DALI_TEST_EQUALS( "OnMouseWheelEvent", custom.GetMethodsCalled()[ 0 ], TEST_LOCATION );
   END_TEST;
 }
 
@@ -1768,7 +1704,7 @@ int UtcDaliCustomActorDoAction(void)
 
   DALI_TEST_CHECK(customActorObject);
 
-  Property::Map attributes;
+  std::vector<Property::Value> attributes;
 
   // Check that an invalid command is not performed
   DALI_TEST_CHECK(customActorObject.DoAction("invalidCommand", attributes) == false);
@@ -1799,153 +1735,55 @@ int UtcDaliCustomActorDoAction(void)
   END_TEST;
 }
 
-int UtcDaliCustomActorCustomActor(void)
-{
-  Dali::CustomActor customA;
-  Dali::CustomActor customB( customA );
-
-  DALI_TEST_CHECK( customA == customB );
-
-  END_TEST;
-}
-
-int UtcDaliCustomActorImplRelayoutRequest(void)
+int UtcDaliCustomActorOnConnectionDepth(void)
 {
   TestApplication application;
+  tet_infoline("Testing Dali::CustomActor::OnStageConnection() hierarchy depth");
 
-  DALI_TEST_CHECK( gOnRelayout == false );
+  Stage stage = Stage::GetCurrent();
 
-  TestCustomActor custom = TestCustomActor::NewNegoSize();
-  Stage::GetCurrent().Add(custom);
+  /* Build tree of actors:
+   *
+   *                      Depth
+   *
+   *       A (parent)       1
+   *      / \
+   *     B   C              2
+   *    / \   \
+   *   D   E   F            3
+   *
+   * OnStageConnection should return 1 for A, 2 for B and C, and 3 for D, E and F.
+   */
 
+  TestCustomActor actorA = TestCustomActor::New();
+  stage.Add( actorA );
+
+  TestCustomActor actorB = TestCustomActor::New();
+  actorA.Add( actorB );
+
+  TestCustomActor actorC = TestCustomActor::New();
+  actorA.Add( actorC );
+
+  TestCustomActor actorD = TestCustomActor::New();
+  actorB.Add( actorD );
+
+  TestCustomActor actorE = TestCustomActor::New();
+  actorB.Add( actorE );
+
+  TestCustomActor actorF = TestCustomActor::New();
+  actorC.Add( actorF );
+
+  // Excercise the message passing to Update thread
   application.SendNotification();
   application.Render();
-
-  DALI_TEST_CHECK( gOnRelayout == true );
-  gOnRelayout = false;
-
-  custom.TestRelayoutRequest();
-  application.SendNotification();
   application.Render();
 
-  DALI_TEST_CHECK( gOnRelayout == true );
-
-  END_TEST;
-}
-
-int UtcDaliCustomActorImplGetHeightForWidthBase(void)
-{
-  TestApplication application;
-  TestCustomActor custom = TestCustomActor::NewNegoSize();
-
-  float width = 300.0f;
-  float v = 0.0f;
-
-  application.SendNotification();
-  application.Render();
-
-  v = custom.TestGetHeightForWidthBase( width );
-
-  DALI_TEST_CHECK( v == width );
-
-  END_TEST;
-}
-
-int UtcDaliCustomActorImplGetWidthForHeightBase(void)
-{
-  TestApplication application;
-  TestCustomActor custom = TestCustomActor::NewNegoSize();
-
-  float height = 300.0f;
-  float v = 0.0f;
-
-  application.SendNotification();
-  application.Render();
-
-  v = custom.TestGetWidthForHeightBase( height );
-
-  DALI_TEST_CHECK( v == height );
-
-  END_TEST;
-}
-
-int UtcDaliCustomActorImplCalculateChildSizeBase(void)
-{
-  TestApplication application;
-  TestCustomActor custom = TestCustomActor::NewNegoSize();
-
-  Actor child = Actor::New();
-  child.SetResizePolicy(Dali::ResizePolicy::FIXED, Dali::Dimension::ALL_DIMENSIONS);
-  child.SetSize(150, 150);
-
-  application.SendNotification();
-  application.Render();
-
-  float v = 9.99f;
-  v = custom.TestCalculateChildSizeBase( child, Dali::Dimension::ALL_DIMENSIONS );
-  DALI_TEST_CHECK( v == 0.0f );
-
-  END_TEST;
-}
-
-int UtcDaliCustomActorImplRelayoutDependentOnChildrenBase(void)
-{
-  TestApplication application;
-  TestCustomActor custom = TestCustomActor::NewNegoSize();
-  custom.SetResizePolicy(Dali::ResizePolicy::FIT_TO_CHILDREN, Dali::Dimension::ALL_DIMENSIONS);
-
-  bool v = false;
-
-  v = custom.TestRelayoutDependentOnChildrenBase( Dali::Dimension::ALL_DIMENSIONS );
-  application.SendNotification();
-  application.Render();
-
-  DALI_TEST_CHECK( v == true );
-
-  custom.SetResizePolicy(Dali::ResizePolicy::FIXED, Dali::Dimension::ALL_DIMENSIONS);
-  v = custom.TestRelayoutDependentOnChildrenBase( Dali::Dimension::WIDTH );
-  application.SendNotification();
-  application.Render();
-  DALI_TEST_CHECK( v == false );
-
-  END_TEST;
-}
-
-int UtcDaliCustomActorTypeRegistry(void)
-{
-  TestApplication application;
-
-  // Register Type
-  TypeInfo type;
-  type = TypeRegistry::Get().GetTypeInfo( "CustomActor" );
-  DALI_TEST_CHECK( type );
-  BaseHandle handle = type.CreateInstance();
-
-  std::string name;
-  std::string exception;
-
-  try
-  {
-    name = handle.GetTypeName();
-    tet_result(TET_FAIL);
-  }
-  catch( DaliException& e )
-  {
-    exception = e.condition;
-    DALI_TEST_EQUALS( exception, "handle && \"BaseObject handle is empty\"", TEST_LOCATION );
-  }
-
-  END_TEST;
-}
-
-
-int UtcDaliCustomActorGetExtensionP(void)
-{
-  TestApplication application;
-
-  TestCustomActor custom = TestCustomActor::NewVariant5();
-
-  DALI_TEST_CHECK( NULL == custom.GetImplementation().GetExtension() );
+  DALI_TEST_EQUALS( 1u, actorA.GetDepth(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 2u, actorB.GetDepth(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 2u, actorC.GetDepth(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 3u, actorD.GetDepth(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 3u, actorE.GetDepth(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 3u, actorF.GetDepth(), TEST_LOCATION );
 
   END_TEST;
 }

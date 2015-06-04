@@ -614,10 +614,9 @@ void UpdateManager::RemoveShader( Shader* shader )
 }
 
 void UpdateManager::SetShaderProgram( Shader* shader,
-                                      GeometryType geometryType, ///< @todo MESH_REWORK GeometryType not required.
                                       ResourceId resourceId, size_t shaderHash, bool modifiesGeometry )
 {
-  DALI_LOG_TRACE_METHOD_FMT(Debug::Filter::gShader, " - (geometryType:%d id:%d hash:%d)\n", geometryType, resourceId, shaderHash);
+  DALI_LOG_TRACE_METHOD_FMT(Debug::Filter::gShader, " - (id:%d hash:%d)\n", resourceId, shaderHash);
 
   DALI_ASSERT_ALWAYS( NULL != shader && "shader is uninitialized" );
 

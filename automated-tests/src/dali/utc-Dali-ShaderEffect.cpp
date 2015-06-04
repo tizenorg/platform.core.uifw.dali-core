@@ -181,7 +181,7 @@ int UtcDaliShaderEffectMethodNew04(void)
     GLuint lastShaderCompiledBefore = application.GetGlAbstraction().GetLastShaderCompiled();
     ShaderEffect effect = ShaderEffect::NewWithPrefix( vertexShaderPrefix, VertexSource,
                                                        fragmentShaderPrefix, FragmentSourceUsingExtensions,
-                                                       GEOMETRY_TYPE_IMAGE, ShaderEffect::HINT_NONE );
+                                                       ShaderEffect::HINT_NONE );
 
     BufferImage image = CreateBufferImage();
     ImageActor actor = ImageActor::New( image );
@@ -977,8 +977,6 @@ int UtcDaliShaderEffectFromProperties01(void)
   programMap.SetValue("vertex-prefix", vertexShaderPrefix);
   programMap.SetValue("fragment-prefix", fragmentShaderPrefix);
 
-  programMap.SetValue("geometry-type", "GEOMETRY_TYPE_IMAGE");
-
   effect.SetProperty(effect.GetPropertyIndex("program"), programMap);
 
   Property::Value imageMap = Property::Value(Property::MAP);
@@ -1023,40 +1021,28 @@ int UtcDaliShaderEffectFromProperties01(void)
 
 int UtcDaliShaderEffectFromProperties02(void)
 {
-  try
-  {
-    TestApplication application;
-    tet_infoline("UtcDaliShaderEffectFromProperties02()");
+  TestApplication application;
+  tet_infoline("UtcDaliShaderEffectFromProperties02()");
 
-    // Call render to compile default shaders.
-    application.SendNotification();
-    application.Render();
-    application.Render();
-    application.Render();
+  // Call render to compile default shaders.
+  application.SendNotification();
+  application.Render();
+  application.Render();
+  application.Render();
 
-    // create from type registry (currently only way to get ShaderEffect with no shader setup in constructor
-    TypeInfo typeInfo = TypeRegistry::Get().GetTypeInfo( "ShaderEffect" );
-    DALI_TEST_CHECK( typeInfo );
-    ShaderEffect effect = ShaderEffect::DownCast( typeInfo.CreateInstance() );
-    DALI_TEST_CHECK( effect );
+  // create from type registry (currently only way to get ShaderEffect with no shader setup in constructor
+  TypeInfo typeInfo = TypeRegistry::Get().GetTypeInfo( "ShaderEffect" );
+  DALI_TEST_CHECK( typeInfo );
+  ShaderEffect effect = ShaderEffect::DownCast( typeInfo.CreateInstance() );
+  DALI_TEST_CHECK( effect );
 
-    Property::Value programMap = Property::Value(Property::MAP);
+  Property::Value programMap = Property::Value(Property::MAP);
 
-    programMap.SetValue("vertex",   std::string(VertexSource));
-    programMap.SetValue("fragment", std::string(FragmentSource));
+  programMap.SetValue("vertex",   std::string(VertexSource));
+  programMap.SetValue("fragment", std::string(FragmentSource));
 
-    // programMap.SetValue("geometry-type", "GEOMETRY_TYPE_IMAGE");
-    // dont set by value
-    programMap.SetValue("geometry-type", GeometryType( GEOMETRY_TYPE_IMAGE ));
+  effect.SetProperty(effect.GetPropertyIndex("program"), programMap);
 
-    effect.SetProperty(effect.GetPropertyIndex("program"), programMap);
-
-    tet_result( TET_FAIL );
-  }
-  catch(Dali::DaliException& e)
-  {
-    DALI_TEST_PRINT_ASSERT( e );
-  }
   END_TEST;
 }
 

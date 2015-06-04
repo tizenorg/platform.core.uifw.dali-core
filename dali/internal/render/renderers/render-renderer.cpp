@@ -84,7 +84,7 @@ bool NewRenderer::IsOutsideClipSpace( Context& context, const Matrix& modelMatri
   return false;
 }
 
-void NewRenderer::DoSetUniforms( Context& context, BufferIndex bufferIndex, Shader* shader, Program* program, unsigned int programIndex, ShaderSubTypes subType )
+void NewRenderer::DoSetUniforms( Context& context, BufferIndex bufferIndex, Shader* shader, Program* program, unsigned int programIndex )
 {
   // Do nothing, we're going to set up the uniforms with our own code instead
 }

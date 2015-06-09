@@ -151,7 +151,6 @@ int UtcDaliGeometryConstraint02(void)
 
   Vector4 initialColor = Color::WHITE;
   Property::Index colorIndex = geometry.RegisterProperty( "fade-color", initialColor );
-  geometry.AddUniformMapping( colorIndex, std::string("uFadeColor") );
 
   TestGlAbstraction& gl = application.GetGlAbstraction();
 
@@ -255,7 +254,6 @@ int UtcDaliGeometryAnimatedProperty02(void)
 
   Vector4 initialColor = Color::WHITE;
   Property::Index colorIndex = geometry.RegisterProperty( "fade-color", initialColor );
-  geometry.AddUniformMapping( colorIndex, std::string("uFadeColor") );
 
   TestGlAbstraction& gl = application.GetGlAbstraction();
 

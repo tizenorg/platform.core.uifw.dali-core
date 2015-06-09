@@ -162,7 +162,6 @@ int UtcDaliShaderConstraint02(void)
 
   Vector4 initialColor = Color::WHITE;
   Property::Index colorIndex = shader.RegisterProperty( "fade-color", initialColor );
-  shader.AddUniformMapping( colorIndex, std::string("uFadeColor") );
 
   TestGlAbstraction& gl = application.GetGlAbstraction();
 
@@ -266,7 +265,6 @@ int UtcDaliShaderAnimatedProperty02(void)
 
   Vector4 initialColor = Color::WHITE;
   Property::Index colorIndex = shader.RegisterProperty( "fade-color", initialColor );
-  shader.AddUniformMapping( colorIndex, std::string("uFadeColor") );
 
   TestGlAbstraction& gl = application.GetGlAbstraction();
 

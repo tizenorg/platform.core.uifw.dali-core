@@ -636,7 +636,6 @@ int UtcDaliMaterialConstraint02(void)
 
   Vector4 initialColor = Color::WHITE;
   Property::Index colorIndex = material.RegisterProperty( "fade-color", initialColor );
-  material.AddUniformMapping( colorIndex, std::string("uFadeColor") );
 
   TestGlAbstraction& gl = application.GetGlAbstraction();
 
@@ -740,7 +739,6 @@ int UtcDaliMaterialAnimatedProperty02(void)
 
   Vector4 initialColor = Color::WHITE;
   Property::Index colorIndex = material.RegisterProperty( "fade-color", initialColor );
-  material.AddUniformMapping( colorIndex, std::string("uFadeColor") );
 
   TestGlAbstraction& gl = application.GetGlAbstraction();
 

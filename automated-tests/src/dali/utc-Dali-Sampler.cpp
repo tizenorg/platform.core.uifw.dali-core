@@ -168,7 +168,6 @@ int UtcDaliSamplerUniformMap01(void)
 
   float initialValue = 1.0f;
   Property::Index widthClampIndex = sampler.RegisterProperty("width-clamp", initialValue );
-  sampler.AddUniformMapping( widthClampIndex, std::string("uWidthClamp") );
 
   TestGlAbstraction& gl = application.GetGlAbstraction();
 

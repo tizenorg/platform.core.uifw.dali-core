@@ -20,6 +20,8 @@
 
 // EXTERNAL INCLUDES
 #include <algorithm>
+#include <sstream>
+#include <cctype>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -50,6 +52,47 @@ typedef Dali::Vector<Object::Observer*>::ConstIterator ConstObserverIter;
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_OBJECT" );
 #endif
+
+/**
+ * Convert name separated by non alpha-numeric characters to
+ * CamelCase preceded by lower case 'u'.
+ * Examples: "background-color" => "uBackgroundColor"
+ *           "my-array[0]" => "uMyArray[0]"
+ *           "my-structure.color" => "uMystructure.color"
+ *
+ * @param[in] string String to convert
+ * @return Converted version of the string
+ */
+std::string PropertyNameToUniform( const std::string& string )
+{
+  std::ostringstream stream;
+  stream << "u";
+  bool startWord = true;
+  for(size_t i = 0; i<string.length(); ++i)
+  {
+    if( std::isalnum(string[i]) ||
+        string[i] == '[' || string[i] == ']' || // required to support arrays
+        string[i] == '.' // required to support structures
+          )
+    {
+      if(startWord)
+      {
+        stream << char(std::toupper(string[i]));
+        startWord = false;
+      }
+      else
+      {
+        stream << string[i];
+      }
+    }
+    else
+    {
+      startWord = true;
+    }
+  }
+  return stream.str();
+}
+
 } // unnamed namespace
 
 Object::Object()
@@ -635,7 +678,10 @@ Property::Index Object::RegisterSceneGraphProperty(const std::string& name, Prop
 
 Property::Index Object::RegisterProperty( const std::string& name, const Property::Value& propertyValue)
 {
-  return RegisterSceneGraphProperty(name, PROPERTY_CUSTOM_START_INDEX + mCustomProperties.Count(), propertyValue);
+  Property::Index index = RegisterSceneGraphProperty(name, PROPERTY_CUSTOM_START_INDEX + mCustomProperties.Count(), propertyValue);
+
+  AddUniformMapping(index, PropertyNameToUniform(name));
+  return index;
 }
 
 Property::Index Object::RegisterProperty( const std::string& name, const Property::Value& propertyValue, Property::AccessMode accessMode)

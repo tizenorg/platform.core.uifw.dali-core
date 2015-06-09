@@ -50,6 +50,8 @@ typedef Dali::Vector<Object::Observer*>::ConstIterator ConstObserverIter;
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_OBJECT" );
 #endif
+
+
 } // unnamed namespace
 
 Object::Object()

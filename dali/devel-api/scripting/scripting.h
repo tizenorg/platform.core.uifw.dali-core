@@ -132,7 +132,8 @@ const char * GetEnumerationName( T value, const StringEnum< T >* table, unsigned
     }
   }
 
-  return NULL;
+  DALI_ASSERT_ALWAYS( 0 && "Enumeration value is not in the table" );	135
+  return "";
 }
 
 /**
@@ -152,7 +153,8 @@ const char * GetLinearEnumerationName( T value, const StringEnum< T >* table, un
 {
   if ( value < 0 || value >= (int)tableCount )
   {
-    return NULL;
+    DALI_ASSERT_ALWAYS( 0 && "Enumeration value exceeds the table range" );
+    return "";
   }
 
   return table[value].string;

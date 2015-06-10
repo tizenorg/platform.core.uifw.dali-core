@@ -84,8 +84,8 @@ struct LinearConstraintFunctor
       float t = (( inputWrapped - mRange.x ) / ( mRange.y-mRange.x ));
 
       //Find min and max values and local t between them
-      size_t min(0);
-      size_t max(0);
+      int min(0);
+      int max(0);
       float tLocal(0.0f);
       if( mProgress.Size() < valueCount )
       {

@@ -227,7 +227,10 @@ Property::Value::Value(const std::string& stringValue)
 
 Property::Value::Value(const char *stringValue)
 {
-  mImpl = new Impl( std::string(stringValue) );
+  if( stringValue ) // NULL char pointer is not acceptable for std::string
+  {
+    mImpl = new Impl( std::string(stringValue) );
+  }
 }
 
 Property::Value::Value(Property::Array &arrayValue)

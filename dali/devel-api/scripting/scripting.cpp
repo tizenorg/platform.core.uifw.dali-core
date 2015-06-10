@@ -199,7 +199,15 @@ ColorMode GetColorMode( const std::string& value )
 
 std::string GetColorMode( ColorMode value )
 {
-  return GetEnumerationName< ColorMode >( value, COLOR_MODE_TABLE, COLOR_MODE_TABLE_COUNT );
+  const char* name = GetEnumerationName< ColorMode >( value, COLOR_MODE_TABLE, COLOR_MODE_TABLE_COUNT );
+  if( name )
+  {
+    return name;
+  }
+  else
+  {
+    return std::string();
+  }
 }
 
 PositionInheritanceMode GetPositionInheritanceMode( const std::string& value )
@@ -210,7 +218,15 @@ PositionInheritanceMode GetPositionInheritanceMode( const std::string& value )
 
 std::string GetPositionInheritanceMode( PositionInheritanceMode value )
 {
-  return GetEnumerationName< PositionInheritanceMode >( value, POSITION_INHERITANCE_MODE_TABLE, POSITION_INHERITANCE_MODE_TABLE_COUNT );
+  const char* name = GetEnumerationName< PositionInheritanceMode >( value, POSITION_INHERITANCE_MODE_TABLE, POSITION_INHERITANCE_MODE_TABLE_COUNT );
+  if( name )
+  {
+    return name;
+  }
+  else
+  {
+    return std::string();
+  }
 }
 
 
@@ -222,7 +238,15 @@ DrawMode::Type GetDrawMode( const std::string& value )
 
 std::string GetDrawMode( DrawMode::Type value )
 {
-  return GetEnumerationName< DrawMode::Type >( value, DRAW_MODE_TABLE, DRAW_MODE_TABLE_COUNT );
+  const char* name = GetEnumerationName< DrawMode::Type >( value, DRAW_MODE_TABLE, DRAW_MODE_TABLE_COUNT );
+  if( name )
+  {
+    return name;
+  }
+  else
+  {
+    return std::string();
+  }
 }
 
 

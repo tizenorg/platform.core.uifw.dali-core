@@ -100,16 +100,6 @@ struct TestCallback
 class FakeObject : public BaseObject
 {
 };
-// used for testing ThisIsSaferThanReturningVoidStar
-class FakeHandle :  public BaseHandle
-{
-public:
-
-  void RunTest()
-  {
-    return ThisIsSaferThanReturningVoidStar();
-  }
-};
 } // anon namespace
 
 int UtcDaliBaseHandleConstructorVoid(void)
@@ -471,17 +461,6 @@ int UtcDaliBaseHandleGetTypeInfoP(void)
   bool ok = actor.GetTypeInfo( info );
   DALI_TEST_CHECK( ok );
   END_TEST;
-}
-
-int UtcDaliBaseHandleThisIsSaferThanReturningVoidStar(void)
-{
-  TestApplication application;
-  tet_infoline("Testing Dali::BaseHandle::GetTypeInfo");
-  FakeHandle handle;
-  handle.RunTest();
-  tet_result(TET_PASS);
-  END_TEST;
-
 }
 
 int UtcDaliBaseHandleGetTypeInfoN(void)

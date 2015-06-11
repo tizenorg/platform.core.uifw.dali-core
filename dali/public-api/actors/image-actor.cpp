@@ -130,6 +130,16 @@ float ImageActor::GetSortModifier() const
   return GetImplementation(*this).GetSortModifier();
 }
 
+void ImageActor::SetDepthIndex( int depthIndex )
+{
+  GetImplementation(*this).SetSortModifier( static_cast< float >( -depthIndex ) );
+}
+
+int ImageActor::GetDepthIndex() const
+{
+  return static_cast< int >( -GetImplementation(*this).GetSortModifier() );
+}
+
 void ImageActor::SetCullFace(const CullFaceMode mode)
 {
   GetImplementation(*this).SetCullFace(mode);

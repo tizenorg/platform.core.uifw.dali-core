@@ -365,7 +365,14 @@ bool HitTestRenderTask( LayerList& layers,
         bool stencilOnLayer = false;
         bool stencilHit = false;
         bool layerConsumesHit = false;
-        const Vector2& stageSize = Stage::GetCurrent()->GetSize();
+
+        StagePtr stage = Stage::GetCurrent();
+        if( !stage )
+        {
+          return false;
+        }
+
+        const Vector2& stageSize = stage->GetSize();
 
         for (int i=layers.GetLayerCount()-1; i>=0 && !(hit.actor); --i)
         {

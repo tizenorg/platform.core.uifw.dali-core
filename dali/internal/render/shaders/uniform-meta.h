@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/math/compile-time-math.h>
 #include <dali/public-api/object/property.h>
-#include <dali/public-api/shader-effects/shader-effect.h>
+#include <dali/public-api/shader-effects/shader.h>
 #include <dali/internal/common/message.h>
 
 namespace Dali
@@ -49,7 +49,7 @@ public:
   /**
    * Create a UniformMeta.
    */
-  static UniformMeta* New( const std::string& name, const PropertyBase& property, Dali::ShaderEffect::UniformCoordinateType coordType )
+  static UniformMeta* New( const std::string& name, const PropertyBase& property, Dali::UniformCoordinateTransformation::Type coordType )
   {
     return new UniformMeta( name, property, coordType );
   }
@@ -70,7 +70,7 @@ public:
    * Set the coordinate type.
    * @param [in] coordType The new coordinate type.
    */
-  void SetCoordinateType( Dali::ShaderEffect::UniformCoordinateType coordType )
+  void SetCoordinateType( Dali::UniformCoordinateTransformation::Type coordType )
   {
     coordinateType = coordType;
   }
@@ -80,7 +80,7 @@ private:
   /**
    * Constructor
    */
-  UniformMeta( const std::string& uniformName, const PropertyBase& prop, Dali::ShaderEffect::UniformCoordinateType coordType )
+  UniformMeta( const std::string& uniformName, const PropertyBase& prop, Dali::UniformCoordinateTransformation::Type coordType )
   : name( uniformName ),
     property( prop ),
     cacheIndex( 0 ),
@@ -96,7 +96,7 @@ public:
   std::string name; ///< name of uniform to set/animate
   const PropertyBase& property; ///< reference to the corresponding property
   unsigned int cacheIndex; ///< internal program cache index
-  Dali::ShaderEffect::UniformCoordinateType coordinateType; ///< The coordinate type of the uniform
+  Dali::UniformCoordinateTransformation::Type coordinateType; ///< The coordinate type of the uniform
 
 
 };

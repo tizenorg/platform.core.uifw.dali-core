@@ -413,11 +413,11 @@ ShaderEffect NewShaderEffect( const Property::Value& map )
             // valid uniforms are floats, vec3's etc so we recast if the user accidentally
             // set as integer. Note the map could have come from json script.
             Property::Value asFloat( static_cast<float>( map.GetItem(i).Get<int>() ) );
-            ret->SetUniform( key, asFloat, Dali::ShaderEffect::COORDINATE_TYPE_DEFAULT );
+            ret->SetUniform( key, asFloat, Dali::UniformCoordinateTransformation::DEFAULT );
           }
           else
           {
-            ret->SetUniform( key, map.GetItem(i), Dali::ShaderEffect::COORDINATE_TYPE_DEFAULT );
+            ret->SetUniform( key, map.GetItem(i), Dali::UniformCoordinateTransformation::DEFAULT );
           }
         }
       }
@@ -426,7 +426,6 @@ ShaderEffect NewShaderEffect( const Property::Value& map )
 
   return Dali::ShaderEffect(ret.Get());
 }
-
 
 Actor NewActor( const Property::Map& map )
 {

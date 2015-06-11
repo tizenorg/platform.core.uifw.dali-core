@@ -20,7 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/shader-effects/shader-effect.h>
+#include <dali/public-api/shader-effects/shader.h>
+#include <dali/public-api/shader-effects/shader-effect.h> ///< @todo MESH_REWORK - Remove this include
 
 #include <dali/integration-api/shader-data.h>
 
@@ -174,7 +175,7 @@ public:
    * @param[in] index of the metadata.
    * @param[in] type the coordinate type.
    */
-  void ForwardCoordinateType( BufferIndex updateBufferIndex, unsigned int index, Dali::ShaderEffect::UniformCoordinateType type );
+  void ForwardCoordinateType( BufferIndex updateBufferIndex, unsigned int index, Dali::UniformCoordinateTransformation::Type type );
 
   /**
    * Forwards the grid density.
@@ -235,7 +236,7 @@ public:
    * @param index of the uniform
    * @param type to set
    */
-  void SetCoordinateTypeInRender( unsigned int index, Dali::ShaderEffect::UniformCoordinateType type );
+  void SetCoordinateTypeInRender( unsigned int index, Dali::UniformCoordinateTransformation::Type type );
 
   /**
    * @brief Set the program for a geometry type.
@@ -296,7 +297,7 @@ void SetTextureIdMessage( EventThreadServices& eventThreadServices, const Shader
 void SetGridDensityMessage( EventThreadServices& eventThreadServices, const Shader& shader, float density );
 void SetHintsMessage( EventThreadServices& eventThreadServices, const Shader& shader, Dali::ShaderEffect::GeometryHints hint );
 void InstallUniformMetaMessage( EventThreadServices& eventThreadServices, const Shader& shader, UniformMeta& meta );
-void SetCoordinateTypeMessage( EventThreadServices& eventThreadServices, const Shader& shader, unsigned int index, Dali::ShaderEffect::UniformCoordinateType type );
+void SetCoordinateTypeMessage( EventThreadServices& eventThreadServices, const Shader& shader, unsigned int index, Dali::UniformCoordinateTransformation::Type type );
 
 } // namespace SceneGraph
 

@@ -45,7 +45,7 @@ class UpdateManager;
 class ShaderEffect : public Object
 {
 public:
-  typedef Dali::ShaderEffect::UniformCoordinateType UniformCoordinateType;
+  typedef Dali::UniformCoordinateTransformation::Type UniformCoordinateType;
 
   enum GeometryState
   {

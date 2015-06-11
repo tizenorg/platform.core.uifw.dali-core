@@ -372,8 +372,8 @@ int UtcDaliShaderEffectMethodSetUniformViewport(void)
   actor.SetShaderEffect(effect);
   Stage::GetCurrent().Add(actor);
 
-  effect.SetUniform( "uVec2", Vector2( 0.0f, 0.0f ), ShaderEffect::COORDINATE_TYPE_VIEWPORT_POSITION );
-  effect.SetUniform( "uVec2Dir", Vector2( 1.0f, 2.0f ), ShaderEffect::COORDINATE_TYPE_VIEWPORT_DIRECTION );
+  effect.SetUniform( "uVec2", Vector2( 0.0f, 0.0f ), UniformCoordinateTransformation::VIEWPORT_POSITION );
+  effect.SetUniform( "uVec2Dir", Vector2( 1.0f, 2.0f ), UniformCoordinateTransformation::VIEWPORT_DIRECTION );
 
   application.SendNotification();
   application.Render();
@@ -385,8 +385,8 @@ int UtcDaliShaderEffectMethodSetUniformViewport(void)
   DALI_TEST_CHECK( application.GetGlAbstraction().CheckUniformValue( "uVec2Dir", Vector2( -1.0f, 2.0f ) ) );
 
   // change coordinate types
-  effect.SetUniform( "uVec2", Vector2( 0.1f, 0.2f ), ShaderEffect::COORDINATE_TYPE_DEFAULT );
-  effect.SetUniform( "uVec2Dir", Vector2( 1.0f, 2.0f ), ShaderEffect::COORDINATE_TYPE_VIEWPORT_POSITION );
+  effect.SetUniform( "uVec2", Vector2( 0.1f, 0.2f ), Dali::UniformCoordinateTransformation::DEFAULT );
+  effect.SetUniform( "uVec2Dir", Vector2( 1.0f, 2.0f ), Dali::UniformCoordinateTransformation::VIEWPORT_POSITION );
   actor.SetPixelArea( ImageActor::PixelArea( 0, 0, 10, 10 ) );
 
   application.SendNotification();

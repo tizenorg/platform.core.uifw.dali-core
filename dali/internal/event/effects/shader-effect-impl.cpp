@@ -246,7 +246,7 @@ void ShaderEffect::SetUniform( const std::string& name, Property::Value value, U
   {
     mCoordinateTypes.Resize( metaIndex + 1 );
   }
-  // only send message if the value is different than current, initial value is COORDINATE_TYPE_DEFAULT (0)
+  // only send message if the value is different than current, initial value is UniformCoordinateTransformation::DEFAULT (0)
   if( uniformCoordinateType != mCoordinateTypes[ metaIndex ] )
   {
     mCoordinateTypes[ metaIndex ] = uniformCoordinateType;
@@ -483,7 +483,7 @@ void ShaderEffect::NotifyScenePropertyInstalled( const SceneGraph::PropertyBase&
   // Warning - the property is added to the Shader object in the Update thread and the meta-data is added in the Render thread (through a secondary message)
 
   // mSceneObject requires metadata for each custom property (uniform)
-  UniformMeta* meta = UniformMeta::New( name, newProperty, Dali::ShaderEffect::COORDINATE_TYPE_DEFAULT );
+  UniformMeta* meta = UniformMeta::New( name, newProperty, Dali::UniformCoordinateTransformation::DEFAULT );
   // mSceneObject is being used in a separate thread; queue a message to add the property
   InstallUniformMetaMessage( mEventThreadServices, *mSceneObject, *meta ); // Message takes ownership
 }

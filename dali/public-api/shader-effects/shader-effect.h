@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/handle.h>
 #include <dali/public-api/object/property-index-ranges.h>
+#include <dali/public-api/shader-effects/shader.h>
 
 namespace Dali
 {
@@ -153,17 +154,9 @@ public:
   /**
    * @brief Coordinate type of the shader uniform.
    *
-   * Viewport coordinate types will convert from viewport to view space.
-   * Use this coordinate type if your are doing a transformation in view space.
-   * The texture coordinate type converts a value in actor local space to texture coodinates.
-   * This is useful for pixel shaders and accounts for texture atlas.
+   * @copydoc UniformCoordinateTransformation
    */
-  enum UniformCoordinateType
-  {
-    COORDINATE_TYPE_DEFAULT,           ///< Default, No transformation to be applied
-    COORDINATE_TYPE_VIEWPORT_POSITION, ///< The uniform is a position vector in viewport coordinates that needs to be converted to GL view space coordinates.
-    COORDINATE_TYPE_VIEWPORT_DIRECTION ///< The uniform is a directional vector in viewport coordinates that needs to be converted to GL view space coordinates.
-  };
+  typedef UniformCoordinateTransformation::Type UniformCoordinateType;
 
   /**
    * @brief Create an empty ShaderEffect.
@@ -253,7 +246,7 @@ public:
    */
   void SetUniform( const std::string& name,
                    float value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
+                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(UniformCoordinateTransformation::DEFAULT) );
 
   /**
    * @brief Set a uniform value.
@@ -267,7 +260,7 @@ public:
    */
   void SetUniform( const std::string& name,
                    Vector2 value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
+                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(UniformCoordinateTransformation::DEFAULT) );
 
   /**
    * @brief Set a uniform value.
@@ -281,7 +274,7 @@ public:
    */
   void SetUniform( const std::string& name,
                    Vector3 value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
+                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(UniformCoordinateTransformation::DEFAULT) );
 
   /**
    * @brief Set a uniform value.
@@ -295,7 +288,7 @@ public:
    */
   void SetUniform( const std::string& name,
                    Vector4 value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
+                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(UniformCoordinateTransformation::DEFAULT) );
 
   /**
    * @brief Set a uniform value.
@@ -309,7 +302,7 @@ public:
    */
   void SetUniform( const std::string& name,
                    const Matrix& value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
+                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(UniformCoordinateTransformation::DEFAULT) );
 
   /**
    * @brief Set a uniform value.
@@ -323,7 +316,7 @@ public:
    */
   void SetUniform( const std::string& name,
                    const Matrix3& value,
-                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(COORDINATE_TYPE_DEFAULT) );
+                   UniformCoordinateType uniformCoordinateType = UniformCoordinateType(UniformCoordinateTransformation::DEFAULT) );
 
 public: // Not intended for application developers
 

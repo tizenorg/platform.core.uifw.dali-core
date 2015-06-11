@@ -62,6 +62,27 @@ class Shader;
 }
 
 /**
+ * @brief Shader uniform coordinate transformation type.
+ *
+ * Defines a CPU-side processing step to be automatically
+ * applied to values passed in to uniforms.
+ *
+ * Viewport coordinate types will convert from viewport to view space.
+ * Use this coordinate type if your are doing a transformation in view space.
+ */
+namespace UniformCoordinateTransformation
+{
+
+enum Type
+{
+  DEFAULT,           ///< Default, No transformation to be applied
+  VIEWPORT_POSITION, ///< The uniform is a position vector in viewport coordinates that needs to be converted to GL view space coordinates.
+  VIEWPORT_DIRECTION ///< The uniform is a directional vector in viewport coordinates that needs to be converted to GL view space coordinates.
+};
+
+}
+
+/**
  * @brief Shaders allows custom vertex and color transformations in the GPU
  */
 class DALI_IMPORT_API Shader : public Handle

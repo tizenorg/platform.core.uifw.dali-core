@@ -68,7 +68,7 @@ namespace Internal
 {
 
 template <> struct ParameterType< Dali::ShaderEffect::GeometryHints> : public BasicType< Dali::ShaderEffect::GeometryHints > {};
-template <> struct ParameterType< Dali::ShaderEffect::UniformCoordinateType > : public BasicType< Dali::ShaderEffect::UniformCoordinateType > {};
+template <> struct ParameterType< Dali::UniformCoordinateTransformation::Type > : public BasicType< Dali::UniformCoordinateTransformation::Type > {};
 
 namespace SceneGraph
 {
@@ -130,10 +130,10 @@ void Shader::ForwardUniformMeta( BufferIndex updateBufferIndex, UniformMeta* met
   new (slot) DerivedType( this, &Shader::InstallUniformMetaInRender, meta );
 }
 
-void Shader::ForwardCoordinateType( BufferIndex updateBufferIndex, unsigned int index, Dali::ShaderEffect::UniformCoordinateType type )
+void Shader::ForwardCoordinateType( BufferIndex updateBufferIndex, unsigned int index, Dali::UniformCoordinateTransformation::Type type )
 {
   // Defer setting uniform coordinate type until the next Render
-  typedef MessageValue2< Shader, unsigned int, Dali::ShaderEffect::UniformCoordinateType > DerivedType;
+  typedef MessageValue2< Shader, unsigned int, Dali::UniformCoordinateTransformation::Type > DerivedType;
 
   // Reserve some memory inside the render queue
   unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
@@ -197,7 +197,7 @@ void Shader::InstallUniformMetaInRender( UniformMeta* meta )
   mUniformMetadata.PushBack( meta );
 }
 
-void Shader::SetCoordinateTypeInRender( unsigned int index, Dali::ShaderEffect::UniformCoordinateType type )
+void Shader::SetCoordinateTypeInRender( unsigned int index, Dali::UniformCoordinateTransformation::Type type )
 {
   DALI_ASSERT_DEBUG( index < mUniformMetadata.Count() );
   mUniformMetadata[ index ]->SetCoordinateType( type );
@@ -301,7 +301,7 @@ void Shader::SetUniforms( Context& context,
 
             switch ( metadata.coordinateType )
             {
-              case Dali::ShaderEffect::COORDINATE_TYPE_VIEWPORT_POSITION :
+              case Dali::UniformCoordinateTransformation::VIEWPORT_POSITION:
               {
                 /**
                  * Convert coordinates from viewport to GL view space
@@ -328,13 +328,13 @@ void Shader::SetUniforms( Context& context,
 
                 break;
               }
-              case Dali::ShaderEffect::COORDINATE_TYPE_VIEWPORT_DIRECTION :
+              case Dali::UniformCoordinateTransformation::VIEWPORT_DIRECTION:
               {
-                // Check diagram in COORDINATE_TYPE_VIEWPORT_POSITION
+                // Check diagram in Dali::UniformCoordinateTransformation::VIEWPORT_POSITION
                 value.x *= -1.0f;
                 break;
               }
-              case Dali::ShaderEffect::COORDINATE_TYPE_DEFAULT :
+              case Dali::UniformCoordinateTransformation::DEFAULT:
               {
                 // nothing to do in this case
                 break;
@@ -349,7 +349,7 @@ void Shader::SetUniforms( Context& context,
           case Property::VECTOR3 :
           {
             Vector3 value( property.GetVector3( bufferIndex ) );
-            if( Dali::ShaderEffect::COORDINATE_TYPE_VIEWPORT_DIRECTION == metadata.coordinateType)
+            if( Dali::UniformCoordinateTransformation::VIEWPORT_DIRECTION == metadata.coordinateType)
             {
               value.y *= -1.0f;
             }
@@ -361,7 +361,7 @@ void Shader::SetUniforms( Context& context,
           case Property::VECTOR4 :
           {
             Vector4 value( property.GetVector4( bufferIndex ) );
-            if( Dali::ShaderEffect::COORDINATE_TYPE_VIEWPORT_DIRECTION == metadata.coordinateType)
+            if( Dali::UniformCoordinateTransformation::VIEWPORT_DIRECTION == metadata.coordinateType)
             {
               value.y *= -1.0f;
             }
@@ -450,9 +450,9 @@ void InstallUniformMetaMessage( EventThreadServices& eventThreadServices, const 
   new (slot) LocalType( &shader, &Shader::ForwardUniformMeta, &meta );
 }
 
-void SetCoordinateTypeMessage( EventThreadServices& eventThreadServices, const Shader& shader, unsigned int index, Dali::ShaderEffect::UniformCoordinateType type )
+void SetCoordinateTypeMessage( EventThreadServices& eventThreadServices, const Shader& shader, unsigned int index, Dali::UniformCoordinateTransformation::Type type )
 {
-  typedef MessageDoubleBuffered2< Shader, unsigned int, Dali::ShaderEffect::UniformCoordinateType > LocalType;
+  typedef MessageDoubleBuffered2< Shader, unsigned int, Dali::UniformCoordinateTransformation::Type > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );

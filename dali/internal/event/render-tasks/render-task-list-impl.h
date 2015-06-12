@@ -23,6 +23,7 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
+#include <dali/internal/event/actors/actor-impl.h>
 #include <dali/internal/event/common/complete-notification-interface.h>
 
 namespace Dali
@@ -49,6 +50,12 @@ class RenderTaskList : public BaseObject, public CompleteNotificationInterface
 public:
 
   typedef std::vector< Dali::RenderTask > RenderTaskContainer;
+
+  struct Exclusive
+  {
+    RenderTask* renderTaskPtr;        ///< Pointer for comparison with current rendertask.
+    Actor* actorPtr;                  ///< Pointer for comparison with current actor.
+  };
 
   /**
    * Create a RenderTaskList.
@@ -86,6 +93,24 @@ public:
   RenderTaskContainer& GetTasks()
   {
     return mTasks;
+  }
+
+  /**
+   * @brief Mark a rendertask as having exclusive access to its source actor.
+   *
+   * @param[in] task Pointer to the rendertask.
+   * @param[in] exclusive If a rendertask is to have exclusive acesss to its source actor.
+   */
+  void SetExclusive( RenderTask* task, bool exclusive );
+
+  /**
+   * @brief Return the list of rendertasks that exclusively own their source actor.
+   *
+   * @return [description]
+   */
+  Vector< Exclusive >& GetExclusivesList()
+  {
+    return mExclusives;
   }
 
   /**
@@ -138,7 +163,8 @@ private:
 
   SceneGraph::RenderTaskList* mSceneObject; ///< Raw-pointer to the scene-graph object; not owned.
 
-  RenderTaskContainer mTasks; ///< Reference counted render-tasks
+  RenderTaskContainer mTasks;           ///< Reference counted render-tasks
+  Vector< Exclusive > mExclusives;      ///< List of rendertasks with exclusively owned source actors.
 };
 
 } // namespace Internal

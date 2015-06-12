@@ -266,7 +266,7 @@ void Shader::Initialize(
   }
   Dali::ShaderEffect::GeometryHints shaderEffectHint = static_cast<Dali::ShaderEffect::GeometryHints>( effectHint );
 
-  mSceneObject = new SceneGraph::Shader(shaderEffectHint);
+  mSceneObject = new SceneGraph::Shader( shaderEffectHint );
 
   // Add to update manager
   AddShaderMessage( updateManager, *mSceneObject );
@@ -276,6 +276,11 @@ void Shader::Initialize(
   size_t shaderHash;
 
   mTicket = ResourceTicketPtr( shaderFactory.Load(vertexSource, fragmentSource, shaderHash) );
+  Integration::ShaderDataPtr shaderData = shaderFactory.LoadImmediate( vertexSource, fragmentSource, shaderHash );
+
+  size_t fakeHash = 1010101;
+  ResourceTicketPtr( shaderFactory.Load(vertexSource, fragmentSource, fakeHash ) );
+  Integration::ShaderDataPtr shaderDataFake = shaderFactory.LoadImmediate( vertexSource, fragmentSource, fakeHash );
 
   // Add shader program to scene-object using a message to the UpdateManager
   SetShaderProgramMessage( updateManager, *mSceneObject, mTicket->GetId(), shaderHash, false );

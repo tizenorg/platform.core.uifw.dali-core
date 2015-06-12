@@ -313,6 +313,7 @@ public:
    * @param[in] modifiesGeometry True if the vertex shader modifies geometry
    */
   void SetShaderProgram( Shader* shader, Integration::ResourceId resourceId, size_t shaderHash, bool modifiesGeometry );
+  ///@todo void SetShaderProgram( Shader* shader, ShaderData&, bool modifiesGeometry );
 
   /**
    * Add a newly created gesture.

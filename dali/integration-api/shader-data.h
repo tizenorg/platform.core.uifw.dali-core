@@ -181,7 +181,7 @@ private: // Data
   std::string                 mFragmentShader; ///< source code for fragment program
   std::vector<unsigned char>  mBuffer;         ///< buffer containing compiled binary bytecode
   ResourceId                  mResourceId;     ///< resource id
-
+  /// @todo Need a flag here to indicate this is a LoadImmediate product or a magic value (-1?, -2?, just reuse the default 0?) for mResourceId?
 };
 
 } // namespace Integration

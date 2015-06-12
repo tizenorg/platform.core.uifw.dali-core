@@ -25,6 +25,13 @@
 
 namespace Dali
 {
+namespace Integration
+{
+
+class ShaderData;
+typedef IntrusivePtr<ShaderData> ShaderDataPtr;
+
+}
 
 namespace Internal
 {
@@ -56,6 +63,7 @@ public:
    * Issues a request to load a binary version of a shader program, and returns a resource ticket
    * If a request for an identical shader has already been made, the ticket for the older request
    * is shared.
+   * @deprecated Use LoadImmediate instead of this. Only here to support legacy ShaderEffect.
    * @param [in] vertexSource   The vertex shader source code
    * @param [in] fragmentSource The fragment shader source code
    * @param [out] shaderHash  hash key created with vertex and fragment shader code
@@ -64,11 +72,24 @@ public:
   ResourceTicketPtr Load( const std::string& vertexSource, const std::string& fragmentSource, size_t& shaderHash );
 
   /**
+   * Issues a request to load a binary version of a shader program, and returns a resource ticket
+   * If a request for an identical shader has already been made, the ticket for the older request
+   * is shared.
+   * @param [in] vertexSource   The vertex shader source code
+   * @param [in] fragmentSource The fragment shader source code
+   * @param [out] shaderHash  hash key created with vertex and fragment shader code
+   * @return                    A ticket for the resource
+   */
+  Integration::ShaderDataPtr LoadImmediate( const std::string& vertexSource, const std::string& fragmentSource, size_t& shaderHash );
+
+  /**
    * Called during Core initialization to load the default shader.
    */
   void LoadDefaultShaders();
 
 private:
+
+  ResourceTicketPtr GetShaderTicket( const ResourceTypePath& typePath );
 
   // Undefined
   ShaderFactory( const ShaderFactory& );
@@ -79,6 +100,7 @@ private:
 private:
   ResourceClient&       mResourceClient;
   ResourceTypePathIdMap mResourceTypePathIdMap; ///< A map of resource IDs sorted by ResourceTypePath
+  /// @todo Aove is std::map<ResourceTypePath, unsigned int> and needs to go for Shaders or avoided for them  [new_mesh-feature-033-synchronous-load-save-of-shader-binaries]
   ShaderEffectPtr       mDefaultShader;
 
 }; // class ShaderFactory

@@ -486,6 +486,7 @@ Program::~Program()
 void Program::Load()
 {
   DALI_ASSERT_ALWAYS( NULL != mProgramData.Get() && "Program data is not initialized" );
+  DALI_ASSERT_DEBUG( mProgramId == 0 && "mProgramId != 0, so about to leak a GL resource by overwriting it." );
 
   LOG_GL( "CreateProgram()\n" );
   mProgramId = CHECK_GL( mGlAbstraction, mGlAbstraction.CreateProgram() );

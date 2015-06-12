@@ -25,6 +25,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/event/actors/actor-impl.h>
 #include <dali/internal/event/actors/camera-actor-impl.h>
+#include <dali/internal/event/actors/image-actor-impl.h>
 #include <dali/internal/event/actors/layer-impl.h>
 #include <dali/internal/event/actors/layer-list.h>
 #include <dali/internal/event/actors/renderable-actor-impl.h>
@@ -54,16 +55,15 @@ struct HitActor
     x( 0 ),
     y( 0 ),
     distance( std::numeric_limits<float>::max() ),
-    overlay( false )
+    depth( 0 )
   {
-
   }
 
   Actor *actor;                         ///< the actor hit. (if actor hit, then initialised)
   float x;                              ///< x position of hit (only valid if actor valid)
   float y;                              ///< y position of hit (only valid if actor valid)
   float distance;                       ///< distance from ray origin to hit actor
-  bool overlay;                         ///< true if the hit actor is an overlay
+  int depth;                            ///< depth index of this actor
 
 };
 
@@ -133,15 +133,12 @@ struct ActorTouchableCheck : public HitTestInterface
  * Hit-Testing each Actor, noting the distance from the Ray-Origin (3D origin
  * of touch vector). The closest Hit-Tested Actor is that which is returned.
  * Exceptions to this rule are:
- * - If the Actor is an overlay then it is considered closer than all previous
- * overlays encountered in the hit test traversal.
  * - When comparing against renderable parents, if Actor is the same distance
  * or closer than it's renderable parent, then it takes priority.
  */
 HitActor HitTestWithinLayer( Actor& actor,
                              const Vector4& rayOrigin,
                              const Vector4& rayDir,
-                             bool worldOverlay,
                              float& nearClippingPlane,
                              float& farClippingPlane,
                              HitTestInterface& hitCheck,
@@ -149,8 +146,6 @@ HitActor HitTestWithinLayer( Actor& actor,
                              bool& stencilHit,
                              bool parentIsStencil )
 {
-  worldOverlay |= actor.IsOverlay();
-
   HitActor hit;
 
   // Children should inherit the stencil draw mode
@@ -189,7 +184,23 @@ HitActor HitTestWithinLayer( Actor& actor,
             hit.x = hitPointLocal.x;
             hit.y = hitPointLocal.y;
             hit.distance = distance;
-            hit.overlay = worldOverlay;
+
+            // Is this actor an Image Actor or contains a renderer?
+            if ( ImageActor* imageActor = dynamic_cast< ImageActor* >( &actor ) )
+            {
+              hit.depth = static_cast< int >( imageActor->GetSortModifier() );
+            }
+            else
+            {
+              if ( actor.GetRendererCount() )
+              {
+                hit.depth = actor.GetRendererAt( 0 ).GetCurrentDepthIndex();
+              }
+              else
+              {
+                hit.depth = 0;
+              }
+            }
           }
         }
       }
@@ -207,6 +218,7 @@ HitActor HitTestWithinLayer( Actor& actor,
   if( actor.GetChildCount() > 0 )
   {
     childHit.distance = std::numeric_limits<float>::max();
+    childHit.depth = std::numeric_limits<int>::min();
     ActorContainer& children = actor.GetChildrenInternal();
 
     // Hit test ALL children and calculate their distance.
@@ -218,22 +230,20 @@ HitActor HitTestWithinLayer( Actor& actor,
       if ( !iter->IsLayer() &&    // Child is NOT a layer, hit testing current layer only or Child is not a layer and we've inherited the stencil draw mode
            ( isStencil || hitCheck.DescendActorHierarchy( &GetImplementation( *iter ) ) ) ) // We are a stencil OR we can descend into child hierarchy
       {
-        HitActor currentHit( HitTestWithinLayer( GetImplementation(*iter), rayOrigin, rayDir, worldOverlay, nearClippingPlane, farClippingPlane, hitCheck, stencilOnLayer, stencilHit, isStencil ) );
+        HitActor currentHit( HitTestWithinLayer( GetImplementation(*iter), rayOrigin, rayDir, nearClippingPlane, farClippingPlane, hitCheck, stencilOnLayer, stencilHit, isStencil ) );
 
-        // If Current child is an overlay, then it takes priority.
-        // If it is not an overlay, and the previously hit sibling is also not an overlay, then closest takes priority.
-        // (last overlay sibling has priority as is rendered on top)
-        if ( currentHit.distance >= 0.f && (currentHit.overlay || (!childHit.overlay && currentHit.distance < childHit.distance) ) )
+        // Check a possible hit for the most forward and the least distance
+        if ( currentHit.distance >= 0.f && ( currentHit.depth >= childHit.depth && currentHit.distance <= childHit.distance ) )
         {
           if ( !parentIsRenderable )
           {
             // If our parent is not renderable, then child should be hit regardless of distance.
             childHit = currentHit;
           }
-          else if ( currentHit.overlay || (!hit.overlay && currentHit.distance <= hit.distance) )
+
+          // More forward and less distance than the parent ?
+          else if ( currentHit.depth >= hit.depth && currentHit.distance <= hit.distance )
           {
-            // If our parent is renderable, then child should only be hit if it is an overlay, or if it is closer than a non-overlay.
-            // (child overlay has priority as is rendered on top of it's parent)
             childHit = currentHit;
           }
         }
@@ -382,12 +392,12 @@ bool HitTestRenderTask( LayerList& layers,
             if ( sourceActorDepth == static_cast<unsigned int>(i) )
             {
               // Recursively hit test the source actor & children, without crossing into other layers.
-              hit = HitTestWithinLayer( *sourceActor, results.rayOrigin, results.rayDirection, false, nearClippingPlane, farClippingPlane, hitCheck, stencilOnLayer, stencilHit, false );
+              hit = HitTestWithinLayer( *sourceActor, results.rayOrigin, results.rayDirection, nearClippingPlane, farClippingPlane, hitCheck, stencilOnLayer, stencilHit, false );
             }
             else if ( IsWithinSourceActors( *sourceActor, *layer ) )
             {
               // Recursively hit test all the actors, without crossing into other layers.
-              hit = HitTestWithinLayer( *layer, results.rayOrigin, results.rayDirection, false, nearClippingPlane, farClippingPlane, hitCheck, stencilOnLayer, stencilHit, false );
+              hit = HitTestWithinLayer( *layer, results.rayOrigin, results.rayDirection, nearClippingPlane, farClippingPlane, hitCheck, stencilOnLayer, stencilHit, false );
             }
 
             // If a stencil on this layer hasn't been hit, then discard hit results for this layer if our current hit actor is renderable

@@ -69,7 +69,7 @@ public:
     }
 
     bool loadResult;
-    std::vector< unsigned char> buffer;
+    Dali::Vector< unsigned char> buffer;
   };
 
   /**
@@ -154,17 +154,22 @@ public:
   /**
    * @copydoc PlatformAbstraction::LoadFile()
    */
-  virtual bool LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
+  virtual bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
 
   /**
    * @copydoc PlatformAbstraction::LoadShaderBinFile()
    */
-  virtual bool LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
+  virtual bool LoadShaderBinFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
 
   /**
    * @copydoc PlatformAbstraction::SaveFile()
    */
-  virtual bool SaveFile(const std::string& filename, std::vector< unsigned char >& buffer) const;
+  virtual bool SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
+
+ /**
+  * @copydoc PlatformAbstraction::SaveShaderBinFile()
+  */
+  virtual bool SaveShaderBinFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const { return false; }
 
   virtual void JoinLoaderThreads();
 
@@ -226,7 +231,7 @@ public: // TEST FUNCTIONS
 
   void SetClosestImageSize(const Vector2& size);
 
-  void SetLoadFileResult( bool result, std::vector< unsigned char >& buffer );
+  void SetLoadFileResult( bool result, Dali::Vector< unsigned char >& buffer );
 
   void SetSaveFileResult( bool result );
 

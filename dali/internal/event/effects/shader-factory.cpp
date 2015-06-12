@@ -26,6 +26,8 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/devel-api/common/hash.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/platform-abstraction.h>
+#include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/resources/resource-client.h>
 #include <dali/internal/event/effects/shader-effect-impl.h>
 #include <dali/internal/event/effects/shader-declarations.h>
@@ -52,6 +54,32 @@ namespace Dali
 namespace Internal
 {
 
+namespace
+{
+
+/**
+ * @brief Generates a filename for a shader binary based on the hash value passed in.
+ */
+std::string shaderBinaryFilename( size_t shaderHash )
+{
+  std::stringstream binaryShaderFilenameBuilder;
+  binaryShaderFilenameBuilder << CORE_MAJOR_VERSION << VERSION_SEPARATOR << CORE_MINOR_VERSION << VERSION_SEPARATOR << CORE_MICRO_VERSION << VERSION_SEPARATOR
+                              << shaderHash
+                              << SHADER_SUFFIX;
+  return binaryShaderFilenameBuilder.str();
+}
+
+/**
+ * @brief Generates a filename for a shader binary based on hashing the source code passed in and saves the hash value.
+ */
+std::string shaderBinaryFilename( const std::string& vertexSource, const std::string& fragmentSource, size_t& shaderHash )
+{
+  shaderHash = CalculateHash( vertexSource.c_str(), fragmentSource.c_str() );
+  return shaderBinaryFilename( shaderHash );
+}
+
+}
+
 ShaderFactory::ShaderFactory(ResourceClient& resourceClient)
 : mResourceClient(resourceClient)
 {
@@ -61,29 +89,14 @@ ShaderFactory::~ShaderFactory()
 {
 }
 
-ResourceTicketPtr ShaderFactory::Load(const std::string& vertexSource, const std::string& fragmentSource, size_t& shaderHash)
+ResourceTicketPtr ShaderFactory::GetShaderTicket( const ResourceTypePath& typePath )
 {
   ResourceTicketPtr ticket;
 
-  shaderHash = CalculateHash(vertexSource, fragmentSource);
-  std::stringstream stringHash;
-  stringHash << CORE_MAJOR_VERSION << VERSION_SEPARATOR << CORE_MINOR_VERSION << VERSION_SEPARATOR << CORE_MICRO_VERSION << VERSION_SEPARATOR;
-  stringHash << shaderHash;
-  std::string filename;
-  filename.append( stringHash.str() );
-  filename.append( SHADER_SUFFIX );
-
-  ShaderResourceType resourceType(shaderHash, vertexSource, fragmentSource);
-  ResourceTypePath typePath(resourceType, filename);
-
   // Search for a matching resource
-  ResourceTypePathIdIter iter = mResourceTypePathIdMap.end();
-  if ( !mResourceTypePathIdMap.empty() )
-  {
-    iter = mResourceTypePathIdMap.find( typePath );
-  }
+  ResourceTypePathIdIter iter = mResourceTypePathIdMap.find( typePath );
 
-  if ( mResourceTypePathIdMap.end() != iter )
+  if( mResourceTypePathIdMap.end() != iter )
   {
     // The resource was previously requested
     unsigned int resourceId = iter->second;
@@ -92,26 +105,76 @@ ResourceTicketPtr ShaderFactory::Load(const std::string& vertexSource, const std
     ticket = mResourceClient.RequestResourceTicket( resourceId );
 
     // Clean-up the map of resource IDs, if the ticket has been discarded
-    if ( !ticket )
+    if( !ticket )
     {
       mResourceTypePathIdMap.erase( iter );
     }
     else
     {
-      DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "ShaderFactory::Load filename= %s already requested to Load\n", filename.c_str());
+      DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "ShaderFactory::Load filename= %s already requested to Load\n", typePath.path.c_str());
     }
   }
 
-  if ( !ticket )
+  return ticket;
+}
+
+ResourceTicketPtr ShaderFactory::Load( const std::string& vertexSource, const std::string& fragmentSource, size_t& shaderHash )
+{
+
+  std::string binaryShaderFilename( shaderBinaryFilename( vertexSource.c_str(), fragmentSource, shaderHash ) );
+
+  ShaderResourceType resourceType( shaderHash, vertexSource, fragmentSource );
+  ResourceTypePath typePath( resourceType, binaryShaderFilename );
+
+  // Search for a matching resource already loaded or loading:
+  ResourceTicketPtr ticket = GetShaderTicket( typePath );
+  if( !ticket )
   {
-    // Load the shader (loaded synchronously in Update thread so its ready by the time the set shader message is processed)
-    ticket = mResourceClient.LoadShader(resourceType, filename);
-    DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "ShaderFactory::Load Ticket ID:%d, path: \"%s\"\n", ticket->GetId(), filename.c_str());
+    // Load the shader (loaded synchronously in Update thread so it is ready by the time the set shader message is processed)
+    ticket = mResourceClient.LoadShader( resourceType, binaryShaderFilename );
+    DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "ShaderFactory::Load Ticket ID:%d, path: \"%s\"\n", ticket->GetId(), binaryShaderFilename.c_str());
 
     mResourceTypePathIdMap.insert( ResourceTypePathIdPair( typePath, ticket->GetId() ) );
   }
 
   return ticket;
+}
+
+ShaderDataPtr ShaderFactory::AttemptCachedLoadImmediate( const std::string& vertexSource, const std::string& fragmentSource, size_t& shaderHash )
+{
+  // Work out the filename for the binary that the glsl source will be compiled and linked to:
+  std::string binaryShaderFilename( shaderBinaryFilename( vertexSource, fragmentSource, shaderHash ) );
+
+  // Allocate the structure that returns the loaded shader:
+  ShaderDataPtr shaderData( new ShaderData( vertexSource, fragmentSource ) );
+  shaderData->SetHashValue( shaderHash );
+  shaderData->GetBuffer().Clear();
+  shaderData->SetResourceId( 0 );
+
+  /// @todo - Check a cache of preloaded shaders here.
+
+  // Try to load the binary (this will fail if the shader source has never been compiled before):
+  ThreadLocalStorage& tls = ThreadLocalStorage::Get();
+  Integration::PlatformAbstraction& platformAbstraction = tls.GetPlatformAbstraction();
+  const bool loaded = platformAbstraction.LoadShaderBinFile( binaryShaderFilename, shaderData->GetBuffer() );
+
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, loaded ?
+      "ShaderFactory::LoadImmediate loaded on path: \"%s\"\n" :
+      "ShaderFactory::LoadImmediate failed to load on path: \"%s\"\n",
+      binaryShaderFilename.c_str());
+
+  return shaderData;
+}
+
+void ShaderFactory::Dispatch( Integration::ShaderDataPtr shaderData )
+{
+  std::string binaryShaderFilename( shaderBinaryFilename( shaderData->GetHashValue() ) );
+
+  ThreadLocalStorage& tls = ThreadLocalStorage::Get();
+  Integration::PlatformAbstraction& platformAbstraction = tls.GetPlatformAbstraction();
+  const bool saved = platformAbstraction.SaveShaderBinFile( binaryShaderFilename, &shaderData->GetBuffer()[0], shaderData->GetBufferSize() );
+
+  DALI_LOG_INFO( Debug::Filter::gShader, Debug::General, saved ? "Saved to file: %s\n" : "Save to file failed: %s\n", binaryShaderFilename.c_str() );
 }
 
 void ShaderFactory::LoadDefaultShaders()

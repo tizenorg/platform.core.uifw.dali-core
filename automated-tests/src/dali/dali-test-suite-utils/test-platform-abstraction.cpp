@@ -198,7 +198,7 @@ void TestPlatformAbstraction::SetDpi (unsigned int dpiHorizontal, unsigned int d
 /**
  * @copydoc PlatformAbstraction::LoadFile()
  */
-bool TestPlatformAbstraction::LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const
+bool TestPlatformAbstraction::LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const
 {
   mTrace.PushCall("LoadFile", "");
   if( mLoadFileResult.loadResult )
@@ -212,7 +212,7 @@ bool TestPlatformAbstraction::LoadFile( const std::string& filename, std::vector
 /**
  * @copydoc PlatformAbstraction::LoadShaderBinFile()
  */
-bool TestPlatformAbstraction::LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer ) const
+bool TestPlatformAbstraction::LoadShaderBinFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const
 {
   mTrace.PushCall("LoadShaderBinFile", "");
   if( mLoadFileResult.loadResult )
@@ -226,7 +226,7 @@ bool TestPlatformAbstraction::LoadShaderBinFile( const std::string& filename, st
 /**
  * @copydoc PlatformAbstraction::SaveFile()
  */
-bool TestPlatformAbstraction::SaveFile(const std::string& filename, std::vector< unsigned char >& buffer) const
+bool TestPlatformAbstraction::SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const
 {
   mTrace.PushCall("SaveFile", "");
   return false;
@@ -360,7 +360,7 @@ void TestPlatformAbstraction::SetClosestImageSize(const Vector2& size)
   mClosestSize = size;
 }
 
-void TestPlatformAbstraction::SetLoadFileResult( bool result, std::vector< unsigned char >& buffer )
+void TestPlatformAbstraction::SetLoadFileResult( bool result, Dali::Vector< unsigned char >& buffer )
 {
   mLoadFileResult.loadResult = result;
   if( result )

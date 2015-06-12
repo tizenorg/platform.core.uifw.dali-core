@@ -148,6 +148,8 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
                                        textureCache,
                                       *mTouchResampler );
 
+  mRenderManager->SetShaderSaver( *mUpdateManager );
+
   mStage = IntrusivePtr<Stage>( Stage::New( *mAnimationPlaylist, *mPropertyNotificationManager, *mUpdateManager, *mNotificationManager ) );
 
   // This must be called after stage is created but before stage initialization

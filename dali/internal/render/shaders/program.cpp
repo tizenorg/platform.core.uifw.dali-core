@@ -486,6 +486,7 @@ Program::~Program()
 void Program::Load()
 {
   DALI_ASSERT_ALWAYS( NULL != mProgramData.Get() && "Program data is not initialized" );
+  DALI_ASSERT_DEBUG( mProgramId == 0 && "mProgramId != 0, so about to leak a GL resource by overwriting it." );
 
   LOG_GL( "CreateProgram()\n" );
   mProgramId = CHECK_GL( mGlAbstraction, mGlAbstraction.CreateProgram() );
@@ -493,6 +494,8 @@ void Program::Load()
   GLint linked = GL_FALSE;
 
   const bool binariesSupported = mCache.IsBinarySupported();
+
+  bool progBinary_used = false;
 
   // if shader binaries are supported and ShaderData contains compiled bytecode?
   if( binariesSupported && mProgramData->HasBinary() )
@@ -527,10 +530,14 @@ void Program::Load()
     else
     {
       mLinked = true;
+      progBinary_used = true;
     }
   }
 
   // Fall back to compiling and linking the vertex and fragment sources
+  bool compiled = false;
+  bool saved = false;
+
   if( GL_FALSE == linked )
   {
     DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "Program::Load() - Runtime compilation\n");
@@ -544,6 +551,7 @@ void Program::Load()
         {
           GLint  binaryLength = 0;
           GLenum binaryFormat;
+          compiled = true;
 
           CHECK_GL( mGlAbstraction, mGlAbstraction.GetProgramiv(mProgramId, GL_PROGRAM_BINARY_LENGTH_OES, &binaryLength) );
           DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "Program::Load() - GL_PROGRAM_BINARY_LENGTH_OES: %d\n", binaryLength);
@@ -554,6 +562,7 @@ void Program::Load()
             // Copy the bytecode to ShaderData
             CHECK_GL( mGlAbstraction, mGlAbstraction.GetProgramBinary(mProgramId, binaryLength, NULL, &binaryFormat, mProgramData->GetBufferData()) );
             mCache.StoreBinary( mProgramData );
+            saved = true;
           }
         }
       }
@@ -562,6 +571,8 @@ void Program::Load()
 
   // No longer needed
   FreeShaders();
+
+  DALI_LOG_WARNING(" reused binary: %s, compiled: %s, saved: %s.\n", progBinary_used ? "true" : "false", compiled ? "true" : "false", saved ? "true" : "false" );
 }
 
 void Program::Unload()

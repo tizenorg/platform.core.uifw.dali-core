@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/owner-container.h>
+#include <dali/internal/common/shader-dispatcher.h>
 #include <dali/internal/render/shaders/program.h>
 #include <dali/internal/render/shaders/program-cache.h>
 
@@ -53,7 +54,7 @@ public:
      * @param program
      * @param shaderHash
      */
-    ProgramPair( Program* program, size_t shaderHash )
+    explicit ProgramPair( Program* program, size_t shaderHash )
     : mProgram( program ), mShaderHash( shaderHash )
     { }
 
@@ -120,6 +121,8 @@ public: // API
    */
   void GlContextDestroyed();
 
+  void SetShaderSaver( ShaderDispatcher& shaderSaver );
+
 private: // From ProgramCache
 
   /**
@@ -170,6 +173,7 @@ private: // not implemented as non-copyable
 private: // Data
 
   SceneGraph::PostProcessResourceDispatcher& mPostProcessDispatcher;
+  ShaderDispatcher* mShaderSaver;
   Integration::GlAbstraction& mGlAbstraction;
   Program* mCurrentProgram;
 

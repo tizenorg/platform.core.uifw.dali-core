@@ -26,6 +26,7 @@
 
 #include <dali/internal/common/message.h>
 #include <dali/internal/common/type-abstraction-enums.h>
+#include <dali/internal/common/shader-dispatcher.h>
 #include <dali/internal/event/common/event-thread-services.h>
 #include <dali/internal/update/animation/scene-graph-animation.h>
 #include <dali/internal/update/common/scene-graph-buffers.h>
@@ -87,7 +88,7 @@ class RendererAttachment;
  * It also maintains the lifecycle of nodes and other property owners that are
  * disconnected from the scene graph.
  */
-class UpdateManager
+class UpdateManager : public ShaderDispatcher
 {
 public:
 
@@ -313,6 +314,15 @@ public:
    * @param[in] modifiesGeometry True if the vertex shader modifies geometry
    */
   void SetShaderProgram( Shader* shader, Integration::ResourceId resourceId, size_t shaderHash, bool modifiesGeometry );
+
+  void SetShaderProgram( Shader* shader, Integration::ShaderDataPtr shaderData, bool modifiesGeometry );
+
+  /**
+   * Accept compiled shaders passed back on render thread.
+   */
+  virtual void Dispatch( Integration::ShaderDataPtr shaderData );
+
+  // Gestures
 
   /**
    * Add a newly created gesture.
@@ -737,6 +747,20 @@ inline void SetShaderProgramMessage( UpdateManager& manager,
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &manager, &UpdateManager::SetShaderProgram, &shader, resourceId, shaderHash, modifiesGeometry );
+}
+
+inline void SetShaderProgramMessage( UpdateManager& manager,
+                                     Shader& shader,
+                                     Integration::ShaderDataPtr shaderData,
+                                     bool modifiesGeometry )
+{
+  typedef MessageValue3< UpdateManager, Shader*, Integration::ShaderDataPtr, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::SetShaderProgram, &shader, shaderData, modifiesGeometry );
 }
 
 inline void SetBackgroundColorMessage( UpdateManager& manager, const Vector4& color )

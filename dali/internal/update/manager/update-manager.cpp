@@ -636,6 +636,31 @@ void UpdateManager::SetShaderProgram( Shader* shader,
   }
 }
 
+void UpdateManager::SetShaderProgram( Shader* shader,
+                                      Integration::ShaderDataPtr shaderData, bool modifiesGeometry )
+{
+  if( shaderData )
+  {
+
+    typedef MessageValue3< Shader, Integration::ShaderDataPtr, ProgramCache*, bool> DerivedType;
+
+    // Reserve some memory inside the render queue
+    unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+    // Construct message in the render queue memory; note that delete should not be called on the return value
+    new (slot) DerivedType( shader, &Shader::SetProgram, shaderData, mImpl->renderManager.GetProgramCache(), modifiesGeometry );
+  }
+}
+
+void UpdateManager::Dispatch( Integration::ShaderDataPtr shaderData )
+{
+  DALI_LOG_WARNING( "Got shader data back to save for hash %ul.\n", shaderData->GetHashValue() );
+  // Pass back to event thread:
+  /// ...
+  /// @todo ---------------------------------------------------------------------------------------------------- [BOOKMARK]
+
+}
+
 RenderTaskList* UpdateManager::GetRenderTaskList( bool systemLevel )
 {
   if ( !systemLevel )

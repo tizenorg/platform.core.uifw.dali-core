@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/math/rect.h>
+#include <dali/internal/common/shader-dispatcher.h>
 #include <dali/internal/render/common/post-process-resource-dispatcher.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 
@@ -38,6 +39,7 @@ namespace Internal
 {
 class Context;
 class ProgramCache;
+class ShaderDispatcher;
 
 namespace SceneGraph
 {
@@ -96,7 +98,9 @@ public:
    * Dispatch requests onto the postProcessResourcesQueue
    * @param[in] request The request to dispatch
    */
-  virtual void DispatchPostProcessRequest(ResourcePostProcessRequest& request);
+  virtual void DispatchPostProcessRequest( ResourcePostProcessRequest& request );
+
+  void SetShaderSaver( ShaderDispatcher& upstream );
 
   /**
    * Retrieve the render instructions; these should be set during each "update" traversal.

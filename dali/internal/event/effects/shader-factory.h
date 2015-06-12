@@ -70,6 +70,8 @@ public:
 
 private:
 
+  ResourceTicketPtr GetShaderTicket( const ResourceTypePath& typePath );
+
   // Undefined
   ShaderFactory( const ShaderFactory& );
 
@@ -79,6 +81,7 @@ private:
 private:
   ResourceClient&       mResourceClient;
   ResourceTypePathIdMap mResourceTypePathIdMap; ///< A map of resource IDs sorted by ResourceTypePath
+  /// @todo Aove is std::map<ResourceTypePath, unsigned int> and needs to go for Shaders or avoided for them  [new_mesh-feature-033-synchronous-load-save-of-shader-binaries]
   ShaderEffectPtr       mDefaultShader;
 
 }; // class ShaderFactory

@@ -33,6 +33,7 @@ namespace Internal
 
 ProgramController::ProgramController( SceneGraph::PostProcessResourceDispatcher& postProcessDispatcher, Integration::GlAbstraction& glAbstraction )
 : mPostProcessDispatcher( postProcessDispatcher ),
+  mShaderSaver( 0 ),
   mGlAbstraction( glAbstraction ),
   mCurrentProgram( NULL ),
   mProgramBinaryFormat( 0 ),
@@ -68,6 +69,7 @@ void ProgramController::GlContextCreated()
 
   CHECK_GL( mGlAbstraction, mGlAbstraction.GetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS_OES, &mNumberOfProgramBinaryFormats ) );
   LOG_GL("GetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS_OES) = %d\n", mNumberOfProgramBinaryFormats );
+  DALI_LOG_ERROR("GetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS_OES) = %d\n", mNumberOfProgramBinaryFormats ); /// @todo <<<<<<<<<<< [TEMP]
 
   if( GL_NO_ERROR == mGlAbstraction.GetError() && 0 < mNumberOfProgramBinaryFormats )
   {
@@ -142,8 +144,28 @@ unsigned int ProgramController::ProgramBinaryFormat()
 
 void ProgramController::StoreBinary( Integration::ShaderDataPtr programData )
 {
-  ResourcePostProcessRequest request( programData->GetResourceId(), ResourcePostProcessRequest::SAVE );
-  mPostProcessDispatcher.DispatchPostProcessRequest( request );
+  DALI_ASSERT_DEBUG( programData->GetBufferSize() > 0 );
+  DALI_ASSERT_DEBUG( programData->GetHashValue() != 0 );
+
+  // If the shader was loaded through the resource system, signal back on that path:
+  const size_t resourceId = programData->GetResourceId();
+  if( resourceId > 0 )
+  {
+    DALI_LOG_WARNING( "Old, resource ticket path\n" ); /// @todo <---------------[TEMP]
+    ResourcePostProcessRequest request( resourceId, ResourcePostProcessRequest::SAVE );
+    mPostProcessDispatcher.DispatchPostProcessRequest( request );
+  }
+  else
+  {
+    DALI_ASSERT_DEBUG( mShaderSaver && "SetShaderSaver() should have been called during app / lib startup." );
+    mShaderSaver->Dispatch( programData );
+    DALI_LOG_WARNING( "New, direct path\n" ); /// @todo <---------------[TEMP]
+  }
+}
+
+void ProgramController::SetShaderSaver( ShaderDispatcher& shaderSaver )
+{
+  mShaderSaver = &shaderSaver;
 }
 
 } // namespace Internal

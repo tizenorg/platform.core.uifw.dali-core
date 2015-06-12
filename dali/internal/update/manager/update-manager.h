@@ -26,6 +26,7 @@
 
 #include <dali/internal/common/message.h>
 #include <dali/internal/common/type-abstraction-enums.h>
+#include <dali/internal/common/shader-dispatcher.h>
 #include <dali/internal/event/common/event-thread-services.h>
 #include <dali/internal/update/animation/scene-graph-animation.h>
 #include <dali/internal/update/common/scene-graph-buffers.h>
@@ -87,7 +88,7 @@ class RendererAttachment;
  * It also maintains the lifecycle of nodes and other property owners that are
  * disconnected from the scene graph.
  */
-class UpdateManager
+class UpdateManager : public ShaderDispatcher
 {
 public:
 
@@ -314,6 +315,15 @@ public:
    */
   void SetShaderProgram( Shader* shader, Integration::ResourceId resourceId, size_t shaderHash, bool modifiesGeometry );
 
+  void SetShaderProgram( Shader* shader, Integration::ShaderDataPtr shaderData, bool modifiesGeometry );
+
+  /**
+   * Accept compiled shaders passed back on render thread.
+   */
+  virtual void Dispatch( Integration::ShaderDataPtr shaderData );
+
+  // Gestures
+
   /**
    * Add a newly created gesture.
    * @param[in] gesture The gesture to add.
@@ -417,6 +427,8 @@ public:
 
 #endif // DYNAMICS_SUPPORT
 
+  void SetShaderSaver( ShaderDispatcher& upstream );
+
 private:
 
   // Undefined
@@ -479,6 +491,11 @@ private:
    * Perform property notification updates
    */
   void ProcessPropertyNotifications();
+
+  /**
+   * Pass shader binaries queued here from render thread on to event thread.
+   */
+  void ForwardCompiledShadersToEventThread();
 
   /**
    * Update the default camera.
@@ -736,7 +753,22 @@ inline void SetShaderProgramMessage( UpdateManager& manager,
   unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
+  DALI_ASSERT_DEBUG( shaderHash != 0U );
   new (slot) LocalType( &manager, &UpdateManager::SetShaderProgram, &shader, resourceId, shaderHash, modifiesGeometry );
+}
+
+inline void SetShaderProgramMessage( UpdateManager& manager,
+                                     Shader& shader,
+                                     Integration::ShaderDataPtr shaderData,
+                                     bool modifiesGeometry )
+{
+  typedef MessageValue3< UpdateManager, Shader*, Integration::ShaderDataPtr, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::SetShaderProgram, &shader, shaderData, modifiesGeometry );
 }
 
 inline void SetBackgroundColorMessage( UpdateManager& manager, const Vector4& color )

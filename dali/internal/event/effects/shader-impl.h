@@ -179,7 +179,7 @@ private: // unimplemented methods
 
 private:
   SceneGraph::Shader* mSceneObject;
-  ResourceTicketPtr mTicket;
+  // ResourceTicketPtr mTicket;
   bool mOnStage;
 };
 

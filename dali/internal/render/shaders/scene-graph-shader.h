@@ -48,7 +48,6 @@ typedef unsigned int ResourceId;
 namespace Internal
 {
 
-class ProgramController;
 class Program;
 
 namespace SceneGraph
@@ -247,6 +246,10 @@ public:
    */
   void SetProgram( Integration::ResourceId resourceId,
                    Integration::ShaderDataPtr shaderData,
+                   ProgramCache* programCache,
+                   bool modifiesGeometry );
+
+  void SetProgram( Integration::ShaderDataPtr shaderData,
                    ProgramCache* programCache,
                    bool modifiesGeometry );
 

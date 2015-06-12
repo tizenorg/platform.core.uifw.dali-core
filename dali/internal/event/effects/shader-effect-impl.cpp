@@ -293,6 +293,7 @@ void ShaderEffect::SendProgramMessage( const string& vertexSource, const string&
   size_t shaderHash;
 
   ResourceTicketPtr ticket( shaderFactory.Load(vertexSource, fragmentSource, shaderHash) );
+  DALI_ASSERT_DEBUG( shaderHash != 0U );
 
   DALI_LOG_INFO( Debug::Filter::gShader, Debug::General, "ShaderEffect: SetProgram(ticket.id:%d)\n", ticket->GetId() );
 

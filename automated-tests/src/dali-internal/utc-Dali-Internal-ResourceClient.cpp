@@ -808,10 +808,10 @@ int UtcDaliInternalLoadShaderRequest01(void)
   testTicketObserver.Reset();
 
   // Clear through all of the outstanding shader load requests from the default shader effect
-  std::vector< unsigned char > buffer;
+  Dali::Vector< unsigned char > buffer;
   for( int i=0; i<10; i++ )
   {
-    buffer.push_back((unsigned char)i);
+    buffer.PushBack((unsigned char)i);
   }
   application.GetPlatform().SetLoadFileResult( true, buffer );
   application.GetGlAbstraction().SetLinkStatus(1);

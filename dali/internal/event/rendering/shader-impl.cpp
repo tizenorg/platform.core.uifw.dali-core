@@ -43,8 +43,8 @@ namespace
  */
 DALI_PROPERTY_TABLE_BEGIN
 DALI_PROPERTY( "program",       MAP,              true, false,  false,  Dali::Shader::Property::PROGRAM )
-DALI_PROPERTY( "shader-hints",  UNSIGNED_INTEGER, true, false,  true,   Dali::Shader::Property::SHADER_HINTS )
-DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
+  DALI_PROPERTY( "shader-hints",  UNSIGNED_INTEGER, true, false,  true,   Dali::Shader::Property::SHADER_HINTS )
+  DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> SHADER_IMPL = { DEFAULT_PROPERTY_DETAILS };
 
@@ -272,20 +272,19 @@ void Shader::Initialize(
   }
   Dali::ShaderEffect::GeometryHints shaderEffectHint = static_cast<Dali::ShaderEffect::GeometryHints>( effectHint );
 
-  mSceneObject = new SceneGraph::Shader(shaderEffectHint);
+  mSceneObject = new SceneGraph::Shader( shaderEffectHint );
 
   // Add to update manager
   AddShaderMessage( updateManager, *mSceneObject );
 
+  // Try to load a precompiled shader binary for the source pair:
   ThreadLocalStorage& tls = ThreadLocalStorage::Get();
   ShaderFactory& shaderFactory = tls.GetShaderFactory();
   size_t shaderHash;
-
-  mTicket = ResourceTicketPtr( shaderFactory.Load(vertexSource, fragmentSource, shaderHash) );
+  Integration::ShaderDataPtr shaderData = shaderFactory.AttemptCachedLoadImmediate( vertexSource, fragmentSource, shaderHash );
 
   // Add shader program to scene-object using a message to the UpdateManager
-  SetShaderProgramMessage( updateManager, *mSceneObject, mTicket->GetId(), shaderHash, false );
-
+  SetShaderProgramMessage( updateManager, *mSceneObject, shaderData, false );
   eventThreadServices.RegisterObject( this );
 }
 

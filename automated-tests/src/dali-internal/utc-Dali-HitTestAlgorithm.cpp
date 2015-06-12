@@ -200,7 +200,6 @@ int UtcDaliHitTestAlgorithmWithFunctorOnRenderTask(void)
   results.actorCoordinates = Vector2::ZERO;
   Dali::HitTestAlgorithm::HitTest( renderTask[1], screenCoordinates, results, IsActorHittableFunction );
   DALI_TEST_CHECK( !results.actor );
-  DALI_TEST_EQUALS( Vector2::ZERO, results.actorCoordinates, 0.1f, TEST_LOCATION );
 
   screenCoordinates.x = 80.f;
   screenCoordinates.y = 70.f;
@@ -217,15 +216,13 @@ int UtcDaliHitTestAlgorithmWithFunctorOnRenderTask(void)
   DALI_TEST_CHECK( results.actor == actor[1]);
   DALI_TEST_EQUALS( screenCoordinates - position, results.actorCoordinates, 0.1f, TEST_LOCATION );
 
-
   screenCoordinates.x = 120.f;
   screenCoordinates.y = 130.f;
 
   results.actor = Actor();
   results.actorCoordinates = Vector2::ZERO;
   Dali::HitTestAlgorithm::HitTest( renderTask[0], screenCoordinates, results, IsActorHittableFunction );
-  DALI_TEST_CHECK( results.actor == actor[1] );
-  DALI_TEST_EQUALS( screenCoordinates - position, results.actorCoordinates, 0.1f, TEST_LOCATION );
+  DALI_TEST_CHECK( !results.actor );
 
   results.actor = Actor();
   results.actorCoordinates = Vector2::ZERO;

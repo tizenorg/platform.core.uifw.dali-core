@@ -45,6 +45,12 @@ struct Results
   Vector4          rayDirection;     ///< The direction vector of the ray.
 };
 
+struct Exclusive
+{
+  RenderTask* renderTaskPtr;        ///< Pointer for comparison with current rendertask.
+  Actor* actorPtr;                  ///< Pointer for comparison with current actor.
+};
+
 /**
  * Interface used by the hit-test-algorithm to determine whether the actor is hittable or whether
  * we walk down its hierarchy.

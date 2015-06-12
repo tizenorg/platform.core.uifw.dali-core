@@ -171,81 +171,6 @@ struct CheckCopyCtorP<Property::Map>
   }
 };
 
-
-template <typename T>
-struct GetCheckN
-{
-  GetCheckN()
-  {
-    Property::Value v;
-    try
-    {
-      T got = v.Get<T>();
-      (void)got;
-      tet_result(TET_FAIL);
-    }
-    catch( Dali::DaliException& e )
-    {
-      DALI_TEST_PRINT_ASSERT( e );
-      DALI_TEST_ASSERT( e, "Property type invalid", TEST_LOCATION );
-    }
-    catch( ... )
-    {
-      tet_printf("Assertion test failed - wrong Exception\n" );
-      tet_result(TET_FAIL);
-    }
-  }
-};
-
-template<>
-struct GetCheckN<Property::Array>
-{
-  GetCheckN()
-  {
-    Property::Value value;
-    try
-    {
-      Property::Array array = value.Get<Property::Array>();
-      tet_result(TET_FAIL);
-    }
-    catch( Dali::DaliException& e )
-    {
-      DALI_TEST_PRINT_ASSERT( e );
-      DALI_TEST_ASSERT( e, "Property type invalid", TEST_LOCATION );
-    }
-    catch( ... )
-    {
-      tet_printf("Assertion test failed - wrong Exception\n" );
-      tet_result(TET_FAIL);
-    }
-  }
-};
-
-template<>
-struct GetCheckN<Property::Map>
-{
-  GetCheckN()
-  {
-    Property::Value value;
-    try
-    {
-      Property::Map map = value.Get<Property::Map>();
-      tet_result(TET_FAIL);
-    }
-    catch( Dali::DaliException& e )
-    {
-      DALI_TEST_PRINT_ASSERT( e );
-      DALI_TEST_ASSERT( e, "Property type invalid", TEST_LOCATION );
-    }
-    catch( ... )
-    {
-      tet_printf("Assertion test failed - wrong Exception\n" );
-      tet_result(TET_FAIL);
-    }
-  }
-};
-
-
 } // unnamed namespace
 
 void utc_dali_property_value_startup(void)
@@ -778,30 +703,6 @@ int UtcDaliPropertyValueGet01P(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueGet01N(void)
-{
-  TestApplication application;
-
-  Property::Value value;
-  try
-  {
-    value.Get<bool>() == true;
-    tet_result(TET_FAIL);
-  }
-  catch( Dali::DaliException& e )
-  {
-    DALI_TEST_PRINT_ASSERT( e );
-    DALI_TEST_ASSERT( e, "Property type invalid", TEST_LOCATION );
-  }
-  catch( ... )
-  {
-    tet_printf("Assertion test failed - wrong Exception\n" );
-    tet_result(TET_FAIL);
-  }
-
-  END_TEST;
-}
-
 int UtcDaliPropertyValueGet02P(void)
 {
   TestApplication application;
@@ -810,25 +711,10 @@ int UtcDaliPropertyValueGet02P(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueGet02N(void)
-{
-  TestApplication application;
-  GetCheckN<bool> check;
-  END_TEST;
-}
-
-
 int UtcDaliPropertyValueGet03P(void)
 {
   TestApplication application;
   GetCheckP<float> check(1.f);
-  END_TEST;
-}
-
-int UtcDaliPropertyValueGet03N(void)
-{
-  TestApplication application;
-  GetCheckN<float> check;
   END_TEST;
 }
 
@@ -839,24 +725,10 @@ int UtcDaliPropertyValueGet04P(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueGet04N(void)
-{
-  TestApplication application;
-  GetCheckN<int> check;
-  END_TEST;
-}
-
 int UtcDaliPropertyValueGet05P(void)
 {
   TestApplication application;
   GetCheckP<unsigned int> check(1u);
-  END_TEST;
-}
-
-int UtcDaliPropertyValueGet05N(void)
-{
-  TestApplication application;
-  GetCheckN<unsigned int> check;
   END_TEST;
 }
 
@@ -867,24 +739,10 @@ int UtcDaliPropertyValueGet06P(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueGet06N(void)
-{
-  TestApplication application;
-  GetCheckN<Rect<int> > check;
-  END_TEST;
-}
-
 int UtcDaliPropertyValueGet07P(void)
 {
   TestApplication application;
   GetCheckP<Vector2> check(Vector2(1.0,1.0));
-  END_TEST;
-}
-
-int UtcDaliPropertyValueGet07N(void)
-{
-  TestApplication application;
-  GetCheckN<Vector2> check;
   END_TEST;
 }
 
@@ -895,24 +753,10 @@ int UtcDaliPropertyValueGet8P(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueGet08N(void)
-{
-  TestApplication application;
-  GetCheckN<Vector3> check;
-  END_TEST;
-}
-
 int UtcDaliPropertyValueGet09P(void)
 {
   TestApplication application;
   GetCheckP<Vector4> check(Vector4(1.0,1.0,1.0,1.0));
-  END_TEST;
-}
-
-int UtcDaliPropertyValueGet09N(void)
-{
-  TestApplication application;
-  GetCheckN<Vector4> check;
   END_TEST;
 }
 
@@ -923,24 +767,10 @@ int UtcDaliPropertyValueGet10P(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueGet10N(void)
-{
-  TestApplication application;
-  GetCheckN<Matrix3> check;
-  END_TEST;
-}
-
 int UtcDaliPropertyValueGet11P(void)
 {
   TestApplication application;
   GetCheckP<Matrix> check(Matrix(Matrix::IDENTITY));
-  END_TEST;
-}
-
-int UtcDaliPropertyValueGet11N(void)
-{
-  TestApplication application;
-  GetCheckN<Matrix> check;
   END_TEST;
 }
 
@@ -955,13 +785,6 @@ int UtcDaliPropertyValueGet12P(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueGet12N(void)
-{
-  TestApplication application;
-  GetCheckN<AngleAxis> check;
-  END_TEST;
-}
-
 int UtcDaliPropertyValueGet13P(void)
 {
   TestApplication application;
@@ -969,24 +792,10 @@ int UtcDaliPropertyValueGet13P(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueGet13N(void)
-{
-  TestApplication application;
-  GetCheckN<Quaternion> check;
-  END_TEST;
-}
-
 int UtcDaliPropertyValueGet14P(void)
 {
   TestApplication application;
   GetCheckP<std::string> check(std::string("astring"));
-  END_TEST;
-}
-
-int UtcDaliPropertyValueGet14N(void)
-{
-  TestApplication application;
-  GetCheckN<std::string> check;
   END_TEST;
 }
 
@@ -1000,13 +809,6 @@ int UtcDaliPropertyValueGet15P(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueGet15N(void)
-{
-  TestApplication application;
-  GetCheckN<Property::Array> check;
-  END_TEST;
-}
-
 int UtcDaliPropertyValueGet16P(void)
 {
   TestApplication application;
@@ -1017,13 +819,6 @@ int UtcDaliPropertyValueGet16P(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueGet16N(void)
-{
-  TestApplication application;
-  GetCheckN<Property::Map> check;
-  END_TEST;
-}
-
 int UtcDaliPropertyValueGetValueP(void)
 {
   TestApplication application;
@@ -1031,30 +826,6 @@ int UtcDaliPropertyValueGetValueP(void)
   Property::Value a(1);
   map.SetValue("key", a);
   DALI_TEST_CHECK( map.GetValue("key").Get<int>() == 1 );
-  END_TEST;
-}
-
-int UtcDaliPropertyValueGetValue01N(void)
-{
-  TestApplication application;
-  Property::Value value(1);
-
-  try
-  {
-    Property::Value got = value.GetValue("key");
-    tet_result(TET_FAIL);
-  }
-  catch( Dali::DaliException& e )
-  {
-    DALI_TEST_PRINT_ASSERT( e );
-    DALI_TEST_ASSERT( e, "Property type invalid", TEST_LOCATION );
-  }
-  catch( ... )
-  {
-    tet_printf("Assertion test failed - wrong Exception\n" );
-    tet_result(TET_FAIL);
-  }
-
   END_TEST;
 }
 
@@ -1133,30 +904,6 @@ int UtcDaliPropertyValueSetValueP(void)
   END_TEST;
 }
 
-int UtcDaliPropertyValueSetValueN(void)
-{
-  TestApplication application;
-  Property::Value value(1);
-
-  try
-  {
-    value.SetValue("key", Property::Value(1));
-    tet_result(TET_FAIL);
-  }
-  catch( Dali::DaliException& e )
-  {
-    DALI_TEST_PRINT_ASSERT( e );
-    DALI_TEST_ASSERT( e, "Property type invalid", TEST_LOCATION );
-  }
-  catch( ... )
-  {
-    tet_printf("Assertion test failed - wrong Exception\n" );
-    tet_result(TET_FAIL);
-  }
-
-  END_TEST;
-}
-
 int UtcDaliPropertyValueGetItem01P(void)
 {
   TestApplication application;
@@ -1169,31 +916,6 @@ int UtcDaliPropertyValueGetItem01P(void)
   value.SetValue("key", Property::Value(0));
   value.SetItem(0, Property::Value(1));
   DALI_TEST_CHECK( value.GetItem(0).Get<int>() == 1 );
-
-  END_TEST;
-}
-
-int UtcDaliPropertyValueGetItem01N(void)
-{
-  TestApplication application;
-
-  Property::Value value(1);
-
-  try
-  {
-    Property::Value item = value.GetItem(0);
-    tet_result(TET_FAIL);
-  }
-  catch( Dali::DaliException& e )
-  {
-    DALI_TEST_PRINT_ASSERT( e );
-    DALI_TEST_ASSERT( e, "Cannot GetItem on property Type; not a container", TEST_LOCATION );
-  }
-  catch( ... )
-  {
-    tet_printf("Assertion test failed - wrong Exception\n" );
-    tet_result(TET_FAIL);
-  }
 
   END_TEST;
 }
@@ -1214,31 +936,6 @@ int UtcDaliPropertyValueGetItem02P(void)
   DALI_TEST_CHECK( value.GetItem(0, key).Get<int>() == 1 );
   DALI_TEST_CHECK( key.size() == 3 );
   DALI_TEST_CHECK( key == std::string("key") );
-
-  END_TEST;
-}
-
-int UtcDaliPropertyValueGetItem02N(void)
-{
-  TestApplication application;
-
-  Property::Value value(1);
-  std::string key;
-  try
-  {
-    Property::Value item = value.GetItem(0, key);
-    tet_result(TET_FAIL);
-  }
-  catch( Dali::DaliException& e )
-  {
-    DALI_TEST_PRINT_ASSERT( e );
-    DALI_TEST_ASSERT( e, "Cannot GetItem on property Type; not a container", TEST_LOCATION );
-  }
-  catch( ... )
-  {
-    tet_printf("Assertion test failed - wrong Exception\n" );
-    tet_result(TET_FAIL);
-  }
 
   END_TEST;
 }
@@ -1295,32 +992,6 @@ int UtcDaliPropertyValueAppendItemP(void)
 
   END_TEST;
 }
-
-int UtcDaliPropertyValueAppendItemN(void)
-{
-  TestApplication application;
-
-  Property::Value value(1);
-
-  try
-  {
-    Property::Value item = value.AppendItem(Property::Value(1));
-    tet_result(TET_FAIL);
-  }
-  catch( Dali::DaliException& e )
-  {
-    DALI_TEST_PRINT_ASSERT( e );
-    DALI_TEST_ASSERT( e, "Property type invalid", TEST_LOCATION );
-  }
-  catch( ... )
-  {
-    tet_printf("Assertion test failed - wrong Exception\n" );
-    tet_result(TET_FAIL);
-  }
-
-  END_TEST;
-}
-
 
 int UtcDaliPropertyValueOutputStream(void)
 {

@@ -350,7 +350,8 @@ void ResourceManager::HandleLoadShaderRequest( ResourceId id, const ResourceType
   {
     ShaderDataPtr shaderData(new ShaderData(shaderType->vertexShader, shaderType->fragmentShader));
 
-    mImpl->mPlatformAbstraction.LoadShaderBinFile(typePath.path, shaderData->GetBuffer());
+    const bool loadResult = mImpl->mPlatformAbstraction.LoadShaderBinFile( typePath.path, shaderData->GetBuffer() );
+    DALI_LOG_INFO( Debug::Filter::gResource, Debug::General, "Loaded %s with result %s.\n", typePath.path.c_str(), loadResult ? "true" : "false" );
 
     // Add the ID to the completed set
     mImpl->newCompleteRequests.insert(id);
@@ -475,6 +476,7 @@ void ResourceManager::HandleSaveResourceRequest( ResourceId id, const ResourceTy
       mImpl->mPlatformAbstraction.SaveResource(request);
     }
   }
+ // DALI_LOG_ERROR( "path: %s.\n", typePath.path.c_str() );
 }
 
 void ResourceManager::HandleDiscardResourceRequest( ResourceId deadId, ResourceTypeId typeId )

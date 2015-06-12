@@ -33,6 +33,7 @@ namespace Internal
 
 ProgramController::ProgramController( SceneGraph::PostProcessResourceDispatcher& postProcessDispatcher, Integration::GlAbstraction& glAbstraction )
 : mPostProcessDispatcher( postProcessDispatcher ),
+  mShaderSaver( 0 ),
   mGlAbstraction( glAbstraction ),
   mCurrentProgram( NULL ),
   mProgramBinaryFormat( 0 ),
@@ -142,8 +143,27 @@ unsigned int ProgramController::ProgramBinaryFormat()
 
 void ProgramController::StoreBinary( Integration::ShaderDataPtr programData )
 {
-  ResourcePostProcessRequest request( programData->GetResourceId(), ResourcePostProcessRequest::SAVE );
-  mPostProcessDispatcher.DispatchPostProcessRequest( request );
+  DALI_ASSERT_DEBUG( programData->GetBufferSize() > 0 );
+  DALI_ASSERT_DEBUG( programData->GetHashValue() != 0 );
+
+  // If the shader was loaded through the resource system, signal back on that path:
+  const size_t resourceId = programData->GetResourceId();
+  if( resourceId > 0 )
+  {
+    ResourcePostProcessRequest request( resourceId, ResourcePostProcessRequest::SAVE );
+    mPostProcessDispatcher.DispatchPostProcessRequest( request );
+  }
+  // The shader was loaded on the new code path so store through that:
+  else
+  {
+    DALI_ASSERT_DEBUG( mShaderSaver && "SetShaderSaver() should have been called during app / lib startup." );
+    mShaderSaver->Dispatch( programData );
+  }
+}
+
+void ProgramController::SetShaderSaver( ShaderDispatcher& shaderSaver )
+{
+  mShaderSaver = &shaderSaver;
 }
 
 } // namespace Internal

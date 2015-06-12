@@ -644,7 +644,7 @@ void Property::Value::Get(Rect<int>& rect) const
 
 void Property::Value::Get(AngleAxis& angleAxisValue) const
 {
-  DALI_ASSERT_ALWAYS( Property::ROTATION == GetType() && "Property type invalid" );
+  DALI_ASSERT_DEBUG( Property::ROTATION == GetType() && "Property type invalid" );
 
   // Orientations have two representations
   DALI_ASSERT_DEBUG( typeid(Quaternion) == mImpl->mValue.GetType() ||

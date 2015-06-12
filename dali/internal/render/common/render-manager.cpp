@@ -87,6 +87,7 @@ struct RenderManager::Impl
     renderQueue(),
     textureCache( renderQueue, postProcessDispatcher, context ),
     resourcePostProcessQueue( resourcePostProcessQ ),
+    shaderSaveDispatcher( NULL ),
     instructions(),
     backgroundColor( Dali::Stage::DEFAULT_BACKGROUND_COLOR ),
     frameTime( 0.0f ),
@@ -139,6 +140,7 @@ struct RenderManager::Impl
   RenderQueue                         renderQueue;              ///< A message queue for receiving messages from the update-thread.
   TextureCache                        textureCache;             ///< Cache for all GL textures
   ResourcePostProcessList&            resourcePostProcessQueue; ///< A queue for requesting resource post processing in update thread
+  ShaderSaver*                        shaderSaveDispatcher;     ///< Interface for compiled shader binaries to be sent back to for caching and saving.
 
   // Render instructions describe what should be rendered during RenderManager::Render()
   // Owned by RenderManager. Update manager updates instructions for the next frame while we render the current one
@@ -225,6 +227,11 @@ void RenderManager::ContextDestroyed()
 void RenderManager::DispatchPostProcessRequest(ResourcePostProcessRequest& request)
 {
   mImpl->resourcePostProcessQueue[ mImpl->renderBufferIndex ].push_back( request );
+}
+
+void RenderManager::SetShaderSaver( ShaderSaver& upstream )
+{
+  mImpl->programController.SetShaderSaver( upstream );
 }
 
 RenderInstructionContainer& RenderManager::GetRenderInstructionContainer()

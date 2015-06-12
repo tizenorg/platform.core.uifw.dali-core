@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/gl-defines.h>
+#include <dali/internal/common/shader-dispatcher.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/render/shaders/program.h>
 #include <dali/internal/render/common/post-process-resource-dispatcher.h>
@@ -33,6 +34,7 @@ namespace Internal
 
 ProgramController::ProgramController( SceneGraph::PostProcessResourceDispatcher& postProcessDispatcher, Integration::GlAbstraction& glAbstraction )
 : mPostProcessDispatcher( postProcessDispatcher ),
+  mShaderSaver( 0 ),
   mGlAbstraction( glAbstraction ),
   mCurrentProgram( NULL ),
   mProgramBinaryFormat( 0 ),
@@ -142,8 +144,30 @@ unsigned int ProgramController::ProgramBinaryFormat()
 
 void ProgramController::StoreBinary( Integration::ShaderDataPtr programData )
 {
-  ResourcePostProcessRequest request( programData->GetResourceId(), ResourcePostProcessRequest::SAVE );
-  mPostProcessDispatcher.DispatchPostProcessRequest( request );
+  DALI_ASSERT_DEBUG( programData->GetBufferSize() > 0 );
+  DALI_ASSERT_DEBUG( programData->GetHashValue() != 0 );
+
+  // If the shader was loaded through the resource system, signal back on that path:
+  const size_t resourceId = programData->GetResourceId();
+  if( resourceId > 0 )
+  {
+    ResourcePostProcessRequest request( resourceId, ResourcePostProcessRequest::SAVE );
+    mPostProcessDispatcher.DispatchPostProcessRequest( request );
+  }
+  // The shader was loaded on the new code path so store through that:
+  else
+  {
+    DALI_ASSERT_DEBUG( mShaderSaver && "SetShaderSaver() should have been called during app / lib startup." );
+    if( mShaderSaver != NULL )
+    {
+      mShaderSaver->Dispatch( programData );
+    }
+  }
+}
+
+void ProgramController::SetShaderSaver( ShaderDispatcher& shaderSaver )
+{
+  mShaderSaver = &shaderSaver;
 }
 
 } // namespace Internal

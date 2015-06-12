@@ -29,6 +29,8 @@ namespace Dali
 namespace Internal
 {
 
+class ShaderDispatcher;
+
 namespace SceneGraph
 {
 class PostProcessResourceDispatcher;
@@ -120,6 +122,12 @@ public: // API
    */
   void GlContextDestroyed();
 
+  /**
+   * Set the destination for compiler shader binaries so they can be saved.
+   * @note Must be called during initialisation.
+   */
+  void SetShaderSaver( ShaderDispatcher& shaderSaver );
+
 private: // From ProgramCache
 
   /**
@@ -170,6 +178,7 @@ private: // not implemented as non-copyable
 private: // Data
 
   SceneGraph::PostProcessResourceDispatcher& mPostProcessDispatcher;
+  ShaderDispatcher* mShaderSaver;
   Integration::GlAbstraction& mGlAbstraction;
   Program* mCurrentProgram;
 

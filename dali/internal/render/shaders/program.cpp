@@ -501,13 +501,6 @@ void Program::Load()
 
     CHECK_GL( mGlAbstraction, mGlAbstraction.ProgramBinary(mProgramId, mCache.ProgramBinaryFormat(), mProgramData->GetBufferData(), mProgramData->GetBufferSize()) );
 
-    CHECK_GL( mGlAbstraction, mGlAbstraction.ValidateProgram(mProgramId) );
-
-    GLint success;
-    CHECK_GL( mGlAbstraction, mGlAbstraction.GetProgramiv( mProgramId, GL_VALIDATE_STATUS, &success ) );
-
-    DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "ValidateProgram Status = %d\n", success);
-
     CHECK_GL( mGlAbstraction, mGlAbstraction.GetProgramiv( mProgramId, GL_LINK_STATUS, &linked ) );
 
     if( GL_FALSE == linked )

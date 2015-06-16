@@ -68,6 +68,12 @@ void Geometry::RemoveVertexBuffer( PropertyBuffer* vertexBuffer )
     mVertexBuffers.Erase( match );
     mConnectionObservers.ConnectionsChanged(*this);
   }
+  mHalfExtents.Bake( 0, Vector3::ZERO );
+  mHalfExtents.Bake( 1, Vector3::ZERO );
+  for ( Vector<PropertyBuffer*>::Iterator vertexBufferIt = mVertexBuffers.Begin(); vertexBufferIt != mVertexBuffers.End(); ++vertexBufferIt )
+  {
+    CalculateExtents( *vertexBufferIt );
+  }
 }
 
 void Geometry::SetIndexBuffer( PropertyBuffer* indexBuffer )
@@ -149,10 +155,32 @@ void Geometry::CalculateExtents( PropertyBuffer* vertexBuffer )
   std::string posName( "aPos" );
   std::size_t found;
 
-  float left = 0.0f;
-  float right = 0.0f;
-  float top = 0.0f;
-  float bottom = 0.0f;
+  Vector3 extents = mHalfExtents.Get( 0 );
+  float left = -extents.x;
+  float right = extents.x;
+  float top = -extents.y;
+  float bottom = extents.y;
+
+  Vector3 extents1 = mHalfExtents.Get( 1);
+  if ( left > -extents1.x )
+  {
+    left = -extents1.x;
+  }
+
+  if ( right < extents1.x )
+  {
+    right = extents1.x;
+  }
+
+  if ( top > -extents1.y )
+  {
+    top = -extents1.y;
+  }
+
+  if ( bottom < extents1.y )
+  {
+    bottom = extents1.y;
+  }
 
   // Find the position attribute index
   for ( unsigned int i = 0; i < attributeCount; ++i )
@@ -200,8 +228,19 @@ void Geometry::CalculateExtents( PropertyBuffer* vertexBuffer )
         }
         case Property::VECTOR3:
         {
-          float near = 0.0f;
-          float far = 0.0f;
+          float near = -extents.z;
+          float far = extents.z;
+
+          if ( near > -extents1.z )
+          {
+            near = -extents1.z;
+          }
+
+          if ( far < extents1.z )
+          {
+            far = extents1.z;
+          }
+
           for ( unsigned int j = 0; j < elementCount; ++j )
           {
             const Vector3* position = reinterpret_cast< const Vector3* >( &data[ offset ] );

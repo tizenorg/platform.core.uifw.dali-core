@@ -275,10 +275,10 @@ void Shader::Initialize(
   ShaderFactory& shaderFactory = tls.GetShaderFactory();
   size_t shaderHash;
 
-  mTicket = ResourceTicketPtr( shaderFactory.Load(vertexSource, fragmentSource, shaderHash) );
+  ResourceTicketPtr ticket = shaderFactory.Load( vertexSource, fragmentSource, shaderHash );
 
   // Add shader program to scene-object using a message to the UpdateManager
-  SetShaderProgramMessage( updateManager, *mSceneObject, mTicket->GetId(), shaderHash, false );
+  SetShaderProgramMessage( updateManager, *mSceneObject, ticket->GetId(), shaderHash, false );
 }
 
 Shader::~Shader()

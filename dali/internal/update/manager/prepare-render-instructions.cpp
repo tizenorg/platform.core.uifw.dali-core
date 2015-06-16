@@ -181,23 +181,22 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
       const Vector3& position = worldMatrix.GetTranslation3();
       const Geometry& geometry = rendererAttachment->GetGeometry();
       const Vector3& localCenter = geometry.mCenter[ updateBufferIndex ];
-      const Vector3& size = parentNode.GetSize( updateBufferIndex );
-      Vector3 center = position + ( localCenter * size );
+      const Vector3& scale = parentNode.GetScale( updateBufferIndex );
+      Vector3 center = position + ( localCenter * scale );
 
-      // If the size components are all the same, then we can do a quick bounding sphere check
-      if ( fabsf( size.x - size.y ) <= Math::MACHINE_EPSILON_1 * size.x )
+      // If the scale components are all the same, then we can do a quick bounding sphere check
+      if ( fabsf( scale.x - scale.y ) <= Math::MACHINE_EPSILON_1 * scale.x )
       {
-        inside = cameraAttachment.CheckSphereInFrustum( updateBufferIndex, center, geometry.mRadius[ updateBufferIndex ] * size.x );
+        inside = cameraAttachment.CheckSphereInFrustum( updateBufferIndex, center, geometry.mRadius[ updateBufferIndex ] * scale.x );
       }
 
       if ( inside )
       {
         // Check against AABB of model
-        inside = cameraAttachment.CheckAABBInFrustum( updateBufferIndex, center, geometry.mHalfExtents[ updateBufferIndex ] * size );
+        inside = cameraAttachment.CheckAABBInFrustum( updateBufferIndex, center, geometry.mHalfExtents[ updateBufferIndex ] * scale );
       }
     }
   }
-
   if ( inside )
   {
     // Get the next free RenderItem

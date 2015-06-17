@@ -1011,10 +1011,10 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   // 3) Process Touches & Gestures
   mImpl->touchResampler.Update();
   const bool gestureUpdated = ProcessGestures( lastVSyncTimeMilliseconds, nextVSyncTimeMilliseconds );
-
+  const bool animationRunning = IsAnimationRunning();
   const bool updateScene =                                            // The scene-graph requires an update if..
       (mImpl->nodeDirtyFlags & RenderableUpdateFlags) ||              // ..nodes were dirty in previous frame OR
-      IsAnimationRunning() ||                                         // ..at least one animation is running OR
+      animationRunning ||                                         // ..at least one animation is running OR
       mImpl->dynamicsChanged ||                                       // ..there was a change in the dynamics simulation OR
       mImpl->messageQueue.IsSceneUpdateRequired() ||                  // ..a message that modifies the scene graph node tree is queued OR
       resourceChanged ||                                              // ..one or more resources were updated/changed OR
@@ -1040,7 +1040,10 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   if( updateScene || mImpl->previousUpdateScene )
   {
     // 7) Animate
-    Animate( elapsedSeconds );
+    if( animationRunning )
+    {
+      Animate( elapsedSeconds );
+    }
 
     // 8) Apply Constraints
     ApplyConstraints();

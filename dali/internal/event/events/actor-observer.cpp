@@ -58,7 +58,8 @@ ActorObserver::~ActorObserver()
 
 Actor* ActorObserver::GetActor()
 {
-  return mActorDisconnected ? NULL : mActor;
+//  return mActorDisconnected ? NULL : mActor;
+  return mActor;
 }
 
 void ActorObserver::SetActor( Actor* actor )
@@ -99,10 +100,10 @@ void ActorObserver::SceneObjectRemoved( Object& object )
 
   if ( mActor == &object )
   {
-    if ( mRemoveCallback )
-    {
-      CallbackBase::Execute( *mRemoveCallback, mActor );
-    }
+//    if ( mRemoveCallback )
+//    {
+//      CallbackBase::Execute( *mRemoveCallback, mActor );
+//    }
 
     // do not call object.RemoveObserver here, object is currently iterating through observers
     mActorDisconnected = true;

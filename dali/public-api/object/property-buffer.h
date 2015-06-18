@@ -176,6 +176,11 @@ public:
    * @param [in] pointer A pointer to a newly allocated PropertyBuffer
    */
   explicit DALI_INTERNAL PropertyBuffer( Internal::PropertyBuffer* pointer );
+  /**
+   * @brief This is used for scripting
+   * @return A not fully initialized property-buffer
+   */
+  static PropertyBuffer New();
 };
 
 } // namespace Dali

@@ -23,6 +23,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/object/property-buffer.h> // Dali::Internal::PropertyBuffer
+#include <dali/public-api/object/type-registry.h>
+
 #include <dali/internal/event/common/object-impl-helper.h> // Dali::Internal::ObjectHelper
 #include <dali/internal/event/common/property-helper.h> // DALI_PROPERTY_TABLE_BEGIN, DALI_PROPERTY, DALI_PROPERTY_TABLE_END
 #include <dali/internal/update/common/scene-graph-property-buffer.h>
@@ -48,6 +50,13 @@ DALI_PROPERTY( "buffer-format", MAP,              false, false, false,  Dali::Pr
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> PROPERTY_BUFFER_IMPL = { DEFAULT_PROPERTY_DETAILS };
+
+BaseHandle Create()
+{
+  return Dali::PropertyBuffer::New();
+}
+
+TypeRegistration mType( typeid( Dali::PropertyBuffer ), typeid( Dali::Handle ), Create );
 
 /**
  * Calculate the alignment requirements of a type
@@ -383,6 +392,8 @@ void PropertyBuffer::Initialize()
 
   mSceneObject = new SceneGraph::PropertyBuffer();
   AddMessage( updateManager, updateManager.GetPropertyBufferOwner(), *mSceneObject );
+
+  GetEventThreadServices().RegisterObject( this );
 }
 
 void PropertyBuffer::FormatChanged()

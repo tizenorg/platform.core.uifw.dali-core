@@ -129,7 +129,9 @@ TouchEventProcessor::TouchEventProcessor( Stage& stage )
   mLastPrimaryHitActor( MakeCallback( this, &TouchEventProcessor::OnObservedActorDisconnected ) ),
   mLastConsumedActor(),
   mTouchDownConsumedActor(),
-  mLastRenderTask()
+  mLastRenderTask(),
+  mEmittingTouchSignals( false ),
+  mInformDisconnect()
 {
   DALI_LOG_TRACE_METHOD( gLogFilter );
 }
@@ -239,7 +241,9 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
   Dali::Actor consumedActor;
   if ( currentRenderTask )
   {
+    mEmittingTouchSignals = true;
     consumedActor = EmitTouchSignals( touchEvent.points[0].hitActor, touchEvent );
+    mEmittingTouchSignals = false;
   }
 
   TouchPoint& primaryPoint = touchEvent.points[0];
@@ -259,6 +263,7 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
   // 4) Check if the last primary hit actor requires a leave event and if it was different to the current primary
   //    hit actor.  Also process the last consumed actor in the same manner.
 
+  mEmittingTouchSignals = true;
   Actor* lastPrimaryHitActor( mLastPrimaryHitActor.GetActor() );
   Actor* lastConsumedActor( mLastConsumedActor.GetActor() );
   if( (primaryPointState == TouchPoint::Motion) || (primaryPointState == TouchPoint::Up) || (primaryPointState == TouchPoint::Stationary) )
@@ -315,6 +320,23 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
         }
       }
     }
+  }
+  mEmittingTouchSignals = false;
+
+  if ( mInformDisconnect )
+  {
+    TouchEvent touchEvent( 0 );
+    touchEvent.points.push_back( TouchPoint( 0, TouchPoint::Interrupted, 0.0f, 0.0f ) );
+    touchEvent.points[0].hitActor = mInformDisconnect;
+
+    Dali::Actor eventConsumer = EmitTouchSignals( mInformDisconnect, touchEvent );
+
+    if ( mLastConsumedActor.GetActor() && ( mLastConsumedActor.GetActor() != eventConsumer ) )
+    {
+      EmitTouchSignals( Dali::Actor( mLastConsumedActor.GetActor() ), touchEvent );
+    }
+
+    mInformDisconnect.Reset();
   }
 
   // 5) If our primary point is an Up event, then the primary point (in multi-touch) will change next
@@ -405,22 +427,29 @@ void TouchEventProcessor::OnObservedActorDisconnected( Actor* actor )
 {
   if ( actor == mLastPrimaryHitActor.GetActor() )
   {
-    Dali::Actor handle( actor );
-    TouchEvent touchEvent( 0 );
-    touchEvent.points.push_back( TouchPoint( 0, TouchPoint::Interrupted, 0.0f, 0.0f ) );
-    touchEvent.points[0].hitActor = handle;
-
-    Dali::Actor eventConsumer = EmitTouchSignals( handle, touchEvent );
-
-    if ( mLastConsumedActor.GetActor() != eventConsumer )
+    if ( ! mEmittingTouchSignals )
     {
-      EmitTouchSignals( Dali::Actor( mLastConsumedActor.GetActor() ), touchEvent );
+      Dali::Actor handle( actor );
+      TouchEvent touchEvent( 0 );
+      touchEvent.points.push_back( TouchPoint( 0, TouchPoint::Interrupted, 0.0f, 0.0f ) );
+      touchEvent.points[0].hitActor = handle;
+
+      Dali::Actor eventConsumer = EmitTouchSignals( handle, touchEvent );
+
+      if ( mLastConsumedActor.GetActor() != eventConsumer )
+      {
+        EmitTouchSignals( Dali::Actor( mLastConsumedActor.GetActor() ), touchEvent );
+      }
+
+      // Do not set mLastPrimaryHitActor to NULL we may be iterating through its observers
+
+      mLastConsumedActor.SetActor( NULL );
+      mLastRenderTask.Reset();
     }
-
-    // Do not set mLastPrimaryHitActor to NULL we may be iterating through its observers
-
-    mLastConsumedActor.SetActor( NULL );
-    mLastRenderTask.Reset();
+    else
+    {
+      mInformDisconnect = Dali::Actor( actor );
+    }
   }
 }
 

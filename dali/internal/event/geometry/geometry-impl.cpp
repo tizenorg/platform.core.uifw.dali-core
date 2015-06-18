@@ -19,6 +19,8 @@
 #include <dali/internal/event/geometry/geometry-impl.h> // Dali::Internal::Geometry
 
 // INTERNAL INCLUDES
+#include <dali/public-api/object/type-registry.h>
+
 #include <dali/internal/event/common/object-impl-helper.h> // Dali::Internal::ObjectHelper
 #include <dali/internal/event/common/property-helper.h> // DALI_PROPERTY_TABLE_BEGIN, DALI_PROPERTY, DALI_PROPERTY_TABLE_END
 #include <dali/internal/update/common/double-buffered-property.h>
@@ -43,6 +45,13 @@ DALI_PROPERTY( "requires-depth-test",   BOOLEAN,  true, false,  true, Dali::Geom
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> GEOMETRY_IMPL = { DEFAULT_PROPERTY_DETAILS };
+
+BaseHandle Create()
+{
+  return Dali::Geometry::New();
+}
+
+TypeRegistration mType( typeid( Dali::Geometry ), typeid( Dali::Handle ), Create );
 
 } // unnamed namespace
 
@@ -399,6 +408,8 @@ void Geometry::Initialize()
 
   mSceneObject = new SceneGraph::Geometry();
   AddMessage( updateManager, updateManager.GetGeometryOwner(), *mSceneObject );
+
+  GetEventThreadServices().RegisterObject( this );
 }
 
 Geometry::~Geometry()

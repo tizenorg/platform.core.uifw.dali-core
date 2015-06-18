@@ -36,6 +36,13 @@ PropertyBuffer PropertyBuffer::New( Dali::Property::Map& bufferFormat, std::size
   return PropertyBuffer( propertyBuffer.Get() );
 }
 
+PropertyBuffer PropertyBuffer::New()
+{
+  //TODO: MESH_REWORK : implement this, it will be in an invalid state?
+  DALI_ASSERT_ALWAYS(false && "TODO: MESH_REWORK");
+  return PropertyBuffer();
+}
+
 PropertyBuffer::PropertyBuffer()
 {
 }

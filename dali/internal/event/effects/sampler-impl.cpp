@@ -19,6 +19,7 @@
 #include <dali/internal/event/effects/sampler-impl.h> // Dali::Internal::Sampler
 
 // INTERNAL INCLUDES
+#include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/shader-effects/sampler.h> // Dali::Internal::Sampler
 #include <dali/internal/event/common/object-impl-helper.h> // Dali::Internal::ObjectHelper
 #include <dali/internal/event/common/property-helper.h> // DALI_PROPERTY_TABLE_BEGIN, DALI_PROPERTY, DALI_PROPERTY_TABLE_END
@@ -45,6 +46,13 @@ DALI_PROPERTY( "affects-transparency",  BOOLEAN,  true, false,  true, Dali::Samp
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> SAMPLER_IMPL = { DEFAULT_PROPERTY_DETAILS };
+
+BaseHandle Create()
+{
+  return Dali::Sampler::New();
+}
+
+TypeRegistration mType( typeid( Dali::Sampler ), typeid( Dali::Handle ), Create );
 
 } // unnamed namespace
 
@@ -352,6 +360,8 @@ void Sampler::Initialize( const std::string& textureUnitUniformName )
 
   mSceneObject = new SceneGraph::Sampler( textureUnitUniformName );
   AddMessage( updateManager, updateManager.GetSamplerOwner(), *mSceneObject );
+
+  GetEventThreadServices().RegisterObject( this );
 }
 
 Sampler::~Sampler()

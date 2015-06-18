@@ -150,6 +150,11 @@ public:
    * @param [in] pointer A pointer to a newly allocated Renderer
    */
   explicit DALI_INTERNAL Renderer( Internal::Renderer* pointer );
+  /**
+   * @brief This is used for scripting
+   * @return A not fully initialized renderer
+   */
+  static Renderer New();
 };
 
 } //namespace Dali

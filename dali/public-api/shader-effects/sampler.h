@@ -180,6 +180,11 @@ public:
    * @param [in] pointer A pointer to a newly allocated Sampler
    */
   explicit DALI_INTERNAL Sampler( Internal::Sampler* pointer );
+  /**
+   * @brief This is used for scripting
+   * @return A not fully initialized sampler
+   */
+  static Sampler New();
 };
 
 } //namespace Dali

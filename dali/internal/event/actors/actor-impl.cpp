@@ -2283,7 +2283,8 @@ bool Actor::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tra
 }
 
 Actor::Actor( DerivedType derivedType )
-: mParent( NULL ),
+: mStage( NULL ),
+  mParent( NULL ),
   mChildren( NULL ),
   mNode( NULL ),
   mParentOrigin( NULL ),
@@ -2297,6 +2298,7 @@ Actor::Actor( DerivedType derivedType )
   mTargetSize( 0.0f, 0.0f, 0.0f ),
   mName(),
   mId( ++mActorCounter ), // actor ID is initialised to start from 1, and 0 is reserved
+  mDepth( 0 ),
   mIsRoot( ROOT_LAYER == derivedType ),
   mIsRenderable( RENDERABLE == derivedType ),
   mIsLayer( LAYER == derivedType || ROOT_LAYER == derivedType ),

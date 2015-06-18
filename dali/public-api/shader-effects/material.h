@@ -298,6 +298,11 @@ public:
    * @param [in] pointer A pointer to a newly allocated Material
    */
   explicit DALI_INTERNAL Material( Internal::Material* pointer );
+  /**
+   * @brief This is used for scripting
+   * @return A not fully initialized material
+   */
+  static Material New();
 };
 
 } //namespace Dali

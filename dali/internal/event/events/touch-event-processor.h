@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/render-tasks/render-task.h>
 #include <dali/internal/event/events/actor-observer.h>
 
@@ -92,6 +93,8 @@ private:
   ActorObserver mLastConsumedActor; ///< Stores the last consumed actor
   ActorObserver mTouchDownConsumedActor; ///< Stores the touch-down consumed actor
   Dali::RenderTask mLastRenderTask; ///< The RenderTask used for the last hit actor
+  bool mEmittingTouchSignals:1; ///< true when we're emitting touch-signals
+  Dali::Actor mInformDisconnect; ///< Set when we need to inform of an actor disconnection during the emission of our signals
 };
 
 } // namespace Internal

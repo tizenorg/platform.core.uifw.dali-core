@@ -32,6 +32,13 @@ Sampler Sampler::New( Image& image, const std::string& textureUnitUniformName )
   return Sampler( sampler.Get() );
 }
 
+Sampler Sampler::New()
+{
+  //TODO: MESH_REWORK : implement this, it will be in an invalid state?
+  DALI_ASSERT_ALWAYS(false && "TODO: MESH_REWORK");
+  return Sampler();
+}
+
 Sampler::Sampler()
 {
 }

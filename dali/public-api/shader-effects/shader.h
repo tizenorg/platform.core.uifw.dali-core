@@ -146,6 +146,11 @@ public: // Not intended for application developers
    * @param [in] effect A pointer to a newly allocated Dali resource.
    */
   explicit DALI_INTERNAL Shader( Internal::Shader* effect );
+  /**
+   * @brief This is used for scripting
+   * @return A not fully initialized shader
+   */
+  static Shader New();
 };
 
 } // namespace Dali

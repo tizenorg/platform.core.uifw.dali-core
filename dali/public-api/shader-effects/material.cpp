@@ -35,6 +35,13 @@ Material Material::New( Shader shader )
   return Material( material.Get() );
 }
 
+Material Material::New()
+{
+  //TODO: MESH_REWORK : implement this, it will be in an invalid state?
+  DALI_ASSERT_ALWAYS(false && "TODO: MESH_REWORK");
+  return Material();
+}
+
 Material::Material()
 {
 }

@@ -32,6 +32,12 @@ Renderer Renderer::New( Geometry& geometry, Material& material )
   return Renderer( renderer.Get() );
 }
 
+Renderer Renderer::New()
+{
+  //TODO: MESH_REWORK : implement this, it will be in an invalid state?
+  DALI_ASSERT_ALWAYS(false && "TODO: MESH_REWORK");
+  return Renderer();
+}
 Renderer::Renderer()
 {
 }

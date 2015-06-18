@@ -154,7 +154,9 @@ TouchEventProcessor::TouchEventProcessor( Stage& stage )
   mLastPrimaryHitActor( MakeCallback( this, &TouchEventProcessor::OnObservedActorDisconnected ) ),
   mLastConsumedActor(),
   mTouchDownConsumedActor(),
-  mLastRenderTask()
+  mLastRenderTask(),
+  mEmittingTouchSignals( false ),
+  mInformDisconnect()
 {
   DALI_LOG_TRACE_METHOD( gLogFilter );
 }
@@ -275,7 +277,9 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
   Dali::Actor consumedActor;
   if ( currentRenderTask )
   {
+    mEmittingTouchSignals = true;
     consumedActor = EmitTouchSignals( touchData->GetPoint( 0 ).GetHitActor(), touchEvent, touchDataHandle );
+    mEmittingTouchSignals = false;
   }
 
   Integration::Point& primaryPoint = touchData->GetPoint( 0 );
@@ -295,6 +299,7 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
   // 4) Check if the last primary hit actor requires a leave event and if it was different to the current primary
   //    hit actor.  Also process the last consumed actor in the same manner.
 
+  mEmittingTouchSignals = true;
   Actor* lastPrimaryHitActor( mLastPrimaryHitActor.GetActor() );
   Actor* lastConsumedActor( mLastConsumedActor.GetActor() );
   if( ( primaryPointState == PointState::MOTION ) || ( primaryPointState == PointState::UP ) || ( primaryPointState == PointState::STATIONARY ) )
@@ -351,6 +356,30 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
         }
       }
     }
+  }
+  mEmittingTouchSignals = false;
+
+  if ( mInformDisconnect )
+  {
+    Integration::Point newPoint;
+    newPoint.SetState( PointState::INTERRUPTED );
+    newPoint.SetHitActor( mInformDisconnect );
+
+    TouchDataPtr disconnectTouchDataPtr( new TouchData( 0 ) );
+    disconnectTouchDataPtr->AddPoint( newPoint );
+    Dali::TouchData disconnectTouchDataHandle( disconnectTouchDataPtr.Get() );
+
+    TouchEvent disconnectTouchEvent( 0 );
+    disconnectTouchEvent.points.push_back( newPoint.GetTouchPoint() );
+
+    Dali::Actor eventConsumer = EmitTouchSignals( mInformDisconnect, disconnectTouchEvent, disconnectTouchDataHandle );
+
+    if ( mLastConsumedActor.GetActor() && ( mLastConsumedActor.GetActor() != eventConsumer ) )
+    {
+      EmitTouchSignals( Dali::Actor( mLastConsumedActor.GetActor() ), disconnectTouchEvent, disconnectTouchDataHandle );
+    }
+
+    mInformDisconnect.Reset();
   }
 
   // 5) If our primary point is an Up event, then the primary point (in multi-touch) will change next
@@ -439,30 +468,37 @@ void TouchEventProcessor::OnObservedActorDisconnected( Actor* actor )
 {
   if ( actor == mLastPrimaryHitActor.GetActor() )
   {
-    Dali::Actor handle( actor );
-
-    Integration::Point point;
-    point.SetState( PointState::INTERRUPTED );
-    point.SetHitActor( handle );
-
-    TouchDataPtr touchData( new TouchData );
-    touchData->AddPoint( point );
-    Dali::TouchData touchDataHandle( touchData.Get() );
-
-    TouchEvent touchEvent( 0 );
-    touchEvent.points.push_back( point.GetTouchPoint() );
-
-    Dali::Actor eventConsumer = EmitTouchSignals( handle, touchEvent, touchDataHandle );
-
-    if ( mLastConsumedActor.GetActor() != eventConsumer )
+    if ( ! mEmittingTouchSignals )
     {
-      EmitTouchSignals( Dali::Actor( mLastConsumedActor.GetActor() ), touchEvent, touchDataHandle );
+      Dali::Actor handle( actor );
+
+      Integration::Point point;
+      point.SetState( PointState::INTERRUPTED );
+      point.SetHitActor( handle );
+
+      TouchDataPtr touchData( new TouchData );
+      touchData->AddPoint( point );
+      Dali::TouchData touchDataHandle( touchData.Get() );
+
+      TouchEvent touchEvent( 0 );
+      touchEvent.points.push_back( point.GetTouchPoint() );
+
+      Dali::Actor eventConsumer = EmitTouchSignals( handle, touchEvent, touchDataHandle );
+
+      if ( mLastConsumedActor.GetActor() != eventConsumer )
+      {
+        EmitTouchSignals( Dali::Actor( mLastConsumedActor.GetActor() ), touchEvent, touchDataHandle );
+      }
+
+      // Do not set mLastPrimaryHitActor to NULL we may be iterating through its observers
+
+      mLastConsumedActor.SetActor( NULL );
+      mLastRenderTask.Reset();
     }
-
-    // Do not set mLastPrimaryHitActor to NULL we may be iterating through its observers
-
-    mLastConsumedActor.SetActor( NULL );
-    mLastRenderTask.Reset();
+    else
+    {
+      mInformDisconnect = Dali::Actor( actor );
+    }
   }
 }
 

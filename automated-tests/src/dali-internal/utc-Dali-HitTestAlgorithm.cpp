@@ -209,7 +209,7 @@ int UtcDaliHitTestAlgorithmWithFunctorOnRenderTask(void)
   results.actorCoordinates = Vector2::ZERO;
   Dali::HitTestAlgorithm::HitTest( renderTask[0], screenCoordinates, results, IsActorHittableFunction );
   DALI_TEST_CHECK( results.actor == actor[0] );
-  DALI_TEST_EQUALS( screenCoordinates, results.actorCoordinates, 0.1f, TEST_LOCATION );
+  DALI_TEST_EQUALS( screenCoordinates - position, results.actorCoordinates, 0.1f, TEST_LOCATION );
 
   results.actor = Actor();
   results.actorCoordinates = Vector2::ZERO;

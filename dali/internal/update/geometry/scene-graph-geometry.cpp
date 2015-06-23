@@ -251,6 +251,10 @@ void Geometry::CalculateExtents( PropertyBuffer* vertexBuffer )
       {
         radius = halfExtents.y;
       }
+      if ( radius < halfExtents.z )
+      {
+        radius = halfExtents.z;
+      }
       mRadius.SetInitial( radius );
     }
   }

@@ -245,13 +245,7 @@ void Geometry::CalculateExtents( PropertyBuffer* vertexBuffer )
       mCenter.Bake( 1, center );
       mHalfExtents.Bake( 0, halfExtents );
       mHalfExtents.Bake( 1, halfExtents );
-
-      float radius = halfExtents.x;
-      if ( radius < halfExtents.y )
-      {
-        radius = halfExtents.y;
-      }
-      mRadius.SetInitial( radius );
+      mRadius.SetInitial( halfExtents.Length() );
     }
   }
 }

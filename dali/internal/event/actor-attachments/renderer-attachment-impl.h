@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/event/common/object-connector.h>
-#include <dali/internal/event/actors/renderer-impl.h>
+#include <dali/internal/event/rendering/renderer-impl.h>
 #include <dali/internal/event/actor-attachments/renderable-attachment-impl.h>
 
 namespace Dali

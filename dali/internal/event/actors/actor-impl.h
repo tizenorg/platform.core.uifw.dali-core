@@ -32,7 +32,7 @@
 #include <dali/public-api/size-negotiation/relayout-container.h>
 #include <dali/internal/event/common/stage-def.h>
 #include <dali/internal/event/actors/actor-declarations.h>
-#include <dali/internal/event/actors/renderer-impl.h>
+#include <dali/internal/event/rendering/renderer-impl.h>
 #include <dali/internal/event/actor-attachments/actor-attachment-declarations.h>
 #include <dali/internal/update/nodes/node-declarations.h>
 

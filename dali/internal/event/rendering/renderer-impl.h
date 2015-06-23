@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_GEOMETRY_H
-#define DALI_INTERNAL_GEOMETRY_H
+#ifndef DALI_INTERNAL_RENDERER_H
+#define DALI_INTERNAL_RENDERER_H
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -18,17 +18,15 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h> // std::vector
-
 // INTERNAL INCLUDES
+#include <dali/devel-api/rendering/renderer.h> // Dali::Renderer
 #include <dali/public-api/common/dali-common.h> // DALI_ASSERT_ALWAYS
 #include <dali/public-api/common/intrusive-ptr.h> // Dali::IntrusivePtr
-#include <dali/public-api/geometry/geometry.h> // Dali::Geometry
 #include <dali/internal/event/common/connectable.h> // Dali::Internal::Connectable
 #include <dali/internal/event/common/object-connector.h> // Dali::Internal::ObjectConnector
 #include <dali/internal/event/common/object-impl.h> // Dali::Internal::Object
-#include <dali/internal/event/common/property-buffer-impl.h> // Dali::Internal::PropertyBuffer
+#include <dali/internal/event/rendering/material-impl.h> // Dali::Internal::Material
+#include <dali/internal/event/rendering/geometry-impl.h> // Dali::Internal::Geometry
 
 namespace Dali
 {
@@ -36,72 +34,61 @@ namespace Internal
 {
 namespace SceneGraph
 {
-class Geometry;
+class RendererAttachment;
 }
 
-class Geometry;
-typedef IntrusivePtr<Geometry> GeometryPtr;
+class Renderer;
+typedef IntrusivePtr<Renderer> RendererPtr;
 
 /**
- * Geometry is an object that contains an array of structures of values that
- * can be accessed as properties.
+ * Renderer is an object that can be used to show content by combining a Geometry with a material.
  */
-class Geometry : public Object, public Connectable
+class Renderer : public Object, public Connectable
 {
 public:
 
   /**
-   * Create a new Geometry.
-   * @return A smart-pointer to the newly allocated Geometry.
+   * Create a new Renderer.
+   * @return A smart-pointer to the newly allocated Renderer.
    */
-  static GeometryPtr New();
+  static RendererPtr New();
 
   /**
-   * @copydoc Dali::Geometry::AddVertexBuffer()
+   * @copydoc Dali::Renderer::SetGeometry()
    */
-  std::size_t AddVertexBuffer( PropertyBuffer& vertexBuffer );
+  void SetGeometry( Geometry& geometry );
 
   /**
-   * @copydoc Dali::Geometry::GetNumberOfVertexBuffers()
+   * @copydoc Dali::Renderer::GetGeometry()
    */
-  std::size_t GetNumberOfVertexBuffers() const;
+  Geometry* GetGeometry() const;
 
   /**
-   * @copydoc Dali::Geometry::RemoveVertexBuffer()
+   * @copydoc Dali::Renderer::SetMaterial()
    */
-  void RemoveVertexBuffer( std::size_t index );
+  void SetMaterial( Material& material );
 
   /**
-   * @copydoc Dali::Geometry::SetIndexBuffer()
+   * @copydoc Dali::Renderer::GetMaterial()
    */
-  void SetIndexBuffer( PropertyBuffer& indexBuffer );
+  Material* GetMaterial() const;
 
   /**
-   * @copydoc Dali::Geometry::SetGeometryType()
+   * @copydoc Dali::Renderer::SetDepthIndex()
    */
-  void SetGeometryType( Dali::Geometry::GeometryType geometryType );
+  void SetDepthIndex( int depthIndex );
 
   /**
-   * @copydoc Dali::Geometry::GetGeometryType()
+   * @copydoc Dali::Renderer::GetDepthIndex()
    */
-  Dali::Geometry::GeometryType GetGeometryType() const;
+  int GetDepthIndex() const;
 
   /**
-   * @copydoc Dali::Geometry::SetRequiresDepthTesting()
-   */
-  void SetRequiresDepthTesting( bool requiresDepthTest );
-
-  /**
-   * @copydoc Dali::Geometry::GetRequiresDepthTesting()
-   */
-  bool GetRequiresDepthTesting() const;
-
-  /**
-   * @brief Get the geometry scene object
+   * @brief Get the scene graph object ( the node attachment )
    *
-   * @return the geometry scene object
+   * @return the scene object
    */
-  const SceneGraph::Geometry* GetGeometrySceneObject() const;
+  SceneGraph::RendererAttachment* GetRendererSceneObject();
 
 public: // Default property extensions from Object
 
@@ -202,53 +189,49 @@ public: // Functions from Connectable
   virtual void Disconnect();
 
 private: // implementation
-  Geometry();
+  Renderer();
 
-  /**
-   * Second stage initialization of the Geometry
-   */
   void Initialize();
 
 protected:
   /**
    * A reference counted object may only be deleted by calling Unreference()
    */
-  virtual ~Geometry();
+  virtual ~Renderer();
 
 private: // unimplemented methods
-  Geometry( const Geometry& );
-  Geometry& operator=( const Geometry& );
+  Renderer( const Renderer& );
+  Renderer& operator=( const Renderer& );
 
 private: // data
-  typedef ObjectConnector<PropertyBuffer> PropertyBufferConnector;
-  typedef std::vector< PropertyBufferConnector > PropertyBufferConnectorContainer;
-  PropertyBufferConnectorContainer mVertexBufferConnectors; ///< Vector of connectors that hold the property buffers used by this geometry
-  PropertyBufferConnector mIndexBufferConnector;            ///< Connector that holds the index buffer used by this geometry
-  SceneGraph::Geometry* mSceneObject;
+  SceneGraph::RendererAttachment* mSceneObject;
+  ObjectConnector<Geometry> mGeometryConnector; ///< Connector that holds the geometry used by this renderer
+  ObjectConnector<Material> mMaterialConnector; ///< Connector that holds the material used by this renderer
+  int mDepthIndex;
   bool mOnStage;
 };
 
 } // namespace Internal
 
 // Helpers for public-api forwarding methods
-inline Internal::Geometry& GetImplementation(Dali::Geometry& handle)
+inline Internal::Renderer& GetImplementation( Dali::Renderer& handle )
 {
-  DALI_ASSERT_ALWAYS(handle && "Geometry handle is empty");
+  DALI_ASSERT_ALWAYS(handle && "Renderer handle is empty");
 
   BaseObject& object = handle.GetBaseObject();
 
-  return static_cast<Internal::Geometry&>(object);
+  return static_cast<Internal::Renderer&>(object);
 }
 
-inline const Internal::Geometry& GetImplementation(const Dali::Geometry& handle)
+inline const Internal::Renderer& GetImplementation( const Dali::Renderer& handle )
 {
-  DALI_ASSERT_ALWAYS(handle && "Geometry handle is empty");
+  DALI_ASSERT_ALWAYS(handle && "Renderer handle is empty");
 
   const BaseObject& object = handle.GetBaseObject();
 
-  return static_cast<const Internal::Geometry&>(object);
+  return static_cast<const Internal::Renderer&>(object);
 }
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_GEOMETRY_H
+#endif // DALI_INTERNAL_RENDERER_H

@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h> // DALI_ASSERT_ALWAYS
 #include <dali/public-api/common/intrusive-ptr.h> // Dali::IntrusivePtr
-#include <dali/public-api/object/property-buffer.h> // Dali::PropertyBuffer
+#include <dali/devel-api/object/property-buffer.h> // Dali::PropertyBuffer
 #include <dali/public-api/object/property-map.h> // Dali::Property::Map
 #include <dali/internal/event/common/connectable.h> // Dali::Internal::Connectable
 #include <dali/internal/event/common/object-connector.h> // Dali::Internal::ObjectConnector

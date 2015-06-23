@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_SAMPLER_H
-#define DALI_INTERNAL_SAMPLER_H
+#ifndef DALI_INTERNAL_MATERIAL_H
+#define DALI_INTERNAL_MATERIAL_H
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -18,14 +18,20 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/vector-wrapper.h> // std::vector
+
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h> // DALI_ASSERT_ALWAYS
 #include <dali/public-api/common/intrusive-ptr.h> // Dali::IntrusivePtr
-#include <dali/public-api/shader-effects/sampler.h> // Dali::Sampler
+#include <dali/devel-api/rendering/material.h> // Dali::Material
 #include <dali/internal/event/common/connectable.h> // Dali::Internal::Connectable
 #include <dali/internal/event/common/object-connector.h> // Dali::Internal::ObjectConnector
 #include <dali/internal/event/common/object-impl.h> // Dali::Internal::Object
-#include <dali/internal/event/images/image-connector.h> // Dali::Internal::ImageConnector
+#include <dali/internal/event/common/property-buffer-impl.h> // Dali::Internal::PropertyBuffer
+#include <dali/internal/event/rendering/sampler-impl.h> // Dali::Internal::Sampler
+#include <dali/internal/event/rendering/shader-impl.h> // Dali::Internal::Shader
+#include <dali/internal/common/blending-options.h>
 
 namespace Dali
 {
@@ -33,62 +39,119 @@ namespace Internal
 {
 namespace SceneGraph
 {
-class Sampler;
+class Material;
 }
 
-class Sampler;
-typedef IntrusivePtr<Sampler> SamplerPtr;
+
+class Material;
+typedef IntrusivePtr<Material> MaterialPtr;
 
 /**
- * Sampler is an object that contains an array of structures of values that
- * can be accessed as properties.
+ * Material is an object that connects a Shader with Samplers and can be used
+ * to shade a Geometry.
  */
-class Sampler : public Object, public Connectable
+class Material : public Object, public Connectable
 {
 public:
 
   /**
-   * Create a new Sampler.
-   * @return A smart-pointer to the newly allocated Sampler.
+   * @copydoc Dali::Material::New()
    */
-  static SamplerPtr New( const std::string& textureUnitUniformName );
+  static MaterialPtr New();
 
   /**
-   * @copydoc Dali::Sampler::SetUniformName()
+   * @copydoc Dali::Material::SetShader()
    */
-  void SetTextureUnitUniformName( const std::string& name );
+  void SetShader( Shader& shader );
 
   /**
-   * @copydoc Dali::Sampler::SetImage()
+   * @copydoc Dali::Material::GetShader()
    */
-  void SetImage( ImagePtr& image );
+  Shader* GetShader() const;
 
   /**
-   * @copydoc Dali::Sampler::GetImage()
+   * @copydoc Dali::Material::AddSampler()
    */
-  ImagePtr GetImage() const;
+  void AddSampler( Sampler& sampler );
 
   /**
-   * @copydoc Dali::Sampler::SetFilterMode()
+   * @copydoc Dali::Material::GetNumberOfSamplers()
    */
-  void SetFilterMode( Dali::Sampler::FilterMode minFilter, Dali::Sampler::FilterMode magFilter );
+  std::size_t GetNumberOfSamplers() const;
 
   /**
-   * @copydoc Dali::Sampler::SetWrapMode()
+   * @copydoc Dali::Material::RemoveSampler()
    */
-  void SetWrapMode( Dali::Sampler::WrapMode uWrap, Dali::Sampler::WrapMode vWrap );
+  void RemoveSampler( std::size_t index );
 
   /**
-   * @copydoc Dali::Sampler::SetAffectsTransparency()
+   * @copydoc Dali::Material::GetSamplerAt()
    */
-  void SetAffectsTransparency( bool affectsTransparency );
+  Sampler* GetSamplerAt( unsigned int index ) const;
 
   /**
-   * @brief Get the sampler scene object
+   * @copydoc Dali::Material::SetFaceCullingMode()
+   */
+  void SetFaceCullingMode( Dali::Material::FaceCullingMode cullingMode );
+
+  /**
+   * @copydoc Dali::Material::SetBlendMode()
+   */
+  void SetBlendMode( BlendingMode::Type mode );
+
+  /**
+   * @copydoc Dali::Material::GetBlendMode()
+   */
+  BlendingMode::Type GetBlendMode() const;
+
+  /**
+   * @copydoc Dali::Material::SetBlendFunc()
+   */
+  void SetBlendFunc( BlendingFactor::Type srcFactorRgba, BlendingFactor::Type destFactorRgba );
+
+  /**
+   * @copydoc Dali::Material::SetBlendFunc()
+   */
+  void SetBlendFunc( BlendingFactor::Type srcFactorRgb,   BlendingFactor::Type destFactorRgb,
+                     BlendingFactor::Type srcFactorAlpha, BlendingFactor::Type destFactorAlpha );
+
+  /**
+   * @copydoc Dali::Material::GetBlendFunc()
+   */
+  void GetBlendFunc( BlendingFactor::Type& srcFactorRgb,   BlendingFactor::Type& destFactorRgb,
+                     BlendingFactor::Type& srcFactorAlpha, BlendingFactor::Type& destFactorAlpha ) const;
+
+  /**
+   * @copydoc Dali::Material::SetBlendEquation()
+   */
+  void SetBlendEquation( BlendingEquation::Type equationRgba );
+
+  /**
+   * @copydoc Dali::Material::SetBlendEquation()
+   */
+  void SetBlendEquation( BlendingEquation::Type equationRgb, BlendingEquation::Type equationAlpha );
+
+  /**
+   * @copydoc Dali::Material::GetBlendEquation()
+   */
+  void GetBlendEquation( BlendingEquation::Type& equationRgb, BlendingEquation::Type& equationAlpha ) const;
+
+  /**
+   * @copydoc Dali::Material::SetBlendColor()
+   */
+  void SetBlendColor( const Vector4& color );
+
+  /**
+   * @copydoc Dali::Material::GetBlendColor()
+   */
+  const Vector4& GetBlendColor() const;
+
+  /**
+   * @brief Get the material scene object
    *
-   * @return the sampler scene object
+   * @return the material scene object
    */
-  const SceneGraph::Sampler* GetSamplerSceneObject() const;
+  const SceneGraph::Material* GetMaterialSceneObject() const;
 
 public: // Default property extensions from Object
 
@@ -188,48 +251,60 @@ public: // Functions from Connectable
    */
   virtual void Disconnect();
 
-private:
-  Sampler();
+private: // implementation
+  Material();
 
   /**
    * Second stage initialization
    */
-  void Initialize( const std::string& textureUnitUniformName );
+  void Initialize();
 
 protected:
   /**
    * A reference counted object may only be deleted by calling Unreference()
    */
-  virtual ~Sampler();
+  virtual ~Material();
 
-private: // data
-  //TODO: MESH_REWORK : change to ObjectConnector
-  ImageConnector mImageConnector;
-  SceneGraph::Sampler* mSceneObject;
+private: // unimplemented methods
+  Material( const Material& );
+  Material& operator=( const Material& );
+
+private: //data
+  typedef ObjectConnector<Shader> ShaderConnector;
+  ShaderConnector mShaderConnector; ///< Connector that holds the shader used by this material
+
+  typedef ObjectConnector<Sampler> SamplerConnector;
+  typedef std::vector< SamplerConnector > SamplerConnectorContainer;
+  SamplerConnectorContainer mSamplerConnectors; ///< Vector of connectors that hold the samplers used by this material
+
+  SceneGraph::Material* mSceneObject;
+
+  BlendingMode::Type mBlendingMode; ///< Local store
+  BlendingOptions mBlendingOptions; ///< Local copy of blending options bitmask
   bool mOnStage;
 };
 
 } // namespace Internal
 
 // Helpers for public-api forwarding methods
-inline Internal::Sampler& GetImplementation(Dali::Sampler& handle)
+inline Internal::Material& GetImplementation( Dali::Material& handle )
 {
-  DALI_ASSERT_ALWAYS(handle && "Sampler handle is empty");
+  DALI_ASSERT_ALWAYS(handle && "Material handle is empty");
 
   BaseObject& object = handle.GetBaseObject();
 
-  return static_cast<Internal::Sampler&>(object);
+  return static_cast<Internal::Material&>(object);
 }
 
-inline const Internal::Sampler& GetImplementation(const Dali::Sampler& handle)
+inline const Internal::Material& GetImplementation( const Dali::Material& handle )
 {
-  DALI_ASSERT_ALWAYS(handle && "Sampler handle is empty");
+  DALI_ASSERT_ALWAYS(handle && "Material handle is empty");
 
   const BaseObject& object = handle.GetBaseObject();
 
-  return static_cast<const Internal::Sampler&>(object);
+  return static_cast<const Internal::Material&>(object);
 }
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_SAMPLER_H
+#endif // DALI_INTERNAL_MATERIAL_H

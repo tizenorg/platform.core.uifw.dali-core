@@ -22,7 +22,7 @@
 #include <algorithm> // std::sort
 
 // INTERNAL INCLUDES
-#include <dali/public-api/object/property-buffer.h> // Dali::Internal::PropertyBuffer
+#include <dali/devel-api/object/property-buffer.h> // Dali::Internal::PropertyBuffer
 #include <dali/public-api/object/type-registry.h>
 
 #include <dali/internal/event/common/object-impl-helper.h> // Dali::Internal::ObjectHelper

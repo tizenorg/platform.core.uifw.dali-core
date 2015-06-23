@@ -42,9 +42,9 @@
 #include <dali/internal/update/common/scene-graph-property-buffer.h>
 #include <dali/internal/update/controllers/render-message-dispatcher.h>
 #include <dali/internal/update/controllers/scene-controller-impl.h>
-#include <dali/internal/update/effects/scene-graph-material.h>
-#include <dali/internal/update/effects/scene-graph-sampler.h>
-#include <dali/internal/update/geometry/scene-graph-geometry.h>
+#include <dali/internal/update/rendering/scene-graph-material.h>
+#include <dali/internal/update/rendering/scene-graph-sampler.h>
+#include <dali/internal/update/rendering/scene-graph-geometry.h>
 #include <dali/internal/update/gestures/scene-graph-pan-gesture.h>
 #include <dali/internal/update/manager/object-owner-container.h>
 #include <dali/internal/update/manager/prepare-render-algorithms.h>

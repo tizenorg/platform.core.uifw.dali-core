@@ -42,6 +42,9 @@ namespace Internal
 class ResourceClient;
 class MessageController;
 
+const int DALI_SHADER_CACHE_SIZE = 20;
+const int DALI_SHADER_CACHE_MAX = (DALI_SHADER_CACHE_SIZE - 1);
+
 /**
  * ShaderFactory is an object that manages shader binary resource load requests,
  * It triggers the load requests during core initialization and sends a message to the
@@ -109,6 +112,8 @@ private:
 
   ResourceTicketPtr GetShaderTicket( const ResourceTypePath& typePath );
 
+  void MemoryCacheInsert( Integration::ShaderDataPtr shaderData );
+
   // Undefined
   ShaderFactory( const ShaderFactory& );
 
@@ -119,6 +124,7 @@ private:
   ResourceClient&       mResourceClient;
   ResourceTypePathIdMap mResourceTypePathIdMap; ///< A map of resource IDs sorted by ResourceTypePath
   ShaderEffectPtr       mDefaultShader;
+  std::pair< Integration::ShaderDataPtr, size_t > mShaderBinaryCache[DALI_SHADER_CACHE_SIZE]; ///< Cache of pre-compiled shaders.
 
 }; // class ShaderFactory
 

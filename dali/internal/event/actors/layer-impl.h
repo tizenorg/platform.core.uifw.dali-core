@@ -152,19 +152,6 @@ public:
   }
 
   /**
-   * @copydoc Dali::Layer::SetBehavior()
-   */
-  void SetBehavior( Dali::Layer::Behavior behavior );
-
-  /**
-   * @copydoc Dali::Layer::GetBehavior()
-   */
-  Dali::Layer::Behavior GetBehavior() const
-  {
-    return mBehavior;
-  }
-
-  /**
    * @copydoc Dali::Layer::SetDepthTestDisabled()
    */
   void SetDepthTestDisabled( bool disable );

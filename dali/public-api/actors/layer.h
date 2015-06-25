@@ -239,20 +239,6 @@ public:
   void MoveBelow( Layer target );
 
   /**
-   * @brief Set the behavior of the layer
-   *
-   * @param[in] behavior The desired behavior
-   */
-  void SetBehavior( Behavior behavior );
-
-  /**
-   * @brief Get the behavior of the layer
-   *
-   * @return The behavior of the layer
-   */
-  Behavior GetBehavior() const;
-
-  /**
    * @brief Sets whether clipping is enabled for a layer.
    *
    * Clipping is initially disabled; see also SetClippingBox().

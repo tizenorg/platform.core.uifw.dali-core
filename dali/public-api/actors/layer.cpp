@@ -103,16 +103,6 @@ void Layer::MoveBelow( Layer target )
   GetImplementation(*this).MoveBelow( GetImplementation( target ) );
 }
 
-void Layer::SetBehavior( Behavior behavior )
-{
-  GetImplementation(*this).SetBehavior( behavior );
-}
-
-Layer::Behavior Layer::GetBehavior() const
-{
-  return GetImplementation(*this).GetBehavior();
-}
-
 void Layer::SetClipping(bool enabled)
 {
   GetImplementation(*this).SetClipping(enabled);

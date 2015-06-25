@@ -490,7 +490,7 @@ int UtcDaliLayerSetDepthTestDisabled(void)
   Layer actor = Layer::New();
   DALI_TEST_CHECK( actor.IsDepthTestDisabled() );
 
-  actor.SetBehavior( Layer::LAYER_3D );
+  actor.SetProperty( Layer::Property::BEHAVIOR, "Dali::Layer::LAYER_3D" );
   DALI_TEST_CHECK( !actor.IsDepthTestDisabled() );
 
   actor.SetDepthTestDisabled( true );
@@ -573,9 +573,15 @@ int UtcDaliLayerBehaviour(void)
 {
   TestApplication application;
   Layer layer = Layer::New();
+  Property::Value behaviorProperty = layer.GetProperty( Layer::Property::BEHAVIOR );
+  std::string behavior;
+  behaviorProperty.Get( behavior );
+  DALI_TEST_EQUALS( behavior, "Dali::Layer::LAYER_2D", TEST_LOCATION );
+  layer.SetProperty( Layer::Property::BEHAVIOR, "Dali::Layer::LAYER_3D" );
 
-  DALI_TEST_EQUALS( layer.GetBehavior(), Dali::Layer::LAYER_2D, TEST_LOCATION );
-  layer.SetBehavior( Dali::Layer::LAYER_3D );
-  DALI_TEST_EQUALS( layer.GetBehavior(), Dali::Layer::LAYER_3D, TEST_LOCATION );
+  behaviorProperty = layer.GetProperty( Layer::Property::BEHAVIOR );
+  behaviorProperty.Get( behavior );
+
+  DALI_TEST_EQUALS( behavior, "Dali::Layer::LAYER_3D", TEST_LOCATION );
   END_TEST;
 }

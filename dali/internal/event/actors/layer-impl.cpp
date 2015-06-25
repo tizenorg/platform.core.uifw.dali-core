@@ -217,14 +217,6 @@ void Layer::MoveBelow( const Internal::Layer& target )
   }
 }
 
-void Layer::SetBehavior( Dali::Layer::Behavior behavior )
-{
-  mBehavior = behavior;
-
-  // notify update side object
-  SetBehaviorMessage( GetEventThreadServices(), GetSceneLayerOnStage(), behavior );
-}
-
 void Layer::SetClipping(bool enabled)
 {
   if (enabled != mIsClipping)
@@ -479,7 +471,10 @@ void Layer::SetDefaultProperty( Property::Index index, const Property::Value& pr
         Behavior behavior(Dali::Layer::LAYER_2D);
         if( Scripting::GetEnumeration< Behavior >( propertyValue.Get< std::string >().c_str(), BehaviorTable, BehaviorTableCount, behavior ) )
         {
-          SetBehavior( behavior );
+          mBehavior = behavior;
+		  
+		  // notify update side object
+          SetBehaviorMessage( GetEventThreadServices(), GetSceneLayerOnStage(), mBehavior );
         }
         break;
       }
@@ -516,7 +511,7 @@ Property::Value Layer::GetDefaultProperty( Property::Index index ) const
       }
       case Dali::Layer::Property::BEHAVIOR:
       {
-        ret = Scripting::GetLinearEnumerationName< Behavior >( GetBehavior(), BehaviorTable, BehaviorTableCount );
+        ret = Scripting::GetLinearEnumerationName< Behavior >( mBehavior, BehaviorTable, BehaviorTableCount );
         break;
       }
       default:

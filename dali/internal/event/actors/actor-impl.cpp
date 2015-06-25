@@ -412,7 +412,7 @@ void Actor::Add( Actor& child )
     if( !child.mParent )
     {
       // Do this first, since user callbacks from within SetParent() may need to remove child
-      mChildren->push_back( Dali::Actor( &child ) );
+      mChildren->push_back( ActorPtr( &child ) );
 
       // SetParent asserts that child can be added
       child.SetParent( this );
@@ -461,11 +461,11 @@ void Actor::Insert( unsigned int index, Actor& child )
     {
       ActorIter it = mChildren->begin();
       std::advance( it, index );
-      mChildren->insert( it, Dali::Actor( &child ) );
+      mChildren->insert( it, ActorPtr( &child ) );
     }
     else
     {
-      mChildren->push_back( Dali::Actor( &child ) );
+      mChildren->push_back( ActorPtr( &child ) );
     }
     // SetParent asserts that child can be added
     child.SetParent( this, index );
@@ -488,32 +488,30 @@ void Actor::Insert( unsigned int index, Actor& child )
 
 void Actor::Remove( Actor& child )
 {
-  DALI_ASSERT_ALWAYS( this != &child && "Cannot remove actor from itself" );
-
-  Dali::Actor removed;
-
-  if( !mChildren )
+  if( (this == &child) || (!mChildren) )
   {
-    // no children
+    // no children or removing itself
     return;
   }
+
+  ActorPtr removed;
 
   // Find the child in mChildren, and unparent it
   ActorIter end = mChildren->end();
   for( ActorIter iter = mChildren->begin(); iter != end; ++iter )
   {
-    Actor& actor = GetImplementation( *iter );
+    ActorPtr actor = (*iter);
 
-    if( &actor == &child )
+    if( actor.Get() == &child )
     {
       // Keep handle for OnChildRemove notification
-      removed = Dali::Actor( &actor );
+      removed = actor;
 
       // Do this first, since user callbacks from within SetParent() may need to add the child
       mChildren->erase( iter );
 
-      DALI_ASSERT_DEBUG( actor.GetParent() == this );
-      actor.SetParent( NULL );
+      DALI_ASSERT_DEBUG( actor->GetParent() == this );
+      actor->SetParent( NULL );
 
       break;
     }
@@ -522,7 +520,7 @@ void Actor::Remove( Actor& child )
   if( removed )
   {
     // Notification for derived classes
-    OnChildRemove( GetImplementation( removed ) );
+    OnChildRemove( *(removed.Get()) );
 
     // Only put in a relayout request if there is a suitable dependency
     if( RelayoutDependentOnChildren() )
@@ -548,11 +546,11 @@ unsigned int Actor::GetChildCount() const
   return ( NULL != mChildren ) ? mChildren->size() : 0;
 }
 
-Dali::Actor Actor::GetChildAt( unsigned int index ) const
+ActorPtr Actor::GetChildAt( unsigned int index ) const
 {
   DALI_ASSERT_ALWAYS( index < GetChildCount() );
 
-  return ( ( mChildren ) ? ( *mChildren )[ index ] : Dali::Actor() );
+  return ( ( mChildren ) ? ( *mChildren )[ index ] : ActorPtr() );
 }
 
 ActorPtr Actor::FindChildByName( const std::string& actorName )
@@ -567,7 +565,7 @@ ActorPtr Actor::FindChildByName( const std::string& actorName )
     ActorIter end = mChildren->end();
     for( ActorIter iter = mChildren->begin(); iter != end; ++iter )
     {
-      child = GetImplementation( *iter ).FindChildByName( actorName );
+      child = (*iter)->FindChildByName( actorName );
 
       if( child )
       {
@@ -590,7 +588,7 @@ ActorPtr Actor::FindChildById( const unsigned int id )
     ActorIter end = mChildren->end();
     for( ActorIter iter = mChildren->begin(); iter != end; ++iter )
     {
-      child = GetImplementation( *iter ).FindChildById( id );
+      child = (*iter)->FindChildById( id );
 
       if( child )
       {
@@ -1701,17 +1699,17 @@ void Actor::SetDynamicsRoot(bool flag)
       ActorIter end = mChildren->end();
       for( ActorIter iter = mChildren->begin(); iter != end; ++iter )
       {
-        Actor& child = GetImplementation(*iter);
+        ActorPtr child = (*iter);
 
-        if( child.GetDynamicsBody() )
+        if( child->GetDynamicsBody() )
         {
           if( mIsDynamicsRoot )
           {
-            child.ConnectDynamics();
+            child->ConnectDynamics();
           }
           else
           {
-            child.DisconnectDynamics();
+            child->DisconnectDynamics();
           }
         }
       }
@@ -2324,8 +2322,7 @@ Actor::~Actor()
     ActorConstIter endIter = mChildren->end();
     for( ActorIter iter = mChildren->begin(); iter != endIter; ++iter )
     {
-      Actor& actor = GetImplementation( *iter );
-      actor.SetParent( NULL );
+      (*iter)->SetParent( NULL );
     }
   }
   delete mChildren;
@@ -2374,8 +2371,7 @@ void Actor::ConnectToStage( int index )
   const ActorIter endIter = connectionList.end();
   for( ActorIter iter = connectionList.begin(); iter != endIter; ++iter )
   {
-    Actor& actor = GetImplementation( *iter );
-    actor.NotifyStageConnection();
+    (*iter)->NotifyStageConnection();
   }
 
   RelayoutRequest();
@@ -2393,7 +2389,7 @@ void Actor::RecursiveConnectToStage( ActorContainer& connectionList, int index )
   OnStageConnectionInternal();
 
   // This stage is atomic; avoid emitting callbacks until all Actors are connected
-  connectionList.push_back( Dali::Actor( this ) );
+  connectionList.push_back( ActorPtr( this ) );
 
   // Recursively connect children
   if( mChildren )
@@ -2401,8 +2397,7 @@ void Actor::RecursiveConnectToStage( ActorContainer& connectionList, int index )
     ActorConstIter endIter = mChildren->end();
     for( ActorIter iter = mChildren->begin(); iter != endIter; ++iter )
     {
-      Actor& actor = GetImplementation( *iter );
-      actor.RecursiveConnectToStage( connectionList );
+      (*iter)->RecursiveConnectToStage( connectionList );
     }
   }
 }
@@ -2480,8 +2475,7 @@ void Actor::DisconnectFromStage()
   const ActorIter endIter = disconnectionList.end();
   for( ActorIter iter = disconnectionList.begin(); iter != endIter; ++iter )
   {
-    Actor& actor = GetImplementation( *iter );
-    actor.NotifyStageDisconnection();
+    (*iter)->NotifyStageDisconnection();
   }
 }
 
@@ -2495,13 +2489,12 @@ void Actor::RecursiveDisconnectFromStage( ActorContainer& disconnectionList )
     ActorConstIter endIter = mChildren->end();
     for( ActorIter iter = mChildren->begin(); iter != endIter; ++iter )
     {
-      Actor& actor = GetImplementation( *iter );
-      actor.RecursiveDisconnectFromStage( disconnectionList );
+      (*iter)->RecursiveDisconnectFromStage( disconnectionList );
     }
   }
 
   // This stage is atomic; avoid emitting callbacks until all Actors are disconnected
-  disconnectionList.push_back( Dali::Actor( this ) );
+  disconnectionList.push_back( ActorPtr( this ) );
 
   // Notification for internal derived classes
   OnStageDisconnectionInternal();
@@ -4153,14 +4146,13 @@ float Actor::NegotiateFromChildren( Dimension::Type dimension )
 
   for( unsigned int i = 0, count = GetChildCount(); i < count; ++i )
   {
-    Dali::Actor child = GetChildAt( i );
-    Actor& childImpl = GetImplementation( child );
+    ActorPtr child = GetChildAt( i );
 
-    if( !childImpl.RelayoutDependentOnParent( dimension ) )
+    if( !child->RelayoutDependentOnParent( dimension ) )
     {
       // Calculate the min and max points that the children range across
-      float childPosition = GetDimensionValue( childImpl.GetTargetPosition(), dimension );
-      float dimensionSize = childImpl.GetRelayoutSize( dimension );
+      float childPosition = GetDimensionValue( child->GetTargetPosition(), dimension );
+      float dimensionSize = child->GetRelayoutSize( dimension );
       maxDimensionPoint = std::max( maxDimensionPoint, childPosition + dimensionSize );
     }
   }
@@ -4289,13 +4281,12 @@ void Actor::NegotiateDimension( Dimension::Type dimension, const Vector2& alloca
       {
         for( unsigned int i = 0, count = GetChildCount(); i < count; ++i )
         {
-          Dali::Actor child = GetChildAt( i );
-          Actor& childImpl = GetImplementation( child );
+          ActorPtr child = GetChildAt( i );
 
           // Only relayout child first if it is not dependent on this actor
-          if( !childImpl.RelayoutDependentOnParent( dimension ) )
+          if( !child->RelayoutDependentOnParent( dimension ) )
           {
-            childImpl.NegotiateDimension( dimension, allocatedSize, recursionStack );
+            child->NegotiateDimension( dimension, allocatedSize, recursionStack );
           }
         }
       }
@@ -4444,12 +4435,12 @@ void Actor::NegotiateSize( const Vector2& allocatedSize, RelayoutContainer& cont
 
   for( unsigned int i = 0, count = GetChildCount(); i < count; ++i )
   {
-    Dali::Actor child = GetChildAt( i );
+    ActorPtr child = GetChildAt( i );
 
     // Only relayout if required
-    if( GetImplementation( child ).RelayoutRequired() )
+    if( child->RelayoutRequired() )
     {
-      container.Add( child, newBounds );
+      container.Add( Dali::Actor( child.Get() ), newBounds );
     }
   }
 }

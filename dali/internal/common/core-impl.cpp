@@ -234,12 +234,13 @@ void Core::ContextDestroyed()
   mRenderManager->ContextDestroyed();
 }
 
-void Core::SurfaceResized(unsigned int width, unsigned int height)
+void Core::SurfaceResized( unsigned int width, unsigned int height )
 {
-  mStage->SetSize(width, height);
+  mStage->SetSize( width, height );
+  mRelayoutController->SetStageSize( width, height );
 }
 
-void Core::SetDpi(unsigned int dpiHorizontal, unsigned int dpiVertical)
+void Core::SetDpi( unsigned int dpiHorizontal, unsigned int dpiVertical )
 {
   mPlatform.SetDpi( dpiHorizontal, dpiVertical );
   mStage->SetDpi( Vector2( dpiHorizontal , dpiVertical) );
@@ -298,7 +299,7 @@ void Core::SceneCreated()
 {
   mStage->EmitSceneCreatedSignal();
 
-  mRelayoutController->OnApplicationSceneCreated();
+  mRelayoutController->OnApplicationSceneCreated( mStage->GetDefaultRootActor() );
 }
 
 void Core::QueueEvent( const Integration::Event& event )

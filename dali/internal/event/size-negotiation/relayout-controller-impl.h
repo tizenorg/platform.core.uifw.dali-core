@@ -23,6 +23,7 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/size-negotiation/relayout-container.h>
 #include <dali/internal/common/memory-pool-object-allocator.h>
+#include <dali/internal/event/actors/actor-declarations.h>
 #include <dali/internal/event/size-negotiation/memory-pool-relayout-container.h>
 
 namespace Dali
@@ -65,6 +66,13 @@ public:
   static RelayoutController* Get();
 
   /**
+   * Set the stage size
+   * @param width of the stage
+   * @param height of the stage
+   */
+  void SetStageSize( unsigned int width, unsigned int height );
+
+  /**
    * @brief Request to relayout the given actor and all sub-actors of it.
    *
    * This flags the actor and all actors dependent on it for relayout. The actual
@@ -85,7 +93,7 @@ public:
    *
    * @param[in] actor The actor to request relayout on
    */
-  void RequestRelayoutTree( Dali::Actor& actor );
+  void RequestRelayoutTree( ActorPtr& actor );
 
   /**
    * @brief Force propagate relayout flags through the tree. This is similiar to Request Relayout
@@ -128,8 +136,10 @@ public: // CALLBACKS
 
   /**
    * @brief Callback raised after the application creates the scene
+   *
+   * @param root to start negotiation
    */
-  void OnApplicationSceneCreated();
+  void OnApplicationSceneCreated( Actor& root );
 
   /**
    * @brief Callback for when an object is destroyed
@@ -152,7 +162,7 @@ private:
    *
    * @param[in] actor The root of the sub tree to add
    */
-  void AddRequest( Dali::Actor& actor );
+  void AddRequest( Actor& actor );
 
   /**
    * @brief Remove actor from request list
@@ -207,11 +217,13 @@ private:
 
   RawActorList mDirtyLayoutSubTrees;    ///< List of roots of sub trees that are dirty
   MemoryPoolRelayoutContainer* mRelayoutStack;  ///< Stack for relayouting
-  bool mRelayoutConnection : 1;         ///< Whether EventProcessingFinishedSignal signal is connected.
-  bool mRelayoutFlag : 1;               ///< Relayout flag to avoid unnecessary calls
-  bool mEnabled : 1;                    ///< Initially disabled. Must be enabled at some point.
-  bool mPerformingRelayout : 1;         ///< The relayout controller is currently performing a relayout
-  bool mProcessingCoreEvents : 1;       ///< Whether core is processing events.
+
+  Vector2 mStageSize;              ///< size of the stage
+  bool mRelayoutConnection : 1;    ///< Whether EventProcessingFinishedSignal signal is connected.
+  bool mRelayoutFlag : 1;          ///< Relayout flag to avoid unnecessary calls
+  bool mEnabled : 1;               ///< Initially disabled. Must be enabled at some point.
+  bool mPerformingRelayout : 1;    ///< The relayout controller is currently performing a relayout
+  bool mProcessingCoreEvents : 1;  ///< Whether core is processing events.
 
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  *
  */
 
-// FILE HEADER
-
+// CLASS HEADER
 #include "relayout-controller-impl.h"
 
 // EXTERNAL INCLUDES
@@ -26,13 +25,12 @@
 #endif // defined(DEBUG_ENABLED)
 
 // INTERNAL INCLUDES
-#include <dali/public-api/actors/layer.h>
-#include <dali/public-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/render-controller.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/object/object-registry.h>
 #include <dali/internal/event/actors/actor-impl.h>
+#include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 
 namespace Dali
@@ -93,7 +91,7 @@ void PrintHierarchy()
   if ( gLogFilter->IsEnabledFor( Debug::Verbose ) )
   {
     DALI_LOG_INFO( gLogFilter, Debug::Verbose, "---------- ROOT LAYER ----------\n" );
-    PrintChildren( Dali::Stage().GetCurrent().GetRootLayer(), 0 );
+    PrintChildren( Stage::GetCurrent()->GetRootLayer(), 0 );
   }
 }
 
@@ -107,16 +105,12 @@ void PrintHierarchy()
 
 } // unnamed namespace
 
-RelayoutController* RelayoutController::Get()
-{
-  return &ThreadLocalStorage::Get().GetRelayoutController();
-}
-
 RelayoutController::RelayoutController( Integration::RenderController& controller )
 : mRenderController( controller ),
   mRelayoutInfoAllocator(),
   mSlotDelegate( this ),
   mRelayoutStack( new MemoryPoolRelayoutContainer( mRelayoutInfoAllocator ) ),
+  mStageSize(), // zero initialized
   mRelayoutConnection( false ),
   mRelayoutFlag( false ),
   mEnabled( false ),
@@ -130,6 +124,17 @@ RelayoutController::RelayoutController( Integration::RenderController& controlle
 RelayoutController::~RelayoutController()
 {
   delete mRelayoutStack;
+}
+
+RelayoutController* RelayoutController::Get()
+{
+  return &ThreadLocalStorage::Get().GetRelayoutController();
+}
+
+void RelayoutController::SetStageSize( unsigned int width, unsigned int height )
+{
+  mStageSize.width = width;
+  mStageSize.height = height;
 }
 
 void RelayoutController::QueueActor( Dali::Actor& actor, RelayoutContainer& actors, Vector2 size )
@@ -169,10 +174,11 @@ void RelayoutController::RequestRelayout( Dali::Actor& actor, Dimension::Type di
     topOfSubTreeStack.pop_back();
 
     Dali::Actor parent = subTreeActor.GetParent();
-    if( !parent || !( GetImplementation( subTreeActor ).RelayoutDependentOnParent() && GetImplementation( parent ).RelayoutRequired() ) )
+    Actor& subTreeImpl = GetImplementation( subTreeActor );
+    if( !parent || !( subTreeImpl.RelayoutDependentOnParent() && GetImplementation( parent ).RelayoutRequired() ) )
     {
       // Add sub tree root to relayout list
-      AddRequest( subTreeActor );
+      AddRequest( subTreeImpl );
 
       // Flag request for end of frame
       Request();
@@ -197,7 +203,7 @@ void RelayoutController::RequestRelayout( Dali::Actor& actor, Dimension::Type di
   }
 }
 
-void RelayoutController::OnApplicationSceneCreated()
+void RelayoutController::OnApplicationSceneCreated( Actor& root )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "[Internal::RelayoutController::OnApplicationSceneCreated]\n" );
 
@@ -206,14 +212,14 @@ void RelayoutController::OnApplicationSceneCreated()
 
   // Spread the dirty flag through whole tree - don't need to explicity
   // add request on rootLayer as it will automatically be added below.
-  Dali::Actor rootLayer = Dali::Stage::GetCurrent().GetRootLayer();
-  RequestRelayoutTree( rootLayer );
+  ActorPtr start( &root );
+  RequestRelayoutTree( start );
 
   // Flag request for end of frame
   Request();
 }
 
-void RelayoutController::RequestRelayoutTree( Dali::Actor& actor )
+void RelayoutController::RequestRelayoutTree( ActorPtr& actor )
 {
   if( !mEnabled )
   {
@@ -221,25 +227,24 @@ void RelayoutController::RequestRelayoutTree( Dali::Actor& actor )
   }
 
   // Only set dirty flag if doing relayout and not already marked as dirty
-  Actor& actorImpl = GetImplementation( actor );
-  if( actorImpl.RelayoutPossible() )
+  if( actor->RelayoutPossible() )
   {
     // If parent is not in relayout we are at the top of a new sub-tree
-    Dali::Actor parent = actor.GetParent();
-    if( !parent || !GetImplementation( parent ).IsRelayoutEnabled() )
+    Actor* parent = actor->GetParent();
+    if( !parent || parent->IsRelayoutEnabled() )
     {
-      AddRequest( actor );
+      AddRequest( *(actor.Get()) );
     }
 
     // Set dirty flag on actors that are enabled
-    actorImpl.SetLayoutDirty( true );
-    actorImpl.SetLayoutNegotiated( false );    // Reset this flag ready for next relayout
+    actor->SetLayoutDirty( true );
+    actor->SetLayoutNegotiated( false );    // Reset this flag ready for next relayout
   }
 
   // Propagate down to children
-  for( unsigned int i = 0; i < actor.GetChildCount(); ++i )
+  for( unsigned int i = 0; i < actor->GetChildCount(); ++i )
   {
-    Dali::Actor child = actor.GetChildAt( i );
+    ActorPtr child = actor->GetChildAt( i );
 
     RequestRelayoutTree( child );
   }
@@ -367,9 +372,9 @@ void RelayoutController::PropagateFlags( Dali::Actor& actor, Dimension::Type dim
   }
 }
 
-void RelayoutController::AddRequest( Dali::Actor& actor )
+void RelayoutController::AddRequest( Actor& actor )
 {
-  BaseObject* actorPtr = &GetImplementation( actor );
+  BaseObject* actorPtr = &actor;
 
   // Only add the rootActor if it is not already recorded
   bool found = false;
@@ -434,8 +439,6 @@ void RelayoutController::Relayout()
 
     // 1. Finds all top-level controls from the dirty list and allocate them the size of the stage
     //    These controls are paired with the parent/stage size and added to the stack.
-    const Vector2 stageSize = Dali::Stage::GetCurrent().GetSize();
-
     for( RawActorList::Iterator it = mDirtyLayoutSubTrees.Begin(), itEnd = mDirtyLayoutSubTrees.End(); it != itEnd; ++it )
     {
       BaseObject* dirtyActor = *it;
@@ -450,7 +453,7 @@ void RelayoutController::Relayout()
         if( actor.OnStage() )
         {
           Dali::Actor parent = actor.GetParent();
-          QueueActor( actor, *mRelayoutStack, ( parent ) ? Vector2( parent.GetTargetSize() ) : stageSize );
+          QueueActor( actor, *mRelayoutStack, ( parent ) ? Vector2( parent.GetTargetSize() ) : mStageSize );
         }
       }
     }

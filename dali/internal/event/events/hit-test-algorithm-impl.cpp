@@ -215,10 +215,10 @@ HitActor HitTestWithinLayer( Actor& actor,
     for( ActorIter iter = children.begin(), endIter = children.end(); iter != endIter; ++iter )
     {
       // Descend tree only if...
-      if ( !iter->IsLayer() &&    // Child is NOT a layer, hit testing current layer only or Child is not a layer and we've inherited the stencil draw mode
-           ( isStencil || hitCheck.DescendActorHierarchy( &GetImplementation( *iter ) ) ) ) // We are a stencil OR we can descend into child hierarchy
+      if ( !(*iter)->IsLayer() &&    // Child is NOT a layer, hit testing current layer only or Child is not a layer and we've inherited the stencil draw mode
+           ( isStencil || hitCheck.DescendActorHierarchy( ( *iter ).Get() ) ) ) // We are a stencil OR we can descend into child hierarchy
       {
-        HitActor currentHit( HitTestWithinLayer( GetImplementation(*iter), rayOrigin, rayDir, worldOverlay, nearClippingPlane, farClippingPlane, hitCheck, stencilOnLayer, stencilHit, isStencil ) );
+        HitActor currentHit( HitTestWithinLayer( (*iter->Get()), rayOrigin, rayDir, worldOverlay, nearClippingPlane, farClippingPlane, hitCheck, stencilOnLayer, stencilHit, isStencil ) );
 
         // If Current child is an overlay, then it takes priority.
         // If it is not an overlay, and the previously hit sibling is also not an overlay, then closest takes priority.

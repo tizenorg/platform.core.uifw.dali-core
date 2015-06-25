@@ -103,13 +103,30 @@ namespace Internal
 
 unsigned int Actor::mActorCounter = 0;
 
+namespace
+{
+/// Using a function because of library initialisation order. Vector3::ONE may not have been initialised yet.
+inline const Vector3& GetDefaultSizeModeFactor()
+{
+  return Vector3::ONE;
+}
+
+/// Using a function because of library initialisation order. Vector2::ZERO may not have been initialised yet.
+inline const Vector2& GetDefaultPreferredSize()
+{
+  return Vector2::ZERO;
+}
+const SizeScalePolicy::Type DEFAULT_SIZE_SCALE_POLICY = SizeScalePolicy::USE_SIZE_SET;
+
+} // unnamed namespace
+
 /**
  * Struct to collect relayout variables
  */
 struct Actor::RelayoutData
 {
   RelayoutData()
-    : sizeModeFactor( Vector3::ONE ), preferredSize( Vector2::ZERO ), sizeSetPolicy( SizeScalePolicy::USE_SIZE_SET ), relayoutEnabled( false ), insideRelayout( false )
+    : sizeModeFactor( GetDefaultSizeModeFactor() ), preferredSize( GetDefaultPreferredSize() ), sizeSetPolicy( DEFAULT_SIZE_SCALE_POLICY ), relayoutEnabled( false ), insideRelayout( false )
   {
     // Set size negotiation defaults
     for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
@@ -1132,9 +1149,12 @@ void Actor::SetSizeModeFactor( const Vector3& factor )
 
 const Vector3& Actor::GetSizeModeFactor() const
 {
-  EnsureRelayoutData();
+  if ( mRelayoutData )
+  {
+    return mRelayoutData->sizeModeFactor;
+  }
 
-  return mRelayoutData->sizeModeFactor;
+  return GetDefaultSizeModeFactor();
 }
 
 void Actor::SetColorMode( ColorMode colorMode )
@@ -1326,14 +1346,15 @@ void Actor::SetResizePolicy( ResizePolicy::Type policy, Dimension::Type dimensio
 
 ResizePolicy::Type Actor::GetResizePolicy( Dimension::Type dimension ) const
 {
-  EnsureRelayoutData();
-
-  // If more than one dimension is requested, just return the first one found
-  for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
+  if ( mRelayoutData )
   {
-    if( ( dimension & ( 1 << i ) ) )
+    // If more than one dimension is requested, just return the first one found
+    for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
     {
-      return mRelayoutData->resizePolicies[ i ];
+      if( ( dimension & ( 1 << i ) ) )
+      {
+        return mRelayoutData->resizePolicies[ i ];
+      }
     }
   }
 
@@ -1349,9 +1370,12 @@ void Actor::SetSizeScalePolicy( SizeScalePolicy::Type policy )
 
 SizeScalePolicy::Type Actor::GetSizeScalePolicy() const
 {
-  EnsureRelayoutData();
+  if ( mRelayoutData )
+  {
+    return mRelayoutData->sizeSetPolicy;
+  }
 
-  return mRelayoutData->sizeSetPolicy;
+  return DEFAULT_SIZE_SCALE_POLICY;
 }
 
 void Actor::SetDimensionDependency( Dimension::Type dimension, Dimension::Type dependency )
@@ -1369,14 +1393,15 @@ void Actor::SetDimensionDependency( Dimension::Type dimension, Dimension::Type d
 
 Dimension::Type Actor::GetDimensionDependency( Dimension::Type dimension ) const
 {
-  EnsureRelayoutData();
-
-  // If more than one dimension is requested, just return the first one found
-  for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
+  if ( mRelayoutData )
   {
-    if( ( dimension & ( 1 << i ) ) )
+    // If more than one dimension is requested, just return the first one found
+    for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
     {
-      return mRelayoutData->dimensionDependencies[ i ];
+      if( ( dimension & ( 1 << i ) ) )
+      {
+        return mRelayoutData->dimensionDependencies[ i ];
+      }
     }
   }
 
@@ -1417,13 +1442,14 @@ void Actor::SetLayoutDirty( bool dirty, Dimension::Type dimension )
 
 bool Actor::IsLayoutDirty( Dimension::Type dimension ) const
 {
-  EnsureRelayoutData();
-
-  for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
+  if ( mRelayoutData )
   {
-    if( ( dimension & ( 1 << i ) ) && mRelayoutData->dimensionDirty[ i ] )
+    for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
     {
-      return true;
+      if( ( dimension & ( 1 << i ) ) && mRelayoutData->dimensionDirty[ i ] )
+      {
+        return true;
+      }
     }
   }
 
@@ -1432,16 +1458,12 @@ bool Actor::IsLayoutDirty( Dimension::Type dimension ) const
 
 bool Actor::RelayoutPossible( Dimension::Type dimension ) const
 {
-  EnsureRelayoutData();
-
-  return mRelayoutData->relayoutEnabled && !IsLayoutDirty( dimension );
+  return mRelayoutData && mRelayoutData->relayoutEnabled && !IsLayoutDirty( dimension );
 }
 
 bool Actor::RelayoutRequired( Dimension::Type dimension ) const
 {
-  EnsureRelayoutData();
-
-  return mRelayoutData->relayoutEnabled && IsLayoutDirty( dimension );
+  return mRelayoutData && mRelayoutData->relayoutEnabled && IsLayoutDirty( dimension );
 }
 
 #ifdef DALI_DYNAMICS_SUPPORT
@@ -2267,7 +2289,8 @@ bool Actor::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tra
 }
 
 Actor::Actor( DerivedType derivedType )
-: mParent( NULL ),
+: mStage( NULL ),
+  mParent( NULL ),
   mChildren( NULL ),
   mNode( NULL ),
   mParentOrigin( NULL ),
@@ -3892,7 +3915,7 @@ bool Actor::DoAction( BaseObject* object, const std::string& actionName, const P
   return done;
 }
 
-void Actor::EnsureRelayoutData() const
+void Actor::EnsureRelayoutData()
 {
   // Assign relayout data.
   if( !mRelayoutData )
@@ -4005,22 +4028,25 @@ void Actor::SetPadding( const Vector2& padding, Dimension::Type dimension )
 
 Vector2 Actor::GetPadding( Dimension::Type dimension ) const
 {
-  EnsureRelayoutData();
-
-  // If more than one dimension is requested, just return the first one found
-  for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
+  if ( mRelayoutData )
   {
-    if( ( dimension & ( 1 << i ) ) )
+    // If more than one dimension is requested, just return the first one found
+    for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
     {
-      return mRelayoutData->dimensionPadding[ i ];
+      if( ( dimension & ( 1 << i ) ) )
+      {
+        return mRelayoutData->dimensionPadding[ i ];
+      }
     }
   }
 
-  return Vector2( 0.0f, 0.0f );   // Default
+  return Vector2::ZERO; // Default
 }
 
 void Actor::SetLayoutNegotiated( bool negotiated, Dimension::Type dimension )
 {
+  EnsureRelayoutData();
+
   for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
   {
     if( dimension & ( 1 << i ) )
@@ -4032,11 +4058,14 @@ void Actor::SetLayoutNegotiated( bool negotiated, Dimension::Type dimension )
 
 bool Actor::IsLayoutNegotiated( Dimension::Type dimension ) const
 {
-  for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
+  if ( mRelayoutData )
   {
-    if( ( dimension & ( 1 << i ) ) && mRelayoutData->dimensionNegotiated[ i ] )
+    for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
     {
-      return true;
+      if( ( dimension & ( 1 << i ) ) && mRelayoutData->dimensionNegotiated[ i ] )
+      {
+        return true;
+      }
     }
   }
 
@@ -4493,9 +4522,12 @@ void Actor::SetPreferredSize( const Vector2& size )
 
 Vector2 Actor::GetPreferredSize() const
 {
-  EnsureRelayoutData();
+  if ( mRelayoutData )
+  {
+    return mRelayoutData->preferredSize;
+  }
 
-  return mRelayoutData->preferredSize;
+  return GetDefaultPreferredSize();
 }
 
 void Actor::SetMinimumSize( float size, Dimension::Type dimension )
@@ -4515,13 +4547,14 @@ void Actor::SetMinimumSize( float size, Dimension::Type dimension )
 
 float Actor::GetMinimumSize( Dimension::Type dimension ) const
 {
-  EnsureRelayoutData();
-
-  for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
+  if ( mRelayoutData )
   {
-    if( dimension & ( 1 << i ) )
+    for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
     {
-      return mRelayoutData->minimumSize[ i ];
+      if( dimension & ( 1 << i ) )
+      {
+        return mRelayoutData->minimumSize[ i ];
+      }
     }
   }
 
@@ -4545,17 +4578,18 @@ void Actor::SetMaximumSize( float size, Dimension::Type dimension )
 
 float Actor::GetMaximumSize( Dimension::Type dimension ) const
 {
-  EnsureRelayoutData();
-
-  for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
+  if ( mRelayoutData )
   {
-    if( dimension & ( 1 << i ) )
+    for( unsigned int i = 0; i < Dimension::DIMENSION_COUNT; ++i )
     {
-      return mRelayoutData->maximumSize[ i ];
+      if( dimension & ( 1 << i ) )
+      {
+        return mRelayoutData->maximumSize[ i ];
+      }
     }
   }
 
-  return 0.0f;  // Default
+  return FLT_MAX;  // Default
 }
 
 } // namespace Internal

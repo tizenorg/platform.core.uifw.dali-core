@@ -451,10 +451,18 @@ public:
 
   inline void GenFramebuffers(GLsizei n, GLuint* framebuffers)
   {
+    for (int i = 0; i < n; i++)
+    {
+      framebuffers[i] = i + 1;
+    }
   }
 
   inline void GenRenderbuffers(GLsizei n, GLuint* renderbuffers)
   {
+    for (int i = 0; i < n; i++)
+    {
+      renderbuffers[i] = i + 1;
+    }
   }
 
   /**

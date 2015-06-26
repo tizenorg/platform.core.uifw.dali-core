@@ -22,6 +22,7 @@
 #include <dali/public-api/dali-core.h>
 #include <dali-test-suite-utils.h>
 #include <test-native-image.h>
+#include <dali/integration-api/gl-abstraction.h>
 
 using std::max;
 using namespace Dali;
@@ -44,6 +45,8 @@ int UtcDaliFrameBufferImageNew01(void)
   TestApplication application;
 
   tet_infoline("UtcDaliFrameBufferImageNew01 - FrameBufferImage::New(unsigned int, unsigned int, Pixel::Format)");
+
+  application.GetGlAbstraction().SetCheckFramebufferStatusResult( GL_FRAMEBUFFER_COMPLETE );
 
   // invoke default handle constructor
   FrameBufferImage image;

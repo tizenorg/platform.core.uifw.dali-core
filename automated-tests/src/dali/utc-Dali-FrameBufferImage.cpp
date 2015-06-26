@@ -22,6 +22,7 @@
 #include <dali/public-api/dali-core.h>
 #include <dali-test-suite-utils.h>
 #include <test-native-image.h>
+#include <dali/integration-api/gl-abstraction.h>
 
 using std::max;
 using namespace Dali;

@@ -31,6 +31,21 @@ namespace Internal DALI_INTERNAL
 class FrameBufferImage;
 }
 
+namespace RenderBuffer
+{
+/**
+ * @brief Render Buffer formats
+ *
+ */
+enum Format ///< pixel format, default color depth is RGBA 32 bit with alpha
+{
+  COLOR,
+  COLOR_DEPTH,
+  COLOR_STENCIL,
+  COLOR_DEPTH_STENCIL
+};
+}
+
 /**
  * @brief FrameBufferImage represents a GLES Frame Buffer Object and contains the result
  * of an 'off screen' render pass of a RenderTask.
@@ -55,10 +70,12 @@ public:
    * @param [in] width       The width in pixels. Setting to zero will use the width of the stage.
    * @param [in] height      The height in pixels. Setting to zero will use the height of the stage.
    * @param [in] pixelformat The pixel format (rgba 32 bit by default)
+   * @param [in] bufferformat The format of the buffers that are going to be created for the FBO, (COLOR and DEPTH buffer as default)
    * @post When the FrameBufferImage is first used as a render target, an exception may be thrown if pixelFormat is not supported on the hardware platform.
    * @return A handle to a new instance of a FrameBufferImage.
    */
-  static FrameBufferImage New(unsigned int width = 0, unsigned int height = 0, Pixel::Format pixelformat = Pixel::RGBA8888);
+  static FrameBufferImage New(unsigned int width = 0, unsigned int height = 0, Pixel::Format pixelformat = Pixel::RGBA8888,
+                              RenderBuffer::Format bufferformat = RenderBuffer::COLOR_DEPTH);
 
   /**
    * @brief Create a new FrameBufferImage.
@@ -68,6 +85,7 @@ public:
    * @param [in] height      The height in pixels. Setting to zero will use the height of the stage.
    * @param [in] pixelformat The pixel format.
    * @param [in] releasePolicy The ReleasePolicy to apply to the FrameBufferImage.
+   * @param [in] bufferformat The format of the buffers that are going to be created for the FBO, (COLOR and DEPTH buffer as default)
    *
    * Note that there is no need for a LoadPolicy - by definition it is always OnDemand, since there is no point in the FrameBufferImage existing unless someone is rendering to
    * it, or it is being used as an input (e.g. ShaderEffect / ImageActor).
@@ -75,7 +93,8 @@ public:
    * @post When the FrameBufferImage is first used as a render target, an exception may be thrown if pixelFormat is not supported on the hardware platform.
    * @return A handle to a new instance of a FrameBufferImage.
    */
-  static FrameBufferImage New(unsigned int width, unsigned int height, Pixel::Format pixelformat, ReleasePolicy releasePolicy );
+  static FrameBufferImage New(unsigned int width, unsigned int height, Pixel::Format pixelformat, ReleasePolicy releasePolicy,
+                              RenderBuffer::Format bufferformat = RenderBuffer::COLOR_DEPTH);
 
   /**
    * @brief Create a new FrameBufferImage.

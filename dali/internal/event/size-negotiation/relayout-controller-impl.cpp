@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  *
  */
 
-// FILE HEADER
-
+// CLASS HEADER
 #include "relayout-controller-impl.h"
 
 // EXTERNAL INCLUDES
@@ -26,13 +25,12 @@
 #endif // defined(DEBUG_ENABLED)
 
 // INTERNAL INCLUDES
-#include <dali/public-api/actors/layer.h>
-#include <dali/public-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/render-controller.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/object/object-registry.h>
 #include <dali/internal/event/actors/actor-impl.h>
+#include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 
 namespace Dali
@@ -93,7 +91,7 @@ void PrintHierarchy()
   if ( gLogFilter->IsEnabledFor( Debug::Verbose ) )
   {
     DALI_LOG_INFO( gLogFilter, Debug::Verbose, "---------- ROOT LAYER ----------\n" );
-    PrintChildren( Dali::Stage().GetCurrent().GetRootLayer(), 0 );
+    PrintChildren( Stage::GetCurrent()->GetRootLayer(), 0 );
   }
 }
 
@@ -106,11 +104,6 @@ void PrintHierarchy()
 #endif // defined(DEBUG_ENABLED)
 
 } // unnamed namespace
-
-RelayoutController* RelayoutController::Get()
-{
-  return &ThreadLocalStorage::Get().GetRelayoutController();
-}
 
 RelayoutController::RelayoutController( Integration::RenderController& controller )
 : mRenderController( controller ),
@@ -131,6 +124,12 @@ RelayoutController::~RelayoutController()
 {
   delete mRelayoutStack;
 }
+
+RelayoutController* RelayoutController::Get()
+{
+  return &ThreadLocalStorage::Get().GetRelayoutController();
+}
+
 
 void RelayoutController::QueueActor( Dali::Actor& actor, RelayoutContainer& actors, Vector2 size )
 {

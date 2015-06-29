@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/devel-api/object/property-buffer.h>
+#include <dali/devel-api/rendering/geometry.h>
 
 namespace Dali
 {

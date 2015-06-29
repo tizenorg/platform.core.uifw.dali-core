@@ -1260,6 +1260,13 @@ public:
    */
   Vector2 GetMaximumSize();
 
+  /**
+   * @brief Get depth in the hierarchy for the actor
+   *
+   * @return The current depth in the hierarchy of the actor, or 0 if actor is not in the hierarchy
+   */
+  unsigned short GetHierarchyDepth();
+
 public: // Signals
 
   /**

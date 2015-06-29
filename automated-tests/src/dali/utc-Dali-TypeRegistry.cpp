@@ -203,7 +203,7 @@ struct MyTestCustomActor : public CustomActorImpl
   }
 
   // From CustomActorImpl
-  virtual void OnStageConnection( unsigned int depth )
+  virtual void OnStageConnection( unsigned short depth )
   {
   }
   virtual void OnStageDisconnection()

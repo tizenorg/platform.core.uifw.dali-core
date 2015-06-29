@@ -761,6 +761,14 @@ public:
    */
   const Vector4& GetCurrentWorldColor() const;
 
+  /**
+   * @copydoc Dali::Actor::GetHierarchyDepth()
+   */
+  unsigned short GetHierarchyDepth() const
+  {
+    return mDepth;
+  }
+
 public:
 
   // Size negotiation virtual functions
@@ -1641,17 +1649,6 @@ protected:
    * @return Return the Z dimension for this size
    */
   float CalculateSizeZ( const Vector2& size ) const;
-
-  /**
-   * Return the depth in the hierarchy of the actor.
-   * The value returned is only valid if the actor is on the stage.
-   *
-   * @return Depth of the actor in the hierarchy
-   */
-  unsigned int GetDepth() const
-  {
-    return mDepth;
-  }
 
 public:
   // Default property extensions from Object

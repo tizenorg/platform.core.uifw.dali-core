@@ -2323,7 +2323,7 @@ Actor::Actor( DerivedType derivedType )
   mTargetSize( 0.0f, 0.0f, 0.0f ),
   mName(),
   mId( ++mActorCounter ), // actor ID is initialised to start from 1, and 0 is reserved
-  mDepth( 0 ),
+  mDepth( 0u ),
   mIsRoot( ROOT_LAYER == derivedType ),
   mIsRenderable( RENDERABLE == derivedType ),
   mIsLayer( LAYER == derivedType || ROOT_LAYER == derivedType ),
@@ -2403,7 +2403,7 @@ Actor::~Actor()
   }
 }
 
-void Actor::ConnectToStage( unsigned int parentDepth, int index )
+void Actor::ConnectToStage( int parentDepth, int index )
 {
   // This container is used instead of walking the Actor hierachy.
   // It protects us when the Actor hierachy is modified during OnStageConnectionExternal callbacks.
@@ -2423,7 +2423,7 @@ void Actor::ConnectToStage( unsigned int parentDepth, int index )
   RelayoutRequest();
 }
 
-void Actor::RecursiveConnectToStage( ActorContainer& connectionList, unsigned int depth, int index )
+void Actor::RecursiveConnectToStage( ActorContainer& connectionList, int depth, int index )
 {
   DALI_ASSERT_ALWAYS( !OnStage() );
 
@@ -3879,7 +3879,7 @@ void Actor::SetParent( Actor* parent, int index )
          parent->OnStage() )
     {
       // Instruct each actor to create a corresponding node in the scene graph
-      ConnectToStage( parent->GetDepth(), index );
+      ConnectToStage( parent->GetHierarchyDepth(), index );
     }
   }
   else // parent being set to NULL

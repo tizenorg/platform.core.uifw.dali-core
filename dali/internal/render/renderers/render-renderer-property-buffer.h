@@ -91,8 +91,6 @@ public:
    */
   void DisableVertexAttributes( Context& context, BufferIndex bufferIndex, Program& program );
 
-private: // implementation
-
   /**
    * Update attribute locations
    * @param[in] context The GL context
@@ -100,6 +98,10 @@ private: // implementation
    * @param[in] program The shader program to query for attribute locations
    */
   void UpdateAttributeLocations( Context& context, BufferIndex bufferIndex, Program& program );
+
+private: // implementation
+
+
 
 private:
   const PropertyBufferDataProvider& mDataProvider;  ///< Data provider used by this property buffer

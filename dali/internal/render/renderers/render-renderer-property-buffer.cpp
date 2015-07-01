@@ -192,28 +192,28 @@ void RenderPropertyBuffer::Upload( Context& context, BufferIndex bufferIndex )
   }
 }
 
-void RenderPropertyBuffer::BindBuffer( Context& context, Program& progam )
+void RenderPropertyBuffer::BindBuffer( Context& context )
 {
   mGpuBuffer->Bind();
 }
 
-void RenderPropertyBuffer::EnableVertexAttributes( Context& context, BufferIndex bufferIndex, Program& program )
+unsigned int RenderPropertyBuffer::EnableVertexAttributes( Context& context, BufferIndex bufferIndex, Vector<GLint>& vAttributeLocation, unsigned int locationBase )
 {
 
   // Check if attribute locations are cached already
-  if( mAttributesLocation.Size() == 0 )
-  {
-    UpdateAttributeLocations( context, bufferIndex, program );
-  }
+//  if( mAttributesLocation.Size() == 0 )
+//  {
+//    UpdateAttributeLocations( context, bufferIndex, program );
+//  }
 
   unsigned int attributeCount = mDataProvider.GetAttributeCount( bufferIndex );
-  DALI_ASSERT_DEBUG( attributeCount == mAttributesLocation.Size() && "Incorrect number of attributes!" );
+  //DALI_ASSERT_DEBUG( attributeCount == mAttributesLocation.Size() && "Incorrect number of attributes!" );
 
   GLsizei elementSize = mDataProvider.GetElementSize( bufferIndex );
 
   for( unsigned int i = 0; i < attributeCount; ++i )
   {
-    GLint attributeLocation = mAttributesLocation[i];
+    GLint attributeLocation = vAttributeLocation[i+locationBase];
     if( attributeLocation != -1 )
     {
       context.EnableVertexAttributeArray( attributeLocation );
@@ -230,6 +230,8 @@ void RenderPropertyBuffer::EnableVertexAttributes( Context& context, BufferIndex
                        elementSize );
     }
   }
+
+  return attributeCount;
 }
 
 void RenderPropertyBuffer::DisableVertexAttributes( Context& context, BufferIndex bufferIndex, Program& program )

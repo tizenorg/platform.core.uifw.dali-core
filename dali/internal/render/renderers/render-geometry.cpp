@@ -31,9 +31,9 @@ namespace Internal
 namespace SceneGraph
 {
 
-RenderGeometry::RenderGeometry()
-: mDataNeedsUploading( true ),
-  mShaderChanged( true )
+RenderGeometry::RenderGeometry( const GeometryDataProvider& geometryDataProvider )
+: mGeometryDataProvider( geometryDataProvider ),
+  mHasBeenUpdated(false)
 {
 }
 
@@ -43,149 +43,118 @@ RenderGeometry::~RenderGeometry()
 
 void RenderGeometry::GlContextCreated( Context& context )
 {
-  mDataNeedsUploading = true;
 }
 
 void RenderGeometry::GlContextDestroyed()
 {
+  //@todo MESH_REWORK Should go through propertyBuffers to reset mGpuBuffer?
+}
+
+void RenderGeometry::AddVertexBuffer( const PropertyBufferDataProvider& dataProvider, GpuBuffer::Target gpuBufferTarget, GpuBuffer::Usage gpuBufferUsage )
+{
+  RenderPropertyBuffer* renderPropertyBuffer = new RenderPropertyBuffer( dataProvider, gpuBufferTarget, gpuBufferUsage );
+  mVertexBuffers.PushBack( renderPropertyBuffer );
+}
+
+void RenderGeometry::RemovePropertyBuffer( const PropertyBufferDataProvider* dataProvider )
+{
+  if( dataProvider == &mIndexBuffer->GetDataProvider() )
+  {
+    mIndexBuffer.Reset();
+  }
+  else
+  {
+    RenderPropertyBufferIter renderPropertyBufferIter( mVertexBuffers.Begin() );
+    while( renderPropertyBufferIter != mVertexBuffers.End() )
+    {
+      if( dataProvider == &(*renderPropertyBufferIter)->GetDataProvider() )
+      {
+        //This will delete the gpu buffer associated to the RenderPropertyBuffer if there is one
+        mVertexBuffers.Remove( renderPropertyBufferIter );
+        break;
+      }
+
+      ++renderPropertyBufferIter;
+    }
+  }
+}
+
+void RenderGeometry::AddIndexBuffer( const PropertyBufferDataProvider& dataProvider )
+{
+  RenderPropertyBuffer* renderPropertyBuffer = new RenderPropertyBuffer( dataProvider,GpuBuffer::ELEMENT_ARRAY_BUFFER, GpuBuffer::STATIC_DRAW );
+  mIndexBuffer = renderPropertyBuffer;
+}
+
+void RenderGeometry::GetAttributeLocationFromProgram( Vector<GLint>& attributeLocation, Program& program, BufferIndex bufferIndex ) const
+{
+  attributeLocation.Clear();
+
+  for( size_t i(0); i< mVertexBuffers.Size(); ++i )
+  {
+    unsigned int attributeCount = mVertexBuffers[i]->GetDataProvider().GetAttributeCount( bufferIndex );
+    for( unsigned int j = 0; j < attributeCount; ++j )
+    {
+      const std::string& attributeName = mVertexBuffers[i]->GetDataProvider().GetAttributeName( bufferIndex, j );
+      unsigned int index = program.RegisterCustomAttribute( attributeName );
+      GLint location = program.GetCustomAttributeLocation( index );
+
+      if( -1 == location )
+      {
+        DALI_LOG_WARNING( "Attribute not found in the shader: %s\n", attributeName.c_str() );
+      }
+
+      attributeLocation.PushBack( location );
+    }
+  }
+}
+
+void RenderGeometry::OnRenderBegin()
+{
+  mHasBeenUpdated = false;
 }
 
 void RenderGeometry::UploadAndDraw(
-  Context& context,
-  Program& program,
-  BufferIndex bufferIndex,
-  const RenderDataProvider* dataProviders )
+    Context& context,
+    BufferIndex bufferIndex,
+    Vector<GLint>& attributeLocation )
 {
-  UploadVertexData( context, program, bufferIndex, dataProviders );
-
-  for( unsigned int i = 0; i < mVertexBuffers.Count(); ++i )
+  if( !mHasBeenUpdated )
   {
-    mVertexBuffers[i]->BindBuffer( context, program );
-    mVertexBuffers[i]->EnableVertexAttributes( context, bufferIndex, program );
-  }
-
-  if( mIndexBuffer )
-  {
-    mIndexBuffer->BindBuffer( context, program );
-  }
-
-  Draw( context, bufferIndex, dataProviders );
-
-  for( unsigned int i = 0; i < mVertexBuffers.Count(); ++i )
-  {
-    mVertexBuffers[i]->DisableVertexAttributes( context, bufferIndex, program );
-  }
-}
-
-void RenderGeometry::GeometryUpdated()
-{
-  mDataNeedsUploading = true;
-}
-
-void RenderGeometry::UploadVertexData(
-  Context& context,
-  Program& program,
-  BufferIndex bufferIndex,
-  const RenderDataProvider* dataProviders )
-{
-  if( mDataNeedsUploading )
-  {
-    SetUpPropertyBuffers( context, bufferIndex, dataProviders );
-
-    for( unsigned int i = 0; i < mVertexBuffers.Count(); ++i )
-    {
-      mVertexBuffers[i]->Upload( context, bufferIndex );
-      mVertexBuffers[i]->UpdateAttributeLocations( context, bufferIndex, program );
-    }
+    //Check if any of the propertybuffers need to be updated
     if( mIndexBuffer )
     {
-      mIndexBuffer->Upload( context, bufferIndex );
+      mIndexBuffer->Update( context, bufferIndex );
     }
-
-    mDataNeedsUploading = false;
-  }
-}
-
-void RenderGeometry::SetUpPropertyBuffers(
-  Context& context,
-  BufferIndex bufferIndex,
-  const RenderDataProvider* dataProvider )
-{
-  // Vertex buffer
-  RenderDataProvider::VertexBuffers vertexBuffers = dataProvider->GetVertexBuffers();
-
-  DALI_ASSERT_DEBUG( vertexBuffers.Count() > 0 && "Need vertex buffers to upload" );
-
-  mVertexBuffers.Clear();
-  for( unsigned int i=0; i<vertexBuffers.Count(); ++i)
-  {
-    const PropertyBufferDataProvider* vertexBuffer = vertexBuffers[i];
-
-    RenderPropertyBuffer* propertyBuffer = new RenderPropertyBuffer(
-      *vertexBuffer,
-      GpuBuffer::ARRAY_BUFFER,
-      GpuBuffer::STATIC_DRAW ); // TODO: MESH_REWORK: change this for animated meshes
-
-    mVertexBuffers.PushBack( propertyBuffer );
+    for( unsigned int i = 0; i < mVertexBuffers.Count(); ++i )
+    {
+      mVertexBuffers[i]->Update( context, bufferIndex );
+    }
+    mHasBeenUpdated = true;
   }
 
-  // Index buffer
-  const PropertyBufferDataProvider* indexBuffer = dataProvider->GetIndexBuffer();
-  if( indexBuffer )
-  {
-    mIndexBuffer = new RenderPropertyBuffer(
-      *indexBuffer,
-      GpuBuffer::ELEMENT_ARRAY_BUFFER,
-      GpuBuffer::STATIC_DRAW ); // TODO: MESH_REWORK: change this for animated meshes
-  }
-}
-
-void RenderGeometry::BindBuffers( Context& context, BufferIndex bufferIndex, Program& program )
-{
+  //Bind buffers to attribute locations
+  unsigned int base = 0;
   for( unsigned int i = 0; i < mVertexBuffers.Count(); ++i )
   {
-    mVertexBuffers[i]->BindBuffer( context, program );
+    mVertexBuffers[i]->BindBuffer( context );
+    base += mVertexBuffers[i]->EnableVertexAttributes( context, bufferIndex, attributeLocation, base );
   }
 
   if( mIndexBuffer )
   {
-    mIndexBuffer->BindBuffer( context, program );
+    mIndexBuffer->BindBuffer( context );
   }
-}
 
-void RenderGeometry::EnableVertexAttributes( Context& context, BufferIndex bufferIndex, Program& program )
-{
-  OwnerContainer< RenderPropertyBuffer* >::Iterator it = mVertexBuffers.Begin();
-  OwnerContainer< RenderPropertyBuffer* >::ConstIterator end = mVertexBuffers.End();
-  for( ; it != end; ++it )
+  //Bind index buffer
+  unsigned int numIndices(0u);
+  if( mIndexBuffer )
   {
-    (*it)->EnableVertexAttributes( context, bufferIndex, program );
-  }
-}
-
-void RenderGeometry::DisableVertexAttributes( Context& context, BufferIndex bufferIndex, Program& program )
-{
-  OwnerContainer< RenderPropertyBuffer* >::Iterator it = mVertexBuffers.Begin();
-  OwnerContainer< RenderPropertyBuffer* >::ConstIterator end = mVertexBuffers.End();
-  for( ; it != end; ++it )
-  {
-    (*it)->DisableVertexAttributes( context, bufferIndex, program );
-  }
-}
-
-void RenderGeometry::Draw( Context& context, BufferIndex bufferIndex, const RenderDataProvider* dataProvider )
-{
-  const GeometryDataProvider& geometry = dataProvider->GetGeometry();
-  const PropertyBufferDataProvider* indexBuffer = dataProvider->GetIndexBuffer();
-
-  GeometryDataProvider::GeometryType type = geometry.GetGeometryType( bufferIndex );
-
-  unsigned int numIndices = 0;
-  if( indexBuffer )
-  {
-    numIndices = indexBuffer->GetDataSize(bufferIndex) / indexBuffer->GetElementSize(bufferIndex);
+    const PropertyBufferDataProvider& indexBuffer = mIndexBuffer->GetDataProvider();
+    numIndices = mIndexBuffer->GetDataProvider().GetDataSize(bufferIndex) / indexBuffer.GetElementSize(bufferIndex);
   }
 
+  //Draw call
+  GeometryDataProvider::GeometryType type = mGeometryDataProvider.GetGeometryType( bufferIndex );
   switch(type)
   {
     case Dali::Geometry::TRIANGLES:
@@ -196,8 +165,8 @@ void RenderGeometry::Draw( Context& context, BufferIndex bufferIndex, const Rend
       }
       else
       {
-        const PropertyBufferDataProvider* firstVertexBuffer = dataProvider->GetVertexBuffers()[0];
-        unsigned int numVertices = firstVertexBuffer->GetElementCount( bufferIndex );
+        const PropertyBufferDataProvider& firstVertexBuffer = mVertexBuffers[0]->GetDataProvider();
+        unsigned int numVertices = firstVertexBuffer.GetElementCount( bufferIndex );
         context.DrawArrays( GL_TRIANGLES, 0, numVertices );
       }
       break;
@@ -210,16 +179,16 @@ void RenderGeometry::Draw( Context& context, BufferIndex bufferIndex, const Rend
       }
       else
       {
-        const PropertyBufferDataProvider* firstVertexBuffer = dataProvider->GetVertexBuffers()[0];
-        unsigned int numVertices = firstVertexBuffer->GetElementCount( bufferIndex );
+        const PropertyBufferDataProvider& firstVertexBuffer = mVertexBuffers[0]->GetDataProvider();
+        unsigned int numVertices = firstVertexBuffer.GetElementCount( bufferIndex );
         context.DrawArrays( GL_LINES, 0, numVertices );
       }
       break;
     }
     case Dali::Geometry::POINTS:
     {
-      const PropertyBufferDataProvider* firstVertexBuffer = dataProvider->GetVertexBuffers()[0];
-      unsigned int numVertices = firstVertexBuffer->GetElementCount( bufferIndex );
+      const PropertyBufferDataProvider& firstVertexBuffer = mVertexBuffers[0]->GetDataProvider();
+      unsigned int numVertices = firstVertexBuffer.GetElementCount( bufferIndex );
       context.DrawArrays(GL_POINTS, 0, numVertices );
       break;
     }
@@ -227,6 +196,15 @@ void RenderGeometry::Draw( Context& context, BufferIndex bufferIndex, const Rend
     {
       DALI_ASSERT_ALWAYS( 0 && "Geometry type not supported (yet)" );
       break;
+    }
+  }
+
+  //Disable atrributes
+  for( unsigned int i = 0; i < attributeLocation.Count(); ++i )
+  {
+    if( attributeLocation[i] != -1 )
+    {
+      context.DisableVertexAttributeArray( attributeLocation[i] );
     }
   }
 }

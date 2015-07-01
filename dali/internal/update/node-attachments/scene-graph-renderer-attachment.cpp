@@ -111,7 +111,8 @@ void RendererAttachment::ConnectedToSceneGraph()
 
   RenderDataProvider* dataProvider = NewRenderDataProvider();
 
-  mRenderer = NewRenderer::New( *mParent, dataProvider );
+  RenderGeometry* renderGeometry = mGeometry->GetRenderGeometry(mSceneController);
+  mRenderer = NewRenderer::New( *mParent, dataProvider, renderGeometry );
   mSceneController->GetRenderMessageDispatcher().AddRenderer( *mRenderer );
 }
 
@@ -119,6 +120,8 @@ void RendererAttachment::DisconnectedFromSceneGraph()
 {
   mRegenerateUniformMap = 0;
   mParent->RemoveUniformMapObserver( *this );
+
+  mGeometry->OnRendererDisconnect();
 
   DALI_ASSERT_DEBUG( mSceneController );
   mSceneController->GetRenderMessageDispatcher().RemoveRenderer( *mRenderer );
@@ -144,6 +147,11 @@ Material& RendererAttachment::GetMaterial()
 void RendererAttachment::SetGeometry( BufferIndex updateBufferIndex, Geometry* geometry)
 {
   DALI_ASSERT_DEBUG( geometry != NULL && "Geometry pointer is NULL");
+  if( mGeometry)
+  {
+    mGeometry->RemoveConnectionObserver(*this);
+    mGeometry->OnRendererDisconnect();
+  }
 
   mGeometry = geometry;
   mGeometry->AddConnectionObserver( *this ); // Observe geometry connections / uniform mapping changes
@@ -400,9 +408,10 @@ void RendererAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
     // Tell renderer about a new provider
     // @todo MESH_REWORK Should we instead create a new renderer when these change?
 
-    typedef MessageValue1< NewRenderer, OwnerPointer<RenderDataProvider> > DerivedType;
+    typedef MessageValue2< NewRenderer, OwnerPointer<RenderDataProvider>, RenderGeometry* > DerivedType;
     unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
-    new (slot) DerivedType( mRenderer, &NewRenderer::SetRenderDataProvider, dataProvider );
+
+    new (slot) DerivedType( mRenderer, &NewRenderer::SetRenderDataProvider, dataProvider, mGeometry->GetRenderGeometry(mSceneController) );
     mResendDataProviders = false;
   }
 }

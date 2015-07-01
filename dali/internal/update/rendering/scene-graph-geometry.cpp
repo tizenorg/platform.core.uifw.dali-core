@@ -25,6 +25,9 @@ namespace SceneGraph
 
 Geometry::Geometry()
 : mIndexBuffer( NULL ),
+  mRenderGeometry(0),
+  mSceneController(0),
+  mRendererRefCount(0u),
   mCenter(),
   mHalfExtents(),
   mRadius( 0.0f ),

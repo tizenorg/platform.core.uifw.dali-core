@@ -123,6 +123,8 @@ public:
    */
   virtual unsigned int GetGpuBufferId( BufferIndex bufferIndex ) const = 0;
 
+  virtual bool HasDataChanged( BufferIndex bufferIndex ) const = 0;
+
 protected:
   /**
    * No deletion through this interface

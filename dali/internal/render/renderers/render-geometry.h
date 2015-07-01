@@ -24,6 +24,7 @@
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/render/data-providers/render-data-provider.h>
 #include <dali/internal/render/renderers/render-renderer-property-buffer.h>
+#include <dali/internal/render/shaders/program.h>
 
 namespace Dali
 {
@@ -50,7 +51,19 @@ public:
   /**
    * Constructor. Creates a render geometry object with no GPU buffers.
    */
-  RenderGeometry( );
+  RenderGeometry( const GeometryDataProvider& geometryDataProvider );
+
+  void AddVertexBuffer( const PropertyBufferDataProvider& dataProvider, GpuBuffer::Target gpuBufferTarget, GpuBuffer::Usage gpuBufferUsage )
+  {
+    RenderPropertyBuffer* renderPropertyBuffer = new RenderPropertyBuffer( dataProvider, gpuBufferTarget, gpuBufferUsage );
+    mVertexBuffers.PushBack( renderPropertyBuffer );
+  }
+
+  void AddIndexBuffer( const PropertyBufferDataProvider& dataProvider )
+  {
+    RenderPropertyBuffer* renderPropertyBuffer = new RenderPropertyBuffer( dataProvider,GpuBuffer::ELEMENT_ARRAY_BUFFER, GpuBuffer::STATIC_DRAW );
+    mIndexBuffer = renderPropertyBuffer;
+  }
 
   /**
    * Destructor
@@ -73,12 +86,11 @@ public:
    * @param[in] context The GL context
    * @param[in] program The shader program to query for attribute locations
    * @param[in] bufferIndex The current buffer index
-   * @param[in] dataProviders The data providers (to fetch geometry from)
+   * @param[in] attributeLocation The location for the attributes in the shader
    */
   void UploadAndDraw(Context& context,
-                     Program& program,
                      BufferIndex bufferIndex,
-                     const RenderDataProvider* dataProviders );
+                     Vector<GLint>& attributeLocation );
 
   /**
    * Tell the object that the geometry has been updated.
@@ -93,48 +105,36 @@ public:
    * @param[in] geometryDataProvider The geometry data provider (to fetch geometry from)
    */
   void UploadVertexData( Context& context,
-                         Program& program,
-                         BufferIndex bufferIndex,
-                         const RenderDataProvider* dataProviders );
+                         BufferIndex bufferIndex
+                       );
+
+  void GetAttributeLocationFromProgram( Vector<GLint>& attributeLocation, Program& program, BufferIndex bufferIndex )
+  {
+    attributeLocation.Clear();
+
+    for( size_t i(0); i< mVertexBuffers.Size(); ++i )
+    {
+      unsigned int attributeCount = mVertexBuffers[i]->GetDataProvider().GetAttributeCount( bufferIndex );
+      for( unsigned int j = 0; j < attributeCount; ++j )
+      {
+        const std::string& attributeName = mVertexBuffers[i]->GetDataProvider().GetAttributeName( bufferIndex, j );
+        unsigned int index = program.RegisterCustomAttribute( attributeName );
+        GLint location = program.GetCustomAttributeLocation( index );
+
+        if( -1 == location )
+        {
+          DALI_LOG_WARNING( "Attribute not found in the shader: %s\n", attributeName.c_str() );
+        }
+
+        attributeLocation.PushBack( location );
+      }
+    }
+
+  }
+
+  void OnFrameEnd();
 
 private:
-  /**
-   * Perform the upload of the geometry
-   * @param[in] context The GL context
-   * @param[in] bufferIndex The current buffer index
-   * @param[in] dataProviders The data providers (to fetch geometry from)
-   */
-  void SetUpPropertyBuffers( Context& context,
-                             BufferIndex bufferIndex,
-                             const RenderDataProvider* dataProviders );
-
-  /**
-   * Bind the geometry buffers
-   * @param[in] context The GL context
-   * @param[in] bufferIndex The current buffer index
-   * @param[in] program The shader program to query for attribute locations
-   */
-  void BindBuffers( Context& context,
-                    BufferIndex bufferIndex,
-                    Program& program );
-
-  /**
-   * Enable the vertex attributes for each vertex buffer from the corresponding
-   * shader program.
-   * @param[in] context The GL context
-   * @param[in] bufferIndex The current buffer index
-   * @param[in] program The shader program to query for attribute locations
-   */
-  void EnableVertexAttributes( Context& context, BufferIndex bufferIndex, Program& progam );
-
-  /**
-   * Disable the vertex attributes for each vertex buffer from the corresponding
-   * shader program.
-   * @param[in] context The GL context
-   * @param[in] bufferIndex The current buffer index
-   * @param[in] program The shader program to query for attribute locations
-   */
-  void DisableVertexAttributes( Context& context, BufferIndex bufferIndex, Program& program );
 
   /**
    * Perform the correct draw call corresponding to the geometry type
@@ -143,17 +143,19 @@ private:
    * @param[in] dataProviders The data providers (to fetch geometry from)
    */
   void Draw( Context& context,
-             BufferIndex bufferIndex,
-             const RenderDataProvider* dataProviders );
+             BufferIndex bufferIndex
+           );
 
 private:
   // PropertyBuffers
   OwnerPointer< RenderPropertyBuffer > mIndexBuffer;
   OwnerContainer< RenderPropertyBuffer* > mVertexBuffers;
 
+  const GeometryDataProvider& mGeometryDataProvider;
+
   // Booleans
-  bool mDataNeedsUploading;
-  bool mShaderChanged;
+  bool mHasBeenUpdated : 1;
+  bool mDataNeedsUploading : 1 ;
 };
 
 } // namespace SceneGraph

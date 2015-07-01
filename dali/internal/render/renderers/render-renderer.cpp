@@ -32,16 +32,20 @@ namespace SceneGraph
 {
 
 NewRenderer* NewRenderer::New( NodeDataProvider& nodeDataProvider,
-                               RenderDataProvider* dataProvider )
+                               RenderDataProvider* dataProvider,
+                               RenderGeometry* renderGeometry)
 {
-  return new NewRenderer(nodeDataProvider, dataProvider);
+  return new NewRenderer(nodeDataProvider, dataProvider, renderGeometry);
 }
 
 
 NewRenderer::NewRenderer( NodeDataProvider& nodeDataProvider,
-                          RenderDataProvider* dataProvider )
+                          RenderDataProvider* dataProvider,
+                          RenderGeometry* renderGeometry)
 : Renderer( nodeDataProvider ),
-  mRenderDataProvider( dataProvider )
+  mRenderDataProvider( dataProvider ),
+  mRenderGeometry( renderGeometry ),
+  mUpdateAttributesLocation(true)
 {
 }
 
@@ -49,15 +53,16 @@ NewRenderer::~NewRenderer()
 {
 }
 
-void NewRenderer::SetRenderDataProvider( RenderDataProvider* dataProvider )
+void NewRenderer::SetRenderDataProvider( RenderDataProvider* dataProvider, RenderGeometry* renderGeometry )
 {
   mRenderDataProvider = dataProvider;
-  mRenderGeometry.GeometryUpdated();
+  mRenderGeometry = renderGeometry;
+  mUpdateAttributesLocation = true;
 }
 
 void NewRenderer::SetGeometryUpdated( )
 {
-  mRenderGeometry.GeometryUpdated();
+  mUpdateAttributesLocation = true;
 }
 
 // Note - this is currently called from UpdateThread, PrepareRenderInstructions,
@@ -121,12 +126,19 @@ void NewRenderer::DoRender( Context& context, TextureCache& textureCache, Buffer
 
   SetUniforms( bufferIndex, program );
 
-  mRenderGeometry.UploadAndDraw( context, program, bufferIndex, mRenderDataProvider.Get() );
+  //@FERRAN Only do this when necessary
+  if( mUpdateAttributesLocation )
+  {
+    mRenderGeometry->GetAttributeLocationFromProgram( mAttributesLocation, program, bufferIndex );
+    mUpdateAttributesLocation = false;
+  }
+
+  mRenderGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation );
 }
 
 void NewRenderer::GlContextDestroyed()
 {
-  mRenderGeometry.GlContextDestroyed();
+  mRenderGeometry->GlContextDestroyed();
 }
 
 void NewRenderer::GlCleanup()

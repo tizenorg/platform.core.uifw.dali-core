@@ -25,6 +25,9 @@ namespace SceneGraph
 
 Geometry::Geometry()
 : mIndexBuffer( NULL ),
+  mRenderGeometry(0),
+  mSceneController(0),
+  mRendererRefCount(0u),
   mCenter(),
   mHalfExtents(),
   mRadius( 0.0f ),
@@ -49,6 +52,10 @@ void Geometry::AddVertexBuffer( PropertyBuffer* vertexBuffer )
   CalculateExtents( vertexBuffer );
   vertexBuffer->AddUniformMapObserver(*this);
   mConnectionObservers.ConnectionsChanged(*this);
+
+//  //@FERRAN Look at this!
+//  if( mRenderGeometry )
+//    mRenderGeometry->AddVertexBuffer( *vertexBuffer, GpuBuffer::ARRAY_BUFFER, GpuBuffer::STATIC_DRAW );
 }
 
 void Geometry::RemoveVertexBuffer( PropertyBuffer* vertexBuffer )

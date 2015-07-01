@@ -71,7 +71,7 @@ public:
    * @param[in] context The GL context
    * @param[in] program The shader program to query for attribute locations
    */
-  void BindBuffer( Context& context, Program& progam );
+  void BindBuffer( Context& context );
 
   /**
    * Enable the vertex attributes for each vertex buffer from the corresponding
@@ -80,7 +80,7 @@ public:
    * @param[in] bufferIndex The current buffer index
    * @param[in] program The shader program to query for attribute locations
    */
-  void EnableVertexAttributes( Context& context, BufferIndex bufferIndex, Program& program );
+  unsigned int EnableVertexAttributes( Context& context, BufferIndex bufferIndex, Vector<GLint>& vAttributeLocation, unsigned int locationBase);
 
   /**
    * Disable the vertex attributes for each vertex buffer from the corresponding
@@ -90,6 +90,13 @@ public:
    * @param[in] program The shader program to query for attribute locations
    */
   void DisableVertexAttributes( Context& context, BufferIndex bufferIndex, Program& program );
+
+  const PropertyBufferDataProvider& GetDataProvider()
+  {
+    return mDataProvider;
+  }
+
+private: // implementation
 
   /**
    * Update attribute locations

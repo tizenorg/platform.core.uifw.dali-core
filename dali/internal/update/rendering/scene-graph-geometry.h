@@ -29,6 +29,9 @@
 #include <dali/internal/update/common/scene-graph-property-buffer.h>
 #include <dali/internal/render/data-providers/geometry-data-provider.h>
 #include <dali/internal/render/data-providers/render-data-provider.h>
+#include <dali/internal/render/renderers/render-geometry.h>
+#include <dali/internal/update/controllers/scene-controller.h>
+#include <dali/internal/update/controllers/render-message-dispatcher.h>
 
 namespace Dali
 {
@@ -129,6 +132,47 @@ public: // UniformMap::Observer
    */
    PropertyBuffer* GetIndexBuffer();
 
+   RenderGeometry* GetRenderGeometry(SceneController* sceneController)
+   {
+     if(!mRenderGeometry)
+     {
+       //Create RenderGeometry
+
+       mSceneController = sceneController;
+       mRenderGeometry = new RenderGeometry( *this );
+
+       size_t vertexBufferCount( mVertexBuffers.Size() );
+       for( size_t i(0); i<vertexBufferCount; ++i )
+       {
+         mRenderGeometry->AddVertexBuffer( *mVertexBuffers[i], GpuBuffer::ARRAY_BUFFER, GpuBuffer::STATIC_DRAW );
+       }
+
+       if( mIndexBuffer )
+       {
+         mRenderGeometry->AddIndexBuffer( *mIndexBuffer );
+       }
+
+       //Transfer ownership to RenderManager
+       sceneController->GetRenderMessageDispatcher().AddGeometry( *mRenderGeometry );
+     }
+
+     ++mRendererRefCount;
+     return mRenderGeometry;
+   }
+
+   void OnRendererDisconnect()
+   {
+     --mRendererRefCount;
+     if( mRendererRefCount == 0 )
+     {
+       //Delete the corresponding RenderGeometry via message to RenderManager
+       mSceneController->GetRenderMessageDispatcher().RemoveGeometry( *mRenderGeometry );
+
+       mRenderGeometry = 0;
+       mSceneController = 0;
+     }
+   }
+
 public: // GeometryDataProvider
   /**
    * Get the type of geometry to draw
@@ -162,12 +206,22 @@ private:
   PropertyBuffer* mIndexBuffer;  ///< The index buffer if required
   ConnectionChangePropagator mConnectionObservers;
 
+  RenderGeometry*               mRenderGeometry;
+  SceneController*              mSceneController;
+  unsigned int                  mRendererRefCount;
+
+
+
+
+
+
 public: // Properties
   AnimatableProperty<Vector3>   mCenter;
   AnimatableProperty<Vector3>   mHalfExtents;
   AnimatableProperty<float>     mRadius;
   DoubleBufferedProperty<int>   mGeometryType;
   DoubleBufferedProperty<bool>  mRequiresDepthTest;
+
 };
 
 inline void AddVertexBufferMessage( EventThreadServices& eventThreadServices , const Geometry& geometry, const PropertyBuffer& vertexBuffer )

@@ -426,11 +426,16 @@ int UtcDaliPropertyBufferSetData02(void)
     const TestGlAbstraction::BufferSubDataCalls& bufferSubDataCalls =
       application.GetGlAbstraction().GetBufferSubDataCalls();
 
+    const TestGlAbstraction::BufferDataCalls& bufferDataCalls =
+          application.GetGlAbstraction().GetBufferDataCalls();
+
     DALI_TEST_EQUALS( bufferSubDataCalls.size(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( bufferDataCalls.size(), 1u, TEST_LOCATION );
 
     if ( bufferSubDataCalls.size() )
     {
       DALI_TEST_EQUALS( bufferSubDataCalls[0], sizeof(texturedQuadVertexData), TEST_LOCATION );
+
     }
   }
 

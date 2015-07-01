@@ -50,13 +50,13 @@ public:
    * @param[in] nodeDataProvider The node data provider
    * @param[in] dataProviders The data providers for the renderer
    */
-  static NewRenderer* New( NodeDataProvider& nodeDataProvider, RenderDataProvider* dataProviders );
+  static NewRenderer* New( NodeDataProvider& nodeDataProvider, RenderDataProvider* dataProviders, RenderGeometry* renderGeometry );
   /**
    * Constructor.
    * @param[in] nodeDataProvider The node data provider
    * @param[in] dataProviders The data providers for the renderer
    */
-  NewRenderer( NodeDataProvider& nodeDataProvider, RenderDataProvider* dataProviders );
+  NewRenderer( NodeDataProvider& nodeDataProvider, RenderDataProvider* dataProviders, RenderGeometry* renderGeometry );
 
   virtual ~NewRenderer();
 
@@ -64,7 +64,7 @@ public:
    * Change the data providers of the renderer
    * @param[in] dataProviders The data providers
    */
-  void SetRenderDataProvider( RenderDataProvider* dataProviders );
+  void SetRenderDataProvider( RenderDataProvider* dataProviders, RenderGeometry* renderGeometry );
 
   /**
    * Set flag that says that Geometry has been updated.
@@ -195,7 +195,8 @@ public: //@todo MESH_REWORK make private after merge with SceneGraph::Renderer
   OwnerPointer< RenderDataProvider > mRenderDataProvider;
 
 private:
-  RenderGeometry mRenderGeometry;
+  //RenderGeometry mRenderGeometry;
+  RenderGeometry* mRenderGeometry;
 
   struct TextureUnitUniformIndex
   {
@@ -214,6 +215,9 @@ private:
 
   typedef Dali::Vector< UniformIndexMap > UniformIndexMappings;
   UniformIndexMappings mUniformIndexMap;
+
+  Vector<GLint> mAttributesLocation;
+  bool mUpdateAttributesLocation;
 };
 
 

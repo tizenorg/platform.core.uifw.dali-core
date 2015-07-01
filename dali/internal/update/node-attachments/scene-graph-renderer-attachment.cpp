@@ -69,6 +69,7 @@ RendererAttachment::RendererAttachment()
   mGeometry(NULL),
   mRegenerateUniformMap(REGENERATE_UNIFORM_MAP),
   mResendDataProviders(false),
+  mResendGeometry(false),
   mDepthIndex(0)
 {
   mUniformMapChanged[0]=false;
@@ -111,7 +112,8 @@ void RendererAttachment::ConnectedToSceneGraph()
 
   RenderDataProvider* dataProvider = NewRenderDataProvider();
 
-  mRenderer = NewRenderer::New( *mParent, dataProvider );
+  RenderGeometry* renderGeometry = mGeometry->GetRenderGeometry(mSceneController);
+  mRenderer = NewRenderer::New( *mParent, dataProvider, renderGeometry );
   mSceneController->GetRenderMessageDispatcher().AddRenderer( *mRenderer );
 }
 
@@ -119,6 +121,8 @@ void RendererAttachment::DisconnectedFromSceneGraph()
 {
   mRegenerateUniformMap = 0;
   mParent->RemoveUniformMapObserver( *this );
+
+  mGeometry->OnRendererDisconnect();
 
   DALI_ASSERT_DEBUG( mSceneController );
   mSceneController->GetRenderMessageDispatcher().RemoveRenderer( *mRenderer );
@@ -144,12 +148,18 @@ Material& RendererAttachment::GetMaterial()
 void RendererAttachment::SetGeometry( BufferIndex updateBufferIndex, Geometry* geometry)
 {
   DALI_ASSERT_DEBUG( geometry != NULL && "Geometry pointer is NULL");
+  if( mGeometry)
+  {
+    mGeometry->RemoveConnectionObserver(*this);
+    mGeometry->OnRendererDisconnect();
+  }
 
   mGeometry = geometry;
   mGeometry->AddConnectionObserver( *this ); // Observe geometry connections / uniform mapping changes
   mRegenerateUniformMap = REGENERATE_UNIFORM_MAP;
 
-  mResendDataProviders = true;
+  mResendGeometry = true;
+  //mResendDataProviders = true;
 }
 
 Geometry& RendererAttachment::GetGeometry()
@@ -372,27 +382,6 @@ void RendererAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
     mRegenerateUniformMap--;
   }
 
-  bool geometryDataChanged = false;
-  if( PropertyBuffer* indexBuffer = mGeometry->GetIndexBuffer() )
-  {
-    geometryDataChanged = indexBuffer->HasDataChanged(updateBufferIndex);
-  }
-  Vector<PropertyBuffer*>& vertexBuffers = mGeometry->GetVertexBuffers();
-  Vector<PropertyBuffer*>::ConstIterator end = vertexBuffers.End();
-  for( Vector<PropertyBuffer*>::Iterator it = vertexBuffers.Begin();
-       it != end;
-       ++it )
-  {
-    geometryDataChanged = geometryDataChanged || (*it)->HasDataChanged(updateBufferIndex);
-  }
-  if( geometryDataChanged )
-  {
-    //TODO: MESH_REWORK : use buffer data cache and remove all this
-    typedef Message< NewRenderer > DerivedType;
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
-    new (slot) DerivedType( mRenderer, &NewRenderer::SetGeometryUpdated );
-  }
-
   if( mResendDataProviders )
   {
     RenderDataProvider* dataProvider = NewRenderDataProvider();
@@ -402,8 +391,19 @@ void RendererAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
 
     typedef MessageValue1< NewRenderer, OwnerPointer<RenderDataProvider> > DerivedType;
     unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+
     new (slot) DerivedType( mRenderer, &NewRenderer::SetRenderDataProvider, dataProvider );
     mResendDataProviders = false;
+  }
+
+  if( mResendGeometry )
+  {
+    typedef MessageValue1< NewRenderer, RenderGeometry* > DerivedType;
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+
+    new (slot) DerivedType( mRenderer, &NewRenderer::SetGeometry,mGeometry->GetRenderGeometry(mSceneController) );
+    mResendGeometry = false;
+
   }
 }
 

@@ -29,6 +29,9 @@
 #include <dali/internal/update/common/scene-graph-property-buffer.h>
 #include <dali/internal/render/data-providers/geometry-data-provider.h>
 #include <dali/internal/render/data-providers/render-data-provider.h>
+#include <dali/internal/render/renderers/render-geometry.h>
+#include <dali/internal/update/controllers/scene-controller.h>
+#include <dali/internal/update/controllers/render-message-dispatcher.h>
 
 namespace Dali
 {
@@ -129,6 +132,17 @@ public: // UniformMap::Observer
    */
    PropertyBuffer* GetIndexBuffer();
 
+   /**
+    * Gets the associated RenderGeometry
+    */
+   RenderGeometry* GetRenderGeometry(SceneController* sceneController);
+
+   /**
+    * Called from renderers using this geometry when they get disconnected from the scenegraph
+    */
+   void OnRendererDisconnect();
+
+
 public: // GeometryDataProvider
   /**
    * Get the type of geometry to draw
@@ -162,12 +176,22 @@ private:
   PropertyBuffer* mIndexBuffer;  ///< The index buffer if required
   ConnectionChangePropagator mConnectionObservers;
 
+  RenderGeometry*               mRenderGeometry;
+  SceneController*              mSceneController;
+  unsigned int                  mRendererRefCount;
+
+
+
+
+
+
 public: // Properties
   AnimatableProperty<Vector3>   mCenter;
   AnimatableProperty<Vector3>   mHalfExtents;
   AnimatableProperty<float>     mRadius;
   DoubleBufferedProperty<int>   mGeometryType;
   DoubleBufferedProperty<bool>  mRequiresDepthTest;
+
 };
 
 inline void AddVertexBufferMessage( EventThreadServices& eventThreadServices , const Geometry& geometry, const PropertyBuffer& vertexBuffer )

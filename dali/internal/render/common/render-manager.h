@@ -18,6 +18,8 @@
  *
  */
 
+//@FERRAN remove this
+#include <iostream>
 // INTERNAL INCLUDES
 #include <dali/public-api/math/rect.h>
 #include <dali/internal/render/common/post-process-resource-dispatcher.h>
@@ -48,7 +50,7 @@ class RenderInstruction;
 class RenderInstructionContainer;
 class RenderTracker;
 class Shader;
-
+class RenderGeometry;
 /**
  * RenderManager is responsible for rendering the result of the previous "update", which
  * is provided in a RenderCommand during UpdateManager::Update().
@@ -137,6 +139,9 @@ public:
    * @post renderer is destroyed.
    */
   void RemoveRenderer( Renderer* renderer );
+
+  void AddGeometry( RenderGeometry* geometry );
+  void RemoveGeometry( RenderGeometry* geometry );
 
   /**
    * Adds a render tracker to the RenderManager. RenderManager takes ownership of the

@@ -25,6 +25,9 @@ namespace SceneGraph
 
 Geometry::Geometry()
 : mIndexBuffer( NULL ),
+  mRenderGeometry(0),
+  mSceneController(0),
+  mRendererRefCount(0u),
   mCenter(),
   mHalfExtents(),
   mRadius( 0.0f ),
@@ -49,6 +52,10 @@ void Geometry::AddVertexBuffer( PropertyBuffer* vertexBuffer )
   CalculateExtents( vertexBuffer );
   vertexBuffer->AddUniformMapObserver(*this);
   mConnectionObservers.ConnectionsChanged(*this);
+
+//  //@FERRAN Look at this!
+//  if( mRenderGeometry )
+//    mRenderGeometry->AddVertexBuffer( *vertexBuffer, GpuBuffer::ARRAY_BUFFER, GpuBuffer::STATIC_DRAW );
 }
 
 void Geometry::RemoveVertexBuffer( PropertyBuffer* vertexBuffer )
@@ -280,6 +287,48 @@ void Geometry::UniformMappingsChanged( const UniformMap& mappings )
   // Inform connected observers.
   mConnectionObservers.ConnectedUniformMapChanged();
 }
+
+RenderGeometry* Geometry::GetRenderGeometry(SceneController* sceneController)
+{
+  if(!mRenderGeometry)
+  {
+    //Create RenderGeometry
+
+    mSceneController = sceneController;
+    mRenderGeometry = new RenderGeometry( *this );
+
+    size_t vertexBufferCount( mVertexBuffers.Size() );
+    for( size_t i(0); i<vertexBufferCount; ++i )
+    {
+      mRenderGeometry->AddVertexBuffer( *mVertexBuffers[i], GpuBuffer::ARRAY_BUFFER, GpuBuffer::STATIC_DRAW );
+    }
+
+    if( mIndexBuffer )
+    {
+      mRenderGeometry->AddIndexBuffer( *mIndexBuffer );
+    }
+
+    //Transfer ownership to RenderManager
+    sceneController->GetRenderMessageDispatcher().AddGeometry( *mRenderGeometry );
+  }
+
+  ++mRendererRefCount;
+  return mRenderGeometry;
+}
+
+void Geometry::OnRendererDisconnect()
+{
+  --mRendererRefCount;
+  if( mRendererRefCount == 0 )
+  {
+    //Delete the corresponding RenderGeometry via message to RenderManager
+    mSceneController->GetRenderMessageDispatcher().RemoveGeometry( *mRenderGeometry );
+
+    mRenderGeometry = 0;
+    mSceneController = 0;
+  }
+}
+
 
 } // namespace SceneGraph
 } // namespace Internal

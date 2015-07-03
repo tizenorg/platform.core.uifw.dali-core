@@ -82,6 +82,9 @@ std::size_t Geometry::GetNumberOfVertexBuffers() const
 
 void Geometry::RemoveVertexBuffer( std::size_t index )
 {
+  const SceneGraph::PropertyBuffer& sceneGraphPropertyBuffer = dynamic_cast<const SceneGraph::PropertyBuffer&>( *(mVertexBufferConnectors[index].Get()->GetSceneObject()) );
+  SceneGraph::RemoveVertexBufferMessage( GetEventThreadServices(), *mSceneObject, sceneGraphPropertyBuffer );
+  
   mVertexBufferConnectors.erase( mVertexBufferConnectors.begin() + index );
 }
 

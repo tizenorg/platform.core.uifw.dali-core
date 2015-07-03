@@ -48,7 +48,8 @@ class RenderInstruction;
 class RenderInstructionContainer;
 class RenderTracker;
 class Shader;
-
+class RenderGeometry;
+class PropertyBufferDataProvider;
 /**
  * RenderManager is responsible for rendering the result of the previous "update", which
  * is provided in a RenderCommand during UpdateManager::Update().
@@ -137,6 +138,28 @@ public:
    * @post renderer is destroyed.
    */
   void RemoveRenderer( Renderer* renderer );
+
+  /**
+   * Add a geometry to the render manager.
+   * @param[in] geometry The geometry to add.
+   * @post geometry is owned by RenderManager
+   */
+  void AddGeometry( RenderGeometry* geometry );
+
+  /**
+   * Remove a geometry from the render manager.
+   * @param[in] geometry The geometry to remove.
+   * @post geometry is destroyed.
+   */
+  void RemoveGeometry( RenderGeometry* geometry );
+
+  /**
+   * Remove a property buffer from a RenderGeometry from the render manager.
+   * @param[in] geometry The geometry
+   * @param[in] propertyBuffer The property buffer to remove.
+   * @post property buffer is destroyed.
+   */
+  void RemovePropertyBuffer( RenderGeometry* renderGeometry, PropertyBufferDataProvider* propertyBuffer );
 
   /**
    * Adds a render tracker to the RenderManager. RenderManager takes ownership of the

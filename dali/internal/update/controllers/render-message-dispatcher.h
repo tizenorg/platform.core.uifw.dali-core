@@ -34,7 +34,8 @@ class Renderer;
 class RenderManager;
 class RenderQueue;
 class RenderTracker;
-
+class RenderGeometry;
+class PropertyBufferDataProvider;
 /**
  * A utility class for sending messages to the render-thread.
  */
@@ -61,11 +62,32 @@ public:
 
   /**
    * Remove a Renderer.
-   * @param[in] updateBufferIndex The current buffer index.
    * @param[in] renderer The renderer to remove.
    * @post renderer will be destroyed in the next Render.
    */
   void RemoveRenderer( Renderer& renderer );
+
+  /**
+   * Add a Geometry
+   * @param[in] renderGeometry The geometry to add.
+   * @post RenderGeometry ownership is transferred.
+   */
+  void AddGeometry( RenderGeometry& renderGeometry );
+
+  /**
+   * Remove a Geometry.
+   * @param[in] renderGeometry The geometry to remove.
+   * @post RenderGeometry will be destroyed in the next Render.
+   */
+  void RemoveGeometry( RenderGeometry& renderGeometry );
+
+  /**
+   * Remove a PropertyBuffer.
+   * @param[in] renderGeometry The geometry
+   * @param[in] propertyBuffer The PropertyBuffer
+   * @post PropertyBuffer will be destroyed in the next Render.
+   */
+  void RemovePropertyBuffer( RenderGeometry& renderGeometry, PropertyBufferDataProvider* propertyBuffer );
 
   /**
    * Add a Render tracker.

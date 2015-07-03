@@ -31,6 +31,7 @@ use Pod::Usage;
 # Add any required system packages to this list - if they are not present, then
 # this script will attempt to install them for you.
 my @system_packages = (
+    "subversion",
     "automake",
     "cmake",
     "g++",
@@ -58,13 +59,12 @@ my @source_pkgs = (
 
     {"name" => "v8",
      "force-rebuild" => 0,
-     "use_depot_tools" => 1,
      "repo" => "https://chromium.googlesource.com/v8/v8.git",
      "depot_tools_repo" => "https://chromium.googlesource.com/chromium/tools/depot_tools.git",
 
      # original version used with DALi is 3.25.19. 3.32.7 is the latest we can use before
      # upgrading DALi to use  c++0x or c++11
-     "version" => " 3.32.7", "make" => "make -j8 library=shared", "build-mode" =>"debug" }
+     "version" => "3.32.7", "make" => "make -j8 library=shared", "build-mode" =>"debug" }
 );
 
 ### Detect any http proxy, part of v8 installation requires this information
@@ -278,7 +278,7 @@ sub install_google_depot_tools
     my $depot_tools_repo = $v8->{"depot_tools_repo"};
 
     # clear the directory if exists
-    rmtree( $depot_tools_directory );
+    run_command("rm -rf " . $depot_tools_directory);
 
     # clone the depot tools
     run_command( "git clone " . $depot_tools_repo. " " . $depot_tools_directory );
@@ -286,14 +286,21 @@ sub install_google_depot_tools
     # add it the the path
     $ENV{PATH} = "$ENV{PATH}:$depot_tools_directory";
 
-    # need to setup a config file for the proxy
-    create_boto_config_file( $v8 , $depot_tools_directory );
+    # if a proxy environment variable is set then create a boto config file
+    # Without this, glcient will pump out this message
+    # NOTICE: You have PROXY values set in your environment, but gsutil in depot_tools does not (yet) obey them.
+    # Also, --no_auth prevents the normal BOTO_CONFIG environment variable from being used.
 
-    # set the config location as an environment variable ( used by scripts depot_tools)
-    $ENV{NO_AUTH_BOTO_CONFIG}="$src_path/depot_tools/.boto";
+    if( exists $ENV{http_proxy} )
+    {
+      # need to setup a config file for the proxy
+      create_boto_config_file( $v8 , $depot_tools_directory );
 
-    # change to depot tools directory
-    chdir( $depot_tools_directory );
+      # set the config location as an environment variable ( used by scripts depot_tools)
+      $ENV{NO_AUTH_BOTO_CONFIG}="$src_path/depot_tools/.boto";
+    }
+    # change to src directory
+    chdir( $src_path );
 
     # fetch v8
     run_command("fetch --nohooks v8");
@@ -329,7 +336,10 @@ END
     print { $fh } $fileContents;
     close( $fh );
 
-    # export the environment variable
+    # set up gclient
+
+    chdir( $depot_tools_directory );
+
     run_command("gclient config https://gclient.googlecode.com/svn/trunk/gclient");
 
     run_command("gclient runhooks");
@@ -386,24 +396,11 @@ sub install_v8
 
 
 
-    # newer version of v8 use depot_tools with gclient, git cloned builds do not work
-    if( $v8->{"use_depot_tools"} == 1)
-    {
-      install_google_depot_tools( $v8 );
+    # newer version of v8 use depot_tools with gclient
+    install_google_depot_tools( $v8 );
 
-      # v8 is checkout out under depot_tools path
-      $v8_source_directory = $src_path . "/depot_tools/v8";
-    }
-    else
-    {
-      $v8_source_directory = $src_path . "/v8";
-
-      # delete the old v8 source directpry if exists
-      rmtree( $v8_source_directory );
-
-      # clone the repository
-      run_command( "git clone " . $v8->{"repo"} . " " . $v8_source_directory );
-    }
+    # v8 is checkout out under depot_tools path
+    $v8_source_directory = $src_path . "/v8";
 
     # change to the source directoy for the checkout
     chdir( $v8_source_directory );
@@ -414,14 +411,8 @@ sub install_v8
 ####
 # Run make dependencies then make for the specific target
 ####
-    if( $v8->{"use_depot_tools"} == 1)
-    {
-      run_command("gclient sync");
-    }
-    else
-    {
-      run_command("make dependencies");
-    }
+    run_command("gclient sync");
+
 
     # assemble the make command
     my $makeCommand = $v8->{"make"};

@@ -175,7 +175,15 @@ int UtcDaliPropertyValueConstructorsFloatP(void)
   Property::Value value(2.f);
 
   DALI_TEST_CHECK( value.GetType() == Property::FLOAT );
-  DALI_TEST_CHECK( value.Get<float>() == 2.f );
+  DALI_TEST_EQUALS( value.Get<float>(), 2.f, Math::MACHINE_EPSILON_1000, TEST_LOCATION );
+
+  // Check cast to int.
+  Property::Value value2(-2.f);
+  DALI_TEST_EQUALS( value2.Get<int>(), -2, TEST_LOCATION );
+
+  // Check cast to unsigned int int.
+  Property::Value value3(3.f);
+  DALI_TEST_EQUALS( value3.Get<unsigned int>(), 3u, TEST_LOCATION );
 
   END_TEST;
 }
@@ -185,17 +193,31 @@ int UtcDaliPropertyValueConstructorsFloatTypeP(void)
   Property::Value value(Property::FLOAT);
 
   DALI_TEST_CHECK( value.GetType() == Property::FLOAT );
-  DALI_TEST_CHECK( value.Get<float>() == 0.f );
+  DALI_TEST_EQUALS( value.Get<float>(), 0.f, Math::MACHINE_EPSILON_1000, TEST_LOCATION );
+
+  // Check cast to int.
+  DALI_TEST_EQUALS( value.Get<int>(), 0, TEST_LOCATION );
+
+  // Check cast to unsigned int int.
+  DALI_TEST_EQUALS( value.Get<unsigned int>(), 0u, TEST_LOCATION );
 
   END_TEST;
 }
 
 int UtcDaliPropertyValueConstructorsIntP(void)
 {
-  Property::Value value(1);
+  Property::Value value(-1);
 
   DALI_TEST_CHECK( value.GetType() == Property::INTEGER );
-  DALI_TEST_CHECK( value.Get<int>() == 1 );
+  DALI_TEST_CHECK( value.Get<int>() == -1 );
+
+  // Check cast to float.
+  Property::Value value2(-2);
+  DALI_TEST_EQUALS( value2.Get<float>(), -2.f, Math::MACHINE_EPSILON_1000, TEST_LOCATION );
+
+  // Check cast to unsigned int int.
+  Property::Value value3( 3 );
+  DALI_TEST_EQUALS( value3.Get<unsigned int>(), 3u, TEST_LOCATION );
 
   END_TEST;
 }
@@ -207,6 +229,12 @@ int UtcDaliPropertyValueConstructorsIntTypeP(void)
   DALI_TEST_CHECK( value.GetType() == Property::INTEGER );
   DALI_TEST_CHECK( value.Get<int>() == 0 );
 
+  // Check cast to float.
+  DALI_TEST_EQUALS( value.Get<float>(), 0.f, Math::MACHINE_EPSILON_1000, TEST_LOCATION );
+
+  // Check cast to unsigned int int.
+  DALI_TEST_EQUALS( value.Get<unsigned int>(), 0u, TEST_LOCATION );
+
   END_TEST;
 }
 
@@ -217,6 +245,12 @@ int UtcDaliPropertyValueConstructorsUnsignedIntP(void)
   DALI_TEST_CHECK( value.GetType() == Property::UNSIGNED_INTEGER );
   DALI_TEST_CHECK( value.Get<unsigned int>() == 1u );
 
+  // Check cast to float.
+  DALI_TEST_EQUALS( value.Get<float>(), 1.f, Math::MACHINE_EPSILON_1000, TEST_LOCATION );
+
+  // Check cast to int.
+  DALI_TEST_EQUALS( value.Get<int>(), 1, TEST_LOCATION );
+
   END_TEST;
 }
 
@@ -226,6 +260,12 @@ int UtcDaliPropertyValueConstructorsUnsignedIntTypeP(void)
 
   DALI_TEST_CHECK( value.GetType() == Property::UNSIGNED_INTEGER );
   DALI_TEST_CHECK( value.Get<unsigned int>() == 0u );
+
+  // Check cast to float.
+  DALI_TEST_EQUALS( value.Get<float>(), 0.f, Math::MACHINE_EPSILON_1000, TEST_LOCATION );
+
+  // Check cast to int.
+  DALI_TEST_EQUALS( value.Get<int>(), 0, TEST_LOCATION );
 
   END_TEST;
 }

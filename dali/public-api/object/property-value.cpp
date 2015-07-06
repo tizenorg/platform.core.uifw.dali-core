@@ -609,166 +609,271 @@ Property::Type Property::Value::GetType() const
 
 bool Property::Value::Get( bool& booleanValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && IsIntegerType( mImpl->type ) )
   {
     booleanValue = mImpl->integerValue;
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( float& floatValue ) const
 {
-  bool converted = false;
-  if( mImpl && mImpl->type == FLOAT )
+  bool converted = true;
+  if( mImpl )
   {
-    floatValue = mImpl->floatValue;
-    converted = true;
+    if( mImpl->type == FLOAT )
+    {
+      floatValue = mImpl->floatValue;
+    }
+    else if( mImpl->type == INTEGER )
+    {
+      floatValue = static_cast<float>( mImpl->integerValue );
+    }
+    else if( mImpl->type == UNSIGNED_INTEGER )
+    {
+      floatValue = static_cast<float>( mImpl->unsignedIntegerValue );
+    }
+    else
+    {
+      converted = false;
+    }
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( int& integerValue ) const
 {
-  bool converted = false;
-  if( mImpl && IsIntegerType( mImpl->type ) )
+  bool converted = true;
+  if( mImpl )
   {
-    integerValue = mImpl->integerValue;
-    converted = true;
+    if( mImpl->type == INTEGER )
+    {
+      integerValue = mImpl->integerValue;
+    }
+    else if( mImpl->type == UNSIGNED_INTEGER )
+    {
+      integerValue = static_cast<int>( mImpl->unsignedIntegerValue );
+    }
+    else if( mImpl->type == FLOAT )
+    {
+      integerValue = static_cast<int>( mImpl->floatValue );
+    }
+    else
+    {
+      converted = false;
+    }
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( unsigned int& unsignedIntegerValue ) const
 {
-  bool converted = false;
-  if( mImpl && IsIntegerType( mImpl->type ) )
+  bool converted = true;
+  if( mImpl )
   {
-    unsignedIntegerValue = mImpl->unsignedIntegerValue;
-    converted = true;
+    if( mImpl->type == INTEGER )
+    {
+      unsignedIntegerValue = static_cast<unsigned int>( mImpl->integerValue );
+    }
+    else if( mImpl->type == UNSIGNED_INTEGER )
+    {
+      unsignedIntegerValue = mImpl->unsignedIntegerValue;
+    }
+    else if( mImpl->type == FLOAT )
+    {
+      unsignedIntegerValue = static_cast<unsigned int>( mImpl->floatValue );
+    }
+    else
+    {
+      converted = false;
+    }
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( Vector2& vectorValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == VECTOR2) ) // type cannot change in mImpl so vector is allocated
   {
     vectorValue = *(mImpl->vector2Value);
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( Vector3& vectorValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == VECTOR3) ) // type cannot change in mImpl so vector is allocated
   {
     vectorValue = *(mImpl->vector3Value);
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( Vector4& vectorValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == VECTOR4) ) // type cannot change in mImpl so vector is allocated
   {
     vectorValue = *(mImpl->vector4Value);
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( Matrix3& matrixValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == MATRIX3) ) // type cannot change in mImpl so matrix is allocated
   {
     matrixValue = *(mImpl->matrix3Value);
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( Matrix& matrixValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == MATRIX) ) // type cannot change in mImpl so matrix is allocated
   {
     matrixValue = *(mImpl->matrixValue);
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( Rect<int>& rectValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == RECTANGLE) ) // type cannot change in mImpl so rect is allocated
   {
     rectValue = *(mImpl->rectValue);
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( AngleAxis& angleAxisValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == ROTATION) ) // type cannot change in mImpl so quaternion is allocated
   {
     mImpl->quaternionValue->ToAxisAngle( angleAxisValue.axis, angleAxisValue.angle );
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( Quaternion& quaternionValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == ROTATION) ) // type cannot change in mImpl so quaternion is allocated
   {
     quaternionValue = *(mImpl->quaternionValue);
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( std::string& stringValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == STRING) ) // type cannot change in mImpl so string is allocated
   {
     stringValue.assign( *(mImpl->stringValue) );
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( Property::Array& arrayValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == ARRAY) ) // type cannot change in mImpl so array is allocated
   {
     arrayValue = *(mImpl->arrayValue);
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( Property::Map& mapValue ) const
 {
-  bool converted = false;
+  bool converted = true;
   if( mImpl && (mImpl->type == MAP) ) // type cannot change in mImpl so map is allocated
   {
     mapValue = *(mImpl->mapValue);
-    converted = true;
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 

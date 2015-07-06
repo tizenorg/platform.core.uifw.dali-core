@@ -620,34 +620,91 @@ bool Property::Value::Get( bool& booleanValue ) const
 
 bool Property::Value::Get( float& floatValue ) const
 {
-  bool converted = false;
-  if( mImpl && mImpl->type == FLOAT )
+  bool converted = true;
+  if( mImpl )
   {
-    floatValue = mImpl->floatValue;
-    converted = true;
+    if( mImpl->type == FLOAT )
+    {
+      floatValue = mImpl->floatValue;
+    }
+    else if( mImpl->type == INTEGER )
+    {
+      floatValue = static_cast<float>( mImpl->integerValue );
+    }
+    else if( mImpl->type == UNSIGNED_INTEGER )
+    {
+      floatValue = static_cast<float>( mImpl->unsignedIntegerValue );
+    }
+    else
+    {
+      converted = false;
+    }
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( int& integerValue ) const
 {
-  bool converted = false;
-  if( mImpl && IsIntegerType( mImpl->type ) )
+  bool converted = true;
+  if( mImpl )
   {
-    integerValue = mImpl->integerValue;
-    converted = true;
+    if( mImpl->type == INTEGER )
+    {
+      integerValue = mImpl->integerValue;
+    }
+    else if( mImpl->type == UNSIGNED_INTEGER )
+    {
+      integerValue = static_cast<int>( mImpl->unsignedIntegerValue );
+    }
+    else if( mImpl->type == FLOAT )
+    {
+      integerValue = static_cast<int>( mImpl->floatValue );
+    }
+    else
+    {
+      converted = false;
+    }
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 
 bool Property::Value::Get( unsigned int& unsignedIntegerValue ) const
 {
-  bool converted = false;
-  if( mImpl && IsIntegerType( mImpl->type ) )
+  bool converted = true;
+  if( mImpl )
   {
-    unsignedIntegerValue = mImpl->unsignedIntegerValue;
-    converted = true;
+    if( mImpl->type == INTEGER )
+    {
+      unsignedIntegerValue = static_cast<unsigned int>( mImpl->integerValue );
+    }
+    else if( mImpl->type == UNSIGNED_INTEGER )
+    {
+      unsignedIntegerValue = mImpl->unsignedIntegerValue;
+    }
+    else if( mImpl->type == FLOAT )
+    {
+      unsignedIntegerValue = static_cast<unsigned int>( mImpl->floatValue );
+    }
+    else
+    {
+      converted = false;
+    }
   }
+  else
+  {
+    converted = false;
+  }
+
   return converted;
 }
 

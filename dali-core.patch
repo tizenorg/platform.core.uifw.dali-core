@@ -1,0 +1,24 @@
+diff -ruPN '--exclude=.git' /home/SERILOCAL/adeel.kazmi/verify/repos/dali-core/dali/internal/event/events/actor-observer.cpp dali-core/dali/internal/event/events/actor-observer.cpp
+--- /home/SERILOCAL/adeel.kazmi/verify/repos/dali-core/dali/internal/event/events/actor-observer.cpp	2015-06-22 11:56:46.271935161 +0100
++++ dali-core/dali/internal/event/events/actor-observer.cpp	2015-07-01 14:35:59.550095180 +0100
+@@ -101,7 +101,7 @@
+   {
+     if ( mRemoveCallback )
+     {
+-      CallbackBase::Execute( *mRemoveCallback, mActor );
++//      CallbackBase::Execute( *mRemoveCallback, mActor );
+     }
+ 
+     // do not call object.RemoveObserver here, object is currently iterating through observers
+diff -ruPN '--exclude=.git' /home/SERILOCAL/adeel.kazmi/verify/repos/dali-core/packaging/dali.spec dali-core/packaging/dali.spec
+--- /home/SERILOCAL/adeel.kazmi/verify/repos/dali-core/packaging/dali.spec	2015-07-01 14:35:10.902093821 +0100
++++ dali-core/packaging/dali.spec	2015-07-01 14:47:05.078113769 +0100
+@@ -7,6 +7,8 @@
+ URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-core.git;a=summary
+ Source0:    %{name}-%{version}.tar.gz
+ 
++%define enable_dali_smack_rules 1
++
+ Requires(post): /sbin/ldconfig
+ Requires(postun): /sbin/ldconfig
+ BuildRequires:  pkgconfig

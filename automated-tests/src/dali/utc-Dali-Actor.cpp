@@ -2942,4 +2942,3 @@ int UtcDaliActorGetHierachyDepth(void)
 
   END_TEST;
 }
-

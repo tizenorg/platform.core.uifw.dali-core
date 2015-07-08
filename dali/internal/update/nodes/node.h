@@ -887,6 +887,11 @@ public:
   }
 
   /**
+   * Connects the attachment to the scene graph
+   */
+  void ConnectAttachment();
+
+  /**
    * Equality operator, checks for identity, not values.
    *
    */
@@ -1105,6 +1110,17 @@ inline void SetDrawModeMessage( EventThreadServices& eventThreadServices, const 
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetDrawMode, drawMode );
+}
+
+inline void ConnectAttachmentMessage( EventThreadServices& eventThreadServices, const Node& node )
+{
+  typedef Message< Node > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::ConnectAttachment );
 }
 
 } // namespace SceneGraph

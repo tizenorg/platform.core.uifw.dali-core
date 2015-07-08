@@ -2943,3 +2943,25 @@ int UtcDaliActorGetHierachyDepth(void)
   END_TEST;
 }
 
+int UtcDaliActorAddRenderer(void)
+{
+  TestApplication app;
+
+  Actor actor = Actor::New();
+
+  Vector2 size = actor.GetMaximumSize();
+
+  DALI_TEST_EQUALS( size.width, FLT_MAX, TEST_LOCATION );
+  DALI_TEST_EQUALS( size.height, FLT_MAX, TEST_LOCATION );
+
+  Vector2 size2( 1.0f, 2.0f );
+  actor.SetMaximumSize( size2 );
+
+  size = actor.GetMaximumSize();
+
+  DALI_TEST_EQUALS( size.width, size2.width, TEST_LOCATION );
+  DALI_TEST_EQUALS( size.height, size2.height, TEST_LOCATION );
+
+  END_TEST;
+}
+

@@ -97,6 +97,14 @@ void Node::Attach( NodeAttachment& object )
   SetAllDirtyFlags();
 }
 
+void Node::ConnectAttachment()
+{
+  if( mAttachment )
+  {
+    mAttachment->ConnectedToSceneGraph();
+  }
+}
+
 void Node::SetRoot(bool isRoot)
 {
   DALI_ASSERT_DEBUG(!isRoot || mParent == NULL); // Root nodes cannot have a parent

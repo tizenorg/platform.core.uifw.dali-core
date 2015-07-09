@@ -41,7 +41,8 @@ NewRenderer* NewRenderer::New( NodeDataProvider& nodeDataProvider,
 NewRenderer::NewRenderer( NodeDataProvider& nodeDataProvider,
                           RenderDataProvider* dataProvider )
 : Renderer( nodeDataProvider ),
-  mRenderDataProvider( dataProvider )
+  mRenderDataProvider( dataProvider ),
+  mUniformMapChanged(false)
 {
 }
 
@@ -58,6 +59,11 @@ void NewRenderer::SetRenderDataProvider( RenderDataProvider* dataProvider )
 void NewRenderer::SetGeometryUpdated( )
 {
   mRenderGeometry.GeometryUpdated();
+}
+
+void NewRenderer::SetUniformMapChanged()
+{
+  mUniformMapChanged = true;
 }
 
 // Note - this is currently called from UpdateThread, PrepareRenderInstructions,
@@ -140,7 +146,7 @@ void NewRenderer::SetUniforms( BufferIndex bufferIndex, Program& program )
 
   const UniformMapDataProvider& uniformMapDataProvider = mRenderDataProvider->GetUniformMap();
 
-  if( uniformMapDataProvider.GetUniformMapChanged( bufferIndex ) )
+  if( mUniformMapChanged )
   {
     const CollectedUniformMap& uniformMap = uniformMapDataProvider.GetUniformMap( bufferIndex );
 
@@ -154,6 +160,8 @@ void NewRenderer::SetUniforms( BufferIndex bufferIndex, Program& program )
       mUniformIndexMap[mapIndex].propertyValue = uniformMap[mapIndex]->propertyPtr;
       mUniformIndexMap[mapIndex].uniformIndex = program.RegisterUniform( uniformMap[mapIndex]->uniformName );
     }
+
+    mUniformMapChanged = false;
   }
 
   // Set uniforms in local map

@@ -37,14 +37,6 @@ namespace SceneGraph
  */
 void ClearRenderables( SortedLayerPointers& sortedLayers );
 
-/**
- * Prepares the list of opaque/transparent renderable attachments for each layer.
- * Whilst iterating through each layer, update the attachments ModelView matrices
- * @param[in] updateBufferIndex The current update buffer index.
- * @param[in] sortedLayers The layers containing lists of opaque/transparent renderables.
- */
-void PrepareRenderables( BufferIndex updateBufferIndex, SortedLayerPointers& sortedLayers );
-
 } // namespace SceneGraph
 
 } // namespace Internal

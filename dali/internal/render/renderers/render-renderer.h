@@ -71,6 +71,11 @@ public:
    */
   void SetGeometryUpdated();
 
+  /**
+   * Set flag that says uniform map has changed
+   */
+  void SetUniformMapChanged();
+
 public: // Implementation of Renderer
   /**
    * @copydoc SceneGraph::Renderer::RequiresDepthTest()
@@ -214,6 +219,7 @@ private:
 
   typedef Dali::Vector< UniformIndexMap > UniformIndexMappings;
   UniformIndexMappings mUniformIndexMap;
+  bool mUniformMapChanged;
 };
 
 

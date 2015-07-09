@@ -201,6 +201,9 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
   }
   if ( inside )
   {
+    //Prepare renderable attachement for rendering
+    renderable.PrepareRender( updateBufferIndex );
+
     // Get the next free RenderItem
     RenderItem& item = renderList.GetNextFreeItem();
     const Renderer& renderer = renderable.GetRenderer();

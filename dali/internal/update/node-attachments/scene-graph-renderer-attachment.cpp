@@ -71,9 +71,6 @@ RendererAttachment::RendererAttachment()
   mResendDataProviders(false),
   mDepthIndex(0)
 {
-  mUniformMapChanged[0]=false;
-  mUniformMapChanged[1]=false;
-
   // Observe our own PropertyOwner's uniform map
   AddUniformMapObserver( *this );
 }
@@ -350,7 +347,9 @@ void RendererAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
         AddMappings( localMap, indexBuffer->GetUniformMap() );
       }
 
-      mUniformMapChanged[updateBufferIndex] = true;
+      typedef Message< NewRenderer > DerivedType;
+      unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+      new (slot) DerivedType( mRenderer, &NewRenderer::SetUniformMapChanged );
     }
     else if( mRegenerateUniformMap == COPY_UNIFORM_MAP )
     {
@@ -366,7 +365,9 @@ void RendererAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
         localMap[index] = *iter;
       }
 
-      mUniformMapChanged[updateBufferIndex] = true;
+      typedef Message< NewRenderer > DerivedType;
+      unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+      new (slot) DerivedType( mRenderer, &NewRenderer::SetUniformMapChanged );
     }
 
     mRegenerateUniformMap--;
@@ -431,7 +432,7 @@ void RendererAttachment::UniformMappingsChanged( const UniformMap& mappings )
 
 bool RendererAttachment::GetUniformMapChanged( BufferIndex bufferIndex ) const
 {
-  return mUniformMapChanged[bufferIndex];
+  return false;//mUniformMapChanged[bufferIndex];
 }
 
 const CollectedUniformMap& RendererAttachment::GetUniformMap( BufferIndex bufferIndex ) const

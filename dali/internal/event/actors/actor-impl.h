@@ -196,6 +196,8 @@ public:
    */
   void Add( Actor& child );
 
+#if 0
+  //todor
   /**
    * Inserts a child Actor to this Actor's child list
    * @pre The child actor is not the same as the parent actor.
@@ -205,6 +207,7 @@ public:
    * @post The child will be referenced by its parent.
    */
   void Insert( unsigned int index, Actor& child );
+#endif
 
   /**
    * Removes a child Actor from this Actor.
@@ -1813,7 +1816,7 @@ protected:
   std::string     mName;      ///< Name of the actor
   unsigned int    mId;        ///< A unique ID to identify the actor starting from 1, and 0 is reserved
 
-  unsigned short mDepth                            :12; ///< The depth in the hierarchy of the actor. Only 4096 levels of depth are supported
+  unsigned short mDepth                            :12; ///< Cached: The depth in the hierarchy of the actor. Only 4096 levels of depth are supported
   const bool mIsRoot                               : 1; ///< Flag to identify the root actor
   const bool mIsRenderable                         : 1; ///< Flag to identify that this is a renderable actor
   const bool mIsLayer                              : 1; ///< Flag to identify that this is a layer

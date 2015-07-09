@@ -106,10 +106,13 @@ void Actor::Add(Actor actor)
   GetImplementation(*this).Add(GetImplementation(actor));
 }
 
+#if 0
+//todor
 void Actor::Insert(unsigned int index, Actor actor)
 {
   GetImplementation(*this).Insert(index, GetImplementation(actor));
 }
+#endif
 
 void Actor::Remove(Actor actor)
 {

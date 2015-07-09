@@ -432,6 +432,8 @@ public:
    */
   void Add(Actor child);
 
+#if 0
+  //todor
   /**
    * @brief Inserts a child Actor to this actor's list of children at the given index
    *
@@ -449,6 +451,7 @@ public:
    * @post If the index is greater than the current child count, it will be ignored and added at the end.
    */
   void Insert(unsigned int index, Actor child);
+#endif
 
   /**
    * @brief Removes a child Actor from this Actor.

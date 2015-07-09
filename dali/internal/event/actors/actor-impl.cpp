@@ -425,6 +425,8 @@ void Actor::Add( Actor& child )
   }
 }
 
+#if 0
+//todor
 void Actor::Insert( unsigned int index, Actor& child )
 {
   DALI_ASSERT_ALWAYS( this != &child && "Cannot add actor to itself" );
@@ -481,6 +483,7 @@ void Actor::Insert( unsigned int index, Actor& child )
     }
   }
 }
+#endif
 
 void Actor::Remove( Actor& child )
 {

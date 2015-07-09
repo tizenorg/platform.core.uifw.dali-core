@@ -104,6 +104,10 @@ public:
     LAYER_3D,
   };
 
+  enum TreeDepthMultiplier
+  {
+    TREE_DEPTH_MULTIPLIER = 10000,
+  };
   /**
    * @brief The sort function type.
    *

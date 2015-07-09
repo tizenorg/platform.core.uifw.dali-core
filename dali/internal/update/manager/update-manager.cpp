@@ -1026,16 +1026,9 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
     //     This will populate each Layer with a list of renderers which are ready.
     UpdateNodes();
 
-    // 13) Prepare for the next render
-    PERF_MONITOR_START(PerformanceMonitor::PREPARE_RENDERABLES);
-
-    PrepareRenderables( bufferIndex, mImpl->sortedLayers );
-    PrepareRenderables( bufferIndex, mImpl->systemLevelSortedLayers );
-    PERF_MONITOR_END(PerformanceMonitor::PREPARE_RENDERABLES);
-
     PERF_MONITOR_START(PerformanceMonitor::PROCESS_RENDER_TASKS);
 
-    // 14) Process the RenderTasks; this creates the instructions for rendering the next frame.
+    // 13) Process the RenderTasks; this creates the instructions for rendering the next frame.
     // reset the update buffer index and make sure there is enough room in the instruction container
     mImpl->renderInstructions.ResetAndReserve( mSceneGraphBuffers.GetUpdateBufferIndex(),
                                                mImpl->taskList.GetTasks().Count() + mImpl->systemLevelTaskList.GetTasks().Count() );

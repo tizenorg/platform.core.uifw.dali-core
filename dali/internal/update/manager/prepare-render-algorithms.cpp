@@ -54,35 +54,6 @@ void ClearRenderables( SortedLayerPointers& sortedLayers )
   }
 }
 
-/******************************************************************************
- ***************************** Prepare renderers ******************************
- ******************************************************************************/
-
-void PrepareRenderables( BufferIndex updateBufferIndex, RenderableAttachmentContainer& renderableList )
-{
-  const RenderableAttachmentIter endIter = renderableList.end();
-  for ( RenderableAttachmentIter iter = renderableList.begin(); iter != endIter; ++iter )
-  {
-    RenderableAttachment& renderable = **iter;
-    renderable.PrepareRender( updateBufferIndex );
-  }
-}
-
-void PrepareRenderables( BufferIndex updateBufferIndex, SortedLayerPointers& sortedLayers )
-{
-  const SortedLayersIter endIter = sortedLayers.end();
-
-  for ( SortedLayersIter iter = sortedLayers.begin(); iter != endIter; ++iter )
-  {
-    Layer& layer = **iter;
-
-    PrepareRenderables( updateBufferIndex, layer.stencilRenderables );
-    PrepareRenderables( updateBufferIndex, layer.opaqueRenderables );
-    PrepareRenderables( updateBufferIndex, layer.transparentRenderables );
-    PrepareRenderables( updateBufferIndex, layer.overlayRenderables );
-  }
-}
-
 } // SceneGraph
 
 } // Internal

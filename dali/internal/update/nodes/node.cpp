@@ -60,6 +60,7 @@ Node::Node()
   mAttachment( NULL ),
   mChildren(),
   mDirtyFlags(AllFlags),
+  mDepth(0u),
   mIsRoot( false ),
   mInheritOrientation( true ),
   mInheritScale( true ),
@@ -244,6 +245,7 @@ void Node::SetParent(Node& parentNode)
   DALI_ASSERT_ALWAYS(mParent == NULL);
 
   mParent = &parentNode;
+  mDepth = mParent->GetDepth() + 1u;
 }
 
 void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std::set<Node*>& connectedNodes,  std::set<Node*>& disconnectedNodes )
@@ -262,6 +264,7 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std
 
   // Remove back-pointer to parent
   mParent = NULL;
+  mDepth = 0u;
 
   // Remove all child pointers
   mChildren.Clear();

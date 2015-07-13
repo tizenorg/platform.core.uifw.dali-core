@@ -22,9 +22,12 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/actors/renderable-actor.h>
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/images/image.h>
+#include <dali/public-api/shader-effects/shader-effect.h>
+#include <dali/public-api/actors/blending.h>
+#include <dali/public-api/actors/sampling.h>
 
 namespace Dali
 {
@@ -33,6 +36,17 @@ namespace Internal DALI_INTERNAL
 {
 class ImageActor;
 }
+
+/**
+ * @brief Face culling modes.
+ */
+enum CullFaceMode
+{
+  CullNone,                 ///< Face culling disabled
+  CullFront,                ///< Cull front facing polygons
+  CullBack,                 ///< Cull back facing polygons
+  CullFrontAndBack          ///< Cull front and back facing polygons
+};
 
 /**
  * @brief An actor for displaying images.
@@ -56,7 +70,7 @@ class ImageActor;
  * Clearing the pixel area on an Image actor with a set size will cause the actor to show the
  * whole image again, but will not change the image size.
  */
-class DALI_IMPORT_API ImageActor : public RenderableActor
+class DALI_IMPORT_API ImageActor : public Actor
 {
 public:
 
@@ -149,6 +163,8 @@ public:
    * @brief Pixel area is relative to the top-left (0,0) of the image.
    */
   typedef Rect<int> PixelArea;
+
+  static const BlendingMode::Type DEFAULT_BLENDING_MODE; ///< default value is BlendingMode::AUTO
 
   /**
    * @brief Create an uninitialized ImageActor handle.

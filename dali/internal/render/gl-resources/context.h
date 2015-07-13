@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/actors/renderable-actor.h>
+#include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/math/rect.h>

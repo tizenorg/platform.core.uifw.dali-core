@@ -178,18 +178,19 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
     {
       // Get the geometry extents for frustum checking
       const Vector3& position = worldMatrix.GetTranslation3();
-      const Geometry& geometry = rendererAttachment->GetGeometry();
+      Geometry& geometry = rendererAttachment->GetGeometry();
       const Vector3& scale = parentNode.GetScale( updateBufferIndex );
 
       Vector3 center( geometry.mCenter[ updateBufferIndex ] );
       center *= scale;
       center += position;
 
+      Vector3 size = parentNode.GetSize( updateBufferIndex );
       // Do a fast sphere check
-      if ( cameraAttachment.CheckSphereInFrustum( updateBufferIndex, center, geometry.mRadius[ updateBufferIndex ] * scale.Length() ) )
+      if ( cameraAttachment.CheckSphereInFrustum( updateBufferIndex, center, geometry.mRadius[ updateBufferIndex ] * scale.Length()  * size.Length() ) )
       {
         // Check geometry AABB
-        if ( !cameraAttachment.CheckAABBInFrustum( updateBufferIndex, center, geometry.mHalfExtents[ updateBufferIndex ] * scale ) )
+        if ( !cameraAttachment.CheckAABBInFrustum( updateBufferIndex, center, geometry.mHalfExtents[ updateBufferIndex ] * scale * size) )
         {
           inside = false;
         }

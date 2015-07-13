@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <dali/public-api/actors/image-actor.h> // For CullFaceMode
+#include <dali/devel-api/rendering/cull-face.h>
 #include <dali/internal/common/buffer-index.h>
 #include <dali/internal/common/blending-options.h>
 #include <dali/internal/event/common/event-thread-services.h>

@@ -1,6 +1,3 @@
-#ifndef __DALI_INTERNAL_TYPE_ABSTRACTION_ENUMS_H__
-#define __DALI_INTERNAL_TYPE_ABSTRACTION_ENUMS_H__
-
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -18,24 +15,36 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <dali/public-api/actors/blending.h>
-#include <dali/public-api/shader-effects/shader-effect.h>
+#include <stdlib.h>
+#include <dali/public-api/dali-core.h>
 #include <dali/devel-api/rendering/cull-face.h>
-#include <dali/internal/common/type-abstraction.h>
-#include <dali/internal/event/effects/shader-declarations.h>
+#include <dali-test-suite-utils.h>
 
-namespace Dali
+using namespace Dali;
+
+void cull_face_test_startup(void)
 {
+  test_return_value = TET_UNDEF;
+}
 
-namespace Internal
+void cull_face_test_cleanup(void)
 {
+  test_return_value = TET_PASS;
+}
 
-template <> struct ParameterType< CullFaceMode > : public BasicType< CullFaceMode > {};
-template <> struct ParameterType< BlendingMode::Type > : public BasicType< BlendingMode::Type > {};
+int UtcDaliSetGetCullFace(void)
+{
+  TestApplication application;
 
-} //namespace Internal
+  tet_infoline("Testing Dali::ImageActor::GetCullFace()");
 
-} //namespace Dali
+  ImageActor imageActor = ImageActor::New();
 
-#endif // __DALI_INTERNAL_TYPE_ABSTRACTION_ENUMS_H__
+  DALI_TEST_CHECK( CullNone == GetCullFace( imageActor ) );
+
+  SetCullFace( imageActor, CullBack );
+
+  DALI_TEST_CHECK( CullBack == GetCullFace( imageActor ) );
+
+  END_TEST;
+}

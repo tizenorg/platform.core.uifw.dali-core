@@ -20,7 +20,7 @@
 
 
 //PUBLIC INCLUDES
-#include <dali/public-api/actors/renderable-actor.h>
+#include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/actors/blending.h>
 #include <dali/public-api/shader-effects/shader-effect.h>
 

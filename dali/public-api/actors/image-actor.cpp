@@ -27,6 +27,8 @@
 namespace Dali
 {
 
+const BlendingMode::Type ImageActor::DEFAULT_BLENDING_MODE = BlendingMode::AUTO;
+
 ImageActor::ImageActor()
 {
 }
@@ -64,7 +66,7 @@ ImageActor::~ImageActor()
 }
 
 ImageActor::ImageActor(const ImageActor& copy)
-: RenderableActor(copy)
+: Actor(copy)
 {
 }
 
@@ -221,7 +223,7 @@ void ImageActor::RemoveShaderEffect()
 
 
 ImageActor::ImageActor(Internal::ImageActor* internal)
-: RenderableActor(internal)
+: Actor(internal)
 {
 }
 

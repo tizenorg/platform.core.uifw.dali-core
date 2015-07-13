@@ -1022,7 +1022,7 @@ public:
    * By default a renderable actor will be drawn as a 3D object. It will be depth-tested against
    * other objects in the world i.e. it may be obscured if other objects are in front.
    *
-   * If DrawMode::OVERLAY is used, the actor and its children will be drawn as a 2D overlay.
+   * If DrawMode::OVERLAY_2D is used, the actor and its children will be drawn as a 2D overlay.
    * Overlay actors are drawn in a separate pass, after all non-overlay actors within the Layer.
    * For overlay actors, the drawing order is determined by the hierachy (depth-first search order),
    * and depth-testing will not be used.
@@ -1032,7 +1032,7 @@ public:
    * actors within the Layer.
    *
    * @param[in] drawMode The new draw-mode to use.
-   * @note Setting STENCIL will override OVERLAY, if that would otherwise have been inherited.
+   * @note Setting STENCIL will override OVERLAY_2D, if that would otherwise have been inherited.
    * @note Layers do not inherit the DrawMode from their parents.
    */
   void SetDrawMode( DrawMode::Type drawMode );

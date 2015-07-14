@@ -72,8 +72,57 @@ public:
      */
     ~ScopedLock();
 
+    /**
+     * Allows access to the mutex which is locked.
+     * @return The locked mutex.
+     */
+    Mutex& GetMutex()
+    {
+      return mMutex;
+    }
+
   private:
     Mutex& mMutex;
+  };
+
+  /**
+   * Helper class to temporarily unlock an already locked mutex and lock it again
+   * when a scope is exited.
+   */
+  class ScopedUnlock
+  {
+  public:
+
+    /**
+     * Constructor
+     * Just remembers the mutex and does not yet unlock it.
+     * @sa Unlock
+     * @param mutex to lock
+     */
+    ScopedUnlock( Mutex& mutex );
+
+    /**
+     * Unlock the mutex temporarily.
+     */
+    void Unlock();
+
+    /**
+     * Destructor, reestablishes the lock
+     */
+    ~ScopedUnlock();
+
+    /**
+     * Allows access to the mutex.
+     * @return The mutex.
+     */
+    Mutex& GetMutex()
+    {
+      return mMutex;
+    }
+
+  private:
+    Mutex& mMutex;
+    bool mBeenUnlocked;
   };
 
 private:

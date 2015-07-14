@@ -63,4 +63,26 @@ Mutex::ScopedLock::~ScopedLock()
   pthread_mutex_unlock( &mMutex.mImpl->mutex );
 }
 
+Mutex::ScopedUnlock::ScopedUnlock( Mutex& mutex )
+: mMutex( mutex ), mBeenUnlocked( false )
+{
+}
+
+void Mutex::ScopedUnlock::Unlock()
+{
+  DALI_ASSERT_DEBUG( mMutex.mImpl->locked == true );
+  mMutex.mImpl->locked = false;
+  pthread_mutex_unlock( &mMutex.mImpl->mutex );
+}
+
+Mutex::ScopedUnlock::~ScopedUnlock()
+{
+  if( mBeenUnlocked )
+  {
+    DALI_ASSERT_DEBUG( mMutex.mImpl->locked == false );
+    pthread_mutex_lock( &mMutex.mImpl->mutex );
+    mMutex.mImpl->locked = true;
+  }
+}
+
 } // namespace Dali

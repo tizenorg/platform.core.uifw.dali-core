@@ -45,6 +45,20 @@ Mutex::~Mutex()
   delete mImpl;
 }
 
+void Mutex::Lock()
+{
+  pthread_mutex_lock( &mImpl->mutex );
+  DALI_ASSERT_DEBUG( mImpl->locked == false && "Nested locks" );
+  mImpl->locked = true;
+}
+
+void Mutex::Unlock()
+{
+  DALI_ASSERT_DEBUG( mImpl->locked == true );
+  mImpl->locked = false;
+  pthread_mutex_unlock( &mImpl->mutex );
+}
+
 bool Mutex::IsLocked()
 {
   return mImpl->locked;
@@ -53,14 +67,12 @@ bool Mutex::IsLocked()
 Mutex::ScopedLock::ScopedLock( Mutex& mutex )
 : mMutex( mutex )
 {
-  pthread_mutex_lock( &mMutex.mImpl->mutex );
-  mMutex.mImpl->locked = true;
+  mMutex.Lock();
 }
 
 Mutex::ScopedLock::~ScopedLock()
 {
-  mMutex.mImpl->locked = false;
-  pthread_mutex_unlock( &mMutex.mImpl->mutex );
+  mMutex.Unlock();
 }
 
 } // namespace Dali

@@ -44,6 +44,19 @@ public:
    */
   ~Mutex();
 
+
+  /**
+   * Lock the mutex.
+   * @note Use the ScopedLock helper class to acquire a lock safely rather than calling this manually if possible.
+   */
+  void Lock();
+
+  /**
+   * Unlock the mutex.
+   * @note Use the ScopedLock helper class to release a lock safely rather than calling this manually if possible.
+   */
+  void Unlock();
+
   /**
    * @brief Check if the mutex is locked
    * @return true if the mutex is locked
@@ -71,6 +84,15 @@ public:
      * Destructor, releases the lock
      */
     ~ScopedLock();
+
+    /**
+     * Allows access to the mutex which is locked.
+     * @return The locked mutex.
+     */
+    Mutex& GetMutex()
+    {
+      return mMutex;
+    }
 
   private:
     Mutex& mMutex;

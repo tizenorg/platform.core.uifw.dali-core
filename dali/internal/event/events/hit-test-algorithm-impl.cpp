@@ -220,7 +220,7 @@ HitActor HitTestWithinLayer( Actor& actor,
             // Is this actor an Image Actor or contains a renderer?
             if ( ImageActor* imageActor = dynamic_cast< ImageActor* >( &actor ) )
             {
-              hit.depth = imageActor->GetDepthIndex();
+              hit.depth = actor.GetHierarchyDepth() * Dali::Layer::TREE_DEPTH_MULTIPLIER + imageActor->GetDepthIndex();
             }
             else
             {
@@ -276,10 +276,10 @@ HitActor HitTestWithinLayer( Actor& actor,
                                                   layerIs3d) );
 
         bool updateChildHit = false;
-        // If our ray casting hit, then check then if the hit actor's depth is greater that the favorite, it will be preferred
+        // If our ray casting hit, then check then if the hit actor's depth is greater or equal that the favorite, it will be preferred
         if ( currentHit.distance >= 0.0f )
         {
-          if ( currentHit.depth > childHit.depth )
+          if ( currentHit.depth >= childHit.depth )
           {
             updateChildHit = true;
           }

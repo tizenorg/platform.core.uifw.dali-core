@@ -137,7 +137,7 @@ ShaderDataPtr ShaderFactory::Load( const std::string& vertexSource, const std::s
   return shaderData;
 }
 
-void ShaderFactory::SaveBinary( Integration::ShaderDataPtr shaderData )
+void ShaderFactory::SaveBinary( Internal::ShaderDataPtr shaderData )
 {
   // Save the binary to the file system:
   std::string binaryShaderFilename;

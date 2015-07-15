@@ -1,5 +1,5 @@
-#ifndef __DALI_INTEGRATION_SHADER_DATA_H__
-#define __DALI_INTEGRATION_SHADER_DATA_H__
+#ifndef __DALI_INTERNAL_SHADER_DATA_H__
+#define __DALI_INTERNAL_SHADER_DATA_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -24,16 +24,14 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/integration-api/resource-declarations.h>
 
 namespace Dali
 {
 
-namespace Integration
+namespace Internal
 {
 
 class ShaderData;
-
 typedef IntrusivePtr<ShaderData> ShaderDataPtr;
 
 /**
@@ -168,4 +166,4 @@ private: // Data
 
 } // namespace Dali
 
-#endif // __DALI_INTEGRATION_SHADER_DATA_H__
+#endif // __DALI_INTERNAL_SHADER_DATA_H__

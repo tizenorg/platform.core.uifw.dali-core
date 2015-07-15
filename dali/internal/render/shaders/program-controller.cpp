@@ -141,7 +141,7 @@ unsigned int ProgramController::ProgramBinaryFormat()
   return mProgramBinaryFormat;
 }
 
-void ProgramController::StoreBinary( Integration::ShaderDataPtr programData )
+void ProgramController::StoreBinary( Internal::ShaderDataPtr programData )
 {
   DALI_ASSERT_DEBUG( programData->GetBufferSize() > 0 );
   DALI_ASSERT_DEBUG( programData->GetHashValue() != 0 );

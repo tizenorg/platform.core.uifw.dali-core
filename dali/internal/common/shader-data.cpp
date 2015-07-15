@@ -16,12 +16,12 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/shader-data.h>
+#include <dali/internal/common/shader-data.h>
 
 namespace Dali
 {
 
-namespace Integration
+namespace Internal
 {
 
 const size_t ShaderData::UNINITIALISED_HASH_VALUE = size_t(0) - 1;

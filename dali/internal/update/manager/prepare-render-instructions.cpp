@@ -172,34 +172,25 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
   const Node& parentNode = renderable.GetParent();
   const Matrix& worldMatrix = parentNode.GetWorldMatrix( updateBufferIndex );
 
-  if ( RendererAttachment* rendererAttachment = dynamic_cast< RendererAttachment* >( &renderable ) )
+  //TODO: Take into account orientation
+  const Vector3& position = worldMatrix.GetTranslation3();
+  const Vector3& scale = parentNode.GetScale( updateBufferIndex );
+  const Vector3& halfSize = parentNode.GetSize( updateBufferIndex ) * scale * 0.5f;
+
+  // Do a fast sphere check
+  if ( cameraAttachment.CheckSphereInFrustum( updateBufferIndex, position, halfSize.Length() ) )
   {
-    if ( rendererAttachment->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
+    // Check geometry AABB
+    if ( !cameraAttachment.CheckAABBInFrustum( updateBufferIndex, position, halfSize ) )
     {
-      // Get the geometry extents for frustum checking
-      const Vector3& position = worldMatrix.GetTranslation3();
-      const Geometry& geometry = rendererAttachment->GetGeometry();
-      const Vector3& scale = parentNode.GetScale( updateBufferIndex );
-
-      Vector3 center( geometry.mCenter[ updateBufferIndex ] );
-      center *= scale;
-      center += position;
-
-      // Do a fast sphere check
-      if ( cameraAttachment.CheckSphereInFrustum( updateBufferIndex, center, geometry.mRadius[ updateBufferIndex ] * scale.Length() ) )
-      {
-        // Check geometry AABB
-        if ( !cameraAttachment.CheckAABBInFrustum( updateBufferIndex, center, geometry.mHalfExtents[ updateBufferIndex ] * scale ) )
-        {
-          inside = false;
-        }
-      }
-      else
-      {
-        inside = false;
-      }
+      inside = false;
     }
   }
+  else
+  {
+    inside = false;
+  }
+
   if ( inside )
   {
     // Get the next free RenderItem

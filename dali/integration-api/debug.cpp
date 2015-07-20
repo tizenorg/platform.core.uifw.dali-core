@@ -35,6 +35,8 @@
 #include <dali/public-api/math/quaternion.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 
+#include "resource-types.h"
+
 namespace Dali
 {
 
@@ -78,6 +80,8 @@ std::string Array2DToString(const float *data, unsigned int rows, unsigned int c
 
 namespace Integration
 {
+
+int BitmapResourceType::mDebugCount = 0;
 
 namespace Log
 {

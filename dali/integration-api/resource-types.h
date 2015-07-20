@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <stdint.h>
 #include <string>
+#include <iostream>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -105,12 +106,18 @@ struct BitmapResourceType : public ResourceType
                       SamplingMode::Type samplingMode = SamplingMode::DEFAULT,
                       bool orientationCorrection = true )
   : ResourceType(ResourceBitmap),
-    size(size), scalingMode(scalingMode), samplingMode(samplingMode), orientationCorrection(orientationCorrection) {}
+    size(size), scalingMode(scalingMode), samplingMode(samplingMode), orientationCorrection(orientationCorrection)
+  {
+    std::cout << "BitmapResourceType count: " << ++mDebugCount << std::endl;
+  }
 
   /**
    * Destructor.
    */
-  virtual ~BitmapResourceType() {}
+  virtual ~BitmapResourceType()
+  {
+    std::cout << "BitmapResourceType count: " << --mDebugCount << std::endl;
+  }
 
   /**
    * @copydoc ResourceType::Clone
@@ -127,6 +134,8 @@ struct BitmapResourceType : public ResourceType
   FittingMode::Type scalingMode;
   SamplingMode::Type samplingMode;
   bool orientationCorrection;
+
+  static int mDebugCount;
 
 private:
 

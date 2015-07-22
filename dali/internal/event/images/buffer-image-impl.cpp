@@ -83,6 +83,15 @@ BufferImage::BufferImage(PixelBuffer* pixBuf, unsigned int width, unsigned int h
 
 BufferImage::~BufferImage()
 {
+  if (!mIsDataExternal)
+  {
+    Integration::Bitmap* const bitmap = GetBitmap();
+
+    if( bitmap )
+    {
+      bitmap->DeletePixelBuffer();
+    }
+  }
 }
 
 void BufferImage::Update( RectArea& updateArea )

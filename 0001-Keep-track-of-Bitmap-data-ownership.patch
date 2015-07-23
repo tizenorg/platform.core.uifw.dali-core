@@ -1,0 +1,651 @@
+From fca4d55f94d2c286b5af46e4af31122c32b0d3ce Mon Sep 17 00:00:00 2001
+From: Paul Wisbey <p.wisbey@samsung.com>
+Date: Thu, 23 Jul 2015 17:59:05 +0100
+Subject: [PATCH] Keep track of Bitmap data ownership
+
+i.e. Disard refers to whether the data can be released after uploading.
+ResourcePolicy::RETAIN does not mean that the data is externally owned.
+
+Change-Id: I550f227e5463d677ba7e5ac5e889989360834089
+---
+ automated-tests/src/dali-devel/utc-Dali-Atlas.cpp    |  2 +-
+ .../utc-Dali-Internal-Image-Culling.cpp              |  2 +-
+ .../dali-internal/utc-Dali-Internal-ImageFactory.cpp |  2 +-
+ .../utc-Dali-Internal-ResourceClient.cpp             | 20 ++++++++++----------
+ automated-tests/src/dali/utc-Dali-Image.cpp          |  4 ++--
+ automated-tests/src/dali/utc-Dali-ImageActor.cpp     | 20 ++++++++++----------
+ .../src/dali/utc-Dali-NinePatchImages.cpp            |  2 +-
+ automated-tests/src/dali/utc-Dali-RenderTask.cpp     |  2 +-
+ automated-tests/src/dali/utc-Dali-ResourceImage.cpp  |  4 ++--
+ automated-tests/src/dali/utc-Dali-ShaderEffect.cpp   |  2 +-
+ dali/integration-api/bitmap.cpp                      |  9 ++++++---
+ dali/integration-api/bitmap.h                        | 17 +++++++++--------
+ dali/integration-api/resource-policies.h             | 10 +++++-----
+ dali/internal/common/core-impl.cpp                   |  6 +++---
+ dali/internal/event/images/bitmap-compressed.h       |  2 +-
+ dali/internal/event/images/bitmap-external.cpp       |  2 +-
+ dali/internal/event/images/bitmap-packed-pixel.h     |  2 +-
+ dali/internal/event/resources/resource-client.cpp    | 18 +++++-------------
+ dali/internal/event/resources/resource-client.h      |  9 +--------
+ dali/internal/render/gl-resources/bitmap-texture.cpp |  4 ++--
+ .../gl-resources/compressed-bitmap-texture.cpp       |  2 +-
+ dali/internal/render/gl-resources/texture-cache.cpp  |  4 ++--
+ 22 files changed, 67 insertions(+), 78 deletions(-)
+
+diff --git a/automated-tests/src/dali-devel/utc-Dali-Atlas.cpp b/automated-tests/src/dali-devel/utc-Dali-Atlas.cpp
+index 137f40d..ef83df1 100644
+--- a/automated-tests/src/dali-devel/utc-Dali-Atlas.cpp
++++ b/automated-tests/src/dali-devel/utc-Dali-Atlas.cpp
+@@ -35,7 +35,7 @@ void PrepareResourceImage( TestApplication& application, unsigned int imageHeigh
+   TestPlatformAbstraction& platform = application.GetPlatform();
+   platform.SetClosestImageSize(Vector2( 16, 16));
+ 
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   Integration::PixelBuffer* pixbuffer = bitmap->GetPackedPixelsProfile()->ReserveBuffer( pixelFormat, imageWidth, imageHeight, imageWidth, imageHeight );
+   unsigned int bytesPerPixel = GetBytesPerPixel(  pixelFormat );
+   unsigned int initialColor = 0xFF;
+diff --git a/automated-tests/src/dali-internal/utc-Dali-Internal-Image-Culling.cpp b/automated-tests/src/dali-internal/utc-Dali-Internal-Image-Culling.cpp
+index e55d3e1..7297524 100644
+--- a/automated-tests/src/dali-internal/utc-Dali-Internal-Image-Culling.cpp
++++ b/automated-tests/src/dali-internal/utc-Dali-Internal-Image-Culling.cpp
+@@ -65,7 +65,7 @@ Image LoadImage( TestApplication& application, GLuint textureId, int width, int
+   ids.push_back( textureId );
+   application.GetGlAbstraction().SetNextTextureIds( ids );
+ 
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
+   Integration::ResourcePointer resource(bitmap);
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, width, height, width, height);
+   DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::LoadResourceFunc) );
+diff --git a/automated-tests/src/dali-internal/utc-Dali-Internal-ImageFactory.cpp b/automated-tests/src/dali-internal/utc-Dali-Internal-ImageFactory.cpp
+index 4d28e20..d0e63ad 100644
+--- a/automated-tests/src/dali-internal/utc-Dali-Internal-ImageFactory.cpp
++++ b/automated-tests/src/dali-internal/utc-Dali-Internal-ImageFactory.cpp
+@@ -43,7 +43,7 @@ static void EmulateImageLoaded( TestApplication& application, unsigned int width
+ {
+   // emulate load success
+   Integration::ResourceRequest* request = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::DISCARD );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_DISCARD );
+   Integration::ResourcePointer resource( bitmap );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, width, height, width, height );
+   if( request )
+diff --git a/automated-tests/src/dali-internal/utc-Dali-Internal-ResourceClient.cpp b/automated-tests/src/dali-internal/utc-Dali-Internal-ResourceClient.cpp
+index d4cf8f7..71855fc 100644
+--- a/automated-tests/src/dali-internal/utc-Dali-Internal-ResourceClient.cpp
++++ b/automated-tests/src/dali-internal/utc-Dali-Internal-ResourceClient.cpp
+@@ -105,7 +105,7 @@ Internal::ImagePtr LoadImage(TestApplication& application, char* name)
+   application.SendNotification(); // Flush update messages
+   application.Render();           // Process resource request
+   Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80,80,80,80 );
+   Integration::ResourcePointer resourcePtr(bitmap); // reference it
+   application.GetPlatform().SetResourceLoaded(req->GetId(), req->GetType()->id, resourcePtr);
+@@ -127,7 +127,7 @@ Internal::ResourceTicketPtr CheckLoadBitmap(TestApplication& application, const
+   application.SendNotification(); // Flush update messages
+   application.Render();           // Process resource request
+   Integration::ResourceRequest*   req = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, w, h, w, h );
+   Integration::ResourcePointer resourcePtr(bitmap); // reference it
+   application.GetPlatform().SetResourceLoaded(req->GetId(), req->GetType()->id, resourcePtr);
+@@ -193,7 +193,7 @@ int UtcDaliInternalRequestResourceBitmapRequests01(void)
+ 
+     // Create a resource
+     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+     bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80, 80, 80, 80 );
+     Integration::ResourcePointer resourcePtr(bitmap); // reference it
+ 
+@@ -406,7 +406,7 @@ int UtcDaliInternalRequestReloadBitmapRequests01(void)
+ 
+     // Create a new resource - the image size could have changed in the meantime
+     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-    Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++    Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+     bitmap2->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 120, 120, 120, 120 );
+     Integration::ResourcePointer resourcePtr2(bitmap2); // reference it
+     DALI_TEST_CHECK( req->GetId() == ticket->GetId() );
+@@ -504,7 +504,7 @@ int UtcDaliInternalRequestReloadBitmapRequests02(void)
+     DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetResourcesFunc ) );
+     // Create a resource
+     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+     bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80, 80, 80, 80 );
+     Integration::ResourcePointer resourcePtr(bitmap); // reference it
+ 
+@@ -613,7 +613,7 @@ int UtcDaliInternalRequestReloadBitmapRequests03(void)
+ 
+     // Create a resource
+     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+     bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80, 80, 80, 80 );
+     Integration::ResourcePointer resourcePtr(bitmap); // reference it
+ 
+@@ -657,7 +657,7 @@ int UtcDaliInternalRequestReloadBitmapRequests03(void)
+ 
+     // Create a new resource - the image size could have changed in the meantime
+     req = application.GetPlatform().GetRequest();
+-    Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++    Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+     bitmap2->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 120, 120, 120, 120 );
+     Integration::ResourcePointer resourcePtr2(bitmap2); // reference it
+     DALI_TEST_CHECK( req->GetId() == id );
+@@ -763,7 +763,7 @@ int UtcDaliInternalAddBitmapImage01(void)
+   tet_infoline("Testing AddBitmap with reserved buffer()");
+   testTicketObserver.Reset();
+   Internal::ResourceClient& resourceClient  = Internal::ThreadLocalStorage::Get().GetResourceClient();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::RETAIN  );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_RETAIN  );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGB565, 80, 80, 80, 80 );
+ 
+   Internal::ImageTicketPtr imageTicket = resourceClient.AddBitmapImage( bitmap );
+@@ -800,7 +800,7 @@ int UtcDaliInternalAddBitmapImage02(void)
+   tet_infoline("Testing AddBitmap without reserved buffer()");
+   testTicketObserver.Reset();
+   Internal::ResourceClient& resourceClient  = Internal::ThreadLocalStorage::Get().GetResourceClient();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::RETAIN  );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_RETAIN  );
+ 
+   Internal::ImageTicketPtr imageTicket = resourceClient.AddBitmapImage( bitmap );
+   DALI_TEST_CHECK( imageTicket );
+@@ -865,7 +865,7 @@ int UtcDaliInternalGetBitmapImage01(void)
+   testTicketObserver.Reset();
+ 
+   Internal::ResourceClient& resourceClient  = Internal::ThreadLocalStorage::Get().GetResourceClient();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::RETAIN  );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_RETAIN  );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 20, 20, 80, 80 );
+   Internal::ImageTicketPtr imageTicket = resourceClient.AddBitmapImage( bitmap );
+ 
+diff --git a/automated-tests/src/dali/utc-Dali-Image.cpp b/automated-tests/src/dali/utc-Dali-Image.cpp
+index 92a1c05..1c1ba77 100644
+--- a/automated-tests/src/dali/utc-Dali-Image.cpp
++++ b/automated-tests/src/dali/utc-Dali-Image.cpp
+@@ -42,7 +42,7 @@ namespace
+ void LoadBitmapResource(TestPlatformAbstraction& platform)
+ {
+   Integration::ResourceRequest* request = platform.GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
+   Integration::ResourcePointer resource(bitmap);
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, 80, 80, 80, 80);
+ 
+@@ -149,7 +149,7 @@ int UtcDaliImageSignalUploaded(void)
+   ids.push_back( 23 );
+   application.GetGlAbstraction().SetNextTextureIds( ids );
+   Integration::ResourceRequest* request = platform.GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
+   Integration::ResourcePointer resource(bitmap);
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, 80, 80, 80, 80);
+ 
+diff --git a/automated-tests/src/dali/utc-Dali-ImageActor.cpp b/automated-tests/src/dali/utc-Dali-ImageActor.cpp
+index ad80792..6c44479 100644
+--- a/automated-tests/src/dali/utc-Dali-ImageActor.cpp
++++ b/automated-tests/src/dali/utc-Dali-ImageActor.cpp
+@@ -274,7 +274,7 @@ int UtcDaliImageActorGetCurrentSize02(void)
+ 
+   // Now complete the image load
+   Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  initialImageSize.width,initialImageSize.height, initialImageSize.width,initialImageSize.height );
+ 
+   Integration::ResourcePointer resourcePtr(bitmap); // reference it
+@@ -320,7 +320,7 @@ int UtcDaliImageActorGetCurrentSize03(void)
+ 
+   // Now complete the image load
+   Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  closestImageSize.width, closestImageSize.height, closestImageSize.width, closestImageSize.height );
+ 
+   Integration::ResourcePointer resourcePtr(bitmap); // reference it
+@@ -356,7 +356,7 @@ int UtcDaliImageActorGetCurrentSize04(void)
+ 
+   // Now complete the image load
+   Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  closestImageSize.width, closestImageSize.height, closestImageSize.width, closestImageSize.height );
+ 
+   Integration::ResourcePointer resourcePtr(bitmap); // reference it
+@@ -395,7 +395,7 @@ int UtcDaliImageActorGetCurrentSize04(void)
+ 
+   // Now complete the image load
+   req = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   bitmap2->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  image2ClosestSize.width, image2ClosestSize.height, image2ClosestSize.width, image2ClosestSize.height );
+ 
+   Integration::ResourcePointer resourcePtr2(bitmap2); // reference it
+@@ -432,7 +432,7 @@ int UtcDaliImageActorGetCurrentSize05(void)
+ 
+   // Now complete the image load
+   Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  closestImageSize.width, closestImageSize.height, closestImageSize.width, closestImageSize.height );
+ 
+   Integration::ResourcePointer resourcePtr(bitmap); // reference it
+@@ -463,7 +463,7 @@ int UtcDaliImageActorGetCurrentSize05(void)
+ 
+   // Now complete the image load
+   req = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   bitmap2->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  image2ClosestSize.width, image2ClosestSize.height, image2ClosestSize.width, image2ClosestSize.height );
+ 
+   Integration::ResourcePointer resourcePtr2(bitmap2); // reference it
+@@ -508,7 +508,7 @@ int UtcDaliImageActorNaturalPixelAreaSize01(void)
+ 
+   // Now complete the image load
+   Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  closestImageSize.width, closestImageSize.height, closestImageSize.width, closestImageSize.height );
+ 
+   Integration::ResourcePointer resourcePtr(bitmap); // reference it
+@@ -569,7 +569,7 @@ int UtcDaliImageActorNaturalPixelAreaSize02(void)
+ 
+   // Now complete the image load
+   Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  closestImageSize.width, closestImageSize.height, closestImageSize.width, closestImageSize.height );
+ 
+   Integration::ResourcePointer resourcePtr(bitmap); // reference it
+@@ -891,7 +891,7 @@ int UtcDaliImageActorNinePatch01(void)
+   tet_infoline("Test the successful loading of a nine-patch image\n");
+ 
+   platform.SetClosestImageSize(Vector2(4, 4));
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   Integration::PixelBuffer* pixels = bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  4,4,4,4 );
+   memset( pixels, 0, 64 );
+ 
+@@ -984,7 +984,7 @@ int UtcDaliImageActorNinePatch03(void)
+   tet_infoline("Test the successful loading of a nine-patch image added using ImageActor::SetImage()\n");
+ 
+   platform.SetClosestImageSize(Vector2(4, 4));
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   Integration::PixelBuffer* pixels = bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  4,4,4,4 );
+   memset( pixels, 0, 64 );
+ 
+diff --git a/automated-tests/src/dali/utc-Dali-NinePatchImages.cpp b/automated-tests/src/dali/utc-Dali-NinePatchImages.cpp
+index 6676c33..eea7054 100644
+--- a/automated-tests/src/dali/utc-Dali-NinePatchImages.cpp
++++ b/automated-tests/src/dali/utc-Dali-NinePatchImages.cpp
+@@ -27,7 +27,7 @@ namespace {
+ 
+ Integration::Bitmap* CreateBitmap( unsigned int imageHeight, unsigned int imageWidth, unsigned int initialColor, Pixel::Format pixelFormat )
+ {
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   Integration::PixelBuffer* pixbuffer = bitmap->GetPackedPixelsProfile()->ReserveBuffer( pixelFormat,  imageWidth,imageHeight,imageWidth,imageHeight );
+   unsigned int bytesPerPixel = GetBytesPerPixel(  pixelFormat );
+ 
+diff --git a/automated-tests/src/dali/utc-Dali-RenderTask.cpp b/automated-tests/src/dali/utc-Dali-RenderTask.cpp
+index dfa1ca1..74bd263 100644
+--- a/automated-tests/src/dali/utc-Dali-RenderTask.cpp
++++ b/automated-tests/src/dali/utc-Dali-RenderTask.cpp
+@@ -203,7 +203,7 @@ void CompleteImageLoad(TestApplication& application, Integration::ResourceId res
+   ids.push_back( 23 );
+   application.GetGlAbstraction().SetNextTextureIds( ids );
+ 
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
+   Integration::ResourcePointer resource(bitmap);
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, 80, 80, 80, 80);
+ 
+diff --git a/automated-tests/src/dali/utc-Dali-ResourceImage.cpp b/automated-tests/src/dali/utc-Dali-ResourceImage.cpp
+index 5d03f7d..df2ee7e 100644
+--- a/automated-tests/src/dali/utc-Dali-ResourceImage.cpp
++++ b/automated-tests/src/dali/utc-Dali-ResourceImage.cpp
+@@ -41,7 +41,7 @@ namespace
+ void LoadBitmapResource(TestPlatformAbstraction& platform)
+ {
+   Integration::ResourceRequest* request = platform.GetRequest();
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
+   Integration::ResourcePointer resource(bitmap);
+   bitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, 80, 80, 80, 80);
+ 
+@@ -480,7 +480,7 @@ int UtcDaliResourceImageSignalLoadingFinished(void)
+   Integration::ResourceRequest* request = application.GetPlatform().GetRequest();
+   if(request)
+   {
+-    application.GetPlatform().SetResourceLoaded(request->GetId(), request->GetType()->id, Integration::ResourcePointer(Integration::Bitmap::New(Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD)));
++    application.GetPlatform().SetResourceLoaded(request->GetId(), request->GetType()->id, Integration::ResourcePointer(Integration::Bitmap::New(Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD)));
+   }
+ 
+   application.Render(16);
+diff --git a/automated-tests/src/dali/utc-Dali-ShaderEffect.cpp b/automated-tests/src/dali/utc-Dali-ShaderEffect.cpp
+index 1ebee48..16c2921 100644
+--- a/automated-tests/src/dali/utc-Dali-ShaderEffect.cpp
++++ b/automated-tests/src/dali/utc-Dali-ShaderEffect.cpp
+@@ -93,7 +93,7 @@ static const char* TestImageFilename = "icon_wrt.png";
+ 
+ Integration::Bitmap* CreateBitmap( unsigned int imageHeight, unsigned int imageWidth, unsigned int initialColor )
+ {
+-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   Integration::PixelBuffer* pixbuffer = bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888,  imageWidth,imageHeight,imageWidth,imageHeight );
+   unsigned int bytesPerPixel = GetBytesPerPixel(  Pixel::RGBA8888 );
+ 
+diff --git a/dali/integration-api/bitmap.cpp b/dali/integration-api/bitmap.cpp
+index 1eb95b4..41d5327 100644
+--- a/dali/integration-api/bitmap.cpp
++++ b/dali/integration-api/bitmap.cpp
+@@ -245,7 +245,7 @@ void ConvertToGlFormat( Format pixelformat, unsigned& pixelDataType, unsigned& i
+ }
+ 
+ Bitmap* Bitmap::New( const Profile profile = BITMAP_2D_PACKED_PIXELS,
+-                     ResourcePolicy::Discardable discardable = ResourcePolicy::DISCARD )
++                     ResourcePolicy::Discardable discardable = ResourcePolicy::OWNED_DISCARD )
+ {
+   DALI_ASSERT_DEBUG(profile == BITMAP_2D_PACKED_PIXELS || profile == BITMAP_COMPRESSED);
+ 
+@@ -284,7 +284,7 @@ Bitmap::Bitmap( ResourcePolicy::Discardable discardable, Dali::Integration::Pixe
+ 
+ void Bitmap::DiscardBuffer()
+ {
+-  if( mDiscardable == ResourcePolicy::DISCARD )
++  if( mDiscardable == ResourcePolicy::OWNED_DISCARD )
+   {
+     DeletePixelBuffer();
+   }
+@@ -303,7 +303,10 @@ PixelBuffer* Bitmap::ReleaseBuffer()
+ Bitmap::~Bitmap()
+ {
+   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
+-  if( mDiscardable == ResourcePolicy::DISCARD )
++
++  // If owned
++  if( mDiscardable == ResourcePolicy::OWNED_DISCARD ||
++      mDiscardable == ResourcePolicy::OWNED_RETAIN )
+   {
+     DeletePixelBuffer();
+   }
+diff --git a/dali/integration-api/bitmap.h b/dali/integration-api/bitmap.h
+index 977fb1e..7363abe 100644
+--- a/dali/integration-api/bitmap.h
++++ b/dali/integration-api/bitmap.h
+@@ -61,7 +61,7 @@ protected:
+    * @param[in] discardable Flag to tell the bitmap if it can delete the buffer with the pixel data.
+    * @param[in] pixBuf External buffer of pixel data or null.
+    */
+-  Bitmap( ResourcePolicy::Discardable discardable = ResourcePolicy::RETAIN, Dali::Integration::PixelBuffer* pixBuf = 0 );
++  Bitmap( ResourcePolicy::Discardable discardable = ResourcePolicy::OWNED_RETAIN, Dali::Integration::PixelBuffer* pixBuf = 0 );
+ 
+   /**
+    * Initializes internal class members
+@@ -94,12 +94,13 @@ public:
+    * wrap this in a reference-counting smart pointer or store it in a similarly
+    * automatic owning collection.
+    * @param[in] profile Defines required features of the bitmap (\sa Profile).
+-   * @param[in] discardable If this is set to DISCARD, the bitmap
+-   * object owns it's own buffer of pixel data and can delete it. If
+-   * it's set to RETAIN, then the lifetime of the pixel buffer is
+-   * managed by an external component and is guaranteed to remain
+-   * dereferenceable at least as long as the Bitmap remains alive.
+-   **/
++   * @param[in] discardable OWNED_DISCARD means that the data is owned by bitmap,
++   * and may released away after uploading to GPU.
++   * OWNED_RETAIN means that the data is owned and must be kept in CPU memory
++   * e.g. for an image that cannot be reloaded from disk.
++   * NOT_OWNED means that the data is managed by an external component and is
++   * guaranteed to remain dereferenceable at least as long as the Bitmap remains alive.
++   */
+   static Bitmap* New( Profile profile, ResourcePolicy::Discardable discardable );
+ 
+   /** \name GeneralFeatures
+@@ -307,7 +308,7 @@ public:
+    */
+   bool IsDiscardable() const
+   {
+-    return mDiscardable == ResourcePolicy::DISCARD;
++    return mDiscardable == ResourcePolicy::OWNED_DISCARD;
+   }
+ 
+  /**
+diff --git a/dali/integration-api/resource-policies.h b/dali/integration-api/resource-policies.h
+index 524e5aa..acd4451 100644
+--- a/dali/integration-api/resource-policies.h
++++ b/dali/integration-api/resource-policies.h
+@@ -28,18 +28,18 @@ namespace ResourcePolicy
+ enum DataRetention
+ {
+   DALI_RETAINS_ALL_DATA,  // retains Meshes and bitmaps
+-  DALI_RETAINS_MESH_DATA, // retains meshes, but discards bitmaps loaded from files
+   DALI_DISCARDS_ALL_DATA, // discards all data (expects application to regenerate UI on context loss)
+ };
+ 
+ /**
+- * The discardable policy describes whether a resource can be discarded (i.e. it is throw-away
+- * or recoverable)
++ * The discardable policy describes whether a resource is owned or can be discarded.
++ * Discarded means that it can be released after uploading to GPU.
+  */
+ enum Discardable
+ {
+-  DISCARD, // @todo Change to IS_RECOVERABLE?
+-  RETAIN
++  OWNED_DISCARD,
++  OWNED_RETAIN,
++  NOT_OWNED
+ };
+ 
+ } // namespace ResourcePolicy
+diff --git a/dali/internal/common/core-impl.cpp b/dali/internal/common/core-impl.cpp
+index 1e9f06c..f73b1e6 100644
+--- a/dali/internal/common/core-impl.cpp
++++ b/dali/internal/common/core-impl.cpp
+@@ -117,10 +117,10 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
+   RenderQueue& renderQueue = mRenderManager->GetRenderQueue();
+   TextureCache& textureCache = mRenderManager->GetTextureCache();
+ 
+-  ResourcePolicy::Discardable discardPolicy = ResourcePolicy::DISCARD;
++  ResourcePolicy::Discardable discardPolicy = ResourcePolicy::OWNED_DISCARD;
+   if( dataRetentionPolicy == ResourcePolicy::DALI_RETAINS_ALL_DATA )
+   {
+-    discardPolicy = ResourcePolicy::RETAIN;
++    discardPolicy = ResourcePolicy::OWNED_RETAIN;
+   }
+   textureCache.SetDiscardBitmapsPolicy(discardPolicy);
+ 
+@@ -157,7 +157,7 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
+ 
+   mStage->Initialize();
+ 
+-  mResourceClient = new ResourceClient( *mResourceManager, *mStage, dataRetentionPolicy );
++  mResourceClient = new ResourceClient( *mResourceManager, *mStage );
+ 
+   mGestureEventProcessor = new GestureEventProcessor(*mStage, gestureManager, mRenderController);
+   mEventProcessor = new EventProcessor(*mStage, *mNotificationManager, *mGestureEventProcessor);
+diff --git a/dali/internal/event/images/bitmap-compressed.h b/dali/internal/event/images/bitmap-compressed.h
+index 752757d..85241e9 100644
+--- a/dali/internal/event/images/bitmap-compressed.h
++++ b/dali/internal/event/images/bitmap-compressed.h
+@@ -45,7 +45,7 @@ public:
+    * Constructor
+    * @param[in] discardable Flag to tell the bitmap if it can delete the buffer with the pixel data.
+    */
+-  BitmapCompressed( ResourcePolicy::Discardable discardable = ResourcePolicy::RETAIN );
++  BitmapCompressed( ResourcePolicy::Discardable discardable = ResourcePolicy::OWNED_RETAIN );
+ 
+   virtual const Bitmap::CompressedProfile* GetCompressedProfile() const { return this; }
+   virtual Bitmap::CompressedProfile* GetCompressedProfile() { return this; }
+diff --git a/dali/internal/event/images/bitmap-external.cpp b/dali/internal/event/images/bitmap-external.cpp
+index 58d5609..d4a81dd 100644
+--- a/dali/internal/event/images/bitmap-external.cpp
++++ b/dali/internal/event/images/bitmap-external.cpp
+@@ -34,7 +34,7 @@ BitmapExternal::BitmapExternal(Dali::Integration::PixelBuffer* pixBuf,
+                Pixel::Format pixelFormat,
+                unsigned int bufferWidth,
+                unsigned int bufferHeight)
+-: BitmapPackedPixel(ResourcePolicy::RETAIN, NULL/*pixBuf is externally owned*/),
++: BitmapPackedPixel(ResourcePolicy::NOT_OWNED, NULL/*pixBuf is externally owned*/),
+   mExternalData(pixBuf)
+ {
+   mImageWidth   = width;
+diff --git a/dali/internal/event/images/bitmap-packed-pixel.h b/dali/internal/event/images/bitmap-packed-pixel.h
+index 32f9231..4fc6967 100644
+--- a/dali/internal/event/images/bitmap-packed-pixel.h
++++ b/dali/internal/event/images/bitmap-packed-pixel.h
+@@ -48,7 +48,7 @@ public:
+    * Constructor
+    * @param[in] discardable Flag to tell the bitmap if it can delete the buffer with the pixel data.
+    */
+-  BitmapPackedPixel( ResourcePolicy::Discardable discardable = ResourcePolicy::RETAIN, Dali::Integration::PixelBuffer* pixBuf = 0 );
++  BitmapPackedPixel( ResourcePolicy::Discardable discardable = ResourcePolicy::OWNED_RETAIN, Dali::Integration::PixelBuffer* pixBuf = 0 );
+ 
+ public:
+   virtual const Bitmap::PackedPixelsProfile* GetPackedPixelsProfile() const { return this; }
+diff --git a/dali/internal/event/resources/resource-client.cpp b/dali/internal/event/resources/resource-client.cpp
+index e6274e8..4d8a755 100644
+--- a/dali/internal/event/resources/resource-client.cpp
++++ b/dali/internal/event/resources/resource-client.cpp
+@@ -44,25 +44,22 @@ typedef BitmapCache::iterator                        BitmapCacheIter;
+ 
+ struct ResourceClient::Impl
+ {
+-  Impl(ResourcePolicy::DataRetention dataRetentionPolicy)
+-  : mNextId(0),
+-    mDataRetentionPolicy( dataRetentionPolicy )
++  Impl()
++  : mNextId(0)
+   {
+   }
+ 
+   ResourceId       mNextId;
+   TicketContainer  mTickets;
+   BitmapCache      mBitmaps;
+-  ResourcePolicy::DataRetention mDataRetentionPolicy;
+ };
+ 
+ ResourceClient::ResourceClient( ResourceManager& resourceManager,
+-                                EventThreadServices& eventThreadServices,
+-                                ResourcePolicy::DataRetention dataRetentionPolicy)
++                                EventThreadServices& eventThreadServices)
+ : mResourceManager(resourceManager),
+   mEventThreadServices(eventThreadServices)
+ {
+-  mImpl = new ResourceClient::Impl(dataRetentionPolicy);
++  mImpl = new ResourceClient::Impl();
+   mResourceManager.SetClient(*this);
+ }
+ 
+@@ -79,11 +76,6 @@ ResourceClient::~ResourceClient()
+   delete mImpl;
+ }
+ 
+-ResourcePolicy::DataRetention ResourceClient::GetResourceDataRetentionPolicy()
+-{
+-  return mImpl->mDataRetentionPolicy;
+-}
+-
+ ResourceTicketPtr ResourceClient::RequestResource(
+   const ResourceType& type,
+   const std::string& path,
+@@ -228,7 +220,7 @@ ImageTicketPtr ResourceClient::AllocateBitmapImage( unsigned int width,
+                                                     Pixel::Format pixelformat )
+ {
+   /* buffer is available via public-api, therefore not discardable */
+-  Bitmap* const bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
++  Bitmap* const bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+   Bitmap::PackedPixelsProfile* const packedBitmap = bitmap->GetPackedPixelsProfile();
+   DALI_ASSERT_DEBUG(packedBitmap);
+ 
+diff --git a/dali/internal/event/resources/resource-client.h b/dali/internal/event/resources/resource-client.h
+index 055c9e2..8433bde 100644
+--- a/dali/internal/event/resources/resource-client.h
++++ b/dali/internal/event/resources/resource-client.h
+@@ -72,11 +72,9 @@ public:
+    * There should exactly one of these objects per Dali Core.
+    * @param[in] resourceManager The resource manager
+    * @param[in] eventThreadServices Used for messaging to and reading from scene-graph.
+-   * @param[in] dataRetentionPolicy The data retention policy of the current application
+    */
+   ResourceClient( ResourceManager& resourceManager,
+-                  EventThreadServices& eventThreadServices,
+-                  ResourcePolicy::DataRetention dataRetentionPolicy );
++                  EventThreadServices& eventThreadServices );
+ 
+   /**
+    * Virtual destructor.
+@@ -84,11 +82,6 @@ public:
+   virtual ~ResourceClient();
+ 
+ public:
+-  /**
+-   * Get the global data retention policy.
+-   * @return the global data retention policy
+-   */
+-  ResourcePolicy::DataRetention GetResourceDataRetentionPolicy();
+ 
+   /**
+    * Request a resource from the native filesystem.
+diff --git a/dali/internal/render/gl-resources/bitmap-texture.cpp b/dali/internal/render/gl-resources/bitmap-texture.cpp
+index cbabab6..d325162 100644
+--- a/dali/internal/render/gl-resources/bitmap-texture.cpp
++++ b/dali/internal/render/gl-resources/bitmap-texture.cpp
+@@ -367,9 +367,9 @@ unsigned int BitmapTexture::GetHeight() const
+ 
+ void BitmapTexture::DiscardBitmapBuffer()
+ {
+-  DALI_LOG_INFO(Debug::Filter::gImage, Debug::General, "BitmapTexture::DiscardBitmapBuffer() DiscardPolicy: %s\n", mDiscardPolicy == ResourcePolicy::DISCARD?"DISCARD":"RETAIN");
++  DALI_LOG_INFO(Debug::Filter::gImage, Debug::General, "BitmapTexture::DiscardBitmapBuffer() DiscardPolicy: %s\n", mDiscardPolicy == ResourcePolicy::OWNED_DISCARD?"DISCARD":"RETAIN");
+ 
+-  if( ResourcePolicy::DISCARD == mDiscardPolicy )
++  if( ResourcePolicy::OWNED_DISCARD == mDiscardPolicy )
+   {
+     DALI_LOG_INFO(Debug::Filter::gImage, Debug::General, "  Discarding bitmap\n");
+     mBitmap->DiscardBuffer();
+diff --git a/dali/internal/render/gl-resources/compressed-bitmap-texture.cpp b/dali/internal/render/gl-resources/compressed-bitmap-texture.cpp
+index 014e631..1830d43 100644
+--- a/dali/internal/render/gl-resources/compressed-bitmap-texture.cpp
++++ b/dali/internal/render/gl-resources/compressed-bitmap-texture.cpp
+@@ -135,7 +135,7 @@ void CompressedBitmapTexture::Update( Integration::Bitmap* bitmap )
+     {
+       AssignBitmap( false, pixels, mBitmap->GetBufferSize() );
+ 
+-      if( mDiscardPolicy == ResourcePolicy::DISCARD )
++      if( mDiscardPolicy == ResourcePolicy::OWNED_DISCARD )
+       {
+         mBitmap->DiscardBuffer();
+       }
+diff --git a/dali/internal/render/gl-resources/texture-cache.cpp b/dali/internal/render/gl-resources/texture-cache.cpp
+index 050bfdb..d11fac0 100644
+--- a/dali/internal/render/gl-resources/texture-cache.cpp
++++ b/dali/internal/render/gl-resources/texture-cache.cpp
+@@ -80,7 +80,7 @@ TextureCache::TextureCache( RenderQueue& renderQueue,
+ : TextureCacheDispatcher(renderQueue),
+   mPostProcessResourceDispatcher(postProcessResourceDispatcher),
+   mContext(context),
+-  mDiscardBitmapsPolicy(ResourcePolicy::DISCARD)
++  mDiscardBitmapsPolicy(ResourcePolicy::OWNED_DISCARD)
+ {
+ }
+ 
+@@ -417,7 +417,7 @@ void TextureCache::GlContextDestroyed()
+ void TextureCache::SetDiscardBitmapsPolicy( ResourcePolicy::Discardable policy )
+ {
+   DALI_LOG_INFO( gTextureCacheFilter, Debug::General, "TextureCache::SetDiscardBitmapsPolicy(%s)\n",
+-                 policy==ResourcePolicy::RETAIN?"RETAIN":"DISCARD" );
++                 policy==ResourcePolicy::OWNED_DISCARD?"DISCARD":"RETAIN" );
+   mDiscardBitmapsPolicy = policy;
+ }
+ 
+-- 
+1.9.1
+

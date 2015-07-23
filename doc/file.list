@@ -1,0 +1,2 @@
+package_doc_files = \
+  $(package_doc_dir)/dali_doc.h

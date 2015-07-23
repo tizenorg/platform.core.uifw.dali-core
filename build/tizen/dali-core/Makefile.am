@@ -31,6 +31,9 @@ include ../../../dali/devel-api/file.list
 platform_abstraction_src_dir = ../../../dali/integration-api
 include ../../../dali/integration-api/file.list
 
+package_doc_dir = ../../../doc
+include ../../../doc/file.list
+
 # Build the Dali libtool library
 
 src_files = $(internal_src_files) \
@@ -135,6 +138,10 @@ publicapisignals_HEADERS = $(public_api_core_signals_header_files)
 
 CLEANFILES = dali-shaders.cpp \
              dali-shaders.h
+
+#package doc (contains doxygen grouping information)
+packagedocdir = $(devincludepath)/doc
+packagedoc_HEADERS = $(package_doc_files)
 
 # linking test
 

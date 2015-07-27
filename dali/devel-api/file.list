@@ -14,7 +14,8 @@ devel_api_src_files = \
   $(devel_api_src_dir)/rendering/renderer.cpp \
   $(devel_api_src_dir)/rendering/sampler.cpp \
   $(devel_api_src_dir)/rendering/shader.cpp \
-  $(devel_api_src_dir)/scripting/scripting.cpp
+  $(devel_api_src_dir)/scripting/scripting.cpp \
+  $(devel_api_src_dir)/signals/signal-delegate.cpp
 
 # Add devel header files here DALi internal developer files used by Adaptor & Toolkit
 
@@ -46,6 +47,9 @@ devel_api_core_rendering_header_files = \
   $(devel_api_src_dir)/rendering/renderer.h \
   $(devel_api_src_dir)/rendering/sampler.h \
   $(devel_api_src_dir)/rendering/shader.h
+
+devel_api_core_signals_header_files = \
+  $(devel_api_src_dir)/signals/signal-delegate.h
 
 devel_api_core_scripting_header_files = \
   $(devel_api_src_dir)/scripting/scripting.h

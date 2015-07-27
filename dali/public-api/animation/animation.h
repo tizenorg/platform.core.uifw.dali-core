@@ -133,6 +133,24 @@ public:
   };
 
   /**
+   * @brief Used by AnimationData to describe part of an animation.
+   */
+  typedef struct
+  {
+    std::string actor;
+    std::string property;
+    Property::Value value;
+    AlphaFunction alphaFunction;
+    float timePeriodDelay;
+    float timePeriodDuration;
+  } AnimationDataElement;
+
+  /**
+   * @brief Holds the required data required to perform an animation on an actor or actors.
+   */
+  typedef std::vector< Dali::Animation::AnimationDataElement > AnimationData;
+
+  /**
    * @brief Create an uninitialized Animation; this can be initialized with Animation::New().
    *
    * Calling member functions with an uninitialized Dali::Object is not allowed.
@@ -262,12 +280,15 @@ public:
 
   /*
    * @brief Sets the progress of the animation.
-   * The animation will play (or continue playing) from this point. The progress
-   * must be in the 0-1 interval or in the play range interval if defined ( See SetPlayRange ),
-   * otherwise, it will be ignored.
    *
-   * @param[in] progress The new progress as a normalized value between [0,1] or between the
-   * play range if specified.
+   * When played, the animation will start from this point.
+   * If playing, the animation will jump to, and continue playing from this point.
+   *
+   * The progress must be in the 0-1 interval or in the play range interval
+   * if defined ( See SetPlayRange ), otherwise, it will be ignored.
+   *
+   * @param[in] progress The new progress as a normalized value between [0,1]
+   * or between the play range if specified.
    */
   void SetCurrentProgress( float progress );
 

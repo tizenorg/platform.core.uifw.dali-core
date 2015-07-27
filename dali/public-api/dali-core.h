@@ -117,7 +117,6 @@
 #include <dali/public-api/signals/functor-delegate.h>
 #include <dali/public-api/signals/signal-slot-connections.h>
 #include <dali/public-api/signals/signal-slot-observers.h>
-#include <dali/public-api/signals/slot-delegate.h>
 
 #include <dali/public-api/shader-effects/shader-effect.h>
 

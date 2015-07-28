@@ -36,11 +36,17 @@ int UtcDaliActorAddRendererP(void)
 
   Geometry geometry = CreateQuadGeometry();
   Material material = CreateMaterial(1.0f);
-  Renderer renderer = Renderer::New(geometry, material);
+  Renderer renderer0 = Renderer::New(geometry, material);
 
-  actor.AddRenderer( renderer );
+  actor.AddRenderer( renderer0 );
   DALI_TEST_EQUALS( actor.GetRendererCount(), 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer0, TEST_LOCATION );
+
+  Renderer renderer1 = Renderer::New(geometry, material);
+  actor.AddRenderer( renderer1 );
+  DALI_TEST_EQUALS( actor.GetRendererCount(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer0, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(1), renderer1, TEST_LOCATION );
 
   END_TEST;
 }
@@ -117,15 +123,96 @@ int UtcDaliActorRemoveRendererP(void)
 
   Geometry geometry = CreateQuadGeometry();
   Material material = CreateMaterial(1.0f);
-  Renderer renderer = Renderer::New(geometry, material);
+  Renderer renderer0 = Renderer::New(geometry, material);
 
-  actor.AddRenderer( renderer );
+  actor.AddRenderer( renderer0 );
   DALI_TEST_EQUALS( actor.GetRendererCount(), 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer0, TEST_LOCATION );
 
-  actor.RemoveRenderer(0);
+  Renderer renderer1 = Renderer::New(geometry, material);
+  actor.AddRenderer( renderer1 );
+  DALI_TEST_EQUALS( actor.GetRendererCount(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer0, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(1), renderer1, TEST_LOCATION );
+
+  actor.RemoveRenderer(renderer0);
+  DALI_TEST_EQUALS( actor.GetRendererCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer1, TEST_LOCATION );
+
+  actor.RemoveRenderer(renderer1);
   DALI_TEST_EQUALS( actor.GetRendererCount(), 0u, TEST_LOCATION );
 
+  END_TEST;
+}
+
+int UtcDaliAGetRendererAtP(void)
+{
+  tet_infoline("Testing Actor::GetRendererAt");
+  TestApplication application;
+
+  Actor actor = Actor::New();
+
+  Geometry geometry = CreateQuadGeometry();
+  Material material = CreateMaterial(1.0f);
+  Renderer renderer0 = Renderer::New(geometry, material);
+  Renderer renderer1 = Renderer::New(geometry, material);
+  Renderer renderer2 = Renderer::New(geometry, material);
+  Renderer renderer3 = Renderer::New(geometry, material);
+
+  actor.AddRenderer( renderer0 );
+  actor.AddRenderer( renderer1 );
+  actor.AddRenderer( renderer2 );
+  actor.AddRenderer( renderer3 );
+
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer0, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(1), renderer1, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(2), renderer2, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(3), renderer3, TEST_LOCATION );
+
+  actor.RemoveRenderer( renderer0 );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer1, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(1), renderer2, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(2), renderer3, TEST_LOCATION );
+
+  actor.AddRenderer( renderer0 );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer1, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(1), renderer2, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(2), renderer3, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(3), renderer0, TEST_LOCATION );
+
+  actor.RemoveRenderer( renderer2 );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer1, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(1), renderer3, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(2), renderer0, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliAGetRendererAtN(void)
+{
+  tet_infoline("Testing Actor::GetRendererAt");
+  TestApplication application;
+
+  Actor actor = Actor::New();
+
+  // try illegal GetRendereAt
+  try
+  {
+    Renderer renderer = actor.GetRendererAt( 0 );
+    tet_printf("Assertion test failed - no Exception\n" );
+    tet_result(TET_FAIL);
+  }
+  catch(Dali::DaliException& e)
+  {
+    DALI_TEST_EQUALS( actor.GetRendererCount(), 0u, TEST_LOCATION );
+    DALI_TEST_PRINT_ASSERT( e );
+    DALI_TEST_ASSERT(e, "index < mRendererAttachment.size()", TEST_LOCATION);
+  }
+  catch(...)
+  {
+    tet_printf("Assertion test failed - wrong Exception\n" );
+    tet_result(TET_FAIL);
+  }
 
   END_TEST;
 }

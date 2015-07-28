@@ -81,13 +81,14 @@ void ConstrainNodes( Node& node, BufferIndex updateBufferIndex )
 {
   ConstrainPropertyOwner( node, updateBufferIndex );
 
-  if( node.HasAttachment() )
+  unsigned int attachmentCount( node.GetAttachmentCount() );
+  for( unsigned int i(0); i<attachmentCount; ++i )
   {
     // @todo MESH_REWORK Remove dynamic cast.
     // (Or, if RendererAttachment split into RendererPropertyOwner(?),
     // do as separate pass as per other mesh objects - see also
     // UpdateManager::ResetNodeProperty())
-    NodeAttachment& attachment = node.GetAttachment();
+    NodeAttachment& attachment = node.GetAttachment(i);
     PropertyOwner* propertyOwner = dynamic_cast< PropertyOwner* >( &attachment );
     if( propertyOwner != NULL )
     {
@@ -376,25 +377,29 @@ inline int UpdateNodesAndAttachments( Node& node,
   // Setting STENCIL will override OVERLAY_2D, if that would otherwise have been inherited.
   inheritedDrawMode |= node.GetDrawMode();
 
-  if ( node.HasAttachment() )
+  unsigned int attachmentCount( node.GetAttachmentCount() );
+  if( attachmentCount > 0 )
   {
-    /*
-     * Add renderables for the children into the current Layer
-     */
-    RenderableAttachment* renderable = UpdateAttachment( node.GetAttachment(),
-                                                         node,
-                                                         updateBufferIndex,
-                                                         resourceManager,
-                                                         nodeDirtyFlags );
-
-
-    if( NULL != renderable )
+    for( unsigned int i(0); i<attachmentCount; ++i )
     {
-      // Update the world matrix after renderable update; the ScaleForSize property should now be calculated
-      UpdateNodeWorldMatrix( node, *renderable, nodeDirtyFlags, updateBufferIndex );
+      /*
+       * Add renderables for the children into the current Layer
+       */
+      RenderableAttachment* renderable = UpdateAttachment( node.GetAttachment(i),
+                                                           node,
+                                                           updateBufferIndex,
+                                                           resourceManager,
+                                                           nodeDirtyFlags );
 
-      // The attachment is ready to render, so it is added to a set of renderables.
-      AddRenderableToLayer( *layer, *renderable, updateBufferIndex, inheritedDrawMode );
+
+      if( NULL != renderable )
+      {
+        // Update the world matrix after renderable update; the ScaleForSize property should now be calculated
+        UpdateNodeWorldMatrix( node, *renderable, nodeDirtyFlags, updateBufferIndex );
+
+        // The attachment is ready to render, so it is added to a set of renderables.
+        AddRenderableToLayer( *layer, *renderable, updateBufferIndex, inheritedDrawMode );
+      }
     }
   }
   else if( node.IsObserved() )

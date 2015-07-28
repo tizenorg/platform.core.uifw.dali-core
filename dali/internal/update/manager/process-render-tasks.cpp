@@ -135,9 +135,10 @@ static bool AddRenderablesForTask( BufferIndex updateBufferIndex,
 
   inheritedDrawMode |= node.GetDrawMode();
 
-  if ( node.HasAttachment() )
+  unsigned int attachmentCount( node.GetAttachmentCount() );
+  for( unsigned int i(0); i<attachmentCount; ++i )
   {
-    RenderableAttachment* renderable = node.GetAttachment().GetRenderable(); // not all attachments render
+    RenderableAttachment* renderable = node.GetAttachment(i).GetRenderable(); // not all attachments render
     if ( renderable )
     {
       bool visible = renderable->HasVisibleSizeAndColor();

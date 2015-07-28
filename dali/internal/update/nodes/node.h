@@ -169,16 +169,24 @@ public:
    */
   bool HasAttachment() const
   {
-    return mAttachment;
+    return mAttachment.Count() > 0;
   }
 
+  /**
+   * Query the number of attachments
+   * @return The number of attachments in the node
+   */
+  unsigned int GetAttachmentCount() const
+  {
+    return mAttachment.Count();
+  }
   /**
    * Retreive the object attached to this node.
    * @return The attachment.
    */
-  NodeAttachment& GetAttachment() const
+  NodeAttachment& GetAttachment(unsigned int index) const
   {
-    return *mAttachment;
+    return *mAttachment[index];
   }
 
   // Containment methods
@@ -1008,7 +1016,8 @@ protected:
   Node*               mParent;                       ///< Pointer to parent node (a child is owned by its parent)
   RenderTask*         mExclusiveRenderTask;          ///< Nodes can be marked as exclusive to a single RenderTask
 
-  NodeAttachmentOwner mAttachment;                   ///< Optional owned attachment
+  //NodeAttachmentOwner mAttachment;                   ///< Optional owned attachment
+  NodeAttachmentOwnerContainer mAttachment;
   NodeContainer       mChildren;                     ///< Container of children; not owned
 
 

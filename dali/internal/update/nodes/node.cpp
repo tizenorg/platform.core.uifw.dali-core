@@ -57,7 +57,6 @@ Node::Node()
   mWorldColor( Color::WHITE ),
   mParent( NULL ),
   mExclusiveRenderTask( NULL ),
-  mAttachment( NULL ),
   mChildren(),
   mDepth(0u),
   mDirtyFlags(AllFlags),
@@ -79,9 +78,10 @@ Node::~Node()
 void Node::OnDestroy()
 {
   // Node attachments should be notified about the disconnection.
-  if ( mAttachment )
+  unsigned int attachmentCount( mAttachment.Count() );
+  for( unsigned int i(0); i<attachmentCount; ++i )
   {
-    mAttachment->OnDestroy();
+      mAttachment[i]->OnDestroy();
   }
 
   // Animators, Constraints etc. should be disconnected from the child's properties.
@@ -90,16 +90,16 @@ void Node::OnDestroy()
 
 void Node::Attach( NodeAttachment& object )
 {
-  DALI_ASSERT_DEBUG(!mAttachment);
+  //DALI_ASSERT_DEBUG(!mAttachment);
 
   object.SetParent(*this);
 
-  mAttachment = &object;
+  mAttachment.PushBack( &object );
   SetAllDirtyFlags();
 
   if( mIsActive )
   {
-    mAttachment->ConnectedToSceneGraph();
+    object.ConnectedToSceneGraph();
   }
 }
 
@@ -127,10 +127,11 @@ void Node::ConnectChild( Node* childNode )
   // Inform property observers of new connection
   childNode->ConnectToSceneGraph();
 
-  // Inform child node attachment that the node has been added to the stage
-  if( childNode->mAttachment )
+  // Inform child node attachments that the node has been added to the stage
+  unsigned int attachmentCount(  childNode->mAttachment.Count() );
+  for( unsigned int i(0); i<attachmentCount; ++i )
   {
-    childNode->mAttachment->ConnectedToSceneGraph();
+    childNode->mAttachment[i]->ConnectedToSceneGraph();
   }
 }
 
@@ -268,10 +269,11 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std
   // Remove all child pointers
   mChildren.Clear();
 
-  // Inform child node attachment that the node has been removed from the stage
-  if( mAttachment )
+  // Inform child node attachments that the node has been removed from the stage
+  unsigned int attachmentCount( mAttachment.Count() );
+  for( unsigned int i(0); i<attachmentCount; ++i )
   {
-    mAttachment->DisconnectedFromSceneGraph();
+     mAttachment[i]->DisconnectedFromSceneGraph();
   }
 
   // Move into disconnectedNodes

@@ -109,7 +109,7 @@ void RenderTask::SetCameraNode( Node* cameraNode )
     {
       // get attachment. when camera node is changed we will get a message from event thread object
       // so no need to observe the node here
-      mCameraAttachment = dynamic_cast< CameraAttachment* >( &cameraNode->GetAttachment() );
+      mCameraAttachment = dynamic_cast< CameraAttachment* >( &cameraNode->GetAttachment(0) );
       DALI_ASSERT_DEBUG( mCameraAttachment && "Camera without attachment" );
     }
     mCameraNode = cameraNode;

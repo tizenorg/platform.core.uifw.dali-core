@@ -57,6 +57,9 @@ typedef std::vector< ActorPtr > ActorContainer;
 typedef ActorContainer::iterator ActorIter;
 typedef ActorContainer::const_iterator ActorConstIter;
 
+typedef std::vector< RendererAttachmentPtr > RendererAttachmentContainer;
+typedef RendererAttachmentContainer::iterator RendererAttachmentIter;
+
 /**
  * Actor is the primary object which Dali applications interact with.
  * UI controls can be built by combining multiple actors.
@@ -1783,6 +1786,7 @@ protected:
   ActorGestureData* mGestureData;   ///< Optional Gesture data. Only created when actor requires gestures
 
   ActorAttachmentPtr mAttachment;   ///< Optional referenced attachment
+  RendererAttachmentContainer mRendererAttachment;
 
   // Signals
   Dali::Actor::TouchSignalType             mTouchedSignal;

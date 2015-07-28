@@ -36,11 +36,17 @@ int UtcDaliActorAddRendererP(void)
 
   Geometry geometry = CreateQuadGeometry();
   Material material = CreateMaterial(1.0f);
-  Renderer renderer = Renderer::New(geometry, material);
+  Renderer renderer0 = Renderer::New(geometry, material);
 
-  actor.AddRenderer( renderer );
+  actor.AddRenderer( renderer0 );
   DALI_TEST_EQUALS( actor.GetRendererCount(), 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer0, TEST_LOCATION );
+
+  Renderer renderer1 = Renderer::New(geometry, material);
+  actor.AddRenderer( renderer1 );
+  DALI_TEST_EQUALS( actor.GetRendererCount(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer0, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(1), renderer1, TEST_LOCATION );
 
   END_TEST;
 }
@@ -117,15 +123,24 @@ int UtcDaliActorRemoveRendererP(void)
 
   Geometry geometry = CreateQuadGeometry();
   Material material = CreateMaterial(1.0f);
-  Renderer renderer = Renderer::New(geometry, material);
+  Renderer renderer0 = Renderer::New(geometry, material);
 
-  actor.AddRenderer( renderer );
+  actor.AddRenderer( renderer0 );
   DALI_TEST_EQUALS( actor.GetRendererCount(), 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer0, TEST_LOCATION );
 
-  actor.RemoveRenderer(0);
+  Renderer renderer1 = Renderer::New(geometry, material);
+  actor.AddRenderer( renderer1 );
+  DALI_TEST_EQUALS( actor.GetRendererCount(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer0, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(1), renderer1, TEST_LOCATION );
+
+  actor.RemoveRenderer(renderer0);
+  DALI_TEST_EQUALS( actor.GetRendererCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( actor.GetRendererAt(0), renderer1, TEST_LOCATION );
+
+  actor.RemoveRenderer(renderer1);
   DALI_TEST_EQUALS( actor.GetRendererCount(), 0u, TEST_LOCATION );
-
 
   END_TEST;
 }

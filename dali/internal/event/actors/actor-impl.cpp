@@ -1359,48 +1359,45 @@ bool Actor::RelayoutRequired( Dimension::Type dimension ) const
 
 unsigned int Actor::AddRenderer( Renderer& renderer )
 {
-  //TODO: MESH_REWORK : Add support for multiple renderers
-  if ( ! mAttachment )
+  RendererAttachmentPtr attachment = RendererAttachment::New( GetEventThreadServices(), *mNode, renderer );
+  if( mIsOnStage )
   {
-    mAttachment = RendererAttachment::New( GetEventThreadServices(), *mNode, renderer );
-    if( mIsOnStage )
-    {
-      mAttachment->Connect();
-    }
+    attachment->Connect();
   }
 
-  return 0;
+  unsigned int rendererIndex = mRendererAttachment.size();
+  mRendererAttachment.push_back( attachment );
+
+  return rendererIndex;
 }
 
 unsigned int Actor::GetRendererCount() const
 {
-  //TODO: MESH_REWORK : Add support for multiple renderers
-  RendererAttachment* attachment = dynamic_cast<RendererAttachment*>(mAttachment.Get());
-  return attachment ? 1u : 0u;
+  return mRendererAttachment.size();
 }
 
 Renderer& Actor::GetRendererAt( unsigned int index )
 {
-  //TODO: MESH_REWORK : Add support for multiple renderers
-  DALI_ASSERT_DEBUG( index == 0 && "Only one renderer is supported." );
-
-  //TODO: MESH_REWORK : Temporary code
-  RendererAttachment* attachment = dynamic_cast<RendererAttachment*>(mAttachment.Get());
-  DALI_ASSERT_ALWAYS( attachment && "Actor doesn't have a renderer" );
-
-  return attachment->GetRenderer();
+  return mRendererAttachment[index]->GetRenderer();
 }
 
 void Actor::RemoveRenderer( Renderer& renderer )
 {
-  //TODO: MESH_REWORK : Add support for multiple renderers
-  mAttachment = NULL;
+  RendererAttachmentIter rendererAttachmentIter( mRendererAttachment.begin() );
+  while( rendererAttachmentIter != mRendererAttachment.end() )
+  {
+    if( &(*rendererAttachmentIter)->GetRenderer() == &renderer )
+    {
+      mRendererAttachment.erase( rendererAttachmentIter );
+      break;
+    }
+    ++rendererAttachmentIter;
+  }
 }
 
 void Actor::RemoveRenderer( unsigned int index )
 {
-  //TODO: MESH_REWORK : Add support for multiple renderers
-  mAttachment = NULL;
+  mRendererAttachment.erase( mRendererAttachment.begin() + index );
 }
 
 void Actor::SetOverlay( bool enable )
@@ -2000,6 +1997,12 @@ void Actor::ConnectToSceneGraph()
     mAttachment->Connect();
   }
 
+  //Notify renderer attachments
+  for( size_t i(0); i<mRendererAttachment.size(); ++i )
+  {
+    mRendererAttachment[i]->Connect();
+  }
+
   // Request relayout on all actors that are added to the scenegraph
   RelayoutRequest();
 
@@ -2085,6 +2088,12 @@ void Actor::DisconnectFromSceneGraph()
   if( mAttachment )
   {
     mAttachment->Disconnect();
+  }
+
+  //Notify renderer attachments
+  for( size_t i(0); i<mRendererAttachment.size(); ++i )
+  {
+    mRendererAttachment[i]->Disconnect();
   }
 }
 

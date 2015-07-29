@@ -26,7 +26,6 @@
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/images/bitmap-packed-pixel.h>
 #include <dali/internal/event/images/bitmap-compressed.h>
-#include <dali/internal/event/images/bitmap-external.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 

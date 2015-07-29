@@ -64,10 +64,11 @@ public:
   /**
    * Create a new BufferImage, which uses external data source.
    * Pixel buffer has to be allocated by application.
-   * Application holds ownership of the buffer.
+   * An internal copy is made of the Pixel Buffer, which can then be freed by the Application, unless if there will be a call to Update() later.
+   * The buffer should only be freed when there is no chance of an Update() being called again.
+   * Obtaining the buffer with GetBuffer() and altering the contents, then Update() will not work with externally owned buffers.
    * For better performance and portability use power of two dimensions.
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
-   * @note  in case releasePol is "OffStage", application has to call Update() whenever image is re-added to the stage
    * @param [in] pixBuf      pixel buffer. has to be allocated by application.
    * @param [in] width       image width in pixels
    * @param [in] height      image height in pixels
@@ -85,7 +86,10 @@ public:
   /**
    * Create a new BufferImage.
    * Also a pixel buffer for image data is allocated.
-   * Dali has ownership of the buffer.
+   * An internal copy is made of the Pixel Buffer, which can then be freed by the Application, unless if there will be a call to Update() later.
+   * The buffer should only be freed when there is no chance of Update() being called again.
+   * Note: obtaining the buffer with GetBuffer(), writing changes, then Update() will cause any changes to be lost.
+   * In this case, the BufferImage will update from the external buffer and so changes should be written there.
    * For better performance use power of two dimensions.
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
    * @param [in] width image width in pixels
@@ -101,10 +105,12 @@ public:
   /**
    * Create a new BufferImage, which uses external data source.
    * Pixel buffer has to be allocated by application.
-   * Application holds ownership of the buffer.
+   * An internal copy is made of the Pixel Buffer, which can then be freed by the Application, unless if there will be a call to Update() later.
+   * The buffer should only be freed when there is no chance of Update() being called again.
+   * Note: obtaining the buffer with GetBuffer(), writing changes, then Update() will cause any changes to be lost.
+   * In this case, the BufferImage will update from the external buffer and so changes should be written there.
    * For better performance and portability use power of two dimensions.
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
-   * @note  in case releasePol is "OffStage", application has to call Update() whenever image is re-added to the stage
    * @param [in] pixBuf      pixel buffer. has to be allocated by application.
    * @param [in] width       image width in pixels
    * @param [in] height      image height in pixels
@@ -180,8 +186,9 @@ protected: // From Resource
   Integration::Bitmap * GetBitmap() const;
 
 private:
-  bool mIsDataExternal; ///< whether application holds ownership of pixel buffer or not
-
+  PixelBuffer*               mExternalBuffer; ///< NULL if there is no external pixel data (this is never owned by BufferImage).
+  unsigned int               mPixelStride;    ///< width in pixels of an external row of pixel data.
+  unsigned int               mBytesPerPixel;  ///< width of a pixel in external data in bytes.
   ResourceClient*            mResourceClient;
 
 protected:

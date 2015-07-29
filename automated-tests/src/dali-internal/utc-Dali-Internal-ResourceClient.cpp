@@ -723,40 +723,6 @@ int UtcDaliInternalRequestResourceTicket02(void)
   END_TEST;
 }
 
-int UtcDaliInternalAllocateBitmapImage01(void)
-{
-  TestApplication application;
-  tet_infoline("Testing AllocateBitmapImage()");
-  testTicketObserver.Reset();
-
-  Internal::ResourceClient& resourceClient  = Internal::ThreadLocalStorage::Get().GetResourceClient();
-  Internal::ImageTicketPtr imageTicket = resourceClient.AllocateBitmapImage(80, 80, 80, 80, Pixel::RGB565);
-  imageTicket->AddObserver( testTicketObserver );
-
-  DALI_TEST_CHECK( imageTicket );
-  DALI_TEST_EQUALS ( imageTicket->GetLoadingState(), ResourceLoadingSucceeded, TEST_LOCATION );
-  DALI_TEST_EQUALS ( imageTicket->GetWidth(), 80, TEST_LOCATION );
-  DALI_TEST_EQUALS ( imageTicket->GetHeight(), 80, TEST_LOCATION );
-
-  application.SendNotification(); // Flush update queue
-  application.Render(0); // Process message
-  application.SendNotification(); // Send message to tickets
-
-  DALI_TEST_CHECK ( 0 == testTicketObserver.LoadSucceededCalled() ); // Check no message was sent
-  DALI_TEST_EQUALS ( imageTicket->GetLoadingState(), ResourceLoadingSucceeded, TEST_LOCATION );
-  DALI_TEST_EQUALS ( imageTicket->GetWidth(), 80, TEST_LOCATION );
-  DALI_TEST_EQUALS ( imageTicket->GetHeight(), 80, TEST_LOCATION );
-
-  Integration::Bitmap* bitmap = resourceClient.GetBitmap(imageTicket);
-  DALI_TEST_CHECK ( bitmap != NULL );
-  DALI_TEST_EQUALS ( bitmap->GetImageWidth(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetImageHeight(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferWidth(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferHeight(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPixelFormat(), Pixel::RGB565, TEST_LOCATION );
-  END_TEST;
-}
-
 int UtcDaliInternalAddBitmapImage01(void)
 {
   TestApplication application;

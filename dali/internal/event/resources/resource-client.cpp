@@ -213,28 +213,6 @@ ResourceTicketPtr ResourceClient::RequestResourceTicket( ResourceId id )
   return ticket;
 }
 
-ImageTicketPtr ResourceClient::AllocateBitmapImage( unsigned int width,
-                                                    unsigned int height,
-                                                    unsigned int bufferWidth,
-                                                    unsigned int bufferHeight,
-                                                    Pixel::Format pixelformat )
-{
-  /* buffer is available via public-api, therefore not discardable */
-  Bitmap* const bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
-  Bitmap::PackedPixelsProfile* const packedBitmap = bitmap->GetPackedPixelsProfile();
-  DALI_ASSERT_DEBUG(packedBitmap);
-
-  packedBitmap->ReserveBuffer(pixelformat, width, height, bufferWidth, bufferHeight);
-  DALI_ASSERT_DEBUG(bitmap->GetBuffer() != 0);
-  DALI_ASSERT_DEBUG(bitmap->GetBufferSize() >= width * height);
-
-  ImageTicketPtr ticket = AddBitmapImage(bitmap);
-
-  DALI_ASSERT_DEBUG(bitmap->GetBuffer() != 0);
-  DALI_ASSERT_DEBUG(bitmap->GetBufferSize() >= width * height);
-  return ticket;
-}
-
 ImageTicketPtr ResourceClient::AddBitmapImage(Bitmap* bitmap)
 {
   DALI_ASSERT_DEBUG( bitmap != NULL );

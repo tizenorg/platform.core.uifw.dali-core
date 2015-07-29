@@ -21,11 +21,13 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/internal/event/images/bitmap-external.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/resources/resource-client.h>
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/internal/event/images/image-factory.h>
+
+// EXTERNAL INCLUDES
+#include <string.h>
 
 namespace Dali
 {
@@ -53,7 +55,8 @@ BufferImagePtr BufferImage::New( PixelBuffer* pixBuf, unsigned int width, unsign
 
 BufferImage::BufferImage(unsigned int width, unsigned int height, Pixel::Format pixelformat, ReleasePolicy releasePol)
 : Image(releasePol),
-  mIsDataExternal(false)
+  mExternalBuffer(NULL)
+
 {
   ThreadLocalStorage& tls = ThreadLocalStorage::Get();
   mResourceClient = &tls.GetResourceClient();
@@ -66,27 +69,64 @@ BufferImage::BufferImage(unsigned int width, unsigned int height, Pixel::Format 
   mTicket->AddObserver(*this);
 }
 
-BufferImage::BufferImage(PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride, ReleasePolicy releasePol)
+BufferImage::BufferImage(PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride, ReleasePolicy releasePol )
 : Image(releasePol),
-  mIsDataExternal(true)
+  mExternalBuffer(pixBuf)
 {
   ThreadLocalStorage& tls = ThreadLocalStorage::Get();
   mResourceClient = &tls.GetResourceClient();
   mWidth  = width;
   mHeight = height;
-  Integration::Bitmap* bitmap = new BitmapExternal(pixBuf, width, height, pixelformat, stride);
-  const ImageTicketPtr& t = mResourceClient->AddBitmapImage(bitmap);
-  mTicket = t.Get();
+  mPixelStride = stride;
 
+  const ImageTicketPtr& t = mResourceClient->AllocateBitmapImage(width, height, stride ? stride : width, height, pixelformat);
+  mTicket = t.Get();
   mTicket->AddObserver(*this);
+
+   // Mirror source buffer
+  memcpy( GetBuffer(), pixBuf, GetBufferSize() );
 }
 
 BufferImage::~BufferImage()
 {
 }
 
+bool BufferImage::IsDataExternal() const
+{
+  return ( mExternalBuffer ? true : false );
+}
+
 void BufferImage::Update( RectArea& updateArea )
 {
+  if (mExternalBuffer)
+  {
+    // Make sure any external buffers update the internal buffer
+    if( !mPixelStride && updateArea.IsEmpty() )
+    {
+      memcpy( GetBuffer(), mExternalBuffer, GetBufferSize() );
+    }
+    else
+    {
+
+      DALI_ASSERT_DEBUG( updateArea.x + updateArea.width <= mWidth && updateArea.y + updateArea.height <= mHeight );
+
+      PixelBuffer* src = mExternalBuffer;
+      PixelBuffer* dest = GetBuffer();
+      uint32_t byteStride = GetBufferStride();
+      uint32_t offset = ( updateArea.y * byteStride ) + ( updateArea.x * mBytesPerPixel );
+      uint32_t width = updateArea.width * mBytesPerPixel;
+
+      src += offset;
+      dest += offset;
+      for ( uint32_t i = 0; i < updateArea.height; ++i )
+      {
+        memcpy( dest, src, width );
+        src += byteStride;
+        dest += byteStride;
+      }
+    }
+  }
+
   if (mTicket)
   {
     // TODO:
@@ -97,19 +137,6 @@ void BufferImage::Update( RectArea& updateArea )
     // tramp through to BitmapTexture eventually!)
     mResourceClient->UpdateBitmapArea( mTicket, updateArea );
   }
-  else if (mIsDataExternal && mBitmapCached)
-  {
-    // previously freed up resource memory, dali was informed about external BufferImage put back on screen
-    Integration::Bitmap* bitmap = mBitmapCached.Get();
-    mTicket.Reset((mResourceClient->AddBitmapImage(bitmap)).Get());
-
-    mTicket->AddObserver(*this);
-  }
-}
-
-bool BufferImage::IsDataExternal() const
-{
-  return mIsDataExternal;
 }
 
 PixelBuffer* BufferImage::GetBuffer()
@@ -171,12 +198,6 @@ Pixel::Format BufferImage::GetPixelFormat() const
 void BufferImage::Connect()
 {
   ++mConnectionCount;
-
-  // application owns bitmap buffer, don't do anything. Update() has to be called manually.
-  if (mIsDataExternal)
-  {
-    return;
-  }
 
   if (mConnectionCount == 1)
   {

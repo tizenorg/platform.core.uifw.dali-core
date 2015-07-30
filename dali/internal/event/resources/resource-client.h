@@ -136,28 +136,12 @@ public:
   ResourceTicketPtr RequestResourceTicket( ResourceId id );
 
   /**
-   * Reqeust allocation of a bitmap resource
-   * @note Older hardware may require bufferWidth and bufferHeight to be a power of two
-   * @param[in] width         Image width in pixels
-   * @param[in] height        Image height in pixels
-   * @param[in] bufferWidth   Buffer width (stride) in pixels
-   * @param[in] bufferHeight  Buffer height in pixels
-   * @param[in] pixelformat   Pixel format
-   * @return A ref-counted request object. Keep a copy until the resource is no longer required.
-   */
-  ImageTicketPtr AllocateBitmapImage ( unsigned int width,
-                                       unsigned int height,
-                                       unsigned int bufferWidth,
-                                       unsigned int bufferHeight,
-                                       Pixel::Format pixelformat );
-
-  /**
    * Injects a bitmap resource (does not require loading).
    * @pre bitmap has to be initialized
    * @param[in] bitmap an initialized bitmap
    * @return A ref-counted request object. Keep a copy until the resource is no longer required.
    */
-  ImageTicketPtr AddBitmapImage(Integration::Bitmap* bitmap);
+  ImageTicketPtr AddBitmapImage( const Integration::BitmapPtr& bitmap );
 
   /**
    * Add an existing resource to the resource manager.
@@ -218,15 +202,8 @@ public:
    * @param [in] xOffset Specifies an offset in the x direction within the texture
    * @param [in] yOffset Specifies an offset in the y direction within the texture
    */
-  void UploadBitmap( ResourceId destId, Integration::BitmapPtr bitmap, std::size_t xOffset, std::size_t yOffset);
+  void UploadBitmap( ResourceId destId, const Integration::BitmapPtr& bitmap, std::size_t xOffset, std::size_t yOffset);
 
-  /**
-   * Find Bitmap by ticket.
-   * @pre ticket has to identify a Bitmap
-   * @param[in] ticket The ticket returned from AllocateBitmapImage() or AddBitmapImage()
-   * @return The bitmap, or NULL if the ticket did not reference a bitmap
-   */
-  Integration::Bitmap* GetBitmap(ResourceTicketPtr ticket);
    /**
     * @brief Trigger asynchronous creation of GL texture to back resource immediately.
     * @param[in] id The resource ID to allocate a GL texture for.

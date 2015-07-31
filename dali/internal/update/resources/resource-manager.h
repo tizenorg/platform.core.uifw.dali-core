@@ -397,7 +397,7 @@ inline void RequestDecodeResourceMessage( EventThreadServices& eventThreadServic
 inline void RequestAddBitmapImageMessage( EventThreadServices& eventThreadServices,
                                           ResourceManager& manager,
                                           ResourceId id,
-                                          Integration::Bitmap* resourceData )
+                                          const Integration::BitmapPtr& resourceData )
 {
   typedef MessageValue2< ResourceManager, ResourceId, Integration::BitmapPtr > LocalType;
 

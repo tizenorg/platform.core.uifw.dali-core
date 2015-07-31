@@ -39,16 +39,10 @@ typedef Rect<unsigned int>    RectArea;     ///< rectangular area (x,y,w,h)
  * @brief BufferImage represents an image resource that can be added to ImageActors.
  * Its pixel buffer data is provided by the application developer.
  *
- * Care should be taken with pixel data allocated by the application,
- * as the data is copied to GL both when the image is added to the
- * stage and after a call to Update().  In both of these cases, a
- * SignalUploaded will be sent to the application confirming that the
- * operation has completed.
- *
- * The application can free the pixel data after receiving a
- * SignalUploaded.
- *
- * Similarly, once the image is on stage (i.e. it's being used by an
+ * Care should be taken with pixel data allocated by the application.
+ * The pixel data must only be freed if there are no subsequent calls to Update().
+
+ * Once the image is on stage (i.e. it's being used by an
  * ImageActor that is on stage), the application should only write to
  * the buffer after receiving a SignalUploaded, then call Update()
  * once the write is finished. This avoids the pixel data being changed
@@ -112,14 +106,19 @@ public:
                          ReleasePolicy releasePolicy);
 
   /**
+
    * @brief Create a new BufferImage, which uses an external data source.
+   *
+   * @deprecated Support for externally owned Pixel Buffers is due to be removed TBA.
+   * It is recommended that a BufferImage owned Buffer be used instead.
    *
    * The PixelBuffer has to be allocated by application.
    *
-   * The application holds ownership of the buffer. It must not
-   * destroy the PixelBuffer on a staged image if it has called
-   * Update() and hasn't received a SignalUploaded, or if it has just
-   * added it to the stage and has not received a SignalUploaded.
+   * An internal copy is made of the Pixel Buffer, which can then be freed by the Application,
+   * unless if there will be a call to Update() later.
+   * The buffer should only be freed when there is no chance of Update() being called again.
+   * Note: obtaining the buffer with GetBuffer(), writing changes, then Update() will cause any changes to be lost.
+   * In this case, the BufferImage will update from the external buffer and so changes should be written there.
    *
    * For better performance and portability use power of two dimensions.
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
@@ -141,12 +140,16 @@ public:
   /**
    * @brief Create a new BufferImage, which uses an external data source.
    *
+   * @deprecated Support for externally owned Pixel Buffers is due to be removed TBA.
+   * It is recommended that a BufferImage owned Buffer be used instead.
+   *
    * The PixelBuffer has to be allocated by application.
    *
-   * The application holds ownership of the buffer. It must not
-   * destroy the PixelBuffer on a staged image if it has called
-   * Update() and hasn't received a SignalUploaded, or if it has just
-   * added it to the stage and has not received a SignalUploaded.
+   * An internal copy is made of the Pixel Buffer, which can then be freed by the Application,
+   * unless if there will be a call to Update() later.
+   * The buffer should only be freed when there is no chance of Update() being called again.
+   * Note: obtaining the buffer with GetBuffer(), writing changes, then Update() will cause any changes to be lost.
+   * In this case, the BufferImage will update from the external buffer and so changes should be written there.
    *
    * For better performance and portability use power of two dimensions.
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
@@ -254,10 +257,6 @@ public:
    * memory. To avoid visual tearing, the application should wait for
    * the SignalUploaded before modifying the data.
    *
-   * The application must not destroy an external PixelBuffer on a staged
-   * image after calling this method until the SignalUploaded has been
-   * successfully received.
-   *
    * @note: BufferImage::Update might not work with BGR/BGRA formats!
    * @note: Some GPUs may not support Non power of two buffer updates (for
    * example C110/SGX540)
@@ -273,11 +272,8 @@ public:
   /**
    * @brief Returns whether BufferImage uses external data source or not.
    *
-   * If not, dali holds ownership of the PixelBuffer, otherwise the application
-   * is responsible for freeing it.
-   *
-   * The application must not destroy an external PixelBuffer on a staged image
-   * if it has called Update() and hasn't received a SignalUploaded.
+   * If not, Dali holds ownership of the PixelBuffer, otherwise Dali will expect
+   * the external buffer to persist while an Update() could occur.
    *
    * @return true if application owns data, false otherwise
    */

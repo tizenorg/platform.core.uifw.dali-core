@@ -52,6 +52,15 @@ public:
   Map( const Map& other );
 
   /**
+   * @brief Construct a map pre-initialised with a key-value pair.
+   * This allows simpler setting of properties that contain a further list of properties to set.
+   *
+   * @param[in] key   The key string to initialise with
+   * @param[in] value The value associated with the key
+   */
+  Map( const char* key, const Value& value );
+
+  /**
    * @brief Non-virtual destructor.
    */
   ~Map();

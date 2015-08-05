@@ -45,6 +45,12 @@ Property::Map::Map( const Property::Map& other )
   mImpl->mContainer = other.mImpl->mContainer;
 }
 
+Property::Map::Map( const char* key, const Value& value )
+: mImpl( new Impl )
+{
+  Insert( key, value );
+}
+
 Property::Map::~Map()
 {
   delete mImpl;

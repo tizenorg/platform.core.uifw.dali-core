@@ -311,6 +311,11 @@ Property::Value::Value( Property::Map& mapValue )
 {
 }
 
+Property::Value::Value( const char* key, const Value& value )
+: mImpl( new Impl( Property::Map( key, value ) ) )
+{
+}
+
 Property::Value::Value( Type type )
 {
   switch (type)

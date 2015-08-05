@@ -156,6 +156,15 @@ public:
   Value( Property::Map& mapValue );
 
   /**
+   * @brief Create a map property value pre-initialised with a key-value pair.
+   * This allows simpler setting of properties that contain a further list of properties to set.
+   *
+   * @param [in] key   The key string to initialise with
+   * @param [in] value The value associated with the key
+   */
+  Value( const char* key, const Value& value );
+
+  /**
    * @brief Explicitly set a type and initialize it.
    *
    * @param [in] type The property value type.

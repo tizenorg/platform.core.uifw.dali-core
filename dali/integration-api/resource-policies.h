@@ -37,9 +37,8 @@ enum DataRetention
  */
 enum Discardable
 {
-  OWNED_DISCARD,
-  OWNED_RETAIN,
-  NOT_OWNED
+  DISCARD,
+  RETAIN
 };
 
 } // namespace ResourcePolicy

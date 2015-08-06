@@ -104,7 +104,7 @@ ImageTicketPtr BufferImage::AllocateBitmapImage( uint32_t width,
                                                  uint32_t bufferHeight,
                                                  Pixel::Format pixelformat )
 {
-  mBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+  mBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
   Bitmap::PackedPixelsProfile* const packedBitmap = mBitmap->GetPackedPixelsProfile();
   DALI_ASSERT_DEBUG(packedBitmap);
 

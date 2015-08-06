@@ -69,6 +69,10 @@ bool Atlas::Upload( BufferImage& bufferImage,
     ResourceId destId = GetResourceId();
     ResourceId srcId = bufferImage.GetResourceId();
 
+    // Ensure that the internal buffer has updated the BufferImage bitmap.
+    RectArea area;
+    bufferImage.Update( area );
+
     if( destId && srcId )
     {
       mResourceClient.UploadBitmap( destId, srcId, xOffset, yOffset );

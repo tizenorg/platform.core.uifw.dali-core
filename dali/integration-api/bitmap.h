@@ -61,7 +61,7 @@ protected:
    * @param[in] discardable Flag to tell the bitmap if it can delete the buffer with the pixel data.
    * @param[in] pixBuf External buffer of pixel data or null.
    */
-  Bitmap( ResourcePolicy::Discardable discardable = ResourcePolicy::OWNED_RETAIN, Dali::Integration::PixelBuffer* pixBuf = 0 );
+  Bitmap( ResourcePolicy::Discardable discardable = ResourcePolicy::RETAIN, Dali::Integration::PixelBuffer* pixBuf = 0 );
 
   /**
    * Initializes internal class members
@@ -308,7 +308,7 @@ public:
    */
   bool IsDiscardable() const
   {
-    return mDiscardable == ResourcePolicy::OWNED_DISCARD;
+    return mDiscardable == ResourcePolicy::DISCARD;
   }
 
  /**

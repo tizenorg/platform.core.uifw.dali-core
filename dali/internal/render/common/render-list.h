@@ -78,7 +78,7 @@ public:
     mRenderFlags( 0u ),
     mClippingBox( NULL ),
     mSourceLayer( NULL ),
-    mInterleave(false)
+    mHasColorRenderItems( false )
   {
   }
 
@@ -284,23 +284,14 @@ public:
     mSourceLayer = layer;
   }
 
-  /**
-   * Determine if this render list should be interleaved with it's adjacent
-   * neighbour.
-   * @return true if the render list should be interleaved
-   */
-  bool GetInterleave() const
+  void SetHasColorRenderItems( bool hasColorRenderItems )
   {
-    return mInterleave;
+    mHasColorRenderItems = hasColorRenderItems;
   }
 
-  /**
-   * Set the interleave flag for this render list
-   * @param[in] interleave The interleave flag.
-   */
-  void SetInterleave(bool interleave)
+  bool HasColorRenderItems() const
   {
-    mInterleave = interleave;
+    return mHasColorRenderItems;
   }
 
 private:
@@ -318,7 +309,7 @@ private:
 
   ClippingBox* mClippingBox;    ///< The clipping box, in window coordinates, when clipping is enabled
   Layer*       mSourceLayer;    ///< The originating layer where the renderers are from
-  bool         mInterleave;     ///< True if render list should be interleaved
+  bool         mHasColorRenderItems;  ///< True if list contains color render items
 };
 
 } // namespace SceneGraph

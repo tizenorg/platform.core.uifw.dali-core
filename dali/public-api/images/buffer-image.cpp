@@ -71,7 +71,7 @@ BufferImage BufferImage::New(unsigned int width, unsigned int height, Pixel::For
   DALI_ASSERT_ALWAYS( 0u != width  && "Invalid BufferImage width requested" );
   DALI_ASSERT_ALWAYS( 0u != height && "Invalid BufferImage height requested" );
 
-  Internal::BufferImagePtr internal = Internal::BufferImage::New(width, height, pixelformat);
+  Internal::BufferImagePtr internal = Internal::BufferImage::New(width, height, pixelformat, Image::NEVER);
   return BufferImage(internal.Get());
 }
 

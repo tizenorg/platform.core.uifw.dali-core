@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,17 @@
 // CLASS HEADER
 #include <dali/internal/event/images/buffer-image-impl.h>
 
+// EXTERNAL INCLUDES
+#include <string.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
-#include <dali/integration-api/bitmap.h>
-#include <dali/internal/event/images/bitmap-external.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/resources/resource-client.h>
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/internal/event/images/image-factory.h>
+
+using namespace Dali::Integration;
 
 namespace Dali
 {
@@ -53,177 +56,160 @@ BufferImagePtr BufferImage::New( PixelBuffer* pixBuf, unsigned int width, unsign
 
 BufferImage::BufferImage(unsigned int width, unsigned int height, Pixel::Format pixelformat, ReleasePolicy releasePol)
 : Image(releasePol),
-  mIsDataExternal(false)
+  mExternalBuffer(NULL),
+  mBitmap(NULL)
 {
   ThreadLocalStorage& tls = ThreadLocalStorage::Get();
   mResourceClient = &tls.GetResourceClient();
   mWidth  = width;
   mHeight = height;
+  mPixelFormat = pixelformat;
+  mBytesPerPixel = Pixel::GetBytesPerPixel( pixelformat );
+  mByteStride = width * mBytesPerPixel;
+  mBufferSize = height * mByteStride;
 
-  const ImageTicketPtr& t = mResourceClient->AllocateBitmapImage(width, height, width, height, pixelformat);
-  mTicket = t.Get();
-
-  mTicket->AddObserver(*this);
+  // Respect the desired release policy
+  mResourcePolicy = releasePol == Dali::Image::UNUSED ? ResourcePolicy::OWNED_DISCARD : ResourcePolicy::OWNED_RETAIN;
 }
 
-BufferImage::BufferImage(PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride, ReleasePolicy releasePol)
+BufferImage::BufferImage(PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride, ReleasePolicy releasePol )
 : Image(releasePol),
-  mIsDataExternal(true)
+  mExternalBuffer(pixBuf),
+  mBitmap(NULL)
 {
   ThreadLocalStorage& tls = ThreadLocalStorage::Get();
   mResourceClient = &tls.GetResourceClient();
   mWidth  = width;
   mHeight = height;
-  Integration::Bitmap* bitmap = new BitmapExternal(pixBuf, width, height, pixelformat, stride);
-  const ImageTicketPtr& t = mResourceClient->AddBitmapImage(bitmap);
-  mTicket = t.Get();
+  mPixelFormat = pixelformat;
+  mBytesPerPixel = Pixel::GetBytesPerPixel( pixelformat );
+  mByteStride = ( stride ? stride : mWidth ) * mBytesPerPixel;
+  mBufferSize = height * mByteStride;
 
-  mTicket->AddObserver(*this);
+  // Always discard on bitmap upload as we update from an external source
+  mResourcePolicy = ResourcePolicy::OWNED_DISCARD;
+
+  // Take a copy of the external buffer immediately, so it can be released if desired
+  RectArea area;
+  MirrorExternal( area );
 }
 
 BufferImage::~BufferImage()
 {
 }
 
-void BufferImage::Update( RectArea& updateArea )
-{
-  if (mTicket)
-  {
-    // TODO:
-    // If updateArea is empty or same as image size, then pass on.
-    // If updateArea is larger than image size, throw exception
-    // Otherwise, copy updateArea window of pixelBuffer into newly
-    // allocated buffer and pass that to resource client. (it will
-    // tramp through to BitmapTexture eventually!)
-    mResourceClient->UpdateBitmapArea( mTicket, updateArea );
-  }
-  else if (mIsDataExternal && mBitmapCached)
-  {
-    // previously freed up resource memory, dali was informed about external BufferImage put back on screen
-    Integration::Bitmap* bitmap = mBitmapCached.Get();
-    mTicket.Reset((mResourceClient->AddBitmapImage(bitmap)).Get());
-
-    mTicket->AddObserver(*this);
-  }
-}
-
 bool BufferImage::IsDataExternal() const
 {
-  return mIsDataExternal;
+  return ( mExternalBuffer ? true : false );
+}
+
+void BufferImage::Update( RectArea& updateArea )
+{
+  if (mExternalBuffer)
+  {
+    MirrorExternal( updateArea );
+  }
+  else
+  {
+    GetBuffer();
+  }
+
+  if (mTicket)
+  {
+    DALI_ASSERT_DEBUG( updateArea.x + updateArea.width <= mWidth && updateArea.y + updateArea.height <= mHeight );
+    mResourceClient->UpdateBitmapArea( mTicket, updateArea );
+
+    if ( mResourcePolicy == ResourcePolicy::OWNED_DISCARD )
+    {
+      // Bitmap ownership has been passed on, so any subsequent update will need another bitmap
+      mBitmap = NULL;
+    }
+  }
 }
 
 PixelBuffer* BufferImage::GetBuffer()
 {
   PixelBuffer* buffer = NULL;
-
-  Integration::Bitmap* const bitmap = GetBitmap();
-
-  if(bitmap)
   {
-    buffer = bitmap->GetBuffer();
+    // Does a bitmap currently exist ?
+    if ( !mBitmap )
+    {
+      // No so create a new one...
+      mBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, mResourcePolicy );
+      mTicket = mResourceClient->AddBitmapImage( mBitmap );
+      mTicket->AddObserver(*this);
+    }
+
+    // Do we have a pixel buffer?
+    buffer = mBitmap->GetBuffer();
+    if ( !buffer )
+    {
+      Bitmap::PackedPixelsProfile* const packedBitmap = mBitmap->GetPackedPixelsProfile();
+      DALI_ASSERT_DEBUG(packedBitmap);
+
+      buffer = packedBitmap->ReserveBuffer( mPixelFormat, mWidth, mHeight, mByteStride / mBytesPerPixel, mHeight );
+      DALI_ASSERT_DEBUG(mBitmap->GetBuffer() != 0);
+      DALI_ASSERT_DEBUG(mBitmap->GetBufferSize() >= mWidth * mHeight * Pixel::GetBytesPerPixel( mBitmap->GetPixelFormat() ) );
+    }
+  }
+
+  // If we're using an external buffer then we return that as the writable buffer
+  if ( mExternalBuffer )
+  {
+    buffer = mExternalBuffer;
   }
   return buffer;
 }
 
-unsigned int BufferImage::GetBufferSize() const
+void BufferImage::UpdateBufferArea( PixelBuffer* src, const RectArea& area )
 {
-  unsigned int bufferSize = 0;
+  DALI_ASSERT_DEBUG( area.x + area.width <= mWidth && area.y + area.height <= mHeight );
 
-  Integration::Bitmap* const bitmap = GetBitmap();
+  PixelBuffer* dest = GetBuffer();
+  uint32_t width = area.width * mBytesPerPixel;
+  uint32_t stride = mWidth * mBytesPerPixel;
 
-  if(bitmap)
+  src += ( area.y * mByteStride ) + ( area.x * mBytesPerPixel );
+  dest +=( ( area.y * mWidth ) + area.x ) * mBytesPerPixel;
+  for ( uint32_t i = 0; i < area.height; ++i )
   {
-    bufferSize = bitmap->GetBufferSize();
+    memcpy( dest, src, width );
+    src += mByteStride;
+    dest += stride;
   }
-  return bufferSize;
 }
 
-unsigned int BufferImage::GetBufferStride() const
+void BufferImage::MirrorExternal( const RectArea& area )
 {
-  unsigned int bufferStride = 0;
-
-  Integration::Bitmap* const bitmap = GetBitmap();
-
-  if(bitmap)
+  if( ( mByteStride == mWidth * mBytesPerPixel ) && area.IsEmpty() )
   {
-    Integration::Bitmap::PackedPixelsProfile* packedBitmap = bitmap->GetPackedPixelsProfile();
-    DALI_ASSERT_DEBUG(packedBitmap);
-    bufferStride = packedBitmap->GetBufferStride();
+    memcpy( GetBuffer(), mExternalBuffer, mBufferSize );
   }
-
-  return bufferStride;
-}
-
-Pixel::Format BufferImage::GetPixelFormat() const
-{
-  Pixel::Format format( Pixel::RGBA8888 );
-
-  Integration::Bitmap* const bitmap = GetBitmap();
-
-  if( bitmap )
+  else
   {
-    format = bitmap->GetPixelFormat();
+    UpdateBufferArea( mExternalBuffer, area );
   }
-
-  return format;
 }
 
 void BufferImage::Connect()
 {
-  ++mConnectionCount;
+  mConnectionCount++;
 
-  // application owns bitmap buffer, don't do anything. Update() has to be called manually.
-  if (mIsDataExternal)
-  {
-    return;
-  }
+  // Connected to stage, so make sure we have a bitmap and a ticket by calling GetBuffer()
+  GetBuffer();
 
-  if (mConnectionCount == 1)
-  {
-    if (!mTicket && mBitmapCached)
-    {
-      const ImageTicketPtr& t = mResourceClient->AddBitmapImage(mBitmapCached.Get());
-      mTicket = t.Get();
-      mTicket->AddObserver(*this);
-    }
-  }
 }
 
 void BufferImage::Disconnect()
 {
-  if (!mTicket)
+  if ( mTicket )
   {
-    return;
+    if ( !( --mConnectionCount ) && mReleasePolicy == Dali::Image::UNUSED )
+    {
+      mTicket->RemoveObserver(*this);
+      mTicket.Reset();
+    }
   }
-
-  --mConnectionCount;
-
-  if (mConnectionCount == 0 && mReleasePolicy == Dali::Image::UNUSED)
-  {
-    mBitmapCached = mResourceClient->GetBitmap(mTicket);
-    // release image memory when it's not visible anymore (decrease ref. count of texture)
-    mTicket->RemoveObserver(*this);
-    mTicket.Reset();
-  }
-}
-
-Integration::Bitmap * BufferImage::GetBitmap() const
-{
-  Integration::Bitmap* bitmap = NULL;
-
-  if (mTicket)
-  {
-    bitmap = mResourceClient->GetBitmap(mTicket);
-  }
-  else
-  {
-    // off screen and freeing memory was requested
-    bitmap = mBitmapCached.Get();
-  }
-
-  DALI_ASSERT_DEBUG(bitmap);
-
-  return bitmap;
 }
 
 } // namespace Internal

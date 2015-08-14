@@ -69,7 +69,7 @@ BufferImage::BufferImage(unsigned int width, unsigned int height, Pixel::Format 
   mBufferSize = height * mByteStride;
 
   // Respect the desired release policy
-  mResourcePolicy = releasePol == Dali::Image::UNUSED ? ResourcePolicy::OWNED_DISCARD : ResourcePolicy::OWNED_RETAIN;
+  mResourcePolicy = releasePol == Dali::Image::UNUSED ? ResourcePolicy::DISCARD : ResourcePolicy::RETAIN;
 }
 
 BufferImage::BufferImage(PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride, ReleasePolicy releasePol )
@@ -87,7 +87,7 @@ BufferImage::BufferImage(PixelBuffer* pixBuf, unsigned int width, unsigned int h
   mBufferSize = height * mByteStride;
 
   // Always discard on bitmap upload as we update from an external source
-  mResourcePolicy = ResourcePolicy::OWNED_DISCARD;
+  mResourcePolicy = ResourcePolicy::DISCARD;
 
   // Take a copy of the external buffer immediately, so it can be released if desired
   RectArea area;
@@ -119,7 +119,7 @@ void BufferImage::Update( RectArea& updateArea )
     DALI_ASSERT_DEBUG( updateArea.x + updateArea.width <= mWidth && updateArea.y + updateArea.height <= mHeight );
     mResourceClient->UpdateBitmapArea( mTicket, updateArea );
 
-    if ( mResourcePolicy == ResourcePolicy::OWNED_DISCARD )
+    if ( mResourcePolicy == ResourcePolicy::DISCARD )
     {
       // Bitmap ownership has been passed on, so any subsequent update will need another bitmap
       mBitmap = NULL;

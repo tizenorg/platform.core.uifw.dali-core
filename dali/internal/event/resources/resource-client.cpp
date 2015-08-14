@@ -220,7 +220,7 @@ ImageTicketPtr ResourceClient::AllocateBitmapImage( unsigned int width,
                                                     Pixel::Format pixelformat )
 {
   /* buffer is available via public-api, therefore not discardable */
-  Bitmap* const bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+  Bitmap* const bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
   Bitmap::PackedPixelsProfile* const packedBitmap = bitmap->GetPackedPixelsProfile();
   DALI_ASSERT_DEBUG(packedBitmap);
 

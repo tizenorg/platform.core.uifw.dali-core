@@ -18,8 +18,6 @@
 // CLASS HEADER
 #include <dali/integration-api/bitmap.h>
 
-// EXTERNAL INCLUDES
-
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/platform-abstraction.h>
@@ -320,7 +318,7 @@ void Bitmap::DeletePixelBuffer()
   {
     return;
   }
-  delete [] mData;
+  free ( mData );
   mData = NULL;
 }
 

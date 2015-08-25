@@ -632,6 +632,11 @@ bool HitTest( Stage& stage, RenderTask& renderTask, const Vector2& screenCoordin
   bool wasHit( false );
   Results hitTestResults;
 
+  if( Stage::GetCurrent() == NULL )
+  {
+    return false;
+  }
+
   const Vector< RenderTaskList::Exclusive >& exclusives = Stage::GetCurrent()->GetRenderTaskList().GetExclusivesList();
   HitTestFunctionWrapper hitTestFunctionWrapper( func );
   if ( HitTestRenderTask( exclusives, stage, stage.GetLayerList(), renderTask, screenCoordinates, hitTestResults, hitTestFunctionWrapper ) )

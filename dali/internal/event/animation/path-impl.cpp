@@ -146,7 +146,9 @@ Property::Value Path::GetDefaultProperty( Property::Index index ) const
   {
     Property::Value value( Property::ARRAY );
     Property::Array* array = value.GetArray();
+    DALI_ASSERT_ALWAYS( array != NULL );
     Property::Array::SizeType pointCount = mPoint.Count();
+
     array->Reserve( pointCount );
     for( Property::Array::SizeType i = 0; i < pointCount; ++i )
     {
@@ -158,7 +160,9 @@ Property::Value Path::GetDefaultProperty( Property::Index index ) const
   {
     Property::Value value( Property::ARRAY );
     Property::Array* array = value.GetArray();
+    DALI_ASSERT_ALWAYS( array != NULL );
     Property::Array::SizeType  controlpointCount = mControlPoint.Count();
+
     array->Reserve( controlpointCount );
     for( Property::Array::SizeType i = 0; i < controlpointCount; ++i )
     {

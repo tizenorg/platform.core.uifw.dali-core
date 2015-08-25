@@ -119,8 +119,9 @@ Property::Value LinearConstrainer::GetDefaultProperty( Property::Index index ) c
   {
     Property::Value value( Property::ARRAY );
     Property::Array* array = value.GetArray();
-    DALI_ASSERT_DEBUG( array ); // should always exist in this case
+    DALI_ASSERT_ALWAYS( array ); // should always exist in this case
     size_t count( mValue.Size() );
+
     array->Reserve( count );
     for( size_t i( 0 ); i != count; ++i )
     {
@@ -132,8 +133,9 @@ Property::Value LinearConstrainer::GetDefaultProperty( Property::Index index ) c
   {
     Property::Value value( Property::ARRAY );
     Property::Array* array = value.GetArray();
-    DALI_ASSERT_DEBUG( array ); // should always exist in this case
+    DALI_ASSERT_ALWAYS( array ); // should always exist in this case
     size_t count( mValue.Size() );
+
     array->Reserve( count );
     for( size_t i( 0 ); i != count; ++i )
     {

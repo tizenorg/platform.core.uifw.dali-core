@@ -140,6 +140,13 @@ public:
    */
   Mode GetMode() const;
 
+  /**
+   * Applies the alpha function to the specified progress
+   * @param[in] progress The current progress
+   * @return The progress after the alpha function has been applied
+   */
+  float Apply( float progress ) const;
+
 private:
 
   Vector4                 mBezierControlPoints;   //< Control points for the bezier alpha function

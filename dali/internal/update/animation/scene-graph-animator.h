@@ -140,134 +140,6 @@ public:
     return mAlphaFunction;
   }
 
-  /*
-   * Applies the alpha function to the specified progress
-   * @param[in] Current progress
-   * @return The progress after the alpha function has been aplied
-   */
-  float ApplyAlphaFunction( float progress ) const
-  {
-    float result = progress;
-
-    AlphaFunction::Mode alphaFunctionMode( mAlphaFunction.GetMode() );
-    if( alphaFunctionMode == AlphaFunction::BUILTIN_FUNCTION )
-    {
-      switch(mAlphaFunction.GetBuiltinFunction())
-      {
-        case AlphaFunction::DEFAULT:
-        case AlphaFunction::LINEAR:
-        {
-          break;
-        }
-        case AlphaFunction::REVERSE:
-        {
-          result = 1.0f-progress;
-          break;
-        }
-        case AlphaFunction::EASE_IN_SQUARE:
-        {
-          result = progress * progress;
-          break;
-        }
-        case AlphaFunction::EASE_OUT_SQUARE:
-        {
-          result = 1.0f - (1.0f-progress) * (1.0f-progress);
-          break;
-        }
-        case AlphaFunction::EASE_IN:
-        {
-          result = progress * progress * progress;
-          break;
-        }
-        case AlphaFunction::EASE_OUT:
-        {
-          result = (progress-1.0f) * (progress-1.0f) * (progress-1.0f) + 1.0f;
-          break;
-        }
-        case AlphaFunction::EASE_IN_OUT:
-        {
-          result = progress*progress*(3.0f-2.0f*progress);
-          break;
-        }
-        case AlphaFunction::EASE_IN_SINE:
-        {
-          result = -1.0f * cosf(progress * Math::PI_2) + 1.0f;
-          break;
-        }
-        case AlphaFunction::EASE_OUT_SINE:
-        {
-          result = sinf(progress * Math::PI_2);
-          break;
-        }
-        case AlphaFunction::EASE_IN_OUT_SINE:
-        {
-          result = -0.5f * (cosf(Math::PI * progress) - 1.0f);
-          break;
-        }
-        case AlphaFunction::BOUNCE:
-        {
-          result = sinf(progress * Math::PI);
-          break;
-        }
-        case AlphaFunction::SIN:
-        {
-          result = 0.5f - cosf(progress * 2.0f * Math::PI) * 0.5f;
-          break;
-        }
-        case AlphaFunction::EASE_OUT_BACK:
-        {
-          const float sqrt2 = 1.70158f;
-          progress -= 1.0f;
-          result = 1.0f + progress * progress * ( ( sqrt2 + 1.0f ) * progress + sqrt2 );
-          break;
-        }
-        default:
-          break;
-      }
-    }
-    else if(  alphaFunctionMode == AlphaFunction::CUSTOM_FUNCTION )
-    {
-      AlphaFunctionPrototype customFunction = mAlphaFunction.GetCustomFunction();
-      if( customFunction )
-      {
-        result = customFunction(progress);
-      }
-    }
-    else
-    {
-      //If progress is very close to 0 or very close to 1 we don't need to evaluate the curve as the result will
-      //be almost 0 or almost 1 respectively
-      if( ( progress > Math::MACHINE_EPSILON_1 ) && ((1.0f - progress) > Math::MACHINE_EPSILON_1) )
-      {
-        Dali::Vector4 controlPoints = mAlphaFunction.GetBezierControlPoints();
-
-        static const float tolerance = 0.001f;  //10 iteration max
-
-        //Perform a binary search on the curve
-        float lowerBound(0.0f);
-        float upperBound(1.0f);
-        float currentT(0.5f);
-        float currentX = EvaluateCubicBezier( controlPoints.x, controlPoints.z, currentT);
-        while( fabs( progress - currentX ) > tolerance )
-        {
-          if( progress > currentX )
-          {
-            lowerBound = currentT;
-          }
-          else
-          {
-            upperBound = currentT;
-          }
-          currentT = (upperBound+lowerBound)*0.5f;
-          currentX = EvaluateCubicBezier( controlPoints.x, controlPoints.z, currentT);
-        }
-        result = EvaluateCubicBezier( controlPoints.y, controlPoints.w, currentT);
-      }
-    }
-
-    return result;
-  }
-
   /**
    * Whether to bake the animation if attached property owner is disconnected.
    * Property is only baked if the animator is active.
@@ -332,19 +204,6 @@ public:
   virtual void Update(BufferIndex bufferIndex, float progress, bool bake) = 0;
 
 protected:
-
-  /**
-   * Helper function to evaluate a cubic bezier curve assuming first point is at 0.0 and last point is at 1.0
-   * @param[in] p0 First control point of the bezier curve
-   * @param[in] p1 Second control point of the bezier curve
-   * @param[in] t A floating point value between 0.0 and 1.0
-   * @return Value of the curve at progress t
-   */
-  inline float EvaluateCubicBezier( float p0, float p1, float t ) const
-  {
-    float tSquare = t*t;
-    return 3.0f*(1.0f-t)*(1.0f-t)*t*p0 + 3.0f*(1.0f-t)*tSquare*p1 + tSquare*t;
-  }
 
   float mDurationSeconds;
   float mInitialDelaySeconds;
@@ -447,7 +306,7 @@ public:
    */
   virtual void Update( BufferIndex bufferIndex, float progress, bool bake )
   {
-    float alpha = ApplyAlphaFunction(progress);
+    float alpha = mAlphaFunction.Apply( progress );
 
     const PropertyType& current = mPropertyAccessor.Get( bufferIndex );
 

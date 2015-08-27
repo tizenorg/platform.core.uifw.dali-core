@@ -105,7 +105,7 @@ Internal::ImagePtr LoadImage(TestApplication& application, char* name)
   application.SendNotification(); // Flush update messages
   application.Render();           // Process resource request
   Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80,80,80,80 );
   Integration::ResourcePointer resourcePtr(bitmap); // reference it
   application.GetPlatform().SetResourceLoaded(req->GetId(), req->GetType()->id, resourcePtr);
@@ -127,7 +127,7 @@ Internal::ResourceTicketPtr CheckLoadBitmap(TestApplication& application, const 
   application.SendNotification(); // Flush update messages
   application.Render();           // Process resource request
   Integration::ResourceRequest*   req = application.GetPlatform().GetRequest();
-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, w, h, w, h );
   Integration::ResourcePointer resourcePtr(bitmap); // reference it
   application.GetPlatform().SetResourceLoaded(req->GetId(), req->GetType()->id, resourcePtr);
@@ -193,7 +193,7 @@ int UtcDaliInternalRequestResourceBitmapRequests01(void)
 
     // Create a resource
     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
-    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
     bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80, 80, 80, 80 );
     Integration::ResourcePointer resourcePtr(bitmap); // reference it
 
@@ -406,7 +406,7 @@ int UtcDaliInternalRequestReloadBitmapRequests01(void)
 
     // Create a new resource - the image size could have changed in the meantime
     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
-    Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+    Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
     bitmap2->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 120, 120, 120, 120 );
     Integration::ResourcePointer resourcePtr2(bitmap2); // reference it
     DALI_TEST_CHECK( req->GetId() == ticket->GetId() );
@@ -504,7 +504,7 @@ int UtcDaliInternalRequestReloadBitmapRequests02(void)
     DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetResourcesFunc ) );
     // Create a resource
     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
-    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
     bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80, 80, 80, 80 );
     Integration::ResourcePointer resourcePtr(bitmap); // reference it
 
@@ -613,7 +613,7 @@ int UtcDaliInternalRequestReloadBitmapRequests03(void)
 
     // Create a resource
     Integration::ResourceRequest* req = application.GetPlatform().GetRequest();
-    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+    Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
     bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 80, 80, 80, 80 );
     Integration::ResourcePointer resourcePtr(bitmap); // reference it
 
@@ -657,7 +657,7 @@ int UtcDaliInternalRequestReloadBitmapRequests03(void)
 
     // Create a new resource - the image size could have changed in the meantime
     req = application.GetPlatform().GetRequest();
-    Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+    Integration::Bitmap* bitmap2 = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
     bitmap2->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 120, 120, 120, 120 );
     Integration::ResourcePointer resourcePtr2(bitmap2); // reference it
     DALI_TEST_CHECK( req->GetId() == id );
@@ -723,47 +723,13 @@ int UtcDaliInternalRequestResourceTicket02(void)
   END_TEST;
 }
 
-int UtcDaliInternalAllocateBitmapImage01(void)
-{
-  TestApplication application;
-  tet_infoline("Testing AllocateBitmapImage()");
-  testTicketObserver.Reset();
-
-  Internal::ResourceClient& resourceClient  = Internal::ThreadLocalStorage::Get().GetResourceClient();
-  Internal::ImageTicketPtr imageTicket = resourceClient.AllocateBitmapImage(80, 80, 80, 80, Pixel::RGB565);
-  imageTicket->AddObserver( testTicketObserver );
-
-  DALI_TEST_CHECK( imageTicket );
-  DALI_TEST_EQUALS ( imageTicket->GetLoadingState(), ResourceLoadingSucceeded, TEST_LOCATION );
-  DALI_TEST_EQUALS ( imageTicket->GetWidth(), 80, TEST_LOCATION );
-  DALI_TEST_EQUALS ( imageTicket->GetHeight(), 80, TEST_LOCATION );
-
-  application.SendNotification(); // Flush update queue
-  application.Render(0); // Process message
-  application.SendNotification(); // Send message to tickets
-
-  DALI_TEST_CHECK ( 0 == testTicketObserver.LoadSucceededCalled() ); // Check no message was sent
-  DALI_TEST_EQUALS ( imageTicket->GetLoadingState(), ResourceLoadingSucceeded, TEST_LOCATION );
-  DALI_TEST_EQUALS ( imageTicket->GetWidth(), 80, TEST_LOCATION );
-  DALI_TEST_EQUALS ( imageTicket->GetHeight(), 80, TEST_LOCATION );
-
-  Integration::Bitmap* bitmap = resourceClient.GetBitmap(imageTicket);
-  DALI_TEST_CHECK ( bitmap != NULL );
-  DALI_TEST_EQUALS ( bitmap->GetImageWidth(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetImageHeight(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferWidth(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferHeight(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPixelFormat(), Pixel::RGB565, TEST_LOCATION );
-  END_TEST;
-}
-
 int UtcDaliInternalAddBitmapImage01(void)
 {
   TestApplication application;
   tet_infoline("Testing AddBitmap with reserved buffer()");
   testTicketObserver.Reset();
   Internal::ResourceClient& resourceClient  = Internal::ThreadLocalStorage::Get().GetResourceClient();
-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_RETAIN  );
+  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::RETAIN  );
   bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGB565, 80, 80, 80, 80 );
 
   Internal::ImageTicketPtr imageTicket = resourceClient.AddBitmapImage( bitmap );
@@ -782,15 +748,6 @@ int UtcDaliInternalAddBitmapImage01(void)
   DALI_TEST_EQUALS ( imageTicket->GetLoadingState(), ResourceLoadingSucceeded, TEST_LOCATION );
   DALI_TEST_EQUALS ( imageTicket->GetWidth(), 80, TEST_LOCATION );
   DALI_TEST_EQUALS ( imageTicket->GetHeight(), 80, TEST_LOCATION );
-
-  Integration::Bitmap* theBitmap = resourceClient.GetBitmap(imageTicket);
-  DALI_TEST_CHECK ( theBitmap != NULL );
-  DALI_TEST_CHECK ( bitmap == theBitmap );
-  DALI_TEST_EQUALS ( bitmap->GetImageWidth(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetImageHeight(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferWidth(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferHeight(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPixelFormat(), Pixel::RGB565, TEST_LOCATION );
   END_TEST;
 }
 
@@ -800,7 +757,7 @@ int UtcDaliInternalAddBitmapImage02(void)
   tet_infoline("Testing AddBitmap without reserved buffer()");
   testTicketObserver.Reset();
   Internal::ResourceClient& resourceClient  = Internal::ThreadLocalStorage::Get().GetResourceClient();
-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_RETAIN  );
+  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::RETAIN  );
 
   Internal::ImageTicketPtr imageTicket = resourceClient.AddBitmapImage( bitmap );
   DALI_TEST_CHECK( imageTicket );
@@ -819,19 +776,6 @@ int UtcDaliInternalAddBitmapImage02(void)
   DALI_TEST_EQUALS ( imageTicket->GetWidth(), 0, TEST_LOCATION );
   DALI_TEST_EQUALS ( imageTicket->GetHeight(), 0, TEST_LOCATION );
   DALI_TEST_CHECK ( 0 == testTicketObserver.LoadSucceededCalled() ); // Check no message was sent
-
-  Integration::Bitmap* theBitmap = resourceClient.GetBitmap(imageTicket);
-  DALI_TEST_CHECK ( theBitmap != NULL );
-  DALI_TEST_CHECK ( bitmap == theBitmap );
-  DALI_TEST_EQUALS ( bitmap->GetImageWidth(), 0u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetImageHeight(), 0u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferWidth(), 0u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferHeight(), 0u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION );
-
-  // There is no way for the ticket's image attributes to be updated if the bitmap
-  // reserves a buffer after ticket generation.
-  // Probably not an issue - there is no public API in BufferImage to change the image size.
   END_TEST;
 }
 
@@ -855,77 +799,6 @@ int UtcDaliInternalAddBitmapImage03(void)
   }
   DALI_TEST_CHECK( exceptionRaised );
   DALI_TEST_CHECK( ! imageTicket );
-  END_TEST;
-}
-
-int UtcDaliInternalGetBitmapImage01(void)
-{
-  TestApplication application;
-  tet_infoline("Testing GetBitmap() with valid ticket");
-  testTicketObserver.Reset();
-
-  Internal::ResourceClient& resourceClient  = Internal::ThreadLocalStorage::Get().GetResourceClient();
-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_RETAIN  );
-  bitmap->GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, 20, 20, 80, 80 );
-  Internal::ImageTicketPtr imageTicket = resourceClient.AddBitmapImage( bitmap );
-
-  Integration::Bitmap* theBitmap = resourceClient.GetBitmap(imageTicket);
-  DALI_TEST_CHECK ( theBitmap != NULL );
-  DALI_TEST_CHECK ( bitmap == theBitmap );
-  DALI_TEST_EQUALS ( bitmap->GetImageWidth(),   20u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetImageHeight(),  20u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferWidth(),  80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferHeight(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION );
-
-  imageTicket->AddObserver( testTicketObserver );
-  application.SendNotification(); // Flush update queue
-  application.Render(0);          // Process message
-  application.SendNotification(); // Send message to tickets
-
-  theBitmap = resourceClient.GetBitmap(imageTicket);
-  DALI_TEST_CHECK ( theBitmap != NULL );
-  DALI_TEST_CHECK ( bitmap == theBitmap );
-  DALI_TEST_EQUALS ( bitmap->GetImageWidth(),   20u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetImageHeight(),  20u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferWidth(),  80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPackedPixelsProfile()->GetBufferHeight(), 80u, TEST_LOCATION );
-  DALI_TEST_EQUALS ( bitmap->GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION );
-  END_TEST;
-}
-
-int UtcDaliInternalGetBitmapImage02(void)
-{
-  TestApplication application;
-  tet_infoline("Testing GetBitmap() with invalid ticket");
-
-  Internal::ResourceClient& resourceClient  = Internal::ThreadLocalStorage::Get().GetResourceClient();
-  Internal::ImageTicketPtr imageTicket;
-  Integration::Bitmap* theBitmap = NULL;
-  bool exceptionRaised = false;
-  try
-  {
-    theBitmap = resourceClient.GetBitmap(imageTicket);
-  } catch (DaliException& e)
-  {
-    exceptionRaised = true;
-  }
-  DALI_TEST_CHECK( exceptionRaised );
-  DALI_TEST_CHECK( ! theBitmap );
-  END_TEST;
-}
-
-int UtcDaliInternalGetBitmapImage03(void)
-{
-  TestApplication application;
-  tet_infoline("Testing GetBitmap() with valid ticket for incorrect type");
-
-  Internal::ResourceClient& resourceClient  = Internal::ThreadLocalStorage::Get().GetResourceClient();  Internal::ResourceTicketPtr imageTicket = CheckLoadBitmap( application, "Stuff.png", 100, 100 );
-
-  Integration::Bitmap* theBitmap = NULL;
-  theBitmap = resourceClient.GetBitmap(imageTicket);
-  DALI_TEST_CHECK( ! theBitmap );
-
   END_TEST;
 }
 
@@ -982,11 +855,6 @@ int UtcDaliInternalAddNativeImage(void)
   DALI_TEST_EQUALS ( imageTicket->GetWidth(),  80, TEST_LOCATION );
   DALI_TEST_EQUALS ( imageTicket->GetHeight(), 80, TEST_LOCATION );
   DALI_TEST_CHECK ( 0 == testTicketObserver.LoadSucceededCalled() ); // Check no message was sent
-
-  Integration::Bitmap* theBitmap = NULL;
-  theBitmap = resourceClient.GetBitmap(imageTicket);
-
-  DALI_TEST_CHECK ( theBitmap == NULL );
   END_TEST;
 }
 
@@ -1014,9 +882,5 @@ int UtcDaliInternalAddFrameBufferImage(void)
   DALI_TEST_EQUALS ( imageTicket->GetWidth(), 80, TEST_LOCATION );
   DALI_TEST_EQUALS ( imageTicket->GetHeight(), 80, TEST_LOCATION );
   DALI_TEST_CHECK ( 0 == testTicketObserver.LoadSucceededCalled() ); // Check no message was sent
-
-  Integration::Bitmap* theBitmap = NULL;
-  theBitmap = resourceClient.GetBitmap(imageTicket);
-  DALI_TEST_CHECK ( theBitmap == NULL );
   END_TEST;
 }

@@ -117,10 +117,10 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
   RenderQueue& renderQueue = mRenderManager->GetRenderQueue();
   TextureCache& textureCache = mRenderManager->GetTextureCache();
 
-  ResourcePolicy::Discardable discardPolicy = ResourcePolicy::OWNED_DISCARD;
+  ResourcePolicy::Discardable discardPolicy = ResourcePolicy::DISCARD;
   if( dataRetentionPolicy == ResourcePolicy::DALI_RETAINS_ALL_DATA )
   {
-    discardPolicy = ResourcePolicy::OWNED_RETAIN;
+    discardPolicy = ResourcePolicy::RETAIN;
   }
   textureCache.SetDiscardBitmapsPolicy(discardPolicy);
 

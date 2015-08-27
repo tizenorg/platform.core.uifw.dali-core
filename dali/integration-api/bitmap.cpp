@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/images/bitmap-packed-pixel.h>
 #include <dali/internal/event/images/bitmap-compressed.h>
-#include <dali/internal/event/images/bitmap-external.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 
@@ -245,7 +244,7 @@ void ConvertToGlFormat( Format pixelformat, unsigned& pixelDataType, unsigned& i
 }
 
 Bitmap* Bitmap::New( const Profile profile = BITMAP_2D_PACKED_PIXELS,
-                     ResourcePolicy::Discardable discardable = ResourcePolicy::OWNED_DISCARD )
+                     ResourcePolicy::Discardable discardable = ResourcePolicy::DISCARD )
 {
   DALI_ASSERT_DEBUG(profile == BITMAP_2D_PACKED_PIXELS || profile == BITMAP_COMPRESSED);
 
@@ -284,7 +283,7 @@ Bitmap::Bitmap( ResourcePolicy::Discardable discardable, Dali::Integration::Pixe
 
 void Bitmap::DiscardBuffer()
 {
-  if( mDiscardable == ResourcePolicy::OWNED_DISCARD )
+  if( mDiscardable == ResourcePolicy::DISCARD )
   {
     DeletePixelBuffer();
   }
@@ -303,13 +302,7 @@ PixelBuffer* Bitmap::ReleaseBuffer()
 Bitmap::~Bitmap()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
-
-  // If owned
-  if( mDiscardable == ResourcePolicy::OWNED_DISCARD ||
-      mDiscardable == ResourcePolicy::OWNED_RETAIN )
-  {
-    DeletePixelBuffer();
-  }
+  DeletePixelBuffer();
 }
 
 /**

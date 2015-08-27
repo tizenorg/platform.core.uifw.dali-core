@@ -35,7 +35,7 @@ void PrepareResourceImage( TestApplication& application, unsigned int imageHeigh
   TestPlatformAbstraction& platform = application.GetPlatform();
   platform.SetClosestImageSize(Vector2( 16, 16));
 
-  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN );
+  Integration::Bitmap* bitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::RETAIN );
   Integration::PixelBuffer* pixbuffer = bitmap->GetPackedPixelsProfile()->ReserveBuffer( pixelFormat, imageWidth, imageHeight, imageWidth, imageHeight );
   unsigned int bytesPerPixel = GetBytesPerPixel(  pixelFormat );
   unsigned int initialColor = 0xFF;
@@ -84,8 +84,9 @@ int UtcDaliAtlasUpload01(void)
   DALI_TEST_CHECK( atlas );
 
   // Using correct pixel format
-  PixelBuffer* buffer = new PixelBuffer[16 * 16];
+  PixelBuffer* buffer = new PixelBuffer[16 * 16 * 4];
   BufferImage image = BufferImage::New( buffer, 16, 16, Pixel::RGBA8888 );
+  image.Update();
   DALI_TEST_CHECK( atlas.Upload( image, 0, 0 ) );
 
   PrepareResourceImage( application, 16, 16, Pixel::RGBA8888 );
@@ -122,7 +123,7 @@ int UtcDaliAtlasUpload03(void)
   DALI_TEST_CHECK( atlas );
 
   // Using image too big for atlas
-  PixelBuffer* buffer = new PixelBuffer[16 * 16];
+  PixelBuffer* buffer = new PixelBuffer[16 * 16 * 4];
   BufferImage image = BufferImage::New( buffer, 16, 16, Pixel::RGBA8888 );
   DALI_TEST_CHECK( !atlas.Upload( image, 0, 0 ) );
 
@@ -141,8 +142,9 @@ int UtcDaliAtlasUpload04(void)
   DALI_TEST_CHECK( atlas );
 
   // Using valid offsets
-  PixelBuffer* buffer = new PixelBuffer[16 * 16];
+  PixelBuffer* buffer = new PixelBuffer[16 * 16 * 4];
   BufferImage image = BufferImage::New( buffer, 16, 16, Pixel::RGBA8888 );
+  image.Update();
 
   DALI_TEST_CHECK( atlas.Upload( image,  0,  0 ) );
   DALI_TEST_CHECK( atlas.Upload( image, 16,  0 ) );
@@ -167,7 +169,7 @@ int UtcDaliAtlasUpload05(void)
   DALI_TEST_CHECK( atlas );
 
   // Using invalid offsets
-  PixelBuffer* buffer = new PixelBuffer[16 * 16];
+  PixelBuffer* buffer = new PixelBuffer[16 * 16 * 4];
   BufferImage image = BufferImage::New( buffer, 16, 16, Pixel::RGBA8888 );
 
   DALI_TEST_CHECK( !atlas.Upload( image,  0, 17 ) );

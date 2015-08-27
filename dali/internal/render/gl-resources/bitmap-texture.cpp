@@ -114,7 +114,7 @@ void BitmapTexture::AreaUpdated( const RectArea& updateArea, const unsigned char
                    updateArea.x, updateArea.y, updateArea.width ,updateArea.height );
 
     const unsigned int pitchPixels = mWidth;
-    const unsigned int pixelDepth = GetBytesPerPixel( mPixelFormat );
+    const unsigned int pixelDepth = Dali::Pixel::GetBytesPerPixel( mPixelFormat );
 
     // If the width of the source update area is the same as the pitch, then can
     // copy the contents in a single contiguous TexSubImage call.
@@ -168,6 +168,9 @@ void BitmapTexture::AssignBitmap( bool generateTexture, const unsigned char* pix
   mContext.TexImage2D(GL_TEXTURE_2D, 0, pixelFormat, mWidth, mHeight, 0, pixelFormat, pixelDataType, pixels);
   mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   mContext.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  // If the resource policy is to discard on upload then release buffer
+  DiscardBitmapBuffer();
 
   if( pixels != NULL )
   {
@@ -367,12 +370,15 @@ unsigned int BitmapTexture::GetHeight() const
 
 void BitmapTexture::DiscardBitmapBuffer()
 {
-  DALI_LOG_INFO(Debug::Filter::gImage, Debug::General, "BitmapTexture::DiscardBitmapBuffer() DiscardPolicy: %s\n", mDiscardPolicy == ResourcePolicy::OWNED_DISCARD?"DISCARD":"RETAIN");
+  DALI_LOG_INFO(Debug::Filter::gImage, Debug::General, "BitmapTexture::DiscardBitmapBuffer() DiscardPolicy: %s\n", mDiscardPolicy == ResourcePolicy::DISCARD?"DISCARD":"RETAIN");
 
-  if( ResourcePolicy::OWNED_DISCARD == mDiscardPolicy )
+  if( ResourcePolicy::DISCARD == mDiscardPolicy )
   {
     DALI_LOG_INFO(Debug::Filter::gImage, Debug::General, "  Discarding bitmap\n");
-    mBitmap->DiscardBuffer();
+    if ( mBitmap )
+    {
+      mBitmap->DiscardBuffer();
+    }
   }
 }
 

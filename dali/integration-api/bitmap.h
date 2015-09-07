@@ -94,9 +94,9 @@ public:
    * wrap this in a reference-counting smart pointer or store it in a similarly
    * automatic owning collection.
    * @param[in] profile Defines required features of the bitmap (\sa Profile).
-   * @param[in] discardable OWNED_DISCARD means that the data is owned by bitmap,
+   * @param[in] discardable DISCARD means that the data is owned by bitmap,
    * and may released away after uploading to GPU.
-   * OWNED_RETAIN means that the data is owned and must be kept in CPU memory
+   * RETAIN means that the data is owned and must be kept in CPU memory
    * e.g. for an image that cannot be reloaded from disk.
    * NOT_OWNED means that the data is managed by an external component and is
    * guaranteed to remain dereferenceable at least as long as the Bitmap remains alive.

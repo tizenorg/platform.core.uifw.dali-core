@@ -67,6 +67,10 @@ bool Atlas::Upload( BufferImage& bufferImage,
   {
     AllocateAtlas();
     ResourceId destId = GetResourceId();
+
+    // Ensure that the source buffer image is properly updated and get resource id
+    RectArea area;
+    bufferImage.Update( area );
     ResourceId srcId = bufferImage.GetResourceId();
 
     if( destId && srcId )

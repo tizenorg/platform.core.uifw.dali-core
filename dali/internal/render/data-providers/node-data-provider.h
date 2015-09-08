@@ -44,7 +44,7 @@ public:
    * @param bufferId to use
    * @return a reference to the model matrix
    */
-  virtual const Matrix& GetModelMatrix( unsigned int bufferId ) = 0;
+  virtual const Matrix& GetModelMatrix( unsigned int bufferId ) const = 0;
 
   /**
    * @param bufferId to use

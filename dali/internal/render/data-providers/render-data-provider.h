@@ -132,6 +132,7 @@ private:
 
 // Give RendererAttachment access to our private data to reduce copying vectors on construction.
   friend class RendererAttachment;
+  friend class R3nderer;
 };
 
 } // SceneGraph

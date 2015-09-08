@@ -135,6 +135,7 @@ static bool AddRenderablesForTask( BufferIndex updateBufferIndex,
 
   inheritedDrawMode |= node.GetDrawMode();
 
+
   if ( node.HasAttachment() )
   {
     RenderableAttachment* renderable = node.GetAttachment().GetRenderable(); // not all attachments render
@@ -172,6 +173,45 @@ static bool AddRenderablesForTask( BufferIndex updateBufferIndex,
       }
     }
   }
+
+
+  for( unsigned int i(0); i<node.GetRendererCount(); ++i )
+  {
+
+    R3nderer* renderer = node.GetRendererAt( i );
+    //TODO:FERRAN bool visible = renderer->HasVisibleSizeAndColor();
+    bool visible = true;
+    if( visible )
+    {
+      bool ready = true;
+      bool complete = true;
+     //TODO: FERRAN renderer->GetReadyAndComplete(ready, complete);
+
+      //DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "Testing renderable:%p ready:%s complete:%s\n", renderable, ready?"T":"F", complete?"T":"F");
+
+      resourcesFinished = !complete ? complete : resourcesFinished;
+
+      if( ready ) // i.e. some resources are ready
+      {
+        if( DrawMode::STENCIL == inheritedDrawMode )
+        {
+          layer->stencilRenderers.push_back( NodeRenderer(&node, renderer ) );
+        }
+        else if( DrawMode::OVERLAY_2D == inheritedDrawMode )
+        {
+          layer->overlayRenderers.push_back( NodeRenderer(&node, renderer ) );
+        }
+        else
+        {
+          layer->colorRenderers.push_back( NodeRenderer(&node, renderer ) );
+          std::cout<<"Adding renderer to colorRenderers list "<<node.GetWorldMatrix(updateBufferIndex)<<std::endl;
+        }
+      }
+
+
+    }
+  }
+
 
   // Recurse children
   NodeContainer& children = node.GetChildren();

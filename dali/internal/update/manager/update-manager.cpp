@@ -52,7 +52,7 @@
 #include <dali/internal/update/manager/update-algorithms.h>
 #include <dali/internal/update/manager/update-manager-debug.h>
 #include <dali/internal/update/node-attachments/scene-graph-camera-attachment.h>
-#include <dali/internal/update/node-attachments/scene-graph-renderer-attachment.h>
+//#include <dali/internal/update/node-attachments/scene-graph-renderer-attachment.h>
 #include <dali/internal/update/node-attachments/scene-graph-image-attachment.h>
 #include <dali/internal/update/nodes/node.h>
 #include <dali/internal/update/nodes/scene-graph-layer.h>
@@ -72,6 +72,8 @@
 #include <dali/internal/render/common/performance-monitor.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
+
+
 
 // Un-comment to enable node tree debug logging
 //#define NODE_TREE_LOGGING 1
@@ -176,6 +178,7 @@ struct UpdateManager::Impl
     systemLevelTaskList ( completeStatusManager ),
     root( NULL ),
     systemLevelRoot( NULL ),
+    renderers(  sceneGraphBuffers, discardQueue ),
     geometries(  sceneGraphBuffers, discardQueue ),
     materials( sceneGraphBuffers, discardQueue ),
     samplers( sceneGraphBuffers, discardQueue ),
@@ -191,6 +194,7 @@ struct UpdateManager::Impl
   {
     sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue, textureCache, completeStatusManager );
 
+    renderers.SetSceneController( *sceneController );
     geometries.SetSceneController( *sceneController );
     materials.SetSceneController( *sceneController );
     propertyBuffers.SetSceneController( *sceneController );
@@ -273,6 +277,7 @@ struct UpdateManager::Impl
   AnimationContainer                  animations;                    ///< A container of owned animations
   PropertyNotificationContainer       propertyNotifications;         ///< A container of owner property notifications.
 
+  ObjectOwnerContainer<R3nderer>      renderers;
   ObjectOwnerContainer<Geometry>      geometries;                    ///< A container of geometries
   ObjectOwnerContainer<Material>      materials;                     ///< A container of materials
   ObjectOwnerContainer<Sampler>       samplers;                      ///< A container of samplers
@@ -437,13 +442,31 @@ void UpdateManager::AttachToNode( Node* node, NodeAttachment* attachment )
   }
 }
 
-void UpdateManager::AttachToSceneGraph( RendererAttachment* renderer )
-{
-  // @todo MESH_REWORK Take ownership of this object after merge with SceneGraph::RenderableAttachment
+//void UpdateManager::AddRendererToNode( Node* node, R3nderer* renderer )
+//{
+//  DALI_ASSERT_DEBUG( node != NULL );
+//  DALI_ASSERT_DEBUG( renderer != NULL );
+//  node->AddRenderer( renderer );
+//}
+//
+//void UpdateManager::RemoveRendererFromNode( Node* node, R3nderer* renderer )
+//{
+//  DALI_ASSERT_DEBUG( node != NULL );
+//  DALI_ASSERT_DEBUG( renderer != NULL );
+//
+//
+//  //TODO: Ferran Remove renderer from node
+//  node->RemoveRenderer( renderer );
+//}
 
-  SceneGraph::NodeAttachment* attachment = static_cast<SceneGraph::NodeAttachment*>(renderer);
-  attachment->Initialize( *mImpl->sceneController, mSceneGraphBuffers.GetUpdateBufferIndex() );
-}
+
+//void UpdateManager::AttachToSceneGraph( RendererAttachment* renderer )
+//{
+//  // @todo MESH_REWORK Take ownership of this object after merge with SceneGraph::RenderableAttachment
+//
+//  SceneGraph::NodeAttachment* attachment = static_cast<SceneGraph::NodeAttachment*>(renderer);
+//  attachment->Initialize( *mImpl->sceneController, mSceneGraphBuffers.GetUpdateBufferIndex() );
+//}
 
 void UpdateManager::AddObject( PropertyOwner* object )
 {
@@ -549,6 +572,12 @@ ObjectOwnerContainer<Geometry>& UpdateManager::GetGeometryOwner()
 {
   return mImpl->geometries;
 }
+
+ObjectOwnerContainer<R3nderer>& UpdateManager::GetRendererOwner()
+{
+  return mImpl->renderers;
+}
+
 
 ObjectOwnerContainer<Material>& UpdateManager::GetMaterialOwner()
 {
@@ -988,13 +1017,15 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   mImpl->touchResampler.Update();
   const bool gestureUpdated = ProcessGestures( bufferIndex, lastVSyncTimeMilliseconds, nextVSyncTimeMilliseconds );
 
-  const bool updateScene =                                            // The scene-graph requires an update if..
+   bool updateScene =                                            // The scene-graph requires an update if..
       (mImpl->nodeDirtyFlags & RenderableUpdateFlags) ||              // ..nodes were dirty in previous frame OR
       IsAnimationRunning() ||                                         // ..at least one animation is running OR
       mImpl->messageQueue.IsSceneUpdateRequired() ||                  // ..a message that modifies the scene graph node tree is queued OR
       resourceChanged ||                                              // ..one or more resources were updated/changed OR
       gestureUpdated;                                                // ..a gesture property was updated
 
+   //@TODO:FERRAN !!!!
+   updateScene = true;
   // Although the scene-graph may not require an update, we still need to synchronize double-buffered
   // values if the scene was updated in the previous frame.
   if( updateScene || mImpl->previousUpdateScene )

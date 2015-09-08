@@ -37,6 +37,7 @@
 #include <dali/internal/update/nodes/scene-graph-layer.h>
 
 #include <dali/internal/render/shaders/scene-graph-shader.h>
+#include <dali/internal/update/rendering/scene-graph-renderer2.h>
 
 namespace Dali
 {
@@ -75,7 +76,6 @@ class Geometry;
 class PropertyBuffer;
 class Material;
 class Sampler;
-class RendererAttachment;
 
 /**
  * UpdateManager maintains a scene graph i.e. a tree of nodes and attachments and
@@ -188,10 +188,13 @@ public:
    */
   void AttachToNode( Node* node, NodeAttachment* attachment );
 
+  //void AddRendererToNode( Node* node, R3nderer* renderer );
+
+  //void RemoveRendererFromNode( Node* node, R3nderer* renderer );
   /**
    * Attach a renderer to the scene graph
    */
-  void AttachToSceneGraph( RendererAttachment* renderer );
+  //void AttachToSceneGraph( RendererAttachment* renderer );
 
 
   /**
@@ -263,6 +266,7 @@ public:
    */
   ObjectOwnerContainer< Geometry >& GetGeometryOwner();
 
+  ObjectOwnerContainer< R3nderer >& GetRendererOwner();
   /**
    * @brief Get the material owner
    *
@@ -583,17 +587,32 @@ inline void AttachToNodeMessage( UpdateManager& manager, const Node& constParent
   new (slot) LocalType( &manager, &UpdateManager::AttachToNode, &parent, attachment );
 }
 
-inline void AttachToSceneGraphMessage( UpdateManager& manager, RendererAttachment* renderer )
-{
-  // @todo MESH_REWORK Pass by owner pointer after merge with SceneGraph::RenderableAttachment
-  typedef MessageValue1< UpdateManager, RendererAttachment* > LocalType;
+//inline void AddRendererToNodeMessage( UpdateManager& manager, const Node& constParent, R3nderer* renderer )
+//{
+//  // Scene graph thread can modify this object.
+//  Node& parent = const_cast< Node& >( constParent );
+//
+//  // @todo MESH_REWORK Don't pass by owner pointer after merge with SceneGraph::RenderableAttachment ? (not needed if we split RendererAttachment to 2 objects)
+//  typedef MessageValue2< UpdateManager, Node*, R3nderer* > LocalType;
+//
+//  // Reserve some memory inside the message queue
+//  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+//
+//  // Construct message in the message queue memory; note that delete should not be called on the return value
+//  new (slot) LocalType( &manager, &UpdateManager::AddRendererToNode, &parent, renderer );
+//}
 
-  // Reserve some memory inside the message queue
-  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
-
-  // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &manager, &UpdateManager::AttachToSceneGraph, renderer );
-}
+//inline void AttachToSceneGraphMessage( UpdateManager& manager, RendererAttachment* renderer )
+//{
+//  // @todo MESH_REWORK Pass by owner pointer after merge with SceneGraph::RenderableAttachment
+//  typedef MessageValue1< UpdateManager, RendererAttachment* > LocalType;
+//
+//  // Reserve some memory inside the message queue
+//  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+//
+//  // Construct message in the message queue memory; note that delete should not be called on the return value
+//  new (slot) LocalType( &manager, &UpdateManager::AttachToSceneGraph, renderer );
+//}
 
 inline void AddObjectMessage( UpdateManager& manager, PropertyOwner* object )
 {

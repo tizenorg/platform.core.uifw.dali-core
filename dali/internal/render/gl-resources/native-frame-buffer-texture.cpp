@@ -68,6 +68,25 @@ bool NativeFrameBufferTexture::Init()
   return status;
 }
 
+bool NativeFrameBufferTexture::Bind( GLenum target, TextureUnit textureunit )
+{
+  bool created = false;
+
+  if( mId==0 )
+  {
+    CreateGlTexture();
+    created = true;
+  }
+
+  // Bind the texture id
+  mContext.ActiveTexture( textureunit );
+  mContext.Bind2dTexture( mId );
+
+  mNativeImage->PrepareTexture();
+
+  return created;
+}
+
 bool NativeFrameBufferTexture::CreateGlTexture()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);

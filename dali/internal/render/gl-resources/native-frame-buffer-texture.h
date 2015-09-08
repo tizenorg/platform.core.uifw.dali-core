@@ -67,6 +67,11 @@ public:
    */
   virtual bool Init();
 
+  /**
+   * @copydoc Texture::Bind
+   */
+  virtual bool Bind( GLenum target, TextureUnit textureunit );
+
 protected:
   /**
    * @copydoc Texture::CreateGlTexture

@@ -32,7 +32,7 @@
 #include <dali/internal/event/actor-attachments/actor-attachment-impl.h>
 #include <dali/internal/event/actor-attachments/camera-attachment-impl.h>
 #include <dali/internal/event/actor-attachments/image-attachment-impl.h>
-#include <dali/internal/event/actor-attachments/renderer-attachment-impl.h>
+//#include <dali/internal/event/actor-attachments/renderer-attachment-impl.h>
 
 #include <dali/internal/event/animation/animation-impl.h>
 #include <dali/internal/event/animation/animator-connector.h>
@@ -54,7 +54,7 @@
 #include <dali/internal/update/node-attachments/node-attachment.h>
 #include <dali/internal/update/node-attachments/scene-graph-camera-attachment.h>
 #include <dali/internal/update/node-attachments/scene-graph-image-attachment.h>
-#include <dali/internal/update/node-attachments/scene-graph-renderer-attachment.h>
+//#include <dali/internal/update/node-attachments/scene-graph-renderer-attachment.h>
 
 #include <dali/internal/update/resources/bitmap-metadata.h>
 
@@ -130,8 +130,8 @@ const int IMAGE_MEMORY_SIZE(
   sizeof( Internal::ImageTicket ) );
 const int RENDERER_MEMORY_SIZE(
   sizeof( Internal::Renderer ) +
-  sizeof( Internal::RendererAttachment ) +
-  sizeof( Internal::SceneGraph::RendererAttachment ) +
+  //sizeof( Internal::RendererAttachment ) +
+  //sizeof( Internal::SceneGraph::RendererAttachment ) +
   sizeof( Internal::SceneGraph::Renderer ) +
   sizeof( Internal::SceneGraph::NewRenderer ) );
 const int GEOMETRY_MEMORY_SIZE(

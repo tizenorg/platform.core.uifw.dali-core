@@ -29,6 +29,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/common/type-abstraction-enums.h>
 
+
 namespace Dali
 {
 
@@ -105,19 +106,21 @@ public:
   void Render( Context& context,
                TextureCache& textureCache,
                BufferIndex bufferIndex,
+               const NodeDataProvider& node,
                Shader& defaultShader,
                const Matrix& modelViewMatrix,
                const Matrix& viewMatrix,
                const Matrix& projectionMatrix,
                float frametime,
-               bool cull );
+               bool cull,
+               bool blend);
 
 protected:
   /**
    * Protected constructor; only derived classes can be instantiated.
    * @param dataprovider for rendering
    */
-  Renderer( NodeDataProvider& dataprovider );
+  Renderer();
 
 private:
 
@@ -140,7 +143,7 @@ private:
    * @param[in] modelViewProjectionMatrix The MVP matrix.
    * @return \e true if it is. Otherwise \e false.
    */
-  virtual bool IsOutsideClipSpace( Context& context, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix ) = 0;
+  virtual bool IsOutsideClipSpace( Context& context, const Matrix& modelViewProjectionMatrix ) = 0;
 
   /**
    * Called from Render prior to DoRender().
@@ -158,7 +161,7 @@ private:
    * Called from Render prior to DoRender(). Default method to set blending options
    * @todo MESH_REWORK Remove after merge
    */
-  virtual void DoSetBlending( Context& context, BufferIndex bufferIndex ) = 0;
+  virtual void DoSetBlending( Context& context, BufferIndex bufferIndex, bool blend ) = 0;
 
   /**
    * Called from Render; implemented in derived classes.
@@ -169,11 +172,9 @@ private:
    * @param[in] modelViewMatrix The model-view matrix.
    * @param[in] viewMatrix The view matrix.
    */
-  virtual void DoRender( Context& context, TextureCache& textureCache, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix ) = 0;
+  virtual void DoRender( Context& context, TextureCache& textureCache, const NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix ) = 0;
 
 protected:
-
-  NodeDataProvider& mDataProvider;        // @todo MESH_REWORK rename to mNodeDataProvider. Shouldn't it be const?
 
   Context* mContextDELETEME; // TODO: MESH_REWORK DELETE THIS
   TextureCache* mTextureCacheDELETEME; // TODO: MESH_REWORK DELETE THIS

@@ -52,6 +52,11 @@ void RenderItem::SetRenderer( Renderer* renderer )
   mRenderer = renderer;
 }
 
+void RenderItem::SetNode( Node* node )
+{
+  mNode = node;
+}
+
 const Renderer* RenderItem::GetRenderer() const
 {
   return mRenderer;

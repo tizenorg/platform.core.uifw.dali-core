@@ -51,14 +51,15 @@ public:
    * @param[in] dataProviders The data providers for the renderer
    * @param[in] renderGeometry The geometry for the renderer
    */
-  static NewRenderer* New( NodeDataProvider& nodeDataProvider, RenderDataProvider* dataProviders, RenderGeometry* renderGeometry );
+  static NewRenderer* New( RenderDataProvider* dataProviders, RenderGeometry* renderGeometry );
+
   /**
    * Constructor.
    * @param[in] nodeDataProvider The node data provider
    * @param[in] dataProviders The data providers for the renderer
    * @param[in] renderGeometry The geometry for the renderer
    */
-  NewRenderer( NodeDataProvider& nodeDataProvider, RenderDataProvider* dataProviders, RenderGeometry* renderGeometry );
+  NewRenderer( RenderDataProvider* dataProviders, RenderGeometry* renderGeometry );
 
   virtual ~NewRenderer();
 
@@ -89,7 +90,6 @@ public: // Implementation of Renderer
    * @copydoc SceneGraph::Renderer::IsOutsideClipSpace()
    */
   virtual bool IsOutsideClipSpace( Context& context,
-                                   const Matrix& modelMatrix,
                                    const Matrix& modelViewProjectionMatrix );
 
   /**
@@ -105,13 +105,14 @@ public: // Implementation of Renderer
   /**
    * @copydoc SceneGraph::Renderer::DoSetBlending
    */
-  virtual void DoSetBlending(Context& context, BufferIndex bufferIndex );
+  virtual void DoSetBlending(Context& context, BufferIndex bufferIndex, bool blend );
 
   /**
    * @copydoc SceneGraph::Renderer::DoRender()
    */
   virtual void DoRender( Context& context,
                          TextureCache& textureCache,
+                         const NodeDataProvider& node,
                          BufferIndex bufferIndex,
                          Program& program,
                          const Matrix& modelViewMatrix,
@@ -136,7 +137,7 @@ private:
    * Set the uniforms from properties according to the uniform map
    * @param[in] program The shader program on which to set the uniforms.
    */
-  void SetUniforms( BufferIndex bufferIndex, Program& program );
+  void SetUniforms( BufferIndex bufferIndex, const NodeDataProvider& node, Program& program );
 
   /**
    * Set the program uniform in the map from the mapped property

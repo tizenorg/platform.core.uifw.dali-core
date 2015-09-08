@@ -145,7 +145,10 @@ void Renderer::Render( Context& context,
                        bool cull )
 {
   // @todo MESH_REWORK Fix when merging! :D
+
+  std::cout<<"Rendering ";
   NewRenderer* renderer = dynamic_cast<NewRenderer*>(this);
+  std::cout<<renderer<<std::endl;
   if( renderer )
   {
     // Get the shader from the material:

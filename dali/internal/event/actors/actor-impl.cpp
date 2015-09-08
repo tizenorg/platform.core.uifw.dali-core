@@ -1355,6 +1355,18 @@ bool Actor::RelayoutRequired( Dimension::Type dimension ) const
 
 unsigned int Actor::AddRenderer( Renderer& renderer )
 {
+  if( !mRenderer )
+  {
+    mRenderer = new RendererContainer;
+  }
+
+  RendererPtr rendererPtr = RendererPtr( &renderer );
+  mRenderer->push_back( rendererPtr );
+
+  AddRendererMessage( GetEventThreadServices(), *mNode, renderer.GetRendererSceneObject() );
+
+  //TODO: FERRAN Add the renderer to the rendermanager and add a reference to the node
+  /*
   //TODO: MESH_REWORK : Add support for multiple renderers
   if ( ! mAttachment )
   {
@@ -1364,39 +1376,60 @@ unsigned int Actor::AddRenderer( Renderer& renderer )
       mAttachment->Connect();
     }
   }
-
+*/
   return 0;
 }
 
 unsigned int Actor::GetRendererCount() const
 {
+  if( mRenderer )
+    return mRenderer->size();
+  else
+    return 0;
+
+  //return mRenderer ? mRenderer->size() : 0;
   //TODO: MESH_REWORK : Add support for multiple renderers
-  RendererAttachment* attachment = dynamic_cast<RendererAttachment*>(mAttachment.Get());
-  return attachment ? 1u : 0u;
+  //RendererAttachment* attachment = dynamic_cast<RendererAttachment*>(mAttachment.Get());
+  //return attachment ? 1u : 0u;
 }
 
-Renderer& Actor::GetRendererAt( unsigned int index )
+RendererPtr Actor::GetRendererAt( unsigned int index )
 {
-  //TODO: MESH_REWORK : Add support for multiple renderers
-  DALI_ASSERT_DEBUG( index == 0 && "Only one renderer is supported." );
+  DALI_ASSERT_ALWAYS( index < GetRendererCount());
 
-  //TODO: MESH_REWORK : Temporary code
-  RendererAttachment* attachment = dynamic_cast<RendererAttachment*>(mAttachment.Get());
-  DALI_ASSERT_ALWAYS( attachment && "Actor doesn't have a renderer" );
+  return ( ( mRenderer ) ? ( *mRenderer )[ index ] : RendererPtr() );
 
-  return attachment->GetRenderer();
+//  //TODO: MESH_REWORK : Add support for multiple renderers
+//  DALI_ASSERT_DEBUG( index == 0 && "Only one renderer is supported." );
+//
+//  //TODO: MESH_REWORK : Temporary code
+//  RendererAttachment* attachment = dynamic_cast<RendererAttachment*>(mAttachment.Get());
+//  DALI_ASSERT_ALWAYS( attachment && "Actor doesn't have a renderer" );
+//
+//  return attachment->GetRenderer();
 }
 
 void Actor::RemoveRenderer( Renderer& renderer )
 {
-  //TODO: MESH_REWORK : Add support for multiple renderers
-  mAttachment = NULL;
+  // Find the child in mChildren, and unparent it
+  if( mRenderer )
+  {
+    RendererIter end = mRenderer->end();
+    for( RendererIter iter = mRenderer->begin(); iter != end; ++iter )
+    {
+      if( (*iter).Get() == &renderer )
+      {
+        mRenderer->erase( iter );
+        RemoveRendererMessage( GetEventThreadServices(), *mNode, renderer.GetRendererSceneObject() );
+        break;
+      }
+    }
+  }
 }
 
 void Actor::RemoveRenderer( unsigned int index )
 {
-  //TODO: MESH_REWORK : Add support for multiple renderers
-  mAttachment = NULL;
+  mRenderer->erase( mRenderer->begin()+index );
 }
 
 void Actor::SetOverlay( bool enable )
@@ -1845,6 +1878,7 @@ bool Actor::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tra
 Actor::Actor( DerivedType derivedType )
 : mParent( NULL ),
   mChildren( NULL ),
+  mRenderer( NULL ),
   mNode( NULL ),
   mParentOrigin( NULL ),
   mAnchorPoint( NULL ),
@@ -1901,6 +1935,7 @@ Actor::~Actor()
     }
   }
   delete mChildren;
+  delete mRenderer;
 
   // Guard to allow handle destruction after Core has been destroyed
   if( EventThreadServices::IsCoreRunning() )
@@ -1995,6 +2030,12 @@ void Actor::ConnectToSceneGraph()
     mAttachment->Connect();
   }
 
+  unsigned int rendererCount( GetRendererCount() );
+  for( unsigned int i(0); i<rendererCount; ++i )
+  {
+    GetRendererAt(i)->Connect(mNode);
+  }
+
   // Request relayout on all actors that are added to the scenegraph
   RelayoutRequest();
 
@@ -2080,6 +2121,12 @@ void Actor::DisconnectFromSceneGraph()
   if( mAttachment )
   {
     mAttachment->Disconnect();
+  }
+
+  unsigned int rendererCount( GetRendererCount() );
+  for( unsigned int i(0); i<rendererCount; ++i )
+  {
+    GetRendererAt(i)->Disconnect(mNode);
   }
 }
 

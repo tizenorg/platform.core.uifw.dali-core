@@ -74,10 +74,17 @@ Node::Node()
 
 Node::~Node()
 {
+  std::cout<<"~Node"<<std::endl;
+}
+
+const Matrix& Node::GetModelMatrix( unsigned int bufferId ) const
+{
+  return GetWorldMatrix( bufferId );
 }
 
 void Node::OnDestroy()
 {
+  std::cout<<"Node::OnDestroy"<<std::endl;
   // Node attachments should be notified about the disconnection.
   if ( mAttachment )
   {
@@ -132,6 +139,13 @@ void Node::ConnectChild( Node* childNode )
   {
     childNode->mAttachment->ConnectedToSceneGraph();
   }
+
+//  //Inform renderers
+//  unsigned int mRendererCount( mRenderer.size() );
+//  for( unsigned int i(0); i<mRendererCount; ++i )
+//  {
+//    mRenderer[i]->OnStageConnect( this );
+//  }
 }
 
 void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, std::set<Node*>& connectedNodes,  std::set<Node*>& disconnectedNodes )

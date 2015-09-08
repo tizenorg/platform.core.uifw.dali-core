@@ -468,6 +468,7 @@ int UpdateNodesAndAttachments( Layer& rootNode,
   const NodeIter endIter = children.End();
   for ( NodeIter iter = children.Begin(); iter != endIter; ++iter )
   {
+    std::cout<<"recuse children"<<std::endl;
     Node& child = **iter;
     cumulativeDirtyFlags |= UpdateNodesAndAttachments( child,
                                                        nodeDirtyFlags,

@@ -21,10 +21,12 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
 #include <dali/devel-api/rendering/renderer.h> // Dali::Renderer
+
 #include <dali/internal/event/common/object-impl-helper.h> // Dali::Internal::ObjectHelper
 #include <dali/internal/event/common/property-helper.h> // DALI_PROPERTY_TABLE_BEGIN, DALI_PROPERTY, DALI_PROPERTY_TABLE_END
 #include <dali/internal/event/common/property-input-impl.h>
 #include <dali/internal/update/node-attachments/scene-graph-renderer-attachment.h>
+#include <dali/internal/update/rendering/scene-graph-renderer2.h>
 #include <dali/internal/update/manager/update-manager.h>
 
 namespace Dali
@@ -90,7 +92,7 @@ void Renderer::SetDepthIndex( int depthIndex )
   if ( mDepthIndex != depthIndex )
   {
     mDepthIndex = depthIndex;
-    SetDepthIndexMessage( GetEventThreadServices(), *mSceneObject, depthIndex );
+    //@FERRAN SetDepthIndexMessage( GetEventThreadServices(), *mSceneObject, depthIndex );
   }
 }
 
@@ -99,7 +101,7 @@ int Renderer::GetDepthIndex() const
   return mDepthIndex;
 }
 
-SceneGraph::RendererAttachment* Renderer::GetRendererSceneObject()
+SceneGraph::R3nderer* Renderer::GetRendererSceneObject()
 {
   return mSceneObject;
 }
@@ -161,8 +163,10 @@ void Renderer::SetSceneGraphProperty( Property::Index index,
                                       const PropertyMetadata& entry,
                                       const Property::Value& value )
 {
-  RENDERER_IMPL.SetSceneGraphProperty( GetEventThreadServices(), this, index, entry, value );
-  OnPropertySet(index, value);
+  //@FERRAN
+
+  //RENDERER_IMPL.SetSceneGraphProperty( GetEventThreadServices(), this, index, entry, value );
+  //OnPropertySet(index, value);
 }
 
 Property::Value Renderer::GetDefaultProperty( Property::Index index ) const
@@ -235,15 +239,28 @@ bool Renderer::OnStage() const
 
 void Renderer::Connect()
 {
+
+}
+
+void Renderer::Disconnect()
+{
+
+}
+
+void Renderer::Connect(const SceneGraph::Node* node)
+{
   // @todo: MESH_REWORK : check this
+  //mSceneObject->OnStageConnect(node);
+  OnStageConnectMessage( GetEventThreadServices(), *mSceneObject, node );
   mGeometryConnector.OnStageConnect();
   mMaterialConnector.OnStageConnect();
   mOnStage = true;
 }
 
-void Renderer::Disconnect()
+void Renderer::Disconnect(const SceneGraph::Node* node)
 {
   // @todo: MESH_REWORK : check this
+  mSceneObject->OnStageDisconnect(node);
   mGeometryConnector.OnStageDisconnect();
   mMaterialConnector.OnStageDisconnect();
   mOnStage = false;
@@ -261,20 +278,31 @@ void Renderer::Initialize()
   EventThreadServices& eventThreadServices = GetEventThreadServices();
   SceneGraph::UpdateManager& updateManager = eventThreadServices.GetUpdateManager();
 
-  // Transfer object ownership of scene-object to message
-  mSceneObject = SceneGraph::RendererAttachment::New();
-
-  // Send message to update to connect to scene graph:
-  AttachToSceneGraphMessage( updateManager, mSceneObject );
+  mSceneObject = new SceneGraph::R3nderer();
+  AddMessage( updateManager, updateManager.GetRendererOwner(), *mSceneObject );
 
   eventThreadServices.RegisterObject( this );
+//  EventThreadServices& eventThreadServices = GetEventThreadServices();
+//  SceneGraph::UpdateManager& updateManager = eventThreadServices.GetUpdateManager();
+//
+//  // Transfer object ownership of scene-object to message
+//  mSceneObject = SceneGraph::RendererAttachment::New();
+//
+//  // Send message to update to connect to scene graph:
+//  AttachToSceneGraphMessage( updateManager, mSceneObject );
+//
+//  eventThreadServices.RegisterObject( this );
 }
 
 Renderer::~Renderer()
 {
+  std::cout<<"Destroying update thread renderer"<<std::endl;
   if( EventThreadServices::IsCoreRunning() )
   {
     EventThreadServices& eventThreadServices = GetEventThreadServices();
+    SceneGraph::UpdateManager& updateManager = eventThreadServices.GetUpdateManager();
+    RemoveMessage( updateManager, updateManager.GetRendererOwner(), *mSceneObject );
+
     eventThreadServices.UnregisterObject( this );
   }
 }

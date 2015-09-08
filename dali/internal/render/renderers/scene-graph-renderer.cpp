@@ -116,6 +116,7 @@ void Renderer::Initialize( Context& context, TextureCache& textureCache )
 
 Renderer::~Renderer()
 {
+  std::cout<<"Destroying Remder::Renderer"<<std::endl;
 }
 
 void Renderer::SetShader( Shader* shader )
@@ -145,6 +146,8 @@ void Renderer::Render( Context& context,
                        bool cull )
 {
   // @todo MESH_REWORK Fix when merging! :D
+
+  std::cout<<"Renderer::Render"<<std::endl;
   NewRenderer* renderer = dynamic_cast<NewRenderer*>(this);
   if( renderer )
   {

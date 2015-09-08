@@ -51,6 +51,7 @@ NewRenderer::NewRenderer( NodeDataProvider& nodeDataProvider,
 
 NewRenderer::~NewRenderer()
 {
+  std::cout<<"Destroying NewRenderer"<<std::endl;
 }
 
 void NewRenderer::SetRenderDataProvider( RenderDataProvider* dataProvider )

@@ -404,6 +404,12 @@ inline int UpdateNodesAndAttachments( Node& node,
     UpdateNodeWorldMatrix( node, nodeDirtyFlags, updateBufferIndex );
   }
 
+  for(unsigned int i(0); i<node.GetRendererCount(); ++i )
+  {
+    node.GetRendererAt(i)->PrepareRender( updateBufferIndex, &node );
+  }
+
+
   // if any child node has moved or had its sort modifier changed, layer is not clean and old frame cannot be reused
   // also if node has been deleted, dont reuse old render items
   if( nodeDirtyFlags & RenderableUpdateFlags )
@@ -468,6 +474,7 @@ int UpdateNodesAndAttachments( Layer& rootNode,
   const NodeIter endIter = children.End();
   for ( NodeIter iter = children.Begin(); iter != endIter; ++iter )
   {
+    std::cout<<"recuse children"<<std::endl;
     Node& child = **iter;
     cumulativeDirtyFlags |= UpdateNodesAndAttachments( child,
                                                        nodeDirtyFlags,

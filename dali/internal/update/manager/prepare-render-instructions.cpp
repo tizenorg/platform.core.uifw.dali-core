@@ -121,6 +121,84 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 }
 
 /**
+ * Add a renderer to the list
+ * @param updateBufferIndex to read the model matrix from
+ * @param renderList to add the item to
+ * @param renderable attachment
+ * @param viewMatrix used to calculate modelview matrix for the item
+ */
+inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
+                                     RenderList& renderList,
+                                     R3nderer& renderable,
+                                     const Matrix& viewMatrix,
+                                     SceneGraph::CameraAttachment& cameraAttachment,
+                                     bool isLayer3d )
+{
+  // Check for cull against view frustum
+  //bool inside = true;
+  RenderItem& item = renderList.GetNextFreeItem();
+  item.SetRenderer( reinterpret_cast< Renderer* >(renderable.GetRenderer()) );
+  item.SetIsOpaque( true );
+  if( isLayer3d )
+  {
+    item.SetDepthIndex( 0 );
+  }
+  else
+  {
+    item.SetDepthIndex( 0 );
+  }
+
+  std::cout<<"Added renderitem to render list"<<std::endl;
+  //const Node& parentNode = renderable.GetParent();
+  //const Matrix& worldMatrix = parentNode.GetWorldMatrix( updateBufferIndex );
+
+//  if ( RendererAttachment* rendererAttachment = dynamic_cast< RendererAttachment* >( &renderable ) )
+//  {
+//    if ( rendererAttachment->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
+//    {
+//      const Vector3& position = worldMatrix.GetTranslation3();
+//      const Vector3& scale = parentNode.GetScale( updateBufferIndex );
+//      const Vector3& halfSize = parentNode.GetSize( updateBufferIndex ) * scale * 0.5f;
+//
+//      // Do a fast sphere check
+//      if ( cameraAttachment.CheckSphereInFrustum( updateBufferIndex, position, halfSize.Length() ) )
+//      {
+//        // Check geometry AABB
+//        //TODO: Take into account orientation
+//        if ( !cameraAttachment.CheckAABBInFrustum( updateBufferIndex, position, halfSize ) )
+//        {
+//          inside = false;
+//        }
+//      }
+//      else
+//      {
+//        inside = false;
+//      }
+//    }
+//  }
+//
+//  if ( inside )
+//  {
+//    // Get the next free RenderItem and initialization
+//    RenderItem& item = renderList.GetNextFreeItem();
+//    const Renderer& renderer = renderable.GetRenderer();
+//    item.SetRenderer( const_cast< Renderer* >( &renderer ) );
+//    item.SetIsOpaque( renderable.IsFullyOpaque(updateBufferIndex) );
+//    if( isLayer3d )
+//    {
+//      item.SetDepthIndex( renderable.GetDepthIndex() );
+//    }
+//    else
+//    {
+//      item.SetDepthIndex( renderable.GetDepthIndex() + static_cast<int>( parentNode.GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER );
+//    }
+//
+//    // save MV matrix onto the item
+//    Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
+//  }
+}
+
+/**
  * Add all renderers to the list
  * @param updateBufferIndex to read the model matrix from
  * @param renderList to add the items to
@@ -130,6 +208,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
                                       RenderList& renderList,
                                       RenderableAttachmentContainer& attachments,
+                                      RendererContainer& renderers,
                                       const Matrix& viewMatrix,
                                       SceneGraph::CameraAttachment& cameraAttachment,
                                       bool isLayer3d )
@@ -137,7 +216,7 @@ inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
   DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "AddRenderersToRenderList()\n");
 
   // Add renderer for each attachment
-  int index=0;
+  unsigned int index(0);
   const RenderableAttachmentIter endIter = attachments.end();
   for ( RenderableAttachmentIter iter = attachments.begin(); iter != endIter; ++iter )
   {
@@ -145,7 +224,16 @@ inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
     AddRendererToRenderList( updateBufferIndex, renderList, attachment, viewMatrix, cameraAttachment, isLayer3d );
 
     DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "  List[%d].renderer = %p\n", index, &(attachment.GetRenderer()));
-    index++;
+    ++index;
+  }
+
+  std::cout<<"AddRenderersToRenderList"<<std::endl;
+  unsigned int rendererCount( renderers.size() );
+  for( unsigned int i(0); i<rendererCount; ++i )
+  {
+
+    std::cout<<"AddRenderersToRenderList2"<<std::endl;
+    AddRendererToRenderList( updateBufferIndex, renderList, *renderers[i], viewMatrix, cameraAttachment, isLayer3d );
   }
 }
 
@@ -298,7 +386,7 @@ inline void SortColorRenderItems( BufferIndex bufferIndex, RenderList& renderLis
       RenderItem& item = renderList.GetItem( index );
 
       //@todo MESH_REWORK After merge of RenderableAttachment and RendererAttachment, should instead store the renderable ptr and get the fields directly
-      layer.colorRenderables[index]->SetSortAttributes( bufferIndex, sortingHelper[ index ] );
+      //@TODO: FERRAN layer.colorRenderables[index]->SetSortAttributes( bufferIndex, sortingHelper[ index ] );
 
       // the default sorting function should get inlined here
       sortingHelper[ index ].zValue = Internal::Layer::ZValue( item.GetModelViewMatrix().GetTranslation3() ) - item.GetDepthIndex();
@@ -376,7 +464,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
     }
   }
 
-  AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
+  AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, layer.colorRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
   SortColorRenderItems( updateBufferIndex, renderList, layer, sortingHelper );
 
   //Set render flags
@@ -391,6 +479,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
   // and if this layer has got exactly one opaque renderer
   // and this renderer is not interested in depth testing
   // (i.e. is an image and not a mesh)
+
   if ( ( renderList.Count() == 1 ) &&
        ( !renderList.GetRenderer( 0 )->RequiresDepthTest() ) &&
        ( !renderList.GetItem(0).IsOpaque() ) )
@@ -443,7 +532,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
+  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, layer.overlayRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
 }
 
 /**
@@ -477,7 +566,7 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
+  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, layer.stencilRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
 }
 
 /**
@@ -510,9 +599,9 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
   {
     Layer& layer = **iter;
 
-    const bool stencilRenderablesExist( !layer.stencilRenderables.empty() );
-    const bool colorRenderablesExist( !layer.colorRenderables.empty() );
-    const bool overlayRenderablesExist( !layer.overlayRenderables.empty() );
+    const bool stencilRenderablesExist( !layer.stencilRenderables.empty() || !layer.stencilRenderers.empty() );
+    const bool colorRenderablesExist( !layer.colorRenderables.empty() || !layer.colorRenderers.empty() );
+    const bool overlayRenderablesExist( !layer.overlayRenderables.empty() || !layer.overlayRenderers.empty() );
     const bool tryReuseRenderList( viewMatrixHasNotChanged && layer.CanReuseRenderers(renderTask.GetCamera()) );
 
     // Ignore stencils if there's nothing to test

@@ -144,6 +144,7 @@ inline void ProcessRenderList(
 
       SceneGraph::Renderer* renderer = const_cast< SceneGraph::Renderer* >( item.GetRenderer() );
       renderer->Render( context, textureCache, bufferIndex, defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, frameTime, cullMode );
+      std::cout<<index<<std::endl;
     }
   }
   else

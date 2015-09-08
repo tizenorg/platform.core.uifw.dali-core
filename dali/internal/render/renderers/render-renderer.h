@@ -52,6 +52,7 @@ public:
    * @param[in] renderGeometry The geometry for the renderer
    */
   static NewRenderer* New( NodeDataProvider& nodeDataProvider, RenderDataProvider* dataProviders, RenderGeometry* renderGeometry );
+
   /**
    * Constructor.
    * @param[in] nodeDataProvider The node data provider

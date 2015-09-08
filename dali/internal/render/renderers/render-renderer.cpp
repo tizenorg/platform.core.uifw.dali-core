@@ -35,6 +35,7 @@ NewRenderer* NewRenderer::New( NodeDataProvider& nodeDataProvider,
                                RenderDataProvider* dataProvider,
                                RenderGeometry* renderGeometry )
 {
+  std::cout<<"Creating NewRenderer"<<std::endl;
   return new NewRenderer(nodeDataProvider, dataProvider, renderGeometry);
 }
 
@@ -45,12 +46,14 @@ NewRenderer::NewRenderer( NodeDataProvider& nodeDataProvider,
 : Renderer( nodeDataProvider ),
   mRenderDataProvider( dataProvider ),
   mRenderGeometry( renderGeometry ),
-  mUpdateAttributesLocation( true )
+  mUpdateAttributesLocation( true ),
+  mUseBlend(false)
 {
 }
 
 NewRenderer::~NewRenderer()
 {
+  std::cout<<"Destroying NewRenderer"<<std::endl;
 }
 
 void NewRenderer::SetRenderDataProvider( RenderDataProvider* dataProvider )

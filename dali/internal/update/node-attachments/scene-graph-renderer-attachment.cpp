@@ -114,7 +114,7 @@ void RendererAttachment::ConnectedToSceneGraph()
   RenderDataProvider* dataProvider = NewRenderDataProvider();
 
   RenderGeometry* renderGeometry = mGeometry->GetRenderGeometry(mSceneController);
-  mRenderer = NewRenderer::New( *mParent, dataProvider, renderGeometry );
+  mRenderer = NewRenderer::New( dataProvider, renderGeometry );
   mSceneController->GetRenderMessageDispatcher().AddRenderer( *mRenderer );
 }
 
@@ -502,7 +502,6 @@ RenderDataProvider* RendererAttachment::NewRenderDataProvider()
   dataProvider->mMaterialDataProvider = mMaterial;
   dataProvider->mUniformMapDataProvider = this;
   dataProvider->mShader = mMaterial->GetShader();
-  dataProvider->mUseBlend = mUseBlend;
 
   Vector<Sampler*>& samplers = mMaterial->GetSamplers();
   dataProvider->mSamplers.Reserve( samplers.Count() );

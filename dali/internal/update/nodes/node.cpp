@@ -23,6 +23,7 @@
 #include <dali/internal/update/common/discard-queue.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/constants.h>
+#include <dali/internal/common/internal-constants.h>
 
 namespace Dali
 {
@@ -59,6 +60,7 @@ Node::Node()
   mExclusiveRenderTask( NULL ),
   mAttachment( NULL ),
   mChildren(),
+  mRegenerateUniformMap( 0 ),
   mDepth(0u),
   mDirtyFlags(AllFlags),
   mIsRoot( false ),
@@ -70,6 +72,8 @@ Node::Node()
   mPositionInheritanceMode( DEFAULT_POSITION_INHERITANCE_MODE ),
   mColorMode( DEFAULT_COLOR_MODE )
 {
+  mUniformMapChanged[0] = false;
+  mUniformMapChanged[1] = false;
 }
 
 Node::~Node()
@@ -110,6 +114,32 @@ void Node::SetRoot(bool isRoot)
   mIsRoot = isRoot;
 }
 
+bool Node::ResolveVisibility( BufferIndex updateBufferIndex )
+{
+  bool result = false;
+  const Vector4& color = GetWorldColor( updateBufferIndex );
+  if( color.a > FULLY_TRANSPARENT )               // not fully transparent
+  {
+    const float MAX_NODE_SIZE = float(1u<<30);
+    const Vector3& size = GetSize( updateBufferIndex );
+    if( ( size.width > Math::MACHINE_EPSILON_1000 ) &&  // width is greater than a very small number
+        ( size.height > Math::MACHINE_EPSILON_1000 ) )  // height is greater than a very small number
+    {
+      if( ( size.width < MAX_NODE_SIZE ) &&             // width is smaller than the maximum allowed size
+          ( size.height < MAX_NODE_SIZE ) )             // height is smaller than the maximum allowed size
+      {
+        result = true;
+      }
+      else
+      {
+        DALI_LOG_ERROR("Actor size should not be bigger than %f.\n", MAX_NODE_SIZE );
+        DALI_LOG_ACTOR_TREE( mParent );
+      }
+    }
+  }
+  return result;
+}
+
 void Node::ConnectChild( Node* childNode )
 {
   DALI_ASSERT_ALWAYS( this != childNode );
@@ -132,6 +162,13 @@ void Node::ConnectChild( Node* childNode )
   {
     childNode->mAttachment->ConnectedToSceneGraph();
   }
+
+//  //Inform renderers
+//  unsigned int mRendererCount( mRenderer.size() );
+//  for( unsigned int i(0); i<mRendererCount; ++i )
+//  {
+//    mRenderer[i]->OnStageConnect( this );
+//  }
 }
 
 void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, std::set<Node*>& connectedNodes,  std::set<Node*>& disconnectedNodes )
@@ -156,6 +193,19 @@ void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, std:
   DALI_ASSERT_ALWAYS( NULL != found );
 
   found->RecursiveDisconnectFromSceneGraph( updateBufferIndex, connectedNodes, disconnectedNodes );
+}
+
+void Node::RemoveRenderer( R3nderer* renderer )
+{
+  unsigned int rendererCount( mRenderer.size() );
+  for( unsigned int i(0); i<rendererCount; ++i )
+  {
+    if( mRenderer[i] == renderer )
+    {
+      mRenderer.erase( mRenderer.begin()+i);
+      return;
+    }
+  }
 }
 
 int Node::GetDirtyFlags() const

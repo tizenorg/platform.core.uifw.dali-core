@@ -135,6 +135,7 @@ static bool AddRenderablesForTask( BufferIndex updateBufferIndex,
 
   inheritedDrawMode |= node.GetDrawMode();
 
+
   if ( node.HasAttachment() )
   {
     RenderableAttachment* renderable = node.GetAttachment().GetRenderable(); // not all attachments render
@@ -172,6 +173,43 @@ static bool AddRenderablesForTask( BufferIndex updateBufferIndex,
       }
     }
   }
+
+  if( node.ResolveVisibility( updateBufferIndex ) )
+  {
+    for( unsigned int i(0); i<node.GetRendererCount(); ++i )
+    {
+      R3nderer* renderer = node.GetRendererAt( i );
+      bool ready = false;
+      bool complete = false;
+      renderer->GetReadyAndComplete(ready, complete);
+
+      //DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "Testing renderable:%p ready:%s complete:%s\n", renderable, ready?"T":"F", complete?"T":"F");
+
+      resourcesFinished = !complete ? complete : resourcesFinished;
+
+      resourcesFinished = !complete ? complete : resourcesFinished;
+
+      if( ready ) // i.e. some resources are ready
+      {
+        if( DrawMode::STENCIL == inheritedDrawMode )
+        {
+          layer->stencilRenderers.push_back( NodeRenderer(&node, renderer ) );
+        }
+        else if( DrawMode::OVERLAY_2D == inheritedDrawMode )
+        {
+          layer->overlayRenderers.push_back( NodeRenderer(&node, renderer ) );
+        }
+        else
+        {
+          layer->colorRenderers.push_back( NodeRenderer(&node, renderer ) );
+        }
+      }
+
+
+
+    }
+  }
+
 
   // Recurse children
   NodeContainer& children = node.GetChildren();

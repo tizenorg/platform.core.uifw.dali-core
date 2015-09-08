@@ -27,6 +27,7 @@
 #include <dali/internal/event/common/object-impl.h> // Dali::Internal::Object
 #include <dali/internal/event/rendering/material-impl.h> // Dali::Internal::Material
 #include <dali/internal/event/rendering/geometry-impl.h> // Dali::Internal::Geometry
+#include <dali/internal/update/nodes/node.h>
 
 namespace Dali
 {
@@ -35,7 +36,9 @@ namespace Internal
 namespace SceneGraph
 {
 class RendererAttachment;
+class R3nderer;
 }
+
 
 class Renderer;
 typedef IntrusivePtr<Renderer> RendererPtr;
@@ -43,7 +46,7 @@ typedef IntrusivePtr<Renderer> RendererPtr;
 /**
  * Renderer is an object that can be used to show content by combining a Geometry with a material.
  */
-class Renderer : public Object, public Connectable
+class Renderer : public Object
 {
 public:
 
@@ -88,7 +91,7 @@ public:
    *
    * @return the scene object
    */
-  SceneGraph::RendererAttachment* GetRendererSceneObject();
+  SceneGraph::R3nderer* GetRendererSceneObject();
 
 public: // Default property extensions from Object
 
@@ -204,7 +207,8 @@ private: // unimplemented methods
   Renderer& operator=( const Renderer& );
 
 private: // data
-  SceneGraph::RendererAttachment* mSceneObject;
+  //SceneGraph::RendererAttachment* mSceneObject;
+  SceneGraph::R3nderer* mSceneObject;
   ObjectConnector<Geometry> mGeometryConnector; ///< Connector that holds the geometry used by this renderer
   ObjectConnector<Material> mMaterialConnector; ///< Connector that holds the material used by this renderer
   int mDepthIndex;

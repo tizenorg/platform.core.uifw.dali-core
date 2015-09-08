@@ -50,6 +50,11 @@ void ClearRenderables( SortedLayerPointers& sortedLayers )
     (*iter)->stencilRenderables.clear();
     (*iter)->colorRenderables.clear();
     (*iter)->overlayRenderables.clear();
+
+    (*iter)->stencilRenderers.clear();
+    (*iter)->colorRenderers.clear();
+    (*iter)->overlayRenderers.clear();
+
   }
 }
 

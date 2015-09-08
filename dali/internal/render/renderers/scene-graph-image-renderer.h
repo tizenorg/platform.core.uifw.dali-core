@@ -61,7 +61,7 @@ public:
    * @param dataprovider to render
    * @return The newly allocated ImageRenderer.
    */
-  static ImageRenderer* New( NodeDataProvider& dataprovider );
+  static ImageRenderer* New();
 
   /**
    * Virtual destructor
@@ -136,17 +136,17 @@ public:
   /**
    * @copydoc Dali::Internal::SceneGraph::Renderer::IsOutsideClipSpace()
    */
-  virtual bool IsOutsideClipSpace( Context& context, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix );
+  virtual bool IsOutsideClipSpace( Context& context, const Matrix& modelViewProjectionMatrix );
 
   /**
    * @copydoc Dali::Internal::SceneGraph::Renderer::DoRender()
    */
-  virtual void DoRender( Context& context, TextureCache& textureCache, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix );
+  virtual void DoRender( Context& context, TextureCache& textureCache, const NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix );
 
   /**
    * @copydoc Dali::Internal::SceneGraph::Renderer::DoSetBlending()
    */
-  virtual void DoSetBlending( Context& context, BufferIndex bufferIndex );
+  virtual void DoSetBlending( Context& context, BufferIndex bufferIndex, bool blend );
 
 protected: // TextureObserver implementation
 
@@ -217,7 +217,7 @@ private:
   /**
    * Private constructor. @see New()
    */
-  ImageRenderer( NodeDataProvider& dataprovider );
+  ImageRenderer();
 
   // Undefined
   ImageRenderer( const ImageRenderer& );

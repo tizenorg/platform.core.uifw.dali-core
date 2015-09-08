@@ -35,7 +35,9 @@ namespace Internal
 namespace SceneGraph
 {
 class RendererAttachment;
+class R3nderer;
 }
+
 
 class Renderer;
 typedef IntrusivePtr<Renderer> RendererPtr;
@@ -88,7 +90,7 @@ public:
    *
    * @return the scene object
    */
-  SceneGraph::RendererAttachment* GetRendererSceneObject();
+  SceneGraph::R3nderer* GetRendererSceneObject();
 
 public: // Default property extensions from Object
 
@@ -204,7 +206,8 @@ private: // unimplemented methods
   Renderer& operator=( const Renderer& );
 
 private: // data
-  SceneGraph::RendererAttachment* mSceneObject;
+  //SceneGraph::RendererAttachment* mSceneObject;
+  SceneGraph::R3nderer* mSceneObject;
   ObjectConnector<Geometry> mGeometryConnector; ///< Connector that holds the geometry used by this renderer
   ObjectConnector<Material> mMaterialConnector; ///< Connector that holds the material used by this renderer
   int mDepthIndex;

@@ -145,6 +145,7 @@ void Renderer::Render( Context& context,
                        bool cull )
 {
   // @todo MESH_REWORK Fix when merging! :D
+
   NewRenderer* renderer = dynamic_cast<NewRenderer*>(this);
   if( renderer )
   {

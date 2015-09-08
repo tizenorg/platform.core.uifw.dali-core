@@ -62,6 +62,23 @@ void DiscardQueue::Add( BufferIndex updateBufferIndex, Node* node )
   }
 }
 
+void DiscardQueue::Add( BufferIndex updateBufferIndex, R3nderer* renderer )
+{
+  DALI_ASSERT_DEBUG( NULL != renderer );
+
+  // The GL resources will now be freed in frame N
+  // The Update for frame N+1 may occur in parallel with the rendering of frame N
+  // Queue the node for destruction in frame N+2
+  if ( 0u == updateBufferIndex )
+  {
+    mRendererQueue0.PushBack( renderer );
+  }
+  else
+  {
+    mRendererQueue1.PushBack( renderer );
+  }
+}
+
 void DiscardQueue::Add( BufferIndex updateBufferIndex, NodeAttachment* attachment )
 {
   DALI_ASSERT_DEBUG( NULL != attachment );
@@ -174,6 +191,7 @@ void DiscardQueue::Clear( BufferIndex updateBufferIndex )
     mMaterialQueue0.Clear();
     mSamplerQueue0.Clear();
     mPropertyBufferQueue0.Clear();
+    mRendererQueue0.Clear();
   }
   else
   {
@@ -184,6 +202,7 @@ void DiscardQueue::Clear( BufferIndex updateBufferIndex )
     mMaterialQueue1.Clear();
     mSamplerQueue1.Clear();
     mPropertyBufferQueue1.Clear();
+    mRendererQueue1.Clear();
   }
 }
 

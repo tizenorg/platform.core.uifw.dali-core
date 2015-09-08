@@ -132,6 +132,13 @@ void Node::ConnectChild( Node* childNode )
   {
     childNode->mAttachment->ConnectedToSceneGraph();
   }
+
+//  //Inform renderers
+//  unsigned int mRendererCount( mRenderer.size() );
+//  for( unsigned int i(0); i<mRendererCount; ++i )
+//  {
+//    mRenderer[i]->OnStageConnect( this );
+//  }
 }
 
 void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, std::set<Node*>& connectedNodes,  std::set<Node*>& disconnectedNodes )
@@ -156,6 +163,19 @@ void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, std:
   DALI_ASSERT_ALWAYS( NULL != found );
 
   found->RecursiveDisconnectFromSceneGraph( updateBufferIndex, connectedNodes, disconnectedNodes );
+}
+
+void Node::RemoveRenderer( R3nderer* renderer )
+{
+  unsigned int rendererCount( mRenderer.size() );
+  for( unsigned int i(0); i<rendererCount; ++i )
+  {
+    if( mRenderer[i] == renderer )
+    {
+      mRenderer.erase( mRenderer.begin()+i);
+      return;
+    }
+  }
 }
 
 int Node::GetDirtyFlags() const

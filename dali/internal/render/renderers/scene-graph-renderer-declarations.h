@@ -32,8 +32,8 @@ namespace SceneGraph
 
 class Renderer;
 
-typedef std::vector<Renderer*>      RendererContainer;
-typedef RendererContainer::iterator RendererIter;
+//typedef std::vector<Renderer*>      RendererContainer;
+//typedef RendererContainer::iterator RendererIter;
 
 enum EffectType
 {

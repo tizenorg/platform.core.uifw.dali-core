@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/render/renderers/scene-graph-image-renderer.h>
+#include <dali/internal/render/renderers/render-image-renderer.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -29,10 +29,10 @@
 #include <dali/internal/render/gl-resources/texture.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/gl-resources/texture-units.h>
-#include <dali/internal/render/renderers/scene-graph-renderer-debug.h>
 #include <dali/internal/render/shaders/program.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/update/controllers/scene-controller.h>
+
 
 namespace
 {
@@ -111,12 +111,12 @@ namespace Dali
 namespace Internal
 {
 
-namespace SceneGraph
+namespace Render
 {
 
-ImageRenderer* ImageRenderer::New( NodeDataProvider& dataProvider )
+ImageRenderer* ImageRenderer::New()
 {
-  return new ImageRenderer( dataProvider );
+  return new ImageRenderer();
 }
 
 ImageRenderer::~ImageRenderer()
@@ -248,15 +248,13 @@ bool ImageRenderer::CheckResources()
   return true;
 }
 
-bool ImageRenderer::IsOutsideClipSpace( Context& context, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
+bool ImageRenderer::IsOutsideClipSpace( Context& context, const Matrix& modelViewProjectionMatrix )
 {
   context.IncrementRendererCount();
 
   Rect<float> boundingBox( mGeometrySize.x * -0.5f, mGeometrySize.y * -0.5f, mGeometrySize.x, mGeometrySize.y );
 
-  DEBUG_BOUNDING_BOX( *mContext, boundingBox, modelViewProjectionMatrix );
-
-  if(Is2dBoxOutsideClipSpace( modelMatrix, modelViewProjectionMatrix, boundingBox ) )
+  if(SceneGraph::Is2dBoxOutsideClipSpace( modelViewProjectionMatrix, boundingBox ) )
   {
     context.IncrementCulledCount();
     return true;
@@ -264,7 +262,7 @@ bool ImageRenderer::IsOutsideClipSpace( Context& context, const Matrix& modelMat
   return false;
 }
 
-void ImageRenderer::DoRender( Context& context, TextureCache& textureCache, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
+void ImageRenderer::DoRender( Context& context, SceneGraph::TextureCache& textureCache, const SceneGraph::NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
 {
   DALI_LOG_INFO( gImageRenderFilter, Debug::Verbose, "DoRender() textureId=%d  texture:%p\n", mTextureId, mTexture);
 
@@ -369,10 +367,10 @@ void ImageRenderer::DoRender( Context& context, TextureCache& textureCache, Buff
   }
 }
 
-void ImageRenderer::DoSetBlending(Context& context, BufferIndex bufferIndex )
+void ImageRenderer::DoSetBlending(Context& context, BufferIndex bufferIndex, bool blend )
 {
   // Enables/disables blending mode.
-  context.SetBlend( mUseBlend );
+  context.SetBlend( blend );
 
   // Set the blend color
   const Vector4* const customColor = mBlendingOptions.GetBlendColor();
@@ -963,8 +961,8 @@ void ImageRenderer::GenerateMeshIndices(GLushort* indices, int rectanglesX, int 
   }
 }
 
-ImageRenderer::ImageRenderer( NodeDataProvider& dataProvider )
-: Renderer( dataProvider ),
+ImageRenderer::ImageRenderer()
+: Renderer(),
   mTexture( NULL ),
   mBorder( 0.45, 0.45, 0.1, 0.1 ),
   mPixelArea(),

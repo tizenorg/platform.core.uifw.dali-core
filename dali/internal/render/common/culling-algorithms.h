@@ -36,8 +36,7 @@ namespace SceneGraph
  * @param[in] boundingBox The bounding box of the geometry in object space
  * @return true if the bounding box is outside clip space
  */
-bool Is2dBoxOutsideClipSpace(const Matrix& modelMatrix,
-                             const Matrix& modelViewProjectionMatrix,
+bool Is2dBoxOutsideClipSpace(const Matrix& modelViewProjectionMatrix,
                              const Rect<float>& boundingBox );
 } // SceneGraph
 } // Internal

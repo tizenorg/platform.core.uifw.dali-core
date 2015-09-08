@@ -29,6 +29,7 @@
 #include <dali/internal/common/image-sampler.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 
+
 namespace Dali
 {
 
@@ -137,15 +138,19 @@ void Renderer::SetSampler( unsigned int samplerBitfield )
 void Renderer::Render( Context& context,
                        TextureCache& textureCache,
                        BufferIndex bufferIndex,
+                       const NodeDataProvider& node,
                        Shader& defaultShader,
                        const Matrix& modelViewMatrix,
                        const Matrix& viewMatrix,
                        const Matrix& projectionMatrix,
                        float frametime,
-                       bool cull )
+                       bool cull,
+                       bool blend)
 {
   // @todo MESH_REWORK Fix when merging! :D
+
   NewRenderer* renderer = dynamic_cast<NewRenderer*>(this);
+
   if( renderer )
   {
     // Get the shader from the material:
@@ -166,7 +171,7 @@ void Renderer::Render( Context& context,
   }
 
   // Calculate the MVP matrix first so we can do the culling test
-  const Matrix& modelMatrix = mDataProvider.GetModelMatrix( bufferIndex );
+  const Matrix& modelMatrix = node.GetModelMatrix( bufferIndex );
   Matrix::Multiply( gModelViewProjectionMatrix, modelViewMatrix, projectionMatrix );
 
   // Get the program to use:
@@ -187,7 +192,7 @@ void Renderer::Render( Context& context,
   // Check culling (does not need the program to be in use)
   if( cull && ! program->ModifiesGeometry() )
   {
-    if( IsOutsideClipSpace( context, modelMatrix, gModelViewProjectionMatrix ) )
+    if( IsOutsideClipSpace( context, gModelViewProjectionMatrix ) )
     {
       // don't do any further gl state changes as this renderer is not visible
       return;
@@ -199,7 +204,7 @@ void Renderer::Render( Context& context,
 
   DoSetCullFaceMode( context, bufferIndex );
 
-  DoSetBlending( context, bufferIndex );
+  DoSetBlending( context, bufferIndex, blend );
 
   // Ignore missing uniforms - custom shaders and flat color shaders don't have SAMPLER
   // set projection and view matrix if program has not yet received them yet this frame
@@ -209,7 +214,7 @@ void Renderer::Render( Context& context,
   GLint loc = program->GetUniformLocation( Program::UNIFORM_COLOR );
   if( Program::UNIFORM_UNKNOWN != loc )
   {
-    const Vector4& color = mDataProvider.GetRenderColor( bufferIndex );
+    const Vector4& color = node.GetRenderColor( bufferIndex );
     program->SetUniform4f( loc, color.r, color.g, color.b, color.a );
   }
   loc = program->GetUniformLocation(Program::UNIFORM_TIME_DELTA);
@@ -222,7 +227,7 @@ void Renderer::Render( Context& context,
   DoSetUniforms(context, bufferIndex, mShader, program );
 
   // subclass rendering and actual draw call
-  DoRender( context, textureCache, bufferIndex, *program, modelViewMatrix, viewMatrix );
+  DoRender( context, textureCache, node, bufferIndex, *program, modelViewMatrix, viewMatrix );
 }
 
 // can be overridden by deriving class
@@ -238,9 +243,8 @@ void Renderer::DoSetCullFaceMode(Context& context, BufferIndex bufferIndex )
   context.CullFace( mCullFaceMode );
 }
 
-Renderer::Renderer( NodeDataProvider& dataprovider )
-: mDataProvider( dataprovider ),
-  mContextDELETEME(NULL),
+Renderer::Renderer()
+: mContextDELETEME(NULL),
   mTextureCacheDELETEME( NULL ),
   mShader( NULL ),
   mSamplerBitfield( ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) ),

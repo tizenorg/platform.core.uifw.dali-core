@@ -22,6 +22,7 @@
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/math/matrix.h>
+#include <dali/internal/update/nodes/node.h>
 
 namespace Dali
 {
@@ -61,7 +62,7 @@ public:
 
   /**
    * Retrieve the renderer.
-   * @return The renderer.
+   * @return The renderer.Render(
    */
   const Renderer* GetRenderer() const;
 
@@ -71,6 +72,12 @@ public:
    */
   void SetRenderer( Renderer* renderer );
 
+  void SetNode( Node* node );
+
+  const Node& GetNode() const
+  {
+    return *mNode;
+  }
   /**
    * Retrieve the modelView matrix.
    * @return The modelView matrix.
@@ -119,6 +126,7 @@ private:
 
   Matrix    mModelViewMatrix;
   Renderer* mRenderer;
+  Node*     mNode;
   int       mDepthIndex;
   bool      mIsOpaque:1;
 };

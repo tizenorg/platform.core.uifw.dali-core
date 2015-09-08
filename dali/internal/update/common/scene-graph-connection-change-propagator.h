@@ -48,6 +48,8 @@ public:
      * changed it's uniform map in some way.
      */
     virtual void ConnectedUniformMapChanged() = 0;
+
+    virtual void ObservedObjectDestroyed(PropertyOwner& object){}
   };
 
   /**
@@ -81,6 +83,12 @@ public:
    * has changed.
    */
   void ConnectedUniformMapChanged();
+
+  /**
+   * Inform the observers that the object is about to be destroyed
+   * @param[in] object The connection owner
+   */
+  void Destroy( PropertyOwner& object );
 
 private:
   typedef Dali::Vector<Observer*> Observers;

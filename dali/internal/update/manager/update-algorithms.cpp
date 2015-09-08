@@ -394,12 +394,18 @@ inline int UpdateNodesAndAttachments( Node& node,
       AddRenderableToLayer( *layer, *renderable, updateBufferIndex, inheritedDrawMode );
     }
   }
-  else if( node.IsObserved() )
+  else if( node.IsObserved() || node.GetRendererCount() )
   {
     // This node is being used as a property input for an animation, constraint,
     // camera or bone. Ensure it's matrix is updated
     UpdateNodeWorldMatrix( node, nodeDirtyFlags, updateBufferIndex );
   }
+
+  if( node.ResolveVisibility(updateBufferIndex) )
+  {
+    node.PrepareRender( updateBufferIndex );
+  }
+
 
   // if any child node has moved or had its sort modifier changed, layer is not clean and old frame cannot be reused
   // also if node has been deleted, dont reuse old render items

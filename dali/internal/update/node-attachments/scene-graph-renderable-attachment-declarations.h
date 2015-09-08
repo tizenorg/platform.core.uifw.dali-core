@@ -35,6 +35,7 @@ class RenderableAttachment;
 typedef std::vector<RenderableAttachment*>      RenderableAttachmentContainer;
 typedef RenderableAttachmentContainer::iterator RenderableAttachmentIter;
 
+
 } // namespace SceneGraph
 
 } // namespace Internal

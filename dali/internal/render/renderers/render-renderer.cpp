@@ -31,18 +31,16 @@ namespace Internal
 namespace SceneGraph
 {
 
-NewRenderer* NewRenderer::New( NodeDataProvider& nodeDataProvider,
-                               RenderDataProvider* dataProvider,
+NewRenderer* NewRenderer::New( RenderDataProvider* dataProvider,
                                RenderGeometry* renderGeometry )
 {
-  return new NewRenderer(nodeDataProvider, dataProvider, renderGeometry);
+  return new NewRenderer( dataProvider, renderGeometry);
 }
 
 
-NewRenderer::NewRenderer( NodeDataProvider& nodeDataProvider,
-                          RenderDataProvider* dataProvider,
+NewRenderer::NewRenderer( RenderDataProvider* dataProvider,
                           RenderGeometry* renderGeometry )
-: Renderer( nodeDataProvider ),
+: Renderer(),
   mRenderDataProvider( dataProvider ),
   mRenderGeometry( renderGeometry ),
   mUpdateAttributesLocation( true )
@@ -83,7 +81,7 @@ bool NewRenderer::CheckResources()
   return true;
 }
 
-bool NewRenderer::IsOutsideClipSpace( Context& context, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
+bool NewRenderer::IsOutsideClipSpace( Context& context, const Matrix& modelViewProjectionMatrix )
 {
   // @todo MESH_REWORK Add clipping
   return false;
@@ -98,9 +96,8 @@ void NewRenderer::DoSetCullFaceMode( Context& context, BufferIndex bufferIndex )
 {
 }
 
-void NewRenderer::DoSetBlending( Context& context, BufferIndex bufferIndex )
+void NewRenderer::DoSetBlending( Context& context, BufferIndex bufferIndex, bool blend )
 {
-  bool blend = mRenderDataProvider->GetUseBlend( bufferIndex );
   context.SetBlend( blend );
   if( blend )
   {
@@ -120,11 +117,11 @@ void NewRenderer::DoSetBlending( Context& context, BufferIndex bufferIndex )
   }
 }
 
-void NewRenderer::DoRender( Context& context, TextureCache& textureCache, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
+void NewRenderer::DoRender( Context& context, TextureCache& textureCache, const NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
 {
   BindTextures( textureCache, bufferIndex, program, mRenderDataProvider->GetSamplers() );
 
-  SetUniforms( bufferIndex, program );
+  SetUniforms( bufferIndex, node, program );
 
   if( mUpdateAttributesLocation || mRenderGeometry->AttributesChanged() )
   {
@@ -144,27 +141,53 @@ void NewRenderer::GlCleanup()
 {
 }
 
-void NewRenderer::SetUniforms( BufferIndex bufferIndex, Program& program )
+void NewRenderer::SetUniforms( BufferIndex bufferIndex, const NodeDataProvider& node, Program& program )
 {
   // Check if the map has changed
   DALI_ASSERT_DEBUG( mRenderDataProvider && "No Uniform map data provider available" );
 
   const UniformMapDataProvider& uniformMapDataProvider = mRenderDataProvider->GetUniformMap();
 
-  if( uniformMapDataProvider.GetUniformMapChanged( bufferIndex ) )
+  if( uniformMapDataProvider.GetUniformMapChanged( bufferIndex ) ||
+      node.GetUniformMapChanged(bufferIndex))
   {
     const CollectedUniformMap& uniformMap = uniformMapDataProvider.GetUniformMap( bufferIndex );
+    const CollectedUniformMap& uniformMapNode = node.GetUniformMap( bufferIndex );
 
-    unsigned int numberOfMaps = uniformMap.Count();
+    unsigned int maxMaps = uniformMap.Count() + uniformMapNode.Count();
     mUniformIndexMap.Clear(); // Clear contents, but keep memory if we don't change size
-    mUniformIndexMap.Resize( numberOfMaps );
+    mUniformIndexMap.Resize( maxMaps );
 
-    // Remap uniform indexes to property value addresses
-    for( unsigned int mapIndex = 0 ; mapIndex < numberOfMaps ; ++mapIndex )
+    unsigned int mapIndex(0);
+    for(; mapIndex < uniformMap.Count() ; ++mapIndex )
     {
       mUniformIndexMap[mapIndex].propertyValue = uniformMap[mapIndex]->propertyPtr;
       mUniformIndexMap[mapIndex].uniformIndex = program.RegisterUniform( uniformMap[mapIndex]->uniformName );
     }
+
+    for( unsigned int nodeMapIndex = 0; nodeMapIndex < uniformMapNode.Count() ; ++nodeMapIndex )
+    {
+      unsigned int uniformIndex = program.RegisterUniform( uniformMapNode[nodeMapIndex]->uniformName );
+      bool found(false);
+      for( unsigned int i(0); i<uniformMap.Count(); ++i )
+      {
+        if( mUniformIndexMap[i].uniformIndex == uniformIndex )
+        {
+          mUniformIndexMap[i].propertyValue = uniformMapNode[nodeMapIndex]->propertyPtr;
+          found = true;
+          break;
+        }
+      }
+
+      if( !found )
+      {
+        mUniformIndexMap[mapIndex].propertyValue = uniformMapNode[nodeMapIndex]->propertyPtr;
+        mUniformIndexMap[mapIndex].uniformIndex = uniformIndex;
+        ++mapIndex;
+      }
+    }
+
+    mUniformIndexMap.Resize( mapIndex );
   }
 
   // Set uniforms in local map
@@ -181,7 +204,7 @@ void NewRenderer::SetUniforms( BufferIndex bufferIndex, Program& program )
   GLint sizeLoc = program.GetUniformLocation( Program::UNIFORM_SIZE );
   if( -1 != sizeLoc )
   {
-    Vector3 size = mDataProvider.GetRenderSize( bufferIndex );
+    Vector3 size = node.GetRenderSize( bufferIndex );
     program.SetUniform3f( sizeLoc, size.x, size.y, size.z );
   }
 }

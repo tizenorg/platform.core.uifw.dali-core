@@ -36,6 +36,7 @@
 #include <dali/internal/update/nodes/node-declarations.h>
 #include <dali/internal/update/node-attachments/node-attachment-declarations.h>
 #include <dali/internal/render/data-providers/node-data-provider.h>
+#include <dali/internal/update/rendering/scene-graph-renderer2.h>
 
 namespace Dali
 {
@@ -49,6 +50,10 @@ template <> struct ParameterType< PositionInheritanceMode > : public BasicType< 
 
 namespace SceneGraph
 {
+
+//typedef std::vector< R3nderer* > RendererContainer;
+//typedef RendererContainer::iterator RendererIter;
+//typedef RendererContainer::const_iterator RendererConstIter;
 
 class DiscardQueue;
 class Layer;
@@ -170,6 +175,44 @@ public:
   bool HasAttachment() const
   {
     return mAttachment;
+  }
+
+  void AddRenderer( R3nderer* renderer )
+  {
+    //Check that it has not been already added
+    unsigned int rendererCount( mRenderer.size() );
+    for( unsigned int i(0); i<rendererCount; ++i )
+    {
+      if( mRenderer[i] == renderer )
+      {
+        mRenderer.erase( mRenderer.begin()+i);
+        return;
+      }
+    }
+    mRenderer.push_back( renderer );
+  }
+
+  void RemoveRenderer( R3nderer* renderer )
+  {
+    unsigned int rendererCount( mRenderer.size() );
+    for( unsigned int i(0); i<rendererCount; ++i )
+    {
+      if( mRenderer[i] == renderer )
+      {
+        mRenderer.erase( mRenderer.begin()+i);
+        return;
+      }
+    }
+  }
+
+  R3nderer* GetRendererAt( unsigned int index )
+  {
+    return mRenderer[index];
+  }
+
+  unsigned int GetRendererCount()
+  {
+    return mRenderer.size();
   }
 
   /**
@@ -1009,6 +1052,8 @@ protected:
   RenderTask*         mExclusiveRenderTask;          ///< Nodes can be marked as exclusive to a single RenderTask
 
   NodeAttachmentOwner mAttachment;                   ///< Optional owned attachment
+  RendererContainer   mRenderer;
+
   NodeContainer       mChildren;                     ///< Container of children; not owned
 
 

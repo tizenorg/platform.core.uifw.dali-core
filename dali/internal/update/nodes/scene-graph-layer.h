@@ -202,6 +202,10 @@ public: // For update-algorithms
   RenderableAttachmentContainer colorRenderables;
   RenderableAttachmentContainer overlayRenderables;
 
+  RendererContainer stencilRenderers;
+  RendererContainer colorRenderers;
+  RendererContainer overlayRenderers;
+
 private:
 
   SortFunctionType mSortFunction; ///< Used to sort semi-transparent geometry

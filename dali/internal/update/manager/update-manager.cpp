@@ -73,6 +73,8 @@
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 
+
+
 // Un-comment to enable node tree debug logging
 //#define NODE_TREE_LOGGING 1
 
@@ -176,6 +178,7 @@ struct UpdateManager::Impl
     systemLevelTaskList ( completeStatusManager ),
     root( NULL ),
     systemLevelRoot( NULL ),
+    renderers(  sceneGraphBuffers, discardQueue ),
     geometries(  sceneGraphBuffers, discardQueue ),
     materials( sceneGraphBuffers, discardQueue ),
     samplers( sceneGraphBuffers, discardQueue ),
@@ -191,6 +194,7 @@ struct UpdateManager::Impl
   {
     sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue, textureCache, completeStatusManager );
 
+    renderers.SetSceneController( *sceneController );
     geometries.SetSceneController( *sceneController );
     materials.SetSceneController( *sceneController );
     propertyBuffers.SetSceneController( *sceneController );
@@ -273,6 +277,7 @@ struct UpdateManager::Impl
   AnimationContainer                  animations;                    ///< A container of owned animations
   PropertyNotificationContainer       propertyNotifications;         ///< A container of owner property notifications.
 
+  ObjectOwnerContainer<R3nderer>      renderers;
   ObjectOwnerContainer<Geometry>      geometries;                    ///< A container of geometries
   ObjectOwnerContainer<Material>      materials;                     ///< A container of materials
   ObjectOwnerContainer<Sampler>       samplers;                      ///< A container of samplers
@@ -437,6 +442,24 @@ void UpdateManager::AttachToNode( Node* node, NodeAttachment* attachment )
   }
 }
 
+void UpdateManager::AddRendererToNode( Node* node, R3nderer* renderer )
+{
+  DALI_ASSERT_DEBUG( node != NULL );
+  DALI_ASSERT_DEBUG( renderer != NULL );
+  node->AddRenderer( renderer );
+}
+
+void UpdateManager::RemoveRendererFromNode( Node* node, R3nderer* renderer )
+{
+  DALI_ASSERT_DEBUG( node != NULL );
+  DALI_ASSERT_DEBUG( renderer != NULL );
+
+
+  //TODO: Ferran Remove renderer from node
+  node->RemoveRenderer( renderer );
+}
+
+
 void UpdateManager::AttachToSceneGraph( RendererAttachment* renderer )
 {
   // @todo MESH_REWORK Take ownership of this object after merge with SceneGraph::RenderableAttachment
@@ -549,6 +572,12 @@ ObjectOwnerContainer<Geometry>& UpdateManager::GetGeometryOwner()
 {
   return mImpl->geometries;
 }
+
+ObjectOwnerContainer<R3nderer>& UpdateManager::GetRendererOwner()
+{
+  return mImpl->renderers;
+}
+
 
 ObjectOwnerContainer<Material>& UpdateManager::GetMaterialOwner()
 {

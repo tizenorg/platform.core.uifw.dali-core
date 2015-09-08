@@ -75,7 +75,7 @@ void ImageAttachment::Initialize2( BufferIndex updateBufferIndex )
   DALI_ASSERT_DEBUG( NULL != mSceneController );
 
   // Create main renderer, passing ownership to the render-thread
-  mImageRenderer = ImageRenderer::New( *mParent );
+  mImageRenderer = ImageRenderer::New();
 
   mSceneController->GetRenderMessageDispatcher().AddRenderer( *mImageRenderer );
 

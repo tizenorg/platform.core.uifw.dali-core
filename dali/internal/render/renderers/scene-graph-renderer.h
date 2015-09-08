@@ -29,6 +29,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/common/type-abstraction-enums.h>
 
+
 namespace Dali
 {
 
@@ -105,6 +106,7 @@ public:
   void Render( Context& context,
                TextureCache& textureCache,
                BufferIndex bufferIndex,
+               const NodeDataProvider& node,
                Shader& defaultShader,
                const Matrix& modelViewMatrix,
                const Matrix& viewMatrix,
@@ -117,7 +119,7 @@ protected:
    * Protected constructor; only derived classes can be instantiated.
    * @param dataprovider for rendering
    */
-  Renderer( NodeDataProvider& dataprovider );
+  Renderer();
 
 private:
 
@@ -140,7 +142,7 @@ private:
    * @param[in] modelViewProjectionMatrix The MVP matrix.
    * @return \e true if it is. Otherwise \e false.
    */
-  virtual bool IsOutsideClipSpace( Context& context, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix ) = 0;
+  virtual bool IsOutsideClipSpace( Context& context, const Matrix& modelViewProjectionMatrix ) = 0;
 
   /**
    * Called from Render prior to DoRender().
@@ -169,11 +171,9 @@ private:
    * @param[in] modelViewMatrix The model-view matrix.
    * @param[in] viewMatrix The view matrix.
    */
-  virtual void DoRender( Context& context, TextureCache& textureCache, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix ) = 0;
+  virtual void DoRender( Context& context, TextureCache& textureCache, const NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix ) = 0;
 
 protected:
-
-  NodeDataProvider& mDataProvider;        // @todo MESH_REWORK rename to mNodeDataProvider. Shouldn't it be const?
 
   Context* mContextDELETEME; // TODO: MESH_REWORK DELETE THIS
   TextureCache* mTextureCacheDELETEME; // TODO: MESH_REWORK DELETE THIS

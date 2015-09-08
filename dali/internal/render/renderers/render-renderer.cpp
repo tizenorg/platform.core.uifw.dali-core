@@ -31,26 +31,27 @@ namespace Internal
 namespace SceneGraph
 {
 
-NewRenderer* NewRenderer::New( NodeDataProvider& nodeDataProvider,
-                               RenderDataProvider* dataProvider,
+NewRenderer* NewRenderer::New( RenderDataProvider* dataProvider,
                                RenderGeometry* renderGeometry )
 {
-  return new NewRenderer(nodeDataProvider, dataProvider, renderGeometry);
+  std::cout<<"Creating NewRenderer"<<std::endl;
+  return new NewRenderer( dataProvider, renderGeometry);
 }
 
 
-NewRenderer::NewRenderer( NodeDataProvider& nodeDataProvider,
-                          RenderDataProvider* dataProvider,
+NewRenderer::NewRenderer( RenderDataProvider* dataProvider,
                           RenderGeometry* renderGeometry )
-: Renderer( nodeDataProvider ),
+: Renderer(),
   mRenderDataProvider( dataProvider ),
   mRenderGeometry( renderGeometry ),
-  mUpdateAttributesLocation( true )
+  mUpdateAttributesLocation( true ),
+  mUseBlend(false)
 {
 }
 
 NewRenderer::~NewRenderer()
 {
+  std::cout<<"Destroying NewRenderer"<<std::endl;
 }
 
 void NewRenderer::SetRenderDataProvider( RenderDataProvider* dataProvider )
@@ -83,7 +84,7 @@ bool NewRenderer::CheckResources()
   return true;
 }
 
-bool NewRenderer::IsOutsideClipSpace( Context& context, const Matrix& modelMatrix, const Matrix& modelViewProjectionMatrix )
+bool NewRenderer::IsOutsideClipSpace( Context& context, const Matrix& modelViewProjectionMatrix )
 {
   // @todo MESH_REWORK Add clipping
   return false;
@@ -120,11 +121,11 @@ void NewRenderer::DoSetBlending( Context& context, BufferIndex bufferIndex )
   }
 }
 
-void NewRenderer::DoRender( Context& context, TextureCache& textureCache, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
+void NewRenderer::DoRender( Context& context, TextureCache& textureCache, const NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
 {
   BindTextures( textureCache, bufferIndex, program, mRenderDataProvider->GetSamplers() );
 
-  SetUniforms( bufferIndex, program );
+  SetUniforms( bufferIndex, node, program );
 
   if( mUpdateAttributesLocation || mRenderGeometry->AttributesChanged() )
   {
@@ -144,7 +145,7 @@ void NewRenderer::GlCleanup()
 {
 }
 
-void NewRenderer::SetUniforms( BufferIndex bufferIndex, Program& program )
+void NewRenderer::SetUniforms( BufferIndex bufferIndex, const NodeDataProvider& node, Program& program )
 {
   // Check if the map has changed
   DALI_ASSERT_DEBUG( mRenderDataProvider && "No Uniform map data provider available" );
@@ -181,7 +182,7 @@ void NewRenderer::SetUniforms( BufferIndex bufferIndex, Program& program )
   GLint sizeLoc = program.GetUniformLocation( Program::UNIFORM_SIZE );
   if( -1 != sizeLoc )
   {
-    Vector3 size = mDataProvider.GetRenderSize( bufferIndex );
+    Vector3 size = node.GetRenderSize( bufferIndex );
     program.SetUniform3f( sizeLoc, size.x, size.y, size.z );
   }
 }

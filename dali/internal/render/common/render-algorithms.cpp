@@ -143,7 +143,7 @@ inline void ProcessRenderList(
       context.DepthMask( depthBufferEnabled && item.IsOpaque() );
 
       SceneGraph::Renderer* renderer = const_cast< SceneGraph::Renderer* >( item.GetRenderer() );
-      renderer->Render( context, textureCache, bufferIndex, defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, frameTime, cullMode );
+      renderer->Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, frameTime, cullMode );
     }
   }
   else
@@ -155,7 +155,7 @@ inline void ProcessRenderList(
       DALI_PRINT_RENDER_ITEM( item );
 
       SceneGraph::Renderer* renderer = const_cast< SceneGraph::Renderer* >( item.GetRenderer() );
-      renderer->Render( context, textureCache, bufferIndex, defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, frameTime, cullMode );
+      renderer->Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, frameTime, cullMode );
     }
 
   }
@@ -201,7 +201,7 @@ inline void RenderItemsAtDepthIndex(
     {
       SceneGraph::Renderer* renderer = const_cast< SceneGraph::Renderer* >( renderItem.GetRenderer() );
       const Matrix& modelViewMatrix = renderItem.GetModelViewMatrix();
-      renderer->Render( context, textureCache, bufferIndex, defaultShader, modelViewMatrix, viewMatrix, projectionMatrix, frameTime, cullMode );
+      renderer->Render( context, textureCache, bufferIndex, renderItem.GetNode(), defaultShader, modelViewMatrix, viewMatrix, projectionMatrix, frameTime, cullMode );
 
     }
     else

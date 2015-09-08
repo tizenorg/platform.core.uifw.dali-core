@@ -114,7 +114,7 @@ void RendererAttachment::ConnectedToSceneGraph()
   RenderDataProvider* dataProvider = NewRenderDataProvider();
 
   RenderGeometry* renderGeometry = mGeometry->GetRenderGeometry(mSceneController);
-  mRenderer = NewRenderer::New( *mParent, dataProvider, renderGeometry );
+  mRenderer = NewRenderer::New( dataProvider, renderGeometry );
   mSceneController->GetRenderMessageDispatcher().AddRenderer( *mRenderer );
 }
 

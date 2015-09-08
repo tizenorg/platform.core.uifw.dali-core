@@ -44,19 +44,19 @@ public:
    * @param bufferId to use
    * @return a reference to the model matrix
    */
-  virtual const Matrix& GetModelMatrix( unsigned int bufferId ) = 0;
+  virtual const Matrix& GetModelMatrix( unsigned int bufferId ) const = 0;
 
   /**
    * @param bufferId to use
    * @return a reference to the color
    */
-  virtual const Vector4& GetRenderColor( unsigned int bufferId ) = 0;
+  virtual const Vector4& GetRenderColor( unsigned int bufferId ) const = 0;
 
   /**
    * @param[in] bufferIndex The buffer index to use
    * @return the actor size
    */
-  virtual const Vector3& GetRenderSize( unsigned int bufferIndex ) = 0;
+  virtual const Vector3& GetRenderSize( unsigned int bufferIndex ) const = 0;
 
 protected:
   /**

@@ -36,6 +36,7 @@
 #include <dali/internal/update/nodes/node-declarations.h>
 #include <dali/internal/update/node-attachments/node-attachment-declarations.h>
 #include <dali/internal/render/data-providers/node-data-provider.h>
+#include <dali/internal/update/rendering/scene-graph-renderer2.h>
 
 namespace Dali
 {
@@ -49,6 +50,10 @@ template <> struct ParameterType< PositionInheritanceMode > : public BasicType< 
 
 namespace SceneGraph
 {
+
+//typedef std::vector< R3nderer* > RendererContainer;
+//typedef RendererContainer::iterator RendererIter;
+//typedef RendererContainer::const_iterator RendererConstIter;
 
 class DiscardQueue;
 class Layer;
@@ -170,6 +175,34 @@ public:
   bool HasAttachment() const
   {
     return mAttachment;
+  }
+
+  void AddRenderer( R3nderer* renderer )
+  {
+    //Check that it has not been already added
+    unsigned int rendererCount( mRenderer.size() );
+    for( unsigned int i(0); i<rendererCount; ++i )
+    {
+      if( mRenderer[i] == renderer )
+      {
+        mRenderer.erase( mRenderer.begin()+i);
+        return;
+      }
+    }
+    mRenderer.push_back( renderer );
+  }
+
+  void RemoveRenderer( R3nderer* renderer );
+
+
+  R3nderer* GetRendererAt( unsigned int index )
+  {
+    return mRenderer[index];
+  }
+
+  unsigned int GetRendererCount()
+  {
+    return mRenderer.size();
   }
 
   /**
@@ -814,6 +847,7 @@ public:
     return mSize[bufferIndex];
   }
 
+  bool ResolveVisibility( BufferIndex updateBufferIndex );
   /**
    * Set the world-matrix of a node, with scale + rotation + translation.
    * Scale and rotation are centered at the origin.
@@ -942,20 +976,21 @@ private: // from NodeDataProvider
   /**
    * @copydoc NodeDataProvider::GetModelMatrix
    */
-  virtual const Matrix& GetModelMatrix( unsigned int bufferId )
+  virtual const Matrix& GetModelMatrix( unsigned int bufferId ) const
   {
     return GetWorldMatrix( bufferId );
   }
 
+
   /**
    * @copydoc NodeDataProvider::GetRenderColor
    */
-  virtual const Vector4& GetRenderColor( unsigned int bufferId )
+  virtual const Vector4& GetRenderColor( unsigned int bufferId ) const
   {
     return GetWorldColor( bufferId );
   }
 
-  virtual const Vector3& GetRenderSize( unsigned int bufferId )
+  virtual const Vector3& GetRenderSize( unsigned int bufferId ) const
   {
     return GetSize( bufferId );
   }
@@ -1009,6 +1044,8 @@ protected:
   RenderTask*         mExclusiveRenderTask;          ///< Nodes can be marked as exclusive to a single RenderTask
 
   NodeAttachmentOwner mAttachment;                   ///< Optional owned attachment
+  RendererContainer   mRenderer;
+
   NodeContainer       mChildren;                     ///< Container of children; not owned
 
 
@@ -1111,6 +1148,27 @@ inline void SetDrawModeMessage( EventThreadServices& eventThreadServices, const 
   new (slot) LocalType( &node, &Node::SetDrawMode, drawMode );
 }
 
+inline void AddRendererMessage( EventThreadServices& eventThreadServices, const Node& node, R3nderer* renderer )
+{
+  typedef MessageValue1< Node, R3nderer* > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::AddRenderer, renderer );
+}
+
+inline void RemoveRendererMessage( EventThreadServices& eventThreadServices, const Node& node, R3nderer* renderer )
+{
+  typedef MessageValue1< Node, R3nderer* > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::RemoveRenderer, renderer );
+}
 } // namespace SceneGraph
 
 } // namespace Internal

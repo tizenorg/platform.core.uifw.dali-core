@@ -75,7 +75,7 @@ void ImageAttachment::Initialize2( BufferIndex updateBufferIndex )
   DALI_ASSERT_DEBUG( NULL != mSceneController );
 
   // Create main renderer, passing ownership to the render-thread
-  mImageRenderer = ImageRenderer::New( *mParent );
+  mImageRenderer = ImageRenderer::New();
 
   mSceneController->GetRenderMessageDispatcher().AddRenderer( *mImageRenderer );
 
@@ -430,21 +430,21 @@ void ImageAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
     mRefreshMeshData = false;
   }
 
-  bool blend = !IsFullyOpaque( updateBufferIndex );
+//  bool blend = !IsFullyOpaque( updateBufferIndex );
 
-  if ( mUseBlend != blend )
-  {
-    mUseBlend = blend;
-
-    // Enable/disable blending in the next render
-    typedef MessageValue1< ImageRenderer, bool > DerivedType;
-
-    // Reserve some memory inside the render queue
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
-
-    // Construct message in the render queue memory; note that delete should not be called on the return value
-    new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetUseBlend, blend );
-  }
+//  if ( mUseBlend != blend )
+//  {
+//    mUseBlend = blend;
+//
+//    // Enable/disable blending in the next render
+//    typedef MessageValue1< ImageRenderer, bool > DerivedType;
+//
+//    // Reserve some memory inside the render queue
+//    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+//
+//    // Construct message in the render queue memory; note that delete should not be called on the return value
+//    new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetUseBlend, blend );
+//  }
 }
 
 void RenderableAttachment::SetBlendingMode( BlendingMode::Type mode )

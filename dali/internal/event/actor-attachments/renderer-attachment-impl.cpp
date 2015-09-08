@@ -42,16 +42,16 @@ RendererAttachmentPtr RendererAttachment::New( EventThreadServices& eventThreadS
 
 void RendererAttachment::Initialize( EventThreadServices& eventThreadServices, const SceneGraph::Node& parentNode, Renderer& renderer )
 {
-  SceneGraph::RendererAttachment* sceneObject = renderer.GetRendererSceneObject();
-
-  // Takes ownership of scene object
-  AttachToNodeMessage( eventThreadServices.GetUpdateManager(), parentNode, sceneObject );
-
-  // Connect to renderer
-  mRendererConnector.Set( renderer, false );
-
-  // Keep raw pointer for message passing
-  mSceneObject = sceneObject;
+//  SceneGraph::RendererAttachment* sceneObject = renderer.GetRendererSceneObject();
+//
+//  // Takes ownership of scene object
+//  AttachToNodeMessage( eventThreadServices.GetUpdateManager(), parentNode, sceneObject );
+//
+//  // Connect to renderer
+//  mRendererConnector.Set( renderer, false );
+//
+//  // Keep raw pointer for message passing
+//  mSceneObject = sceneObject;
 }
 
 RendererAttachment::RendererAttachment( EventThreadServices& eventThreadServices )

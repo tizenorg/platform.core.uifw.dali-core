@@ -41,6 +41,23 @@ template <> struct ParameterType< Dali::Layer::Behavior >
 namespace SceneGraph
 {
 
+struct NodeRenderer
+{
+  NodeRenderer()
+  :mNode(0),
+   mRenderer(0)
+  {}
+
+  NodeRenderer( Node* node, R3nderer* renderer )
+  :mNode(node),
+   mRenderer(renderer)
+  {}
+
+  Node* mNode;
+  R3nderer* mRenderer;
+};
+
+typedef std::vector< NodeRenderer > NodeRendererContainer;
 /**
  * Layers have a "depth" relative to all other layers in the scene-graph.
  * Non-layer child nodes (and their attachments) are considered part of the layer.
@@ -201,6 +218,10 @@ public: // For update-algorithms
   RenderableAttachmentContainer stencilRenderables;
   RenderableAttachmentContainer colorRenderables;
   RenderableAttachmentContainer overlayRenderables;
+
+  NodeRendererContainer stencilRenderers;
+  NodeRendererContainer colorRenderers;
+  NodeRendererContainer overlayRenderers;
 
 private:
 

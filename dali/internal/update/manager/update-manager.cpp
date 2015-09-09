@@ -1018,7 +1018,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   }
 
   // 5) Process the queued scene messages
-  mImpl->messageQueue.ProcessMessages();
+  mImpl->messageQueue.ProcessMessages( bufferIndex );
 
   // 6) Post Process Ids of resources updated by renderer
   mImpl->resourceManager.PostProcessResources( bufferIndex );
@@ -1059,7 +1059,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
     // 14) Process the RenderTasks; this creates the instructions for rendering the next frame.
     // reset the update buffer index and make sure there is enough room in the instruction container
-    mImpl->renderInstructions.ResetAndReserve( mSceneGraphBuffers.GetUpdateBufferIndex(),
+    mImpl->renderInstructions.ResetAndReserve( bufferIndex,
                                                mImpl->taskList.GetTasks().Count() + mImpl->systemLevelTaskList.GetTasks().Count() );
 
     if ( NULL != mImpl->root )
@@ -1131,11 +1131,11 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   keepUpdating |= KeepUpdating::MONITORING_PERFORMANCE;
 #endif
 
-  // The update has finished; swap the double-buffering indices
-  mSceneGraphBuffers.Swap();
-
   // tell the update manager that we're done so the queue can be given to event thread
   mImpl->notificationManager.UpdateCompleted();
+
+  // The update has finished; swap the double-buffering indices
+  mSceneGraphBuffers.Swap();
 
   PERF_MONITOR_END(PerformanceMonitor::UPDATE);
 

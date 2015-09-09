@@ -26,6 +26,8 @@
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/render/gl-resources/gpu-buffer.h>
 
+typedef unsigned int BufferIndex;
+
 namespace Dali
 {
 
@@ -216,7 +218,7 @@ public:
    * @param[out] status contains the flag that indicates if render instructions exist
    * @return true if a further update is required
    */
-  bool Render( Integration::RenderStatus& status );
+  bool Render( Integration::RenderStatus& status, BufferIndex eventBufferIndex );
 
 private:
 

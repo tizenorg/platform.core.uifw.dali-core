@@ -39,6 +39,8 @@
 #include <dali/internal/render/renderers/render-geometry.h>
 #include <dali/internal/render/shaders/program-controller.h>
 
+#include <iostream>
+
 // Uncomment the next line to enable frame snapshot logging
 //#define FRAME_SNAPSHOT_LOGGING
 
@@ -365,8 +367,14 @@ ProgramCache* RenderManager::GetProgramCache()
   return &(mImpl->programController);
 }
 
-bool RenderManager::Render( Integration::RenderStatus& status )
+bool RenderManager::Render( Integration::RenderStatus& status, BufferIndex eventBufferIndex )
 {
+  if ( mImpl->renderBufferIndex != eventBufferIndex )
+  {
+    std::cout << "\nRenderBufferIndex != EventBufferIndex\n" << std::endl;
+  }
+  //DALI_ASSERT_ALWAYS( mImpl->renderBufferIndex == eventBufferIndex );
+
   DALI_PRINT_RENDER_START( mImpl->renderBufferIndex );
 
   // Core::Render documents that GL context must be current before calling Render
@@ -458,17 +466,17 @@ bool RenderManager::Render( Integration::RenderStatus& status )
     (*iter)->OnRenderFinished();
   }
 
+  DALI_PRINT_RENDER_END();
+
+  DALI_PRINT_RENDERER_COUNT(mImpl->frameCount, mImpl->context.GetRendererCount());
+  DALI_PRINT_CULL_COUNT(mImpl->frameCount, mImpl->context.GetCulledCount());
+
   /**
    * The rendering has finished; swap to the next buffer.
    * Ideally the update has just finished using this buffer; otherwise the render thread
    * should block until the update has finished.
    */
-  mImpl->renderBufferIndex = (0 != mImpl->renderBufferIndex) ? 0 : 1;
-
-  DALI_PRINT_RENDER_END();
-
-  DALI_PRINT_RENDERER_COUNT(mImpl->frameCount, mImpl->context.GetRendererCount());
-  DALI_PRINT_CULL_COUNT(mImpl->frameCount, mImpl->context.GetCulledCount());
+  __sync_fetch_and_xor( &mImpl->renderBufferIndex, 1u );
 
   return updateRequired;
 }

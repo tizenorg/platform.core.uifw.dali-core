@@ -275,7 +275,7 @@ void Core::Update( float elapsedSeconds, unsigned int lastVSyncTimeMilliseconds,
 
 void Core::Render( RenderStatus& status )
 {
-  bool updateRequired = mRenderManager->Render( status );
+  bool updateRequired = mRenderManager->Render( status, mUpdateManager->GetEventBufferIndex() );
 
   status.SetNeedsUpdate( updateRequired );
 }

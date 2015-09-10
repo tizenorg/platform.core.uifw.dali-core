@@ -68,6 +68,36 @@ bool NativeFrameBufferTexture::Init()
   return status;
 }
 
+bool NativeFrameBufferTexture::Prepare()
+{
+  // bind texture
+  Bind( GL_TEXTURE_2D, TEXTURE_UNIT_FRAMEBUFFER );
+
+  if( 0 != mId )
+  {
+    // bind frame buffer
+    mContext.BindFramebuffer(GL_FRAMEBUFFER, mFrameBufferName);
+    // bind render buffer
+    mContext.BindRenderbuffer(GL_RENDERBUFFER, mRenderBufferName);
+    // attach texture to the color attachment point
+    mContext.FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mId, 0);
+    // attach render buffer to the depth buffer attachment point
+    mContext.FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mRenderBufferName);
+
+    int status = mContext.CheckFramebufferStatus(GL_FRAMEBUFFER);
+    if ( GL_FRAMEBUFFER_COMPLETE != status )
+    {
+      DALI_LOG_ERROR( "status (0x%x), glError (0x%x)\n", status, mContext.GetError() );
+      DALI_ASSERT_ALWAYS( false && "Frame buffer is not complete!" );
+    }
+
+    return true;
+  }
+
+  // Texture could not be bound
+  return false;
+}
+
 bool NativeFrameBufferTexture::CreateGlTexture()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);

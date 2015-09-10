@@ -67,6 +67,12 @@ public:
    */
   virtual bool Init();
 
+  /**
+   * Prepare FBO for rendering.
+   * @return true if the FBO is prepared and its status is GL_FRAMEBUFFER_COMPLETE, otherwise false.
+   */
+  virtual bool Prepare();
+
 protected:
   /**
    * @copydoc Texture::CreateGlTexture

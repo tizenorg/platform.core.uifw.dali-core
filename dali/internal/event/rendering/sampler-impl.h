@@ -158,6 +158,12 @@ public: // Default property extensions from Object
   virtual const SceneGraph::PropertyOwner* GetSceneObject() const;
 
   /**
+   * Retrieve the scene-graph sampler added by this object.
+   * @return A pointer to the sampler, or NULL if no sampler has been added to the scene-graph.
+   */
+  SceneGraph::Sampler* GetSceneSampler();
+
+  /**
    * @copydoc Dali::Internal::Object::GetSceneObjectAnimatableProperty()
    */
   virtual const SceneGraph::PropertyBase* GetSceneObjectAnimatableProperty( Property::Index index ) const;

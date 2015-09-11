@@ -128,6 +128,12 @@ public: // Default property extensions from Object
   virtual const SceneGraph::PropertyOwner* GetSceneObject() const;
 
   /**
+   * Retrieve the scene-graph shader added by this object.
+   * @return A pointer to the shader, or NULL if no shader has been added to the scene-graph.
+   */
+  SceneGraph::Shader* GetSceneShader();
+
+  /**
    * @copydoc Dali::Internal::Object::GetSceneObjectAnimatableProperty()
    */
   virtual const SceneGraph::PropertyBase* GetSceneObjectAnimatableProperty( Property::Index index ) const;

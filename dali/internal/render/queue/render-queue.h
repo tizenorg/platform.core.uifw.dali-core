@@ -68,15 +68,15 @@ public:
    */
   void ProcessMessages( BufferIndex bufferIndex );
 
-private:
-
-  /**
+/**
    * Helper to retrieve the current container.
    * The update-thread queues messages with one container, whilst the render-thread is processing the other.
    * @param[in] bufferIndex The current buffer index.
    * @return The container.
    */
   MessageBuffer* GetCurrentContainer( BufferIndex bufferIndex );
+
+private:
 
   /**
    * Helper to limit the buffer capacity i.e. after a frame when an extreme number of messages have been sent.

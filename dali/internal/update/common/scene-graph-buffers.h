@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_SCENE_GRAPH_BUFFERS_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/buffer-index.h>
+#include <dali/internal/common/message-buffer.h>
 
 namespace Dali
 {
@@ -40,6 +41,14 @@ public:
 
   static BufferIndex INITIAL_EVENT_BUFFER_INDEX;  // 0
   static BufferIndex INITIAL_UPDATE_BUFFER_INDEX; // 1
+
+
+  enum Accessing
+  {
+    UPDATE,
+    RENDER,
+    MAX_ACCESSING
+  };
 
   /**
    * Create a SceneGraphBuffers object.
@@ -68,6 +77,28 @@ public:
   */
   void Swap();
 
+  /**
+   * @brief Record start of thread accessing MessageBuffers.
+   *
+   * @param[in] accessing The thread that is recording start of access.
+   * @param[in] buffer The message buffer that is being accessed.
+   * @param[in] microseconds The current time stamp in microseconds.
+   */
+  void StartedAccess( Accessing accessing, MessageBuffer* buffer, unsigned int microseconds );
+
+  /**
+   * @brief Record end of thread accessing MessageBuffers.
+   *
+   * @param[in] accessing The thread that is recording the end of access.
+   * @param[in] microseconds The current time stamp in microseconds.
+   */
+  void EndedAccess( Accessing accessing, unsigned int microseconds );
+
+  /**
+   * @brief Check for simultaneous access to message buffers.
+   */
+  void SanityCheck();
+
 private:
 
   // Undefined
@@ -78,8 +109,11 @@ private:
 
 private:
 
-  BufferIndex mEventBufferIndex;  ///< 0 or 1 (opposite of mUpdateBufferIndex)
-  BufferIndex mUpdateBufferIndex; ///< 0 or 1 (opposite of mEventBufferIndex)
+  BufferIndex mEventBufferIndex;                   ///< 0 or 1 (opposite of mUpdateBufferIndex)
+  BufferIndex mUpdateBufferIndex;                  ///< 0 or 1 (opposite of mEventBufferIndex)
+  MessageBuffer* mMessageBuffers[ MAX_ACCESSING ]; ///< Message buffer being used for a thread.
+  unsigned int mStartTimes[ MAX_ACCESSING ];       ///< Start time of access to a message buffer from thread.
+  unsigned int mLastTimes[ MAX_ACCESSING ];        ///< Length of last time interval for message buffer access.
 };
 
 } // namespace SceneGraph

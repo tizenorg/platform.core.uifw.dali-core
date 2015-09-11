@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -187,6 +187,11 @@ RenderManager::~RenderManager()
   delete mImpl;
 }
 
+MessageBuffer* RenderManager::GetCurrentMessageBuffer() const
+{
+  return mImpl->renderQueue.GetCurrentContainer( mImpl->renderBufferIndex );
+}
+
 RenderQueue& RenderManager::GetRenderQueue()
 {
   return mImpl->renderQueue;
@@ -245,12 +250,6 @@ RenderInstructionContainer& RenderManager::GetRenderInstructionContainer()
 void RenderManager::SetBackgroundColor( const Vector4& color )
 {
   mImpl->backgroundColor = color;
-}
-
-void RenderManager::SetFrameDeltaTime( float deltaTime )
-{
-  Dali::Mutex::ScopedLock lock( mMutex );
-  mImpl->frameTime = deltaTime;
 }
 
 void RenderManager::SetDefaultSurfaceRect(const Rect<int>& rect)
@@ -447,8 +446,6 @@ bool RenderManager::Render( Integration::RenderStatus& status )
 
   PERF_MONITOR_END(PerformanceMonitor::DRAW_NODES);
 
-  SetLastFrameTime();
-
   // check if anything has been posted to the update thread
   bool updateRequired = !mImpl->resourcePostProcessQueue[ mImpl->renderBufferIndex ].empty();
 
@@ -471,12 +468,6 @@ bool RenderManager::Render( Integration::RenderStatus& status )
   DALI_PRINT_CULL_COUNT(mImpl->frameCount, mImpl->context.GetCulledCount());
 
   return updateRequired;
-}
-
-void RenderManager::SetLastFrameTime()
-{
-  Dali::Mutex::ScopedLock lock(mMutex);
-  mImpl->lastFrameTime = mImpl->frameTime;
 }
 
 void RenderManager::DoRender( RenderInstruction& instruction, Shader& defaultShader, float elapsedTime )

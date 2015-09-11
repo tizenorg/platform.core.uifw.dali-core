@@ -170,6 +170,11 @@ const SceneGraph::PropertyOwner* Shader::GetSceneObject() const
   return mSceneObject;
 }
 
+SceneGraph::Shader* Shader::GetSceneShader()
+{
+  return mSceneObject;
+}
+
 const SceneGraph::PropertyBase* Shader::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
   DALI_ASSERT_ALWAYS( IsPropertyAnimatable( index ) && "Property is not animatable" );

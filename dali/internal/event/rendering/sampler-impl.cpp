@@ -245,6 +245,11 @@ const SceneGraph::PropertyOwner* Sampler::GetSceneObject() const
   return mSceneObject;
 }
 
+SceneGraph::Sampler* Sampler::GetSceneSampler()
+{
+  return mSceneObject;
+}
+
 const SceneGraph::PropertyBase* Sampler::GetSceneObjectAnimatableProperty( Property::Index index ) const
 {
   DALI_ASSERT_ALWAYS( IsPropertyAnimatable( index ) && "Property is not animatable" );

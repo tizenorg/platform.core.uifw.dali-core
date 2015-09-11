@@ -100,6 +100,10 @@ std::size_t Material::GetNumberOfSamplers() const
 
 void Material::RemoveSampler( std::size_t index )
 {
+  SamplerPtr sampler = mSamplerConnectors[index].Get();
+
+  const SceneGraph::Sampler& sceneGraphSampler = dynamic_cast<const SceneGraph::Sampler&>( *sampler->GetSceneObject() );
+  SceneGraph::RemoveSamplerMessage( GetEventThreadServices(), *mSceneObject, sceneGraphSampler );
   mSamplerConnectors.erase( mSamplerConnectors.begin() + index );
 }
 

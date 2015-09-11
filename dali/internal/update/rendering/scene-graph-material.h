@@ -239,7 +239,7 @@ inline void AddSamplerMessage( EventThreadServices& eventThreadServices, const M
   new (slot) LocalType( &material, &Material::AddSampler, const_cast<Sampler*>(&sampler) );
 }
 
-inline void RemoveSamplerMessage( EventThreadServices& eventThreadServices, const Material& material, Sampler& sampler )
+inline void RemoveSamplerMessage( EventThreadServices& eventThreadServices, const Material& material, const Sampler& sampler )
 {
   typedef MessageValue1< Material, Sampler* > LocalType;
 

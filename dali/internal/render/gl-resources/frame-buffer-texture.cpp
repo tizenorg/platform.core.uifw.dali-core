@@ -37,7 +37,8 @@ FrameBufferTexture::FrameBufferTexture(unsigned int width, unsigned int height, 
   mRenderBufferName(0),
   mStencilBufferName(0),
   mPixelFormat(Pixel::RGBA8888),
-  mBufferFormat(RenderBuffer::COLOR)
+  mBufferFormat(RenderBuffer::COLOR),
+  mNativeImage(NULL)
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
 
@@ -51,7 +52,8 @@ FrameBufferTexture::FrameBufferTexture(unsigned int width, unsigned int height, 
   mRenderBufferName(0),
   mStencilBufferName(0),
   mPixelFormat( pixelFormat ),
-  mBufferFormat(RenderBuffer::COLOR)
+  mBufferFormat(RenderBuffer::COLOR),
+  mNativeImage(NULL)
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
 
@@ -65,9 +67,24 @@ FrameBufferTexture::FrameBufferTexture(unsigned int width, unsigned int height, 
   mRenderBufferName(0),
   mStencilBufferName(0),
   mPixelFormat( pixelFormat ),
-  mBufferFormat( bufferFormat )
+  mBufferFormat( bufferFormat ),
+  mNativeImage(NULL)
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
+}
+
+FrameBufferTexture::FrameBufferTexture( NativeImageInterfacePtr nativeImage, Context& context )
+: Texture( context,
+           nativeImage->GetWidth(), nativeImage->GetHeight(),
+           nativeImage->GetWidth(), nativeImage->GetHeight() ),
+  mFrameBufferName(0),
+  mRenderBufferName(0),
+  mStencilBufferName(0),
+  mPixelFormat( pixelFormat ),
+  mBufferFormat(RenderBuffer::COLOR_DEPTH)
+  mNativeImage( nativeImage )
+{
+  DALI_LOG_INFO( Debug::Filter::gImage, Debug::General, "NativeFrameBufferTexture created 0x%x\n", &nativeImage );
 }
 
 FrameBufferTexture::~FrameBufferTexture()
@@ -79,11 +96,16 @@ FrameBufferTexture::~FrameBufferTexture()
 
 bool FrameBufferTexture::IsFullyOpaque() const
 {
-  return true;
+  return !HasAlphaChannel();
 }
 
 bool FrameBufferTexture::HasAlphaChannel() const
 {
+  if( mNativeImage )
+  {
+    return mNativeImage->RequiresBlending();
+  }
+
   return false;
 }
 
@@ -114,6 +136,13 @@ bool FrameBufferTexture::CreateGlTexture()
 {
   DALI_LOG_TRACE_METHOD(Debug::Filter::gImage);
 
+  if( mNativeImage &&
+      !mNativeImage->GlExtensionCreate() )
+  {
+    DALI_LOG_ERROR( "Error creating native image!" );
+    return;
+  }
+
   mContext.GenTextures(1, &mId);
   mContext.ActiveTexture( TEXTURE_UNIT_UPLOAD );  // bind in unused unit so rebind works the first time
   mContext.Bind2dTexture(mId);
@@ -128,7 +157,15 @@ bool FrameBufferTexture::CreateGlTexture()
   GLenum pixelDataType = GL_UNSIGNED_BYTE;
   Integration::ConvertToGlFormat(mPixelFormat, pixelDataType, pixelFormat);
 
-  mContext.TexImage2D(GL_TEXTURE_2D, 0, pixelFormat, mWidth, mHeight, 0, pixelFormat, pixelDataType, NULL);
+  if( mNativeImage )
+  {
+    // platform specific implementation decides on what GL extension to use
+    mNativeImage->TargetTexture();
+  }
+  else
+  {
+    mContext.TexImage2D(GL_TEXTURE_2D, 0, pixelFormat, mWidth, mHeight, 0, pixelFormat, pixelDataType, NULL);
+  }
 
   // generate frame and render buffer names
   mContext.GenFramebuffers(1, &mFrameBufferName);
@@ -211,6 +248,12 @@ void FrameBufferTexture::GlCleanup()
   {
     mContext.DeleteRenderbuffers(1, &mStencilBufferName );
     mStencilBufferName = 0;
+  }
+
+  if( mNativeImage )
+  {
+    mNativeImage->GlExtensionDestroy();
+    mNativeImage.Reset();
   }
 }
 

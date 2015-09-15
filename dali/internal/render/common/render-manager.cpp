@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ struct RenderManager::Impl
     frameTime( 0.0f ),
     lastFrameTime( 0.0f ),
     frameCount( 0 ),
-    renderBufferIndex( SceneGraphBuffers::INITIAL_UPDATE_BUFFER_INDEX ),
+    renderBufferIndex( SceneGraphBuffers::INITIAL_EVENT_BUFFER_INDEX ),
     defaultSurfaceRect(),
     rendererContainer(),
     renderersAdded( false ),
@@ -187,6 +187,11 @@ RenderManager::~RenderManager()
   delete mImpl;
 }
 
+MessageBuffer* RenderManager::GetCurrentMessageBuffer() const
+{
+  return mImpl->renderQueue.GetCurrentContainer( mImpl->renderBufferIndex );
+}
+
 RenderQueue& RenderManager::GetRenderQueue()
 {
   return mImpl->renderQueue;
@@ -245,12 +250,6 @@ RenderInstructionContainer& RenderManager::GetRenderInstructionContainer()
 void RenderManager::SetBackgroundColor( const Vector4& color )
 {
   mImpl->backgroundColor = color;
-}
-
-void RenderManager::SetFrameDeltaTime( float deltaTime )
-{
-  Dali::Mutex::ScopedLock lock( mMutex );
-  mImpl->frameTime = deltaTime;
 }
 
 void RenderManager::SetDefaultSurfaceRect(const Rect<int>& rect)
@@ -365,8 +364,14 @@ ProgramCache* RenderManager::GetProgramCache()
   return &(mImpl->programController);
 }
 
-bool RenderManager::Render( Integration::RenderStatus& status )
+bool RenderManager::Render( Integration::RenderStatus& status, SceneGraphBuffers& sceneGraphBuffers )
 {
+  static unsigned int count = 0;
+  std::cout << "render started: " << count << ", reading from buffer: " << ( sceneGraphBuffers.GetRenderBufferIndex() ^ 1 ) << std::endl;
+
+  // Make sure we read from the buffer not being updated...
+  mImpl->renderBufferIndex = sceneGraphBuffers.GetRenderBufferIndex() ^ 1u;
+
   DALI_PRINT_RENDER_START( mImpl->renderBufferIndex );
 
   // Core::Render documents that GL context must be current before calling Render
@@ -447,8 +452,6 @@ bool RenderManager::Render( Integration::RenderStatus& status )
 
   PERF_MONITOR_END(PerformanceMonitor::DRAW_NODES);
 
-  SetLastFrameTime();
-
   // check if anything has been posted to the update thread
   bool updateRequired = !mImpl->resourcePostProcessQueue[ mImpl->renderBufferIndex ].empty();
 
@@ -463,20 +466,15 @@ bool RenderManager::Render( Integration::RenderStatus& status )
    * Ideally the update has just finished using this buffer; otherwise the render thread
    * should block until the update has finished.
    */
-  mImpl->renderBufferIndex = (0 != mImpl->renderBufferIndex) ? 0 : 1;
 
   DALI_PRINT_RENDER_END();
 
   DALI_PRINT_RENDERER_COUNT(mImpl->frameCount, mImpl->context.GetRendererCount());
   DALI_PRINT_CULL_COUNT(mImpl->frameCount, mImpl->context.GetCulledCount());
 
+  sceneGraphBuffers.SwapRenderBuffers();
+  std::cout << "render ended: " << count++ << std::endl;
   return updateRequired;
-}
-
-void RenderManager::SetLastFrameTime()
-{
-  Dali::Mutex::ScopedLock lock(mMutex);
-  mImpl->lastFrameTime = mImpl->frameTime;
 }
 
 void RenderManager::DoRender( RenderInstruction& instruction, Shader& defaultShader, float elapsedTime )

@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_SCENE_GRAPH_UPDATE_MANAGER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -410,6 +410,23 @@ public:
    * @param[in] systemLevel True if using the system-level overlay.
    */
   void SetLayerDepths( const std::vector< Layer* >& layers, bool systemLevel );
+
+  /**
+   * @brief Get the SceneGraphBuffers object used to set buffer indices.
+   *
+   * @return A reference to the SceneGraphBuffers object.
+   */
+  SceneGraphBuffers& GetSceneGraphBuffers()
+  {
+    return mSceneGraphBuffers;
+  }
+
+  /**
+   * @brief Get the current message buffer being used by the update thread.
+   *
+   * @return A pointer to the message buffer.
+   */
+  MessageBuffer* GetCurrentMessageBuffer();
 
 private:
 

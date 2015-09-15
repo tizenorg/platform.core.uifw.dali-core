@@ -219,6 +219,8 @@ bool ImageRenderer::RequiresDepthTest() const
 
 bool ImageRenderer::CheckResources()
 {
+//  DALI_ASSERT_ALWAYS( mTextureCacheDELETEME && "Texture Cache is Invalid");
+
   if( mTexture == NULL )
   {
     if ( mTextureCacheDELETEME )
@@ -278,6 +280,7 @@ void ImageRenderer::DoRender( Context& context, TextureCache& textureCache, Buff
 
   DALI_ASSERT_DEBUG( mVertexBuffer );
 
+  //DALI_ASSERT_ALWAYS( mTextureCacheDELETEME && "ImageRenderer::DoRender");
   mTextureCacheDELETEME->BindTexture( mTexture, mTextureId,  GL_TEXTURE_2D, TEXTURE_UNIT_IMAGE );
 
   if( mTexture->GetTextureId() == 0 )

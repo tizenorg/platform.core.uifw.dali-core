@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@
 // INTERNAL INCLUDES
 #include <dali/internal/common/message.h>
 
+#include <dali/internal/update/common/scene-graph-buffers.h>
+
 namespace Dali
 {
 
@@ -40,16 +42,15 @@ namespace SceneGraph
 
 RenderQueue::RenderQueue()
 : container0( NULL ),
-  container1( NULL )
+  container1( NULL ),
+  mSceneGraphBuffers( NULL )
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
   container0 = new MessageBuffer( INITIAL_BUFFER_SIZE );
   container1 = new MessageBuffer( INITIAL_BUFFER_SIZE );
 }
 
 RenderQueue::~RenderQueue()
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
   if( container0 )
   {
     for( MessageBuffer::Iterator iter = container0->Begin(); iter.IsValid(); iter.Next() )
@@ -77,17 +78,18 @@ RenderQueue::~RenderQueue()
   }
 }
 
-unsigned int* RenderQueue::ReserveMessageSlot( BufferIndex updateBufferIndex, std::size_t size )
+unsigned int* RenderQueue::ReserveMessageSlot( BufferIndex bufferIndex, std::size_t size )
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
-  MessageBuffer* container = GetCurrentContainer( updateBufferIndex );
-
+  // This should come in with the renderBufferIndex
+  mSceneGraphBuffers->SanityCheck();
+  MessageBuffer* container = GetCurrentContainer( bufferIndex );
   return container->ReserveMessageSlot( size );
 }
 
 void RenderQueue::ProcessMessages( BufferIndex bufferIndex )
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
+  // This should come in with the renderBufferIndex ^ 1
+  mSceneGraphBuffers->SanityCheck();
   MessageBuffer* container = GetCurrentContainer( bufferIndex );
 
   for( MessageBuffer::Iterator iter = container->Begin(); iter.IsValid(); iter.Next() )
@@ -102,7 +104,7 @@ void RenderQueue::ProcessMessages( BufferIndex bufferIndex )
 
   container->Reset();
 
-  LimitBufferCapacity( bufferIndex );
+  //LimitBufferCapacity( bufferIndex );
 }
 
 MessageBuffer* RenderQueue::GetCurrentContainer( BufferIndex bufferIndex )

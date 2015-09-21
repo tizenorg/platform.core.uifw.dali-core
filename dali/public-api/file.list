@@ -42,7 +42,7 @@ public_api_src_files = \
   $(public_api_src_dir)/images/buffer-image.cpp \
   $(public_api_src_dir)/images/frame-buffer-image.cpp \
   $(public_api_src_dir)/images/encoded-buffer-image.cpp \
-  $(public_api_src_dir)/images/nine-patch-image.cpp \
+  $(public_api_src_dir)/images/n-patch-image.cpp \
   $(public_api_src_dir)/images/resource-image.cpp \
   $(public_api_src_dir)/images/native-image.cpp \
   $(public_api_src_dir)/math/compile-time-math.cpp \
@@ -148,7 +148,7 @@ public_api_core_images_header_files = \
   $(public_api_src_dir)/images/frame-buffer-image.h \
   $(public_api_src_dir)/images/image.h \
   $(public_api_src_dir)/images/image-operations.h \
-  $(public_api_src_dir)/images/nine-patch-image.h \
+  $(public_api_src_dir)/images/n-patch-image.h \
   $(public_api_src_dir)/images/pixel.h \
   $(public_api_src_dir)/images/resource-image.h \
   $(public_api_src_dir)/images/native-image.h \

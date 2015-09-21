@@ -16,65 +16,69 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/images/nine-patch-image.h>
+#include <dali/public-api/images/n-patch-image.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/image-attributes.h>
 #include <dali/public-api/math/vector2.h>
-#include <dali/internal/event/images/nine-patch-image-impl.h>
+#include <dali/internal/event/images/n-patch-image-impl.h>
 
 
 namespace Dali
 {
 
-NinePatchImage::NinePatchImage()
+NPatchImage::NPatchImage()
 {
 }
 
-NinePatchImage::NinePatchImage(Internal::NinePatchImage* internal)
+NPatchImage::NPatchImage(Internal::NPatchImage* internal)
 : ResourceImage(internal)
 {
 }
 
-NinePatchImage::~NinePatchImage()
+NPatchImage::~NPatchImage()
 {
 }
 
-NinePatchImage::NinePatchImage(const NinePatchImage& handle)
+NPatchImage::NPatchImage(const NPatchImage& handle)
 : ResourceImage(handle)
 {
 }
 
-NinePatchImage& NinePatchImage::operator=(const NinePatchImage& rhs)
+NPatchImage& NPatchImage::operator=(const NPatchImage& rhs)
 {
   BaseHandle::operator=(rhs);
   return *this;
 }
 
-NinePatchImage NinePatchImage::New( const std::string& filename )
+NPatchImage NPatchImage::New( const std::string& filename )
 {
   Internal::ImageAttributes defaultAttrs;
 
-  Internal::NinePatchImagePtr internal = Internal::NinePatchImage::New( filename, defaultAttrs, Image::NEVER );
-  return NinePatchImage(internal.Get());
+  Internal::NPatchImagePtr internal = Internal::NPatchImage::New( filename, defaultAttrs, Image::NEVER );
+  return NPatchImage(internal.Get());
 }
 
-NinePatchImage NinePatchImage::DownCast( BaseHandle handle )
+NPatchImage NPatchImage::DownCast( BaseHandle handle )
 {
-  return NinePatchImage( dynamic_cast<Dali::Internal::NinePatchImage*>(handle.GetObjectPtr()) );
+  return NPatchImage( dynamic_cast<Dali::Internal::NPatchImage*>(handle.GetObjectPtr()) );
 }
 
-Vector4 NinePatchImage::GetStretchBorders()
+const NPatchImage::StretchRanges& NPatchImage::GetStretchPixelsX()
 {
-  return GetImplementation(*this).GetStretchBorders();
+  return GetImplementation(*this).GetStretchPixelsX();
+}
+const NPatchImage::StretchRanges& NPatchImage::GetStretchPixelsY()
+{
+  return GetImplementation(*this).GetStretchPixelsY();
 }
 
-Rect<int> NinePatchImage::GetChildRectangle()
+Rect<int> NPatchImage::GetChildRectangle()
 {
   return GetImplementation(*this).GetChildRectangle();
 }
 
-BufferImage NinePatchImage::CreateCroppedBufferImage()
+BufferImage NPatchImage::CreateCroppedBufferImage()
 {
   Internal::BufferImagePtr internal = GetImplementation(*this).CreateCroppedBufferImage();
   return BufferImage(internal.Get());

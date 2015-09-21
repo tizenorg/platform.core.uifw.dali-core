@@ -26,7 +26,7 @@
 #include <dali/internal/event/actors/actor-impl.h>
 #include <dali/internal/event/actor-attachments/image-attachment-impl.h>
 #include <dali/internal/event/animation/animation-impl.h>
-#include <dali/internal/event/images/nine-patch-image-impl.h>
+#include <dali/internal/event/images/n-patch-image-impl.h>
 
 namespace Dali
 {

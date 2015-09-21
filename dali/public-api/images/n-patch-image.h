@@ -1,5 +1,5 @@
-#ifndef __DALI_NINE_PATCH_IMAGE_H__
-#define __DALI_NINE_PATCH_IMAGE_H__
+#ifndef __DALI_N_PATCH_IMAGE_H__
+#define __DALI_N_PATCH_IMAGE_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -32,11 +32,11 @@ namespace Dali
 
 namespace Internal DALI_INTERNAL
 {
-class NinePatchImage;
+class NPatchImage;
 }
 
 /**
- * @brief NinePatchImage represents a stretchable image resource
+ * @brief NPatchImage represents a stretchable image resource
  *
  * It contains a bitmap that is synchronously loaded from the file system that contains
  * a 9 patch border - a 1 pixel border that describes the stretch borders and the child
@@ -50,52 +50,55 @@ class NinePatchImage;
  * to use the cropped BufferImage - if you don't retain a handle to this object, it will
  * be automatically destroyed.
  */
-class DALI_IMPORT_API NinePatchImage : public ResourceImage
+class DALI_IMPORT_API NPatchImage : public ResourceImage
 {
 public:
+   typedef std::vector< Uint16Pair > StretchRanges;
+
+public:
   /**
-   * @brief Constructor which creates an uninitialized NinePatchImage object.
+   * @brief Constructor which creates an uninitialized NPatchImage object.
    *
    * Use Image::New(...) to create an initialised object.
    */
-  NinePatchImage();
+  NPatchImage();
 
   /**
-   * @brief Create a new NinePatchImage.
+   * @brief Create a new NPatchImage.
    *
    * A pixel buffer for image data is allocated and loaded from the filesystem.
    * Dali has ownership of the buffer.
    * @note: default resource management policies are Immediate and Never
    *
    * @param [in] filename    File to load synchronously into buffer
-   * @return a handle to a new instance of NinePatchImage
+   * @return a handle to a new instance of NPatchImage
    */
-  static NinePatchImage New( const std::string& filename );
+  static NPatchImage New( const std::string& filename );
 
   /**
-   * @brief Downcast an Object handle to NinePatchImage.
+   * @brief Downcast an Object handle to NPatchImage.
    *
-   * If handle points to a NinePatchImage the downcast produces valid
+   * If handle points to a NPatchImage the downcast produces valid
    * handle. If not the returned handle is left uninitialized.
    *
    * @param[in] handle to An object
-   * @return handle to a NinePatchImage or an uninitialized handle
+   * @return handle to a NPatchImage or an uninitialized handle
    */
-  static NinePatchImage DownCast( BaseHandle handle );
+  static NPatchImage DownCast( BaseHandle handle );
 
   /**
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  ~NinePatchImage();
+  ~NPatchImage();
 
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
    * @param [in] handle A reference to the copied handle
    */
-  NinePatchImage(const NinePatchImage& handle);
+  NPatchImage(const NPatchImage& handle);
 
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
@@ -103,13 +106,20 @@ public:
    * @param [in] rhs  A reference to the copied handle
    * @return A reference to this
    */
-  NinePatchImage& operator=(const NinePatchImage& rhs);
+  NPatchImage& operator=(const NPatchImage& rhs);
 
   /**
-   * Get the stretch borders
-   * @return The border in pixels from the left, top, right, and bottom of the image respectively.
+   * @brief Retrieves the horizontal stretch pixel ranges in the cropped image space
+   *
+   * @return the horizontal stretch pixel ranges in the cropped image space
    */
-  Vector4 GetStretchBorders();
+  const StretchRanges& GetStretchPixelsX();
+  /**
+   * @brief Retrieves the vertical stretch pixel ranges in the cropped image space
+   *
+   * @return the vertical stretch pixel ranges in the cropped image space
+   */
+  const StretchRanges& GetStretchPixelsY();
 
   /**
    * Get the child rectangle
@@ -127,7 +137,7 @@ public:
 
 public: // Not intended for application developers
 
-  explicit DALI_INTERNAL NinePatchImage(Internal::NinePatchImage*);
+  explicit DALI_INTERNAL NPatchImage(Internal::NPatchImage*);
 };
 
 /**
@@ -135,4 +145,4 @@ public: // Not intended for application developers
  */
 } // namespace Dali
 
-#endif // __DALI_NINE_PATCH_IMAGE_H__
+#endif // __DALI_N_PATCH_IMAGE_H__

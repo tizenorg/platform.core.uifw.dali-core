@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_NINE_PATCH_IMAGE_H__
-#define __DALI_INTERNAL_NINE_PATCH_IMAGE_H__
+#ifndef __DALI_INTERNAL_N_PATCH_IMAGE_H__
+#define __DALI_INTERNAL_N_PATCH_IMAGE_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/images/nine-patch-image.h>
+#include <dali/public-api/images/n-patch-image.h>
 #include <dali/internal/event/images/resource-image-impl.h>
 #include <dali/internal/event/images/buffer-image-impl.h>
 
@@ -29,8 +29,8 @@ namespace Dali
 namespace Internal
 {
 
-class NinePatchImage;
-typedef IntrusivePtr<NinePatchImage> NinePatchImagePtr;
+class NPatchImage;
+typedef IntrusivePtr<NPatchImage> NPatchImagePtr;
 
 class ResourceClient;
 class ResourceManager;
@@ -45,21 +45,24 @@ class UpdateManager;
  * It's image data has a border which determines stretch and fill areas
  * Its pixel buffer data is loaded synchronously from file.
  */
-class NinePatchImage : public ResourceImage
+class NPatchImage : public ResourceImage
 {
+public:
+  typedef std::vector< Uint16Pair > StretchRanges;
+
 public:
 
   /**
-   * Create a new NinePatchImage.
+   * Create a new NPatchImage.
    * Also a pixel buffer for image data is allocated.
    * Dali has ownership of the buffer.
    * @param [in] filename    File to load synchronously into buffer
    * @param [in] attributes  Image attributes of the file
    * @param [in] releasePol  optionally relase memory when image is not visible on screen (default: keep image data until Image object is alive).
    */
-  static NinePatchImagePtr New( const std::string& filename,
-                                const ImageAttributes& attributes,
-                                ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
+  static NPatchImagePtr New( const std::string& filename,
+                             const ImageAttributes& attributes,
+                             ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
 
   /**
    * Create a new NinePatchImage
@@ -69,9 +72,9 @@ public:
    * @param [in] attributes  Image attributes of the file
    * @param [in] releasePol  optionally relase memory when image is not visible on screen (default: keep image data until Image object is alive).
    */
-  NinePatchImage( const std::string& filename,
-                  const ImageAttributes& attributes,
-                  ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
+  NPatchImage( const std::string& filename,
+               const ImageAttributes& attributes,
+               ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
 
   /**
    * Convert Image object to a 9 patch image object if possible.
@@ -79,21 +82,26 @@ public:
    * @return A pointer to the 9 patch image object, or NULL
    * if the conversion is not possible.
    */
-  static NinePatchImage* DownCast( Image* image);
+  static NPatchImage* DownCast( Image* image);
 
 
 protected:
   /**
    * A reference counted object may only be deleted by calling Unreference()
    */
-  virtual ~NinePatchImage();
+  virtual ~NPatchImage();
 
 public:
+
   /**
-   * Get the stretch borders
-   * @return The border in pixels from the left, top, right, and bottom of the image respectively.
+   * @copydoc Dali::GetStretchPixelsX
    */
-  Vector4 GetStretchBorders();
+  const StretchRanges& GetStretchPixelsX();
+
+  /**
+   * @copydoc Dali::GetStretchPixelsY
+   */
+  const StretchRanges& GetStretchPixelsY();
 
   /**
    * Get the child rectangle
@@ -128,10 +136,17 @@ private:
    */
   void ParseBorders();
 
+  Uint16Pair ParseRange( unsigned int& index, unsigned int width, const PixelBuffer* & pixel, unsigned int pixelStride, int testByte, int testBits, int testValue );
+
+
 private:
+
   ResourceClient*               mResourceClient;
   Integration::BitmapPtr        mBitmap;
-  Vector4                       mStretchBorders;
+
+  StretchRanges                 mStretchPixelsX;  //< The horizontal stretchable pixels in the cropped image space
+  StretchRanges                 mStretchPixelsY;  //< The vertical stretchable pixels in the cropped image space
+
   Rect<int>                     mChildRectangle;
   bool                          mParsedBorder;
 };
@@ -141,24 +156,24 @@ private:
 /**
  * Helper methods for public API.
  */
-inline Internal::NinePatchImage& GetImplementation(Dali::NinePatchImage& handle)
+inline Internal::NPatchImage& GetImplementation(Dali::NPatchImage& handle)
 {
-  DALI_ASSERT_ALWAYS( handle && "NinePatchImage handle is empty" );
+  DALI_ASSERT_ALWAYS( handle && "NPatchImage handle is empty" );
 
   BaseObject& image = handle.GetBaseObject();
 
-  return static_cast<Internal::NinePatchImage&>(image);
+  return static_cast<Internal::NPatchImage&>(image);
 }
 
-inline const Internal::NinePatchImage& GetImplementation(const Dali::NinePatchImage& handle)
+inline const Internal::NPatchImage& GetImplementation(const Dali::NPatchImage& handle)
 {
-  DALI_ASSERT_ALWAYS( handle && "NinePatchImage handle is empty" );
+  DALI_ASSERT_ALWAYS( handle && "NPatchImage handle is empty" );
 
   const BaseObject& image = handle.GetBaseObject();
 
-  return static_cast<const Internal::NinePatchImage&>(image);
+  return static_cast<const Internal::NPatchImage&>(image);
 }
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_NINE_PATCH_IMAGE_H__
+#endif // __DALI_INTERNAL_N_PATCH_IMAGE_H__

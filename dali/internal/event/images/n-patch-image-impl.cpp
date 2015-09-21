@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/event/images/nine-patch-image-impl.h>
+#include <dali/internal/event/images/n-patch-image-impl.h>
 
 // EXTERNAL INCLUDES
 #include <cstring> // for memcmp
@@ -134,17 +134,17 @@ namespace Internal
 
 namespace
 {
-TypeRegistration mType( typeid( Dali::NinePatchImage ), typeid( Dali::Image ), NULL );
+TypeRegistration mType( typeid( Dali::NPatchImage ), typeid( Dali::Image ), NULL );
 } // unnamed namespace
 
-NinePatchImagePtr NinePatchImage::New( const std::string& filename, const ImageAttributes& attributes, ReleasePolicy releasePol )
+NPatchImagePtr NPatchImage::New( const std::string& filename, const ImageAttributes& attributes, ReleasePolicy releasePol )
 {
-  Internal::NinePatchImagePtr internal( new NinePatchImage( filename, attributes, releasePol ) );
+  Internal::NPatchImagePtr internal( new NPatchImage( filename, attributes, releasePol ) );
   internal->Initialize();
   return internal;
 }
 
-NinePatchImage::NinePatchImage( const std::string& filename, const ImageAttributes& attributes, ReleasePolicy releasePol )
+NPatchImage::NPatchImage( const std::string& filename, const ImageAttributes& attributes, ReleasePolicy releasePol )
 : ResourceImage( IMAGE_LOAD_POLICY_DEFAULT, releasePol ),
   mParsedBorder(false)
 {
@@ -170,25 +170,34 @@ NinePatchImage::NinePatchImage( const std::string& filename, const ImageAttribut
   }
 }
 
-NinePatchImage* NinePatchImage::DownCast( Image* image)
+NPatchImage* NPatchImage::DownCast( Image* image)
 {
-  return dynamic_cast<NinePatchImage*>(image);
+  return dynamic_cast<NPatchImage*>(image);
 }
 
-NinePatchImage::~NinePatchImage()
+NPatchImage::~NPatchImage()
 {
 }
 
-Vector4 NinePatchImage::GetStretchBorders()
+const NPatchImage::StretchRanges& NPatchImage::GetStretchPixelsX()
 {
   if( ! mParsedBorder )
   {
     ParseBorders();
   }
-  return mStretchBorders;
+  return mStretchPixelsX;
 }
 
-Rect<int> NinePatchImage::GetChildRectangle()
+const NPatchImage::StretchRanges& NPatchImage::GetStretchPixelsY()
+{
+  if( ! mParsedBorder )
+  {
+    ParseBorders();
+  }
+  return mStretchPixelsY;
+}
+
+Rect<int> NPatchImage::GetChildRectangle()
 {
   if( ! mParsedBorder )
   {
@@ -197,7 +206,7 @@ Rect<int> NinePatchImage::GetChildRectangle()
   return mChildRectangle;
 }
 
-Internal::BufferImagePtr NinePatchImage::CreateCroppedBufferImage()
+Internal::BufferImagePtr NPatchImage::CreateCroppedBufferImage()
 {
   BufferImagePtr cropped;
 
@@ -237,7 +246,7 @@ Internal::BufferImagePtr NinePatchImage::CreateCroppedBufferImage()
   return cropped;
 }
 
-void NinePatchImage::Connect()
+void NPatchImage::Connect()
 {
   if( !mTicket )
   {
@@ -252,7 +261,7 @@ void NinePatchImage::Connect()
   ++mConnectionCount;
 }
 
-void NinePatchImage::Disconnect()
+void NPatchImage::Disconnect()
 {
   if( mConnectionCount > 0 )
   {
@@ -260,143 +269,136 @@ void NinePatchImage::Disconnect()
   }
 }
 
-
-void NinePatchImage::ParseBorders()
+void NPatchImage::ParseBorders()
 {
-  if( ! mBitmap )
+  if( !mBitmap )
   {
     DALI_LOG_ERROR( "NinePatchImage: Bitmap not loaded, cannot perform operation\n");
     return;
   }
 
+  mStretchPixelsX.clear();
+  mStretchPixelsY.clear();
+
   Pixel::Format pixelFormat = mBitmap->GetPixelFormat();
 
-  Integration::Bitmap::PackedPixelsProfile* srcProfile = mBitmap->GetPackedPixelsProfile();
-  DALI_ASSERT_DEBUG( srcProfile && "Wrong profile for source bitmap");
+  const Integration::Bitmap::PackedPixelsProfile* srcProfile = mBitmap->GetPackedPixelsProfile();
+  DALI_ASSERT_DEBUG( srcProfile && "Wrong profile for source bitmap" );
 
   if( srcProfile )
   {
-    unsigned int pixelWidth = GetBytesPerPixel(pixelFormat);
-    PixelBuffer* srcPixels = mBitmap->GetBuffer();
-    unsigned int srcStride = srcProfile->GetBufferStride();
-
-    int alphaByte=0;
-    int alphaBits=0;
-    Pixel::GetAlphaOffsetAndMask(pixelFormat, alphaByte, alphaBits);
-    int redByte=0;
-    int redBits=0;
-    GetRedOffsetAndMask(pixelFormat, redByte, redBits);
+    int alphaByte = 0;
+    int alphaBits = 0;
+    Pixel::GetAlphaOffsetAndMask( pixelFormat, alphaByte, alphaBits );
 
     int testByte = alphaByte;
     int testBits = alphaBits;
     int testValue = alphaBits; // Opaque == stretch
     if( ! alphaBits )
     {
-      testByte = redByte;
-      testBits = redBits;
+      GetRedOffsetAndMask( pixelFormat, testByte, testBits );
       testValue = 0;           // Black == stretch
     }
 
-    int startX1=-1;
-    int endX1=-1;
-    int startY1=-1;
-    int endY1=-1;
-    int startX2=-1;
-    int endX2=-1;
-    int startY2=-1;
-    int endY2=-1;
+    unsigned int pixelWidth = GetBytesPerPixel( pixelFormat );
+    const PixelBuffer* srcPixels = mBitmap->GetBuffer();
+    unsigned int srcStride = srcProfile->GetBufferStride();
 
-    PixelBuffer* top = srcPixels + pixelWidth;
-    PixelBuffer* bottom = srcPixels + (mHeight-1)*srcStride + pixelWidth;
+    //TOP
+    const PixelBuffer* top = srcPixels + pixelWidth;
+    unsigned int index = 0;
+    unsigned int width = mBitmap->GetImageWidth();
+    unsigned int height = mBitmap->GetImageHeight();
+    DALI_LOG_WARNING("h = %d\n", height);
+    DALI_LOG_WARNING("w = %d\n", width);
 
-    // Read the top and bottom rows:
-    // (Also read the last column to ensure end value gets set)
-    for( unsigned int col=1; col < mWidth; ++col )
+
+    for(; index < width - 2; )
     {
-      if( (top[testByte] & testBits) == testValue )
+      Uint16Pair range = ParseRange( index, width - 2, top, pixelWidth, testByte, testBits, testValue );
+      if( range.GetX() != 0xFFFF )
       {
-        if(startX1 < 0)
-        {
-          startX1 = col;
-        }
-      }
-      else if(startX1 >= 0 && endX1 < 0)
-      {
-        endX1 = col;
-      }
-
-      if( (bottom[testByte] & testBits) == testValue )
-      {
-        if(startX2 < 0)
-        {
-          startX2 = col;
-        }
-      }
-      else if(startX2 >= 0 && endX2 < 0)
-      {
-        endX2 = col;
-      }
-
-      if ( ( endX2 > 0 ) && ( endX1 > 0 ) )
-      {
-        break;
-      }
-
-      top+=pixelWidth;
-      bottom+=pixelWidth;
-    }
-
-    // Read the left and right columns:
-    PixelBuffer* left  = srcPixels + srcStride;
-    PixelBuffer* right = left + (srcStride - pixelWidth);
-
-    // (Also read the last row to ensure end value gets set)
-    for( unsigned int row=1; row < mHeight; ++row )
-    {
-      if((left[testByte] & testBits) == testValue)
-      {
-        if(startY1 < 0)
-        {
-          startY1 = row;
-        }
-      }
-      else if(startY1 >= 0 && endY1 < 0)
-      {
-        endY1 = row;
-      }
-
-      if((right[testByte] & testBits) == testValue)
-      {
-        if(startY2 < 0)
-        {
-          startY2 = row;
-        }
-      }
-      else if(startY2 >= 0 && endY2 < 0)
-      {
-        endY2 = row;
-      }
-      left += srcStride;
-      right += srcStride;
-
-      if ( ( endY2 > 0 ) && ( endY1 > 0 ) )
-      {
-        break;
+        mStretchPixelsX.push_back( range );
       }
     }
 
-    mStretchBorders.x = startX1;
-    mStretchBorders.y = startY1;
-    mStretchBorders.z = mWidth-endX1;
-    mStretchBorders.w = mHeight-endY1;
+    //LEFT
+    const PixelBuffer* left  = srcPixels + srcStride;
+    index = 0;
+    for(; index < height - 2; )
+    {
+      Uint16Pair range = ParseRange( index, height - 2, left, srcStride, testByte, testBits, testValue );
+      if( range.GetX() != 0xFFFF )
+      {
+        mStretchPixelsY.push_back( range );
+      }
+    }
 
-    mChildRectangle.x = startX2;
-    mChildRectangle.y = startY2;
-    mChildRectangle.width = endX2-startX2;
-    mChildRectangle.height = endY2-startY2;
+    //If there are no stretch pixels then make the entire image stretchable
+    if( mStretchPixelsX.empty() )
+    {
+      mStretchPixelsX.push_back( Uint16Pair( 0, width - 2 ) );
+    }
+    if( mStretchPixelsY.empty() )
+    {
+      mStretchPixelsY.push_back( Uint16Pair( 0, height - 2 ) );
+    }
+
+    //Child Rectangle
+    //BOTTOM
+    const PixelBuffer* bottom = srcPixels + ( height - 1 ) * srcStride + pixelWidth;
+    index = 0;
+    Uint16Pair contentRangeX = ParseRange( index, width - 2, bottom, pixelWidth, testByte, testBits, testValue );
+    if( contentRangeX.GetX() == 0xFFFF )
+    {
+      contentRangeX = Uint16Pair();
+    }
+
+    //RIGHT
+    const PixelBuffer* right = srcPixels + srcStride + ( width - 1 ) * pixelWidth;
+    index = 0;
+    Uint16Pair contentRangeY = ParseRange( index, height - 2, right, srcStride, testByte, testBits, testValue );
+    if( contentRangeY.GetX() == 0xFFFF )
+    {
+      contentRangeY = Uint16Pair();
+    }
+
+    mChildRectangle.x = contentRangeX.GetX() + 1;
+    mChildRectangle.y = contentRangeY.GetX() + 1;
+    mChildRectangle.width = contentRangeX.GetY() - contentRangeX.GetX();
+    mChildRectangle.height = contentRangeY.GetY() - contentRangeY.GetX();
 
     mParsedBorder = true;
   }
+}
+
+Uint16Pair NPatchImage::ParseRange( unsigned int& index, unsigned int width, const PixelBuffer* & pixel, unsigned int pixelStride, int testByte, int testBits, int testValue )
+{
+  unsigned int start = 0xFFFF;
+  for( ; index < width; ++index, pixel += pixelStride )
+  {
+    if( ( pixel[ testByte ] & testBits ) == testValue )
+    {
+        start = index;
+        ++index;
+        pixel += pixelStride;
+        break;
+    }
+  }
+
+  unsigned int end = width;
+  for( ; index < width; ++index, pixel += pixelStride )
+  {
+    if( ( pixel[ testByte ] & testBits ) != testValue )
+    {
+        end = index;
+        ++index;
+        pixel += pixelStride;
+        break;
+    }
+  }
+
+  return Uint16Pair( start, end );
 }
 
 } // namespace Internal

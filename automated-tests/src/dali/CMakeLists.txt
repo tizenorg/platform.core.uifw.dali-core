@@ -40,7 +40,7 @@ SET(TC_SOURCES
         utc-Dali-Matrix3.cpp
         utc-Dali-MeshMaterial.cpp
         utc-Dali-NativeImage.cpp
-        utc-Dali-NinePatchImages.cpp
+        utc-Dali-NPatchImages.cpp
         utc-Dali-ObjectRegistry.cpp
         utc-Dali-PanGesture.cpp
         utc-Dali-PanGestureDetector.cpp

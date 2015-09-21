@@ -27,7 +27,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/images/image-factory.h>
-#include <dali/internal/event/images/nine-patch-image-impl.h>
+#include <dali/internal/event/images/n-patch-image-impl.h>
 #include <dali/internal/event/common/stage-impl.h>
 
 using namespace Dali::Integration;
@@ -76,7 +76,7 @@ ResourceImagePtr ResourceImage::New( const std::string& url, const ImageAttribut
   ResourceImagePtr image;
   if( IsNinePatch( url ) )
   {
-    image = NinePatchImage::New( url, attributes, releasePol );
+    image = NPatchImage::New( url, attributes, releasePol );
   }
   else
   {

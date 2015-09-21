@@ -72,7 +72,7 @@
 #include <dali/public-api/images/native-image.h>
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/images/resource-image.h>
-#include <dali/public-api/images/nine-patch-image.h>
+#include <dali/public-api/images/n-patch-image.h>
 #include <dali/public-api/images/pixel.h>
 
 #include <dali/public-api/math/angle-axis.h>
@@ -124,5 +124,6 @@
 #include <dali/public-api/size-negotiation/relayout-container.h>
 
 #include <dali/public-api/dali-core-version.h>
+#include "images/n-patch-image.h"
 
 #endif // __DALI_CORE_H__

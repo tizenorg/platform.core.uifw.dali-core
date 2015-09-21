@@ -66,7 +66,31 @@ NinePatchImage NinePatchImage::DownCast( BaseHandle handle )
 
 Vector4 NinePatchImage::GetStretchBorders()
 {
-  return GetImplementation(*this).GetStretchBorders();
+  Vector4 border;
+
+  const NinePatchImage::StretchRanges& stretchPixelsX = GetStretchPixelsX();
+  const NinePatchImage::StretchRanges& stretchPixelsY = GetStretchPixelsY();
+
+  if( !stretchPixelsX.empty() && !stretchPixelsY.empty() )
+  {
+    //The NinePatchImage stretch pixels are in the cropped image space, inset by 1 to get it to uncropped image space
+    border.x = stretchPixelsX.front().GetX() + 1;
+    border.y = stretchPixelsY.front().GetX() + 1;
+    border.z = GetWidth() - stretchPixelsX.front().GetY() - 1;
+    border.w = GetHeight() - stretchPixelsY.front().GetY() - 1;
+  }
+
+  return border;
+}
+
+const NinePatchImage::StretchRanges& NinePatchImage::GetStretchPixelsX()
+{
+  return GetImplementation(*this).GetStretchPixelsX();
+}
+
+const NinePatchImage::StretchRanges& NinePatchImage::GetStretchPixelsY()
+{
+  return GetImplementation(*this).GetStretchPixelsY();
 }
 
 Rect<int> NinePatchImage::GetChildRectangle()

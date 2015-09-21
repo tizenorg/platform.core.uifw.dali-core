@@ -53,6 +53,9 @@ class NinePatchImage;
 class DALI_IMPORT_API NinePatchImage : public ResourceImage
 {
 public:
+  typedef std::vector< Uint16Pair > StretchRanges;
+
+public:
   /**
    * @brief Constructor which creates an uninitialized NinePatchImage object.
    *
@@ -106,10 +109,17 @@ public:
   NinePatchImage& operator=(const NinePatchImage& rhs);
 
   /**
-   * Get the stretch borders
-   * @return The border in pixels from the left, top, right, and bottom of the image respectively.
+   * @brief Retrieves the horizontal stretch pixel ranges in the cropped image space
+   *
+   * @return the horizontal stretch pixel ranges in the cropped image space
    */
-  Vector4 GetStretchBorders();
+  const StretchRanges& GetStretchPixelsX();
+  /**
+   * @brief Retrieves the vertical stretch pixel ranges in the cropped image space
+   *
+   * @return the vertical stretch pixel ranges in the cropped image space
+   */
+  const StretchRanges& GetStretchPixelsY();
 
   /**
    * Get the child rectangle

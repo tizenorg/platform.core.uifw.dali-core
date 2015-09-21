@@ -48,6 +48,9 @@ class UpdateManager;
 class NinePatchImage : public ResourceImage
 {
 public:
+  typedef std::vector< Uint16Pair > StretchRanges;
+
+public:
 
   /**
    * Create a new NinePatchImage.
@@ -90,10 +93,14 @@ protected:
 
 public:
   /**
-   * Get the stretch borders
-   * @return The border in pixels from the left, top, right, and bottom of the image respectively.
+   * @copydoc Dali::GetStretchPixelsX
    */
-  Vector4 GetStretchBorders();
+  const StretchRanges& GetStretchPixelsX();
+
+  /**
+   * @copydoc Dali::GetStretchPixelsY
+   */
+  const StretchRanges& GetStretchPixelsY();
 
   /**
    * Get the child rectangle
@@ -128,10 +135,13 @@ private:
    */
   void ParseBorders();
 
+  Uint16Pair ParseRange( unsigned int& index, unsigned int width, const PixelBuffer* & pixel, unsigned int pixelStride, int testByte, int testBits, int testValue );
+
 private:
   ResourceClient*               mResourceClient;
   Integration::BitmapPtr        mBitmap;
-  Vector4                       mStretchBorders;
+  StretchRanges                 mStretchPixelsX;  //< The horizontal stretchable pixels in the cropped image space
+  StretchRanges                 mStretchPixelsY;  //< The vertical stretchable pixels in the cropped image space
   Rect<int>                     mChildRectangle;
   bool                          mParsedBorder;
 };

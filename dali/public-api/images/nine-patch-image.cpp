@@ -64,9 +64,14 @@ NinePatchImage NinePatchImage::DownCast( BaseHandle handle )
   return NinePatchImage( dynamic_cast<Dali::Internal::NinePatchImage*>(handle.GetObjectPtr()) );
 }
 
-Vector4 NinePatchImage::GetStretchBorders()
+const NinePatchImage::StretchRanges& NinePatchImage::GetStretchPixelsX()
 {
-  return GetImplementation(*this).GetStretchBorders();
+  return GetImplementation(*this).GetStretchPixelsX();
+}
+
+const NinePatchImage::StretchRanges& NinePatchImage::GetStretchPixelsY()
+{
+  return GetImplementation(*this).GetStretchPixelsY();
 }
 
 Rect<int> NinePatchImage::GetChildRectangle()

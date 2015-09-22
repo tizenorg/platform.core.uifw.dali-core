@@ -332,6 +332,11 @@ UpdateManager::~UpdateManager()
   delete mImpl;
 }
 
+MessageBuffer* UpdateManager::GetCurrentMessageBuffer()
+{
+  return mImpl->renderQueue.GetCurrentContainer( mSceneGraphBuffers.GetRenderBufferIndex() );
+}
+
 void UpdateManager::InstallRoot( SceneGraph::Layer* layer, bool systemLevel )
 {
   DALI_ASSERT_DEBUG( layer->IsLayer() );
@@ -576,7 +581,7 @@ void UpdateManager::AddShader( Shader* shader )
     typedef MessageValue1< RenderManager, Shader* > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( &mImpl->renderManager, &RenderManager::SetDefaultShader, shader );
@@ -620,7 +625,7 @@ void UpdateManager::SetShaderProgram( Shader* shader,
     typedef MessageValue3< Shader, Internal::ShaderDataPtr, ProgramCache*, bool> DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( shader, &Shader::SetProgram, shaderData, mImpl->renderManager.GetProgramCache(), modifiesGeometry );
@@ -973,10 +978,9 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   // Measure the time spent in UpdateManager::Update
   PERF_MONITOR_START(PerformanceMonitor::UPDATE);
 
-  const BufferIndex bufferIndex = mSceneGraphBuffers.GetUpdateBufferIndex();
+  //std::cout << "Update Start" << std::endl;
 
-  // Update the frame time delta on the render thread.
-  mImpl->renderManager.SetFrameDeltaTime(elapsedSeconds);
+  const BufferIndex bufferIndex = mSceneGraphBuffers.GetUpdateBufferIndex();
 
   // 1) Clear nodes/resources which were previously discarded
   mImpl->discardQueue.Clear( bufferIndex );
@@ -1125,6 +1129,8 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
   PERF_MONITOR_END(PerformanceMonitor::UPDATE);
 
+  //std::cout << "Update End" << std::endl;
+
   return keepUpdating;
 }
 
@@ -1168,7 +1174,7 @@ void UpdateManager::SetBackgroundColor( const Vector4& color )
   typedef MessageValue1< RenderManager, Vector4 > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &mImpl->renderManager, &RenderManager::SetBackgroundColor, color );
@@ -1179,7 +1185,7 @@ void UpdateManager::SetDefaultSurfaceRect( const Rect<int>& rect )
   typedef MessageValue1< RenderManager, Rect<int> > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::SetDefaultSurfaceRect, rect );

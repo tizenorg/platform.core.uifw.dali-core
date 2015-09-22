@@ -144,6 +144,7 @@ void Renderer::Render( Context& context,
                        float frametime,
                        bool cull )
 {
+  DALI_ASSERT_ALWAYS( this && "TEXTURE CACHE INVALID!!!");
   // @todo MESH_REWORK Fix when merging! :D
   NewRenderer* renderer = dynamic_cast<NewRenderer*>(this);
   if( renderer )

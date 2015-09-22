@@ -34,6 +34,8 @@ class MessageBase;
 namespace SceneGraph
 {
 
+class SceneGraphBuffers;
+
 /**
  * Allows messages to be queued for RenderManager, during the scene-graph Update.
  */
@@ -51,6 +53,8 @@ public:
    */
   ~RenderQueue();
 
+  void ClearMessages();
+
   /**
    * Reserve space for another message in the queue; this must then be initialized by the caller.
    * The message will be read from the next render-thread tick.
@@ -59,7 +63,7 @@ public:
    * @param[in] size The message size with respect to the size of type "char".
    * @return A pointer to the first char allocated for the message.
    */
-  unsigned int* ReserveMessageSlot( BufferIndex updateBufferIndex, std::size_t size );
+  unsigned int* ReserveMessageSlot( std::size_t size );
 
   /**
    * Process the batch of messages, which were queued in the previous update.
@@ -68,7 +72,7 @@ public:
    */
   void ProcessMessages( BufferIndex bufferIndex );
 
-private:
+  void SetSceneGraphBuffers( SceneGraphBuffers& sceneGraphBuffers );
 
   /**
    * Helper to retrieve the current container.
@@ -77,6 +81,8 @@ private:
    * @return The container.
    */
   MessageBuffer* GetCurrentContainer( BufferIndex bufferIndex );
+
+private:
 
   /**
    * Helper to limit the buffer capacity i.e. after a frame when an extreme number of messages have been sent.
@@ -92,9 +98,9 @@ private:
 
 private:
 
-  Dali::Mutex mMutex;        ///< Mutex to ensure access locking
   MessageBuffer* container0; ///< Messages are queued here when the update buffer index == 0
   MessageBuffer* container1; ///< Messages are queued here when the update buffer index == 1
+  SceneGraphBuffers* mSceneGraphBuffers;
 };
 
 } // namespace SceneGraph

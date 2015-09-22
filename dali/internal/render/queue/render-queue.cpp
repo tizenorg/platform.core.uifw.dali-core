@@ -21,6 +21,9 @@
 // INTERNAL INCLUDES
 #include <dali/internal/common/message.h>
 
+#include <iostream>
+#include <string.h>
+
 namespace Dali
 {
 
@@ -40,16 +43,15 @@ namespace SceneGraph
 
 RenderQueue::RenderQueue()
 : container0( NULL ),
-  container1( NULL )
+  container1( NULL ),
+  mSceneGraphBuffers( NULL )
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
   container0 = new MessageBuffer( INITIAL_BUFFER_SIZE );
   container1 = new MessageBuffer( INITIAL_BUFFER_SIZE );
 }
 
 RenderQueue::~RenderQueue()
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
   if( container0 )
   {
     for( MessageBuffer::Iterator iter = container0->Begin(); iter.IsValid(); iter.Next() )
@@ -77,23 +79,22 @@ RenderQueue::~RenderQueue()
   }
 }
 
-unsigned int* RenderQueue::ReserveMessageSlot( BufferIndex updateBufferIndex, std::size_t size )
+unsigned int* RenderQueue::ReserveMessageSlot( std::size_t size )
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
-  MessageBuffer* container = GetCurrentContainer( updateBufferIndex );
+  //mSceneGraphBuffers->SanityCheck();
+  MessageBuffer* container = GetCurrentContainer( mSceneGraphBuffers->GetRenderBufferIndex() );
 
   return container->ReserveMessageSlot( size );
 }
 
 void RenderQueue::ProcessMessages( BufferIndex bufferIndex )
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
+  //mSceneGraphBuffers->SanityCheck();
   MessageBuffer* container = GetCurrentContainer( bufferIndex );
 
   for( MessageBuffer::Iterator iter = container->Begin(); iter.IsValid(); iter.Next() )
   {
     MessageBase* message = reinterpret_cast< MessageBase* >( iter.Get() );
-
     message->Process( bufferIndex );
 
     // Call virtual destructor explictly; since delete will not be called after placement new
@@ -102,7 +103,16 @@ void RenderQueue::ProcessMessages( BufferIndex bufferIndex )
 
   container->Reset();
 
-  LimitBufferCapacity( bufferIndex );
+  //LimitBufferCapacity( bufferIndex );
+}
+
+void RenderQueue::ClearMessages()
+{
+  if ( mSceneGraphBuffers )
+  {
+    MessageBuffer* container = GetCurrentContainer( mSceneGraphBuffers->GetRenderBufferIndex() );
+    container->Reset();
+  }
 }
 
 MessageBuffer* RenderQueue::GetCurrentContainer( BufferIndex bufferIndex )
@@ -145,6 +155,11 @@ void RenderQueue::LimitBufferCapacity( BufferIndex bufferIndex )
       container1 = new MessageBuffer( INITIAL_BUFFER_SIZE );
     }
   }
+}
+
+void RenderQueue::SetSceneGraphBuffers( SceneGraphBuffers& sceneGraphBuffers )
+{
+  mSceneGraphBuffers = &sceneGraphBuffers;
 }
 
 } // namespace SceneGraph

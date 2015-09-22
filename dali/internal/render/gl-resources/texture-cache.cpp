@@ -443,7 +443,7 @@ void TextureCache::DispatchCreateTexture( ResourceId        id,
     typedef MessageValue5< TextureCache, ResourceId, unsigned int, unsigned int, Pixel::Format, bool > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::CreateTexture, id, width, height, pixelFormat, clearPixels );
@@ -458,7 +458,7 @@ void TextureCache::DispatchCreateTextureForBitmap( ResourceId id, Bitmap* bitmap
     typedef MessageValue2< TextureCache, ResourceId, Integration::BitmapPtr > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::AddBitmap, id, bitmap );
@@ -473,7 +473,7 @@ void TextureCache::DispatchCreateTextureForNativeImage( ResourceId id, NativeIma
     typedef MessageValue2< TextureCache, ResourceId, NativeImageInterfacePtr > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::AddNativeImage, id, nativeImage );
@@ -488,7 +488,7 @@ void TextureCache::DispatchCreateGlTexture( ResourceId id )
     typedef MessageValue1< TextureCache, ResourceId > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::CreateGlTexture, id );
@@ -503,7 +503,7 @@ void TextureCache::DispatchCreateTextureForFrameBuffer( ResourceId id, unsigned 
     typedef MessageValue5< TextureCache, ResourceId, unsigned int, unsigned int, Pixel::Format, RenderBuffer::Format > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::AddFrameBuffer, id, width, height, pixelFormat, bufferFormat );
@@ -518,7 +518,7 @@ void TextureCache::DispatchCreateTextureForFrameBuffer( ResourceId id, NativeIma
     typedef MessageValue2< TextureCache, ResourceId, NativeImageInterfacePtr > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::AddFrameBuffer, id, nativeImage );
@@ -533,7 +533,7 @@ void TextureCache::DispatchUpdateTexture( ResourceId id, Bitmap* bitmap )
     typedef MessageValue2< TextureCache, ResourceId, Integration::BitmapPtr > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::UpdateTexture, id, bitmap );
@@ -548,7 +548,7 @@ void TextureCache::DispatchUpdateTexture( ResourceId id, Integration::BitmapPtr 
     typedef MessageValue4< TextureCache, ResourceId, Integration::BitmapPtr, std::size_t, std::size_t > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::UpdateTexture, id, bitmap, xOffset, yOffset );
@@ -563,7 +563,7 @@ void TextureCache::DispatchUpdateTexture( ResourceId destId, ResourceId srcId, s
     typedef MessageValue4< TextureCache, ResourceId, ResourceId, std::size_t, std::size_t > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::UpdateTexture, destId, srcId, xOffset, yOffset );
@@ -578,7 +578,7 @@ void TextureCache::DispatchUpdateTextureArea( ResourceId id, const Dali::RectAre
     typedef MessageValue2< TextureCache, ResourceId, Dali::RectArea > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::UpdateTextureArea, id, area );
@@ -593,7 +593,7 @@ void TextureCache::DispatchDiscardTexture( ResourceId id )
     typedef MessageValue1< TextureCache, ResourceId > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mRenderQueue.ReserveMessageSlot( mSceneGraphBuffers->GetUpdateBufferIndex(), sizeof( DerivedType ) );
+    unsigned int* slot = mRenderQueue.ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( this, &TextureCache::DiscardTexture, id );

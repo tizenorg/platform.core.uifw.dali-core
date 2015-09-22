@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/mutex.h>
 #include <dali/public-api/math/rect.h>
+#include <dali/internal/common/message-buffer.h>
 #include <dali/internal/common/shader-saver.h>
 #include <dali/internal/render/common/post-process-resource-dispatcher.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
@@ -54,6 +55,7 @@ class RenderTracker;
 class Shader;
 class RenderGeometry;
 class PropertyBufferDataProvider;
+class SceneGraphBuffers;
 
 /**
  * RenderManager is responsible for rendering the result of the previous "update", which
@@ -125,12 +127,6 @@ public:
    * @param[in] color The new background color.
    */
   void SetBackgroundColor( const Vector4& color );
-
-  /*
-   * Set the frame time delta (time elapsed since the last frame.
-   * @param[in] deltaTime the delta time
-   */
-  void SetFrameDeltaTime( float deltaTime );
 
   /**
    * Returns the rectangle for the default surface (probably the application window).
@@ -218,6 +214,10 @@ public:
    */
   bool Render( Integration::RenderStatus& status );
 
+  void SetSceneGraphBuffers( SceneGraphBuffers& sceneGraphBuffers );
+
+  MessageBuffer* GetCurrentMessageBuffer() const;
+
 private:
 
   /**
@@ -240,9 +240,6 @@ private:
 
   // Undefined
   RenderManager& operator=( const RenderManager& rhs );
-
-  // Set the last frame time while locking access
-  void SetLastFrameTime();
 
 private:
 

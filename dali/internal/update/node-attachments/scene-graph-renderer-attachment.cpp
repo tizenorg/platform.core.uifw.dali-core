@@ -400,7 +400,7 @@ void RendererAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
     // @todo MESH_REWORK Should we instead create a new renderer when these change?
 
     typedef MessageValue1< NewRenderer, OwnerPointer<RenderDataProvider> > DerivedType;
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
     new (slot) DerivedType( mRenderer, &NewRenderer::SetRenderDataProvider, dataProvider );
     mResendDataProviders = false;
   }
@@ -411,7 +411,7 @@ void RendererAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
     RenderGeometry* geometry = mGeometry->GetRenderGeometry( mSceneController );
 
     typedef MessageValue1< NewRenderer, RenderGeometry* > DerivedType;
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
     new (slot) DerivedType( mRenderer, &NewRenderer::SetGeometry, geometry );
     mResendGeometry = false;

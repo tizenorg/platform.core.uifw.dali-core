@@ -411,6 +411,10 @@ public:
    */
   void SetLayerDepths( const std::vector< Layer* >& layers, bool systemLevel );
 
+  SceneGraphBuffers& GetSceneGraphBuffers() { return mSceneGraphBuffers; }
+
+  MessageBuffer* GetCurrentMessageBuffer();
+
 private:
 
   // Undefined

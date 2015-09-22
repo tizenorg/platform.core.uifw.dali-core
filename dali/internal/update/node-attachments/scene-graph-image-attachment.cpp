@@ -86,7 +86,7 @@ void ImageAttachment::Initialize2( BufferIndex updateBufferIndex )
     typedef MessageValue1< ImageRenderer, ResourceId > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetTextureId, mTextureId );
@@ -148,7 +148,7 @@ void ImageAttachment::SetTextureId( BufferIndex updateBufferIndex, unsigned int 
     typedef MessageValue1< ImageRenderer, ResourceId > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetTextureId, mTextureId );
@@ -164,7 +164,7 @@ void ImageAttachment::SetPixelArea( BufferIndex updateBufferIndex, const PixelAr
     typedef MessageValue1< ImageRenderer, ImageRenderer::PixelArea > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetPixelArea, pixelArea );
@@ -196,7 +196,7 @@ void ImageAttachment::SetBorder( BufferIndex updateBufferIndex, const Vector4& b
   typedef MessageValue2< ImageRenderer, Vector4, bool > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetNinePatchBorder, border, inPixels );
@@ -213,7 +213,7 @@ void ImageAttachment::SetBlendingOptions( BufferIndex updateBufferIndex, unsigne
   typedef MessageValue1< ImageRenderer, unsigned int > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetBlendingOptions, options );
@@ -225,7 +225,7 @@ void ImageAttachment::SetBlendColor( BufferIndex updateBufferIndex, const Vector
   typedef MessageValue1< ImageRenderer, Vector4 > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetBlendColor, color );
@@ -241,7 +241,7 @@ void ImageAttachment::SetCullFace( BufferIndex updateBufferIndex, CullFaceMode m
   typedef MessageValue1< Renderer, CullFaceMode > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &GetRenderer(), &Renderer::SetCullFace, mode );
@@ -254,7 +254,7 @@ void ImageAttachment::SetSampler( BufferIndex updateBufferIndex, unsigned int sa
   typedef MessageValue1< Renderer, unsigned int > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &GetRenderer(), &Renderer::SetSampler, samplerBitfield );
@@ -421,7 +421,7 @@ void ImageAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
       typedef MessageValue3< ImageRenderer, ImageRenderer::MeshType, Vector2, bool > DerivedType;
 
       // Reserve some memory inside the render queue
-      unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+      unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
       // Construct message in the render queue memory; note that delete should not be called on the return value
       new (slot) DerivedType( mImageRenderer, &ImageRenderer::CalculateMeshData, meshType, mGeometrySize, mIsPixelAreaSet );
@@ -440,7 +440,7 @@ void ImageAttachment::DoPrepareRender( BufferIndex updateBufferIndex )
     typedef MessageValue1< ImageRenderer, bool > DerivedType;
 
     // Reserve some memory inside the render queue
-    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
 
     // Construct message in the render queue memory; note that delete should not be called on the return value
     new (slot) DerivedType( mImageRenderer, &ImageRenderer::SetUseBlend, blend );
@@ -502,7 +502,7 @@ void ImageAttachment::SendShaderChangeMessage( BufferIndex updateBufferIndex )
 {
   typedef MessageValue1< Renderer, Shader* > DerivedType;
   // Reserve memory inside the render queue
-  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( sizeof( DerivedType ) );
   // Construct message in the mRenderer queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &GetRenderer(), &Renderer::SetShader, mShader );
 }

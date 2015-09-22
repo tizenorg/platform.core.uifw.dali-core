@@ -33,6 +33,7 @@
 #include <dali/integration-api/events/event.h>
 #include <dali/internal/event/events/event-processor.h>
 #include <dali/internal/event/events/gesture-event-processor.h>
+#include <dali/internal/update/common/scene-graph-buffers.h>
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/internal/render/common/performance-monitor.h>
 #include <dali/internal/render/common/render-manager.h>
@@ -48,6 +49,8 @@
 
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/gl-resources/context.h>
+
+#include <dali/internal/render/queue/render-queue.h>
 
 using Dali::Internal::SceneGraph::UpdateManager;
 using Dali::Internal::SceneGraph::RenderManager;
@@ -149,6 +152,8 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
                                       *mTouchResampler );
 
   mRenderManager->SetShaderSaver( *mUpdateManager );
+
+  mRenderManager->SetSceneGraphBuffers( mUpdateManager->GetSceneGraphBuffers() );
 
   mStage = IntrusivePtr<Stage>( Stage::New( *mAnimationPlaylist, *mPropertyNotificationManager, *mUpdateManager, *mNotificationManager ) );
 
@@ -254,11 +259,17 @@ void Core::Update( float elapsedSeconds, unsigned int lastVSyncTimeMilliseconds,
   // it is cached by frametime
   status.secondsFromLastFrame = elapsedSeconds;
 
+  Dali::Internal::SceneGraph::SceneGraphBuffers& sceneGraphBuffers = mUpdateManager->GetSceneGraphBuffers();
+  sceneGraphBuffers.StartedAccess( SceneGraph::SceneGraphBuffers::UPDATE, mUpdateManager->GetCurrentMessageBuffer() );
+  mUpdateManager->GetSceneGraphBuffers().SanityCheck();
+
   // Render returns true when there are updates on the stage or one or more animations are completed.
   // Use the estimated time diff till we render as the elapsed time.
   status.keepUpdating = mUpdateManager->Update( elapsedSeconds,
                                                 lastVSyncTimeMilliseconds,
                                                 nextVSyncTimeMilliseconds );
+
+  mUpdateManager->GetSceneGraphBuffers().EndedAccess( SceneGraph::SceneGraphBuffers::UPDATE );
 
   // Check the Notification Manager message queue to set needsNotification
   status.needsNotification = mNotificationManager->MessagesToProcess();
@@ -275,7 +286,11 @@ void Core::Update( float elapsedSeconds, unsigned int lastVSyncTimeMilliseconds,
 
 void Core::Render( RenderStatus& status )
 {
+  mUpdateManager->GetSceneGraphBuffers().StartedAccess( SceneGraph::SceneGraphBuffers::RENDER, mRenderManager->GetCurrentMessageBuffer() );
+  mUpdateManager->GetSceneGraphBuffers().SanityCheck();
   bool updateRequired = mRenderManager->Render( status );
+
+  mUpdateManager->GetSceneGraphBuffers().EndedAccess( SceneGraph::SceneGraphBuffers::RENDER );
 
   status.SetNeedsUpdate( updateRequired );
 }

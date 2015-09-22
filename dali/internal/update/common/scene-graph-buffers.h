@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/buffer-index.h>
+#include <dali/internal/common/message-buffer.h>
 
 namespace Dali
 {
@@ -38,8 +39,35 @@ class SceneGraphBuffers
 {
 public:
 
-  static BufferIndex INITIAL_EVENT_BUFFER_INDEX;  // 0
-  static BufferIndex INITIAL_UPDATE_BUFFER_INDEX; // 1
+  static BufferIndex INITIAL_EVENT_BUFFER_INDEX;  // 10b
+  static BufferIndex INITIAL_RENDER_BUFFER_INDEX; // 0
+
+  enum Accessing
+  {
+    UPDATE,
+    RENDER,
+    MAX_ACCESSING
+  };
+
+  /**
+   * @brief Record start of thread accessing MessageBuffers.
+   *
+   * @param[in] accessing The thread that is recording start of access.
+   * @param[in] buffer The message buffer that is being accessed.
+   */
+  void StartedAccess( Accessing accessing, MessageBuffer* buffer );
+
+  /**
+   * @brief Record end of thread accessing MessageBuffers.
+   *
+   * @param[in] accessing The thread that is recording the end of access.
+   */
+  void EndedAccess( Accessing accessing );
+
+  /**
+   * @brief Check for simultaneous access to message buffers.
+   */
+  void SanityCheck();
 
   /**
    * Create a SceneGraphBuffers object.
@@ -55,18 +83,22 @@ public:
    * Retrieve the current event-buffer index.
    * @return The buffer index.
    */
-  BufferIndex GetEventBufferIndex() const { return mEventBufferIndex; }
+  BufferIndex GetEventBufferIndex() const { return mEventBufferIndex & 1; }
 
   /**
    * Retrieve the current update-buffer index.
    * @return The buffer index.
    */
-  BufferIndex GetUpdateBufferIndex() const { return mUpdateBufferIndex; }
+  BufferIndex GetUpdateBufferIndex() const { return mEventBufferIndex >> 1; }
+
+  BufferIndex GetRenderBufferIndex() const { return mRenderBufferIndex; }
 
   /**
    * Swap the Event & Update buffer indices.
   */
   void Swap();
+
+  void SwapRenderBuffers();
 
 private:
 
@@ -78,8 +110,11 @@ private:
 
 private:
 
-  BufferIndex mEventBufferIndex;  ///< 0 or 1 (opposite of mUpdateBufferIndex)
-  BufferIndex mUpdateBufferIndex; ///< 0 or 1 (opposite of mEventBufferIndex)
+  BufferIndex mEventBufferIndex;  ///< bit 0 event thread buffer, bit 1 update thread buffer
+  BufferIndex mRenderBufferIndex; ///< 0 or 1 (flipped by render thread)
+
+  MessageBuffer* mMessageBuffers[ MAX_ACCESSING ]; ///< Message buffer being used for a thread.
+  int mBalance;
 };
 
 } // namespace SceneGraph

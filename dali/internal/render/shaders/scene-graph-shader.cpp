@@ -106,7 +106,7 @@ void Shader::ForwardTextureId( BufferIndex updateBufferIndex, ResourceId texture
   typedef MessageValue1< Shader, Integration::ResourceId > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mRenderQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( this, &Shader::SetTextureId, textureId );
@@ -124,7 +124,7 @@ void Shader::ForwardUniformMeta( BufferIndex updateBufferIndex, UniformMeta* met
   typedef MessageValue1< Shader, UniformMeta* > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mRenderQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( this, &Shader::InstallUniformMetaInRender, meta );
@@ -136,7 +136,7 @@ void Shader::ForwardCoordinateType( BufferIndex updateBufferIndex, unsigned int 
   typedef MessageValue2< Shader, unsigned int, Dali::ShaderEffect::UniformCoordinateType > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mRenderQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( this, &Shader::SetCoordinateTypeInRender, index, type );
@@ -147,7 +147,7 @@ void Shader::ForwardGridDensity( BufferIndex updateBufferIndex, float density )
   typedef MessageValue1< Shader, float > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mRenderQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( this, &Shader::SetGridDensity, density );
@@ -158,7 +158,7 @@ void Shader::ForwardHints( BufferIndex updateBufferIndex, Dali::ShaderEffect::Ge
   typedef MessageValue1< Shader, Dali::ShaderEffect::GeometryHints > DerivedType;
 
   // Reserve some memory inside the render queue
-  unsigned int* slot = mRenderQueue->ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+  unsigned int* slot = mRenderQueue->ReserveMessageSlot( sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( this, &Shader::SetGeometryHints, hint );

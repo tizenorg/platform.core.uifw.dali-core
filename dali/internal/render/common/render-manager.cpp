@@ -38,6 +38,9 @@
 #include <dali/internal/render/renderers/render-geometry.h>
 #include <dali/internal/render/shaders/program-controller.h>
 
+#include <unistd.h>
+#include <cstdlib>
+
 // Uncomment the next line to enable frame snapshot logging
 //#define FRAME_SNAPSHOT_LOGGING
 
@@ -95,7 +98,8 @@ struct RenderManager::Impl
     frameTime( 0.0f ),
     lastFrameTime( 0.0f ),
     frameCount( 0 ),
-    renderBufferIndex( SceneGraphBuffers::INITIAL_UPDATE_BUFFER_INDEX ),
+    renderBufferIndex( 0 ),
+    sceneGraphBuffers( NULL ),
     defaultSurfaceRect(),
     rendererContainer(),
     renderersAdded( false ),
@@ -154,6 +158,7 @@ struct RenderManager::Impl
 
   unsigned int                  frameCount;               ///< The current frame count
   BufferIndex                   renderBufferIndex;        ///< The index of the buffer to read from; this is opposite of the "update" buffer
+  SceneGraphBuffers*            sceneGraphBuffers;
 
   Rect<int>                     defaultSurfaceRect;       ///< Rectangle for the default surface we are rendering to
 
@@ -226,6 +231,17 @@ void RenderManager::ContextDestroyed()
   }
 }
 
+void RenderManager::SetSceneGraphBuffers( SceneGraphBuffers& sceneGraphBuffers )
+{
+  mImpl->sceneGraphBuffers = &sceneGraphBuffers;
+  mImpl->renderQueue.SetSceneGraphBuffers( sceneGraphBuffers );
+}
+
+MessageBuffer* RenderManager::GetCurrentMessageBuffer() const
+{
+  return mImpl->renderQueue.GetCurrentContainer( mImpl->renderBufferIndex );
+}
+
 void RenderManager::DispatchPostProcessRequest(ResourcePostProcessRequest& request)
 {
   mImpl->resourcePostProcessQueue[ mImpl->renderBufferIndex ].push_back( request );
@@ -244,12 +260,6 @@ RenderInstructionContainer& RenderManager::GetRenderInstructionContainer()
 void RenderManager::SetBackgroundColor( const Vector4& color )
 {
   mImpl->backgroundColor = color;
-}
-
-void RenderManager::SetFrameDeltaTime( float deltaTime )
-{
-  Dali::Mutex::ScopedLock lock( mMutex );
-  mImpl->frameTime = deltaTime;
 }
 
 void RenderManager::SetDefaultSurfaceRect(const Rect<int>& rect)
@@ -366,6 +376,10 @@ ProgramCache* RenderManager::GetProgramCache()
 
 bool RenderManager::Render( Integration::RenderStatus& status )
 {
+//  std::cout << "\tRender Start" << std::endl;
+
+  //mImpl->renderBufferIndex = mImpl->sceneGraphBuffers->GetRenderBufferIndex() ^ 1;
+
   DALI_PRINT_RENDER_START( mImpl->renderBufferIndex );
 
   // Core::Render documents that GL context must be current before calling Render
@@ -446,8 +460,6 @@ bool RenderManager::Render( Integration::RenderStatus& status )
 
   PERF_MONITOR_END(PerformanceMonitor::DRAW_NODES);
 
-  SetLastFrameTime();
-
   // check if anything has been posted to the update thread
   bool updateRequired = !mImpl->resourcePostProcessQueue[ mImpl->renderBufferIndex ].empty();
 
@@ -462,20 +474,18 @@ bool RenderManager::Render( Integration::RenderStatus& status )
    * Ideally the update has just finished using this buffer; otherwise the render thread
    * should block until the update has finished.
    */
-  mImpl->renderBufferIndex = (0 != mImpl->renderBufferIndex) ? 0 : 1;
 
   DALI_PRINT_RENDER_END();
 
   DALI_PRINT_RENDERER_COUNT(mImpl->frameCount, mImpl->context.GetRendererCount());
   DALI_PRINT_CULL_COUNT(mImpl->frameCount, mImpl->context.GetCulledCount());
 
-  return updateRequired;
-}
+  usleep( ( rand() % 12000 ) + 4000 );
+  mImpl->sceneGraphBuffers->SwapRenderBuffers();
+  mImpl->renderBufferIndex = mImpl->sceneGraphBuffers->GetRenderBufferIndex() ^ 1;
+  //std::cout << "\tRender End" << std::endl;
 
-void RenderManager::SetLastFrameTime()
-{
-  Dali::Mutex::ScopedLock lock(mMutex);
-  mImpl->lastFrameTime = mImpl->frameTime;
+  return updateRequired;
 }
 
 void RenderManager::DoRender( RenderInstruction& instruction, Shader& defaultShader, float elapsedTime )

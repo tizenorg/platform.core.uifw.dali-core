@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/images/resource-image.h>
+#include <dali/public-api/images/nine-patch-image.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/object/property-array.h>
 #include <dali/internal/common/image-attributes.h>
@@ -428,9 +429,16 @@ Image NewImage( const Property::Value& property )
     {
       case RESOURCE_IMAGE :
       {
-        ret = ResourceImage::New( filename, loadPolicy, releasePolicy,
-                                  ImageDimensions( attributes.GetSize().x, attributes.GetSize().y ),
-                                  attributes.GetScalingMode(), attributes.GetFilterMode(), attributes.GetOrientationCorrection() );
+        if( !NinePatchImage::IsNinePatchUrl( filename ) )
+        {
+          ret = ResourceImage::New( filename, loadPolicy, releasePolicy,
+                                    ImageDimensions( attributes.GetSize().x, attributes.GetSize().y ),
+                                    attributes.GetScalingMode(), attributes.GetFilterMode(), attributes.GetOrientationCorrection() );
+        }
+        else
+        {
+          ret = NinePatchImage::New( filename );
+        }
         break;
       }
       case BUFFER_IMAGE :

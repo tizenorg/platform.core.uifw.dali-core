@@ -117,6 +117,7 @@ public:
 
   /**
    * @brief Retrieves the horizontal stretch pixel ranges in the cropped image space
+   * @since DALi 1.1.4
    *
    * @return the horizontal stretch pixel ranges in the cropped image space
    */
@@ -124,6 +125,7 @@ public:
 
   /**
    * @brief Retrieves the vertical stretch pixel ranges in the cropped image space
+   * @since DALi 1.1.4
    *
    * @return the vertical stretch pixel ranges in the cropped image space
    */
@@ -145,6 +147,7 @@ public:
 
   /**
    * Helper method to determine if the filename indicates that the image has a 9 patch or n patch border.
+   * @since DALi 1.1.4
    * @param [in] url The URL of the image file.
    * @return true if it is a 9 patch or n patch image
    */

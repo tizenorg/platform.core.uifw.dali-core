@@ -114,6 +114,7 @@ public:
 
   /**
    * @brief Create an initialised image object from an encoded image buffer in memory.
+   * @since DALi 1.1.4
    *
    * @param [in] encodedImage The encoded bytes of an image, in a supported
    * image format such as PNG, JPEG, GIF, BMP, KTX, ICO, and WBMP, organised

@@ -118,6 +118,7 @@ public:
   /**
    * @brief Retrieves the horizontal stretch pixel ranges in the cropped image space
    *
+   * @since DALi 1.1.4
    * @return the horizontal stretch pixel ranges in the cropped image space
    */
   const StretchRanges& GetStretchPixelsX();
@@ -125,18 +126,21 @@ public:
   /**
    * @brief Retrieves the vertical stretch pixel ranges in the cropped image space
    *
+   * @since DALi 1.1.4
    * @return the vertical stretch pixel ranges in the cropped image space
    */
   const StretchRanges& GetStretchPixelsY();
 
   /**
-   * Get the child rectangle
+   * @brief Get the child rectangle
+   *
    * @return the position and size of the child rectangle
    */
   Rect<int> GetChildRectangle();
 
   /**
-   * Creates a buffer image from the bitmap with the 1 pixel border cropped off.
+   * @brief Creates a buffer image from the bitmap with the 1 pixel border cropped off.
+   *
    * This does not change the internal bitmap.
    *
    * @return The cropped BufferImage
@@ -144,7 +148,9 @@ public:
   BufferImage CreateCroppedBufferImage();
 
   /**
-   * Helper method to determine if the filename indicates that the image has a 9 patch or n patch border.
+   * @brief Helper method to determine if the filename indicates that the image has a 9 patch or n patch border.
+   *
+   * @since DALi 1.1.4
    * @param [in] url The URL of the image file.
    * @return true if it is a 9 patch or n patch image
    */

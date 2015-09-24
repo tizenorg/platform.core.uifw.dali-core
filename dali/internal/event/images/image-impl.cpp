@@ -108,11 +108,9 @@ Vector2 Image::GetNaturalSize() const
   return Vector2( mWidth, mHeight );
 }
 
-Image::Image( ReleasePolicy releasePol )
+Image::Image()
 : mWidth( 0 ),
-  mHeight( 0 ),
-  mConnectionCount( 0 ),
-  mReleasePolicy( releasePol )
+  mHeight( 0 )
 {
 }
 

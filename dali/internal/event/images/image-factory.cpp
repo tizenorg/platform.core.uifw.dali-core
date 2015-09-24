@@ -131,7 +131,7 @@ ResourceTicketPtr ImageFactory::Reload( Request& request )
 
   ticket = mResourceClient.RequestResourceTicket( request.resourceId );
 
-  // ticket might have been deleted, eg. Image::Disconnect
+  // ticket might have been deleted
   if( !ticket )
   {
     ticket = IssueLoadRequest( request.url, request.attributes );

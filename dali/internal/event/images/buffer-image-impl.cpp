@@ -40,22 +40,22 @@ namespace
 TypeRegistration mType( typeid( Dali::BufferImage ), typeid( Dali::Image ), NULL );
 } // unnamed namespace
 
-BufferImagePtr BufferImage::New( unsigned int width, unsigned int height, Pixel::Format pixelformat, ReleasePolicy releasePol )
+BufferImagePtr BufferImage::New( unsigned int width, unsigned int height, Pixel::Format pixelformat )
 {
-  BufferImagePtr internal = new BufferImage( width, height, pixelformat, releasePol );
+  BufferImagePtr internal = new BufferImage( width, height, pixelformat );
   internal->Initialize();
   return internal;
 }
 
-BufferImagePtr BufferImage::New( PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride, ReleasePolicy releasePol )
+BufferImagePtr BufferImage::New( PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride )
 {
-  BufferImagePtr internal = new BufferImage( pixBuf, width, height, pixelformat, stride, releasePol );
+  BufferImagePtr internal = new BufferImage( pixBuf, width, height, pixelformat, stride );
   internal->Initialize();
   return internal;
 }
 
-BufferImage::BufferImage(unsigned int width, unsigned int height, Pixel::Format pixelformat, ReleasePolicy releasePol)
-: Image(releasePol),
+BufferImage::BufferImage( unsigned int width, unsigned int height, Pixel::Format pixelformat )
+: Image(),
   mInternalBuffer(NULL),
   mExternalBuffer(NULL),
   mBitmap(NULL)
@@ -72,12 +72,14 @@ BufferImage::BufferImage(unsigned int width, unsigned int height, Pixel::Format 
   // Allocate a persistent internal buffer
   mInternalBuffer = new PixelBuffer[ mBufferSize ];
 
-  // Respect the desired release policy
-  mResourcePolicy = releasePol == Dali::Image::UNUSED ? ResourcePolicy::OWNED_DISCARD : ResourcePolicy::OWNED_RETAIN;
+  // update the texture immediately
+  // TODO this does not work, the second update in the same frame seems to get lost
+//  RectArea area;
+//  Update( area );
 }
 
-BufferImage::BufferImage(PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride, ReleasePolicy releasePol )
-: Image(releasePol),
+BufferImage::BufferImage( PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride )
+: Image(),
   mInternalBuffer(NULL),
   mExternalBuffer(pixBuf),
   mBitmap(NULL)
@@ -91,20 +93,27 @@ BufferImage::BufferImage(PixelBuffer* pixBuf, unsigned int width, unsigned int h
   mByteStride = ( stride ? stride : mWidth ) * mBytesPerPixel;
   mBufferSize = height * mByteStride;
 
-  // Respect the desired release policy
-  mResourcePolicy = releasePol == Dali::Image::UNUSED ? ResourcePolicy::OWNED_DISCARD : ResourcePolicy::OWNED_RETAIN;
-
   // Create a bitmap to hold copy of external buffer
   ReserveBitmap();
 
   // Take a copy of the external buffer immediately, so it can be released if desired
   RectArea area;
   MirrorExternal( area );
+
+  // update the texture immediately
+  // TODO this does not work, the second update in the same frame seems to get lost
+//  Update( area );
 }
 
 BufferImage::~BufferImage()
 {
   delete[] mInternalBuffer;
+
+  if ( mTicket )
+  {
+    mTicket->RemoveObserver(*this);
+    mTicket.Reset();
+  }
 }
 
 bool BufferImage::IsDataExternal() const
@@ -155,7 +164,7 @@ void BufferImage::ReserveBitmap()
    // Does a bitmap currently exist ?
   if ( !mBitmap )
   {
-    mBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, mResourcePolicy );
+    mBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS );
   }
 
   if ( !mBitmap->GetBuffer() )
@@ -209,27 +218,6 @@ void BufferImage::MirrorExternal( const RectArea& area )
   else
   {
     UpdateBufferArea( mExternalBuffer, area );
-  }
-}
-
-void BufferImage::Connect()
-{
-  if ( !mConnectionCount++ )
-  {
-    RectArea area;
-    Update( area );
-  }
-}
-
-void BufferImage::Disconnect()
-{
-  if ( mTicket )
-  {
-    if ( !( --mConnectionCount ) && mReleasePolicy == Dali::Image::UNUSED )
-    {
-      mTicket->RemoveObserver(*this);
-      mTicket.Reset();
-    }
   }
 }
 

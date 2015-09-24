@@ -25,7 +25,7 @@
 #include <dali/internal/event/common/connectable.h> // Dali::Internal::Connectable
 #include <dali/internal/event/common/object-connector.h> // Dali::Internal::ObjectConnector
 #include <dali/internal/event/common/object-impl.h> // Dali::Internal::Object
-#include <dali/internal/event/images/image-connector.h> // Dali::Internal::ImageConnector
+#include <dali/internal/event/images/image-impl.h> // Dali::Internal::ImagePtr
 
 namespace Dali
 {
@@ -214,10 +214,11 @@ protected:
   virtual ~Sampler();
 
 private: // data
-  //TODO: MESH_REWORK : change to ObjectConnector
-  ImageConnector mImageConnector;
+
   SceneGraph::Sampler* mSceneObject;
+  ImagePtr mImage;  ///< intrusive pointer to the Image
   bool mOnStage;
+
 };
 
 } // namespace Internal

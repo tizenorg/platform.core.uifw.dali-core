@@ -37,63 +37,34 @@ typedef IntrusivePtr<FrameBufferImage> FrameBufferImagePtr;
 class FrameBufferImage : public Image
 {
 public:
+
   /**
    * @copydoc Dali::FrameBufferImage::New(unsigned int, unsigned int, Pixel::Format)
    */
-  static FrameBufferImagePtr  New(unsigned int width, unsigned int height, Pixel::Format pixelFormat, ReleasePolicy releasePolicy, RenderBuffer::Format bufferformat);
+  static FrameBufferImagePtr New( unsigned int width, unsigned int height, Pixel::Format pixelFormat, RenderBuffer::Format bufferformat );
 
   /**
    * @copydoc Dali::FrameBufferImage::New(NativeImageInterface&)
    */
-  static FrameBufferImagePtr  New( NativeImageInterface& nativeImage );
-
-  /**
-   * @copydoc Dali::FrameBufferImage::New(NativeImageInterface&, ReleasePolicy)
-   */
-  static FrameBufferImagePtr  New( NativeImageInterface& nativeImage, ReleasePolicy releasePolicy );
+  static FrameBufferImagePtr New( NativeImageInterface& nativeImage );
 
   /**
    * @copydoc Dali::FrameBufferImage::FrameBufferImage
    */
-  FrameBufferImage(unsigned int width, unsigned int height, Pixel::Format pixelFormat, RenderBuffer::Format bufferformat);
+  FrameBufferImage( unsigned int width, unsigned int height, Pixel::Format pixelFormat, RenderBuffer::Format bufferformat );
 
   /**
    * @copydoc Dali::FrameBufferImage::FrameBufferImage
    */
-  FrameBufferImage(unsigned int width, unsigned int height, Pixel::Format pixelFormat, ReleasePolicy releasePolicy, RenderBuffer::Format bufferformat);
-
-  /**
-   * @copydoc Dali::FrameBufferImage::FrameBufferImage
-   */
-  FrameBufferImage(NativeImageInterface& image);
-
-  /**
-   * @copydoc Dali::FrameBufferImage::FrameBufferImage
-   */
-  FrameBufferImage(NativeImageInterface& image, ReleasePolicy releasePolicy);
-
-public: // From Image
-  /**
-   * @copydoc Dali::Internal::Image::Connect()
-   */
-  virtual void Connect();
-
-  /**
-   * @copydoc Dali::Internal::Image::Disconnect()
-   */
-  virtual void Disconnect();
+  FrameBufferImage( NativeImageInterface& image );
 
 protected:
+
   /**
    * A reference counted object may only be deleted by calling Unreference()
    */
   virtual ~FrameBufferImage();
 
-private:
-  // cached values for the size / pixel format we were created with. Needed to recreate us when we Connect() to stage and mTicket was reset from a previous call to Disconnect().
-  NativeImageInterfacePtr mNativeImage;
-  Pixel::Format mPixelFormat;
-  RenderBuffer::Format mBufferFormat;
 }; // class FrameBufferImage
 
 } // namespace Internal

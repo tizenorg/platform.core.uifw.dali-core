@@ -31,7 +31,7 @@ NinePatchImage::NinePatchImage()
 {
 }
 
-NinePatchImage::NinePatchImage(Internal::NinePatchImage* internal)
+NinePatchImage::NinePatchImage( Internal::NinePatchImage* internal )
 : ResourceImage(internal)
 {
 }
@@ -40,12 +40,12 @@ NinePatchImage::~NinePatchImage()
 {
 }
 
-NinePatchImage::NinePatchImage(const NinePatchImage& handle)
+NinePatchImage::NinePatchImage( const NinePatchImage& handle )
 : ResourceImage(handle)
 {
 }
 
-NinePatchImage& NinePatchImage::operator=(const NinePatchImage& rhs)
+NinePatchImage& NinePatchImage::operator=( const NinePatchImage& rhs )
 {
   BaseHandle::operator=(rhs);
   return *this;
@@ -53,7 +53,7 @@ NinePatchImage& NinePatchImage::operator=(const NinePatchImage& rhs)
 
 NinePatchImage NinePatchImage::New( const std::string& filename )
 {
-  Internal::NinePatchImagePtr internal = Internal::NinePatchImage::New( filename, Image::NEVER );
+  Internal::NinePatchImagePtr internal = Internal::NinePatchImage::New( filename );
   return NinePatchImage(internal.Get());
 }
 

@@ -49,10 +49,11 @@ class UpdateManager;
 class EncodedBufferImage : public Image
 {
 private:
+
   /**
-   * Construct using the supplied load policy.
+   * Constructor
    */
-  EncodedBufferImage( ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT ) : Image( releasePol ) {}
+  EncodedBufferImage();
 
 public:
   /**
@@ -65,7 +66,6 @@ public:
    * @param [in] encodedImageByteCount The size in bytes of the buffer pointed to
    * by encodedImage.
    * @param [in] attributes Requested parameters for loading (size, scaling etc.).
-   * @param [in] releasePol The ReleasePolicy to apply to image. Since it cannot
    * be recreated by dali, the default of Never will usually make sense.
    * @return A pointer to a newly allocated object, or null on error.
    */
@@ -74,8 +74,18 @@ public:
                                    ImageDimensions size = ImageDimensions(0, 0),
                                    FittingMode::Type scalingMode = FittingMode::SHRINK_TO_FIT,
                                    SamplingMode::Type samplingMode = SamplingMode::BOX,
-                                   bool orientationCorrection = true,
-                                   const ReleasePolicy releasePol=Dali::Image::NEVER);
+                                   bool orientationCorrection = true );
+
+protected:
+
+  virtual ~EncodedBufferImage(); // ref object cannot have a public destructor
+
+private: // Data
+
+  // non copyable
+  EncodedBufferImage( const EncodedBufferImage& );
+  EncodedBufferImage& operator=( const EncodedBufferImage& );
+
 };
 
 } // namespace Internal

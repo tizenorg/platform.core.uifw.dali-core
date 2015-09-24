@@ -209,12 +209,6 @@ void ShaderEffect::SetEffectImage( Dali::Image image )
     return;
   }
 
-  if (mImage && mConnectionCount > 0)
-  {
-    // unset previous image
-    GetImplementation(mImage).Disconnect();
-  }
-
   // in case image is empty this will reset our image handle
   mImage = image;
 
@@ -225,11 +219,6 @@ void ShaderEffect::SetEffectImage( Dali::Image image )
   }
   else
   {
-    // tell image that we're using it
-    if (mConnectionCount > 0)
-    {
-      GetImplementation(mImage).Connect();
-    }
     // mSceneShader can be in a separate thread; queue a setter message
     SetTextureIdMessage( mEventThreadServices, *mSceneObject, GetImplementation(mImage).GetResourceId() );
   }
@@ -301,12 +290,8 @@ void ShaderEffect::SendProgramMessage( const string& vertexSource, const string&
 
 void ShaderEffect::Connect()
 {
-  ++mConnectionCount;
-
-  if (mImage && mConnectionCount == 1)
+  if ( mImage )
   {
-    GetImplementation(mImage).Connect();
-
     // Image may have changed resource due to load/release policy. Ensure correct texture ID is set on scene graph object
     SetTextureIdMessage( mEventThreadServices, *mSceneObject, GetImplementation(mImage).GetResourceId() );
   }
@@ -314,13 +299,6 @@ void ShaderEffect::Connect()
 
 void ShaderEffect::Disconnect()
 {
-  DALI_ASSERT_DEBUG(mConnectionCount > 0);
-  --mConnectionCount;
-
-  if (mImage && mConnectionCount == 0)
-  {
-     GetImplementation(mImage).Disconnect();
-  }
 }
 
 unsigned int ShaderEffect::GetDefaultPropertyCount() const

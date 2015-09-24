@@ -26,7 +26,6 @@
 #include <dali/devel-api/scripting/scripting.h>
 #include <dali/internal/event/common/property-helper.h>
 #include <dali/internal/event/effects/shader-effect-impl.h>
-#include <dali/internal/event/images/image-connector.h>
 #include <dali/internal/event/images/nine-patch-image-impl.h>
 
 namespace Dali

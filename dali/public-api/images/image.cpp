@@ -37,12 +37,12 @@ Image::~Image()
 {
 }
 
-Image::Image(const Image& handle)
+Image::Image( const Image& handle )
 : BaseHandle(handle)
 {
 }
 
-Image& Image::operator=(const Image& rhs)
+Image& Image::operator=( const Image& rhs )
 {
   BaseHandle::operator=(rhs);
   return *this;
@@ -50,12 +50,12 @@ Image& Image::operator=(const Image& rhs)
 
 Image Image::DownCast( BaseHandle handle )
 {
-  return Image( dynamic_cast<Dali::Internal::Image*>(handle.GetObjectPtr()) );
+  return Image( dynamic_cast<Dali::Internal::Image*>( handle.GetObjectPtr() ) );
 }
 
 Image::ReleasePolicy Image::GetReleasePolicy() const
 {
-  return GetImplementation(*this).GetReleasePolicy();
+  return NEVER;
 }
 
 unsigned int Image::GetWidth() const

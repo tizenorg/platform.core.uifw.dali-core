@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,96 +34,48 @@ namespace
 TypeRegistration mType( typeid( Dali::FrameBufferImage ), typeid( Dali::Image ), NULL );
 } // unnamed namespace
 
-FrameBufferImage::~FrameBufferImage()
+FrameBufferImagePtr  FrameBufferImage::New( unsigned int width,
+                                            unsigned int height,
+                                            Pixel::Format pixelFormat,
+                                            RenderBuffer::Format bufferformat )
 {
-}
-
-FrameBufferImagePtr  FrameBufferImage::New(unsigned int width, 
-                                           unsigned int height, 
-                                           Pixel::Format pixelFormat, 
-                                           ReleasePolicy releasePolicy,
-                                           RenderBuffer::Format bufferformat)
-{
-  FrameBufferImagePtr image = new FrameBufferImage(width, height, pixelFormat, releasePolicy, bufferformat);
+  FrameBufferImagePtr image = new FrameBufferImage( width, height, pixelFormat, bufferformat );
   image->Initialize();
   return image;
 }
 
 FrameBufferImagePtr  FrameBufferImage::New( NativeImageInterface& nativeImage )
 {
-  FrameBufferImagePtr image = new FrameBufferImage(nativeImage);
+  FrameBufferImagePtr image = new FrameBufferImage( nativeImage );
   image->Initialize();
   return image;
 }
 
-FrameBufferImagePtr  FrameBufferImage::New( NativeImageInterface& nativeImage, ReleasePolicy releasePolicy )
-{
-  FrameBufferImagePtr image = new FrameBufferImage(nativeImage, releasePolicy);
-  image->Initialize();
-  return image;
-}
 
-FrameBufferImage::FrameBufferImage(unsigned int width, unsigned int height, Pixel::Format pixelFormat, ReleasePolicy releasePolicy, RenderBuffer::Format bufferformat)
-: Image(releasePolicy),
-  mPixelFormat(pixelFormat),
-  mBufferFormat(bufferformat)
+FrameBufferImage::FrameBufferImage( unsigned int width, unsigned int height, Pixel::Format pixelFormat, RenderBuffer::Format bufferformat )
+: Image()
 {
   mWidth  = width;
   mHeight = height;
+  ResourceClient& resourceClient = ThreadLocalStorage::Get().GetResourceClient();
+  mTicket = resourceClient.AddFrameBufferImage( mWidth, mHeight, pixelFormat, bufferformat );
+  mTicket->AddObserver(*this);
 }
 
 FrameBufferImage::FrameBufferImage( NativeImageInterface& nativeImage )
-: Image(),
-  mNativeImage(&nativeImage)
+: Image()
 {
   mWidth = nativeImage.GetWidth();
   mHeight = nativeImage.GetHeight();
+  ResourceClient& resourceClient = ThreadLocalStorage::Get().GetResourceClient();
+  mTicket = resourceClient.AddFrameBufferImage( nativeImage );
+  mTicket->AddObserver( *this );
 }
 
-FrameBufferImage::FrameBufferImage( NativeImageInterface& nativeImage, ReleasePolicy releasePolicy )
-: Image(releasePolicy),
-  mNativeImage(&nativeImage)
+FrameBufferImage::~FrameBufferImage()
 {
-  mWidth = nativeImage.GetWidth();
-  mHeight = nativeImage.GetHeight();
-}
-
-void FrameBufferImage::Connect()
-{
-  ++mConnectionCount;
-
-  if (mConnectionCount == 1)
+  if( mTicket)
   {
-    // ticket was thrown away when related actors went offstage
-    if (!mTicket)
-    {
-      ResourceClient& resourceClient = ThreadLocalStorage::Get().GetResourceClient();
-      if (mNativeImage)
-      {
-        mTicket = resourceClient.AddFrameBufferImage(*mNativeImage);
-        mTicket->AddObserver(*this);
-      }
-      else
-      {
-        mTicket = resourceClient.AddFrameBufferImage(mWidth, mHeight, mPixelFormat, mBufferFormat);
-        mTicket->AddObserver(*this);
-      }
-    }
-  }
-}
-
-void FrameBufferImage::Disconnect()
-{
-  if(!mTicket)
-  {
-    return;
-  }
-
-  DALI_ASSERT_DEBUG(mConnectionCount > 0);
-  --mConnectionCount;
-  if (mConnectionCount == 0 && mReleasePolicy == Dali::Image::UNUSED)
-  {
-    // release image memory when it's not visible anymore (decrease ref. count of texture)
     mTicket->RemoveObserver(*this);
     mTicket.Reset();
   }

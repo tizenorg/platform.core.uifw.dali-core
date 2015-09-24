@@ -39,7 +39,7 @@ ResourceImage::ResourceImage()
 {
 }
 
-ResourceImage::ResourceImage(Internal::ResourceImage* internal) : Image(internal)
+ResourceImage::ResourceImage( Internal::ResourceImage* internal ) : Image(internal)
 {
 }
 
@@ -65,11 +65,11 @@ ResourceImage ResourceImage::New( const std::string& url, bool orientationCorrec
   return ResourceImage( Internal::ResourceImage::New( url, attributes ).Get() );
 }
 
-ResourceImage ResourceImage::New( const std::string& url, LoadPolicy loadPol, ReleasePolicy releasePol, bool orientationCorrection )
+ResourceImage ResourceImage::New( const std::string& url, LoadPolicy /*loadPol*/, ReleasePolicy /*releasePol*/, bool orientationCorrection )
 {
   Internal::ImageAttributes attributes = Internal::ImageAttributes::DEFAULT_ATTRIBUTES;
   attributes.SetOrientationCorrection( orientationCorrection );
-  return ResourceImage( Internal::ResourceImage::New( url, attributes, loadPol, releasePol ).Get() );
+  return ResourceImage( Internal::ResourceImage::New( url, attributes ).Get() );
 }
 
 ResourceImage ResourceImage::New( const std::string& url, ImageDimensions size, FittingMode::Type scalingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
@@ -82,24 +82,24 @@ ResourceImage ResourceImage::New( const std::string& url, ImageDimensions size, 
   return ResourceImage( Internal::ResourceImage::New( url, attributes ).Get() );
 }
 
-ResourceImage ResourceImage::New( const std::string& url, LoadPolicy loadPol, ReleasePolicy releasePol, ImageDimensions size, FittingMode::Type scalingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
+ResourceImage ResourceImage::New( const std::string& url, LoadPolicy /*loadPol*/, ReleasePolicy /*releasePol*/, ImageDimensions size, FittingMode::Type scalingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
 {
   Internal::ImageAttributes attributes = Internal::ImageAttributes::DEFAULT_ATTRIBUTES;
   attributes.SetSize( Size( size.GetWidth(), size.GetHeight() ) );
   attributes.SetScalingMode( scalingMode );
   attributes.SetFilterMode( samplingMode );
   attributes.SetOrientationCorrection( orientationCorrection );
-  return ResourceImage( Internal::ResourceImage::New( url, attributes, loadPol, releasePol ).Get() );
+  return ResourceImage( Internal::ResourceImage::New( url, attributes ).Get() );
 }
 
 ResourceImage ResourceImage::DownCast( BaseHandle handle )
 {
-  return ResourceImage( dynamic_cast<Dali::Internal::ResourceImage*>(handle.GetObjectPtr()) );
+  return ResourceImage( dynamic_cast<Dali::Internal::ResourceImage*>( handle.GetObjectPtr() ) );
 }
 
 ResourceImage::LoadPolicy ResourceImage::GetLoadPolicy() const
 {
-  return GetImplementation(*this).GetLoadPolicy();
+  return IMMEDIATE;
 }
 
 LoadingState ResourceImage::GetLoadingState() const

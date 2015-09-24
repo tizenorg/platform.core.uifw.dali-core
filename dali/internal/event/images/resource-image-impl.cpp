@@ -57,10 +57,9 @@ Dali::SignalConnectorType signalConnector1( mType, SIGNAL_IMAGE_LOADING_FINISHED
 
 }
 
-ResourceImage::ResourceImage( LoadPolicy loadPol, ReleasePolicy releasePol )
-: Image( releasePol ),
-  mImageFactory( ThreadLocalStorage::Get().GetImageFactory() ),
-  mLoadPolicy(loadPol)
+ResourceImage::ResourceImage()
+: Image(),
+  mImageFactory( ThreadLocalStorage::Get().GetImageFactory() )
 {
 }
 
@@ -71,16 +70,16 @@ ResourceImagePtr ResourceImage::New()
   return image;
 }
 
-ResourceImagePtr ResourceImage::New( const std::string& url, const ImageAttributes& attributes, LoadPolicy loadPol, ReleasePolicy releasePol )
+ResourceImagePtr ResourceImage::New( const std::string& url, const ImageAttributes& attributes )
 {
   ResourceImagePtr image;
   if( NinePatchImage::IsNinePatchUrl( url ) )
   {
-    image = NinePatchImage::New( url, releasePol );
+    image = NinePatchImage::New( url );
   }
   else
   {
-    image = new ResourceImage( loadPol, releasePol );
+    image = new ResourceImage();
     image->Initialize();
 
     // consider the requested size as natural size, 0 means we don't (yet) know it
@@ -88,12 +87,9 @@ ResourceImagePtr ResourceImage::New( const std::string& url, const ImageAttribut
     image->mHeight = attributes.GetHeight();
     image->mRequest = image->mImageFactory.RegisterRequest( url, &attributes );
 
-    if( Dali::ResourceImage::IMMEDIATE == loadPol )
-    {
-      // Trigger loading of the image on a as soon as it can be done
-      image->mTicket = image->mImageFactory.Load( *image->mRequest.Get() );
-      image->mTicket->AddObserver( *image );
-    }
+    // Trigger loading of the image
+    image->mTicket = image->mImageFactory.Load( *image->mRequest.Get() );
+    image->mTicket->AddObserver( *image );
   }
   DALI_LOG_SET_OBJECT_STRING( image, url );
 
@@ -209,38 +205,6 @@ void ResourceImage::ResourceLoadingFailed(const ResourceTicket& ticket)
 void ResourceImage::ResourceLoadingSucceeded(const ResourceTicket& ticket)
 {
   mLoadingFinished.Emit( Dali::ResourceImage( this ) );
-}
-
-void ResourceImage::Connect()
-{
-  ++mConnectionCount;
-
-  if( mConnectionCount == 1 )
-  {
-    // ticket was thrown away when related actors went offstage or image loading on demand
-    if( !mTicket )
-    {
-      DALI_ASSERT_DEBUG( mRequest.Get() );
-      ResourceTicketPtr newTicket = mImageFactory.Load( *mRequest.Get() );
-      SetTicket( newTicket.Get() );
-    }
-  }
-}
-
-void ResourceImage::Disconnect()
-{
-  if( !mTicket )
-  {
-    return;
-  }
-
-  DALI_ASSERT_DEBUG( mConnectionCount > 0 );
-  --mConnectionCount;
-  if( mConnectionCount == 0 && mReleasePolicy == Dali::ResourceImage::UNUSED )
-  {
-    // release image memory when it's not visible anymore (decrease ref. count of texture)
-    SetTicket( NULL );
-  }
 }
 
 void ResourceImage::SetTicket( ResourceTicket* ticket )

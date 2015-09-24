@@ -27,7 +27,6 @@
 #include <dali/internal/event/actor-attachments/actor-attachment-declarations.h>
 #include <dali/internal/event/actor-attachments/renderable-attachment-impl.h>
 #include <dali/internal/event/images/image-impl.h>
-#include <dali/internal/event/images/image-connector.h>
 #include <dali/internal/event/effects/shader-declarations.h>
 
 namespace Dali
@@ -269,7 +268,7 @@ private:
 
   const SceneGraph::ImageAttachment* mSceneObject; ///< Not owned
 
-  ImageConnector mImageConnectable; ///< Manages the image displayed by the attachment
+  ImagePtr mImage;  ///< intrusive pointer to the image
 
   // Cached for public getters
 

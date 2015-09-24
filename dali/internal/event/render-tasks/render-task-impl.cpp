@@ -144,19 +144,12 @@ void RenderTask::SetTargetFrameBuffer( Dali::FrameBufferImage image )
     // if we have a scene object we need to track connection status and set frame buffer id as well as updating target frame buffer
     if ( mSceneObject )
     {
-      if(mFrameBufferImage)
-      {
-        GetImplementation(mFrameBufferImage).Disconnect();
-      }
-
       // update target frame buffer
       mFrameBufferImage = image;
 
       unsigned int resourceId = 0;
       if(mFrameBufferImage)
       {
-        GetImplementation(mFrameBufferImage).Connect();
-
         resourceId = GetImplementation( mFrameBufferImage ).GetResourceId();
       }
 
@@ -423,10 +416,8 @@ SceneGraph::RenderTask* RenderTask::CreateSceneObject()
 
   // if we have a frame buffer we need to track connection status then send a message to set the frame buffer id in case it has changed since last time we were on stage
   unsigned int resourceId = 0;
-  if(mFrameBufferImage)
+  if( mFrameBufferImage )
   {
-    GetImplementation(mFrameBufferImage).Connect();
-
     resourceId = GetImplementation( mFrameBufferImage ).GetResourceId();
   }
 
@@ -453,12 +444,6 @@ void RenderTask::DiscardSceneObject()
 {
   // mSceneObject is not owned; throw away the raw-pointer
   mSceneObject = NULL;
-
-  // if we have a frame buffer we need to track connection status
-  if(mFrameBufferImage)
-  {
-    GetImplementation(mFrameBufferImage).Disconnect();
-  }
 }
 
 /********************************************************************************

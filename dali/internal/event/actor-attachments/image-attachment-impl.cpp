@@ -49,6 +49,7 @@ ImageAttachmentPtr ImageAttachment::New( EventThreadServices& eventThreadService
 ImageAttachment::ImageAttachment( EventThreadServices& eventThreadServices )
 : RenderableAttachment(eventThreadServices),
   mSceneObject(NULL),
+  mImage( NULL ),
   mPixelArea(0,0,0,0),
   mStyle(Dali::ImageActor::STYLE_QUAD),
   mBorder(0.45,0.45,0.1,0.1),
@@ -63,7 +64,6 @@ ImageAttachment::ImageAttachment( EventThreadServices& eventThreadServices )
   mBlendingMode( BlendingMode::AUTO ),
   mShaderEffect()
 {
-  mImageConnectable.Set( NULL, false );
 }
 
 ImageAttachment::~ImageAttachment()
@@ -72,9 +72,8 @@ ImageAttachment::~ImageAttachment()
 
 void ImageAttachment::SetImage( ImagePtr& image )
 {
-  bool onStage = OnStage();
   // keep a reference to Image object
-  mImageConnectable.Set( image, onStage );
+  mImage = image;
 
   // Wait until the scene-graph attachment is connected, before providing resource ID
   if ( OnStage() )
@@ -88,7 +87,7 @@ void ImageAttachment::SetImage( ImagePtr& image )
 
 ImagePtr ImageAttachment::GetImage()
 {
-  return mImageConnectable.Get();
+  return mImage;
 }
 
 void ImageAttachment::SetPixelArea(const PixelArea& pixelArea)
@@ -314,11 +313,8 @@ void ImageAttachment::OnStageConnection2()
     mShaderEffect->Connect();
   }
 
-  mImageConnectable.OnStageConnect();
-
   // Provide resource ID when scene-graph attachment is connected
-  ImagePtr image = mImageConnectable.Get();
-  unsigned int resourceId = (image) ? image->GetResourceId() : 0u;
+  unsigned int resourceId = (mImage) ? mImage->GetResourceId() : 0u;
   if ( 0u != resourceId )
   {
     SetTextureIdMessage( GetEventThreadServices(), *mSceneObject, resourceId );
@@ -335,8 +331,6 @@ void ImageAttachment::OnStageDisconnection2()
 
   // Remove resource ID when scene-graph attachment is disconnected
   SetTextureIdMessage( GetEventThreadServices(), *mSceneObject, 0u );
-
-  mImageConnectable.OnStageDisconnect();
 }
 
 

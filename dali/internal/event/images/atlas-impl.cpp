@@ -145,30 +145,7 @@ Atlas::Atlas( SizeType width,
 {
   mWidth  = width;
   mHeight = height;
-}
-
-void Atlas::Connect()
-{
-  ++mConnectionCount;
-
-  if( mConnectionCount == 1 )
-  {
-    AllocateAtlas();
-  }
-}
-
-void Atlas::Disconnect()
-{
-  if( mConnectionCount )
-  {
-    --mConnectionCount;
-
-    if ( Dali::Image::UNUSED == mReleasePolicy &&
-         mConnectionCount == 0 )
-    {
-      ReleaseAtlas();
-    }
-  }
+  AllocateAtlas();
 }
 
 bool Atlas::Compatible( Pixel::Format pixelFormat,

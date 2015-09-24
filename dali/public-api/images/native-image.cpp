@@ -28,7 +28,7 @@ NativeImage::NativeImage()
 {
 }
 
-NativeImage::NativeImage(Internal::NativeImage* internal)
+NativeImage::NativeImage( Internal::NativeImage* internal )
 : Image(internal)
 {
 }

@@ -54,12 +54,10 @@ public:
    * @param [in] width       image width in pixels
    * @param [in] height      image height in pixels
    * @param [in] pixelformat the pixel format (rgba 32 bit by default)
-   * @param [in] releasePol  optionally relase memory when image is not visible on screen (default: keep image data until Image object is alive).
    */
   static BufferImagePtr New( unsigned int width,
                              unsigned int height,
-                             Pixel::Format pixelformat,
-                             ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
+                             Pixel::Format pixelformat );
 
   /**
    * Create a new BufferImage, which uses external data source.
@@ -78,14 +76,12 @@ public:
    * @param [in] height      image height in pixels
    * @param [in] pixelformat the pixel format (rgba 32 bit by default)
    * @param [in] stride      the internal stride of the pixelbuffer in pixels
-   * @param [in] releasePol  optionally relase memory when image is not visible on screen (default: keep image data until Image object is alive).
    */
   static BufferImagePtr New( PixelBuffer* pixBuf,
                              unsigned int width,
                              unsigned int height,
                              Pixel::Format pixelformat,
-                             unsigned int stride,
-                             ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
+                             unsigned int stride );
 
   /**
    * Create a new BufferImage.
@@ -100,8 +96,7 @@ public:
    */
   BufferImage(unsigned int width,
               unsigned int height,
-              Pixel::Format pixelformat,
-              ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT);
+              Pixel::Format pixelformat );
 
   /**
    * Create a new BufferImage, which uses external data source.
@@ -123,8 +118,7 @@ public:
               unsigned int width,
               unsigned int height,
               Pixel::Format pixelformat,
-              unsigned int stride,
-              ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT);
+              unsigned int stride );
 
 protected:
   /**
@@ -191,17 +185,6 @@ public:
    */
   void UploadBitmap( ResourceId destId, std::size_t xOffset, std::size_t yOffset );
 
-protected: // From Image
-  /**
-   * @copydoc Dali::Internal::Image::Connect
-   */
-  virtual void Connect();
-
-  /**
-   * @copydoc Dali::Internal::Image::Disconnect
-   */
-  virtual void Disconnect();
-
 private:
 
   void ValidateBitmap();
@@ -224,7 +207,7 @@ private:
   uint32_t                     mByteStride;           ///< width of the pixel buffer in bytes.
   uint32_t                     mBytesPerPixel;        ///< width of a pixel in bytes.
   Pixel::Format                mPixelFormat;          ///< pixel format of bitmap.
-  ResourcePolicy::Discardable  mResourcePolicy;       ///< whether to discard the pixel buffer when removed from the stage or to retain the data.
+
 };
 
 } // namespace Internal

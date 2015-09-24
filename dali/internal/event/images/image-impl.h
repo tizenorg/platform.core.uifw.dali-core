@@ -33,13 +33,9 @@ namespace Dali
 namespace Internal
 {
 
-typedef Dali::Image::ReleasePolicy ReleasePolicy;
-
 class Image;
 class ImageFactory;
 typedef IntrusivePtr<Image> ImagePtr;
-
-const ReleasePolicy IMAGE_RELEASE_POLICY_DEFAULT = Dali::Image::NEVER;
 
 /**
  * Image represents an image resource that can be added to actors etc.
@@ -49,11 +45,6 @@ const ReleasePolicy IMAGE_RELEASE_POLICY_DEFAULT = Dali::Image::NEVER;
 class Image : public BaseObject, public ResourceTicketObserver
 {
 public:
-
-  /**
-   * @copydoc Dali::Image::GetReleasePolicy()
-   */
-  ReleasePolicy GetReleasePolicy () const { return mReleasePolicy; }
 
   /**
    * @copydoc Dali::Image::UploadedSignal()
@@ -73,7 +64,6 @@ public:
 
   /**
    * returns the Id used for lookups
-   * @note if LoadPolicy::OnDemand is used and Image is off Stage, this will return 0.
    * @return the unique ID of the image data resource. This is actually also the same as Dali Texture id.
    */
   ResourceId GetResourceId() const;
@@ -119,18 +109,6 @@ public: // From ResourceTicketObserver
    */
   virtual void ResourceUploaded(const ResourceTicket& ticket);
 
-public:
-
-  /**
-   * Indicates that the image is used.
-   */
-  virtual void Connect() {}
-
-  /**
-   * Indicates that the image is not used anymore.
-   */
-  virtual void Disconnect() {}
-
 protected:
 
   /**
@@ -139,9 +117,9 @@ protected:
   virtual ~Image();
 
   /**
-   * Constructor, with default parameters
+   * Constructor
    */
-  Image( ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
+  Image();
 
   /**
    * Second stage initialization
@@ -154,10 +132,6 @@ protected:
 
   mutable unsigned int mWidth;     ///< natural width of the image, needs to be mutable for lazy resolving and as the API for GetWidth is const
   mutable unsigned int mHeight;    ///< natural height of the image, needs to be mutable for lazy resolving and as the API for GetHeight is const
-
-  unsigned int mConnectionCount; ///< number of on-stage objects using this image
-
-  ReleasePolicy  mReleasePolicy : 2; ///< 2 bits is enough space
 
 private:
 

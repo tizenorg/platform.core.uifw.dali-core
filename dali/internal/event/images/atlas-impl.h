@@ -104,16 +104,6 @@ protected:
    */
   virtual ~Atlas();
 
-  /**
-   * @copydoc Dali::Internal::Image::Connect
-   */
-  virtual void Connect();
-
-  /**
-   * @copydoc Dali::Internal::Image::Disconnect
-   */
-  virtual void Disconnect();
-
 private:
 
   /**

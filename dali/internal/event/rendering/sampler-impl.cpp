@@ -76,7 +76,7 @@ const std::string& Sampler::GetTextureUnitUniformName() const
 void Sampler::SetImage( ImagePtr& image )
 {
   // Keep a reference to the image object
-  mImageConnector.Set( image, OnStage() );
+  mImage = image;
 
   // sceneObject is being used in a separate thread; queue a message to set
   if( mOnStage )
@@ -91,7 +91,7 @@ void Sampler::SetImage( ImagePtr& image )
 
 ImagePtr Sampler::GetImage() const
 {
-  return mImageConnector.Get();
+  return mImage;
 }
 
 void Sampler::SetFilterMode( Dali::Sampler::FilterMode minFilter, Dali::Sampler::FilterMode magFilter )
@@ -341,18 +341,17 @@ void Sampler::Connect()
 {
   mOnStage = true;
 
-  mImageConnector.OnStageConnect();
-
   // sceneObject is being used in a separate thread; queue a message to set
-  unsigned int resourceId = mImageConnector.Get()->GetResourceId();
-  SetTextureMessage( GetEventThreadServices(), *mSceneObject, resourceId );
+  if( mImage )
+  {
+    unsigned int resourceId = mImage->GetResourceId();
+    SetTextureMessage( GetEventThreadServices(), *mSceneObject, resourceId );
+  }
 }
 
 void Sampler::Disconnect()
 {
   mOnStage = false;
-
-  mImageConnector.OnStageDisconnect();
 }
 
 Sampler::Sampler()

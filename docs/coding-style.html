@@ -489,6 +489,28 @@ function toggleVisibility( button, obj )
       <SUMMARY>
         Mark deprecated interface points with <code>@deprecated</code> comments.
       </SUMMARY>
+    <H3>Doxygen Tags</H3>
+      <SUMMARY>
+       The following order should be followed when using doxygen tags for functions, classes, structs etc.
+      </SUMMARY>
+      <CODE class="good">
+       /**
+        * @deprecated DALi X.X.X    Mandatory, if applicable    // Version deprecated and alternative API
+        * @brief                    Mandatory                   // Explain the API briefly
+        * @details                                              // Explain the API in more detail. Use this tag or add more
+        *                                                       // information after a blank line following the @brief
+        * @since DALi X.X.X         Mandatory from now          // Version added
+        * @param[in]                Mandatory, if applicable    // In Parameter list
+        * @param[out]               Mandatory, if applicable    // Out Parameter list
+        * @param[in,out]            Mandatory, if applicable    // In/Out Parameter list
+        * @return                   Mandatory, if applicable    // Return value
+        * @exception                                            // Describe any exceptions that the function throws
+        * @pre                                                  // Pre-condition
+        * @post                                                 // Post-condition
+        * @note                                                 // Any notes that apply
+        * @see                                                  // Other related APIs
+        */
+      </CODE>
   </ARTICLE>
 
 <H1>Formatting</H1>

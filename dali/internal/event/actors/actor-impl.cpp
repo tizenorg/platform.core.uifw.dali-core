@@ -15,6 +15,7 @@
  *
  */
 
+// Test change
 // CLASS HEADER
 #include <dali/internal/event/actors/actor-impl.h>
 

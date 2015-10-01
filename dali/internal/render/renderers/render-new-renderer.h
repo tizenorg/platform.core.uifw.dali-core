@@ -79,10 +79,10 @@ public:
    * @param[in] bufferIndex The buffer index
    * @param[out] sortAttributes
    */
-  void SetSortAttributes( SceneGraph::RendererWithSortAttributes& sortAttributes ) const
+  void SetSortAttributes( BufferIndex bufferIndex, SceneGraph::RendererWithSortAttributes& sortAttributes ) const
   {
-    sortAttributes.shader = &(mRenderDataProvider->GetShader());
-    sortAttributes.material = &(mRenderDataProvider->GetMaterial());
+    sortAttributes.shader = &( mRenderDataProvider->GetShader() );
+    sortAttributes.textureResourceId = mRenderDataProvider->GetSamplers().Empty() ? Integration::InvalidResourceId : mRenderDataProvider->GetSamplers()[ 0 ]->GetTextureId( bufferIndex );
     sortAttributes.geometry = mRenderGeometry;
   }
 

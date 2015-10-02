@@ -196,9 +196,16 @@ void RenderGeometry::UploadAndDraw(
     }
     case Dali::Geometry::TRIANGLE_STRIP:
     {
-      const PropertyBufferDataProvider& firstVertexBuffer = mVertexBuffers[0]->GetDataProvider();
-      unsigned int numVertices = firstVertexBuffer.GetElementCount( bufferIndex );
-      context.DrawArrays(GL_TRIANGLE_STRIP, 0, numVertices );
+      if( numIndices )
+      {
+        context.DrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, 0);
+      }
+      else
+      {
+        const PropertyBufferDataProvider& firstVertexBuffer = mVertexBuffers[0]->GetDataProvider();
+        unsigned int numVertices = firstVertexBuffer.GetElementCount( bufferIndex );
+        context.DrawArrays(GL_TRIANGLE_STRIP, 0, numVertices );
+      }
       break;
     }
     case Dali::Geometry::TRIANGLE_FAN:

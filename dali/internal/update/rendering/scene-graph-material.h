@@ -26,11 +26,16 @@
 #include <dali/internal/update/common/scene-graph-connection-change-propagator.h>
 #include <dali/internal/update/common/uniform-map.h>
 #include <dali/internal/render/data-providers/material-data-provider.h>
+#include <dali/internal/update/resources/resource-manager-declarations.h>
 
 namespace Dali
 {
 namespace Internal
 {
+namespace Render
+{
+class Sampler;
+}
 namespace SceneGraph
 {
 class Sampler;
@@ -69,18 +74,6 @@ public:
   void SetShader( Shader* shader );
 
   /**
-   * Add a sampler (image + sampler modes) to the material
-   * @param[in] sampler A sampler to add
-   */
-  void AddSampler( Sampler* sampler );
-
-  /**
-   * Remove a sampler (image + sampler modes) from the material
-   * @param[in] sampler A sampler to remove
-   */
-  void RemoveSampler( Sampler* sampler );
-
-  /**
    * Prepare the material for rendering.
    *
    * Determine whether blending is enabled for this material, and store the result.
@@ -101,6 +94,12 @@ public:
    * @param[in] options A bitmask of blending options.
    */
   void SetBlendingOptions( BufferIndex updateBufferIndex, unsigned int options );
+
+  void AddTexture( const char* name, ResourceId id, Render::Sampler* sampler );
+  void RemoveTexture( size_t index );
+  void SetTextureImage( size_t index, ResourceId id );
+  void SetTextureSampler( size_t index, Render::Sampler* sampler);
+  void SetTextureUniformName( size_t index,const char* uniformName);
 
 public: // Implementation of MaterialDataProvider
 
@@ -174,10 +173,43 @@ public:
   Shader* GetShader() const;
 
   /**
-   * Get the samplers this material uses.
-   * @return the samplers
+   * Get the ResourceId of a texture used by the material
+   * @param[in] index The index of the texture in the textures array
+   * @return the ResourceId
    */
-  Vector<Sampler*>& GetSamplers();
+  ResourceId GetTextureId( size_t index )
+  {
+    return mTextureId[index];
+  }
+
+  /**
+   * Get the uniform name of a texture used by the material
+   * @param[in] index The index of the texture in the textures array
+   * @return the uniform name
+   */
+  const char* GetTextureUniformName( size_t index )
+  {
+    return mUniformName[index];
+  }
+
+  /**
+   * Get the sampler of a texture used by the material
+   * @param[in] index The index of the texture in the textures array
+   * @return the sampler used by the texture
+   */
+  Render::Sampler* GetTextureSampler( size_t index )
+  {
+    return mSamplers[index];
+  }
+
+  /**
+   * Get the number of textures used by the material
+   * @return The number of textures
+   */
+  size_t GetTextureCount()
+  {
+    return mTextureId.Size();
+  }
 
 public: // UniformMap::Observer
   /**
@@ -203,6 +235,17 @@ public: // PropertyOwner implementation
    */
   virtual void ResetDefaultProperties( BufferIndex updateBufferIndex );
 
+  void SetIsFullyOpaque( size_t index, bool isFullyOpaque )
+  {
+    mIsFullyOpaque[index] = isFullyOpaque;
+  }
+
+  void SetAffectsTransparency( size_t index, bool affectsTransparency )
+  {
+    mAffectsTransparency[index] = affectsTransparency;
+    mConnectionObservers.ConnectionsChanged(*this);
+  }
+
 public: // Property data
   AnimatableProperty<Vector4> mColor;
   AnimatableProperty<Vector4> mBlendColor;
@@ -212,7 +255,11 @@ public: // Property data
 
 private:
   Shader* mShader;
-  Vector<Sampler*> mSamplers; // Not owned
+  Vector<Render::Sampler*> mSamplers; // Not owned
+  Vector<ResourceId>  mTextureId;
+  Vector<const char*> mUniformName;
+  Vector<bool>        mIsFullyOpaque;
+  Vector<bool>        mAffectsTransparency;
   ConnectionChangePropagator mConnectionObservers;
   BlendPolicy mBlendPolicy; ///< The blend policy as determined by PrepareRender
 };
@@ -228,28 +275,6 @@ inline void SetShaderMessage( EventThreadServices& eventThreadServices, const Ma
   new (slot) LocalType( &material, &Material::SetShader, &shader );
 }
 
-inline void AddSamplerMessage( EventThreadServices& eventThreadServices, const Material& material, Sampler& sampler )
-{
-  typedef MessageValue1< Material, Sampler* > LocalType;
-
-  // Reserve some memory inside the message queue
-  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
-
-  // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &material, &Material::AddSampler, &sampler );
-}
-
-inline void RemoveSamplerMessage( EventThreadServices& eventThreadServices, const Material& material, Sampler& sampler )
-{
-  typedef MessageValue1< Material, Sampler* > LocalType;
-
-  // Reserve some memory inside the message queue
-  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
-
-  // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &material, &Material::RemoveSampler, &sampler );
-}
-
 inline void SetBlendingOptionsMessage( EventThreadServices& eventThreadServices, const Material& material, unsigned int options )
 {
   typedef MessageDoubleBuffered1< Material, unsigned int > LocalType;
@@ -260,6 +285,71 @@ inline void SetBlendingOptionsMessage( EventThreadServices& eventThreadServices,
   new (slot) LocalType( &material, &Material::SetBlendingOptions, options );
 }
 
+inline void AddTextureMessage( EventThreadServices& eventThreadServices, const Material& material, const char* uniformName, ResourceId id, Render::Sampler* sampler )
+{
+  typedef MessageValue3< Material, const char*, ResourceId, Render::Sampler* > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &material, &Material::AddTexture, uniformName, id, sampler );
+}
+
+inline void RemoveTextureMessage( EventThreadServices& eventThreadServices, const Material& material, size_t index )
+{
+  typedef MessageValue1< Material, size_t > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &material, &Material::RemoveTexture, index );
+}
+
+inline void SetTextureImageMessage( EventThreadServices& eventThreadServices, const Material& material, size_t index, ResourceId id )
+{
+  typedef MessageValue2< Material, size_t, ResourceId > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &material, &Material::SetTextureImage, index, id );
+}
+
+inline void SetTextureSamplerMessage( EventThreadServices& eventThreadServices, const Material& material, size_t index, Render::Sampler* sampler )
+{
+  typedef MessageValue2< Material, size_t, Render::Sampler* > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &material, &Material::SetTextureSampler, index, sampler );
+}
+
+inline void SetTextureUniformNameMessage( EventThreadServices& eventThreadServices, const Material& material, size_t index, const char* uniformName )
+{
+  typedef MessageValue2< Material, size_t, const char* > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &material, &Material::SetTextureUniformName, index, uniformName );
+}
+
+inline void SetTextureAffectsTransparencyMessage( EventThreadServices& eventThreadServices, const Material& material, size_t index, bool affectsTransparency )
+{
+  typedef MessageValue2< Material, size_t, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &material, &Material::SetAffectsTransparency, index, affectsTransparency );
+}
 
 } // namespace SceneGraph
 } // namespace Internal

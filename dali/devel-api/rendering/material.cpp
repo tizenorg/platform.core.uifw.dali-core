@@ -71,27 +71,52 @@ Shader Material::GetShader() const
   return Dali::Shader( shaderPtr );
 }
 
-void Material::AddSampler( Sampler& sampler )
+//void Material::AddSampler( Sampler& sampler )
+//{
+//  DALI_ASSERT_ALWAYS( sampler && "Sampler handle is uninitialized" );
+//  GetImplementation(*this).AddSampler( GetImplementation( sampler ) );
+//}
+//
+//std::size_t Material::GetNumberOfSamplers() const
+//{
+//  return GetImplementation(*this).GetNumberOfSamplers();
+//}
+//
+//void Material::RemoveSampler( std::size_t index )
+//{
+//  GetImplementation(*this).RemoveSampler( index );
+//}
+
+//Sampler Material::GetSamplerAt( unsigned int index ) const
+//{
+//  Internal::Sampler* samplerPtr( GetImplementation(*this).GetSamplerAt(index) );
+//  return Dali::Sampler( samplerPtr );
+//}
+
+std::size_t Material::AddTexture( Image image, std::string uniformName, Sampler sampler)
 {
-  DALI_ASSERT_ALWAYS( sampler && "Sampler handle is uninitialized" );
-  GetImplementation(*this).AddSampler( GetImplementation( sampler ) );
+  Internal::Image* imagePtr = 0;
+  Internal::Sampler* samplerPtr = 0;
+  if( image )
+  {
+     imagePtr = &GetImplementation( image );
+  }
+  if( sampler )
+  {
+    samplerPtr = &GetImplementation( sampler );
+  }
+
+  return GetImplementation(*this).AddTexture( imagePtr, uniformName, samplerPtr );
+}
+void Material::RemoveTexture( std::size_t  index )
+{
+
+}
+std::size_t Material::GetNumberOfTextures() const
+{
+  return GetImplementation(*this).GetNumberOfTextures();
 }
 
-std::size_t Material::GetNumberOfSamplers() const
-{
-  return GetImplementation(*this).GetNumberOfSamplers();
-}
-
-void Material::RemoveSampler( std::size_t index )
-{
-  GetImplementation(*this).RemoveSampler( index );
-}
-
-Sampler Material::GetSamplerAt( unsigned int index ) const
-{
-  Internal::Sampler* samplerPtr( GetImplementation(*this).GetSamplerAt(index) );
-  return Dali::Sampler( samplerPtr );
-}
 
 void Material::SetFaceCullingMode( FaceCullingMode cullingMode )
 {

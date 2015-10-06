@@ -74,30 +74,26 @@ Shader* Material::GetShader() const
 
 void Material::AddSampler( Sampler* sampler )
 {
-  mSamplers.PushBack( sampler );
-
-  sampler->AddConnectionObserver( *this );
-  sampler->AddUniformMapObserver( *this );
-
-  mConnectionObservers.ConnectionsChanged(*this);
+//  mSamplers.PushBack( sampler );
+//  mTextureId.PushBack( sampler->GetTextureId(0));
+//  mIsFullyOpaque.PushBack( false );
+//  mConnectionObservers.ConnectionsChanged(*this);
 }
 
 void Material::RemoveSampler( Sampler* sampler )
 {
-  Vector<Sampler*>::Iterator match = std::find( mSamplers.Begin(), mSamplers.End(), sampler );
-
-  DALI_ASSERT_DEBUG( mSamplers.End() != match );
-  if( mSamplers.End() != match )
-  {
-    sampler->RemoveConnectionObserver( *this );
-    sampler->RemoveUniformMapObserver( *this );
-    mSamplers.Erase( match );
-    mConnectionObservers.ConnectionsChanged(*this);
-  }
-  else
-  {
-    DALI_ASSERT_DEBUG( 0 && "Sampler not found" );
-  }
+//  Vector<Sampler*>::Iterator match = std::find( mSamplers.Begin(), mSamplers.End(), sampler );
+//
+//  DALI_ASSERT_DEBUG( mSamplers.End() != match );
+//  if( mSamplers.End() != match )
+//  {
+//    mSamplers.Erase( match );
+//    mConnectionObservers.ConnectionsChanged(*this);
+//  }
+//  else
+//  {
+//    DALI_ASSERT_DEBUG( 0 && "Sampler not found" );
+//  }
 }
 
 void Material::PrepareRender( BufferIndex bufferIndex )
@@ -140,27 +136,14 @@ void Material::PrepareRender( BufferIndex bufferIndex )
 
       if( opaque )
       {
-        // Require that all affecting samplers are opaque
-        unsigned int opaqueCount=0;
-        unsigned int affectingCount=0;
-
-        for( Vector<Sampler*>::ConstIterator iter = mSamplers.Begin();
-             iter != mSamplers.End(); ++iter )
+        for( unsigned int i(0); i<mIsFullyOpaque.Size(); ++i )
         {
-          const Sampler* sampler = *iter;
-          if( sampler != NULL )
+          if( !mIsFullyOpaque[i] )
           {
-            if( sampler->AffectsTransparency( bufferIndex ) )
-            {
-              affectingCount++;
-              if( sampler->IsFullyOpaque( bufferIndex ) )
-              {
-                opaqueCount++;
-              }
-            }
+            opaque = false;
+            break;
           }
         }
-        opaque = (opaqueCount == affectingCount);
       }
 
       mBlendPolicy = opaque ? Material::USE_ACTOR_COLOR : Material::TRANSPARENT;
@@ -168,10 +151,6 @@ void Material::PrepareRender( BufferIndex bufferIndex )
   }
 }
 
-Vector<Sampler*>& Material::GetSamplers()
-{
-  return mSamplers;
-}
 
 Material::BlendPolicy Material::GetBlendPolicy() const
 {
@@ -228,6 +207,19 @@ BlendingEquation::Type Material::GetBlendEquationAlpha( BufferIndex bufferIndex 
   BlendingOptions blendingOptions;
   blendingOptions.SetBitmask( mBlendingOptions[ bufferIndex ] );
   return blendingOptions.GetBlendEquationAlpha();
+}
+
+void Material::AddTexture( char* name, ResourceId id, Render::Sampler* sampler )
+{
+
+  std::cout<<"SceneGraph::Material::AddTexture "<<name<<std::endl;
+  mTextureId.PushBack(id);
+  mUniformName.push_back(name);
+  mSamplers.PushBack( sampler );
+  mIsFullyOpaque.PushBack( false );
+  delete[] name;
+
+  mConnectionObservers.ConnectionsChanged(*this);
 }
 
 void Material::ConnectToSceneGraph( SceneController& sceneController, BufferIndex bufferIndex )

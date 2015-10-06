@@ -27,6 +27,9 @@
 #include <dali/internal/update/rendering/scene-graph-material.h>
 #include <dali/internal/update/rendering/scene-graph-sampler.h>
 
+//EXTERNAL INCLUDES
+#include <string>
+
 namespace Dali
 {
 namespace Internal
@@ -83,35 +86,56 @@ Shader* Material::GetShader() const
   return mShader.Get();
 }
 
-void Material::AddSampler( Sampler& sampler )
+//void Material::AddSampler( Sampler& sampler )
+//{
+//  SamplerConnector connector;
+//  connector.Set( sampler, OnStage() );
+//  mSamplerConnectors.push_back( connector );
+//
+//  SceneGraph::Sampler& sceneGraphSampler = *sampler.GetSamplerSceneObject();
+//  SceneGraph::AddSamplerMessage( GetEventThreadServices(), *mSceneObject, sceneGraphSampler );
+//}
+//
+//std::size_t Material::GetNumberOfSamplers() const
+//{
+//  return mSamplerConnectors.size();
+//}
+//
+//void Material::RemoveSampler( std::size_t index )
+//{
+//  if( index < mSamplerConnectors.size() )
+//  {
+//    SamplerConnectorContainer::iterator iter = mSamplerConnectors.begin() + index;
+//    SceneGraph::Sampler& sceneGraphSampler = *iter->Get()->GetSamplerSceneObject();
+//    SceneGraph::RemoveSamplerMessage( GetEventThreadServices(), *mSceneObject, sceneGraphSampler );
+//    mSamplerConnectors.erase( iter );
+//  }
+//}
+//
+//Sampler* Material::GetSamplerAt( unsigned int index ) const
+//{
+//  return mSamplerConnectors[index].Get().Get();
+//}
+size_t Material::AddTexture( Image* image, const std::string& uniformName, Sampler* sampler )
 {
-  SamplerConnector connector;
-  connector.Set( sampler, OnStage() );
-  mSamplerConnectors.push_back( connector );
+  Texture texture( uniformName, image, sampler );
+  size_t index = mTextures.size();
+  mTextures.push_back(texture);
 
-  SceneGraph::Sampler& sceneGraphSampler = *sampler.GetSamplerSceneObject();
-  SceneGraph::AddSamplerMessage( GetEventThreadServices(), *mSceneObject, sceneGraphSampler );
-}
+  size_t nameSize( uniformName.size() );
+  char* name = new char[nameSize+1];
+  strcpy(name, uniformName.c_str() );
+  //name[uniformName.size()] = '\0';
 
-std::size_t Material::GetNumberOfSamplers() const
-{
-  return mSamplerConnectors.size();
-}
-
-void Material::RemoveSampler( std::size_t index )
-{
-  if( index < mSamplerConnectors.size() )
+  Render::Sampler* renderSampler(0);
+  if( sampler )
   {
-    SamplerConnectorContainer::iterator iter = mSamplerConnectors.begin() + index;
-    SceneGraph::Sampler& sceneGraphSampler = *iter->Get()->GetSamplerSceneObject();
-    SceneGraph::RemoveSamplerMessage( GetEventThreadServices(), *mSceneObject, sceneGraphSampler );
-    mSamplerConnectors.erase( iter );
+    renderSampler = sampler->GetSamplerRenderObject();
   }
-}
 
-Sampler* Material::GetSamplerAt( unsigned int index ) const
-{
-  return mSamplerConnectors[index].Get().Get();
+  SceneGraph::AddTextureMessage( GetEventThreadServices(), *mSceneObject, name, image->GetResourceId(), renderSampler );
+
+  return index;
 }
 
 void Material::SetFaceCullingMode( Dali::Material::FaceCullingMode cullingMode )

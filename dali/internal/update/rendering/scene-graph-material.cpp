@@ -75,10 +75,8 @@ Shader* Material::GetShader() const
 void Material::AddSampler( Sampler* sampler )
 {
   mSamplers.PushBack( sampler );
-
-  sampler->AddConnectionObserver( *this );
-  sampler->AddUniformMapObserver( *this );
-
+  mTextureId.PushBack( sampler->GetTextureId(0));
+  mIsFullyOpaque.PushBack( false );
   mConnectionObservers.ConnectionsChanged(*this);
 }
 
@@ -89,8 +87,6 @@ void Material::RemoveSampler( Sampler* sampler )
   DALI_ASSERT_DEBUG( mSamplers.End() != match );
   if( mSamplers.End() != match )
   {
-    sampler->RemoveConnectionObserver( *this );
-    sampler->RemoveUniformMapObserver( *this );
     mSamplers.Erase( match );
     mConnectionObservers.ConnectionsChanged(*this);
   }
@@ -140,27 +136,14 @@ void Material::PrepareRender( BufferIndex bufferIndex )
 
       if( opaque )
       {
-        // Require that all affecting samplers are opaque
-        unsigned int opaqueCount=0;
-        unsigned int affectingCount=0;
-
-        for( Vector<Sampler*>::ConstIterator iter = mSamplers.Begin();
-             iter != mSamplers.End(); ++iter )
+        for( unsigned int i(0); i<mIsFullyOpaque.Size(); ++i )
         {
-          const Sampler* sampler = *iter;
-          if( sampler != NULL )
+          if( !mIsFullyOpaque[i] )
           {
-            if( sampler->AffectsTransparency( bufferIndex ) )
-            {
-              affectingCount++;
-              if( sampler->IsFullyOpaque( bufferIndex ) )
-              {
-                opaqueCount++;
-              }
-            }
+            opaque = false;
+            break;
           }
         }
-        opaque = (opaqueCount == affectingCount);
       }
 
       mBlendPolicy = opaque ? Material::USE_ACTOR_COLOR : Material::TRANSPARENT;
@@ -228,6 +211,18 @@ BlendingEquation::Type Material::GetBlendEquationAlpha( BufferIndex bufferIndex 
   BlendingOptions blendingOptions;
   blendingOptions.SetBitmask( mBlendingOptions[ bufferIndex ] );
   return blendingOptions.GetBlendEquationAlpha();
+}
+
+void Material::AddTexture( char* name, ResourceId id )
+{
+
+  std::cout<<"SceneGraph::Material::AddTexture "<<name<<std::endl;
+  mTextureId.PushBack(id);
+  mUniformName.push_back(name);
+  mIsFullyOpaque.PushBack( false );
+  delete[] name;
+
+  mConnectionObservers.ConnectionsChanged(*this);
 }
 
 void Material::ConnectToSceneGraph( SceneController& sceneController, BufferIndex bufferIndex )

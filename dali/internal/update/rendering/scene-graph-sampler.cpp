@@ -32,11 +32,11 @@ Sampler::Sampler( const std::string& textureUnitUniformName )
   mMagFilter( Dali::Sampler::DEFAULT ),
   mUWrapMode( Dali::Sampler::CLAMP_TO_EDGE ),
   mVWrapMode( Dali::Sampler::CLAMP_TO_EDGE ),
-  mAffectsTransparency( true ),
   mTextureUnitUniformName( textureUnitUniformName ),
+  mTextureId(0),
   mFullyOpaque(true)
 {
-  mTextureId[ 0 ] = mTextureId[ 1 ] = 0u;
+  //mTextureId[ 0 ] = mTextureId[ 1 ] = 0u;
 }
 
 Sampler::~Sampler()
@@ -50,17 +50,13 @@ void Sampler::SetTextureUnitUniformName( const std::string& textureUnitUniformNa
 
 void Sampler::SetTexture( BufferIndex bufferIndex, Integration::ResourceId textureId )
 {
-  if( mTextureId[bufferIndex] != textureId )
-  {
-    mTextureId[ bufferIndex ] = textureId;
-    mConnectionObservers.ConnectionsChanged(*this);
-  }
+  mTextureId = textureId;
 }
 
 void Sampler::SetFilterMode( BufferIndex bufferIndex, FilterMode minFilter, FilterMode magFilter )
 {
-  mMinFilter.Set(bufferIndex, minFilter);
-  mMagFilter.Set(bufferIndex, magFilter);
+  mMinFilter = minFilter;
+  mMagFilter = magFilter;
 }
 
 void Sampler::SetWrapMode( BufferIndex bufferIndex, WrapMode uWrap, WrapMode vWrap )
@@ -74,32 +70,33 @@ const std::string& Sampler::GetTextureUnitUniformName() const
 
 Integration::ResourceId Sampler::GetTextureId( BufferIndex bufferIndex ) const
 {
-  return mTextureId[bufferIndex];
+  return mTextureId;
 }
 
 Sampler::FilterMode Sampler::GetMinifyFilterMode( BufferIndex bufferIndex ) const
 {
-  return static_cast<Sampler::FilterMode>(mMinFilter[bufferIndex]);
+  return static_cast<Sampler::FilterMode>(mMinFilter);
 }
 
 Sampler::FilterMode Sampler::GetMagnifyFilterMode( BufferIndex bufferIndex ) const
 {
-  return static_cast<Sampler::FilterMode>(mMagFilter[bufferIndex]);
+  return static_cast<Sampler::FilterMode>(mMagFilter);
 }
 
 Sampler::WrapMode Sampler::GetUWrapMode( BufferIndex bufferIndex ) const
 {
-  return static_cast<Sampler::WrapMode>(mUWrapMode[bufferIndex]);
+  return static_cast<Sampler::WrapMode>(mUWrapMode);
 }
 
 Sampler::WrapMode Sampler::GetVWrapMode( BufferIndex bufferIndex ) const
 {
-  return static_cast<Sampler::WrapMode>(mVWrapMode[bufferIndex]);
+  return static_cast<Sampler::WrapMode>(mVWrapMode);
 }
 
 bool Sampler::AffectsTransparency( BufferIndex bufferIndex ) const
 {
-  return mAffectsTransparency[bufferIndex] ;
+  return true;
+  //return mAffectsTransparency;
 }
 
 void Sampler::SetFullyOpaque( bool fullyOpaque )
@@ -112,33 +109,6 @@ bool Sampler::IsFullyOpaque( BufferIndex bufferIndex ) const
   return mFullyOpaque;
 }
 
-void Sampler::ConnectToSceneGraph( SceneController& sceneController, BufferIndex bufferIndex )
-{
-}
-
-void Sampler::DisconnectFromSceneGraph(SceneController& sceneController, BufferIndex bufferIndex)
-{
-}
-
-void Sampler::AddConnectionObserver( ConnectionChangePropagator::Observer& observer )
-{
-  mConnectionObservers.Add(observer);
-}
-
-void Sampler::RemoveConnectionObserver( ConnectionChangePropagator::Observer& observer )
-{
-  mConnectionObservers.Remove(observer);
-}
-
-void Sampler::ResetDefaultProperties( BufferIndex bufferIndex )
-{
-  mTextureId[ bufferIndex ] = mTextureId[ 1 - bufferIndex ];
-  mMinFilter.CopyPrevious( bufferIndex );
-  mMagFilter.CopyPrevious( bufferIndex );
-  mUWrapMode.CopyPrevious( bufferIndex );
-  mVWrapMode.CopyPrevious( bufferIndex );
-  mAffectsTransparency.CopyPrevious( bufferIndex );
-}
 
 } // namespace SceneGraph
 } // namespace Internal

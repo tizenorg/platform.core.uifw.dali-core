@@ -26,6 +26,7 @@
 #include <dali/internal/update/common/scene-graph-connection-change-propagator.h>
 #include <dali/internal/update/common/uniform-map.h>
 #include <dali/internal/render/data-providers/material-data-provider.h>
+#include <dali/internal/update/resources/resource-manager-declarations.h>
 
 namespace Dali
 {
@@ -101,6 +102,9 @@ public:
    * @param[in] options A bitmask of blending options.
    */
   void SetBlendingOptions( BufferIndex updateBufferIndex, unsigned int options );
+
+  void AddTexture( char* name, ResourceId id );
+
 
 public: // Implementation of MaterialDataProvider
 
@@ -178,7 +182,19 @@ public:
    * @return the samplers
    */
   Vector<Sampler*>& GetSamplers();
+  Vector<ResourceId>& GetTextureId()
+  {
+    return mTextureId;
+  }
 
+  ResourceId GetResourceId( size_t index )
+  {
+    return mTextureId[index];
+  }
+  std::string GetUniformName( size_t index )
+  {
+    return mUniformName[index];
+  }
 public: // UniformMap::Observer
   /**
    * @copydoc UniformMap::Observer::UniformMappingsChanged
@@ -203,6 +219,11 @@ public: // PropertyOwner implementation
    */
   virtual void ResetDefaultProperties( BufferIndex updateBufferIndex );
 
+  void SetIsFullyOpaque( unsigned int index, bool isFullyOpaque )
+  {
+    mIsFullyOpaque[index] = isFullyOpaque;
+  }
+
 public: // Property data
   AnimatableProperty<Vector4> mColor;
   AnimatableProperty<Vector4> mBlendColor;
@@ -213,6 +234,9 @@ public: // Property data
 private:
   Shader* mShader;
   Vector<Sampler*> mSamplers; // Not owned
+  Vector<ResourceId>  mTextureId;
+  std::vector<std::string> mUniformName;
+  Vector<bool>       mIsFullyOpaque;
   ConnectionChangePropagator mConnectionObservers;
   BlendPolicy mBlendPolicy; ///< The blend policy as determined by PrepareRender
 };
@@ -258,6 +282,17 @@ inline void SetBlendingOptionsMessage( EventThreadServices& eventThreadServices,
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &material, &Material::SetBlendingOptions, options );
+}
+
+inline void AddTextureMessage( EventThreadServices& eventThreadServices, const Material& material, char* uniformName, ResourceId id )
+{
+  typedef MessageValue2< Material, char*, ResourceId > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &material, &Material::AddTexture, uniformName, id );
 }
 
 

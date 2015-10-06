@@ -37,7 +37,7 @@ namespace SceneGraph
 {
 class SceneController;
 
-class Sampler : public PropertyOwner, public SamplerDataProvider
+class Sampler : public SamplerDataProvider
 {
 public:
   typedef Dali::Sampler::FilterMode FilterMode;
@@ -143,48 +143,17 @@ public: // SamplerDataProvider interface - called from RenderThread
    */
   virtual WrapMode GetVWrapMode( BufferIndex bufferIndex ) const;
 
-  /**
-   * Connect the object to the scene graph
-   *
-   * @param[in] sceneController The scene controller - used for sending messages to render thread
-   * @param[in] bufferIndex The current buffer index - used for sending messages to render thread
-   */
-  void ConnectToSceneGraph( SceneController& sceneController, BufferIndex bufferIndex );
+public:
 
-  /**
-   * Disconnect the object from the scene graph
-   * @param[in] sceneController The scene controller - used for sending messages to render thread
-   * @param[in] bufferIndex The current buffer index - used for sending messages to render thread
-   */
-  void DisconnectFromSceneGraph( SceneController& sceneController, BufferIndex bufferIndex );
-
-  /**
-   * @copydoc ConnectionChangePropagator::AddObserver
-   */
-  void AddConnectionObserver(ConnectionChangePropagator::Observer& observer);
-
-  /**
-   * @copydoc ConnectionChangePropagator::RemoveObserver
-   */
-  void RemoveConnectionObserver(ConnectionChangePropagator::Observer& observer);
-
-public: // PropertyOwner implementation
-  /**
-   * @copydoc Dali::Internal::SceneGraph::PropertyOwner::ResetDefaultProperties()
-   */
-  virtual void ResetDefaultProperties( BufferIndex updateBufferIndex );
-
-public: // Properties
-  DoubleBufferedProperty<int>  mMinFilter;    ///< The minify filter
-  DoubleBufferedProperty<int>  mMagFilter;    ///< The magnify filter
-  DoubleBufferedProperty<int>  mUWrapMode;    ///< The horizontal wrap mode
-  DoubleBufferedProperty<int>  mVWrapMode;    ///< The vertical wrap mode
-  DoubleBufferedProperty<bool> mAffectsTransparency; ///< If this sampler affects renderer transparency
+  int  mMinFilter;    ///< The minify filter
+  int  mMagFilter;    ///< The magnify filter
+  int  mUWrapMode;    ///< The horizontal wrap mode
+  int  mVWrapMode;    ///< The vertical wrap mode
+  //bool mAffectsTransparency; ///< If this sampler affects renderer transparency
 
 private:
   std::string mTextureUnitUniformName; ///< The name of the uniform of the texture unit
-  Integration::ResourceId mTextureId[ 2 ]; //< double buffered
-  ConnectionChangePropagator mConnectionObservers; ///< Connection observers that will be informed when textures change.
+  Integration::ResourceId mTextureId; //< double buffered
   bool mFullyOpaque; // Update only flag - no need for double buffering
 };
 

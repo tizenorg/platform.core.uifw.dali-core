@@ -148,28 +148,28 @@ void Renderer::PrepareRender( BufferIndex updateBufferIndex )
       AddMappings( localMap, rendererUniformMap );
 
       AddMappings( localMap, mMaterial->GetUniformMap() );
-      Vector<Sampler*>& samplers = mMaterial->GetSamplers();
-      unsigned int samplerCount( samplers.Size() );
-      for( unsigned int i(0); i<samplerCount; ++i )
-      {
-        AddMappings( localMap, samplers[i]->GetUniformMap() );
-      }
+//      Vector<Sampler*>& samplers = mMaterial->GetSamplers();
+//      unsigned int samplerCount( samplers.Size() );
+//      for( unsigned int i(0); i<samplerCount; ++i )
+//      {
+//        AddMappings( localMap, samplers[i]->GetUniformMap() );
+//      }
 
       AddMappings( localMap, mMaterial->GetShader()->GetUniformMap() );
       AddMappings( localMap, mGeometry->GetUniformMap() );
 
-      Vector<PropertyBuffer*>& vertexBuffers = mGeometry->GetVertexBuffers();
-      unsigned int vertexBufferCount( vertexBuffers.Size() );
-      for( unsigned int i(0); i<vertexBufferCount; ++i )
-      {
-        AddMappings( localMap, vertexBuffers[i]->GetUniformMap() );
-      }
-
-      PropertyBuffer* indexBuffer = mGeometry->GetIndexBuffer();
-      if( indexBuffer )
-      {
-        AddMappings( localMap, indexBuffer->GetUniformMap() );
-      }
+//      Vector<PropertyBuffer*>& vertexBuffers = mGeometry->GetVertexBuffers();
+//      unsigned int vertexBufferCount( vertexBuffers.Size() );
+//      for( unsigned int i(0); i<vertexBufferCount; ++i )
+//      {
+//        AddMappings( localMap, vertexBuffers[i]->GetUniformMap() );
+//      }
+//
+//      PropertyBuffer* indexBuffer = mGeometry->GetIndexBuffer();
+//      if( indexBuffer )
+//      {
+//        AddMappings( localMap, indexBuffer->GetUniformMap() );
+//      }
     }
     else if( mRegenerateUniformMap == COPY_UNIFORM_MAP )
     {
@@ -314,6 +314,16 @@ RenderDataProvider* Renderer::NewRenderDataProvider()
     dataProvider->mSamplers[i] = samplers[i]; // Convert from derived type to base type
   }
 
+
+  Vector<ResourceId>& resourceId( mMaterial->GetTextureId() );
+  size_t textureCount( resourceId.Size() );
+  dataProvider->mTextures.resize( textureCount );
+  for( unsigned int i(0); i<textureCount; ++i )
+  {
+    dataProvider->mTextures[i] = Render::Texture( mMaterial->GetUniformName(i),mMaterial->GetResourceId(i), 0 );
+  }
+
+
   return dataProvider;
 }
 
@@ -348,14 +358,16 @@ void Renderer::PrepareResources( BufferIndex updateBufferIndex, ResourceManager&
     unsigned int neverCount = 0;
     unsigned int frameBufferCount = 0;
 
-    Vector<Sampler*>& samplers = mMaterial->GetSamplers();
-    unsigned int samplerCount( samplers.Size() );
-    for( unsigned int i(0); i<samplerCount; ++i )
+    Vector<ResourceId>& textures = mMaterial->GetTextureId();
+    //Vector<Sampler*>& samplers = mMaterial->GetSamplers();
+    unsigned int textureCount( textures.Size() );
+    for( unsigned int i(0); i<textureCount; ++i )
     {
-      ResourceId textureId = samplers[i]->GetTextureId( updateBufferIndex );
+      ResourceId textureId = textures[i];
+      std::cout<<"Prepare resources: Texture: "<<textureId<<std::endl;
       BitmapMetadata metaData = resourceManager.GetBitmapMetadata( textureId );
 
-      samplers[i]->SetFullyOpaque( metaData.IsFullyOpaque() );
+      mMaterial->SetIsFullyOpaque( i, metaData.IsFullyOpaque() );
 
       switch( completeStatusManager.GetStatus( textureId ) )
       {
@@ -379,6 +391,7 @@ void Renderer::PrepareResources( BufferIndex updateBufferIndex, ResourceManager&
             }
             if( ! found )
             {
+              std::cout<<"Adding texture to tracked resources"<<std::endl;
               mTrackedResources.PushBack( textureId );
             }
           }
@@ -405,8 +418,8 @@ void Renderer::PrepareResources( BufferIndex updateBufferIndex, ResourceManager&
 
     // We are ready if all samplers are complete, or those that aren't are framebuffers
     // We are complete if all samplers are either complete or will nmResendGeometryever complete
-    mResourcesReady = ( completeCount + frameBufferCount >= samplers.Count() ) ;
-    mFinishedResourceAcquisition = ( completeCount + neverCount >= samplers.Count() );
+    mResourcesReady = ( completeCount + frameBufferCount >= textureCount ) ;
+    mFinishedResourceAcquisition = ( completeCount + neverCount >= textureCount );
   }
 }
 

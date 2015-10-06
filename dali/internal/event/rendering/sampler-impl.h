@@ -31,7 +31,7 @@ namespace Dali
 {
 namespace Internal
 {
-namespace SceneGraph
+namespace Render
 {
 class Sampler;
 }
@@ -51,27 +51,9 @@ public:
    * Create a new Sampler.
    * @return A smart-pointer to the newly allocated Sampler.
    */
-  static SamplerPtr New( const std::string& textureUnitUniformName );
+  static SamplerPtr New( );
 
-  /**
-   * @copydoc Dali::Sampler::SetUniformName()
-   */
-  void SetTextureUnitUniformName( const std::string& name );
 
-  /**
-   * @copydoc Dali::Sampler::GetUniformName()
-   */
-  const std::string& GetTextureUnitUniformName() const;
-
-  /**
-   * @copydoc Dali::Sampler::SetImage()
-   */
-  void SetImage( ImagePtr& image );
-
-  /**
-   * @copydoc Dali::Sampler::GetImage()
-   */
-  ImagePtr GetImage() const;
 
   /**
    * @copydoc Dali::Sampler::SetFilterMode()
@@ -83,23 +65,23 @@ public:
    */
   void SetWrapMode( Dali::Sampler::WrapMode uWrap, Dali::Sampler::WrapMode vWrap );
 
-  /**
-   * @copydoc Dali::Sampler::SetAffectsTransparency()
-   */
-  void SetAffectsTransparency( bool affectsTransparency );
+//  /**
+//   * @copydoc Dali::Sampler::SetAffectsTransparency()
+//   */
+//  void SetAffectsTransparency( bool affectsTransparency );
 
   /**
    * @brief Get the sampler scene object
    *
    * @return the sampler scene object
    */
-  const SceneGraph::Sampler* GetSamplerSceneObject() const;
+  //const SceneGraph::Sampler* GetSamplerSceneObject() const;
 
   /**
    * Retrieve the scene-graph sampler added by this object.
    * @return A pointer to the sampler, or NULL if no sampler has been added to the scene-graph.
    */
-  SceneGraph::Sampler* GetSamplerSceneObject();
+  //SceneGraph::Sampler* GetSamplerSceneObject();
 
 public: // Default property extensions from Object
 
@@ -205,7 +187,7 @@ private:
   /**
    * Second stage initialization
    */
-  void Initialize( const std::string& textureUnitUniformName );
+  void Initialize( );
 
 protected:
   /**
@@ -216,7 +198,7 @@ protected:
 private: // data
   //TODO: MESH_REWORK : change to ObjectConnector
   ImageConnector mImageConnector;
-  SceneGraph::Sampler* mSceneObject;
+  Render::Sampler* mSceneObject;
   bool mOnStage;
 };
 

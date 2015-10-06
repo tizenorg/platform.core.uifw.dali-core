@@ -54,6 +54,25 @@ class Material : public Object, public Connectable
 {
 public:
 
+  struct Texture
+  {
+    Texture()
+    :mUniformName(""),
+     mResourceId( Integration::InvalidResourceId ),
+     mSampler( NULL )
+    {}
+
+    Texture( std::string name, ResourceId id, Sampler* sampler )
+    :mUniformName(name),
+     mResourceId( id ),
+     mSampler( sampler )
+    {}
+
+    std::string mUniformName;
+    ResourceId  mResourceId;
+    SamplerPtr  mSampler;
+  };
+
   /**
    * @copydoc Dali::Material::New()
    */
@@ -69,25 +88,32 @@ public:
    */
   Shader* GetShader() const;
 
-  /**
-   * @copydoc Dali::Material::AddSampler()
-   */
-  void AddSampler( Sampler& sampler );
+  size_t AddTexture( ImagePtr image, std::string uniformName );
 
-  /**
-   * @copydoc Dali::Material::GetNumberOfSamplers()
-   */
-  std::size_t GetNumberOfSamplers() const;
 
-  /**
-   * @copydoc Dali::Material::RemoveSampler()
-   */
-  void RemoveSampler( std::size_t index );
-
-  /**
-   * @copydoc Dali::Material::GetSamplerAt()
-   */
-  Sampler* GetSamplerAt( unsigned int index ) const;
+  size_t GetNumberOfTextures() const
+  {
+    return mTextures.size();
+  }
+//  /**
+//   * @copydoc Dali::Material::AddSampler()
+//   */
+//  void AddSampler( Sampler& sampler );
+//
+//  /**
+//   * @copydoc Dali::Material::GetNumberOfSamplers()
+//   */
+//  std::size_t GetNumberOfSamplers() const;
+//
+//  /**
+//   * @copydoc Dali::Material::RemoveSampler()
+//   */
+//  void RemoveSampler( std::size_t index );
+//
+//  /**
+//   * @copydoc Dali::Material::GetSamplerAt()
+//   */
+//  Sampler* GetSamplerAt( unsigned int index ) const;
 
   /**
    * @copydoc Dali::Material::SetFaceCullingMode()
@@ -281,6 +307,8 @@ private: //data
   BlendingMode::Type mBlendingMode; ///< Local store
   BlendingOptions mBlendingOptions; ///< Local copy of blending options bitmask
   bool mOnStage;
+
+  std::vector<Material::Texture> mTextures;
 };
 
 } // namespace Internal

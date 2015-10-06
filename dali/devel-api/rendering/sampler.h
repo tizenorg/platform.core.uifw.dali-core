@@ -38,7 +38,7 @@ class Sampler;
 /**
  * @brief Sampler is a handle to an object that can be used to provide an image to a material.
  */
-class DALI_IMPORT_API Sampler : public Handle
+class DALI_IMPORT_API Sampler : public BaseHandle
 {
 public:
 
@@ -58,10 +58,11 @@ public:
    */
   enum WrapMode
   {
-    CLAMP_TO_EDGE,    ///< The texture coordinates get clamped to the range [0, 1]
-    REPEAT,           ///< Only the fractional part of the texture coordinates is used
-    MIRRORED_REPEAT,  ///< If the integer part of the texture coordinate is odd then it uses
-                      ///< the fractional part, if it's even it uses 1 - the fractional part
+    WRAPMODE_DEFAULT = 0, ///< Clamp to edge
+    CLAMP_TO_EDGE,        ///< The texture coordinates get clamped to the range [0, 1]
+    REPEAT,               ///< Only the fractional part of the texture coordinates is used
+    MIRRORED_REPEAT,      ///< If the integer part of the texture coordinate is odd then it uses
+                          ///< the fractional part, if it's even it uses 1 - the fractional part
   };
 
   /**
@@ -74,8 +75,7 @@ public:
       MINIFICATION_FILTER = DEFAULT_OBJECT_PROPERTY_START_INDEX,  ///< name "minification-filter",  type STRING
       MAGNIGICATION_FILTER,                                       ///< name "magnification-filter", type STRING
       U_WRAP,                                                     ///< name "u-wrap",               type STRING
-      V_WRAP,                                                     ///< name "v-wrap",               type STRING
-      AFFECTS_TRANSPARENCY,                                       ///< name "affects-transparency", type BOOLEAN
+      V_WRAP
     };
   };
 
@@ -85,7 +85,7 @@ public:
    * @param[in] image Image used by this sampler
    * @param[in] uniformName String with the name of the uniform
    */
-  static Sampler New( Image& image, const std::string& uniformName );
+  static Sampler New();
 
   /**
    * @brief Default constructor, creates an empty handle
@@ -121,34 +121,6 @@ public:
    */
   Sampler& operator=( const Sampler& handle );
 
-  /**
-   * @brief Sets the name of the shader uniform that will use this sampler
-   *
-   * @param[in] name String with the name of the uniform
-   */
-  void SetUniformName( const std::string& name );
-
-  /**
-   * @brief Gets the name of the shader uniform that this sampler uses
-   *
-   * @return Returns the name of the uniform
-   */
-  const std::string& GetUniformName() const;
-
-  /**
-   * @brief Set the image used by this sampler
-   *
-   * @param[in] image Image used by this sampler
-   */
-  void SetImage( Image& image );
-
-  /**
-   * @brief Retrieve the image used by this sampler
-   *
-   * If no image is assigned, an empty handle is returned
-   * @return The image.
-   */
-  Image GetImage() const;
 
   /**
    * @brief Set the filter modes for this sampler
@@ -170,15 +142,6 @@ public:
    * param[in] vWrap Wrap mode for v coordinates
    */
   void SetWrapMode( WrapMode uWrap, WrapMode vWrap );
-
-  /**
-   * @brief Set if this sampler should be considered for opacity hinting
-   *
-   * Calling this function sets the property AFFECTS_TRANSPARENCY
-   *
-   * param[in] affectsTransparency Specifies if this sampler should be considered for opacity hinting
-   */
-  void SetAffectsTransparency( bool affectsTransparency );
 
 public:
   /**

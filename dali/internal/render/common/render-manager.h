@@ -46,6 +46,7 @@ class ShaderSaver;
 namespace Render
 {
 class Renderer;
+class Sampler;
 }
 
 namespace SceneGraph
@@ -148,6 +149,11 @@ public:
    * @post renderer is owned by RenderManager
    */
   void AddRenderer( Render::Renderer* renderer );
+
+  void AddSampler( Render::Sampler* sampler );
+  void RemoveSampler( Render::Sampler* sampler );
+  void SetFilterMode( Render::Sampler* sampler, unsigned int minFilterMode, unsigned int magFilterMode );
+  void SetWrapMode( Render::Sampler* sampler, unsigned int uWrapMode, unsigned int vWrapMode );
 
   /**
    * Remove a Renderer from the render manager.

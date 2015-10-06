@@ -25,7 +25,10 @@
 #include <dali/internal/event/common/property-helper.h> // DALI_PROPERTY_TABLE_BEGIN, DALI_PROPERTY, DALI_PROPERTY_TABLE_END
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/internal/update/rendering/scene-graph-material.h>
-#include <dali/internal/update/rendering/scene-graph-sampler.h>
+//#include <dali/internal/update/rendering/scene-graph-sampler.h>
+
+//EXTERNAL INCLUDES
+#include <string>
 
 namespace Dali
 {
@@ -83,35 +86,87 @@ Shader* Material::GetShader() const
   return mShader.Get();
 }
 
-void Material::AddSampler( Sampler& sampler )
+size_t Material::AddTexture( Image* image, const std::string& uniformName, Sampler* sampler )
 {
-  SamplerConnector connector;
-  connector.Set( sampler, OnStage() );
-  mSamplerConnectors.push_back( connector );
+  Texture texture( uniformName, image, sampler );
+  size_t index = mTextures.size();
+  mTextures.push_back(texture);
 
-  SceneGraph::Sampler& sceneGraphSampler = *sampler.GetSamplerSceneObject();
-  SceneGraph::AddSamplerMessage( GetEventThreadServices(), *mSceneObject, sceneGraphSampler );
-}
+  size_t nameSize( uniformName.size() );
+  char* name = new char[nameSize+1];
+  strcpy(name, uniformName.c_str() );
 
-std::size_t Material::GetNumberOfSamplers() const
-{
-  return mSamplerConnectors.size();
-}
-
-void Material::RemoveSampler( std::size_t index )
-{
-  if( index < mSamplerConnectors.size() )
+  Render::Sampler* renderSampler(0);
+  if( sampler )
   {
-    SamplerConnectorContainer::iterator iter = mSamplerConnectors.begin() + index;
-    SceneGraph::Sampler& sceneGraphSampler = *iter->Get()->GetSamplerSceneObject();
-    SceneGraph::RemoveSamplerMessage( GetEventThreadServices(), *mSceneObject, sceneGraphSampler );
-    mSamplerConnectors.erase( iter );
+    renderSampler = sampler->GetSamplerRenderObject();
+  }
+
+  SceneGraph::AddTextureMessage( GetEventThreadServices(), *mSceneObject, name, image->GetResourceId(), renderSampler );
+
+  return index;
+}
+
+void Material::RemoveTexture( size_t index )
+{
+  if( index < GetNumberOfTextures() )
+  {
+    SceneGraph::RemoveTextureMessage( GetEventThreadServices(), *mSceneObject, index );
   }
 }
 
-Sampler* Material::GetSamplerAt( unsigned int index ) const
+void Material::SetImage( size_t index, Image* image )
 {
-  return mSamplerConnectors[index].Get().Get();
+  if( index < GetNumberOfTextures() )
+  {
+    mTextures[index].mImage.Reset(image);
+    SceneGraph::SetTextureImageMessage( GetEventThreadServices(), *mSceneObject, index, mTextures[index].mImage.Get()->GetResourceId() );
+  }
+}
+
+void Material::SetSampler( size_t index, Sampler* sampler )
+{
+  if( index < GetNumberOfTextures() )
+  {
+    mTextures[index].mSampler.Reset(sampler);
+
+    Render::Sampler* renderSampler(0);
+    if( sampler )
+    {
+      renderSampler = sampler->GetSamplerRenderObject();
+    }
+    SceneGraph::SetTextureSamplerMessage( GetEventThreadServices(), *mSceneObject, index,  renderSampler );
+  }
+}
+
+void Material::SetTextureUniformName( size_t index, std::string& uniformName )
+{
+  if( index < GetNumberOfTextures() )
+  {
+    size_t nameSize( uniformName.size() );
+    char* name = new char[nameSize+1];
+    strcpy(name, uniformName.c_str() );
+    SceneGraph::SetTextureUniformNameMessage( GetEventThreadServices(), *mSceneObject, index,  name );
+  }
+}
+
+int Material::GetTextureIndex( const std::string& uniformName )
+{
+  size_t textureCount(GetNumberOfTextures());
+  for( size_t i(0); i<textureCount; ++i )
+  {
+    if( uniformName.compare( mTextures[i].mUniformName ) == 0 )
+    {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+void Material::SetTextureAffectsTransparency( size_t index, bool affectsTransparency )
+{
+  SceneGraph::SetTextureAffectsTransparencyMessage( GetEventThreadServices(), *mSceneObject, index,  affectsTransparency );
 }
 
 void Material::SetFaceCullingMode( Dali::Material::FaceCullingMode cullingMode )
@@ -546,27 +601,11 @@ bool Material::OnStage() const
 void Material::Connect()
 {
   mOnStage = true;
-
-  SamplerConnectorContainer::const_iterator end = mSamplerConnectors.end();
-  for( SamplerConnectorContainer::iterator it = mSamplerConnectors.begin();
-       it < end;
-       ++it )
-  {
-    it->OnStageConnect();
-  }
 }
 
 void Material::Disconnect()
 {
   mOnStage = false;
-
-  SamplerConnectorContainer::const_iterator end = mSamplerConnectors.end();
-  for( SamplerConnectorContainer::iterator it = mSamplerConnectors.begin();
-       it < end;
-       ++it )
-  {
-    it->OnStageDisconnect();
-  }
 }
 
 Material::Material()

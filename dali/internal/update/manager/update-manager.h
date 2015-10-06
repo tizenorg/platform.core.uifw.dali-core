@@ -57,6 +57,10 @@ class CompleteNotificationInterface;
 class ResourceManager;
 class TouchResampler;
 
+namespace Render
+{
+class Sampler;
+}
 // value types used by messages
 template <> struct ParameterType< PropertyNotification::NotifyMode >
 : public BasicType< PropertyNotification::NotifyMode > {};
@@ -74,7 +78,6 @@ class TextureCache;
 class Geometry;
 class PropertyBuffer;
 class Material;
-class Sampler;
 
 /**
  * UpdateManager maintains a scene graph i.e. a tree of nodes and attachments and
@@ -265,13 +268,6 @@ public:
   ObjectOwnerContainer< Material >& GetMaterialOwner();
 
   /**
-   * @brief Get the sampler owner
-   *
-   * @return The sampler owner
-   */
-  ObjectOwnerContainer< Sampler >& GetSamplerOwner();
-
-  /**
    * @brief Get the property buffer owner
    *
    * @return The property buffer owner
@@ -369,6 +365,11 @@ public:
    * @return True if there are messages to process.
    */
   bool FlushQueue();
+
+  void AddSampler( Render::Sampler* sampler );
+  void RemoveSampler( Render::Sampler* sampler );
+  void SetFilterMode( Render::Sampler* sampler, unsigned int minFilterMode, unsigned int magFilterMode );
+  void SetWrapMode( Render::Sampler* sampler, unsigned int uWrapMode, unsigned int vWrapMode );
 
 public:
 
@@ -816,6 +817,51 @@ inline void RemoveMessage( UpdateManager& manager, ObjectOwnerContainer<T>& owne
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &owner, &ObjectOwnerContainer<T>::Remove, &object );
 }
+
+inline void AddSamplerMessage( UpdateManager& manager, Render::Sampler& sampler )
+{
+  typedef MessageValue1< UpdateManager, Render::Sampler* > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::AddSampler, &sampler );
+}
+
+inline void RemoveSamplerMessage( UpdateManager& manager, Render::Sampler& sampler )
+{
+  typedef MessageValue1< UpdateManager, Render::Sampler* > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::RemoveSampler, &sampler );
+}
+
+inline void SetFilterModeMessage( UpdateManager& manager, Render::Sampler& sampler, unsigned int minFilterMode, unsigned int magFilterMode )
+{
+  typedef MessageValue3< UpdateManager, Render::Sampler*, unsigned int, unsigned int > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::SetFilterMode, &sampler, minFilterMode, magFilterMode );
+}
+
+inline void SetWrapModeMessage( UpdateManager& manager, Render::Sampler& sampler, unsigned int uWrapMode, unsigned int vWrapMode )
+{
+  typedef MessageValue3< UpdateManager, Render::Sampler*, unsigned int, unsigned int  > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::SetWrapMode, &sampler, uWrapMode, vWrapMode );
+}
+
 
 } // namespace SceneGraph
 

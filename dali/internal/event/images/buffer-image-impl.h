@@ -204,13 +204,15 @@ protected: // From Image
 
 private:
 
-  void ValidateBitmap();
+  void ValidateBitmap( const RectArea& area );
 
-  void ReserveBitmap();
+  void ReserveBitmap( const RectArea& area );
 
-  void UpdateBitmap( RectArea& updateArea );
+  void UpdateBitmap( const RectArea& updateArea );
 
   void MirrorExternal( const RectArea& area );
+
+  void MirrorInternal( const RectArea& area );
 
   void UpdateBufferArea( PixelBuffer* src, const RectArea& area );
 
@@ -225,6 +227,7 @@ private:
   uint32_t                     mBytesPerPixel;        ///< width of a pixel in bytes.
   Pixel::Format                mPixelFormat;          ///< pixel format of bitmap.
   ResourcePolicy::Discardable  mResourcePolicy;       ///< whether to discard the pixel buffer when removed from the stage or to retain the data.
+  uint32_t                     mBufferWidth;
 };
 
 } // namespace Internal

@@ -95,10 +95,10 @@ BufferImage::BufferImage(PixelBuffer* pixBuf, unsigned int width, unsigned int h
   mResourcePolicy = releasePol == Dali::Image::UNUSED ? ResourcePolicy::OWNED_DISCARD : ResourcePolicy::OWNED_RETAIN;
 
   // Create a bitmap to hold copy of external buffer
-  ReserveBitmap();
+  RectArea area;
+  ReserveBitmap ( area );
 
   // Take a copy of the external buffer immediately, so it can be released if desired
-  RectArea area;
   MirrorExternal( area );
 }
 
@@ -114,20 +114,20 @@ bool BufferImage::IsDataExternal() const
 
 void BufferImage::Update( RectArea& updateArea )
 {
-  ValidateBitmap();
+  ValidateBitmap( updateArea );
   UpdateBitmap( updateArea );
 
   if (mTicket)
   {
     DALI_ASSERT_DEBUG( updateArea.x + updateArea.width <= mWidth && updateArea.y + updateArea.height <= mHeight );
-    mResourceClient->UpdateBitmapArea( mTicket, updateArea );
+    mResourceClient->UploadBitmap( mTicket->GetId(), mBitmap, updateArea.x, updateArea.y );
 
     // Bitmap ownership has been passed on, so any subsequent update will need another bitmap
     mBitmap = NULL;
   }
 }
 
-void BufferImage::UpdateBitmap( RectArea& updateArea )
+void BufferImage::UpdateBitmap( const RectArea& updateArea )
 {
   if ( mExternalBuffer )
   {
@@ -136,13 +136,13 @@ void BufferImage::UpdateBitmap( RectArea& updateArea )
   else
   {
     // Copy the internal buffer to the bitmap area
-    memcpy( mBitmap->GetBuffer(), mInternalBuffer, mBufferSize );
+    MirrorInternal( updateArea );
   }
 }
 
-void BufferImage::ValidateBitmap()
+void BufferImage::ValidateBitmap( const RectArea& area )
 {
-  ReserveBitmap();
+  ReserveBitmap( area );
   if ( !mTicket )
   {
     mTicket = mResourceClient->AddBitmapImage( mBitmap );
@@ -150,9 +150,9 @@ void BufferImage::ValidateBitmap()
   }
 }
 
-void BufferImage::ReserveBitmap()
+void BufferImage::ReserveBitmap( const RectArea& area )
 {
-   // Does a bitmap currently exist ?
+  // Does a bitmap currently exist ?
   if ( !mBitmap )
   {
     mBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, mResourcePolicy );
@@ -162,22 +162,23 @@ void BufferImage::ReserveBitmap()
   {
     Bitmap::PackedPixelsProfile* const packedBitmap = mBitmap->GetPackedPixelsProfile();
     DALI_ASSERT_DEBUG(packedBitmap);
+    DALI_ASSERT_DEBUG( area.width <= mWidth && area.height <= mHeight );
 
-    packedBitmap->ReserveBuffer( mPixelFormat, mWidth, mHeight, mByteStride / mBytesPerPixel, mHeight );
+    mBufferWidth = area.width ? area.width : mWidth;
+    packedBitmap->ReserveBuffer( mPixelFormat, mBufferWidth, area.height ? area.height : mHeight );
     DALI_ASSERT_DEBUG(mBitmap->GetBuffer() != 0);
-    DALI_ASSERT_DEBUG(mBitmap->GetBufferSize() >= mWidth * mHeight * Pixel::GetBytesPerPixel( mBitmap->GetPixelFormat() ) );
+    DALI_ASSERT_DEBUG(mBitmap->GetBufferSize() >= area.width * area.height * mBytesPerPixel );
   }
 }
 
 void BufferImage::UploadBitmap( ResourceId destId, std::size_t xOffset, std::size_t yOffset )
 {
   // Make sure we have a bitmap for transport
-  ReserveBitmap();
+  RectArea area;
+  ReserveBitmap( area );
 
   // Copy source pixel data into bitmap
-  RectArea area;
   UpdateBitmap( area );
-
   mResourceClient->UploadBitmap( destId, mBitmap, xOffset, yOffset);
   mBitmap = NULL;
 }
@@ -187,16 +188,14 @@ void BufferImage::UpdateBufferArea( PixelBuffer* src, const RectArea& area )
   DALI_ASSERT_DEBUG( area.x + area.width <= mWidth && area.y + area.height <= mHeight );
 
   PixelBuffer* dest = mBitmap->GetBuffer();
-  uint32_t width = area.width * mBytesPerPixel;
-  uint32_t stride = mWidth * mBytesPerPixel;
+  uint32_t width = mBufferWidth * mBytesPerPixel;
 
   src += ( area.y * mByteStride ) + ( area.x * mBytesPerPixel );
-  dest +=( ( area.y * mWidth ) + area.x ) * mBytesPerPixel;
   for ( uint32_t i = 0; i < area.height; ++i )
   {
     memcpy( dest, src, width );
     src += mByteStride;
-    dest += stride;
+    dest += width;
   }
 }
 
@@ -209,6 +208,18 @@ void BufferImage::MirrorExternal( const RectArea& area )
   else
   {
     UpdateBufferArea( mExternalBuffer, area );
+  }
+}
+
+void BufferImage::MirrorInternal( const RectArea& area )
+{
+  if( area.IsEmpty() )
+  {
+    memcpy( mBitmap->GetBuffer(), mInternalBuffer, mBitmap->GetBufferSize() );
+  }
+  else
+  {
+    UpdateBufferArea( mInternalBuffer, area );
   }
 }
 

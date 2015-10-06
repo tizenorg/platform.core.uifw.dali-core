@@ -204,13 +204,15 @@ protected: // From Image
 
 private:
 
-  void ValidateBitmap();
+  void ValidateBitmap( const RectArea& area );
 
-  void ReserveBitmap();
+  void ReserveBitmap( const RectArea& area );
 
-  void UpdateBitmap( RectArea& updateArea );
+  void UpdateBitmap( const RectArea& updateArea );
 
   void MirrorExternal( const RectArea& area );
+
+  void MirrorInternal( const RectArea& area );
 
   void UpdateBufferArea( PixelBuffer* src, const RectArea& area );
 
@@ -219,10 +221,11 @@ private:
   PixelBuffer*                 mInternalBuffer;       ///< NULL if the data is supplied by an external buffer.
   PixelBuffer*                 mExternalBuffer;       ///< NULL if there is no external pixel data (this is never owned by BufferImage).
   ResourceClient*              mResourceClient;       ///< pointer to the resource client.
-  Integration::Bitmap*         mBitmap;               ///< pointer to the bitmap object containing the pixel buffer used to update GL.
+  Integration::Bitmap*         mBitmap;               ///< pointer to the bitmap used for transport.
   uint32_t                     mBufferSize;           ///< size of the pixel buffer.
   uint32_t                     mByteStride;           ///< width of the pixel buffer in bytes.
   uint32_t                     mBytesPerPixel;        ///< width of a pixel in bytes.
+  uint32_t                     mBufferWidth;          ///< cached pixel width of bitmap used for transport.
   Pixel::Format                mPixelFormat;          ///< pixel format of bitmap.
   ResourcePolicy::Discardable  mResourcePolicy;       ///< whether to discard the pixel buffer when removed from the stage or to retain the data.
 };

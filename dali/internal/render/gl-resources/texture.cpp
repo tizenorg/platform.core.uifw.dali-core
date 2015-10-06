@@ -278,6 +278,7 @@ void Texture::ApplyTextureParameter( TextureUnit unit, GLint filterType, FilterM
   }
 }
 
+//@FERRAN: TODO Add Wrap modes
 void Texture::ApplySampler( TextureUnit unit, unsigned int samplerBitfield )
 {
   if( mSamplerBitfield != samplerBitfield && mId != 0 )

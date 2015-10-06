@@ -71,6 +71,7 @@
 #include <dali/internal/render/common/performance-monitor.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
+#include <dali/internal/render/renderers/render.sampler.h>
 
 // Un-comment to enable node tree debug logging
 //#define NODE_TREE_LOGGING 1
@@ -178,7 +179,6 @@ struct UpdateManager::Impl
     renderers( sceneGraphBuffers, discardQueue ),
     geometries( sceneGraphBuffers, discardQueue ),
     materials( sceneGraphBuffers, discardQueue ),
-    samplers( sceneGraphBuffers, discardQueue ),
     propertyBuffers( sceneGraphBuffers, discardQueue ),
     messageQueue( renderController, sceneGraphBuffers ),
     keepRenderingSeconds( 0.0f ),
@@ -195,7 +195,6 @@ struct UpdateManager::Impl
     geometries.SetSceneController( *sceneController );
     materials.SetSceneController( *sceneController );
     propertyBuffers.SetSceneController( *sceneController );
-    samplers.SetSceneController( *sceneController );
   }
 
   ~Impl()
@@ -277,7 +276,6 @@ struct UpdateManager::Impl
   ObjectOwnerContainer<Renderer>      renderers;
   ObjectOwnerContainer<Geometry>      geometries;                    ///< A container of geometries
   ObjectOwnerContainer<Material>      materials;                     ///< A container of materials
-  ObjectOwnerContainer<Sampler>       samplers;                      ///< A container of samplers
   ObjectOwnerContainer<PropertyBuffer> propertyBuffers;              ///< A container of property buffers
 
   ShaderContainer                     shaders;                       ///< A container of owned shaders
@@ -555,11 +553,6 @@ ObjectOwnerContainer<Material>& UpdateManager::GetMaterialOwner()
   return mImpl->materials;
 }
 
-ObjectOwnerContainer<Sampler>& UpdateManager::GetSamplerOwner()
-{
-  return mImpl->samplers;
-}
-
 ObjectOwnerContainer<PropertyBuffer>& UpdateManager::GetPropertyBufferOwner()
 {
   return mImpl->propertyBuffers;
@@ -757,7 +750,6 @@ void UpdateManager::ResetProperties( BufferIndex bufferIndex )
   mImpl->materials.ResetToBaseValues( bufferIndex );
   mImpl->geometries.ResetToBaseValues( bufferIndex );
   mImpl->propertyBuffers.ResetToBaseValues( bufferIndex );
-  mImpl->samplers.ResetToBaseValues( bufferIndex );
   mImpl->renderers.ResetToBaseValues( bufferIndex );
 
 
@@ -875,7 +867,6 @@ void UpdateManager::ApplyConstraints( BufferIndex bufferIndex )
   // Constrain Materials and geometries
   mImpl->materials.ConstrainObjects( bufferIndex );
   mImpl->geometries.ConstrainObjects( bufferIndex );
-  mImpl->samplers.ConstrainObjects( bufferIndex );
   mImpl->propertyBuffers.ConstrainObjects( bufferIndex );
   mImpl->renderers.ConstrainObjects( bufferIndex );
 
@@ -1004,7 +995,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   mImpl->touchResampler.Update();
   const bool gestureUpdated = ProcessGestures( bufferIndex, lastVSyncTimeMilliseconds, nextVSyncTimeMilliseconds );
 
-  const bool updateScene =                                  // The scene-graph requires an update if..
+  bool updateScene =                                  // The scene-graph requires an update if..
       (mImpl->nodeDirtyFlags & RenderableUpdateFlags) ||    // ..nodes were dirty in previous frame OR
       IsAnimationRunning()                            ||    // ..at least one animation is running OR
       mImpl->messageQueue.IsSceneUpdateRequired()     ||    // ..a message that modifies the scene graph node tree is queued OR
@@ -1012,6 +1003,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
       gestureUpdated;                                       // ..a gesture property was updated
 
 
+  updateScene = true;
   // Although the scene-graph may not require an update, we still need to synchronize double-buffered
   // values if the scene was updated in the previous frame.
   if( updateScene || mImpl->previousUpdateScene )
@@ -1225,6 +1217,28 @@ void UpdateManager::SetLayerDepths( const SortedLayerPointers& layers, bool syst
 void UpdateManager::SetShaderSaver( ShaderSaver& upstream )
 {
   mImpl->shaderSaver = &upstream;
+}
+
+void UpdateManager::AddSampler( Render::Sampler* sampler )
+{
+  typedef MessageValue1< RenderManager, Render::Sampler* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::AddSampler, sampler );
+}
+
+void UpdateManager::RemoveSampler( Render::Sampler* sampler )
+{
+  typedef MessageValue1< RenderManager, Render::Sampler* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::RemoveSampler, sampler );
 }
 
 } // namespace SceneGraph

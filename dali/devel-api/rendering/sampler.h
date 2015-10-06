@@ -85,7 +85,7 @@ public:
    * @param[in] image Image used by this sampler
    * @param[in] uniformName String with the name of the uniform
    */
-  static Sampler New( Image& image, const std::string& uniformName );
+  static Sampler New();
 
   /**
    * @brief Default constructor, creates an empty handle
@@ -121,34 +121,6 @@ public:
    */
   Sampler& operator=( const Sampler& handle );
 
-  /**
-   * @brief Sets the name of the shader uniform that will use this sampler
-   *
-   * @param[in] name String with the name of the uniform
-   */
-  void SetUniformName( const std::string& name );
-
-  /**
-   * @brief Gets the name of the shader uniform that this sampler uses
-   *
-   * @return Returns the name of the uniform
-   */
-  const std::string& GetUniformName() const;
-
-  /**
-   * @brief Set the image used by this sampler
-   *
-   * @param[in] image Image used by this sampler
-   */
-  void SetImage( Image& image );
-
-  /**
-   * @brief Retrieve the image used by this sampler
-   *
-   * If no image is assigned, an empty handle is returned
-   * @return The image.
-   */
-  Image GetImage() const;
 
   /**
    * @brief Set the filter modes for this sampler
@@ -171,14 +143,14 @@ public:
    */
   void SetWrapMode( WrapMode uWrap, WrapMode vWrap );
 
-  /**
-   * @brief Set if this sampler should be considered for opacity hinting
-   *
-   * Calling this function sets the property AFFECTS_TRANSPARENCY
-   *
-   * param[in] affectsTransparency Specifies if this sampler should be considered for opacity hinting
-   */
-  void SetAffectsTransparency( bool affectsTransparency );
+//  /**
+//   * @brief Set if this sampler should be considered for opacity hinting
+//   *
+//   * Calling this function sets the property AFFECTS_TRANSPARENCY
+//   *
+//   * param[in] affectsTransparency Specifies if this sampler should be considered for opacity hinting
+//   */
+//  void SetAffectsTransparency( bool affectsTransparency );
 
 public:
   /**

@@ -84,7 +84,18 @@ public:
     sortAttributes.shader = &( mRenderDataProvider->GetShader() );
     const SceneGraph::RenderDataProvider::Samplers& samplers = mRenderDataProvider->GetSamplers();
 
-    sortAttributes.textureResourceId = samplers.Empty() ? Integration::InvalidResourceId : samplers[ 0 ]->GetTextureId( bufferIndex );
+    const SceneGraph::SamplerDataProvider* sampler = 0;
+    if( !samplers.Empty() )
+    {
+      sampler = samplers[0];
+      sortAttributes.textureResourceId = sampler->GetTextureId( bufferIndex );
+    }
+    else
+    {
+      sortAttributes.textureResourceId = Integration::InvalidResourceId;
+    }
+
+    //sortAttributes.textureResourceId = samplers.Empty() ? Integration::InvalidResourceId : samplers[ 0 ]->GetTextureId( bufferIndex );
     sortAttributes.geometry = mRenderGeometry;
   }
 
@@ -170,6 +181,8 @@ private:
                      Program& program,
                      const SceneGraph::RenderDataProvider::Samplers& samplers );
 
+  void BindTextures( SceneGraph::TextureCache& textureCache, Program& program );
+
   /**
    * Bind a material texture to a texture unit, and set the sampler's texture uniform
    * to that texture unit.
@@ -183,7 +196,7 @@ private:
   void BindTexture( SceneGraph::TextureCache& textureCache,
                     Program& program,
                     ResourceId id,
-                    Texture* texture,
+                    Internal::Texture* texture,
                     TextureUnit textureUnit,
                     unsigned int nameIndex );
 
@@ -195,7 +208,7 @@ private:
    * @param[in] sampler The sampler from which to get the modes.
    */
   void ApplySampler( BufferIndex bufferIndex,
-                     Texture* texture,
+                     Internal::Texture* texture,
                      TextureUnit textureUnit,
                      const SceneGraph::SamplerDataProvider& sampler );
 
@@ -209,6 +222,7 @@ private:
   unsigned int GetTextureUnitUniformIndex( Program& program,
                                            const SceneGraph::SamplerDataProvider& sampler );
 
+  unsigned int GetTextureUniformIndex( Program& program, std::string uniformName );
 
 
 public: //@todo MESH_REWORK make private after merge with SceneGraph::Renderer

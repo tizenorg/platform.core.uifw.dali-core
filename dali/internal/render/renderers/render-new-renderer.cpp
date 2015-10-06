@@ -23,6 +23,7 @@
 #include <dali/internal/render/gl-resources/texture.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/shaders/program.h>
+#include <dali/internal/render/renderers/render.sampler.h>
 
 namespace Dali
 {
@@ -119,7 +120,8 @@ void NewRenderer::DoSetBlending( Context& context, BufferIndex bufferIndex, bool
 
 void NewRenderer::DoRender( Context& context, SceneGraph::TextureCache& textureCache, const SceneGraph::NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
 {
-  BindTextures( textureCache, bufferIndex, program, mRenderDataProvider->GetSamplers() );
+  //BindTextures( textureCache, bufferIndex, program, mRenderDataProvider->GetSamplers() );
+  BindTextures( textureCache, program );
 
   SetUniforms( bufferIndex, node, program );
 
@@ -278,6 +280,57 @@ void NewRenderer::SetUniformFromProperty( BufferIndex bufferIndex, Program& prog
   }
 }
 
+
+
+void NewRenderer::BindTextures(
+  SceneGraph::TextureCache& textureCache,
+  Program& program )
+{
+  // @todo MESH_REWORK Write a cache of texture units to commonly used sampler textures
+  unsigned int textureUnit = 0;
+
+  const std::vector<Render::Texture>& textures( mRenderDataProvider->GetTextures());
+  for( size_t i(0); i<textures.size(); ++i )
+  {
+    ResourceId textureId = textures[i].GetTextureId();
+    Internal::Texture* texture = textureCache.GetTexture( textureId );
+    if( texture )
+    {
+      unsigned int uniformIndex = GetTextureUniformIndex( program, textures[i].GetUniformName() );
+
+      textureCache.BindTexture( texture, textureId, GL_TEXTURE_2D, (TextureUnit)textureUnit );
+
+
+      // Set sampler uniform location for the texture
+      GLint textureUnitLoc = program.GetUniformLocation( uniformIndex );
+      if( Program::UNIFORM_UNKNOWN != textureUnitLoc )
+      {
+        program.SetUniform1i( textureUnitLoc, textureUnit );
+      }
+
+      unsigned int samplerBitfield(0);
+      const Render::Sampler* sampler( textures[i].GetSampler() );
+      if( sampler )
+      {
+        samplerBitfield = ImageSampler::PackBitfield(
+          static_cast< FilterMode::Type >(sampler->GetMinifyFilterMode()),
+          static_cast< FilterMode::Type >(sampler->GetMagnifyFilterMode()) );
+      }
+      else
+      {
+        samplerBitfield = ImageSampler::PackBitfield(
+            static_cast< FilterMode::Type >(Dali::Sampler::DEFAULT),
+            static_cast< FilterMode::Type >(Dali::Sampler::DEFAULT) );
+      }
+
+      texture->ApplySampler( (TextureUnit)textureUnit, samplerBitfield );
+
+      ++textureUnit;
+    }
+  }
+}
+
+
 void NewRenderer::BindTextures(
     SceneGraph::TextureCache& textureCache,
   BufferIndex bufferIndex,
@@ -293,7 +346,7 @@ void NewRenderer::BindTextures(
   {
     const SceneGraph::SamplerDataProvider* sampler = *iter;
     ResourceId textureId = sampler->GetTextureId(bufferIndex);
-    Texture* texture = textureCache.GetTexture( textureId );
+    Internal::Texture* texture = textureCache.GetTexture( textureId );
     if( texture != NULL )
     {
       unsigned int textureUnitUniformIndex = GetTextureUnitUniformIndex( program, *sampler );
@@ -310,7 +363,7 @@ void NewRenderer::BindTexture(
   SceneGraph::TextureCache& textureCache,
   Program& program,
   ResourceId id,
-  Texture* texture,
+  Internal::Texture* texture,
   TextureUnit textureUnit,
   unsigned int textureUnitUniformIndex )
 {
@@ -329,7 +382,7 @@ void NewRenderer::BindTexture(
 
 void NewRenderer::ApplySampler(
   BufferIndex bufferIndex,
-  Texture*    texture,
+  Internal::Texture* texture,
   TextureUnit textureUnit,
   const SceneGraph::SamplerDataProvider& sampler )
 {
@@ -340,6 +393,11 @@ void NewRenderer::ApplySampler(
   texture->ApplySampler( textureUnit, samplerBitfield );
 
   // @todo MESH_REWORK add support for wrap modes
+}
+
+unsigned int NewRenderer::GetTextureUniformIndex( Program& program, std::string uniformName )
+{
+  return program.RegisterUniform( uniformName );
 }
 
 unsigned int NewRenderer::GetTextureUnitUniformIndex(

@@ -71,27 +71,92 @@ Shader Material::GetShader() const
   return Dali::Shader( shaderPtr );
 }
 
-void Material::AddSampler( Sampler& sampler )
+//void Material::AddSampler( Sampler& sampler )
+//{
+//  DALI_ASSERT_ALWAYS( sampler && "Sampler handle is uninitialized" );
+//  GetImplementation(*this).AddSampler( GetImplementation( sampler ) );
+//}
+//
+//std::size_t Material::GetNumberOfSamplers() const
+//{
+//  return GetImplementation(*this).GetNumberOfSamplers();
+//}
+//
+//void Material::RemoveSampler( std::size_t index )
+//{
+//  GetImplementation(*this).RemoveSampler( index );
+//}
+
+//Sampler Material::GetSamplerAt( unsigned int index ) const
+//{
+//  Internal::Sampler* samplerPtr( GetImplementation(*this).GetSamplerAt(index) );
+//  return Dali::Sampler( samplerPtr );
+//}
+
+size_t Material::AddTexture( Image image, std::string uniformName, Sampler sampler)
 {
-  DALI_ASSERT_ALWAYS( sampler && "Sampler handle is uninitialized" );
-  GetImplementation(*this).AddSampler( GetImplementation( sampler ) );
+  Internal::Image* imagePtr(0);
+  if( image )
+  {
+     imagePtr = &GetImplementation( image );
+  }
+
+  Internal::Sampler* samplerPtr(0);
+  if( sampler )
+  {
+    samplerPtr = &GetImplementation( sampler );
+  }
+
+  return GetImplementation(*this).AddTexture( imagePtr, uniformName, samplerPtr );
 }
 
-std::size_t Material::GetNumberOfSamplers() const
+void Material::RemoveTexture( size_t index )
 {
-  return GetImplementation(*this).GetNumberOfSamplers();
+  GetImplementation(*this).RemoveTexture( index );
 }
 
-void Material::RemoveSampler( std::size_t index )
+void Material::SetTextureImage( size_t index, Image image )
 {
-  GetImplementation(*this).RemoveSampler( index );
+  Internal::Image* imagePtr(0);
+  if( image )
+  {
+    imagePtr = &GetImplementation( image );
+  }
+
+  GetImplementation(*this).SetImage( index, imagePtr );
 }
 
-Sampler Material::GetSamplerAt( unsigned int index ) const
+void Material::SetTextureSampler( size_t index, Sampler sampler )
 {
-  Internal::Sampler* samplerPtr( GetImplementation(*this).GetSamplerAt(index) );
-  return Dali::Sampler( samplerPtr );
+  Internal::Sampler* samplerPtr(0);
+  if( sampler )
+  {
+    samplerPtr = &GetImplementation( sampler );
+  }
+
+  GetImplementation(*this).SetSampler( index, samplerPtr );
 }
+
+void Material::SetTextureUniformName( size_t index, std::string& uniformName )
+{
+  GetImplementation(*this).SetTextureUniformName( index, uniformName );
+}
+
+int Material::GetTextureIndex( const std::string& uniformName )
+{
+  return GetImplementation(*this).GetTextureIndex( uniformName );
+}
+
+void Material::SetTextureAffectsTransparency( size_t index, bool affectsTransparency )
+{
+  GetImplementation(*this).SetTextureAffectsTransparency( index, affectsTransparency );
+}
+
+std::size_t Material::GetNumberOfTextures() const
+{
+  return GetImplementation(*this).GetNumberOfTextures();
+}
+
 
 void Material::SetFaceCullingMode( FaceCullingMode cullingMode )
 {

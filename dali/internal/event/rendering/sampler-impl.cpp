@@ -25,6 +25,7 @@
 #include <dali/internal/event/common/property-helper.h> // DALI_PROPERTY_TABLE_BEGIN, DALI_PROPERTY, DALI_PROPERTY_TABLE_END
 #include <dali/internal/update/rendering/scene-graph-sampler.h> // Dali::Internal::SceneGraph::Sampler
 #include <dali/internal/update/manager/update-manager.h>
+#include <dali/internal/render/renderers/render.sampler.h>
 
 namespace Dali
 {
@@ -56,49 +57,42 @@ TypeRegistration mType( typeid( Dali::Sampler ), typeid( Dali::Handle ), Create 
 
 } // unnamed namespace
 
-SamplerPtr Sampler::New( const std::string& textureUnitUniformName )
+SamplerPtr Sampler::New( )
 {
   SamplerPtr sampler( new Sampler() );
-  sampler->Initialize( textureUnitUniformName );
+  sampler->Initialize();
   return sampler;
 }
 
-void Sampler::SetTextureUnitUniformName( const std::string& name )
-{
-  SetTextureUnitUniformNameMessage( GetEventThreadServices(), *mSceneObject, name);
-}
-
-const std::string& Sampler::GetTextureUnitUniformName() const
-{
-  return mSceneObject->GetTextureUnitUniformName();
-}
-
-void Sampler::SetImage( ImagePtr& image )
-{
-  // Keep a reference to the image object
-  mImageConnector.Set( image, OnStage() );
-
-  // sceneObject is being used in a separate thread; queue a message to set
-  if( mOnStage )
-  {
-    unsigned int resourceId = image->GetResourceId();
-    if( resourceId != 0 )
-    {
-      SetTextureMessage( GetEventThreadServices(), *mSceneObject, resourceId );
-    }
-  }
-}
-
-ImagePtr Sampler::GetImage() const
-{
-  return mImageConnector.Get();
-}
+//
+//void Sampler::SetImage( ImagePtr& image )
+//{
+//  // Keep a reference to the image object
+//  mImageConnector.Set( image, OnStage() );
+//
+//  // sceneObject is being used in a separate thread; queue a message to set
+//  if( mOnStage )
+//  {
+//    unsigned int resourceId = image->GetResourceId();
+//    if( resourceId != 0 )
+//    {
+//      //FERRAN: TODO
+//     // SetTextureMessage( GetEventThreadServices(), *mSceneObject, resourceId );
+//    }
+//  }
+//}
+//
+//ImagePtr Sampler::GetImage() const
+//{
+//  return mImageConnector.Get();
+//}
 
 void Sampler::SetFilterMode( Dali::Sampler::FilterMode minFilter, Dali::Sampler::FilterMode magFilter )
 {
   if( NULL != mSceneObject )
   {
-    SetFilterModeMessage( GetEventThreadServices(), *mSceneObject, minFilter, magFilter );
+    //FERRAN: TODO
+    //SetFilterModeMessage( GetEventThreadServices(), *mSceneObject, minFilter, magFilter );
   }
 }
 
@@ -106,27 +100,29 @@ void Sampler::SetWrapMode( Dali::Sampler::WrapMode uWrap, Dali::Sampler::WrapMod
 {
   if( NULL != mSceneObject )
   {
-    SetWrapModeMessage( GetEventThreadServices(), *mSceneObject, uWrap, vWrap );
+    //FERRAN: TODO
+    //SetWrapModeMessage( GetEventThreadServices(), *mSceneObject, uWrap, vWrap );
   }
 }
+//
+//void Sampler::SetAffectsTransparency( bool affectsTransparency )
+//{
+//  if( NULL != mSceneObject )
+//  {
+//    //SceneGraph::DoubleBufferedPropertyMessage<bool>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mAffectsTransparency, &SceneGraph::DoubleBufferedProperty<bool>::Set, affectsTransparency );
+//    //SceneGraph::DoubleBufferedPropertyMessage<bool>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mAffectsTransparency, &SceneGraph::DoubleBufferedProperty<bool>::Set, affectsTransparency );
+//  }
+//}
 
-void Sampler::SetAffectsTransparency( bool affectsTransparency )
-{
-  if( NULL != mSceneObject )
-  {
-    SceneGraph::DoubleBufferedPropertyMessage<bool>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mAffectsTransparency, &SceneGraph::DoubleBufferedProperty<bool>::Set, affectsTransparency );
-  }
-}
-
-const SceneGraph::Sampler* Sampler::GetSamplerSceneObject() const
-{
-  return mSceneObject;
-}
-
-SceneGraph::Sampler* Sampler::GetSamplerSceneObject()
-{
-  return mSceneObject;
-}
+//const SceneGraph::Sampler* Sampler::GetSamplerSceneObject() const
+//{
+//  return mSceneObject;
+//}
+//
+//SceneGraph::Sampler* Sampler::GetSamplerSceneObject()
+//{
+//  return mSceneObject;
+//}
 
 unsigned int Sampler::GetDefaultPropertyCount() const
 {
@@ -171,34 +167,34 @@ Property::Type Sampler::GetDefaultPropertyType( Property::Index index ) const
 void Sampler::SetDefaultProperty( Property::Index index,
                                   const Property::Value& propertyValue )
 {
-  switch( index )
-  {
-    case Dali::Sampler::Property::MINIFICATION_FILTER:
-    {
-      SceneGraph::DoubleBufferedPropertyMessage<int>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mMinFilter, &SceneGraph::DoubleBufferedProperty<int>::Set, propertyValue.Get<int>() );
-      break;
-    }
-    case Dali::Sampler::Property::MAGNIGICATION_FILTER:
-    {
-      SceneGraph::DoubleBufferedPropertyMessage<int>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mMagFilter, &SceneGraph::DoubleBufferedProperty<int>::Set, propertyValue.Get<int>() );
-      break;
-    }
-    case Dali::Sampler::Property::U_WRAP:
-    {
-      SceneGraph::DoubleBufferedPropertyMessage<int>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mUWrapMode, &SceneGraph::DoubleBufferedProperty<int>::Set, propertyValue.Get<int>() );
-      break;
-    }
-    case Dali::Sampler::Property::V_WRAP:
-    {
-      SceneGraph::DoubleBufferedPropertyMessage<int>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mVWrapMode, &SceneGraph::DoubleBufferedProperty<int>::Set, propertyValue.Get<int>() );
-      break;
-    }
-    case Dali::Sampler::Property::AFFECTS_TRANSPARENCY:
-    {
-      SceneGraph::DoubleBufferedPropertyMessage<bool>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mAffectsTransparency, &SceneGraph::DoubleBufferedProperty<bool>::Set, propertyValue.Get<bool>() );
-      break;
-    }
-  }
+//  switch( index )
+//  {
+//    case Dali::Sampler::Property::MINIFICATION_FILTER:
+//    {
+//      SceneGraph::DoubleBufferedPropertyMessage<int>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mMinFilter, &SceneGraph::DoubleBufferedProperty<int>::Set, propertyValue.Get<int>() );
+//      break;
+//    }
+//    case Dali::Sampler::Property::MAGNIGICATION_FILTER:
+//    {
+//      SceneGraph::DoubleBufferedPropertyMessage<int>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mMagFilter, &SceneGraph::DoubleBufferedProperty<int>::Set, propertyValue.Get<int>() );
+//      break;
+//    }
+//    case Dali::Sampler::Property::U_WRAP:
+//    {
+//      SceneGraph::DoubleBufferedPropertyMessage<int>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mUWrapMode, &SceneGraph::DoubleBufferedProperty<int>::Set, propertyValue.Get<int>() );
+//      break;
+//    }
+//    case Dali::Sampler::Property::V_WRAP:
+//    {
+//      SceneGraph::DoubleBufferedPropertyMessage<int>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mVWrapMode, &SceneGraph::DoubleBufferedProperty<int>::Set, propertyValue.Get<int>() );
+//      break;
+//    }
+//    case Dali::Sampler::Property::AFFECTS_TRANSPARENCY:
+//    {
+//      SceneGraph::DoubleBufferedPropertyMessage<bool>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mAffectsTransparency, &SceneGraph::DoubleBufferedProperty<bool>::Set, propertyValue.Get<bool>() );
+//      break;
+//    }
+//  }
 }
 
 void Sampler::SetSceneGraphProperty( Property::Index index,
@@ -211,34 +207,34 @@ void Sampler::SetSceneGraphProperty( Property::Index index,
 
 Property::Value Sampler::GetDefaultProperty( Property::Index index ) const
 {
-  BufferIndex bufferIndex = GetEventThreadServices().GetEventBufferIndex();
+  //BufferIndex bufferIndex = GetEventThreadServices().GetEventBufferIndex();
   Property::Value value;
 
   switch( index )
   {
     case Dali::Sampler::Property::MINIFICATION_FILTER:
     {
-      value = mSceneObject->mMinFilter[bufferIndex];
+      value = mSceneObject->mMinFilter;
       break;
     }
     case Dali::Sampler::Property::MAGNIGICATION_FILTER:
     {
-      value = mSceneObject->mMagFilter[bufferIndex];
+      value = mSceneObject->mMagFilter;
       break;
     }
     case Dali::Sampler::Property::U_WRAP:
     {
-      value = mSceneObject->mUWrapMode[bufferIndex];
+      value = mSceneObject->mUWrapMode;
       break;
     }
     case Dali::Sampler::Property::V_WRAP:
     {
-      value = mSceneObject->mVWrapMode[bufferIndex];
+      value = mSceneObject->mVWrapMode;
       break;
     }
     case Dali::Sampler::Property::AFFECTS_TRANSPARENCY:
     {
-      value = mSceneObject->mAffectsTransparency[bufferIndex];
+      value = true;//mSceneObject->mAffectsTransparency;
       break;
     }
   }
@@ -247,12 +243,12 @@ Property::Value Sampler::GetDefaultProperty( Property::Index index ) const
 
 const SceneGraph::PropertyOwner* Sampler::GetPropertyOwner() const
 {
-  return mSceneObject;
+  return 0;
 }
 
 const SceneGraph::PropertyOwner* Sampler::GetSceneObject() const
 {
-  return mSceneObject;
+  return 0;
 }
 
 const SceneGraph::PropertyBase* Sampler::GetSceneObjectAnimatableProperty( Property::Index index ) const
@@ -281,48 +277,48 @@ const SceneGraph::PropertyBase* Sampler::GetSceneObjectAnimatableProperty( Prope
 const PropertyInputImpl* Sampler::GetSceneObjectInputProperty( Property::Index index ) const
 {
   const PropertyInputImpl* property = NULL;
-
-  if( OnStage() )
-  {
-    const SceneGraph::PropertyBase* baseProperty =
-      SAMPLER_IMPL.GetRegisteredSceneGraphProperty( this,
-                                                    &Sampler::FindAnimatableProperty,
-                                                    &Sampler::FindCustomProperty,
-                                                    index );
-    property = static_cast<const PropertyInputImpl*>( baseProperty );
-
-    if( property == NULL && index < DEFAULT_PROPERTY_MAX_COUNT )
-    {
-      switch( index )
-      {
-        case Dali::Sampler::Property::MINIFICATION_FILTER:
-        {
-          property = &mSceneObject->mMinFilter;
-          break;
-        }
-        case Dali::Sampler::Property::MAGNIGICATION_FILTER:
-        {
-          property = &mSceneObject->mMagFilter;
-          break;
-        }
-        case Dali::Sampler::Property::U_WRAP:
-        {
-          property = &mSceneObject->mUWrapMode;
-          break;
-        }
-        case Dali::Sampler::Property::V_WRAP:
-        {
-          property = &mSceneObject->mVWrapMode;
-          break;
-        }
-        case Dali::Sampler::Property::AFFECTS_TRANSPARENCY:
-        {
-          property = &mSceneObject->mAffectsTransparency;
-          break;
-        }
-      }
-    }
-  }
+//
+//  if( OnStage() )
+//  {
+//    const SceneGraph::PropertyBase* baseProperty =
+//      SAMPLER_IMPL.GetRegisteredSceneGraphProperty( this,
+//                                                    &Sampler::FindAnimatableProperty,
+//                                                    &Sampler::FindCustomProperty,
+//                                                    index );
+//    property = static_cast<const PropertyInputImpl*>( baseProperty );
+//
+//    if( property == NULL && index < DEFAULT_PROPERTY_MAX_COUNT )
+//    {
+//      switch( index )
+//      {
+//        case Dali::Sampler::Property::MINIFICATION_FILTER:
+//        {
+//          property = &mSceneObject->mMinFilter;
+//          break;
+//        }
+//        case Dali::Sampler::Property::MAGNIGICATION_FILTER:
+//        {
+//          property = &mSceneObject->mMagFilter;
+//          break;
+//        }
+//        case Dali::Sampler::Property::U_WRAP:
+//        {
+//          property = &mSceneObject->mUWrapMode;
+//          break;
+//        }
+//        case Dali::Sampler::Property::V_WRAP:
+//        {
+//          property = &mSceneObject->mVWrapMode;
+//          break;
+//        }
+//        case Dali::Sampler::Property::AFFECTS_TRANSPARENCY:
+//        {
+//          property = &mSceneObject->mAffectsTransparency;
+//          break;
+//        }
+//      }
+//    }
+//  }
 
   return property;
 }
@@ -344,8 +340,8 @@ void Sampler::Connect()
   mImageConnector.OnStageConnect();
 
   // sceneObject is being used in a separate thread; queue a message to set
-  unsigned int resourceId = mImageConnector.Get()->GetResourceId();
-  SetTextureMessage( GetEventThreadServices(), *mSceneObject, resourceId );
+  //unsigned int resourceId = mImageConnector.Get()->GetResourceId();
+  //SetTextureMessage( GetEventThreadServices(), *mSceneObject, resourceId );
 }
 
 void Sampler::Disconnect()
@@ -361,13 +357,13 @@ Sampler::Sampler()
 {
 }
 
-void Sampler::Initialize( const std::string& textureUnitUniformName )
+void Sampler::Initialize()
 {
   EventThreadServices& eventThreadServices = GetEventThreadServices();
   SceneGraph::UpdateManager& updateManager = eventThreadServices.GetUpdateManager();
 
-  mSceneObject = new SceneGraph::Sampler( textureUnitUniformName );
-  AddMessage( updateManager, updateManager.GetSamplerOwner(), *mSceneObject );
+  mSceneObject = new Render::Sampler();
+  AddSamplerMessage( updateManager, *mSceneObject );
 
   eventThreadServices.RegisterObject( this );
 }
@@ -378,7 +374,7 @@ Sampler::~Sampler()
   {
     EventThreadServices& eventThreadServices = GetEventThreadServices();
     SceneGraph::UpdateManager& updateManager = eventThreadServices.GetUpdateManager();
-    RemoveMessage( updateManager, updateManager.GetSamplerOwner(), *mSceneObject );
+    RemoveSamplerMessage( updateManager, *mSceneObject );
 
     eventThreadServices.UnregisterObject( this );
   }

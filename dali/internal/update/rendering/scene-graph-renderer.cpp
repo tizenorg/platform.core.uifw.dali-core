@@ -148,28 +148,28 @@ void Renderer::PrepareRender( BufferIndex updateBufferIndex )
       AddMappings( localMap, rendererUniformMap );
 
       AddMappings( localMap, mMaterial->GetUniformMap() );
-      Vector<Sampler*>& samplers = mMaterial->GetSamplers();
-      unsigned int samplerCount( samplers.Size() );
-      for( unsigned int i(0); i<samplerCount; ++i )
-      {
-        AddMappings( localMap, samplers[i]->GetUniformMap() );
-      }
+//      Vector<Sampler*>& samplers = mMaterial->GetSamplers();
+//      unsigned int samplerCount( samplers.Size() );
+//      for( unsigned int i(0); i<samplerCount; ++i )
+//      {
+//        AddMappings( localMap, samplers[i]->GetUniformMap() );
+//      }
 
       AddMappings( localMap, mMaterial->GetShader()->GetUniformMap() );
       AddMappings( localMap, mGeometry->GetUniformMap() );
 
-      Vector<PropertyBuffer*>& vertexBuffers = mGeometry->GetVertexBuffers();
-      unsigned int vertexBufferCount( vertexBuffers.Size() );
-      for( unsigned int i(0); i<vertexBufferCount; ++i )
-      {
-        AddMappings( localMap, vertexBuffers[i]->GetUniformMap() );
-      }
-
-      PropertyBuffer* indexBuffer = mGeometry->GetIndexBuffer();
-      if( indexBuffer )
-      {
-        AddMappings( localMap, indexBuffer->GetUniformMap() );
-      }
+//      Vector<PropertyBuffer*>& vertexBuffers = mGeometry->GetVertexBuffers();
+//      unsigned int vertexBufferCount( vertexBuffers.Size() );
+//      for( unsigned int i(0); i<vertexBufferCount; ++i )
+//      {
+//        AddMappings( localMap, vertexBuffers[i]->GetUniformMap() );
+//      }
+//
+//      PropertyBuffer* indexBuffer = mGeometry->GetIndexBuffer();
+//      if( indexBuffer )
+//      {
+//        AddMappings( localMap, indexBuffer->GetUniformMap() );
+//      }
     }
     else if( mRegenerateUniformMap == COPY_UNIFORM_MAP )
     {
@@ -306,13 +306,25 @@ RenderDataProvider* Renderer::NewRenderDataProvider()
   dataProvider->mUniformMapDataProvider = this;
   dataProvider->mShader = mMaterial->GetShader();
 
-  Vector<Sampler*>& samplers = mMaterial->GetSamplers();
-  unsigned int sampleCount( samplers.Count() );
-  dataProvider->mSamplers.Resize( sampleCount );
-  for( unsigned int i(0); i<sampleCount; ++i )
+//  Vector<Sampler*>& samplers = mMaterial->GetSamplers();
+//  unsigned int sampleCount( samplers.Count() );
+//  dataProvider->mSamplers.Resize( sampleCount );
+//  for( unsigned int i(0); i<sampleCount; ++i )
+//  {
+//    dataProvider->mSamplers[i] = samplers[i]; // Convert from derived type to base type
+//  }
+
+
+
+  size_t textureCount( mMaterial->GetTextureCount() );
+  dataProvider->mTextures.resize( textureCount );
+  for( unsigned int i(0); i<textureCount; ++i )
   {
-    dataProvider->mSamplers[i] = samplers[i]; // Convert from derived type to base type
+    dataProvider->mTextures[i] = Render::Texture( mMaterial->GetUniformName(i),
+                                                  mMaterial->GetTextureId(i),
+                                                  mMaterial->GetSampler(i));
   }
+
 
   return dataProvider;
 }
@@ -348,14 +360,13 @@ void Renderer::PrepareResources( BufferIndex updateBufferIndex, ResourceManager&
     unsigned int neverCount = 0;
     unsigned int frameBufferCount = 0;
 
-    Vector<Sampler*>& samplers = mMaterial->GetSamplers();
-    unsigned int samplerCount( samplers.Size() );
-    for( unsigned int i(0); i<samplerCount; ++i )
+    size_t textureCount( mMaterial->GetTextureCount() );
+    for( unsigned int i(0); i<textureCount; ++i )
     {
-      ResourceId textureId = samplers[i]->GetTextureId( updateBufferIndex );
+      ResourceId textureId = mMaterial->GetTextureId(i);
       BitmapMetadata metaData = resourceManager.GetBitmapMetadata( textureId );
 
-      samplers[i]->SetFullyOpaque( metaData.IsFullyOpaque() );
+      mMaterial->SetIsFullyOpaque( i, metaData.IsFullyOpaque() );
 
       switch( completeStatusManager.GetStatus( textureId ) )
       {
@@ -405,8 +416,8 @@ void Renderer::PrepareResources( BufferIndex updateBufferIndex, ResourceManager&
 
     // We are ready if all samplers are complete, or those that aren't are framebuffers
     // We are complete if all samplers are either complete or will nmResendGeometryever complete
-    mResourcesReady = ( completeCount + frameBufferCount >= samplers.Count() ) ;
-    mFinishedResourceAcquisition = ( completeCount + neverCount >= samplers.Count() );
+    mResourcesReady = ( completeCount + frameBufferCount >= textureCount ) ;
+    mFinishedResourceAcquisition = ( completeCount + neverCount >= textureCount );
   }
 }
 

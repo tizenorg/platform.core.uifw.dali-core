@@ -137,29 +137,41 @@ public:
    * @return The shader used by the material
    */
   Shader GetShader() const;
+//
+//  /**
+//   * @brief Add a sampler to this material
+//   *
+//   * param[in] sampler The sampler to add to this material
+//   */
+//  void AddSampler( Sampler& sampler );
+//
+//  /**
+//   * @brief Get the number of samplers
+//   *
+//   * @return The number of samplers
+//   */
+//  std::size_t GetNumberOfSamplers() const;
+//
+//  /**
+//   * @brief Remove a sampler
+//   *
+//   * The index must be between 0 and GetNumberOfSamplers()-1
+//   *
+//   * @param[in] index The index of the sampler to remove
+//   */
+//  void RemoveSampler( std::size_t index );
 
-  /**
-   * @brief Add a sampler to this material
-   *
-   * param[in] sampler The sampler to add to this material
-   */
-  void AddSampler( Sampler& sampler );
+  size_t AddTexture( Image image, std::string uniformName, Sampler sampler = Sampler() );
+  void RemoveTexture( std::size_t  index );
+  void SetTextureImage( size_t index, Image image );
+  void SetTextureSampler( size_t index, Sampler sampler );
+  void SetTextureUniformName( size_t index, std::string& uniformName );
+  void SetTextureAffectsTransparency( size_t index, bool affectsTransparency );
+  int GetTextureIndex( const std::string& uniformName );
 
-  /**
-   * @brief Get the number of samplers
-   *
-   * @return The number of samplers
-   */
-  std::size_t GetNumberOfSamplers() const;
+  std::size_t GetNumberOfTextures() const;
 
-  /**
-   * @brief Remove a sampler
-   *
-   * The index must be between 0 and GetNumberOfSamplers()-1
-   *
-   * @param[in] index The index of the sampler to remove
-   */
-  void RemoveSampler( std::size_t index );
+  //void SetSampler( size_t index, Sampler sampler);
 
   /**
    * @brief Get the sampler at the given index for this material

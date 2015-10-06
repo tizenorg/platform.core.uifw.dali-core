@@ -74,30 +74,26 @@ Shader* Material::GetShader() const
 
 void Material::AddSampler( Sampler* sampler )
 {
-  mSamplers.PushBack( sampler );
-
-  sampler->AddConnectionObserver( *this );
-  sampler->AddUniformMapObserver( *this );
-
-  mConnectionObservers.ConnectionsChanged(*this);
+//  mSamplers.PushBack( sampler );
+//  mTextureId.PushBack( sampler->GetTextureId(0));
+//  mIsFullyOpaque.PushBack( false );
+//  mConnectionObservers.ConnectionsChanged(*this);
 }
 
 void Material::RemoveSampler( Sampler* sampler )
 {
-  Vector<Sampler*>::Iterator match = std::find( mSamplers.Begin(), mSamplers.End(), sampler );
-
-  DALI_ASSERT_DEBUG( mSamplers.End() != match );
-  if( mSamplers.End() != match )
-  {
-    sampler->RemoveConnectionObserver( *this );
-    sampler->RemoveUniformMapObserver( *this );
-    mSamplers.Erase( match );
-    mConnectionObservers.ConnectionsChanged(*this);
-  }
-  else
-  {
-    DALI_ASSERT_DEBUG( 0 && "Sampler not found" );
-  }
+//  Vector<Sampler*>::Iterator match = std::find( mSamplers.Begin(), mSamplers.End(), sampler );
+//
+//  DALI_ASSERT_DEBUG( mSamplers.End() != match );
+//  if( mSamplers.End() != match )
+//  {
+//    mSamplers.Erase( match );
+//    mConnectionObservers.ConnectionsChanged(*this);
+//  }
+//  else
+//  {
+//    DALI_ASSERT_DEBUG( 0 && "Sampler not found" );
+//  }
 }
 
 void Material::PrepareRender( BufferIndex bufferIndex )
@@ -140,23 +136,17 @@ void Material::PrepareRender( BufferIndex bufferIndex )
 
       if( opaque )
       {
-        // Require that all affecting samplers are opaque
         unsigned int opaqueCount=0;
         unsigned int affectingCount=0;
-
-        for( Vector<Sampler*>::ConstIterator iter = mSamplers.Begin();
-             iter != mSamplers.End(); ++iter )
+        size_t textureCount( GetTextureCount() );
+        for( unsigned int i(0); i<textureCount; ++i )
         {
-          const Sampler* sampler = *iter;
-          if( sampler != NULL )
+          if( mAffectsTransparency[i] )
           {
-            if( sampler->AffectsTransparency( bufferIndex ) )
+            ++affectingCount;
+            if( !mIsFullyOpaque[i] )
             {
-              affectingCount++;
-              if( sampler->IsFullyOpaque( bufferIndex ) )
-              {
-                opaqueCount++;
-              }
+              ++opaqueCount;
             }
           }
         }
@@ -168,10 +158,6 @@ void Material::PrepareRender( BufferIndex bufferIndex )
   }
 }
 
-Vector<Sampler*>& Material::GetSamplers()
-{
-  return mSamplers;
-}
 
 Material::BlendPolicy Material::GetBlendPolicy() const
 {
@@ -228,6 +214,51 @@ BlendingEquation::Type Material::GetBlendEquationAlpha( BufferIndex bufferIndex 
   BlendingOptions blendingOptions;
   blendingOptions.SetBitmask( mBlendingOptions[ bufferIndex ] );
   return blendingOptions.GetBlendEquationAlpha();
+}
+
+void Material::AddTexture( const char* name, ResourceId id, Render::Sampler* sampler )
+{
+  mTextureId.PushBack( id );
+  mUniformName.PushBack( name );
+  mSamplers.PushBack( sampler );
+  mIsFullyOpaque.PushBack( false );
+  mAffectsTransparency.PushBack( true );
+
+  mConnectionObservers.ConnectionsChanged(*this);
+}
+
+void Material::RemoveTexture( size_t index )
+{
+  mTextureId.Erase( mTextureId.Begin()+index );
+  delete[] mUniformName[index];
+  mUniformName.Erase( mUniformName.Begin() + index );
+  mSamplers.Erase( mSamplers.Begin()+index );
+  mIsFullyOpaque.Erase( mIsFullyOpaque.Begin()+index );
+  mAffectsTransparency.Erase( mAffectsTransparency.Begin()+index );
+  mConnectionObservers.ConnectionsChanged( *this );
+}
+
+void Material::SetTextureImage( size_t index, ResourceId id )
+{
+  mTextureId[index] = id;
+  mConnectionObservers.ConnectionsChanged(*this);
+}
+
+void Material::SetTextureSampler( size_t index, Render::Sampler* sampler)
+{
+  mSamplers[index] = sampler;
+  mConnectionObservers.ConnectionsChanged(*this);
+}
+
+void Material::SetTextureUniformName( size_t index, const char* uniformName)
+{
+  if( mUniformName[index] )
+  {
+    delete[] mUniformName[index];
+  }
+
+  mUniformName[index] = uniformName;
+  mConnectionObservers.ConnectionsChanged(*this);
 }
 
 void Material::ConnectToSceneGraph( SceneController& sceneController, BufferIndex bufferIndex )

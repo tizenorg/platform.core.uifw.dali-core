@@ -24,11 +24,9 @@
 namespace Dali
 {
 
-Sampler Sampler::New( Image& image, const std::string& textureUnitUniformName )
+Sampler Sampler::New()
 {
-  Internal::SamplerPtr sampler = Internal::Sampler::New(textureUnitUniformName);
-  Internal::ImagePtr imagePtr = &GetImplementation( image );
-  sampler->SetImage( imagePtr );
+  Internal::SamplerPtr sampler = Internal::Sampler::New();
   return Sampler( sampler.Get() );
 }
 
@@ -56,27 +54,6 @@ Sampler& Sampler::operator=( const Sampler& handle )
   return *this;
 }
 
-void Sampler::SetUniformName( const std::string& name )
-{
-  GetImplementation(*this).SetTextureUnitUniformName( name );
-}
-
-const std::string& Sampler::GetUniformName() const
-{
-  return GetImplementation(*this).GetTextureUnitUniformName();
-}
-
-void Sampler::SetImage( Image& image )
-{
-  Internal::ImagePtr imagePtr = &GetImplementation( image );
-  GetImplementation(*this).SetImage( imagePtr );
-}
-
-Image Sampler::GetImage() const
-{
-  Internal::ImagePtr imagePtr( GetImplementation(*this).GetImage() );
-  return Dali::Image( imagePtr.Get() );
-}
 
 void Sampler::SetFilterMode( FilterMode minFilter, FilterMode magFilter )
 {
@@ -88,10 +65,10 @@ void Sampler::SetWrapMode( WrapMode uWrap, WrapMode vWrap )
   GetImplementation(*this).SetWrapMode( uWrap, vWrap );
 }
 
-void Sampler::SetAffectsTransparency( bool affectsTransparency )
-{
-  GetImplementation(*this).SetAffectsTransparency( affectsTransparency );
-}
+//void Sampler::SetAffectsTransparency( bool affectsTransparency )
+//{
+//  GetImplementation(*this).SetAffectsTransparency( affectsTransparency );
+//}
 
 Sampler::Sampler(Internal::Sampler* pointer)
 : Handle( pointer )

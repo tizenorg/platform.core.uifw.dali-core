@@ -23,6 +23,7 @@
 #include <dali/internal/render/gl-resources/texture.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/shaders/program.h>
+#include <dali/internal/render/renderers/render-sampler.h>
 
 namespace Dali
 {
@@ -119,7 +120,8 @@ void NewRenderer::DoSetBlending( Context& context, BufferIndex bufferIndex, bool
 
 void NewRenderer::DoRender( Context& context, SceneGraph::TextureCache& textureCache, const SceneGraph::NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
 {
-  BindTextures( textureCache, bufferIndex, program, mRenderDataProvider->GetSamplers() );
+  //BindTextures( textureCache, bufferIndex, program, mRenderDataProvider->GetSamplers() );
+  BindTextures( textureCache, program );
 
   SetUniforms( bufferIndex, node, program );
 
@@ -278,104 +280,61 @@ void NewRenderer::SetUniformFromProperty( BufferIndex bufferIndex, Program& prog
   }
 }
 
+
+
 void NewRenderer::BindTextures(
-    SceneGraph::TextureCache& textureCache,
-  BufferIndex bufferIndex,
-  Program& program,
-  const SceneGraph::RenderDataProvider::Samplers& samplers )
+  SceneGraph::TextureCache& textureCache,
+  Program& program )
 {
   // @todo MESH_REWORK Write a cache of texture units to commonly used sampler textures
   unsigned int textureUnit = 0;
 
-  for( SceneGraph::RenderDataProvider::Samplers::Iterator iter = samplers.Begin();
-       iter != samplers.End();
-       ++iter )
+  const std::vector<Render::Texture>& textures( mRenderDataProvider->GetTextures());
+  for( size_t i(0); i<textures.size(); ++i )
   {
-    const SceneGraph::SamplerDataProvider* sampler = *iter;
-    ResourceId textureId = sampler->GetTextureId(bufferIndex);
-    Texture* texture = textureCache.GetTexture( textureId );
-    if( texture != NULL )
+    ResourceId textureId = textures[i].GetTextureId();
+    Internal::Texture* texture = textureCache.GetTexture( textureId );
+    if( texture )
     {
-      unsigned int textureUnitUniformIndex = GetTextureUnitUniformIndex( program, *sampler );
-      TextureUnit theTextureUnit = static_cast<TextureUnit>(textureUnit);
-      BindTexture( textureCache, program, textureId, texture, theTextureUnit, textureUnitUniformIndex );
-      ApplySampler( bufferIndex, texture, theTextureUnit, *sampler );
-    }
+      unsigned int uniformIndex = GetTextureUniformIndex( program, textures[i].GetUniformName() );
 
-    ++textureUnit;
-  }
-}
+      textureCache.BindTexture( texture, textureId, GL_TEXTURE_2D, (TextureUnit)textureUnit );
 
-void NewRenderer::BindTexture(
-  SceneGraph::TextureCache& textureCache,
-  Program& program,
-  ResourceId id,
-  Texture* texture,
-  TextureUnit textureUnit,
-  unsigned int textureUnitUniformIndex )
-{
-  if( texture != NULL )
-  {
-    textureCache.BindTexture( texture, id, GL_TEXTURE_2D, textureUnit );
 
-    // Set sampler uniform location for the texture
-    GLint textureUnitLoc = program.GetUniformLocation( textureUnitUniformIndex );
-    if( Program::UNIFORM_UNKNOWN != textureUnitLoc )
-    {
-      program.SetUniform1i( textureUnitLoc, textureUnit );
-    }
-  }
-}
+      // Set sampler uniform location for the texture
+      GLint textureUnitLoc = program.GetUniformLocation( uniformIndex );
+      if( Program::UNIFORM_UNKNOWN != textureUnitLoc )
+      {
+        program.SetUniform1i( textureUnitLoc, textureUnit );
+      }
 
-void NewRenderer::ApplySampler(
-  BufferIndex bufferIndex,
-  Texture*    texture,
-  TextureUnit textureUnit,
-  const SceneGraph::SamplerDataProvider& sampler )
-{
-  unsigned int samplerBitfield = ImageSampler::PackBitfield(
-    static_cast< FilterMode::Type >(sampler.GetMinifyFilterMode(bufferIndex)),
-    static_cast< FilterMode::Type >(sampler.GetMagnifyFilterMode(bufferIndex)) );
+      unsigned int samplerBitfield(0);
+      const Render::Sampler* sampler( textures[i].GetSampler() );
+      if( sampler )
+      {
+        samplerBitfield = ImageSampler::PackBitfield(
+          static_cast< FilterMode::Type >(sampler->GetMinifyFilterMode()),
+          static_cast< FilterMode::Type >(sampler->GetMagnifyFilterMode()),
+          static_cast< WrapMode::Type >(sampler->GetUWrapMode()),
+          static_cast< WrapMode::Type >(sampler->GetVWrapMode())
+          );
+      }
+      else
+      {
+        samplerBitfield = ImageSampler::PackBitfield(FilterMode::DEFAULT, FilterMode::DEFAULT, WrapMode::DEFAULT, WrapMode::DEFAULT);
+      }
 
-  texture->ApplySampler( textureUnit, samplerBitfield );
+      texture->ApplySampler( (TextureUnit)textureUnit, samplerBitfield );
 
-  // @todo MESH_REWORK add support for wrap modes
-}
-
-unsigned int NewRenderer::GetTextureUnitUniformIndex(
-  Program& program,
-  const SceneGraph::SamplerDataProvider& sampler )
-{
-  // Find sampler in mSamplerNameCache
-  // If it doesn't exist,
-  //   get the index by calling program.RegisterUniform and store it
-  // If it exists, it's index should be set.
-  // @todo Cache should be reset on scene change
-
-  unsigned int uniformIndex = 0;
-  bool found = false;
-
-  for( unsigned int i=0; i< mTextureUnitUniforms.Count(); ++i )
-  {
-    if( mTextureUnitUniforms[i].sampler == &sampler )
-    {
-      uniformIndex = mTextureUnitUniforms[i].index;
-      found = true;
+      ++textureUnit;
     }
   }
-
-  if( ! found )
-  {
-    TextureUnitUniformIndex textureUnitUniformIndex;
-    textureUnitUniformIndex.sampler = &sampler;
-    textureUnitUniformIndex.index = program.RegisterUniform( sampler.GetTextureUnitUniformName() );
-    mTextureUnitUniforms.PushBack( textureUnitUniformIndex );
-    uniformIndex = textureUnitUniformIndex.index;
-  }
-
-  return uniformIndex;
 }
 
+unsigned int NewRenderer::GetTextureUniformIndex( Program& program, std::string uniformName )
+{
+  return program.RegisterUniform( uniformName );
+}
 
 } // SceneGraph
 } // Internal

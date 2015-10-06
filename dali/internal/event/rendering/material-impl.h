@@ -69,26 +69,18 @@ public:
    */
   Shader* GetShader() const;
 
-  /**
-   * @copydoc Dali::Material::AddSampler()
-   */
-  void AddSampler( Sampler& sampler );
+  size_t AddTexture( Image* image, const std::string& uniformName, Sampler* sampler );
+  void RemoveTexture( size_t index );
+  void SetImage( size_t index, Image* image );
+  void SetSampler( size_t index, Sampler* sampler );
+  void SetTextureUniformName( size_t index, std::string& uniformName );
+  int GetTextureIndex( const std::string& uniformName );
+  void SetTextureAffectsTransparency( size_t index, bool affectsTransparency );
 
-  /**
-   * @copydoc Dali::Material::GetNumberOfSamplers()
-   */
-  std::size_t GetNumberOfSamplers() const;
-
-  /**
-   * @copydoc Dali::Material::RemoveSampler()
-   */
-  void RemoveSampler( std::size_t index );
-
-  /**
-   * @copydoc Dali::Material::GetSamplerAt()
-   */
-  Sampler* GetSamplerAt( unsigned int index ) const;
-
+  size_t GetNumberOfTextures() const
+  {
+    return mTextures.size();
+  }
   /**
    * @copydoc Dali::Material::SetFaceCullingMode()
    */
@@ -252,6 +244,26 @@ public: // Functions from Connectable
   virtual void Disconnect();
 
 private: // implementation
+
+  struct Texture
+  {
+    Texture()
+    :mUniformName(""),
+     mImage(NULL),
+     mSampler( NULL )
+    {}
+
+    Texture( std::string name, ImagePtr image, Sampler* sampler )
+    :mUniformName(name),
+     mImage( image ),
+     mSampler( sampler )
+    {}
+
+    std::string mUniformName;
+    ImagePtr    mImage;
+    SamplerPtr  mSampler;
+  };
+
   Material();
 
   /**
@@ -272,15 +284,13 @@ private: // unimplemented methods
 private: //data
   IntrusivePtr<Shader> mShader; ///< Connector that holds the shader used by this material
 
-  typedef ObjectConnector<Sampler> SamplerConnector;
-  typedef std::vector< SamplerConnector > SamplerConnectorContainer;
-  SamplerConnectorContainer mSamplerConnectors; ///< Vector of connectors that hold the samplers used by this material
-
   SceneGraph::Material* mSceneObject;
 
   BlendingMode::Type mBlendingMode; ///< Local store
   BlendingOptions mBlendingOptions; ///< Local copy of blending options bitmask
   bool mOnStage;
+
+  std::vector<Material::Texture> mTextures;
 };
 
 } // namespace Internal

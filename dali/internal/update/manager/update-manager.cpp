@@ -991,6 +991,8 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
   const BufferIndex bufferIndex = mSceneGraphBuffers.GetUpdateBufferIndex();
 
+  mImpl->renderInstructions.DebugGuard( bufferIndex, RENDER_INSTRUCTION_WRITE_START );
+
   // Update the frame time delta on the render thread.
   mImpl->renderManager.SetFrameDeltaTime(elapsedSeconds);
 
@@ -1138,6 +1140,8 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
   // tell the update manager that we're done so the queue can be given to event thread
   mImpl->notificationManager.UpdateCompleted();
+
+  mImpl->renderInstructions.DebugGuard( bufferIndex, RENDER_INSTRUCTION_WRITE_END );
 
   // The update has finished; swap the double-buffering indices
   mSceneGraphBuffers.Swap();

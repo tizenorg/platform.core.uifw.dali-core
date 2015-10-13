@@ -32,6 +32,21 @@ namespace SceneGraph
 {
 class RenderInstruction;
 
+enum RenderInstructionDebugEvent
+{
+  RENDER_INSTRUCTION_READ_START,
+  RENDER_INSTRUCTION_READ_END,
+  RENDER_INSTRUCTION_WRITE_START,
+  RENDER_INSTRUCTION_WRITE_END
+};
+
+enum RenderInstructionDebugState
+{
+  RENDER_INSTRUCTION_UNUSED,
+  RENDER_INSTRUCTION_READING,
+  RENDER_INSTRUCTION_WRITING
+};
+
 /**
  * Class to encapsulate double buffered render instruction data
  */
@@ -48,6 +63,24 @@ public:
    * Destructor
    */
   ~RenderInstructionContainer();
+
+  void DebugGuard( BufferIndex bufferIndex, RenderInstructionDebugEvent state )
+  {
+    if( RENDER_INSTRUCTION_WRITE_START == state )
+    {
+      DALI_ASSERT_ALWAYS( RENDER_INSTRUCTION_UNUSED == mDebugState[ bufferIndex ] && "Invalid write to RenderInstruction" );
+      mDebugState[ bufferIndex ] = RENDER_INSTRUCTION_WRITING;
+    }
+    else if( RENDER_INSTRUCTION_READ_START == state )
+    {
+      DALI_ASSERT_ALWAYS( RENDER_INSTRUCTION_UNUSED == mDebugState[ bufferIndex ] && "Invalid read to RenderInstruction" );
+      mDebugState[ bufferIndex ] = RENDER_INSTRUCTION_READING;
+    }
+    else
+    {
+      mDebugState[ bufferIndex ] = RENDER_INSTRUCTION_UNUSED;
+    }
+  }
 
   /**
    * Reset the container index and reserve space in the container if needed
@@ -81,6 +114,7 @@ private:
   unsigned int mIndex[ 2 ]; ///< count of the elements that have been added
   typedef OwnerContainer< RenderInstruction* > InstructionContainer;
   InstructionContainer mInstructions[ 2 ]; /// Double buffered instruction lists
+  RenderInstructionDebugState mDebugState[ 2 ]; ///< Sanity check that buffers read & write does not occur at the same time
 
 };
 

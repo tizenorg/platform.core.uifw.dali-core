@@ -369,6 +369,8 @@ bool RenderManager::Render( Integration::RenderStatus& status )
   // Core::Render documents that GL context must be current before calling Render
   DALI_ASSERT_DEBUG( mImpl->context.IsGlContextCreated() );
 
+  mImpl->instructions.DebugGuard( mImpl->renderBufferIndex, RENDER_INSTRUCTION_READ_START );
+
   status.SetHasRendered( false );
 
   // Increment the frame count at the beginning of each frame
@@ -455,6 +457,8 @@ bool RenderManager::Render( Integration::RenderStatus& status )
   {
     (*iter)->OnRenderFinished();
   }
+
+  mImpl->instructions.DebugGuard( mImpl->renderBufferIndex, RENDER_INSTRUCTION_READ_END );
 
   /**
    * The rendering has finished; swap to the next buffer.

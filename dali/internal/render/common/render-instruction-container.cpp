@@ -35,6 +35,8 @@ RenderInstructionContainer::RenderInstructionContainer()
   // array initialisation in ctor initializer list not supported until C++ 11
   mIndex[ 0 ] = 0u;
   mIndex[ 1 ] = 0u;
+  mDebugState[ 0 ] = RENDER_INSTRUCTION_UNUSED;
+  mDebugState[ 1 ] = RENDER_INSTRUCTION_UNUSED;
 }
 
 RenderInstructionContainer::~RenderInstructionContainer()

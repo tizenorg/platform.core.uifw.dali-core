@@ -1074,7 +1074,13 @@ int UtcDaliMaterialSetTextureUniformName02(void)
   material.SetTextureUniformName( 0, "sEffectTexture" );
   material.AddTexture( image2, "sTexture2");
 
-    Geometry geometry = CreateQuadGeometry();
+  int textureIndex = material.GetTextureIndex( "sEffectTexture" );
+  DALI_TEST_EQUALS( textureIndex, 0, TEST_LOCATION );
+
+  textureIndex = material.GetTextureIndex( "sTexture2" );
+  DALI_TEST_EQUALS( textureIndex, 1, TEST_LOCATION );
+
+  Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
   Actor actor = Actor::New();
   actor.AddRenderer(renderer);

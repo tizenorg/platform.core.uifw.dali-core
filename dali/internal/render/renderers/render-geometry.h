@@ -24,6 +24,7 @@
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/render/data-providers/render-data-provider.h>
 #include <dali/internal/render/renderers/render-renderer-property-buffer.h>
+#include <dali/internal/render/renderers/render-property-buffer.h>
 
 namespace Dali
 {
@@ -126,6 +127,9 @@ private:
   // PropertyBuffers
   RenderPropertyBufferPtr       mIndexBuffer;
   RenderPropertyBufferContainer mVertexBuffers;
+
+  //Render::PropertyBuffer* mIndexBufer;
+  //Vector<Render::PropertyBuffer*> mVertexBuffers;
 
   // Booleans
   bool mHasBeenUpdated : 1;

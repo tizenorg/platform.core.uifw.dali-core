@@ -156,7 +156,7 @@ void RenderPropertyBuffer::Update( Context& context, BufferIndex bufferIndex )
   {
     if ( ! mGpuBuffer )
     {
-       mGpuBuffer = new GpuBuffer( context, mGpuBufferTarget, mGpuBufferUsage );
+       mGpuBuffer = new GpuBuffer( context );
     }
 
     // Update the GpuBuffer
@@ -181,15 +181,14 @@ void RenderPropertyBuffer::Update( Context& context, BufferIndex bufferIndex )
         data = &(ushortData[0]);
       }
 
-      mGpuBuffer->UpdateDataBuffer( dataSize, data );
-      mGpuBuffer->SetStride( mDataProvider.GetElementSize( bufferIndex ) );
+      mGpuBuffer->UpdateDataBuffer( dataSize, data, mGpuBufferUsage );
     }
   }
 }
 
 void RenderPropertyBuffer::BindBuffer( Context& context )
 {
-  mGpuBuffer->Bind();
+  mGpuBuffer->Bind(mGpuBufferTarget);
 }
 
 unsigned int RenderPropertyBuffer::EnableVertexAttributes( Context& context, BufferIndex bufferIndex, Vector<GLint>& vAttributeLocation, unsigned int locationBase )
@@ -221,24 +220,6 @@ unsigned int RenderPropertyBuffer::EnableVertexAttributes( Context& context, Buf
   return attributeCount;
 }
 
-void RenderPropertyBuffer::UpdateAttributeLocations( Context& context, BufferIndex bufferIndex, Program& program )
-{
-  unsigned int attributeCount = mDataProvider.GetAttributeCount( bufferIndex );
-  mAttributesLocation.Resize( attributeCount );
-
-  for( unsigned int i = 0; i < attributeCount; ++i )
-  {
-    const std::string& attributeName = mDataProvider.GetAttributeName( bufferIndex, i );
-    unsigned int index = program.RegisterCustomAttribute( attributeName );
-    GLint attributeLocation = program.GetCustomAttributeLocation( index );
-
-    if( -1 == attributeLocation )
-    {
-      DALI_LOG_WARNING( "Attribute not found in the shader: %s\n", attributeName.c_str() );
-    }
-    mAttributesLocation[i] = attributeLocation;
-  }
-}
 
 } // namespace SceneGraph
 } // namespace Internal

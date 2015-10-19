@@ -33,6 +33,7 @@ class Context;
 class Program;
 class GpuBuffer;
 
+
 namespace SceneGraph
 {
 class RenderDataProvider;
@@ -126,6 +127,9 @@ private:
   // PropertyBuffers
   RenderPropertyBufferPtr       mIndexBuffer;
   RenderPropertyBufferContainer mVertexBuffers;
+
+  //Render::PropertyBuffer* mIndexBufer;
+  //Vector<Render::PropertyBuffer*> mVertexBuffers;
 
   // Booleans
   bool mHasBeenUpdated : 1;

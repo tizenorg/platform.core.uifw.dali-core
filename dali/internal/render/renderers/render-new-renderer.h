@@ -21,10 +21,12 @@
 #include <dali/integration-api/resource-declarations.h> // For resource id
 #include <dali/internal/common/owner-pointer.h>
 #include <dali/internal/render/data-providers/render-data-provider.h>
+#include <dali/internal/render/gl-resources/context.h>
 #include <dali/internal/render/gl-resources/texture-units.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/internal/render/renderers/render-geometry.h>
 #include <dali/internal/update/manager/prepare-render-instructions.h>
+
 
 namespace Dali
 {

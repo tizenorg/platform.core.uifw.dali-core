@@ -24,6 +24,7 @@
 #include <dali/internal/render/common/post-process-resource-dispatcher.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/render/gl-resources/gpu-buffer.h>
+#include <dali/internal/render/renderers/render-property-buffer.h>
 
 namespace Dali
 {
@@ -185,6 +186,20 @@ public:
   void SetWrapMode( Render::Sampler* sampler, unsigned int uWrapMode, unsigned int vWrapMode );
 
   /**
+   * Add a property buffer to the render manager.
+   * @param[in] propertyBuffer The property buffer to add.
+   * @post propertBuffer is owned by RenderManager
+   */
+  void AddPropertyBuffer( Render::PropertyBuffer* propertyBuffer );
+
+  /**
+   * Remove a property buffer from the render manager.
+   * @param[in] propertyBuffer The property buffer to remove.
+   * @post propertyBuffer is destroyed.
+   */
+  void RemovePropertyBuffer( Render::PropertyBuffer* propertyBuffer );
+
+  /**
    * Add a geometry to the render manager.
    * @param[in] geometry The geometry to add.
    * @post geometry is owned by RenderManager
@@ -205,7 +220,7 @@ public:
    * @param[in] target Specifies the type of the buffer
    * @param[in] usage Specifies how will the buffer be used
    */
-  void AddPropertyBuffer( RenderGeometry* renderGeometry, PropertyBufferDataProvider* propertyBuffer, const GpuBuffer::Target& target, const GpuBuffer::Usage& usage );
+  void AddPropertyBuffer( RenderGeometry* renderGeometry, Render::PropertyBuffer* propertyBuffer, bool isIndexBuffer );
 
   /**
    * Remove a property buffer from a RenderGeometry from the render manager.
@@ -213,7 +228,12 @@ public:
    * @param[in] propertyBuffer The property buffer to remove.
    * @post property buffer is destroyed.
    */
-  void RemovePropertyBuffer( RenderGeometry* renderGeometry, PropertyBufferDataProvider* propertyBuffer );
+  void RemovePropertyBuffer( RenderGeometry* renderGeometry, Render::PropertyBuffer* propertyBuffer );
+
+  void SetPropertyBufferFormat(Render::PropertyBuffer* propertyBuffer, Render::PropertyBuffer::Format* format );
+  void SetPropertyBufferData(Render::PropertyBuffer* propertyBuffer, Dali::Vector<char>* data);
+  void SetPropertyBufferSize(Render::PropertyBuffer* propertyBuffer, size_t size );
+
 
   /**
    * Adds a render tracker to the RenderManager. RenderManager takes ownership of the

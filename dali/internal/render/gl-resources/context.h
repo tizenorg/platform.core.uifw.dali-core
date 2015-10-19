@@ -179,6 +179,17 @@ public:
     }
   }
 
+  void BindCopyWriteBuffer(GLuint buffer)
+  {
+    // Avoid unecessary calls to BindBuffer
+    if (mBoundCopyWriteBufferId != buffer)
+    {
+      mBoundCopyWriteBufferId = buffer;
+
+      LOG_GL("BindBuffer GL_ARRAY_BUFFER %d\n", buffer);
+      CHECK_GL( mGlAbstraction, mGlAbstraction.BindBuffer(GL_COPY_WRITE_BUFFER, buffer) );
+    }
+  }
   /**
    * Wrapper for OpenGL ES 2.0 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ...)
    */
@@ -603,6 +614,7 @@ public:
     mBoundArrayBufferId = 0;
     mBoundElementArrayBufferId = 0;
     mBoundTransformFeedbackBufferId = 0;
+    mBoundCopyWriteBufferId = 0;
   }
 
   /**
@@ -807,6 +819,11 @@ public:
       case GL_TRANSFORM_FEEDBACK_BUFFER:
       {
         result = mBoundTransformFeedbackBufferId;
+        break;
+      }
+      case GL_COPY_WRITE_BUFFER:
+      {
+        result = mBoundCopyWriteBufferId;
         break;
       }
       default:
@@ -1772,6 +1789,7 @@ private: // Data
   GLuint mBoundArrayBufferId;        ///< The ID passed to glBindBuffer(GL_ARRAY_BUFFER)
   GLuint mBoundElementArrayBufferId; ///< The ID passed to glBindBuffer(GL_ELEMENT_ARRAY_BUFFER)
   GLuint mBoundTransformFeedbackBufferId; ///< The ID passed to glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER)
+  GLuint mBoundCopyWriteBufferId;        ///< The ID passed to glBindBuffer(GL_ARRAY_BUFFER)
 
   // glBindTexture() state
   TextureUnit mActiveTextureUnit;

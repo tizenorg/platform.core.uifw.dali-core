@@ -98,17 +98,9 @@ public:
 
 private: // implementation
 
-  /**
-   * Update attribute locations
-   * @param[in] context The GL context
-   * @param[in] bufferIndex The current buffer index
-   * @param[in] program The shader program to query for attribute locations
-   */
-  void UpdateAttributeLocations( Context& context, BufferIndex bufferIndex, Program& program );
 
 private:
   const PropertyBufferDataProvider& mDataProvider;  ///< Data provider used by this property buffer
-  Vector<GLint> mAttributesLocation;                ///< Location of the attributes for the property buffer in this renderer.
 
   OwnerPointer<GpuBuffer> mGpuBuffer;               ///< Pointer to the GpuBuffer associated with this RenderPropertyBuffer
   GpuBuffer::Target mGpuBufferTarget;               ///< The type of GPU buffer to create

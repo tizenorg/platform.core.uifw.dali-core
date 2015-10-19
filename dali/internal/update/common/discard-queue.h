@@ -59,7 +59,6 @@ public:
   typedef OwnerContainer< Shader* > ShaderQueue;
   typedef OwnerContainer< Geometry* > GeometryQueue;
   typedef OwnerContainer< Material* > MaterialQueue;
-  typedef OwnerContainer< PropertyBuffer* > PropertyBufferQueue;
   typedef OwnerContainer< Renderer* > RendererQueue;
 
   /**
@@ -96,12 +95,6 @@ public:
    * A message will be sent to clean up GL resources in the next Render
    */
   void Add( BufferIndex updateBufferIndex, Geometry* geometry );
-
-  /**
-   * Adds an unwanted material to the discard queue.
-   * A message will be sent to clean up GL resources in the next Render.
-   */
-  void Add( BufferIndex updateBufferIndex, PropertyBuffer* material );
 
   /**
    * Adds an unwanted material to the discard queue.
@@ -151,7 +144,6 @@ private:
   ShaderQueue                  mShaderQueue0;
   GeometryQueue                mGeometryQueue0;
   MaterialQueue                mMaterialQueue0;
-  PropertyBufferQueue          mPropertyBufferQueue0;
   RendererQueue                mRendererQueue0;
 
   // Messages are queued here when the update buffer index == 1
@@ -160,7 +152,6 @@ private:
   ShaderQueue                  mShaderQueue1;
   GeometryQueue                mGeometryQueue1;
   MaterialQueue                mMaterialQueue1;
-  PropertyBufferQueue          mPropertyBufferQueue1;
   RendererQueue                mRendererQueue1;
 };
 

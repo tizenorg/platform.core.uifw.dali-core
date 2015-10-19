@@ -33,6 +33,11 @@ class Context;
 class Program;
 class GpuBuffer;
 
+namespace Render
+{
+class PropertyBuffer;
+}
+
 namespace SceneGraph
 {
 class RenderDataProvider;
@@ -78,14 +83,18 @@ public:
    * @param[in] gpuBufferTarget target Specifies the type of the buffer
    * @param[in] gpuBufferUsage usage Specifies how will the buffer be used
    */
-  void AddPropertyBuffer( const PropertyBufferDataProvider* dataProvider, GpuBuffer::Target gpuBufferTarget, GpuBuffer::Usage gpuBufferUsage );
+  void AddPropertyBuffer( Render::PropertyBuffer* propertyBuffer, bool isIndexBuffer );
 
   /**
    * Removes a PropertyBuffer from the geometry
    * @param[in] dataProvider The property buffer to be removed
    */
-  void RemovePropertyBuffer(  const PropertyBufferDataProvider* dataProvider );
+  void RemovePropertyBuffer(  const Render::PropertyBuffer* dataProvider );
 
+//  void AddVertexBuffer();
+//  void RemoveVertexBuffer();
+//  void SetIndexBuffer();
+//  void RemoveIndexBuffer();
   /**
    * Gets the attribute locations on the shader for the attributes defined in the geometry RenderBuffers
    * @param[out] attributeLocation The vector where the attributes locations will be stored
@@ -124,8 +133,8 @@ private:
   const GeometryDataProvider& mGeometryDataProvider;  //Reference to update thread object
 
   // PropertyBuffers
-  RenderPropertyBufferPtr       mIndexBuffer;
-  RenderPropertyBufferContainer mVertexBuffers;
+  Render::PropertyBuffer* mIndexBuffer;
+  Vector<Render::PropertyBuffer*> mVertexBuffers;
 
   // Booleans
   bool mHasBeenUpdated : 1;

@@ -45,7 +45,7 @@ PropertyBuffer::~PropertyBuffer()
 }
 
 PropertyBuffer::PropertyBuffer( const PropertyBuffer& handle )
-: Handle( handle )
+: BaseHandle( handle )
 {
 }
 
@@ -76,7 +76,7 @@ void PropertyBuffer::SetData( const void* data )
 }
 
 PropertyBuffer::PropertyBuffer( Internal::PropertyBuffer* pointer )
-: Handle( pointer )
+: BaseHandle( pointer )
 {
 }
 

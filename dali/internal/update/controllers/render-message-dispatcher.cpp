@@ -87,9 +87,9 @@ void RenderMessageDispatcher::RemoveGeometry( RenderGeometry& renderGeometry )
   new (slot) DerivedType( &mRenderManager, &RenderManager::RemoveGeometry, &renderGeometry );
 }
 
-void RenderMessageDispatcher::AddPropertyBuffer( RenderGeometry& renderGeometry, PropertyBufferDataProvider* propertyBuffer, GpuBuffer::Target target, GpuBuffer::Usage usage )
+void RenderMessageDispatcher::AddPropertyBuffer( RenderGeometry& renderGeometry, Render::PropertyBuffer* propertyBuffer, GpuBuffer::Target target, GpuBuffer::Usage usage )
 {
-  typedef MessageValue4< RenderManager, RenderGeometry*, PropertyBufferDataProvider*, GpuBuffer::Target, GpuBuffer::Usage > DerivedType;
+  typedef MessageValue4< RenderManager, RenderGeometry*, Render::PropertyBuffer*, GpuBuffer::Target, GpuBuffer::Usage > DerivedType;
 
   // Reserve some memory inside the render queue
   unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
@@ -98,9 +98,9 @@ void RenderMessageDispatcher::AddPropertyBuffer( RenderGeometry& renderGeometry,
   new (slot) DerivedType( &mRenderManager, &RenderManager::AddPropertyBuffer, &renderGeometry, propertyBuffer, target, usage );
 }
 
-void RenderMessageDispatcher::RemovePropertyBuffer( RenderGeometry& renderGeometry, PropertyBufferDataProvider* propertyBuffer )
+void RenderMessageDispatcher::RemovePropertyBuffer( RenderGeometry& renderGeometry, Render::PropertyBuffer* propertyBuffer )
 {
-  typedef MessageValue2< RenderManager, RenderGeometry*, PropertyBufferDataProvider* > DerivedType;
+  typedef MessageValue2< RenderManager, RenderGeometry*, Render::PropertyBuffer* > DerivedType;
 
   // Reserve some memory inside the render queue
   unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );

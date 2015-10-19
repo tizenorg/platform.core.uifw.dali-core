@@ -151,18 +151,6 @@ void Renderer::PrepareRender( BufferIndex updateBufferIndex )
       AddMappings( localMap, mMaterial->GetShader()->GetUniformMap() );
       AddMappings( localMap, mGeometry->GetUniformMap() );
 
-      Vector<PropertyBuffer*>& vertexBuffers = mGeometry->GetVertexBuffers();
-      unsigned int vertexBufferCount( vertexBuffers.Size() );
-      for( unsigned int i(0); i<vertexBufferCount; ++i )
-      {
-        AddMappings( localMap, vertexBuffers[i]->GetUniformMap() );
-      }
-
-      PropertyBuffer* indexBuffer = mGeometry->GetIndexBuffer();
-      if( indexBuffer )
-      {
-        AddMappings( localMap, indexBuffer->GetUniformMap() );
-      }
     }
     else if( mRegenerateUniformMap == COPY_UNIFORM_MAP )
     {

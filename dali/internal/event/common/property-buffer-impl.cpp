@@ -42,23 +42,6 @@ namespace
 {
 
 /**
- *            |name    |type             |writable|animatable|constraint-input|enum for index-checking|
- */
-DALI_PROPERTY_TABLE_BEGIN
-DALI_PROPERTY( "size",          INTEGER, true,  false, true,   Dali::PropertyBuffer::Property::SIZE )
-DALI_PROPERTY( "buffer-format", MAP,     false, false, false,  Dali::PropertyBuffer::Property::BUFFER_FORMAT )
-DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
-
-const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> PROPERTY_BUFFER_IMPL = { DEFAULT_PROPERTY_DETAILS };
-
-BaseHandle Create()
-{
-  return Dali::BaseHandle();
-}
-
-TypeRegistration mType( typeid( Dali::PropertyBuffer ), typeid( Dali::Handle ), Create );
-
-/**
  * Calculate the alignment requirements of a type
  *
  * This is used to calculate the memory alignment requirements of a type
@@ -162,9 +145,7 @@ void PropertyBuffer::SetSize( std::size_t size )
 
   SizeChanged();
 
-  SceneGraph::SetSizeMessage( GetEventThreadServices(),
-                              *mSceneObject,
-                              mSize );
+  mEventThreadServices.GetUpdateManager().SetPropertyBufferSize( mRenderObject, mSize );
 }
 
 std::size_t PropertyBuffer::GetSize() const
@@ -181,14 +162,7 @@ void PropertyBuffer::SetData( const void* data )
   const char* source = static_cast<const char*>( data );
   std::copy( source, source + mBuffer.Size(), &mBuffer[0] );
 
-  SceneGraph::SetDataMessage( GetEventThreadServices(),
-                              *mSceneObject,
-                              new SceneGraph::PropertyBuffer::BufferType( mBuffer ) );
-}
-
-const SceneGraph::PropertyBuffer* PropertyBuffer::GetPropertyBufferSceneObject() const
-{
-  return mSceneObject;
+  mEventThreadServices.GetUpdateManager().SetPropertyBufferData( mRenderObject, new Dali::Vector<char>( mBuffer ) );
 }
 
 void PropertyBuffer::SetFormat( Dali::Property::Map& format )
@@ -202,198 +176,26 @@ void PropertyBuffer::SetFormat( Dali::Property::Map& format )
   FormatChanged();
 }
 
-unsigned int PropertyBuffer::GetDefaultPropertyCount() const
-{
-  return PROPERTY_BUFFER_IMPL.GetDefaultPropertyCount();
-}
-
-void PropertyBuffer::GetDefaultPropertyIndices( Property::IndexContainer& indices ) const
-{
-  PROPERTY_BUFFER_IMPL.GetDefaultPropertyIndices( indices );
-}
-
-const char* PropertyBuffer::GetDefaultPropertyName(Property::Index index) const
-{
-  return PROPERTY_BUFFER_IMPL.GetDefaultPropertyName( index );
-}
-
-Property::Index PropertyBuffer::GetDefaultPropertyIndex( const std::string& name ) const
-{
-  return PROPERTY_BUFFER_IMPL.GetDefaultPropertyIndex( name );
-}
-
-bool PropertyBuffer::IsDefaultPropertyWritable( Property::Index index ) const
-{
-  return PROPERTY_BUFFER_IMPL.IsDefaultPropertyWritable( index );
-}
-
-bool PropertyBuffer::IsDefaultPropertyAnimatable( Property::Index index ) const
-{
-  return PROPERTY_BUFFER_IMPL.IsDefaultPropertyAnimatable( index );
-}
-
-bool PropertyBuffer::IsDefaultPropertyAConstraintInput( Property::Index index ) const
-{
-  return PROPERTY_BUFFER_IMPL.IsDefaultPropertyAConstraintInput( index );
-}
-
-Property::Type PropertyBuffer::GetDefaultPropertyType( Property::Index index ) const
-{
-  return PROPERTY_BUFFER_IMPL.GetDefaultPropertyType( index );
-}
-
-void PropertyBuffer::SetDefaultProperty( Property::Index index,
-                                         const Property::Value& propertyValue )
-{
-  switch( index )
-  {
-    case Dali::PropertyBuffer::Property::SIZE:
-    {
-      SetSize( propertyValue.Get<int>() );
-      break;
-    }
-    case Dali::PropertyBuffer::Property::BUFFER_FORMAT:
-    {
-      DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
-      break;
-    }
-  }
-}
-
-void PropertyBuffer::SetSceneGraphProperty( Property::Index index,
-                                            const PropertyMetadata& entry,
-                                            const Property::Value& value )
-{
-  PROPERTY_BUFFER_IMPL.SetSceneGraphProperty( GetEventThreadServices(), this, index, entry, value );
-}
-
-Property::Value PropertyBuffer::GetDefaultProperty( Property::Index index ) const
-{
-  Property::Value value;
-
-  switch( index )
-  {
-    case Dali::PropertyBuffer::Property::SIZE:
-    {
-      value = static_cast<int>( GetSize() );
-      break;
-    }
-    case Dali::PropertyBuffer::Property::BUFFER_FORMAT:
-    {
-      DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
-      break;
-    }
-  }
-  return value;
-}
-
-const SceneGraph::PropertyOwner* PropertyBuffer::GetPropertyOwner() const
-{
-  return mSceneObject;
-}
-
-const SceneGraph::PropertyOwner* PropertyBuffer::GetSceneObject() const
-{
-  return mSceneObject;
-}
-
-const SceneGraph::PropertyBase* PropertyBuffer::GetSceneObjectAnimatableProperty( Property::Index index ) const
-{
-  DALI_ASSERT_ALWAYS( IsPropertyAnimatable(index) && "Property is not animatable" );
-  const SceneGraph::PropertyBase* property = NULL;
-
-  if( OnStage() )
-  {
-    property = PROPERTY_BUFFER_IMPL.GetRegisteredSceneGraphProperty(
-      this,
-      &PropertyBuffer::FindAnimatableProperty,
-      &PropertyBuffer::FindCustomProperty,
-      index );
-
-    if( property == NULL && index < DEFAULT_PROPERTY_MAX_COUNT )
-    {
-      DALI_ASSERT_ALWAYS( 0 && "Property is not animatable" );
-    }
-  }
-
-  return property;
-}
-
-const PropertyInputImpl* PropertyBuffer::GetSceneObjectInputProperty( Property::Index index ) const
-{
-  const PropertyInputImpl* property = NULL;
-
-  if( OnStage() )
-  {
-    const SceneGraph::PropertyBase* baseProperty =
-      PROPERTY_BUFFER_IMPL.GetRegisteredSceneGraphProperty( this,
-                                                            &PropertyBuffer::FindAnimatableProperty,
-                                                            &PropertyBuffer::FindCustomProperty,
-                                                            index );
-    property = static_cast<const PropertyInputImpl*>( baseProperty );
-
-    if( property == NULL && index < DEFAULT_PROPERTY_MAX_COUNT )
-    {
-      if( index == Dali::PropertyBuffer::Property::SIZE )
-      {
-        // @todo MESH_REWORK
-        DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
-      }
-    }
-  }
-
-  return property;
-}
-
-int PropertyBuffer::GetPropertyComponentIndex( Property::Index index ) const
-{
-  return Property::INVALID_COMPONENT_INDEX;
-}
-
-bool PropertyBuffer::OnStage() const
-{
-  return mOnStage;
-}
-
-void PropertyBuffer::Connect()
-{
-  mOnStage = true;
-}
-
-void PropertyBuffer::Disconnect()
-{
-  mOnStage = false;
-}
-
 PropertyBuffer::~PropertyBuffer()
 {
   if( EventThreadServices::IsCoreRunning() )
   {
-    EventThreadServices& eventThreadServices = GetEventThreadServices();
-    SceneGraph::UpdateManager& updateManager = eventThreadServices.GetUpdateManager();
-    RemoveMessage( updateManager, updateManager.GetPropertyBufferOwner(), *mSceneObject );
-
-    eventThreadServices.UnregisterObject( this );
+    mEventThreadServices.GetUpdateManager().RemovePropertyBuffer(mRenderObject);
   }
 }
 
 PropertyBuffer::PropertyBuffer()
-: mSceneObject( NULL ),
-  mBufferFormat( NULL ),
-  mSize( 0 ),
-  mOnStage( false )
+:mEventThreadServices( *Stage::GetCurrent() )
+,mRenderObject(NULL)
+,mBufferFormat( NULL )
+,mSize( 0 )
 {
 }
 
 void PropertyBuffer::Initialize()
 {
-  EventThreadServices& eventThreadServices = GetEventThreadServices();
-  SceneGraph::UpdateManager& updateManager = eventThreadServices.GetUpdateManager();
-
-  mSceneObject = new SceneGraph::PropertyBuffer();
-  AddMessage( updateManager, updateManager.GetPropertyBufferOwner(), *mSceneObject );
-
-  eventThreadServices.RegisterObject( this );
+  mRenderObject = new Render::PropertyBuffer();
+  mEventThreadServices.GetUpdateManager().AddPropertyBuffer(mRenderObject);
 }
 
 void PropertyBuffer::FormatChanged()
@@ -402,8 +204,8 @@ void PropertyBuffer::FormatChanged()
 
   // Create the format
   DALI_ASSERT_DEBUG( mBufferFormat == NULL && "PropertyFormat should not be set yet" );
-  Format* bufferFormat = new Format();
-  bufferFormat->components.resize( numComponents );
+  Render::PropertyBuffer::Format* format = new Render::PropertyBuffer::Format();
+  format->components.resize( numComponents );
 
   unsigned int currentAlignment = 0u;
   unsigned int maxAlignmentRequired = 0u;
@@ -413,7 +215,7 @@ void PropertyBuffer::FormatChanged()
     StringValuePair component = mFormat.GetPair( i );
 
     // Get the name
-    bufferFormat->components[i].name = component.first;
+    format->components[i].name = component.first;
 
     // enums are stored in the map as int
     Property::Type type = Property::Type( component.second.Get<int>() );
@@ -430,9 +232,9 @@ void PropertyBuffer::FormatChanged()
     }
 
     // write to the format
-    bufferFormat->components[i].size = elementSize;
-    bufferFormat->components[i].offset = currentAlignment;
-    bufferFormat->components[i].type = type;
+    format->components[i].size = elementSize;
+    format->components[i].offset = currentAlignment;
+    format->components[i].type = type;
 
     // update offset
     currentAlignment += elementSize;
@@ -456,14 +258,11 @@ void PropertyBuffer::FormatChanged()
   }
 
   // Set the format size
-  bufferFormat->size = currentAlignment;
+  format->size = currentAlignment;
 
-  mBufferFormat = bufferFormat;
+  mBufferFormat = format;
 
-  SceneGraph::SetFormatMessage( GetEventThreadServices(),
-                                *mSceneObject,
-                                bufferFormat );
-
+  mEventThreadServices.GetUpdateManager().SetPropertyBufferFormat( mRenderObject, format );
   if( mSize )
   {
     SizeChanged();

@@ -70,21 +70,9 @@ class PropertyBuffer;
  *  texturedQuadGeometry.SetIndexBuffer( indices );
  *
  */
-class DALI_IMPORT_API PropertyBuffer : public Handle
+class DALI_IMPORT_API PropertyBuffer : public BaseHandle
 {
 public:
-
-  /**
-   * @brief An enumeration of properties belonging to the PropertyBuffer class.
-   */
-  struct Property
-  {
-    enum
-    {
-      SIZE = DEFAULT_OBJECT_PROPERTY_START_INDEX, ///< name "size",           type INTEGER
-      BUFFER_FORMAT,                              ///< name "buffer-format",  type MAP
-    };
-  };
 
   /**
    * @brief Create a PropertyBuffer

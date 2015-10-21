@@ -291,13 +291,13 @@ void Node::ResetDefaultProperties( BufferIndex updateBufferIndex )
   // clear dirty flags in parent origin & anchor point
   mParentOrigin.Clear();
   mAnchorPoint.Clear();
-  // Reset default properties
-  mSize.ResetToBaseValue( updateBufferIndex );
-  mPosition.ResetToBaseValue( updateBufferIndex );
-  mOrientation.ResetToBaseValue( updateBufferIndex );
-  mScale.ResetToBaseValue( updateBufferIndex );
-  mVisible.ResetToBaseValue( updateBufferIndex );
-  mColor.ResetToBaseValue( updateBufferIndex );
+  // Reset default properties, avoiding virtual function penalty
+  mSize.ResetToBaseValueVector3( updateBufferIndex );
+  mPosition.ResetToBaseValueVector3( updateBufferIndex );
+  mOrientation.ResetToBaseValueQuaternion( updateBufferIndex );
+  mScale.ResetToBaseValueVector3( updateBufferIndex );
+  mVisible.ResetToBaseValueBool( updateBufferIndex );
+  mColor.ResetToBaseValueVector4( updateBufferIndex );
 
   mDirtyFlags = NothingFlag;
 }

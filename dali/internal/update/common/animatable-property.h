@@ -170,6 +170,19 @@ public:
   }
 
   /**
+   * Used to avoid virtual function penalty of ResetToBaseValue()
+   */
+  void ResetToBaseValueBool(BufferIndex updateBufferIndex)
+  {
+    if (CLEAN_FLAG != mDirtyFlags)
+    {
+      mValue[updateBufferIndex] = mBaseValue;
+
+      mDirtyFlags = ( mDirtyFlags >> 1 );
+    }
+  }
+
+  /**
    * @copydoc Dali::Internal::PropertyInputImpl::GetBoolean()
    */
   virtual const bool& GetBoolean( BufferIndex bufferIndex ) const
@@ -330,6 +343,19 @@ public:
    * @copydoc Dali::Internal::SceneGraph::PropertyBase::ResetToBaseValue()
    */
   virtual void ResetToBaseValue(BufferIndex updateBufferIndex)
+  {
+    if (CLEAN_FLAG != mDirtyFlags)
+    {
+      mValue[updateBufferIndex] = mBaseValue;
+
+      mDirtyFlags = ( mDirtyFlags >> 1 );
+    }
+  }
+
+  /**
+   * Used to avoid virtual function penalty of ResetToBaseValue()
+   */
+  void ResetToBaseValueInt(BufferIndex updateBufferIndex)
   {
     if (CLEAN_FLAG != mDirtyFlags)
     {
@@ -520,6 +546,19 @@ public:
   }
 
   /**
+   * Used to avoid virtual function penalty of ResetToBaseValue()
+   */
+  void ResetToBaseValueFloat(BufferIndex updateBufferIndex)
+  {
+    if (CLEAN_FLAG != mDirtyFlags)
+    {
+      mValue[updateBufferIndex] = mBaseValue;
+
+      mDirtyFlags = ( mDirtyFlags >> 1 );
+    }
+  }
+
+  /**
    * @copydoc Dali::Internal::PropertyInputImpl::GetFloat()
    */
   virtual const float& GetFloat( BufferIndex bufferIndex ) const
@@ -689,6 +728,19 @@ public:
    * @copydoc Dali::Internal::SceneGraph::PropertyBase::ResetToBaseValue()
    */
   virtual void ResetToBaseValue(BufferIndex updateBufferIndex)
+  {
+    if (CLEAN_FLAG != mDirtyFlags)
+    {
+      mValue[updateBufferIndex] = mBaseValue;
+
+      mDirtyFlags = ( mDirtyFlags >> 1 );
+    }
+  }
+
+  /**
+   * Used to avoid virtual function penalty of ResetToBaseValue()
+   */
+  void ResetToBaseValueVector2(BufferIndex updateBufferIndex)
   {
     if (CLEAN_FLAG != mDirtyFlags)
     {
@@ -956,6 +1008,19 @@ public:
    * @copydoc Dali::Internal::SceneGraph::PropertyBase::ResetToBaseValue()
    */
   virtual void ResetToBaseValue(BufferIndex updateBufferIndex)
+  {
+    if (CLEAN_FLAG != mDirtyFlags)
+    {
+      mValue[updateBufferIndex] = mBaseValue;
+
+      mDirtyFlags = ( mDirtyFlags >> 1 );
+    }
+  }
+
+  /**
+   * Used to avoid virtual function penalty of ResetToBaseValue()
+   */
+  void ResetToBaseValueVector3(BufferIndex updateBufferIndex)
   {
     if (CLEAN_FLAG != mDirtyFlags)
     {
@@ -1278,6 +1343,19 @@ public:
    * @copydoc Dali::Internal::SceneGraph::PropertyBase::ResetToBaseValue()
    */
   virtual void ResetToBaseValue(BufferIndex updateBufferIndex)
+  {
+    if (CLEAN_FLAG != mDirtyFlags)
+    {
+      mValue[updateBufferIndex] = mBaseValue;
+
+      mDirtyFlags = ( mDirtyFlags >> 1 );
+    }
+  }
+
+  /**
+   * Used to avoid virtual function penalty of ResetToBaseValue()
+   */
+  void ResetToBaseValueVector4(BufferIndex updateBufferIndex)
   {
     if (CLEAN_FLAG != mDirtyFlags)
     {
@@ -1668,6 +1746,19 @@ public:
   }
 
   /**
+   * Used to avoid virtual function penalty of ResetToBaseValue()
+   */
+  void ResetToBaseValueQuaternion(BufferIndex updateBufferIndex)
+  {
+    if (CLEAN_FLAG != mDirtyFlags)
+    {
+      mValue[updateBufferIndex] = mBaseValue;
+
+      mDirtyFlags = ( mDirtyFlags >> 1 );
+    }
+  }
+
+  /**
    * @copydoc Dali::PropertyInput::GetQuaternion()
    */
   virtual const Quaternion& GetQuaternion( BufferIndex bufferIndex ) const
@@ -1814,6 +1905,19 @@ public:
    * @copydoc Dali::Internal::SceneGraph::PropertyBase::ResetToBaseValue()
    */
   virtual void ResetToBaseValue(BufferIndex updateBufferIndex)
+  {
+    if (CLEAN_FLAG != mDirtyFlags)
+    {
+      mValue[updateBufferIndex] = mBaseValue;
+
+      mDirtyFlags = ( mDirtyFlags >> 1 );
+    }
+  }
+
+  /**
+   * Used to avoid virtual function penalty of ResetToBaseValue()
+   */
+  void ResetToBaseValueMatrix(BufferIndex updateBufferIndex)
   {
     if (CLEAN_FLAG != mDirtyFlags)
     {
@@ -1974,6 +2078,19 @@ public:
    * @copydoc Dali::Internal::SceneGraph::PropertyBase::ResetToBaseValue()
    */
   virtual void ResetToBaseValue(BufferIndex updateBufferIndex)
+  {
+    if (CLEAN_FLAG != mDirtyFlags)
+    {
+      mValue[updateBufferIndex] = mBaseValue;
+
+      mDirtyFlags = ( mDirtyFlags >> 1 );
+    }
+  }
+
+  /**
+   * Used to avoid virtual function penalty of ResetToBaseValue()
+   */
+  void ResetToBaseValueMatrix3(BufferIndex updateBufferIndex)
   {
     if (CLEAN_FLAG != mDirtyFlags)
     {

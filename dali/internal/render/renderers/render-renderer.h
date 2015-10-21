@@ -79,6 +79,14 @@ public:
   void SetShader( SceneGraph::Shader* shader );
 
   /**
+   * TODO
+   */
+  bool GetBatchingEnabled() const
+  {
+    return false; // TODO
+  }
+
+  /**
    * Set the face-culling mode.
    * @param[in] mode The face-culling mode.
    */

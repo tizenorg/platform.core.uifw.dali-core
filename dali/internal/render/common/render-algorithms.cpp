@@ -102,6 +102,23 @@ inline void SetRenderFlags( const RenderList& renderList, Context& context )
   }
 }
 
+void RenderBatch( const RenderList& renderList,
+                  size_t batchBegin,
+                  size_t batchEnd,
+                  Context& context,
+                  SceneGraph::TextureCache& textureCache,
+                  SceneGraph::Shader& defaultShader,
+                  const Matrix& viewMatrix,
+                  const Matrix& projectionMatrix )
+{
+  size_t count = renderList.Count();
+  for ( size_t index = 0; index < count; ++index )
+  {
+    //const RenderItem& item = renderList.GetItem( index );
+
+    // TODO
+  }
+}
 
 /**
  * Process a render-list.
@@ -132,6 +149,7 @@ inline void ProcessRenderList(
   {
     bool depthBufferEnabled = ( ( renderList.GetFlags() & RenderList::DEPTH_BUFFER_ENABLED ) != 0u );
     size_t count = renderList.Count();
+
     for ( size_t index = 0; index < count; ++index )
     {
       const RenderItem& item = renderList.GetItem( index );
@@ -140,7 +158,25 @@ inline void ProcessRenderList(
       //Enable depth writes if depth buffer is enabled and item is opaque
       context.DepthMask( depthBufferEnabled && item.IsOpaque() );
 
-      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
+      //Check whether batching is enabled for a group of renderers
+      Render::Renderer& renderer = item.GetRenderer();
+      if( renderer.GetBatchingEnabled() )
+      {
+        size_t batchBegin = index;
+        for( ; index < count; ++index )
+        {
+          if( ! renderer.GetBatchingEnabled() )
+          {
+            break;
+          }
+        }
+
+        RenderBatch( renderList, batchBegin, index, context, textureCache, defaultShader, viewMatrix, projectionMatrix  );
+      }
+      else
+      {
+        renderer.Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
+      }
     }
   }
   else

@@ -25,6 +25,13 @@
 #include <dali/internal/render/gl-resources/context.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 
+// FIXME
+#include <dali/public-api/math/matrix.h>
+#include <dali/internal/render/renderers/render-new-renderer.h>
+#include <dali/internal/render/data-providers/render-data-provider.h>
+#include <dali/internal/render/shaders/scene-graph-shader.h>
+#include <dali/internal/render/shaders/program.h>
+
 using Dali::Internal::SceneGraph::RenderItem;
 using Dali::Internal::SceneGraph::RenderList;
 using Dali::Internal::SceneGraph::RenderListContainer;
@@ -38,6 +45,9 @@ namespace Internal
 
 namespace Render
 {
+
+static Matrix gModelViewProjectionMatrix( false ); ///< a shared matrix to calculate the MVP matrix, dont want to store it in object to reduce storage overhead
+static Matrix3 gNormalMatrix; ///< a shared matrix to calculate normal matrix, dont want to store it in object to reduce storage overhead
 
 /**
  * Sets up the scissor test if required.
@@ -102,6 +112,120 @@ inline void SetRenderFlags( const RenderList& renderList, Context& context )
   }
 }
 
+inline void SetMatrices( Program& program,
+                         const Matrix& modelMatrix,
+                         const Matrix& viewMatrix,
+                         const Matrix& projectionMatrix,
+                         const Matrix& modelViewMatrix,
+                         const Matrix& modelViewProjectionMatrix )
+{
+  GLint loc = program.GetUniformLocation(Program::UNIFORM_MODEL_MATRIX);
+  if( Program::UNIFORM_UNKNOWN != loc )
+  {
+    program.SetUniformMatrix4fv( loc, 1, modelMatrix.AsFloat() );
+  }
+  loc = program.GetUniformLocation( Program::UNIFORM_VIEW_MATRIX );
+  if( Program::UNIFORM_UNKNOWN != loc )
+  {
+    if( program.GetViewMatrix() != &viewMatrix )
+    {
+      program.SetViewMatrix( &viewMatrix );
+      program.SetUniformMatrix4fv( loc, 1, viewMatrix.AsFloat() );
+    }
+  }
+  // set projection matrix if program has not yet received it this frame or if it is dirty
+  loc = program.GetUniformLocation( Program::UNIFORM_PROJECTION_MATRIX );
+  if( Program::UNIFORM_UNKNOWN != loc )
+  {
+    if( program.GetProjectionMatrix() != &projectionMatrix )
+    {
+      program.SetProjectionMatrix( &projectionMatrix );
+      program.SetUniformMatrix4fv( loc, 1, projectionMatrix.AsFloat() );
+    }
+  }
+  loc = program.GetUniformLocation(Program::UNIFORM_MODELVIEW_MATRIX);
+  if( Program::UNIFORM_UNKNOWN != loc )
+  {
+    program.SetUniformMatrix4fv( loc, 1, modelViewMatrix.AsFloat() );
+  }
+
+  loc = program.GetUniformLocation( Program::UNIFORM_MVP_MATRIX );
+  if( Program::UNIFORM_UNKNOWN != loc )
+  {
+    program.SetUniformMatrix4fv( loc, 1, modelViewProjectionMatrix.AsFloat() );
+  }
+
+  loc = program.GetUniformLocation( Program::UNIFORM_NORMAL_MATRIX );
+  if( Program::UNIFORM_UNKNOWN != loc )
+  {
+    gNormalMatrix = modelViewMatrix;
+    gNormalMatrix.Invert();
+    gNormalMatrix.Transpose();
+    program.SetUniformMatrix3fv( loc, 1, gNormalMatrix.AsFloat() );
+  }
+}
+
+
+void RenderWithBatching( const RenderList& renderList,
+                         size_t batchBegin,
+                         size_t batchEnd,
+                         Context& context,
+                         SceneGraph::TextureCache& textureCache,
+                         SceneGraph::Shader& defaultShader,
+                         BufferIndex bufferIndex,
+                         const Matrix& viewMatrix,
+                         const Matrix& projectionMatrix )
+{
+  const RenderItem& item = renderList.GetItem( batchBegin );
+
+  Render::NewRenderer& firstRenderer = static_cast< Render::NewRenderer& >( item.GetRenderer() );
+
+  Program* program = firstRenderer.mShader->GetProgram();
+  if( !program )
+  {
+    return;
+  }
+  program->Use();
+
+  const SceneGraph::MaterialDataProvider& material = firstRenderer.mRenderDataProvider->GetMaterial();
+
+  context.SetCustomBlendColor( material.GetBlendColor( bufferIndex ) );
+
+  // Set blend source & destination factors
+  context.BlendFuncSeparate( material.GetBlendSrcFactorRgb( bufferIndex ),
+                             material.GetBlendDestFactorRgb( bufferIndex ),
+                             material.GetBlendSrcFactorAlpha( bufferIndex ),
+                             material.GetBlendDestFactorAlpha( bufferIndex ) );
+
+  // Set blend equations
+  context.BlendEquationSeparate( material.GetBlendEquationRgb( bufferIndex ),
+                                 material.GetBlendEquationAlpha( bufferIndex ) );
+
+  const SceneGraph::NodeDataProvider& node = item.GetNode();
+  const Matrix& modelMatrix = node.GetModelMatrix( bufferIndex );
+  const Matrix& modelViewMatrix = item.GetModelViewMatrix();
+  Matrix::Multiply( gModelViewProjectionMatrix, modelViewMatrix, projectionMatrix );
+
+  SetMatrices( *program, modelMatrix, viewMatrix, projectionMatrix, modelViewMatrix, gModelViewProjectionMatrix );
+
+  // set color uniform
+  GLint loc = program->GetUniformLocation( Program::UNIFORM_COLOR );
+  if( Program::UNIFORM_UNKNOWN != loc )
+  {
+    const Vector4& color = node.GetRenderColor( bufferIndex );
+    program->SetUniform4f( loc, color.r, color.g, color.b, color.a );
+  }
+
+  size_t count = renderList.Count();
+  for ( size_t index = 0; index < count; ++index )
+  {
+    //const RenderItem& item = renderList.GetItem( index );
+
+    //Render::NewRenderer& renderer = static_cast< Render::NewRenderer >( item.GetRenderer() );
+
+    // TODO
+  }
+}
 
 /**
  * Process a render-list.
@@ -132,6 +256,7 @@ inline void ProcessRenderList(
   {
     bool depthBufferEnabled = ( ( renderList.GetFlags() & RenderList::DEPTH_BUFFER_ENABLED ) != 0u );
     size_t count = renderList.Count();
+
     for ( size_t index = 0; index < count; ++index )
     {
       const RenderItem& item = renderList.GetItem( index );
@@ -140,7 +265,26 @@ inline void ProcessRenderList(
       //Enable depth writes if depth buffer is enabled and item is opaque
       context.DepthMask( depthBufferEnabled && item.IsOpaque() );
 
-      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
+      //Check whether batching is enabled for a group of renderers
+      Render::Renderer& renderer = item.GetRenderer();
+      if( renderer.GetBatchingEnabled() )
+      {
+        size_t batchBegin = index;
+        for( ; index < count; ++index )
+        {
+          // TODO - Check that renderers share same shader etc.
+          if( ! renderer.GetBatchingEnabled() )
+          {
+            break;
+          }
+        }
+
+        RenderWithBatching( renderList, batchBegin, index, context, textureCache, defaultShader, bufferIndex, viewMatrix, projectionMatrix  );
+      }
+      else
+      {
+        renderer.Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
+      }
     }
   }
   else

@@ -79,6 +79,14 @@ public:
   void SetShader( SceneGraph::Shader* shader );
 
   /**
+   * TODO
+   */
+  bool GetBatchingEnabled() const
+  {
+    return false; // TODO
+  }
+
+  /**
    * Set the face-culling mode.
    * @param[in] mode The face-culling mode.
    */
@@ -185,7 +193,7 @@ private:
    */
   virtual void DoRender( Context& context, SceneGraph::TextureCache& textureCache, const SceneGraph::NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix ) = 0;
 
-protected:
+public:
 
   Context* mContext;
   SceneGraph::TextureCache* mTextureCache;

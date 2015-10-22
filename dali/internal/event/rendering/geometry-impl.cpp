@@ -38,9 +38,9 @@ namespace
  *            |name                    |type     |writable|animatable|constraint-input|enum for index-checking|
  */
 DALI_PROPERTY_TABLE_BEGIN
-DALI_PROPERTY( "geometry-type",         STRING,   true, false,  true, Dali::Geometry::Property::GEOMETRY_TYPE )
-DALI_PROPERTY( "geometry-center",       VECTOR3,  true, true,   true, Dali::Geometry::Property::GEOMETRY_CENTER )
-DALI_PROPERTY( "requires-depth-test",   BOOLEAN,  true, false,  true, Dali::Geometry::Property::REQUIRES_DEPTH_TEST )
+DALI_PROPERTY( "geometry-type",         STRING,   true, false, false, Dali::Geometry::Property::GEOMETRY_TYPE )
+DALI_PROPERTY( "geometry-center",       VECTOR3,  true, false, false, Dali::Geometry::Property::GEOMETRY_CENTER )
+DALI_PROPERTY( "requires-depth-test",   BOOLEAN,  true, false, false, Dali::Geometry::Property::REQUIRES_DEPTH_TEST )
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> GEOMETRY_IMPL = { DEFAULT_PROPERTY_DETAILS };
@@ -89,38 +89,37 @@ void Geometry::SetIndexBuffer( PropertyBuffer& indexBuffer )
 
 void Geometry::SetGeometryType( Dali::Geometry::GeometryType geometryType )
 {
-  if( NULL != mSceneObject )
+  if( NULL != mSceneObject &&  geometryType != mGeometryType )
   {
-    SceneGraph::DoubleBufferedPropertyMessage<int>::Send(
-      GetEventThreadServices(),
-      mSceneObject,
-      &mSceneObject->mGeometryType,
-      &SceneGraph::DoubleBufferedProperty<int>::Set,
-      static_cast<int>(geometryType) );
+    SceneGraph::SetGeometryTypeMessage(GetEventThreadServices(),
+                                       *mSceneObject,
+                                       geometryType );
+
+    mGeometryType = geometryType;
   }
 }
 
 Dali::Geometry::GeometryType Geometry::GetGeometryType() const
 {
-  return mSceneObject->GetGeometryType(GetEventThreadServices().GetEventBufferIndex());
+  //return mSceneObject->GetGeometryType(GetEventThreadServices().GetEventBufferIndex());
+  return mGeometryType;
 }
 
 void Geometry::SetRequiresDepthTesting( bool requiresDepthTest )
 {
-  if( NULL != mSceneObject )
+  if( NULL != mSceneObject && requiresDepthTest != mRequiresDepthTest )
   {
-    SceneGraph::DoubleBufferedPropertyMessage<bool>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mRequiresDepthTest, &SceneGraph::DoubleBufferedProperty<bool>::Set, static_cast<int>(requiresDepthTest) );
+    SceneGraph::SetGeometryRequiresDepthTestMessage(GetEventThreadServices(),
+                                                    *mSceneObject,
+                                                    requiresDepthTest );
+
+    mRequiresDepthTest = requiresDepthTest;
   }
 }
 
 bool Geometry::GetRequiresDepthTesting() const
 {
-  if( mSceneObject )
-  {
-    // mSceneObject is being used in a separate thread; copy the value from the previous update
-    return mSceneObject->GetRequiresDepthTesting(GetEventThreadServices().GetEventBufferIndex());
-  }
-  return false;
+  return mRequiresDepthTest;
 }
 
 const SceneGraph::Geometry* Geometry::GetGeometrySceneObject() const
@@ -175,17 +174,32 @@ void Geometry::SetDefaultProperty( Property::Index index,
   {
     case Dali::Geometry::Property::GEOMETRY_TYPE :
     {
-      SceneGraph::DoubleBufferedPropertyMessage<int>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mGeometryType, &SceneGraph::DoubleBufferedProperty<int>::Set, propertyValue.Get<int>() );
+      Dali::Geometry::GeometryType geometryType = static_cast<Dali::Geometry::GeometryType>(propertyValue.Get<int>());
+      if( geometryType != mGeometryType )
+      {
+        SceneGraph::SetGeometryTypeMessage(GetEventThreadServices(), *mSceneObject, geometryType );
+        mGeometryType = geometryType;
+      }
       break;
     }
     case Dali::Geometry::Property::GEOMETRY_CENTER :
     {
-      SceneGraph::AnimatablePropertyMessage<Vector3>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mCenter, &SceneGraph::AnimatableProperty<Vector3>::Bake, propertyValue.Get<Vector3>() );
+      Vector3 center = propertyValue.Get<Vector3>();
+      if( center != mCenter )
+      {
+        SceneGraph::SetGeometryCenterMessage(GetEventThreadServices(), *mSceneObject, center );
+        mCenter = center;
+      }
       break;
     }
     case Dali::Geometry::Property::REQUIRES_DEPTH_TEST :
     {
-      SceneGraph::DoubleBufferedPropertyMessage<bool>::Send( GetEventThreadServices(), mSceneObject, &mSceneObject->mRequiresDepthTest, &SceneGraph::DoubleBufferedProperty<bool>::Set, propertyValue.Get<bool>() );
+      bool requiresDepthTest = propertyValue.Get<bool>();
+      if( requiresDepthTest != mRequiresDepthTest )
+      {
+        SceneGraph::SetGeometryRequiresDepthTestMessage(GetEventThreadServices(), *mSceneObject, requiresDepthTest);
+        mRequiresDepthTest = requiresDepthTest;
+      }
       break;
     }
   }
@@ -200,7 +214,6 @@ void Geometry::SetSceneGraphProperty( Property::Index index,
 
 Property::Value Geometry::GetDefaultProperty( Property::Index index ) const
 {
-  BufferIndex bufferIndex = GetEventThreadServices().GetEventBufferIndex();
   Property::Value value;
 
   switch( index )
@@ -209,7 +222,7 @@ Property::Value Geometry::GetDefaultProperty( Property::Index index ) const
     {
       if( mSceneObject )
       {
-        value = mSceneObject->mGeometryType[bufferIndex];
+        value = mGeometryType;
       }
       break;
     }
@@ -217,7 +230,7 @@ Property::Value Geometry::GetDefaultProperty( Property::Index index ) const
     {
       if( mSceneObject )
       {
-        value = mSceneObject->mCenter[bufferIndex];
+        value = mCenter;
       }
       break;
     }
@@ -226,7 +239,7 @@ Property::Value Geometry::GetDefaultProperty( Property::Index index ) const
     {
       if( mSceneObject )
       {
-        value = mSceneObject->mRequiresDepthTest[bufferIndex];
+        value = mRequiresDepthTest;
       }
       break;
     }
@@ -255,70 +268,14 @@ const SceneGraph::PropertyBase* Geometry::GetSceneObjectAnimatableProperty( Prop
                                                                &Geometry::FindAnimatableProperty,
                                                                &Geometry::FindCustomProperty,
                                                                index );
-
-    if( property == NULL && index < DEFAULT_PROPERTY_MAX_COUNT )
-    {
-      switch(index)
-      {
-        case Dali::Geometry::Property::GEOMETRY_CENTER :
-        {
-          property = &mSceneObject->mCenter;
-          break;
-        }
-        default:
-        {
-          DALI_ASSERT_ALWAYS( 0 && "Property is not animatable" );
-          break;
-        }
-      }
-    }
   }
+
   return property;
 }
 
 const PropertyInputImpl* Geometry::GetSceneObjectInputProperty( Property::Index index ) const
 {
-  const PropertyInputImpl* property = NULL;
-
-  if( OnStage() )
-  {
-    const SceneGraph::PropertyBase* baseProperty =
-      GEOMETRY_IMPL.GetRegisteredSceneGraphProperty ( this,
-                                                      &Geometry::FindAnimatableProperty,
-                                                      &Geometry::FindCustomProperty,
-                                                      index );
-
-    property = static_cast<const PropertyInputImpl*>( baseProperty );
-
-    if( property == NULL && index < DEFAULT_PROPERTY_MAX_COUNT )
-    {
-      switch(index)
-      {
-        case Dali::Geometry::Property::GEOMETRY_TYPE :
-        {
-          property = &mSceneObject->mGeometryType;
-          break;
-        }
-        case Dali::Geometry::Property::GEOMETRY_CENTER :
-        {
-          property = &mSceneObject->mCenter;
-          break;
-        }
-        case Dali::Geometry::Property::REQUIRES_DEPTH_TEST :
-        {
-          property = &mSceneObject->mRequiresDepthTest;
-          break;
-        }
-        default:
-        {
-          DALI_ASSERT_ALWAYS( 0 && "Property cannot be a constraint input");
-          break;
-        }
-      }
-    }
-  }
-
-  return property;
+  return NULL;
 }
 
 int Geometry::GetPropertyComponentIndex( Property::Index index ) const
@@ -343,7 +300,10 @@ void Geometry::Disconnect()
 }
 
 Geometry::Geometry()
-: mIndexBuffer( NULL ),
+: mCenter(),
+  mGeometryType(Dali::Geometry::TRIANGLES),
+  mRequiresDepthTest(false),
+  mIndexBuffer( NULL ),
   mSceneObject( NULL ),
   mOnStage( false )
 {

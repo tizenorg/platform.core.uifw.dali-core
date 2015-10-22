@@ -207,7 +207,7 @@ public:
   void AddGeometry( RenderGeometry* geometry );
 
   /**
-   * Remove a geometry from the render manager.
+   * Remove a geometry from the render manager.SetPropertyBufferFormat
    * @param[in] geometry The geometry to remove.
    * @post geometry is destroyed.
    */
@@ -249,6 +249,27 @@ public:
    * @param[in] size The new size of the buffer
    */
   void SetPropertyBufferSize(Render::PropertyBuffer* propertyBuffer, size_t size );
+
+  /**
+   * Set the center of an existing render geometry
+   * @param[in] geometry The render geometry
+   * @param[in] center The new center
+   */
+  void SetGeometryCenter( RenderGeometry* geometry, const Vector3& center );
+
+  /**
+   * Set the geometry type of an existing render geometry
+   * @param[in] geometry The render geometry
+   * @param[in] geometryType The new geometry type
+   */
+  void SetGeometryType( RenderGeometry* geometry, int geometryType );
+
+  /**
+   * Set if an existing geometry requires depth testing
+   * @param[in] geometry The render geometry
+   * @param[in] requiresDepthTest True if depth testing is required, false otherwise
+   */
+  void SetGeometryRequiresDepthTest( RenderGeometry* geometry, bool requiresDepthTest );
 
   /**
    * Adds a render tracker to the RenderManager. RenderManager takes ownership of the

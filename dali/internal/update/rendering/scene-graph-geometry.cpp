@@ -108,9 +108,31 @@ void Geometry::ClearIndexBuffer()
   mConnectionObservers.ConnectionsChanged(*this);
 }
 
-void Geometry::SetGeometryType( BufferIndex bufferIndex, Geometry::GeometryType geometryType )
+void Geometry::SetGeometryType(Geometry::GeometryType geometryType )
 {
-  mGeometryType.Set( bufferIndex, geometryType);
+  mGeometryType = geometryType;
+  if( mRenderGeometry )
+  {
+    mSceneController->GetRenderMessageDispatcher().SetGeometryType( *mRenderGeometry, static_cast<int>(geometryType) );
+  }
+}
+
+void Geometry::SetGeometryCenter( const Vector3& center )
+{
+  mCenter = center;
+  if( mRenderGeometry )
+  {
+    mSceneController->GetRenderMessageDispatcher().SetGeometryCenter( *mRenderGeometry, center );
+  }
+}
+
+void Geometry::SetRequiresDepthTest( bool requiresDepthTest )
+{
+  mRequiresDepthTest = requiresDepthTest;
+  if( mRenderGeometry )
+  {
+    mSceneController->GetRenderMessageDispatcher().SetGeometryRequiresDepthTest( *mRenderGeometry, requiresDepthTest );
+  }
 }
 
 Vector<Render::PropertyBuffer*>& Geometry::GetVertexBuffers()
@@ -125,23 +147,16 @@ Render::PropertyBuffer* Geometry::GetIndexBuffer()
 
 Geometry::GeometryType Geometry::GetGeometryType( BufferIndex bufferIndex) const
 {
-  int geometryType = mGeometryType[ bufferIndex ];
-  return static_cast< GeometryDataProvider::GeometryType > ( geometryType );
+  return mGeometryType;
 }
 
 bool Geometry::GetRequiresDepthTesting( BufferIndex bufferIndex ) const
 {
-  return mRequiresDepthTest.GetBoolean( bufferIndex );
+  return mRequiresDepthTest;
 }
 
 void Geometry::ResetDefaultProperties( BufferIndex updateBufferIndex )
 {
-  // Reset the animated properties
-  mCenter.ResetToBaseValue( updateBufferIndex );
-
-  // Age the double buffered properties
-  mGeometryType.CopyPrevious(updateBufferIndex);
-  mRequiresDepthTest.CopyPrevious(updateBufferIndex);
 }
 
 void Geometry::ConnectToSceneGraph( SceneController& sceneController, BufferIndex bufferIndex )
@@ -175,7 +190,7 @@ RenderGeometry* Geometry::GetRenderGeometry(SceneController* sceneController)
   {
     //Create RenderGeometry
     mSceneController = sceneController;
-    mRenderGeometry = new RenderGeometry( *this );
+    mRenderGeometry = new RenderGeometry( mCenter, mGeometryType, mRequiresDepthTest );
 
     size_t vertexBufferCount( mVertexBuffers.Size() );
     for( size_t i(0); i<vertexBufferCount; ++i )

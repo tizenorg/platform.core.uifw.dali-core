@@ -109,6 +109,39 @@ void RenderMessageDispatcher::RemovePropertyBuffer( RenderGeometry& renderGeomet
   new (slot) DerivedType( &mRenderManager, &RenderManager::RemovePropertyBuffer, &renderGeometry, propertyBuffer );
 }
 
+void RenderMessageDispatcher::SetGeometryCenter( RenderGeometry& geometry, const Vector3& center )
+{
+  typedef MessageValue2< RenderManager, RenderGeometry*, Vector3 > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mRenderManager, &RenderManager::SetGeometryCenter, &geometry, center );
+}
+
+void RenderMessageDispatcher::SetGeometryType( RenderGeometry& geometry, int geometryType )
+{
+  typedef MessageValue2< RenderManager, RenderGeometry*, int > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mRenderManager, &RenderManager::SetGeometryType, &geometry, geometryType );
+}
+
+void RenderMessageDispatcher::SetGeometryRequiresDepthTest( RenderGeometry& geometry, bool requiresDepthTest )
+{
+  typedef MessageValue2< RenderManager, RenderGeometry*, bool > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mRenderManager, &RenderManager::SetGeometryRequiresDepthTest, &geometry, requiresDepthTest );
+}
+
 void RenderMessageDispatcher::AddRenderTracker( RenderTracker& renderTracker )
 {
   typedef MessageValue1< RenderManager, RenderTracker* > DerivedType;

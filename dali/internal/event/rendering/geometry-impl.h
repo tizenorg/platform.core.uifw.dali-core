@@ -221,9 +221,15 @@ private: // unimplemented methods
 
 private: // data
 
-  std::vector<PropertyBufferPtr> mVertexBuffers; ///< Vector of intrusive pointers to vertex buffers
-  PropertyBufferPtr mIndexBuffer;                ///< Intrusive pointer to index buffer
   SceneGraph::Geometry* mSceneObject;
+
+  std::vector<PropertyBufferPtr> mVertexBuffers; ///< Vector of intrusive pointers to vertex buffers
+  PropertyBufferPtr              mIndexBuffer;   ///< Intrusive pointer to index buffer
+
+  Vector3                      mCenter;            ///< Center of the geometry (cached)
+  Dali::Geometry::GeometryType mGeometryType;      ///< Geometry type (cached)
+  bool                         mRequiresDepthTest; ///< Establish if geometry requires depth testing (cached)
+
   bool mOnStage;
 };
 

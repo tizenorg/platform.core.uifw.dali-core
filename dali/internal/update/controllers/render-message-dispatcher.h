@@ -104,6 +104,27 @@ public:
   void RemovePropertyBuffer( RenderGeometry& renderGeometry, Render::PropertyBuffer* propertyBuffer );
 
   /**
+   * Set the geometry type of an existing render geometry
+   * @param[in] geometry The render geometry
+   * @param[in] center The new center
+   */
+  void SetGeometryCenter( RenderGeometry& geometry, const Vector3& center );
+
+  /**
+   * Set the geometry type of an existing render geometry
+   * @param[in] geometry The render geometry
+   * @param[in] geometryType The new geometry type
+   */
+  void SetGeometryType( RenderGeometry& geometry, int geometryType );
+
+  /**
+   * Set if an existing geometry requires depth testing
+   * @param[in] geometry The render geometry
+   * @param[in] requiresDepthTest True if depth testing is required, false otherwise
+   */
+  void SetGeometryRequiresDepthTest( RenderGeometry& geometry, bool requiresDepthTest );
+
+  /**
    * Add a Render tracker.
    * @param[in] renderTracker The render tracker to add.
    * @post ownership is transferred

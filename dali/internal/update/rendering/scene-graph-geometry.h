@@ -26,7 +26,6 @@
 #include <dali/internal/update/common/property-boolean.h>
 #include <dali/internal/update/common/uniform-map.h>
 #include <dali/internal/update/common/scene-graph-connection-change-propagator.h>
-#include <dali/internal/render/data-providers/geometry-data-provider.h>
 #include <dali/internal/render/data-providers/render-data-provider.h>
 
 namespace Dali
@@ -46,10 +45,11 @@ class RenderGeometry;
  * This scene graph object is a property owner. It describes a geometry using a
  * number of PropertyBuffers acting as Vertex buffers.
  */
-class Geometry : public PropertyOwner, public GeometryDataProvider, public UniformMap::Observer
+class Geometry : public PropertyOwner, public UniformMap::Observer
 {
 public:
 
+  typedef Dali::Geometry::GeometryType GeometryType;
   /**
    * Constructor
    */
@@ -88,7 +88,19 @@ public:
    * @param[in] bufferIndex Index for double buffered values
    * @param[in] geometryType The geometry type
    */
-  void SetGeometryType( BufferIndex bufferIndex, GeometryType geometryType );
+  void SetGeometryType( GeometryType geometryType );
+
+  /**
+   * Sets the center of the geometry
+   * @param[in] center The center of the geometry
+   */
+  void SetGeometryCenter( const Vector3& centre );
+
+  /**
+   * Set if the geometry requires depth testing
+   * @param[in] requiresDepthTest True if depth testing is required, false otherwise
+   */
+  void SetRequiresDepthTest( bool requiresDepthTest );
 
   /**
    * Connect the object to the scene graph
@@ -177,9 +189,9 @@ private:
   unsigned int                  mRendererRefCount;
 
 public: // Properties
-  AnimatableProperty<Vector3>   mCenter;
-  DoubleBufferedProperty<int>   mGeometryType;
-  DoubleBufferedProperty<bool>  mRequiresDepthTest;
+  Vector3                 mCenter;
+  Geometry::GeometryType  mGeometryType;
+  bool                    mRequiresDepthTest;
 };
 
 inline void AddVertexBufferMessage( EventThreadServices& eventThreadServices , const Geometry& geometry, const Render::PropertyBuffer& vertexBuffer )
@@ -236,13 +248,35 @@ namespace SceneGraph
 
 inline void SetGeometryTypeMessage( EventThreadServices& eventThreadServices, const Geometry& geometry, SceneGraph::Geometry::GeometryType geometryType )
 {
-  typedef MessageDoubleBuffered1< Geometry, SceneGraph::Geometry::GeometryType > LocalType;
+  typedef MessageValue1< Geometry, SceneGraph::Geometry::GeometryType > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &geometry, &Geometry::SetGeometryType, geometryType );
+}
+
+inline void SetGeometryCenterMessage( EventThreadServices& eventThreadServices, const Geometry& geometry, const Vector3& center )
+{
+  typedef MessageValue1< Geometry, Vector3 > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &geometry, &Geometry::SetGeometryCenter, center );
+}
+
+inline void SetGeometryRequiresDepthTestMessage( EventThreadServices& eventThreadServices, const Geometry& geometry, bool requiresDepthTest )
+{
+  typedef MessageValue1< Geometry, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &geometry, &Geometry::SetRequiresDepthTest, requiresDepthTest );
 }
 
 } // namespace SceneGraph

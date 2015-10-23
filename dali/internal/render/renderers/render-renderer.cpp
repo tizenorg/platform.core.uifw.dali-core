@@ -107,10 +107,11 @@ inline void SetMatrices( Program& program,
 namespace Render
 {
 
-void Renderer::Initialize( Context& context, SceneGraph::TextureCache& textureCache )
+void Renderer::Initialize( Context& context, SceneGraph::TextureCache& textureCache, Render::UniformCache& uniformCache )
 {
   mContext = &context;
   mTextureCache = &textureCache;
+  mUniformCache = &uniformCache;
 }
 
 Renderer::~Renderer()

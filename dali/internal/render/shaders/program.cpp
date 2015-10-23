@@ -112,7 +112,6 @@ Program* Program::New( ProgramCache& cache, Internal::ShaderDataPtr shaderData, 
     program = new Program( cache, shaderData, modifiesGeometry );
 
     // we want to lazy load programs so dont do a Load yet, it gets done in Use()
-
     cache.AddProgram( shaderHash, program );
   }
 
@@ -220,6 +219,32 @@ GLint Program::GetUniformLocation( unsigned int uniformIndex )
     LOG_GL( "GetUniformLocation(program=%d,%s) = %d\n", mProgramId, mUniformLocations[ uniformIndex ].first.c_str(), mUniformLocations[ uniformIndex ].second );
   }
 
+  return location;
+}
+
+GLint Program::GetSamplerUniformLocation( int32_t uniqueIndex, const std::string& samplerName  )
+{
+  // don't accept negative values (should never happen)
+  DALI_ASSERT_DEBUG( 0 <= uniqueIndex );
+  const uint32_t index( uniqueIndex ); // avoid compiler warning of signed vs unsigned comparisons
+
+  GLint location = UNIFORM_NOT_QUERIED;
+
+  // to avoid an extra check mSamplerUniformLocations always has at least one entry
+  if( index < mSamplerUniformLocations.Size() )
+  {
+    location = mSamplerUniformLocations[ index ];
+  }
+  else
+  {
+    // not in cache yet, make space and initialize to not queries
+    mSamplerUniformLocations.Resize( index, location );
+  }
+  if( location == UNIFORM_NOT_QUERIED )
+  {
+    location = CHECK_GL( mGlAbstraction, mGlAbstraction.GetUniformLocation( mProgramId, samplerName.c_str() ) );
+    mSamplerUniformLocations[ index ] = location;
+  }
   return location;
 }
 
@@ -497,6 +522,10 @@ Program::Program( ProgramCache& cache, Internal::ShaderDataPtr shaderData, bool 
   {
     RegisterUniform( gStdUniforms[ i ] );
   }
+
+  // to avoid an extra check, preallocate two SamplerUniformLocations
+  mSamplerUniformLocations.Resize( 2, UNIFORM_NOT_QUERIED );
+
   // reset values
   ResetAttribsUniformCache();
 }
@@ -715,6 +744,11 @@ void Program::ResetAttribsUniformCache()
   {
     // reset gl program locations and names
     mUniformLocations[ i ].second = UNIFORM_NOT_QUERIED;
+  }
+
+  for( unsigned int i = 0; i < mSamplerUniformLocations.Size(); ++i )
+  {
+    mSamplerUniformLocations[ i ] = UNIFORM_NOT_QUERIED;
   }
 
   // reset uniform caches

@@ -34,21 +34,31 @@ class Texture
 public:
 
   /**
+   * Enumeration to tell that this sampler does not have a unique index yet
+   */
+  enum
+  {
+    NOT_INITIALIZED = -1
+  };
+
+  /**
    * Constructor
    */
   Texture()
-  :mUniformName(),
-   mSampler(0),
-   mTextureId(Integration::InvalidResourceId)
+  : mSampler( 0 ),
+    mUniformName(),
+    mTextureId(Integration::InvalidResourceId),
+    mUniformUniqueIndex( NOT_INITIALIZED )
   {}
 
   /**
    * Constructor
    */
   Texture( const std::string& samplerName, Integration::ResourceId textureId, Render::Sampler* sampler )
-  :mUniformName( samplerName ),
-   mSampler( sampler ),
-   mTextureId( textureId)
+  : mSampler( sampler ),
+    mUniformName( samplerName ),
+    mTextureId( textureId),
+    mUniformUniqueIndex( NOT_INITIALIZED )
   {}
 
   /**
@@ -79,18 +89,38 @@ public: // called from RenderThread
 
   /**
    * Get the texture ID
-   * @param[in] bufferIndex The buffer index to use
-   * @return the identity of the associated texture
+   * @return the id of the associated texture
    */
   inline Integration::ResourceId GetTextureId() const
   {
     return mTextureId;
   }
 
+  /**
+   * Get the Uniform unique index
+   * @return the identity of the associated texture
+   */
+  inline void SetUniformUniqueIndex( int32_t index )
+  {
+    mUniformUniqueIndex = index;
+  }
+
+  /**
+   * Get the Uniform unique index
+   * @return the identity of the associated texture
+   */
+  inline int32_t GetUniformUniqueIndex() const
+  {
+    return mUniformUniqueIndex;
+  }
+
 private:
-  std::string             mUniformName;
+
   Render::Sampler*        mSampler;
+  std::string             mUniformName;
   Integration::ResourceId mTextureId;
+  int32_t                 mUniformUniqueIndex;
+
 };
 
 } // namespace SceneGraph

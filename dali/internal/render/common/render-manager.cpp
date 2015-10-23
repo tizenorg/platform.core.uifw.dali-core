@@ -32,6 +32,7 @@
 #include <dali/internal/render/common/render-tracker.h>
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/common/render-instruction.h>
+#include <dali/internal/render/data-providers/uniform-cache.h>
 #include <dali/internal/render/gl-resources/context.h>
 #include <dali/internal/render/gl-resources/frame-buffer-texture.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
@@ -147,6 +148,7 @@ struct RenderManager::Impl
   Context                       context;                  ///< holds the GL state
   RenderQueue                   renderQueue;              ///< A message queue for receiving messages from the update-thread.
   TextureCache                  textureCache;             ///< Cache for all GL textures
+  Render::UniformCache          uniformCache;             ///< Cache to provide unique indices for uniforms
   ResourcePostProcessList&      resourcePostProcessQueue; ///< A queue for requesting resource post processing in update thread
 
   // Render instructions describe what should be rendered during RenderManager::Render()
@@ -259,7 +261,7 @@ void RenderManager::SetDefaultSurfaceRect(const Rect<int>& rect)
 void RenderManager::AddRenderer( Render::Renderer* renderer )
 {
   // Initialize the renderer as we are now in render thread
-  renderer->Initialize( mImpl->context, mImpl->textureCache );
+  renderer->Initialize( mImpl->context, mImpl->textureCache, mImpl->uniformCache );
 
   mImpl->rendererContainer.PushBack( renderer );
 

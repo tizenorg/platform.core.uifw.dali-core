@@ -319,7 +319,7 @@ void NewRenderer::BindTextures(
       }
       else
       {
-        samplerBitfield = ImageSampler::PackBitfield(FilterMode::DEFAULT, FilterMode::DEFAULT, WrapMode::DEFAULT, WrapMode::DEFAULT);
+        samplerBitfield = ImageSampler::DEFAULT;
       }
 
       texture->ApplySampler( (TextureUnit)textureUnit, samplerBitfield );

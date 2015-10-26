@@ -78,6 +78,7 @@ public:
     HINT_OUTPUT_IS_OPAQUE         = 0x04, ///< Outputs opaque colors even if the inputs are transparent
     HINT_MODIFIES_GEOMETRY        = 0x08, ///< Might change position of vertices,
                                           ///< this option disables any culling optimizations
+    HINT_GEOMETRY_BATCHING        = 0x20  ///< Hint that geometry batching can be enabled with this shader
   };
 
   /**

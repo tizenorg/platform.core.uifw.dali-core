@@ -112,7 +112,9 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
   const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
   bool inside = true;
 
-  if ( renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
+  const Shader* shader = renderable.mRenderer->GetMaterial().GetShader();
+
+  if ( shader->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
     const Vector3& position = worldMatrix.GetTranslation3();
     const Vector3& scale = renderable.mNode->GetScale( updateBufferIndex );
@@ -153,6 +155,12 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 
     // save MV matrix onto the item
     Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
+  }
+
+  // Check whether batching is enabled for later
+  if( shader->GeometryHintEnabled( Dali::ShaderEffect::HINT_GEOMETRY_BATCHING ) )
+  {
+    renderList.SetGeometryBatching( true );
   }
 }
 
@@ -388,6 +396,27 @@ inline void SortColorRenderItems( BufferIndex bufferIndex, RenderList& renderLis
   }
 }
 
+void DoBatching( BufferIndex updateBufferIndex,
+                 RenderList& renderList,
+                 NodeRendererContainer& renderers,
+                 SceneGraph::CameraAttachment& cameraAttachment )
+{
+  std::cout << "Begin batching" << std::endl;
+
+  const size_t renderableCount = renderList.Count();
+  RenderItemContainer::Iterator renderListIter = renderList.GetContainer().Begin();
+  for( unsigned int index = 0; index < renderableCount; ++index, ++renderListIter )
+  {
+    Render::Renderer& renderer = (*renderListIter)->GetRenderer();
+    const Shader* shader = renderer.mShader;
+    bool enableBatching( (shader != NULL) ? shader->GeometryHintEnabled( Dali::ShaderEffect::HINT_GEOMETRY_BATCHING ) : false );
+
+    std::cout << "mRenderer " << &renderer << " shader: " << shader << " supports batching: " << enableBatching << std::endl;
+  }
+
+  // TODO
+}
+
 /**
  * Add color renderers from the layer onto the next free render list
  * @param updateBufferIndex to use
@@ -451,6 +480,11 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
 
   renderList.ClearFlags();
   renderList.SetFlags( flags );
+
+  if( renderList.HasGeometryBatching() )
+  {
+    DoBatching( updateBufferIndex, renderList, layer.colorRenderers, cameraAttachment );
+  }
 }
 
 /**

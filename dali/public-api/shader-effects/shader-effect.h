@@ -150,7 +150,8 @@ public:
     HINT_GRID           = (HINT_GRID_X | HINT_GRID_Y),
     HINT_DEPTH_BUFFER   = 0x04,   ///< Needs depth buffering turned on
     HINT_BLENDING       = 0x08,   ///< Notifies the actor to use blending even if it's fully opaque. Needs actor's blending set to BlendingMode::AUTO
-    HINT_DOESNT_MODIFY_GEOMETRY = 0x10 ///< Notifies that the vertex shader will not change geometry (enables bounding box culling)
+    HINT_DOESNT_MODIFY_GEOMETRY = 0x10, ///< Notifies that the vertex shader will not change geometry (enables bounding box culling)
+    HINT_GEOMETRY_BATCHING = 0x20 ///< Hint that geometry batching can be enabled with this shader
   };
 
   /**

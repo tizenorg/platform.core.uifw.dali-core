@@ -307,6 +307,24 @@ public:
     return mHasColorRenderItems;
   }
 
+  /**
+   * Set if list contains items with batched geometry
+   * @param[in] hasGeometryBatching True if list contains items with batched geometry, false otherwise
+   */
+  void SetGeometryBatching( bool hasGeometryBatching )
+  {
+    mHasGeometryBatching = hasGeometryBatching;
+  }
+
+  /**
+   * Check if list contains items with batched geometry
+   * @return true if list contains items with batched geometry, false otherwise
+   */
+  bool HasGeometryBatching() const
+  {
+    return mHasGeometryBatching;
+  }
+
 private:
 
   /*
@@ -323,6 +341,7 @@ private:
   ClippingBox* mClippingBox;               ///< The clipping box, in window coordinates, when clipping is enabled
   Layer*       mSourceLayer;              ///< The originating layer where the renderers are from
   bool         mHasColorRenderItems : 1;  ///< True if list contains color render items
+  bool         mHasGeometryBatching: 1;   ///< True if list contains items with batched geometry
 };
 
 } // namespace SceneGraph

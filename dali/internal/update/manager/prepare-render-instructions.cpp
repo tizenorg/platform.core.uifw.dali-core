@@ -112,7 +112,9 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
   const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
   bool inside = true;
 
-  if ( renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
+  const Shader* shader = renderable.mRenderer->GetMaterial().GetShader();
+
+  if ( shader->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
     const Vector3& position = worldMatrix.GetTranslation3();
     const Vector3& scale = renderable.mNode->GetScale( updateBufferIndex );
@@ -154,6 +156,12 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
     // save MV matrix onto the item
     Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
   }
+
+  // Check whether batching is enabled for later
+  if( shader->GeometryHintEnabled( Dali::ShaderEffect::HINT_GEOMETRY_BATCHING ) )
+  {
+    renderList.SetGeometryBatching( true );
+  }
 }
 
 /**
@@ -175,18 +183,6 @@ inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
                                       bool isLayer3d )
 {
   DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "AddRenderersToRenderList()\n");
-
-  // Add renderer for each attachment
-  unsigned int index(0);
-  const RenderableAttachmentIter endIter = attachments.end();
-  for ( RenderableAttachmentIter iter = attachments.begin(); iter != endIter; ++iter )
-  {
-    RenderableAttachment& attachment = **iter;
-    AddRendererToRenderList( updateBufferIndex, renderList, attachment, viewMatrix, cameraAttachment, isLayer3d );
-
-    DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "  List[%d].renderer = %p\n", index, &(attachment.GetRenderer()));
-    ++index;
-  }
 
   unsigned int rendererCount( renderers.Size() );
   for( unsigned int i(0); i<rendererCount; ++i )
@@ -388,6 +384,43 @@ inline void SortColorRenderItems( BufferIndex bufferIndex, RenderList& renderLis
   }
 }
 
+void TryBatching( BufferIndex updateBufferIndex,
+                  RenderList& renderList,
+                  NodeRendererContainer& renderers,
+                  SceneGraph::CameraAttachment& cameraAttachment )
+{
+  std::cout << "Begin batching" << std::endl;
+
+  const size_t renderableCount = renderList.Count();
+  unsigned int batchStart( renderableCount );
+  RenderItemContainer::Iterator renderListIter = renderList.GetContainer().Begin();
+  for( unsigned int index = 0; index < renderableCount; ++index, ++renderListIter )
+  {
+    Render::Renderer& renderer = (*renderListIter)->GetRenderer();
+    const Shader* shader = renderer.mShader;
+    bool enableBatching( (shader != NULL) ? shader->GeometryHintEnabled( Dali::ShaderEffect::HINT_GEOMETRY_BATCHING ) : false );
+
+    std::cout << "mRenderer " << &renderer << " shader: " << shader << " supports batching: " << enableBatching << std::endl;
+    if( enableBatching )
+    {
+      batchStart = index;
+      break;
+    }
+  }
+
+  // If there are 2+ items to batch together
+  if( batchStart   != renderableCount &&
+      batchStart+1 != renderableCount )
+  {
+    Render::Renderer& renderer = renderList[batchStart]->GetRenderer();
+    const Shader* shader = renderer.mShader;
+
+    for( unsigned int index = 0; index < renderableCount; ++index, ++renderListIter )
+    {
+    }
+  }
+}
+
 /**
  * Add color renderers from the layer onto the next free render list
  * @param updateBufferIndex to use
@@ -421,7 +454,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
     }
   }
 
-  AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, layer.colorRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
+  AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
   SortColorRenderItems( updateBufferIndex, renderList, layer, sortingHelper );
 
   //Set render flags
@@ -451,6 +484,11 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
 
   renderList.ClearFlags();
   renderList.SetFlags( flags );
+
+  if( renderList.HasGeometryBatching() )
+  {
+    TryBatching( updateBufferIndex, renderList, layer.colorRenderers, cameraAttachment );
+  }
 }
 
 /**
@@ -489,7 +527,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, layer.overlayRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
+  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
 }
 
 /**
@@ -523,7 +561,7 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, layer.stencilRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
+  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
 }
 
 /**

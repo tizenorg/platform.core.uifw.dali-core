@@ -253,6 +253,12 @@ void Shader::Initialize(
   {
     effectHint |= Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY;
   }
+
+  if( hints & Dali::Shader::HINT_GEOMETRY_BATCHING )
+  {
+    effectHint |= Dali::ShaderEffect::HINT_GEOMETRY_BATCHING;
+  }
+
   Dali::ShaderEffect::GeometryHints shaderEffectHint = static_cast<Dali::ShaderEffect::GeometryHints>( effectHint );
 
   mSceneObject = new SceneGraph::Shader( shaderEffectHint );

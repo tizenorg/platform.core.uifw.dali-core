@@ -185,7 +185,7 @@ private:
    */
   virtual void DoRender( Context& context, SceneGraph::TextureCache& textureCache, const SceneGraph::NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix ) = 0;
 
-protected:
+public:
 
   Context* mContext;
   SceneGraph::TextureCache* mTextureCache;

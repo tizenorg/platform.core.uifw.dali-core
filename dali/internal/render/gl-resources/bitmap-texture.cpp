@@ -261,6 +261,7 @@ void BitmapTexture::Update( Integration::Bitmap* srcBitmap, std::size_t xOffset,
       mContext.PixelStorei( GL_UNPACK_ALIGNMENT, 1 );
     }
 
+    Integration::ConvertToGlFormat( srcBitmap->GetPixelFormat(), pixelDataType, pixelFormat );
     mContext.TexSubImage2D( GL_TEXTURE_2D, 0,
                             xOffset, yOffset,
                             srcBitmap->GetImageWidth(), srcBitmap->GetImageHeight(),

@@ -99,16 +99,16 @@ int UtcDaliAtlasUpload02(void)
 {
   TestApplication application;
 
-  Atlas atlas = Atlas::New( 10, 10, Pixel::RGBA8888 );
+  Atlas atlas = Atlas::New( 20, 20, Pixel::RGBA8888 );
   DALI_TEST_CHECK( atlas );
 
   // Using INCORRECT pixel format
   PixelBuffer* buffer = new PixelBuffer[16 * 16];
   BufferImage image = BufferImage::New( buffer, 16, 16, Pixel::A8 );
-  DALI_TEST_CHECK( !atlas.Upload( image, 0, 0 ) );
+  DALI_TEST_CHECK( atlas.Upload( image, 0, 0 ) );
 
   PrepareResourceImage( application, 16, 16, Pixel::A8 );
-  DALI_TEST_CHECK( !atlas.Upload( gTestImageFilename, 0, 0 ) );
+  DALI_TEST_CHECK( atlas.Upload( gTestImageFilename, 0, 0 ) );
 
   END_TEST;
 }

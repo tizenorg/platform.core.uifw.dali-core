@@ -118,11 +118,9 @@ private:
 
   /**
    * Helper for Upload methods
-   * @return True if the bitmap has the same pixel format and its size fits within the atlas at the specified offset
+   * @return True if the size of the bitmap fits within the atlas at the specified offset
    */
-  bool Compatible( Pixel::Format pixelFormat,
-                   SizeType x,
-                   SizeType y );
+  bool Fit( SizeType x, SizeType y );
   /**
    * Helper to create the Atlas resource
    */

@@ -36,6 +36,7 @@
 #include <dali/internal/render/gl-resources/frame-buffer-texture.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/render/renderers/render-image-renderer.h>
 #include <dali/internal/render/renderers/render-geometry.h>
 #include <dali/internal/render/renderers/render-sampler.h>
 #include <dali/internal/render/shaders/program-controller.h>
@@ -280,6 +281,29 @@ void RenderManager::RemoveRenderer( Render::Renderer* renderer )
       break;
     }
   }
+}
+
+void RenderManager::AddImageRenderer( Render::ImageRenderer* renderer )
+{
+  // Initialize the renderer as we are now in render thread
+  renderer->Initialize( mImpl->context, mImpl->textureCache );
+
+  if( !mImpl->renderersAdded )
+  {
+    mImpl->renderersAdded = true;
+  }
+
+  // Note - ImageRenderers are not owned by RenderManager
+}
+
+void RenderManager::RemoveImageRenderer( Render::ImageRenderer* renderer )
+{
+  DALI_ASSERT_DEBUG( NULL != renderer );
+
+  // GL cleanup
+  renderer->OnRemove();
+
+  // Note - ImageRenderers are not owned by RenderManager
 }
 
 void RenderManager::AddSampler( Render::Sampler* sampler )

@@ -121,6 +121,11 @@ ImageRenderer* ImageRenderer::New()
 
 ImageRenderer::~ImageRenderer()
 {
+  // Note - GL cleanup is done from render-thread in OnRemove()
+}
+
+void ImageRenderer::OnRemove()
+{
   if ( mTextureId > 0 )
   {
     mTextureCache->RemoveObserver(mTextureId, this);

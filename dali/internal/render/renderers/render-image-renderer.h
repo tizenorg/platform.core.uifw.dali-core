@@ -72,6 +72,11 @@ public:
   virtual ~ImageRenderer();
 
   /**
+   * Called in the render-thread when the renderer is removed
+   */
+  void OnRemove();
+
+  /**
    * Set the texture used to render.
    * @param[in] textureId The id of the texture used to render.
    */

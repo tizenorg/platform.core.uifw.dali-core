@@ -121,12 +121,29 @@ ImageRenderer* ImageRenderer::New()
 
 ImageRenderer::~ImageRenderer()
 {
+  // Note - GL cleanup is done from render-thread in OnRemove()
+}
+
+void ImageRenderer::OnRemove()
+{
   if ( mTextureId > 0 )
   {
     mTextureCache->RemoveObserver(mTextureId, this);
   }
 
   GlCleanup();
+
+  // Set back to defaults
+  mTexture = NULL;
+  mBorder = Vector4( 0.45, 0.45, 0.1, 0.1 );
+  mPixelArea = PixelArea();
+  mGeometrySize = Vector2();
+  mTextureId =  0;
+  mMeshType = ImageRenderer::QUAD;
+  mIsMeshGenerated = false;
+  mBorderInPixels = false;
+  mUseBlend = false;
+  mUsePixelArea = false;
 }
 
 void ImageRenderer::SetTextureId( ResourceId textureId )

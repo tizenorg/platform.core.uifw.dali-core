@@ -72,10 +72,10 @@ void ImageAttachment::Initialize2( BufferIndex updateBufferIndex )
 {
   DALI_ASSERT_DEBUG( NULL != mSceneController );
 
-  // Create main renderer, passing ownership to the render-thread
-  mImageRenderer = Render::ImageRenderer::New();
+  // Get a reusable renderer from the pool
+  mImageRenderer = mSceneController->NewImageRenderer();
 
-  mSceneController->GetRenderMessageDispatcher().AddRenderer( *mImageRenderer );
+  mSceneController->GetRenderMessageDispatcher().AddImageRenderer( mImageRenderer );
 
   ATTACHMENT_LOG_FMT(Debug::General, " renderer: %p\n", mImageRenderer);
 
@@ -102,9 +102,16 @@ void ImageAttachment::OnDestroy2()
 {
   DALI_ASSERT_DEBUG( NULL != mSceneController );
 
-  // Request deletion in the next Render
-  mSceneController->GetRenderMessageDispatcher().RemoveRenderer( *mImageRenderer );
-  mImageRenderer = NULL;
+  if( NULL != mImageRenderer )
+  {
+    // Request GL cleanup in the next Render
+    mSceneController->GetRenderMessageDispatcher().RemoveImageRenderer( mImageRenderer );
+
+    // Return reusable renderer to the pool
+    mSceneController->FreeImageRenderer( *mImageRenderer );
+
+    mImageRenderer = NULL;
+  }
 }
 
 void ImageAttachment::ConnectedToSceneGraph()

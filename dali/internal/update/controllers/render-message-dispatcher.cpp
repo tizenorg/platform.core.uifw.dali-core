@@ -65,6 +65,28 @@ void RenderMessageDispatcher::RemoveRenderer( Render::Renderer& renderer )
   new (slot) DerivedType( &mRenderManager, &RenderManager::RemoveRenderer, &renderer );
 }
 
+void RenderMessageDispatcher::AddImageRenderer( Render::ImageRenderer* renderer )
+{
+  typedef MessageValue1< RenderManager, Render::ImageRenderer* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mRenderManager, &RenderManager::AddImageRenderer, renderer );
+}
+
+void RenderMessageDispatcher::RemoveImageRenderer( Render::ImageRenderer* renderer )
+{
+  typedef MessageValue1< RenderManager, Render::ImageRenderer* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mRenderManager, &RenderManager::RemoveImageRenderer, renderer );
+}
+
 void RenderMessageDispatcher::AddGeometry( RenderGeometry& renderGeometry )
 {
   typedef MessageValue1< RenderManager, RenderGeometry* > DerivedType;

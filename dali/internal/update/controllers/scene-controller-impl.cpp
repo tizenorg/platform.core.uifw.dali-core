@@ -19,6 +19,7 @@
 #include <dali/internal/update/controllers/scene-controller-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/render/renderers/render-image-renderer.h>
 
 namespace Dali
 {
@@ -44,6 +45,29 @@ SceneControllerImpl::SceneControllerImpl( RenderMessageDispatcher& renderMessage
 
 SceneControllerImpl::~SceneControllerImpl()
 {
+}
+
+Render::ImageRenderer* SceneControllerImpl::NewImageRenderer()
+{
+  Render::ImageRenderer* renderer( NULL );
+
+  if( 0 == mRendererPool.Count() )
+  {
+    renderer = Render::ImageRenderer::New();
+  }
+  else
+  {
+    renderer = mRendererPool[ mRendererPool.Count() - 1 ];
+
+    mRendererPool.Erase( mRendererPool.End() - 1 );
+  }
+
+  return renderer;
+}
+
+void SceneControllerImpl::FreeImageRenderer( Render::ImageRenderer& renderer )
+{
+  mRendererPool.PushBack( &renderer );
 }
 
 } // namespace SceneGraph

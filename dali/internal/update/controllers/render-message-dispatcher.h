@@ -32,6 +32,7 @@ class MessageBase;
 namespace Render
 {
 class Renderer;
+class ImageRenderer;
 }
 namespace SceneGraph
 {
@@ -71,6 +72,18 @@ public:
    * @post renderer will be destroyed in the next Render.
    */
   void RemoveRenderer( Render::Renderer& renderer );
+
+  /**
+   * Add an image renderer in the render-thread.
+   * @param[in] renderer The renderer to add.
+   */
+  void AddImageRenderer( Render::ImageRenderer* renderer );
+
+  /**
+   * Remove an image renderer in the render-thread.
+   * @param[in] renderer The renderer to remove.
+   */
+  void RemoveImageRenderer( Render::ImageRenderer* renderer );
 
   /**
    * Add a Geometry

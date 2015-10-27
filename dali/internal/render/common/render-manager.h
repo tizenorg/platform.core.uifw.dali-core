@@ -46,6 +46,7 @@ class ShaderSaver;
 namespace Render
 {
 class Renderer;
+class ImageRenderer;
 class Sampler;
 }
 
@@ -156,6 +157,20 @@ public:
    * @post renderer is destroyed.
    */
   void RemoveRenderer( Render::Renderer* renderer );
+
+  /**
+   * Add an image renderer in the render-thread.
+   * ImageRenderers are not owned by render-manager; this is just for initialization.
+   * @param[in] renderer The renderer to add.
+   */
+  void AddImageRenderer( Render::ImageRenderer* renderer );
+
+  /**
+   * Remove an image renderer in the render-thread.
+   * ImageRenderers are not owned by render-manager; this is just for GL cleanup.
+   * @param[in] renderer The renderer to remove.
+   */
+  void RemoveImageRenderer( Render::ImageRenderer* renderer );
 
   /**
    * Add a sampler to the render manager.

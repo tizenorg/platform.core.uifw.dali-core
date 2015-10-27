@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/update/controllers/scene-controller.h>
+#include <dali/public-api/common/dali-vector.h>
 
 namespace Dali
 {
@@ -61,6 +62,16 @@ public:
 public:  // from SceneController
 
   /**
+   * @copydoc SceneController::NewImageRenderer()
+   */
+  virtual Render::ImageRenderer* NewImageRenderer();
+
+  /**
+   * @copydoc SceneController::FreeImageRenderer()
+   */
+  virtual void FreeImageRenderer( Render::ImageRenderer& renderer );
+
+  /**
    * @copydoc SceneController::GetRenderMessageDispatcher()
    */
   virtual RenderMessageDispatcher& GetRenderMessageDispatcher() { return mRenderMessageDispatcher; }
@@ -100,6 +111,8 @@ private:
   DiscardQueue&            mDiscardQueue;          ///< discard queue
   TextureCache&            mTextureCache;          ///< texture cache
   CompleteStatusManager&   mCompleteStatusManager; ///< Complete Status manager
+
+  Dali::Vector< Render::ImageRenderer* > mRendererPool;
 
 };
 

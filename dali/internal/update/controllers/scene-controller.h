@@ -23,7 +23,13 @@ namespace Dali
 
 namespace Internal
 {
+
 class CompleteStatusManager;
+
+namespace Render
+{
+class ImageRenderer;
+}
 
 namespace SceneGraph
 {
@@ -54,6 +60,18 @@ public:
   virtual ~SceneController()
   {
   }
+
+  /**
+   * Get a reusable renderer from the pool
+   * @return The renderer
+   */
+  virtual Render::ImageRenderer* NewImageRenderer() = 0;
+
+  /**
+   * Return reusable renderer to the pool
+   * @param[in] The renderer
+   */
+  virtual void FreeImageRenderer( Render::ImageRenderer& renderer ) = 0;
 
   /**
    * Return the render message dispatcher

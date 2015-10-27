@@ -261,7 +261,7 @@ void Atlas::ClearBackground(const Vector4& color )
 
     mClearColor = color;
     mClear = true;
-    mResourceClient.UploadBitmap( destId, imageData->GetResourceId(), 0, 0 );
+    imageData->UploadBitmap( destId, 0, 0 );
   }
 }
 

@@ -41,6 +41,9 @@ class Atlas;
  * Images must be uploaded at a specified position, to populate the Atlas.
  * The client is responsible for generating the appropriate geometry (UV coordinates) needed to draw images within the Atlas.
  *
+ * @note For gles 2.0, matched pixel format is demanded to ensure the correct atlasing.
+ *       The only exception supported is uploading image of RGB888 to atlas of RGBA8888 format which is converted manually before pushing to GPU.
+ *
  * For context recovery after loss:
  * By default, the atlas will re-upload the resource images automatically,
  * while the buffer images are left to the client to upload again by connecting to the Stage::ContextRegainedSignal().
@@ -53,6 +56,43 @@ class DALI_IMPORT_API Atlas : public Image
 public:
 
   typedef uint32_t SizeType;
+
+  /**
+   * @brief Reference counted pixel buffer.
+   *
+   * Without the ownership been taken, the pointed pixel buffer will be release when the referent count falls to zero.
+   */
+  class PixelData : public RefObject
+  {
+  public:
+
+    /**
+     * Constructor.
+     */
+    PixelData( unsigned char* buffer );
+
+    /**
+     * Destructor.
+     */
+    ~PixelData();
+
+    /**
+     * @brief Get the pixel data pointer and take over the ownership. The caller of this function has to make sure the returned pixel buffer been released properly.
+     * @note With this function called, ownership is lost. The PixelData object will be no longer responsible of releasing the pixel buffer.
+     * @return The pixel data pointer.
+     */
+    unsigned char* GetDataOwnership();
+
+  private:
+
+    PixelData(const PixelData& other);  ///< defined private to prevent use
+    PixelData& operator = (const PixelData& other); ///< defined private to prevent use
+
+  private:
+    unsigned char* buffer;  ///< The raw pointer pointing to the pixel data.
+  };
+
+  typedef IntrusivePtr<Atlas::PixelData> PixelDataPtr;
 
 public:
 
@@ -111,6 +151,23 @@ public:
    * @return True if the image has compatible pixel format and fits within the atlas at the specified offset.
    */
   bool Upload( const std::string& url,
+               SizeType xOffset,
+               SizeType yOffset );
+
+  /**
+   * @brief Upload a pixel buffer to atlas
+   *
+   * @param [in] pixelData      The pixel data.
+   * @param [in] width          Buffer width in pixels
+   * @param [in] height         Buffer height in pixels
+   * @param [in] pixelFormat    The pixel format
+   * @param [in] xOffset        Specifies an offset in the x direction within the atlas.
+   * @param [in] yOffset        Specifies an offset in the y direction within the atlas.
+   */
+  bool Upload( PixelDataPtr pixelData,
+               SizeType width,
+               SizeType height,
+               Pixel::Format pixelFormat,
                SizeType xOffset,
                SizeType yOffset );
   /**

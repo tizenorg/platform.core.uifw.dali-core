@@ -25,6 +25,28 @@
 namespace Dali
 {
 
+Atlas::PixelData::PixelData( unsigned char* buffer )
+: buffer( buffer )
+{
+}
+
+Atlas::PixelData::~PixelData()
+{
+  if( !buffer )
+  {
+    return;
+  }
+  free ( buffer );
+  buffer = NULL;
+}
+
+unsigned char* Atlas::PixelData::GetDataOwnership()
+{
+  unsigned char* data = buffer;
+  buffer = NULL;
+  return data;
+}
+
 Atlas Atlas::New( SizeType width,
                   SizeType height,
                   Pixel::Format pixelFormat,
@@ -57,6 +79,16 @@ bool Atlas::Upload( const std::string& url,
                     SizeType yOffset )
 {
   return GetImplementation(*this).Upload( url, xOffset, yOffset );
+}
+
+bool Atlas::Upload( PixelDataPtr pixelData,
+                    SizeType width,
+                    SizeType height,
+                    Pixel::Format pixelFormat,
+                    SizeType xOffset,
+                    SizeType yOffset )
+{
+  return GetImplementation(*this).Upload( pixelData, width, height, pixelFormat, xOffset, yOffset );
 }
 
 Atlas Atlas::DownCast( BaseHandle handle )

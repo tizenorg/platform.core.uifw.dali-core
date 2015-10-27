@@ -261,6 +261,34 @@ void BitmapTexture::Update( Integration::Bitmap* srcBitmap, std::size_t xOffset,
       mContext.PixelStorei( GL_UNPACK_ALIGNMENT, 1 );
     }
 
+#if DALI_GLES_VERSION >= 30
+    // for gles 3.0, uploading sub-image with different format is a valid operation
+    Integration::ConvertToGlFormat( srcBitmap->GetPixelFormat(), pixelDataType, pixelFormat );
+#else
+    // allows RGB888 source bitmap to be added to RGBA8888 texture, need to convert the bitmap format manually
+    if(srcBitmap->GetPixelFormat() == Pixel::RGB888 && mPixelFormat == Pixel::RGBA8888 )
+    {
+      unsigned int size = srcBitmap->GetImageWidth()*srcBitmap->GetImageHeight();
+      PixelBuffer* tempBuffer = new unsigned char [ size*4u ];
+      const PixelBuffer* const sourceBuffer = srcBitmap->GetBuffer();
+      for( unsigned int i=0u; i<size; i++ )
+      {
+        tempBuffer[i*4u] = sourceBuffer[i*3u];
+        tempBuffer[i*4u+1] = sourceBuffer[i*3u+1];
+        tempBuffer[i*4u+2] = sourceBuffer[i*3u+2];
+        tempBuffer[i*4u+3] = 0xFF;
+      }
+
+      mContext.TexSubImage2D( GL_TEXTURE_2D, 0,
+                              xOffset, yOffset,
+                              srcBitmap->GetImageWidth(), srcBitmap->GetImageHeight(),
+                              pixelFormat, pixelDataType, tempBuffer );
+
+      delete tempBuffer;
+      return;
+    }
+#endif
+
     mContext.TexSubImage2D( GL_TEXTURE_2D, 0,
                             xOffset, yOffset,
                             srcBitmap->GetImageWidth(), srcBitmap->GetImageHeight(),

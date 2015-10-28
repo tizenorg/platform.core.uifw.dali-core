@@ -32,6 +32,7 @@ namespace Internal
 
 namespace Render
 {
+class BatchInfo;
 class Renderer;
 }
 
@@ -115,6 +116,16 @@ public:
    */
   void SetDepthIndex( int depthIndex );
 
+  void SetBatchInfo( Render::BatchInfo* batchInfo )
+  {
+    mBatchInfo = batchInfo;
+  }
+
+  Render::BatchInfo* GetBatchInfo() const
+  {
+    return mBatchInfo;
+  }
+
   /**
    * Set if the RenderItem is opaque
    * @param[in] isOpaque true if the RenderItem is opaque, false otherwise
@@ -130,6 +141,16 @@ public:
     return mIsOpaque;
   }
 
+  void SetIsBatch( bool isBatch )
+  {
+    mIsBatch = isBatch;
+  }
+
+  bool IsBatch() const
+  {
+    return mIsBatch;
+  }
+
 private:
 
   // RenderItems should not be copied as they are heavy
@@ -137,10 +158,14 @@ private:
   RenderItem& operator = ( const RenderItem& item );
 
   Matrix            mModelViewMatrix;
-  Render::Renderer* mRenderer;
+
+  Render::Renderer*  mRenderer;  ///< for single renderers
+  Render::BatchInfo* mBatchInfo; ///< for batched renderers
+
   Node*             mNode;
   int               mDepthIndex;
   bool              mIsOpaque:1;
+  bool              mIsBatch:1;
 };
 
 } // namespace SceneGraph

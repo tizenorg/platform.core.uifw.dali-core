@@ -19,11 +19,13 @@
 #include <dali/internal/render/common/render-algorithms.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/render/common/batch-info.h>
 #include <dali/internal/render/common/render-debug.h>
 #include <dali/internal/render/common/render-list.h>
 #include <dali/internal/render/common/render-instruction.h>
 #include <dali/internal/render/gl-resources/context.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/render/shaders/program.h>
 
 using Dali::Internal::SceneGraph::RenderItem;
 using Dali::Internal::SceneGraph::RenderList;
@@ -137,10 +139,24 @@ inline void ProcessRenderList(
       const RenderItem& item = renderList.GetItem( index );
       DALI_PRINT_RENDER_ITEM( item );
 
-      //Enable depth writes if depth buffer is enabled and item is opaque
-      context.DepthMask( depthBufferEnabled && ( item.IsOpaque() || item.GetRenderer().RequiresDepthTest() ) );
+      if( !item.IsBatch() )
+      {
+        // Enable depth writes if depth buffer is enabled and item is opaque
+        context.DepthMask( depthBufferEnabled && ( item.IsOpaque() || item.GetRenderer().RequiresDepthTest() ) );
 
-      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
+        item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
+      }
+      else // Render batched geometry
+      {
+        // Only batching for LAYER_2D, no depth-test required
+        context.DepthMask( false );
+
+        BatchInfo* batchInfo = item.GetBatchInfo();
+
+        batchInfo->program->Use();
+
+        // TODO
+      }
     }
   }
   else

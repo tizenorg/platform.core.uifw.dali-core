@@ -19,16 +19,28 @@
 #include <dali/internal/render/common/render-algorithms.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/math/matrix.h>
+#include <dali/internal/render/common/batch-info.h>
 #include <dali/internal/render/common/render-debug.h>
 #include <dali/internal/render/common/render-list.h>
 #include <dali/internal/render/common/render-instruction.h>
 #include <dali/internal/render/gl-resources/context.h>
+#include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/render/shaders/program.h>
 
 using Dali::Internal::SceneGraph::RenderItem;
 using Dali::Internal::SceneGraph::RenderList;
 using Dali::Internal::SceneGraph::RenderListContainer;
 using Dali::Internal::SceneGraph::RenderInstruction;
+
+namespace
+{
+
+Dali::Matrix gViewProjectionMatrix( false ); ///< a shared matrix to calculate the MVP matrix, dont want to store it in object to reduce storage overhead
+
+}
+
 
 namespace Dali
 {
@@ -137,10 +149,54 @@ inline void ProcessRenderList(
       const RenderItem& item = renderList.GetItem( index );
       DALI_PRINT_RENDER_ITEM( item );
 
-      //Enable depth writes if depth buffer is enabled and item is opaque
-      context.DepthMask( depthBufferEnabled && ( item.IsOpaque() || item.GetRenderer().RequiresDepthTest() ) );
+      if( !item.IsBatch() )
+      {
+        // Enable depth writes if depth buffer is enabled and item is opaque
+        context.DepthMask( depthBufferEnabled && ( item.IsOpaque() || item.GetRenderer().RequiresDepthTest() ) );
 
-      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
+        item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
+      }
+      else // Render batched geometry
+      {
+        // Only batching for text in LAYER_2D, no depth-test required
+        context.DepthMask( false );
+        context.SetBlend( true );
+
+        BatchInfo* batchInfo = item.GetBatchInfo();
+        batchInfo->program->Use();
+
+        GLint loc = batchInfo->program->GetUniformLocation( Program::UNIFORM_MVP_MATRIX );
+        if( Program::UNIFORM_UNKNOWN != loc )
+        {
+          Matrix::Multiply( gViewProjectionMatrix, viewMatrix, projectionMatrix );
+          batchInfo->program->SetUniformMatrix4fv( loc, 1, gViewProjectionMatrix.AsFloat() );
+        }
+
+        // set color uniform
+        loc = batchInfo->program->GetUniformLocation( Program::UNIFORM_COLOR );
+        if( Program::UNIFORM_UNKNOWN != loc )
+        {
+          batchInfo->program->SetUniform4f( loc, batchInfo->color.r, batchInfo->color.g, batchInfo->color.b, batchInfo->color.a );
+        }
+
+        Internal::Texture* texture = textureCache.GetTexture( batchInfo->textureId );
+        if( texture )
+        {
+          textureCache.BindTexture( texture, batchInfo->textureId, GL_TEXTURE_2D, static_cast<TextureUnit>(0) );
+
+          loc = batchInfo->program->GetUniformLocation( Program::UNIFORM_SAMPLER );
+          if( Program::UNIFORM_UNKNOWN != loc )
+          {
+            batchInfo->program->SetUniform1i( loc, 0 );
+          }
+        }
+
+        // TODO
+        //GpuBuffer* gpuBuffer = context.GetNextVertextBuffer();
+        //gpuBuffer->UpdateDataBuffer( batchInfo->vertices.Count(), &batchInfo->vertices[0], GpuBuffer::DYNAMIC_DRAW );
+        //gpuBuffer->Bind( GpuBuffer::ARRAY_BUFFER );
+        //context.VertexAttribPointer( 0, 3/*Vector3*/, GL_FLOAT, GL_FALSE/*Not normalized*/, 20/*stride*/, (void*)attributeOffset );
+      }
     }
   }
   else
@@ -153,7 +209,6 @@ inline void ProcessRenderList(
 
       item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
     }
-
   }
 }
 

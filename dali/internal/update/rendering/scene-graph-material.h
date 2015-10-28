@@ -246,7 +246,7 @@ public:
    * Get the number of textures used by the material
    * @return The number of textures
    */
-  size_t GetTextureCount()
+  size_t GetTextureCount() const
   {
     return mTextureId.Size();
   }

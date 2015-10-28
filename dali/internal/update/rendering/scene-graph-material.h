@@ -178,6 +178,12 @@ public: // Implementation of MaterialDataProvider
    */
   virtual BlendingEquation::Type GetBlendEquationAlpha( BufferIndex bufferIndex ) const;
 
+  /**
+   * @copydoc MaterialDataProvider::GetFaceCullingMode
+   */
+  virtual Dali::CullFaceMode GetFaceCullingMode( BufferIndex bufferIndex ) const;
+
+
 public: // Implementation of ObjectOwnerContainer template methods
   /**
    * Connect the object to the scene graph

@@ -244,14 +244,16 @@ int UtcDaliMaterialSetFaceCullingMode(void)
   cullFaceStack.Reset();
   gl.EnableCullFaceCallTrace(true);
 
-  material.SetFaceCullingMode( Material::CULL_BACK_AND_FRONT);
+  material.SetFaceCullingMode( Material::CULL_BACK_AND_FRONT );
   application.SendNotification();
   application.Render();
 
-  // Todo: test the glCullFace(GL_FRONT_AND_BACK) is actually been called, cannot pass this test with current implementation
-  DALI_TEST_EQUALS( cullFaceStack.CountMethod( "CullFace" ), 0, TEST_LOCATION);
-  //string parameter("GL_FRONT_AND_BACK" );
-  //DALI_TEST_CHECK( cullFaceStack.TestMethodAndParams(0, "CullFace", parameter) );
+  DALI_TEST_EQUALS( cullFaceStack.CountMethod( "CullFace" ), 1, TEST_LOCATION );
+
+  std::ostringstream cullModeString;
+  cullModeString << GL_FRONT_AND_BACK;
+
+  DALI_TEST_CHECK( cullFaceStack.FindMethodAndParams( "CullFace", cullModeString.str() ) );
 
   END_TEST;
 }

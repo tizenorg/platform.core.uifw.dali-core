@@ -169,9 +169,8 @@ private:
   /**
    * Called from Render prior to DoRender(). Default method to set CullFaceMode
    * @param context to use
-   * @param bufferIndex to use
    */
-  virtual void DoSetCullFaceMode( Context& context, BufferIndex bufferIndex );
+  virtual void DoSetCullFaceMode( Context& context );
 
   /**
    * Called from Render prior to DoRender(). Default method to set blending options

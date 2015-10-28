@@ -115,6 +115,11 @@ public:
    */
   void SetDepthIndex( int depthIndex );
 
+  void SetBatchId( unsigned int batchId )
+  {
+    mBatchId = batchId;
+  }
+
   /**
    * Set if the RenderItem is opaque
    * @param[in] isOpaque true if the RenderItem is opaque, false otherwise
@@ -130,6 +135,16 @@ public:
     return mIsOpaque;
   }
 
+  void SetIsBatch( bool isBatch )
+  {
+    mIsBatch = isBatch;
+  }
+
+  bool IsBatch() const
+  {
+    return mIsBatch;
+  }
+
 private:
 
   // RenderItems should not be copied as they are heavy
@@ -140,7 +155,9 @@ private:
   Render::Renderer* mRenderer;
   Node*             mNode;
   int               mDepthIndex;
+  int               mBatchId;
   bool              mIsOpaque:1;
+  bool              mIsBatch:1;
 };
 
 } // namespace SceneGraph

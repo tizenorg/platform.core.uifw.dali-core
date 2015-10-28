@@ -32,7 +32,6 @@ namespace BlendingMode
 {
 /**
  * @brief Blending mode.
- * @see Dali::RenderableActor::SetBlendMode() and Dali::RenderableActor::GetBlendMode()
  */
 enum Type
 {

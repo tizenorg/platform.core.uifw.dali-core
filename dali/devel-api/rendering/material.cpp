@@ -28,7 +28,6 @@ namespace Dali
 
 Material Material::New( Shader shader )
 {
-  // TODO: MESH_REWORK
   Internal::MaterialPtr material = Internal::Material::New();
   material->SetShader( GetImplementation(shader) );
 
@@ -143,6 +142,11 @@ std::size_t Material::GetNumberOfTextures() const
 void Material::SetFaceCullingMode( FaceCullingMode cullingMode )
 {
   GetImplementation(*this).SetFaceCullingMode( cullingMode );
+}
+
+Material::FaceCullingMode Material::GetFaceCullingMode()
+{
+  return GetImplementation(*this).GetFaceCullingMode();
 }
 
 void Material::SetBlendMode( BlendingMode::Type mode )

@@ -41,7 +41,7 @@ public:
   {
   }
 
-  virtual const Vector4& GetBlendColor( BufferIndex bufferIndex ) const = 0;
+  virtual Vector4* GetBlendColor( BufferIndex bufferIndex ) const = 0;
 
   /**
    * Get the RGB source factor

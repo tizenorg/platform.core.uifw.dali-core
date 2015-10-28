@@ -39,18 +39,6 @@ void mesh_material_test_cleanup(void)
 namespace
 {
 
-Material ConstructMaterial( const std::string& vertexShader,
-                            const std::string& fragmentShader,
-                            float opacity )
-{
-  Shader shader = Shader::New( vertexShader, fragmentShader );
-  Material customMaterial = Material::New(shader);
-  Vector4 color = Color::WHITE;
-  color.a = opacity;
-  customMaterial.SetProperty(Material::Property::COLOR, color);
-  return customMaterial;
-}
-
 void TestBlending( TestApplication& application, Material material, float actorOpacity, BlendingMode::Type blendingMode, bool expectedBlend )
 {
   // Generate geometry & renderers

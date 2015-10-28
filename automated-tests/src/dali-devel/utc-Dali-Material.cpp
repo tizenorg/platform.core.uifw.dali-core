@@ -267,6 +267,8 @@ int UtcDaliMaterialBlendingOptions01(void)
   Renderer renderer = Renderer::New( geometry, material );
 
   Actor actor = Actor::New();
+  // set a transparent actor color so that blending is enabled
+  actor.SetColor( Vector4( 1,1,1, 0.5f ) );
   actor.AddRenderer(renderer);
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
@@ -274,18 +276,16 @@ int UtcDaliMaterialBlendingOptions01(void)
   material.SetBlendFunc(BlendingFactor::ONE_MINUS_SRC_COLOR, BlendingFactor::SRC_ALPHA_SATURATE);
 
   // Test that Set was successful:
-  {
-    BlendingFactor::Type srcFactorRgb( BlendingFactor::ZERO );
-    BlendingFactor::Type destFactorRgb( BlendingFactor::ZERO );
-    BlendingFactor::Type srcFactorAlpha( BlendingFactor::ZERO );
-    BlendingFactor::Type destFactorAlpha( BlendingFactor::ZERO );
-    material.GetBlendFunc( srcFactorRgb, destFactorRgb, srcFactorAlpha, destFactorAlpha );
+  BlendingFactor::Type srcFactorRgb( BlendingFactor::ZERO );
+  BlendingFactor::Type destFactorRgb( BlendingFactor::ZERO );
+  BlendingFactor::Type srcFactorAlpha( BlendingFactor::ZERO );
+  BlendingFactor::Type destFactorAlpha( BlendingFactor::ZERO );
+  material.GetBlendFunc( srcFactorRgb, destFactorRgb, srcFactorAlpha, destFactorAlpha );
 
-    DALI_TEST_EQUALS( BlendingFactor::ONE_MINUS_SRC_COLOR, srcFactorRgb,    TEST_LOCATION );
-    DALI_TEST_EQUALS( BlendingFactor::SRC_ALPHA_SATURATE,  destFactorRgb,   TEST_LOCATION );
-    DALI_TEST_EQUALS( BlendingFactor::ONE_MINUS_SRC_COLOR, srcFactorAlpha,  TEST_LOCATION );
-    DALI_TEST_EQUALS( BlendingFactor::SRC_ALPHA_SATURATE,  destFactorAlpha, TEST_LOCATION );
-  }
+  DALI_TEST_EQUALS( BlendingFactor::ONE_MINUS_SRC_COLOR, srcFactorRgb,    TEST_LOCATION );
+  DALI_TEST_EQUALS( BlendingFactor::SRC_ALPHA_SATURATE,  destFactorRgb,   TEST_LOCATION );
+  DALI_TEST_EQUALS( BlendingFactor::ONE_MINUS_SRC_COLOR, srcFactorAlpha,  TEST_LOCATION );
+  DALI_TEST_EQUALS( BlendingFactor::SRC_ALPHA_SATURATE,  destFactorAlpha, TEST_LOCATION );
 
   application.SendNotification();
   application.Render();
@@ -648,7 +648,6 @@ int UtcDaliMaterialSetBlendMode06(void)
   Geometry geometry = CreateQuadGeometry();
   Shader shader = Shader::New( "vertexSrc", "fragmentSrc", Shader::HINT_OUTPUT_IS_TRANSPARENT );
   Material material = Material::New(shader);
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Renderer renderer = Renderer::New( geometry, material );
 
@@ -682,7 +681,6 @@ int UtcDaliMaterialSetBlendMode06(void)
   Geometry geometry = CreateQuadGeometry();
   Shader shader = Shader::New( "vertexSrc", "fragmentSrc", Shader::HINT_OUTPUT_IS_OPAQUE );
   Material material = Material::New(shader);
-  material.SetProperty(Material::Property::COLOR, Color::TRANSPARENT);
 
   Renderer renderer = Renderer::New( geometry, material );
 
@@ -715,7 +713,6 @@ int UtcDaliMaterialSetBlendMode08(void)
   Geometry geometry = CreateQuadGeometry();
   Shader shader = Shader::New( "vertexSrc", "fragmentSrc", Shader::HINT_OUTPUT_IS_OPAQUE );
   Material material = Material::New(shader);
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
   BufferImage image = BufferImage::New( 50, 50, Pixel::RGB888 );
   material.AddTexture( image, "sTexture" );
   Renderer renderer = Renderer::New( geometry, material );
@@ -775,7 +772,6 @@ int UtcDaliMaterialSetBlendColor(void)
   Geometry geometry = CreateQuadGeometry();
   Shader shader = Shader::New( "vertexSrc", "fragmentSrc", Shader::HINT_OUTPUT_IS_OPAQUE );
   Material material = Material::New(shader);
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
   BufferImage image = BufferImage::New( 50, 50, Pixel::RGBA8888 );
   material.AddTexture( image, "sTexture" );
   Renderer renderer = Renderer::New( geometry, material );
@@ -787,6 +783,7 @@ int UtcDaliMaterialSetBlendColor(void)
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
 
+  material.SetBlendColor( Color::TRANSPARENT );
   application.SendNotification();
   application.Render();
   DALI_TEST_EQUALS( glAbstraction.GetLastBlendColor(), Color::TRANSPARENT, TEST_LOCATION );
@@ -838,7 +835,6 @@ int UtcDaliMaterialConstraint(void)
 
   Shader shader = Shader::New( "VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
@@ -883,7 +879,6 @@ int UtcDaliMaterialConstraint02(void)
 
   Shader shader = Shader::New( "VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
@@ -940,7 +935,6 @@ int UtcDaliMaterialAnimatedProperty01(void)
 
   Shader shader = Shader::New( "VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
@@ -984,7 +978,6 @@ int UtcDaliMaterialAnimatedProperty02(void)
 
   Shader shader = Shader::New( "VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );

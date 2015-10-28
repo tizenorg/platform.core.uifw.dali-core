@@ -106,7 +106,12 @@ void NewRenderer::DoSetBlending( Context& context, BufferIndex bufferIndex, bool
   {
     const SceneGraph::MaterialDataProvider& material = mRenderDataProvider->GetMaterial();
 
-    context.SetCustomBlendColor( material.GetBlendColor( bufferIndex ) );
+    // Blend color is optional and rarely used
+    Vector4* blendColor = material.GetBlendColor( bufferIndex );
+    if( blendColor )
+    {
+      context.SetCustomBlendColor( *blendColor );
+    }
 
     // Set blend source & destination factors
     context.BlendFuncSeparate( material.GetBlendSrcFactorRgb( bufferIndex ),

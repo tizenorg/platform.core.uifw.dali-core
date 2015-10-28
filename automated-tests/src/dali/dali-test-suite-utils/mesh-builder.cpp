@@ -24,9 +24,6 @@ Material CreateMaterial(float opacity)
   Shader shader = Shader::New( "vertexSrc", "fragmentSrc" );
   Material material = Material::New(shader);
 
-  Vector4 color = Color::WHITE;
-  color.a = opacity;
-  material.SetProperty(Material::Property::COLOR, color);
   return material;
 }
 
@@ -34,10 +31,6 @@ Material CreateMaterial(float opacity, Image image)
 {
   Shader shader = Shader::New( "vertexSrc", "fragmentSrc" );
   Material material = Material::New(shader);
-
-  Vector4 color = Color::WHITE;
-  color.a = opacity;
-  material.SetProperty(Material::Property::COLOR, color);
 
   material.AddTexture( image, "sTexture" );
 

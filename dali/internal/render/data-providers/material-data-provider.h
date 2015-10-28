@@ -17,6 +17,7 @@
  */
 
 #include <dali/internal/common/buffer-index.h>
+#include <dali/devel-api/rendering/cull-face.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/actors/blending.h>
 
@@ -78,6 +79,13 @@ public:
    * @return the Alpha blending equation
    */
   virtual BlendingEquation::Type GetBlendEquationAlpha( BufferIndex bufferIndex ) const = 0;
+
+  /**
+   * Get the cull face mode
+   * @return the cull face mode
+   */
+  virtual Dali::CullFaceMode GetFaceCullingMode( BufferIndex bufferIndex ) const = 0;
+
 
 protected:
   /**

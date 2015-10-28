@@ -103,6 +103,8 @@ void NewRenderer::DoSetUniforms( Context& context, BufferIndex bufferIndex, Scen
 
 void NewRenderer::DoSetCullFaceMode( Context& context, BufferIndex bufferIndex )
 {
+  const SceneGraph::MaterialDataProvider& material = mRenderDataProvider->GetMaterial();
+  context.CullFace( material.GetFaceCullingMode( bufferIndex ) );
 }
 
 void NewRenderer::DoSetBlending( Context& context, BufferIndex bufferIndex, bool blend )

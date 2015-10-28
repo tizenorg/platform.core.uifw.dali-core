@@ -645,7 +645,6 @@ int UtcDaliGeometryConstraint(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
@@ -690,7 +689,6 @@ int UtcDaliGeometryConstraint02(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
@@ -749,7 +747,6 @@ int UtcDaliGeometryAnimatedProperty01(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
@@ -793,7 +790,6 @@ int UtcDaliGeometryAnimatedProperty02(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );

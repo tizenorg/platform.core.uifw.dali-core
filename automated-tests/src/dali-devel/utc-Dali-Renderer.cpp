@@ -250,7 +250,6 @@ int UtcDaliRendererConstraint01(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
@@ -295,7 +294,6 @@ int UtcDaliRendererConstraint02(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
@@ -354,7 +352,6 @@ int UtcDaliRendererAnimatedProperty01(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
@@ -398,7 +395,6 @@ int UtcDaliRendererAnimatedProperty02(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   Geometry geometry = CreateQuadGeometry();
   Renderer renderer = Renderer::New( geometry, material );
@@ -456,7 +452,6 @@ int UtcDaliRendererUniformMapPrecendence01(void)
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
   material.AddTexture( image, "sTexture" );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   PropertyBuffer vertexBuffer = CreatePropertyBuffer();
   Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
@@ -521,7 +516,6 @@ int UtcDaliRendererUniformMapPrecendence02(void)
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
   material.AddTexture( image, "sTexture" );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   PropertyBuffer vertexBuffer = CreatePropertyBuffer();
   Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
@@ -588,7 +582,6 @@ int UtcDaliRendererUniformMapPrecendence03(void)
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
   material.AddTexture( image, "sTexture" );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   PropertyBuffer vertexBuffer = CreatePropertyBuffer();
   Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
@@ -655,7 +648,6 @@ int UtcDaliRendererUniformMapPrecendence04(void)
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
   material.AddTexture( image, "sTexture" );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   PropertyBuffer vertexBuffer = CreatePropertyBuffer();
   Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
@@ -717,7 +709,6 @@ int UtcDaliRendererUniformMapPrecendence05(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   PropertyBuffer vertexBuffer = CreatePropertyBuffer();
   Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
@@ -780,7 +771,6 @@ int UtcDaliRendererUniformMapMultipleUniforms01(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   PropertyBuffer vertexBuffer = CreatePropertyBuffer();
   Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
@@ -839,7 +829,6 @@ int UtcDaliRendererUniformMapMultipleUniforms02(void)
 
   Shader shader = Shader::New("VertexSource", "FragmentSource");
   Material material = Material::New( shader );
-  material.SetProperty(Material::Property::COLOR, Color::WHITE);
 
   PropertyBuffer vertexBuffer = CreatePropertyBuffer();
   Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);

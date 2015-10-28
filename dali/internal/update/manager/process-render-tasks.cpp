@@ -248,6 +248,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
 
   DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "ProcessRenderTasks() Offscreens first\n");
 
+  unsigned int nextBatchId( 0 );
+
   // First process off screen render tasks - we may need the results of these for the on screen renders
   RenderTaskList::RenderTaskContainer::ConstIterator endIter = taskContainer.End();
   for ( RenderTaskList::RenderTaskContainer::Iterator iter = taskContainer.Begin(); endIter != iter; ++iter )
@@ -317,7 +319,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 renderTask,
                                 sortingHelper,
                                 renderTracker,
-                                instructions );
+                                instructions,
+                                nextBatchId );
     }
 
     renderTask.SetResourcesFinished( resourcesFinished );
@@ -374,7 +377,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 renderTask,
                                 sortingHelper,
                                 NULL,
-                                instructions );
+                                instructions,
+                                nextBatchId );
     }
 
     renderTask.SetResourcesFinished( resourcesFinished );

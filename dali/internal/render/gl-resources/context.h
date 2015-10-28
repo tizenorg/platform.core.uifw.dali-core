@@ -38,6 +38,8 @@ namespace Dali
 namespace Internal
 {
 
+class GpuBuffer;
+
 /**
  * Context records the current GL state, and provides access to the OpenGL ES 2.0 API.
  * Context avoids duplicate GL calls, if the same setting etc. is requested repeatedly.
@@ -1648,6 +1650,8 @@ public:
   inline void SetFrameCount(unsigned int frameCount)
   {
     mFrameCount = frameCount;
+
+    FreeGpuBuffers();
   }
 
   /**
@@ -1705,6 +1709,23 @@ public:
   {
     return mRendererCount;
   }
+
+  /**
+   * Helper for batching geometry
+   * @return A reusable vertex buffer
+   */
+  GpuBuffer* GetNextVertexBuffer();
+
+  /**
+   * Helper for batching geometry
+   * @return A reusable vertex buffer
+   */
+  GpuBuffer* GetNextIndexBuffer();
+
+  /**
+   * Allows buffers previous created by GetNext(Vertex|Index)Buffer to be reused
+   */
+  void FreeGpuBuffers();
 
 private: // Implementation
 
@@ -1807,6 +1828,12 @@ private: // Data
   unsigned int mCulledCount;      ///< Number of culled renderers per frame
   unsigned int mRendererCount;    ///< Number of image renderers per frame
   FrameBufferStateCache mFrameBufferStateCache;   ///< frame buffer state cache
+
+  Vector<GpuBuffer*> mVertexBuffers;
+  Vector<GpuBuffer*> mIndexBuffers;
+
+  unsigned int mNextVertexBuffer;
+  unsigned int mNextIndexBuffer;
 };
 
 } // namespace Internal

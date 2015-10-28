@@ -26,6 +26,7 @@
 #include <dali/public-api/common/compile-time-assert.h>
 #include <dali/integration-api/platform-abstraction.h>
 #include <dali/internal/render/common/render-manager.h>
+#include <dali/internal/render/gl-resources/gpu-buffer.h>
 #include <dali/integration-api/debug.h>
 
 namespace Dali
@@ -95,12 +96,39 @@ Context::Context(Integration::GlAbstraction& glAbstraction)
   mViewPort( 0, 0, 0, 0 ),
   mFrameCount( 0 ),
   mCulledCount( 0 ),
-  mRendererCount( 0 )
+  mRendererCount( 0 ),
+  mNextVertexBuffer( 0 ),
+  mNextIndexBuffer( 0 )
 {
 }
 
 Context::~Context()
 {
+}
+
+GpuBuffer* Context::GetNextVertexBuffer()
+{
+  if( mVertexBuffers.Count() == mNextVertexBuffer )
+  {
+    mVertexBuffers.PushBack( new GpuBuffer( *this ) );
+  }
+
+  return mVertexBuffers[ mNextVertexBuffer++ ];
+}
+
+GpuBuffer* Context::GetNextIndexBuffer()
+{
+  if( mIndexBuffers.Count() == mNextIndexBuffer )
+  {
+    mIndexBuffers.PushBack( new GpuBuffer( *this ) );
+  }
+
+  return mIndexBuffers[ mNextIndexBuffer++ ];
+}
+
+void Context::FreeGpuBuffers()
+{
+  mNextVertexBuffer = mNextIndexBuffer = 0;
 }
 
 void Context::GlContextCreated()

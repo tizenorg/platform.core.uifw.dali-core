@@ -34,7 +34,9 @@ RenderItem::RenderItem()
 : mModelViewMatrix( false ),
   mRenderer( NULL ),
   mDepthIndex(0),
-  mIsOpaque(true)
+  mBatchId(-1),
+  mIsOpaque(true),
+  mIsBatch(false)
 {
 }
 

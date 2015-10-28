@@ -29,6 +29,7 @@ namespace Dali
 namespace Internal
 {
 class MessageBase;
+class Program;
 
 namespace Render
 {
@@ -130,6 +131,15 @@ public:
    * @post render tracker will be destroyed in the next Render pass.
    */
   void RemoveRenderTracker( RenderTracker& renderTracker );
+
+  // For Batching
+
+  /**
+   * Set the program to use for a geometry batch.
+   * @param[in] batchId The geometry batch.
+   * @param[in] batchId The program to use.
+   */
+  void SetBatchProgram( unsigned int batchId, Program* program );
 
 private:
 

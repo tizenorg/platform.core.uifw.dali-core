@@ -230,7 +230,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                          Layer& rootNode,
                          SortedLayerPointers& sortedLayers,
                          RendererSortingHelper& sortingHelper,
-                         RenderInstructionContainer& instructions )
+                         RenderInstructionContainer& instructions,
+                         RenderMessageDispatcher& messageDispatcher )
 {
   RenderTaskList::RenderTaskContainer& taskContainer = renderTasks.GetTasks();
 
@@ -247,6 +248,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
   //   4) Prepare render-instructions
 
   DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "ProcessRenderTasks() Offscreens first\n");
+
+  unsigned int nextBatchId( 0 );
 
   // First process off screen render tasks - we may need the results of these for the on screen renders
   RenderTaskList::RenderTaskContainer::ConstIterator endIter = taskContainer.End();
@@ -317,7 +320,9 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 renderTask,
                                 sortingHelper,
                                 renderTracker,
-                                instructions );
+                                instructions,
+                                messageDispatcher,
+                                nextBatchId );
     }
 
     renderTask.SetResourcesFinished( resourcesFinished );
@@ -374,7 +379,9 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 renderTask,
                                 sortingHelper,
                                 NULL,
-                                instructions );
+                                instructions,
+                                messageDispatcher,
+                                nextBatchId );
     }
 
     renderTask.SetResourcesFinished( resourcesFinished );

@@ -23,6 +23,10 @@
 
 namespace Dali
 {
+/**
+ * @addtogroup dali_core_actors
+ * @{
+ */
 
 namespace FilterMode
 {
@@ -32,7 +36,7 @@ namespace FilterMode
  */
 enum Type
 {
-  NONE,       ///< Use GL system defaults (minification NEAREST_MIPMAP_LINEAR, magnification LINEAR)
+  NONE = 0,       ///< Use GL system defaults (minification NEAREST_MIPMAP_LINEAR, magnification LINEAR)
   DEFAULT,    ///< Use dali defaults (minification LINEAR, magnification LINEAR)
   NEAREST,    ///< Filter nearest
   LINEAR      ///< Filter linear
@@ -40,6 +44,22 @@ enum Type
 
 } //namespace FilterMode
 
+namespace WrapMode
+{
+
+enum Type
+{
+  DEFAULT = 0,    ///< Clamp to edge
+  CLAMP_TO_EDGE,
+  REPEAT,
+  MIRRORED_REPEAT
+};
+
+} //namespace WrapMode
+
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // __DALI_SAMPLING_H__

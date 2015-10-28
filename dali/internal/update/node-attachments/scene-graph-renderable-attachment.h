@@ -245,9 +245,18 @@ public: // API for derived classes
    * Get the depth index for the attachment
    * @param[in] bufferIndex The current update buffer index.
    */
-  virtual int GetDepthIndex()
+  int GetDepthIndex() const
   {
     return static_cast<int>( mSortModifier );
+  }
+
+  /**
+   * Used to sort attachments with the same shader
+   * @return The shader for this attachment
+   */
+  const Shader* GetShader() const
+  {
+    return mShader;
   }
 
   /**

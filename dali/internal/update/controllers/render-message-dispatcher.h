@@ -29,6 +29,7 @@ namespace Dali
 namespace Internal
 {
 class MessageBase;
+class Program;
 
 namespace Render
 {
@@ -130,6 +131,22 @@ public:
    * @post render tracker will be destroyed in the next Render pass.
    */
   void RemoveRenderTracker( RenderTracker& renderTracker );
+
+  /**
+   * Set the program, texture, color & geometry to use for batched rendering.
+   * @param[in] batchId The ID of a geometry batch.
+   * @param[in] program The program to use.
+   * @param[in] textureId The texture to use.
+   * @param[in] color The color to use.
+   * @param[in] vertices The vertices to use; ownership is transferred to render-thread.
+   * @param[in] indices The indices to use; ownership is transferred to render-thread.
+   */
+  void SetBatchInfo( unsigned int batchId,
+                     Program* program,
+                     unsigned int textureId,
+                     const Vector4& color,
+                     Dali::Vector<char>* vertices,
+                     Dali::Vector<char>* indices );
 
 private:
 

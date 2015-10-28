@@ -40,6 +40,7 @@ struct Vector4;
 namespace Internal
 {
 class Context;
+class Program;
 class ProgramCache;
 class ShaderSaver;
 
@@ -289,6 +290,22 @@ public:
    * @return the ProgramController
    */
   ProgramCache* GetProgramCache();
+
+  /**
+   * Set the program, texture, color & geometry to use for batched rendering.
+   * @param[in] batchId The ID of a geometry batch.
+   * @param[in] program The program to use.
+   * @param[in] textureId The texture to use.
+   * @param[in] color The color to use.
+   * @param[in] vertices The vertices to use; ownership is transferred to render-thread.
+   * @param[in] indices The indices to use; ownership is transferred to render-thread.
+   */
+  void SetBatchInfo( unsigned int batchId,
+                     Program* program,
+                     unsigned int textureId,
+                     const Vector4& color,
+                     Dali::Vector<char>* vertices,
+                     Dali::Vector<char>* indices );
 
   // This method should be called from Core::Render()
 

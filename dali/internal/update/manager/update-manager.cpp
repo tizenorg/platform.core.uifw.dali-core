@@ -1051,7 +1051,8 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
                            *mImpl->root,
                            mImpl->sortedLayers,
                            mImpl->renderSortingHelper,
-                           mImpl->renderInstructions );
+                           mImpl->renderInstructions,
+                           mImpl->sceneController->GetRenderMessageDispatcher() );
 
       // Process the system-level RenderTasks last
       if ( NULL != mImpl->systemLevelRoot )
@@ -1062,7 +1063,8 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
                              *mImpl->systemLevelRoot,
                              mImpl->systemLevelSortedLayers,
                              mImpl->renderSortingHelper,
-                             mImpl->renderInstructions );
+                             mImpl->renderInstructions,
+                             mImpl->sceneController->GetRenderMessageDispatcher() );
       }
     }
   }

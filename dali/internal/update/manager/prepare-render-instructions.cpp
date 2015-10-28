@@ -367,16 +367,8 @@ inline void SortColorRenderItems( BufferIndex bufferIndex, RenderList& renderLis
     }
   }
 
-  if( layer.GetBehavior() ==  Dali::Layer::LAYER_3D)
-  {
-    // sort the renderers back to front, Z Axis point from near plane to far plane
-    std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems3D );
-  }
-  else
-  {
-    // sort the renderers based on DepthIndex
-    std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems );
-  }
+  // sort the renderers back to front, Z Axis point from near plane to far plane
+  std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems3D );
 
   // reorder/repopulate the renderitems in renderlist to correct order based on sortinghelper
   DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "Sorted Transparent List:\n");
@@ -385,6 +377,99 @@ inline void SortColorRenderItems( BufferIndex bufferIndex, RenderList& renderLis
   {
     *renderListIter = sortingHelper[ index ].renderItem;
     DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "  sortedList[%d] = %p\n", index, &sortingHelper[ index ].renderItem->GetRenderer() );
+  }
+}
+
+bool CompareItems2d( const NodeRenderer& lhs, const NodeRenderer& rhs )
+{
+  if( lhs.mRenderer->GetDepthIndex() == rhs.mRenderer->GetDepthIndex() )
+  {
+    return lhs.mRenderer->GetMaterial().GetShader() < rhs.mRenderer->GetMaterial().GetShader();
+  }
+
+  return lhs.mRenderer->GetDepthIndex() < rhs.mRenderer->GetDepthIndex();
+}
+
+void DepthIndexSort( Dali::Vector< NodeRenderer >& container )
+{
+  std::sort( container.Begin(), container.End(), CompareItems2d );
+}
+
+void AddBatchedRenderers( BufferIndex updateBufferIndex,
+                          unsigned int batchBegin,
+                          unsigned int batchEnd,
+                          Dali::Vector< NodeRenderer >& container )
+{
+  RenderItem& item = renderList.GetNextFreeItem();
+
+  if( 1u == (batchEnd - batchBegin) )
+  {
+    // Add lone renderer
+    NodeRenderer* renderer = &container[ batchBegin ];
+
+    item.SetRenderer( &renderer->mRenderer->GetRenderer() );
+    item.SetNode( renderer->mNode );
+    item.SetIsOpaque( renderer->mRenderer->IsFullyOpaque(updateBufferIndex, *renderable.mNode ) );
+  }
+  else
+  {
+    // Batch renderers together
+
+    Render::NewRenderer* batchRenderer = 
+  }
+}
+
+/**
+ * @brief Create a render-list for a LAYER_2D
+ *
+ * @param[in] updateBufferIndex to use
+ * @param[in] layer to get the renderers from
+ * @param[in] viewmatrix for the camera from rendertask
+ * @param[in] cameraAttachment to use the view frustum
+ * @param[in] stencilRenderablesExist is true if there are stencil renderers on this layer
+ * @param[in,out] instruction The render-list will be added here
+ */
+void PrepareRenderList2d( BufferIndex updateBufferIndex,
+                          Layer& layer,
+                          const Matrix& viewMatrix,
+                          SceneGraph::CameraAttachment& cameraAttachment,
+                          bool stencilRenderablesExist,
+                          RenderInstruction& instruction )
+{
+  Dali::Vector< NodeRenderer >& container = layer.colorRenderers;
+  const unsigned int count = container.Count();
+
+  if( 0 != count )
+  {
+    RenderList& renderList = instruction.GetNextFreeRenderList( count );
+
+    renderList.SetHasColorRenderItems( true );
+
+    // Enable scisscor test if necessary
+    renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
+
+    // Sort into 2D depth-index order
+    DepthIndexSort( container );
+
+    // Find renderables using the same shader, material & color
+    Shader* batchShader = container[0].mRenderer->GetMaterial().GetShader();
+    //Vector4 batchColor = TODO
+
+    unsigned int batchBegin = 0;
+    unsigned int batchEnd = 1;
+    for ( ; batchEnd < count; ++batchEnd )
+    {
+      const Renderer* renderer = container[ batchEnd ].mRenderer;
+      const Shader* shader = renderer->GetMaterial().GetShader();
+
+      if( shader != batchShader )
+      {
+        AddBatchedRenderers( batchBegin, batchEnd );
+        batchBegin = batchEnd;
+      }
+    }
+
+    AddBatchedRenderers( batchBegin, batchEnd );
   }
 }
 
@@ -570,14 +655,26 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
 
     if ( colorRenderablesExist )
     {
-      AddColorRenderers( updateBufferIndex,
-                         layer,
-                         viewMatrix,
-                         cameraAttachment,
-                         stencilRenderablesExist,
-                         instruction,
-                         sortingHelper,
-                         tryReuseRenderList );
+      if( layer.GetBehavior() ==  Dali::Layer::LAYER_2D )
+      {
+        PrepareRenderList2d( updateBufferIndex,
+                             layer,
+                             viewMatrix,
+                             cameraAttachment,
+                             stencilRenderablesExist,
+                             instruction );
+      }
+      else
+      {
+        AddColorRenderers( updateBufferIndex,
+                           layer,
+                           viewMatrix,
+                           cameraAttachment,
+                           stencilRenderablesExist,
+                           instruction,
+                           sortingHelper,
+                           tryReuseRenderList );
+      }
     }
 
     if ( overlayRenderablesExist )

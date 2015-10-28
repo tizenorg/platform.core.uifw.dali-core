@@ -145,7 +145,7 @@ void Material::SetBlendingOptions( BufferIndex updateBufferIndex, unsigned int o
 
 const Vector4& Material::GetBlendColor(BufferIndex bufferIndex) const
 {
-  return mBlendColor[bufferIndex];
+  return mBlendColor[ bufferIndex ];
 }
 
 BlendingFactor::Type Material::GetBlendSrcFactorRgb( BufferIndex bufferIndex ) const
@@ -188,6 +188,35 @@ BlendingEquation::Type Material::GetBlendEquationAlpha( BufferIndex bufferIndex 
   BlendingOptions blendingOptions;
   blendingOptions.SetBitmask( mBlendingOptions[ bufferIndex ] );
   return blendingOptions.GetBlendEquationAlpha();
+}
+
+Dali::CullFaceMode Material::GetFaceCullingMode( BufferIndex bufferIndex ) const
+{
+  switch( mFaceCullingMode[ bufferIndex ] )
+  {
+    case Dali::Material::NONE:
+    {
+      return CullNone;
+    }
+    case Dali::Material::CULL_BACK:
+    case Dali::Material:: CULL_BACK_HINT:
+    {
+      return CullBack;
+    }
+    case Dali::Material::CULL_FRONT:
+    case Dali::Material::CULL_FRONT_HINT:
+    {
+      return CullFront;
+    }
+    case Dali::Material::CULL_BACK_AND_FRONT:
+    case Dali::Material::CULL_BACK_AND_FRONT_HINT:
+    {
+      return CullFrontAndBack;
+    }
+  }
+
+  DALI_LOG_ERROR( "unknown material cull face mode" );
+  return CullNone;
 }
 
 void Material::AddTexture( const std::string& name, ResourceId id, Render::Sampler* sampler )

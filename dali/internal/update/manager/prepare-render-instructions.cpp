@@ -23,6 +23,7 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/event/actors/layer-impl.h> // for the default sorting function
+#include <dali/internal/update/controllers/render-message-dispatcher.h>
 #include <dali/internal/update/node-attachments/scene-graph-renderable-attachment.h>
 #include <dali/internal/update/nodes/scene-graph-layer.h>
 #include <dali/internal/update/manager/sorted-layers.h>
@@ -367,16 +368,8 @@ inline void SortColorRenderItems( BufferIndex bufferIndex, RenderList& renderLis
     }
   }
 
-  if( layer.GetBehavior() ==  Dali::Layer::LAYER_3D)
-  {
-    // sort the renderers back to front, Z Axis point from near plane to far plane
-    std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems3D );
-  }
-  else
-  {
-    // sort the renderers based on DepthIndex
-    std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems );
-  }
+  // sort the renderers back to front, Z Axis point from near plane to far plane
+  std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems3D );
 
   // reorder/repopulate the renderitems in renderlist to correct order based on sortinghelper
   DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "Sorted Transparent List:\n");
@@ -385,6 +378,174 @@ inline void SortColorRenderItems( BufferIndex bufferIndex, RenderList& renderLis
   {
     *renderListIter = sortingHelper[ index ].renderItem;
     DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "  sortedList[%d] = %p\n", index, &sortingHelper[ index ].renderItem->GetRenderer() );
+  }
+}
+
+bool CompareItems2d( const NodeRenderer& lhs, const NodeRenderer& rhs )
+{
+  if( lhs.mRenderer->GetDepthIndex() == rhs.mRenderer->GetDepthIndex() )
+  {
+    return lhs.mRenderer->GetMaterial().GetShader() < rhs.mRenderer->GetMaterial().GetShader();
+  }
+
+  return lhs.mRenderer->GetDepthIndex() < rhs.mRenderer->GetDepthIndex();
+}
+
+void DepthIndexSort( Dali::Vector< NodeRenderer >& container )
+{
+  std::sort( container.Begin(), container.End(), CompareItems2d );
+}
+
+void AddBatchedRenderers( BufferIndex updateBufferIndex,
+                          RenderList& renderList,
+                          unsigned int batchBegin,
+                          unsigned int batchEnd,
+                          Dali::Vector< NodeRenderer >& container,
+                          RenderMessageDispatcher& messageDispatcher,
+                          unsigned int& currentBatchId )
+{
+  RenderItem& item = renderList.GetNextFreeItem();
+
+  if( 1u == (batchEnd - batchBegin) )
+  {
+    NodeRenderer& renderer = container[ batchBegin ];
+
+    // Add lone renderer
+    item.SetIsBatch( false );
+    item.SetRenderer( &renderer.mRenderer->GetRenderer() );
+    item.SetNode( renderer.mNode );
+    item.SetIsOpaque( renderer.mRenderer->IsFullyOpaque(updateBufferIndex, *renderer.mNode ) );
+  }
+  else
+  {
+    Renderer* firstRenderer = container[ batchBegin ].mRenderer;
+    Material& material = firstRenderer->GetMaterial();
+
+    // Batch renderers together
+    item.SetIsBatch( true );
+    item.SetBatchId( currentBatchId );
+
+    // Get the program to use for this batch
+    Program* program = material.GetShader()->GetProgram();
+
+    // Get the texture to use for this batch
+    ResourceId textureId = material.GetTextureId( 0 );
+
+    // Get the color to use for this batch
+    const Vector4& batchColor = container[ batchBegin ].mNode->GetWorldColor( updateBufferIndex );
+
+    // Batch the verties
+    Dali::Vector<char>* batchVertices = new Dali::Vector<char>();
+    Dali::Vector<char>* batchIndices  = new Dali::Vector<char>();
+
+    // Reserve enough space for all the inserts FIXME
+    //batchVertices->Reserve( (batchEnd - batchBegin) * 16 * sizeof(Vertex2D) );
+    //batchIndices->Reserve( (batchEnd - batchBegin) * 24 * sizeof(?) );
+
+    for( unsigned int i=batchBegin; i<batchEnd; ++i )
+    {
+      Geometry& geometry = container[ i ].mRenderer->GetGeometry();
+
+      const Render::PropertyBuffer* vertexBuffer = geometry.GetVertexBuffers()[0];
+      const Dali::Vector<char>* vertices = vertexBuffer->GetData();
+      if( vertices )
+      {
+        batchVertices->Insert( batchVertices->End(), vertices->Begin(), vertices->End() );
+      }
+
+      const Render::PropertyBuffer* indexBuffer = geometry.GetIndexBuffer();
+      if( indexBuffer )
+      {
+        const Dali::Vector<char>* indices = indexBuffer->GetData();
+        if( indices )
+        {
+          batchIndices->Insert( batchIndices->End(), indices->Begin(), indices->End() );
+        }
+      }
+    }
+
+    // Transfer ownership to RenderManager
+    messageDispatcher.SetBatchInfo( currentBatchId, program, textureId, batchColor, batchVertices, batchIndices );
+
+    // Move to next batch ID
+    ++currentBatchId;
+  }
+}
+
+/**
+ * @brief Create a render-list for a LAYER_2D
+ *
+ * @param[in] updateBufferIndex to use
+ * @param[in] layer to get the renderers from
+ * @param[in] viewmatrix for the camera from rendertask
+ * @param[in] cameraAttachment to use the view frustum
+ * @param[in] stencilRenderablesExist is true if there are stencil renderers on this layer
+ * @param[in,out] instruction The render-list will be added here
+ * @param[in] messageDispatcher Used to send messages to render-thread
+ * @param[in,out] currentBatchId This is incremented for every group of renderers which are batched together
+ */
+void PrepareRenderList2d( BufferIndex updateBufferIndex,
+                          Layer& layer,
+                          const Matrix& viewMatrix,
+                          SceneGraph::CameraAttachment& cameraAttachment,
+                          bool stencilRenderablesExist,
+                          RenderInstruction& instruction,
+                          RenderMessageDispatcher& messageDispatcher,
+                          unsigned int& currentBatchId )
+{
+  Dali::Vector< NodeRenderer >& container = layer.colorRenderers;
+  const unsigned int count = container.Count();
+
+  if( 0 != count )
+  {
+    RenderList& renderList = instruction.GetNextFreeRenderList( count );
+
+    renderList.SetHasColorRenderItems( true );
+
+    // Enable scisscor test if necessary
+    renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
+
+    // Sort into 2D depth-index order
+    DepthIndexSort( container );
+
+    // Find renderables using the same material & color
+    const Material* batchMaterial = &(container[0].mRenderer->GetMaterial());
+    const Vector4* batchColor = &(container[0].mNode->GetWorldColor( updateBufferIndex ));
+
+    unsigned int batchBegin = 0;
+    unsigned int batchEnd = 1;
+    for ( ; batchEnd < count; ++batchEnd )
+    {
+      Renderer* renderer = container[ batchEnd ].mRenderer;
+      const Material* material = &renderer->GetMaterial();
+      const Vector4*  color    = &(container[ batchEnd ].mNode->GetWorldColor( updateBufferIndex ));
+
+      // Continue batching if material and color are the same
+      if( batchMaterial != material ||
+          1 != material->GetTextureCount() ||
+          *batchColor != *color )
+      {
+        AddBatchedRenderers( updateBufferIndex,
+                             renderList,
+                             batchBegin,
+                             batchEnd,
+                             container,
+                             messageDispatcher,
+                             currentBatchId );
+
+        batchBegin    = batchEnd;
+        batchMaterial = material;
+        batchColor    = color;
+      }
+    }
+
+    AddBatchedRenderers( updateBufferIndex,
+                         renderList,
+                         batchBegin,
+                         batchEnd,
+                         container,
+                         messageDispatcher,
+                         currentBatchId );
   }
 }
 
@@ -534,13 +695,17 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
  * @param sortingHelper to use for sorting the renderitems (to avoid reallocating)
  * @param renderTracker An optional render tracker object
  * @param instructions container
+ * @param[in] messageDispatcher Used to send messages to render-thread
+ * @param[in,out] currentBatchId This is incremented for every group of renderers which are batched together
  */
 void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                                SortedLayerPointers& sortedLayers,
                                RenderTask& renderTask,
                                RendererSortingHelper& sortingHelper,
                                RenderTracker* renderTracker,
-                               RenderInstructionContainer& instructions )
+                               RenderInstructionContainer& instructions,
+                               RenderMessageDispatcher& messageDispatcher,
+                               unsigned int& currentBatchId )
 {
   // Retrieve the RenderInstruction buffer from the RenderInstructionContainer
   // then populate with instructions.
@@ -570,14 +735,28 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
 
     if ( colorRenderablesExist )
     {
-      AddColorRenderers( updateBufferIndex,
-                         layer,
-                         viewMatrix,
-                         cameraAttachment,
-                         stencilRenderablesExist,
-                         instruction,
-                         sortingHelper,
-                         tryReuseRenderList );
+      if( layer.GetBehavior() ==  Dali::Layer::LAYER_2D )
+      {
+        PrepareRenderList2d( updateBufferIndex,
+                             layer,
+                             viewMatrix,
+                             cameraAttachment,
+                             stencilRenderablesExist,
+                             instruction,
+                             messageDispatcher,
+                             currentBatchId );
+      }
+      else
+      {
+        AddColorRenderers( updateBufferIndex,
+                           layer,
+                           viewMatrix,
+                           cameraAttachment,
+                           stencilRenderablesExist,
+                           instruction,
+                           sortingHelper,
+                           tryReuseRenderList );
+      }
     }
 
     if ( overlayRenderablesExist )

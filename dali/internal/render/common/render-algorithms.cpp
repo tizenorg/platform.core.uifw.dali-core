@@ -140,7 +140,14 @@ inline void ProcessRenderList(
       //Enable depth writes if depth buffer is enabled and item is opaque
       context.DepthMask( depthBufferEnabled && ( item.IsOpaque() || item.GetRenderer().RequiresDepthTest() ) );
 
-      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
+      if( !item.IsBatch() )
+      {
+        item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, cullMode, !item.IsOpaque() );
+      }
+      else
+      {
+        // TODO
+      }
     }
   }
   else

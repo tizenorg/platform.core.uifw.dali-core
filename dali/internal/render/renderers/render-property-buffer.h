@@ -78,6 +78,15 @@ public:
   void SetData( Dali::Vector<char>* data );
 
   /**
+   * @brief Get the data back again (in order to batch geometry)
+   * @return The data
+   */
+  const Dali::Vector<char>* GetData() const
+  {
+    return mData.Get();
+  }
+
+  /**
    * @brief Set the number of elements
    * @param[in] size The number of elements
    */

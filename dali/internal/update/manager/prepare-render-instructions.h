@@ -36,6 +36,7 @@ class RenderItem;
 class Shader;
 class RenderGeometry;
 class MaterialDataProvider;
+class RenderMessageDispatcher;
 
 /**
  * Structure to store information for sorting the renderers.
@@ -80,13 +81,17 @@ class RenderInstructionContainer;
  * @param[in] renderTask The rendering task information.
  * @param[in] renderTracker A tracker object if we need to know when this render instruction has actually rendered, or NULL if tracking is not required
  * @param[out] instructions The rendering instructions for the next frame.
+ * @param[in] messageDispatcher Used to send messages to render-thread
+ * @param[in,out] currentBatchId This is incremented for every group of renderers which are batched together
  */
 void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                                SortedLayerPointers& sortedLayers,
                                RenderTask& renderTask,
                                RendererSortingHelper& sortingHelper,
                                RenderTracker* renderTracker,
-                               RenderInstructionContainer& instructions );
+                               RenderInstructionContainer& instructions,
+                               RenderMessageDispatcher& messageDispatcher,
+                               unsigned int& currentBatchId );
 
 } // namespace SceneGraph
 

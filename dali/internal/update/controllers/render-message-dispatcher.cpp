@@ -153,6 +153,22 @@ void RenderMessageDispatcher::RemoveRenderTracker( RenderTracker& renderTracker 
   new (slot) DerivedType( &mRenderManager, &RenderManager::RemoveRenderTracker, &renderTracker );
 }
 
+void RenderMessageDispatcher::SetBatchInfo( unsigned int batchId,
+                                            Program* program,
+                                            ResourceId textureId,
+                                            const Vector4& color,
+                                            Dali::Vector<char>* vertices,
+                                            Dali::Vector<char>* indices )
+{
+  typedef MessageValue6< RenderManager, unsigned int, Program*, ResourceId, Vector4, Dali::Vector<char>*, Dali::Vector<char>* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mRenderManager, &RenderManager::SetBatchInfo, batchId, program, textureId, color, vertices, indices );
+}
+
 } // namespace SceneGraph
 
 } // namespace Internal

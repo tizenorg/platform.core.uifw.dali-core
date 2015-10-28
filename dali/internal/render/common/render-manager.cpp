@@ -443,6 +443,16 @@ ProgramCache* RenderManager::GetProgramCache()
   return &(mImpl->programController);
 }
 
+void RenderManager::SetBatchInfo( unsigned int batchId,
+                                  Program* program,
+                                  unsigned int textureId,
+                                  const Vector4& color,
+                                  Dali::Vector<char>* vertices,
+                                  Dali::Vector<char>* indices )
+{
+  // TODO
+}
+
 bool RenderManager::Render( Integration::RenderStatus& status )
 {
   DALI_PRINT_RENDER_START( mImpl->renderBufferIndex );

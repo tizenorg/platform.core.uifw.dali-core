@@ -32,6 +32,7 @@ namespace SceneGraph
 {
 
 class RenderTaskList;
+class RenderMessageDispatcher;
 
 /**
  * Process the list of render-tasks; the output is a series of render instructions.
@@ -51,7 +52,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                          Layer& rootNode,
                          SortedLayerPointers& sortedLayers,
                          RendererSortingHelper& sortingHelper,
-                         RenderInstructionContainer& instructions );
+                         RenderInstructionContainer& instructions,
+                         RenderMessageDispatcher& messageDispatcher );
 
 } // namespace SceneGraph
 

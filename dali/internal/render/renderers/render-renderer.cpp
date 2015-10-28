@@ -183,7 +183,7 @@ void Renderer::Render( Context& context,
   // Take the program into use so we can send uniforms to it
   program->Use();
 
-  DoSetCullFaceMode( context, bufferIndex );
+  DoSetCullFaceMode( context );
 
   // Enable/disable blending
   context.SetBlend( blend );
@@ -226,7 +226,7 @@ void Renderer::DoSetUniforms(Context& context, BufferIndex bufferIndex, SceneGra
 }
 
 // can be overridden by deriving class
-void Renderer::DoSetCullFaceMode(Context& context, BufferIndex bufferIndex )
+void Renderer::DoSetCullFaceMode( Context& context )
 {
   // Set face culling mode
   context.CullFace( mCullFaceMode );

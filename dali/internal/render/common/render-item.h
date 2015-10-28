@@ -140,7 +140,9 @@ private:
   Render::Renderer* mRenderer;
   Node*             mNode;
   int               mDepthIndex;
+  int               mBatchId;
   bool              mIsOpaque:1;
+  bool              mIsBatch:1;
 };
 
 } // namespace SceneGraph

@@ -153,6 +153,17 @@ void RenderMessageDispatcher::RemoveRenderTracker( RenderTracker& renderTracker 
   new (slot) DerivedType( &mRenderManager, &RenderManager::RemoveRenderTracker, &renderTracker );
 }
 
+void RenderMessageDispatcher::SetBatchProgram( unsigned int batchId, Program* program )
+{
+  typedef MessageValue1< RenderManager, unsigned int, Program* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mRenderManager, &RenderManager::SetBatchProgram, batchId, program );
+}
+
 } // namespace SceneGraph
 
 } // namespace Internal

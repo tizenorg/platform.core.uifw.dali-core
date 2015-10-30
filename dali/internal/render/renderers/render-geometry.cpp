@@ -97,6 +97,8 @@ void RenderGeometry::GetAttributeLocationFromProgram( Vector<GLint>& attributeLo
       unsigned int index = program.RegisterCustomAttribute( attributeName );
       GLint location = program.GetCustomAttributeLocation( index );
 
+      std::cout << "Geometry " << this << " attributeName: " << attributeName << " location: " << location << std::endl;
+
       if( -1 == location )
       {
         DALI_LOG_WARNING( "Attribute not found in the shader: %s\n", attributeName.c_str() );

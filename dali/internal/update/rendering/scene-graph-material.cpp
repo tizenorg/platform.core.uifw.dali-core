@@ -37,12 +37,12 @@ Material::Material()
   mSamplers(),
   mTextureId(),
   mUniformName(),
-  mIsFullyOpaque(),
   mConnectionObservers(),
   mFaceCullingMode( Dali::Material::NONE ),
   mBlendingMode( Dali::BlendingMode::AUTO ),
   mBlendingOptions(), // initializes to defaults
-  mBlendPolicy( OPAQUE )
+  mBlendPolicy( OPAQUE ),
+  mTexturesRequireBlending( false )
 {
   // Observe own property-owner's uniform map
   AddUniformMapObserver( *this );
@@ -110,17 +110,10 @@ void Material::PrepareRender( BufferIndex bufferIndex )
 
       if( opaque )
       {
-        size_t textureCount( GetTextureCount() );
-        for( unsigned int i(0); i<textureCount; ++i )
-        {
-          if( !mIsFullyOpaque[i] )
-          {
-            opaque = false;
-          }
-        }
+        opaque = !mTexturesRequireBlending;
       }
 
-      mBlendPolicy = opaque ? Material::USE_ACTOR_COLOR : Material::TRANSPARENT;
+    mBlendPolicy = opaque ? Material::USE_ACTOR_COLOR : Material::TRANSPARENT;
     }
   }
 }
@@ -162,7 +155,6 @@ void Material::AddTexture( const std::string& name, ResourceId id, Render::Sampl
   mTextureId.PushBack( id );
   mUniformName.push_back( name );
   mSamplers.PushBack( sampler );
-  mIsFullyOpaque.PushBack( false );
 
   mConnectionObservers.ConnectionsChanged(*this);
 }
@@ -172,7 +164,6 @@ void Material::RemoveTexture( size_t index )
   mTextureId.Erase( mTextureId.Begin()+index );
   mUniformName.erase( mUniformName.begin() + index );
   mSamplers.Erase( mSamplers.Begin()+index );
-  mIsFullyOpaque.Erase( mIsFullyOpaque.Begin()+index );
   mConnectionObservers.ConnectionsChanged( *this );
 }
 
@@ -227,6 +218,11 @@ void Material::ConnectionsChanged( PropertyOwner& owner )
 void Material::ConnectedUniformMapChanged( )
 {
   mConnectionObservers.ConnectedUniformMapChanged();
+}
+
+void Material::SetTexturesRequireBlending( bool texturesRequireBlending )
+{
+  mTexturesRequireBlending = texturesRequireBlending;
 }
 
 } // namespace SceneGraph

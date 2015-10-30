@@ -506,20 +506,18 @@ bool ResourceManager::IsResourceLoadFailed(ResourceId id)
   return loadFailed;
 }
 
-BitmapMetadata ResourceManager::GetBitmapMetadata(ResourceId id)
+BitmapMetadata* ResourceManager::GetBitmapMetadata(ResourceId id)
 {
-  BitmapMetadata metadata;
-
   if( id > 0 )
   {
     BitmapMetadataIter iter = mImpl->mBitmapMetadata.find(id);
     if( iter != mImpl->mBitmapMetadata.end() )
     {
-      metadata = iter->second;
+      return &(iter->second);
     }
   }
 
-  return metadata;
+  return NULL;
 }
 
 /********************************************************************************

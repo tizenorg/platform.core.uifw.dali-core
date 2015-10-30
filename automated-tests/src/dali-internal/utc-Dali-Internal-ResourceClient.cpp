@@ -209,9 +209,9 @@ int UtcDaliInternalRequestResourceBitmapRequests01(void)
     DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetResourcesFunc ) );
 
     DALI_TEST_CHECK( resourceManager.IsResourceLoaded(req->GetId()) );
-    Internal::BitmapMetadata bitmapData = resourceManager.GetBitmapMetadata(req->GetId());
-    DALI_TEST_CHECK( bitmapData.GetWidth() == 80 );
-    DALI_TEST_CHECK( bitmapData.GetHeight() == 80 );
+    Internal::BitmapMetadata* bitmapData = resourceManager.GetBitmapMetadata(req->GetId());
+    DALI_TEST_CHECK( bitmapData->GetWidth() == 80 );
+    DALI_TEST_CHECK( bitmapData->GetHeight() == 80 );
 
     DALI_TEST_EQUALS( imageTicket->GetWidth(), 0, TEST_LOCATION );
     DALI_TEST_EQUALS( imageTicket->GetHeight(), 0, TEST_LOCATION );
@@ -416,9 +416,9 @@ int UtcDaliInternalRequestReloadBitmapRequests01(void)
     DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetResourcesFunc ) );
 
     DALI_TEST_CHECK( resourceManager.IsResourceLoaded(id));
-    Internal::BitmapMetadata bitmapData = resourceManager.GetBitmapMetadata(id);
-    DALI_TEST_CHECK( bitmapData.GetWidth() == 120 );
-    DALI_TEST_CHECK( bitmapData.GetHeight() == 120 );
+    Internal::BitmapMetadata* bitmapData = resourceManager.GetBitmapMetadata(id);
+    DALI_TEST_CHECK( bitmapData->GetWidth() == 120 );
+    DALI_TEST_CHECK( bitmapData->GetHeight() == 120 );
 
     // Ticket can't have been updated yet - it should still have old values
     DALI_TEST_EQUALS( imageTicket->GetWidth(), 80, TEST_LOCATION );
@@ -520,9 +520,9 @@ int UtcDaliInternalRequestReloadBitmapRequests02(void)
     application.Render(0);
     DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetResourcesFunc ) );
     DALI_TEST_CHECK( resourceManager.IsResourceLoaded(id));
-    Internal::BitmapMetadata bitmapData = resourceManager.GetBitmapMetadata(id);
-    DALI_TEST_CHECK( bitmapData.GetWidth() == 80 );
-    DALI_TEST_CHECK( bitmapData.GetHeight() == 80 );
+    Internal::BitmapMetadata* bitmapData = resourceManager.GetBitmapMetadata(id);
+    DALI_TEST_CHECK( bitmapData->GetWidth() == 80 );
+    DALI_TEST_CHECK( bitmapData->GetHeight() == 80 );
 
     DALI_TEST_EQUALS( imageTicket->GetWidth(), 0, TEST_LOCATION );
     DALI_TEST_EQUALS( imageTicket->GetHeight(), 0, TEST_LOCATION );
@@ -555,8 +555,8 @@ int UtcDaliInternalRequestReloadBitmapRequests02(void)
 
     DALI_TEST_CHECK( resourceManager.IsResourceLoaded(id));
     bitmapData = resourceManager.GetBitmapMetadata(id);
-    DALI_TEST_CHECK( bitmapData.GetWidth() == 80 );
-    DALI_TEST_CHECK( bitmapData.GetHeight() == 80 );
+    DALI_TEST_CHECK( bitmapData->GetWidth() == 80 );
+    DALI_TEST_CHECK( bitmapData->GetHeight() == 80 );
     DALI_TEST_EQUALS( imageTicket->GetWidth(), 80, TEST_LOCATION );
     DALI_TEST_EQUALS( imageTicket->GetHeight(), 80, TEST_LOCATION );
 
@@ -634,9 +634,9 @@ int UtcDaliInternalRequestReloadBitmapRequests03(void)
     DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetResourcesFunc ) );
 
     DALI_TEST_CHECK( resourceManager.IsResourceLoaded(id));
-    Internal::BitmapMetadata bitmapData = resourceManager.GetBitmapMetadata(id);
-    DALI_TEST_CHECK( bitmapData.GetWidth() == 80 );
-    DALI_TEST_CHECK( bitmapData.GetHeight() == 80 );
+    Internal::BitmapMetadata* bitmapData = resourceManager.GetBitmapMetadata(id);
+    DALI_TEST_CHECK( bitmapData->GetWidth() == 80 );
+    DALI_TEST_CHECK( bitmapData->GetHeight() == 80 );
 
     DALI_TEST_EQUALS( imageTicket->GetWidth(), 0, TEST_LOCATION );
     DALI_TEST_EQUALS( imageTicket->GetHeight(), 0, TEST_LOCATION );
@@ -667,8 +667,8 @@ int UtcDaliInternalRequestReloadBitmapRequests03(void)
 
     DALI_TEST_CHECK( resourceManager.IsResourceLoaded(id));
     bitmapData = resourceManager.GetBitmapMetadata(id);
-    DALI_TEST_CHECK( bitmapData.GetWidth() == 120 );
-    DALI_TEST_CHECK( bitmapData.GetHeight() == 120 );
+    DALI_TEST_CHECK( bitmapData->GetWidth() == 120 );
+    DALI_TEST_CHECK( bitmapData->GetHeight() == 120 );
     DALI_TEST_EQUALS( imageTicket->GetWidth(), 80, TEST_LOCATION );
     DALI_TEST_EQUALS( imageTicket->GetHeight(), 80, TEST_LOCATION );
 

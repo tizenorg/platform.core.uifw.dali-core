@@ -258,7 +258,7 @@ private: // Data
   Style mStyle               : 2; ///< rendering style, 2 bits is enough as only 2 values in the enum
   CullFaceMode mCullFaceMode : 3; ///< Cullface mode, 3 bits is enough for 4 values
 
-  BitmapMetadata  mBitmapMetadata;///< The bitmap metadata
+  BitmapMetadata* mBitmapMetadata;///< The bitmap metadata
   Vector2 mGeometrySize;          ///< The size of the currently used geometry
 
 };

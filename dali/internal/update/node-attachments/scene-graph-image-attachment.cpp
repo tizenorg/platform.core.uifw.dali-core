@@ -64,7 +64,8 @@ ImageAttachment::ImageAttachment( unsigned int textureId )
   mIsPixelAreaSet( false ),
   mPreviousRefreshHints( 0 ),
   mStyle( Dali::ImageActor::STYLE_QUAD ),
-  mCullFaceMode( CullNone )
+  mCullFaceMode( CullNone ),
+  mBitmapMetadata( NULL )
 {
 }
 
@@ -319,6 +320,7 @@ bool ImageAttachment::DoPrepareResources( BufferIndex updateBufferIndex, Resourc
   {
     // The metadata is used by IsFullyOpaque(), below.
     mBitmapMetadata = resourceManager.GetBitmapMetadata( mTextureId );
+    DALI_ASSERT_DEBUG( mBitmapMetadata );
 
     CompleteStatusManager& completeStatusManager = mSceneController->GetCompleteStatusManager();
     CompleteStatusManager::CompleteState status = completeStatusManager.GetStatus( mTextureId );
@@ -329,7 +331,7 @@ bool ImageAttachment::DoPrepareResources( BufferIndex updateBufferIndex, Resourc
       {
         ready = false;
 
-        if( mBitmapMetadata.GetIsFramebuffer() )
+        if( mBitmapMetadata->GetIsFramebuffer() )
         {
           ready = true;
         }
@@ -464,7 +466,7 @@ bool ImageAttachment::IsFullyOpaque( BufferIndex updateBufferIndex )
        *   2) the inherited color is not transparent nor semi-transparent
        *   3) the shader doesn't require blending
        */
-      fullyOpaque = mBitmapMetadata.IsFullyOpaque();
+      fullyOpaque = mBitmapMetadata->IsFullyOpaque();
 
       if ( fullyOpaque && mParent )
       {

@@ -304,8 +304,10 @@ public: // Used by ResourceClient
   /**
    * Get bitmap metadata. This stores meta data about the resource, but
    * doesn't keep track of the resource
+   * @param id of the resource
+   * @return pointer to the metadata or NULL if not found
    */
-  BitmapMetadata GetBitmapMetadata(ResourceId id);
+  BitmapMetadata* GetBitmapMetadata(ResourceId id);
 
     /********************************************************************************
    ************************* ResourceCache Implementation  ************************

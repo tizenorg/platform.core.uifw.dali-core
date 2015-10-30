@@ -140,8 +140,9 @@ CompleteStatusManager::CompleteState CompleteStatusManager::GetStatus( Integrati
 ResourceTracker* CompleteStatusManager::CreateResourceTracker( Integration::ResourceId id )
 {
   ResourceTracker* resourceTracker = NULL;
-  BitmapMetadata bitmapMetadata = mResourceManager.GetBitmapMetadata( id );
-  if( bitmapMetadata.GetIsNativeImage() && bitmapMetadata.GetIsFramebuffer()  )
+  BitmapMetadata* bitmapMetadata = mResourceManager.GetBitmapMetadata( id );
+  DALI_ASSERT_DEBUG( bitmapMetadata );
+  if( bitmapMetadata->GetIsNativeImage() && bitmapMetadata->GetIsFramebuffer()  )
   {
     resourceTracker = new SyncResourceTracker( mGlSyncAbstraction, mRenderMessageDispatcher );
   }

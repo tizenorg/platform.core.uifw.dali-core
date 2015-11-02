@@ -66,12 +66,15 @@ public:
    * @param[in] materialDataProvider The material data provider
    */
   void SetMaterial( const MaterialDataProvider& materialDataProvider );
+  void SetBatchMaterial( const MaterialDataProvider& materialDataProvider );
 
   /**
    * Get the material data provider
    * @return the material data provider
    */
   const MaterialDataProvider& GetMaterial() const;
+
+  const MaterialDataProvider* GetBatchMaterial() const;
 
   /**
    * Set the uniform map data provider
@@ -102,8 +105,9 @@ public:
    */
   Textures& GetTextures();
 
-private:
+//private:
   const MaterialDataProvider*   mMaterialDataProvider;
+  const MaterialDataProvider*   mBatchMaterialDataProvider;
   const UniformMapDataProvider* mUniformMapDataProvider;
   Shader*                       mShader;
   Textures                      mTextures;

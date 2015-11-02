@@ -77,8 +77,8 @@ public:
   {
     enum
     {
-      CLIPPING_ENABLE = DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX, ///< name "clipping-enable",  type bool
-      CLIPPING_BOX,                                                 ///< name "clipping-box",     type Rect<int>
+      CLIPPING_ENABLE = DEFAULT_DERIVED_ACTOR_PROPERTY_START_INDEX, ///< name "clippingEnable",   type bool
+      CLIPPING_BOX,                                                 ///< name "clippingBox",      type Rect<int>
       BEHAVIOR,                                                     ///< name "behavior",         type String
     };
   };

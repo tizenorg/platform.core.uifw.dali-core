@@ -472,6 +472,9 @@ public:
    */
   void SetLayerDepths( const std::vector< Layer* >& layers, bool systemLevel );
 
+
+  SceneController& GetSceneController();
+
 private:
 
   // Undefined

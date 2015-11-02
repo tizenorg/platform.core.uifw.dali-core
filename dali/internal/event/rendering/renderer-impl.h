@@ -70,6 +70,8 @@ public:
    */
   void SetMaterial( Material& material );
 
+  void SetBatchMaterial( Material& material );
+
   /**
    * @copydoc Dali::Renderer::GetMaterial()
    */
@@ -209,6 +211,7 @@ private: // data
   SceneGraph::Renderer* mSceneObject;
   ObjectConnector<Geometry> mGeometryConnector; ///< Connector that holds the geometry used by this renderer
   ObjectConnector<Material> mMaterialConnector; ///< Connector that holds the material used by this renderer
+  ObjectConnector<Material> mBatchMaterialConnector; ///< Connector that holds the material used by this renderer
   int mDepthIndex;
   int mOnStageCount;
 };

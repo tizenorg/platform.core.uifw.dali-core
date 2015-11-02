@@ -130,6 +130,14 @@ public:
    */
   virtual void SetSortAttributes( BufferIndex bufferIndex, SceneGraph::RendererWithSortAttributes& sortAttributes ) const;
 
+  /**
+   * @return NewRenderer or NULL if this is an old renderer
+   */
+  virtual NewRenderer* GetNewRenderer()
+  {
+    return NULL;
+  }
+
 protected:
   /**
    * Protected constructor; only derived classes can be instantiated.
@@ -145,13 +153,7 @@ private:
   // Undefined
   Renderer& operator=( const Renderer& rhs );
 
-  /**
-   * @return NewRenderer or NULL if this is an old renderer
-   */
-  virtual NewRenderer* GetNewRenderer()
-  {
-    return NULL;
-  }
+
 
   /**
    * Checks if renderer's resources are ready to be used.

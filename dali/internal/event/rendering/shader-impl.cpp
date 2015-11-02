@@ -22,6 +22,7 @@
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/shader-effects/shader-effect.h> // Dali::ShaderEffect::GeometryHints // TODO: MESH_REWORK REMOVE
 #include <dali/devel-api/rendering/shader.h> // Dali::Shader
+#include <dali/devel-api/scripting/scripting.h>
 
 #include <dali/internal/event/common/object-impl-helper.h> // Dali::Internal::ObjectHelper
 #include <dali/internal/event/common/property-helper.h> // DALI_PROPERTY_TABLE_BEGIN, DALI_PROPERTY, DALI_PROPERTY_TABLE_END
@@ -47,6 +48,16 @@ DALI_PROPERTY( "shaderHints",   INTEGER, true,     false,     true,   Dali::Shad
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> SHADER_IMPL = { DEFAULT_PROPERTY_DETAILS };
+
+Dali::Scripting::StringEnum ShaderHintsTable[] =
+  { { "HINT_NONE",                     Dali::Shader::HINT_NONE},
+    { "HINT_REQUIRES_SELF_DEPTH_TEST", Dali::Shader::HINT_REQUIRES_SELF_DEPTH_TEST},
+    { "HINT_OUTPUT_IS_TRANSPARENT",    Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT},
+    { "HINT_OUTPUT_IS_OPAQUE",         Dali::Shader::HINT_OUTPUT_IS_OPAQUE},
+    { "HINT_MODIFIES_GEOMETRY",        Dali::Shader::HINT_MODIFIES_GEOMETRY}
+  };
+
+const unsigned int ShaderHintsTableSize = sizeof( ShaderHintsTable ) / sizeof( ShaderHintsTable[0] );
 
 BaseHandle Create()
 {
@@ -124,8 +135,37 @@ void Shader::SetDefaultProperty( Property::Index index,
   {
     case Dali::Shader::Property::PROGRAM:
     {
-      // @todo MESH_REWORK Set program again?
-      DALI_ASSERT_ALWAYS( 0 && "MESH_REWORK" );
+      if( propertyValue.GetType() == Property::MAP )
+      {
+        Dali::Property::Map* map = propertyValue.GetMap();
+        std::string vertex;
+        std::string fragment;
+        Dali::Shader::ShaderHints hints(Dali::Shader::HINT_NONE);
+
+        if( Property::Value* value = map->Find("vertex") )
+        {
+          vertex = value->Get<std::string>();
+        }
+
+        if( Property::Value* value = map->Find("fragment") )
+        {
+          fragment = value->Get<std::string>();
+        }
+
+        if( Property::Value* value = map->Find("hints") )
+        {
+          static_cast<void>( // ignore return
+            Scripting::GetEnumeration< Dali::Shader::ShaderHints >(value->Get<std::string>().c_str(),
+                                                                   ShaderHintsTable, ShaderHintsTableSize, hints)
+            );
+        }
+
+        Initialize(vertex, fragment, hints );
+      }
+      else
+      {
+        DALI_LOG_WARNING( "Shader program property should be a map\n" );
+      }
       break;
     }
     case Dali::Shader::Property::SHADER_HINTS:

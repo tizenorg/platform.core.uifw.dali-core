@@ -80,6 +80,13 @@ void Renderer::SetMaterial( Material& material )
   SetMaterialMessage( GetEventThreadServices(), *mSceneObject, *materialSceneObject );
 }
 
+void Renderer::SetBatchMaterial( Material& material )
+{
+  mBatchMaterialConnector.Set( material, OnStage() );
+  const SceneGraph::Material* materialSceneObject = material.GetMaterialSceneObject();
+  SetBatchMaterialMessage( GetEventThreadServices(), *mSceneObject, *materialSceneObject );
+}
+
 Material* Renderer::GetMaterial() const
 {
   return mMaterialConnector.Get().Get();

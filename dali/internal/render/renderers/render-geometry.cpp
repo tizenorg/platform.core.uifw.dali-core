@@ -203,6 +203,7 @@ void RenderGeometry::UploadAndDraw(
       }
       else
       {
+        std::cout<<"Drawing triangle strip "<< mVertexBuffers[0]->GetElementCount() << "vertices"<<std::endl;
         unsigned int numVertices = mVertexBuffers[0]->GetElementCount();
         context.DrawArrays(GL_TRIANGLE_STRIP, 0, numVertices );
       }

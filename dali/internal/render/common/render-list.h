@@ -307,6 +307,12 @@ public:
     return mHasColorRenderItems;
   }
 
+  void Erase( size_t i )
+  {
+    mItems.Erase( mItems.Begin() + i );
+    mNextFree--;
+  }
+
 private:
 
   /*

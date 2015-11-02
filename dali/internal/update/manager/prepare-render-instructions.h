@@ -36,6 +36,7 @@ class RenderItem;
 class Shader;
 class RenderGeometry;
 class MaterialDataProvider;
+class UpdateManager;
 
 /**
  * Structure to store information for sorting the renderers.
@@ -86,7 +87,8 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                                RenderTask& renderTask,
                                RendererSortingHelper& sortingHelper,
                                RenderTracker* renderTracker,
-                               RenderInstructionContainer& instructions );
+                               RenderInstructionContainer& instructions,
+                               UpdateManager& updateManager );
 
 } // namespace SceneGraph
 

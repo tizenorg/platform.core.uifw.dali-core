@@ -98,6 +98,7 @@ Renderer::Renderer()
 :mSceneController(0),
  mRenderer(NULL),
  mMaterial(NULL),
+ mBatchMaterial(NULL),
  mGeometry(NULL),
  mReferenceCount(0),
  mRegenerateUniformMap(0),
@@ -207,6 +208,17 @@ void Renderer::SetMaterial( BufferIndex bufferIndex, Material* material)
   mResendDataProviders = true;
 }
 
+void Renderer::SetBatchMaterial( BufferIndex bufferIndex, Material* material)
+{
+  DALI_ASSERT_DEBUG( material != NULL && "Material pointer is NULL" );
+
+  mBatchMaterial = material;
+  mBatchMaterial->AddConnectionObserver( *this );
+  mRegenerateUniformMap = REGENERATE_UNIFORM_MAP;
+
+  mResendDataProviders = true;
+}
+
 void Renderer::SetGeometry( BufferIndex bufferIndex, Geometry* geometry)
 {
   DALI_ASSERT_DEBUG( geometry != NULL && "Geometry pointer is NULL");
@@ -287,6 +299,7 @@ RenderDataProvider* Renderer::NewRenderDataProvider()
   RenderDataProvider* dataProvider = new RenderDataProvider();
 
   dataProvider->mMaterialDataProvider = mMaterial;
+  dataProvider->mBatchMaterialDataProvider = mBatchMaterial;
   dataProvider->mUniformMapDataProvider = this;
   dataProvider->mShader = mMaterial->GetShader();
 

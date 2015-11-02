@@ -30,7 +30,7 @@ class CompleteStatusManager;
 
 namespace SceneGraph
 {
-
+class UpdateManager;
 class RenderTaskList;
 
 /**
@@ -51,7 +51,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                          Layer& rootNode,
                          SortedLayerPointers& sortedLayers,
                          RendererSortingHelper& sortingHelper,
-                         RenderInstructionContainer& instructions );
+                         RenderInstructionContainer& instructions,
+                         UpdateManager& updateManager);
 
 } // namespace SceneGraph
 

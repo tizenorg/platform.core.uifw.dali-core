@@ -101,11 +101,6 @@ public:
   size_t GetPropertyCount() const;
 
   /**
-   * @copydoc Dali::TypeInfo::GetPropertyName
-   */
-  std::string GetPropertyName(size_t index) const;
-
-  /**
    * Adds the property indices to the container specified.
    * @param[in/out] indices The container where the property indices are added.
    */
@@ -115,6 +110,16 @@ public:
    * @copydoc Dali::TypeInfo::GetPropertyName() const
    */
   const std::string& GetPropertyName( Property::Index index ) const;
+
+  /**
+   * @copydoc Dali::TypeInfo::InheritsFrom
+   */
+  bool InheritsFrom(const std::string& basename) const;
+
+  /**
+   * @copydoc Dali::TypeInfo::Bases
+   */
+  void GetBases(Dali::Vector<std::string>& vector) const;
 
   /*
    * Add an action function

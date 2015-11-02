@@ -99,7 +99,7 @@ void RenderGeometry::GetAttributeLocationFromProgram( Vector<GLint>& attributeLo
 
       if( -1 == location )
       {
-        DALI_LOG_WARNING( "Attribute not found in the shader: %s\n", attributeName.c_str() );
+        //DALI_LOG_WARNING( "Attribute not found in the shader: %s\n", attributeName.c_str() );
       }
 
       attributeLocation.PushBack( location );

@@ -82,6 +82,20 @@ public:
     return Vector< T >::Erase( position );
   }
 
+
+  Iterator Erase( Iterator begin, Iterator end )
+  {
+    Iterator it( begin );
+    while( it != end )
+    {
+      delete *it;
+      ++it;
+    }
+
+
+    return Vector< T >::Erase( begin, end );
+  }
+
   /**
    * Release the ownership of an object, without deleting it.
    * @param[in] position A dereferencable iterator to an element in mContainer.

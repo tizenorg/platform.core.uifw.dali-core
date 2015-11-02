@@ -36,12 +36,27 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/update/manager/update-manager.h>
+#include <dali/internal/update/controllers/render-message-dispatcher.h>
 
 namespace
 {
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gRenderListLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_RENDER_LISTS");
 #endif
+
+struct Batch
+{
+  Dali::Internal::Render::Renderer* mRenderer;
+  Dali::Internal::SceneGraph::RenderGeometry* mGeometry;
+  Dali::Internal::Render::PropertyBuffer* mVertexBuffer;
+  Dali::Internal::Render::PropertyBuffer* mIndexBuffer;
+  unsigned int mBufferIndex;
+};
+
+float gQuadVertexData[] = {-0.5f, -0.5, 0.0f, 0.0f, 0.5f, -0.5f, 1.0f, 0.0f, -0.5f, 0.5f, 0.0f, 1.0f, 0.5f, 0.5f, 1.0f, 1.0f};
+
+std::vector<Batch> mBatches;
 }
 
 namespace Dali
@@ -71,10 +86,12 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 {
   const Node& parentNode = renderable.GetParent();
   const Matrix& worldMatrix = parentNode.GetWorldMatrix( updateBufferIndex );
+  const Vector3& size = parentNode.GetSize(updateBufferIndex );
 
   // Get the next free RenderItem and initialization
   RenderItem& item = renderList.GetNextFreeItem();
   const Render::Renderer& renderer = renderable.GetRenderer();
+
   item.SetRenderer( const_cast< Render::Renderer* >( &renderer ) );
   item.SetNode( const_cast< Node* >( &parentNode ) );
 
@@ -90,6 +107,8 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 
   // save MV matrix onto the item
   Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
+  item.GetWorldMatrix() = worldMatrix;
+  item.GetSize() = size;
 }
 
 /**
@@ -110,6 +129,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 {
   // Check for cull against view frustum
   const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
+  const Vector3& size = renderable.mNode->GetSize(updateBufferIndex );
   bool inside = true;
 
   if ( renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
@@ -139,6 +159,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
     // Get the next free RenderItem
     RenderItem& item = renderList.GetNextFreeItem();
     item.SetRenderer( &renderable.mRenderer->GetRenderer() );
+    item.SetSceneGraphRenderer( renderable.mRenderer );
     item.SetNode( renderable.mNode );
     item.SetIsOpaque( renderable.mRenderer->IsFullyOpaque(updateBufferIndex, *renderable.mNode ) );
 
@@ -153,6 +174,8 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 
     // save MV matrix onto the item
     Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
+    item.GetWorldMatrix() = worldMatrix;
+    item.GetSize() = size;
   }
 }
 
@@ -386,7 +409,175 @@ inline void SortColorRenderItems( BufferIndex bufferIndex, RenderList& renderLis
     *renderListIter = sortingHelper[ index ].renderItem;
     DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "  sortedList[%d] = %p\n", index, &sortingHelper[ index ].renderItem->GetRenderer() );
   }
+
 }
+
+
+void BatchRenderers( BufferIndex updateBufferIndex, size_t first, size_t last, RenderList& renderList, UpdateManager& updateManager, const Matrix& viewMatrix )
+{
+  RenderItem& firstItem = renderList.GetItem(first);
+
+  Geometry::GeometryType geometryType( firstItem.GetSceneGraphRenderer()->GetGeometry().GetGeometryType(updateBufferIndex) );
+  if( geometryType == Dali::Geometry::TRIANGLE_STRIP || geometryType == Dali::Geometry::TRIANGLE_FAN  ||
+      geometryType == Dali::Geometry::LINE_LOOP || geometryType == Dali::Geometry::LINE_STRIP )
+  {
+    return; //Cannot batch strips, fans or loops
+  }
+
+  unsigned int batchedRendererCount = (last - first + 1);
+
+  //Property buffer format
+  Render::PropertyBuffer::Format* batchVertexFormat = new Render::PropertyBuffer::Format();
+  unsigned int vertexSize(sizeof(Vector2));
+  unsigned int offset(0u);
+  Render::PropertyBuffer::Component positionComponent = {"aPosition",offset,sizeof(Vector2),Property::VECTOR2};
+  batchVertexFormat->components.push_back(positionComponent);
+  offset += sizeof(Vector2);
+
+  size_t textureCount( firstItem.GetSceneGraphRenderer()->GetMaterial().GetTextureCount() );
+  if( textureCount )
+  {
+    Render::PropertyBuffer::Component texCoordComponent = {"aTexCoord",offset,sizeof(Vector2),Property::VECTOR2};
+    batchVertexFormat->components.push_back(texCoordComponent);
+    offset += sizeof(Vector2);
+    vertexSize += sizeof(Vector2);
+  }
+
+  const CollectedUniformMap& uniformMap = firstItem.GetSceneGraphRenderer()->GetUniformMap(updateBufferIndex);
+  for( unsigned int uniformIndex(0); uniformIndex<uniformMap.Size(); ++uniformIndex )
+  {
+    const PropertyInputImpl* property = uniformMap[uniformIndex]->propertyPtr;
+    //TODO: Implement the rest of property types
+    if( property->GetType() == Property::VECTOR4 )
+    {
+      Render::PropertyBuffer::Component component = {uniformMap[uniformIndex]->uniformName.c_str(),offset,sizeof(Vector4),Property::VECTOR4};
+      batchVertexFormat->components.push_back(component);
+      offset += sizeof(Vector4);
+      vertexSize += sizeof(Vector4);
+    }
+  }
+  batchVertexFormat->size = vertexSize;
+
+
+  ////Vertex buffer
+  unsigned int vertexCount = 4 * batchedRendererCount;
+  Dali::Vector<char>* batchVertexBuffer = new Dali::Vector<char>();
+  batchVertexBuffer->ResizeNoInit( vertexCount * vertexSize);
+
+  //Iterate through items, transform its vertex position and add the rest of attributes
+  size_t count(0);
+  for( unsigned itemIndex = first; itemIndex<=last; ++itemIndex )
+  {
+    RenderItem& item = renderList.GetItem(itemIndex);
+    const CollectedUniformMap& uniformMap = item.GetSceneGraphRenderer()->GetUniformMap(updateBufferIndex);
+
+    for( unsigned int m(0); m<16; m+=4 )
+    {
+      const Vector3& size = item.GetSize();
+      Vector4 positionTransformed = item.GetWorldMatrix() * Vector4(gQuadVertexData[m]*size.x, gQuadVertexData[m+1]*size.y, 0.0f, 1.0f);
+
+      //Copy position to new vertex buffer
+      Vector2* position = reinterpret_cast<Vector2*>( &(*batchVertexBuffer)[count] );
+      *position = Vector2(positionTransformed.x,positionTransformed.y);
+      count += sizeof(Vector2);
+
+      if( textureCount )
+      {
+        //Copy texture coordinates to new vertex buffer
+        Vector2* texcoord = reinterpret_cast<Vector2*>( &(*batchVertexBuffer)[count] );
+        *texcoord = Vector2(gQuadVertexData[m+2],gQuadVertexData[m+3]);
+        count += sizeof(Vector2);
+      }
+
+      //Uniforms.
+      //TODO: Add node uniforms (It needs to preserve uniform precedence)
+      for( unsigned int uniformIndex(0); uniformIndex<uniformMap.Size(); ++uniformIndex )
+      {
+        const PropertyInputImpl* property = uniformMap[uniformIndex]->propertyPtr;
+        if( property->GetType() == Property::VECTOR4 )
+        {
+          Vector4* attribute = reinterpret_cast<Vector4*>( &(*batchVertexBuffer)[count] );
+          *attribute = property->GetVector4(updateBufferIndex);
+          count += sizeof(Vector4);
+        }
+      }
+    }
+  }
+
+  //Index buffer
+  Dali::Vector<char>* batchIndexBuffer = new Dali::Vector<char>();
+  unsigned int indexCount = 6 * batchedRendererCount;
+  batchIndexBuffer->ResizeNoInit( indexCount * sizeof(unsigned int) );
+  for( size_t i(0); i<batchedRendererCount; ++i )
+  {
+    unsigned int* index =  reinterpret_cast<unsigned int*>( &(*batchIndexBuffer)[ i * 6 * sizeof(unsigned int) ] );
+    size_t offset = 4*i;
+    *(index++) = offset;
+    *(index++) = offset+1;
+    *(index++) = offset+2;
+    *(index++) = offset+2;
+    *(index++) = offset+1;
+    *(index++) = offset+3;
+  }
+
+  //Create a new RenderGeometry
+  RenderGeometry* batchGeometry = new RenderGeometry( geometryType, false );
+
+  //Create vertex buffer
+  Render::PropertyBuffer* vertexBuffer = new Render::PropertyBuffer();
+  vertexBuffer->SetSize( vertexCount );
+  vertexBuffer->SetFormat( batchVertexFormat );
+  vertexBuffer->SetData(batchVertexBuffer);
+  batchGeometry->AddPropertyBuffer( vertexBuffer, false );
+
+  //Create index buffer
+  Render::PropertyBuffer::Format* batchIndexFormat = new Render::PropertyBuffer::Format();
+  Render::PropertyBuffer::Component indexComponent = {"uIndex",0,sizeof(unsigned int),Property::INTEGER};
+  batchIndexFormat->components.push_back(indexComponent);
+  batchIndexFormat->size = sizeof(unsigned int);
+  Render::PropertyBuffer* indexBuffer = new Render::PropertyBuffer();
+  indexBuffer->SetSize( indexCount );
+  indexBuffer->SetData(batchIndexBuffer);
+  indexBuffer->SetFormat(batchIndexFormat);
+  batchGeometry->AddPropertyBuffer( indexBuffer, true );
+
+  //Create the new renderer
+  SceneGraph::Renderer& renderer = *firstItem.GetSceneGraphRenderer();
+  RenderDataProvider* dataProvider = new RenderDataProvider();
+  dataProvider->mMaterialDataProvider = &renderer.GetMaterial();
+  dataProvider->mUniformMapDataProvider = &renderer;
+  dataProvider->mShader = renderer.GetBatchMaterial()->GetShader();
+
+
+  dataProvider->mTextures.resize( textureCount );
+  for( unsigned int textureIndex(0); textureIndex<textureCount; ++textureIndex )
+  {
+    dataProvider->mTextures[textureIndex] = Render::Texture( renderer.GetMaterial().GetTextureUniformName(textureIndex),
+                                                             renderer.GetMaterial().GetTextureId(textureIndex),
+                                                             renderer.GetMaterial().GetTextureSampler(textureIndex));
+
+    std::cout<<"Using texture : "<< renderer.GetMaterial().GetTextureId(textureIndex) << std::endl;
+  }
+
+
+  Render::Renderer* batchRenderer = Render::NewRenderer::New( dataProvider, batchGeometry );
+  updateManager.GetSceneController().GetRenderMessageDispatcher().AddRenderer( *batchRenderer );
+  updateManager.AddPropertyBuffer( vertexBuffer );
+  updateManager.AddPropertyBuffer( indexBuffer );
+  updateManager.GetSceneController().GetRenderMessageDispatcher().AddGeometry( *batchGeometry );
+
+
+  Batch newBatch = {batchRenderer,batchGeometry,vertexBuffer,indexBuffer, updateBufferIndex };
+  mBatches.push_back(newBatch);
+
+  //Modify the first item to render the batch
+  firstItem.GetModelViewMatrix() = viewMatrix;
+  firstItem.SetRenderer( batchRenderer );
+
+  //Remove the rest of the items from the list
+  renderList.Remove( first+1, last );
+}
+
 
 /**
  * Add color renderers from the layer onto the next free render list
@@ -406,9 +597,11 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                bool stencilRenderablesExist,
                                RenderInstruction& instruction,
                                RendererSortingHelper& sortingHelper,
-                               bool tryReuseRenderList )
+                               bool tryReuseRenderList,
+                               UpdateManager& updateManager )
 {
   RenderList& renderList = instruction.GetNextFreeRenderList( layer.colorRenderables.size() );
+  renderList.Reset();
   renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
   renderList.SetHasColorRenderItems( true );
 
@@ -423,6 +616,103 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
 
   AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, layer.colorRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
   SortColorRenderItems( updateBufferIndex, renderList, layer, sortingHelper );
+
+  //Batching
+  std::vector<size_t> batchRanges;
+  bool batching = false;
+  size_t first;
+  SceneGraph::Shader* previousBatchShader(0);
+  unsigned int renderableCount( renderList.Count() );
+  ResourceId previousTextureId(0);
+  for( unsigned int index = 0; index < renderableCount; ++index )
+  {
+    RenderItem& item = renderList.GetItem(index);
+    Renderer* sceneGraphRenderer( item.GetSceneGraphRenderer() );
+
+
+    if( sceneGraphRenderer && sceneGraphRenderer->GetBatchMaterial() )
+    {
+      SceneGraph::Material* currentBatchMaterial = sceneGraphRenderer->GetBatchMaterial();
+
+      ResourceId textureId(0);
+      if(sceneGraphRenderer->GetMaterial().GetTextureCount()  )
+      {
+        textureId = sceneGraphRenderer->GetMaterial().GetTextureId(0);
+      }
+
+      SceneGraph::Shader* currentBatchShader = currentBatchMaterial->GetShader();
+      if( !previousBatchShader || ( (currentBatchShader == previousBatchShader) && (textureId == previousTextureId) ) )
+      {
+        if( !batching )
+        {
+          first = index;
+          batching = true;
+        }
+      }
+      else
+      {
+        if( batching && index-1-first>0 )
+        {
+          batchRanges.push_back(first);
+          batchRanges.push_back(index-1);
+        }
+
+        batching = true;
+        first = index;
+      }
+
+      previousBatchShader = currentBatchShader;
+      previousTextureId = textureId;
+    }
+    else
+    {
+      batching = false;
+      previousBatchShader = 0;
+    }
+  }
+
+  if( batching )
+  {
+    batchRanges.push_back(first);
+    batchRanges.push_back(renderList.Count()-1);
+  }
+
+  //clear previous batched renderers.
+  //TODO: Try to recycle these objects instead of addind and removing all the time
+  std::vector<Batch>::iterator iter( mBatches.begin() );
+
+  while( iter != mBatches.end() )
+  {
+
+    if( iter->mBufferIndex == updateBufferIndex )
+    {
+      Batch& batch = *iter;
+      updateManager.GetSceneController().GetRenderMessageDispatcher().RemoveRenderer( *batch.mRenderer );
+      updateManager.GetSceneController().GetRenderMessageDispatcher().RemoveGeometry( *batch.mGeometry );
+      updateManager.GetSceneController().GetRenderMessageDispatcher().RemovePropertyBuffer( *batch.mGeometry, batch.mVertexBuffer);
+      updateManager.GetSceneController().GetRenderMessageDispatcher().RemovePropertyBuffer( *batch.mGeometry, batch.mIndexBuffer );
+      updateManager.RemovePropertyBuffer( batch.mVertexBuffer );
+      updateManager.RemovePropertyBuffer( batch.mIndexBuffer );
+      iter = mBatches.erase( iter );
+    }
+    else
+    {
+      ++iter;
+    }
+  }
+
+  size_t aux(0);
+  for( size_t i(0); i<batchRanges.size(); i+=2)
+  {
+    if( batchRanges[i+1]-batchRanges[i] > 0 )
+    {
+      std::cout<<"Batching renderers from "<<batchRanges[i]<<" to "<<batchRanges[i+1]<<std::endl;
+      size_t batchBegin = batchRanges[i] - aux;
+      size_t batchEnd = batchRanges[i+1] - aux;
+      BatchRenderers( updateBufferIndex, batchBegin, batchEnd, renderList, updateManager, viewMatrix );
+      aux += batchRanges[i+1]-batchRanges[i] - 1;
+    }
+  }
 
   //Set render flags
   unsigned int flags = 0u;
@@ -540,7 +830,8 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                                RenderTask& renderTask,
                                RendererSortingHelper& sortingHelper,
                                RenderTracker* renderTracker,
-                               RenderInstructionContainer& instructions )
+                               RenderInstructionContainer& instructions,
+                               UpdateManager& updateManager )
 {
   // Retrieve the RenderInstruction buffer from the RenderInstructionContainer
   // then populate with instructions.
@@ -577,7 +868,8 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                          stencilRenderablesExist,
                          instruction,
                          sortingHelper,
-                         tryReuseRenderList );
+                         tryReuseRenderList,
+                         updateManager);
     }
 
     if ( overlayRenderablesExist )

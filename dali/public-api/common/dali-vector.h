@@ -593,6 +593,15 @@ public: // API
   }
 
   /**
+   * @brief Does a resize but doesn't initialize the contents
+   * @param count to resize to.
+   */
+  void ResizeNoInit( SizeType count )
+  {
+    Reserve( count );
+    VectorBase::SetCount( count );
+  }
+  /**
    * @brief Erase an element.
    *
    * Does not change capacity. Other elements get moved.

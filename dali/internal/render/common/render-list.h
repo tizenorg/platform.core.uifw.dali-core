@@ -44,6 +44,7 @@ class Layer;
 
 class RenderItem;
 typedef OwnerContainer< RenderItem* > RenderItemContainer;
+typedef OwnerContainer< RenderItem* >::Iterator RenderItemIterator;
 
 struct RenderList;
 typedef OwnerContainer< RenderList* > RenderListContainer;
@@ -305,6 +306,19 @@ public:
   bool HasColorRenderItems() const
   {
     return mHasColorRenderItems;
+  }
+
+  void Remove( size_t begin, size_t end )
+  {
+    RenderItemIterator iterator = mItems.Begin() + begin;
+
+    size_t count( end - begin );
+    for( size_t i(0); i<=count; ++i )
+    {
+      iterator = mItems.Erase( iterator );
+    }
+
+    mNextFree -= ( end - begin +1 );
   }
 
 private:

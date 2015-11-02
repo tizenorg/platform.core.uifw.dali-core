@@ -76,6 +76,14 @@ public:
    */
   void SetRenderer( Render::Renderer* renderer );
 
+  SceneGraph::Renderer* GetSceneGraphRenderer() const;
+
+  /**
+   * Set the renderer
+   * @param[in] renderer The renderer
+   */
+  void SetSceneGraphRenderer( SceneGraph::Renderer* renderer );
+
   /**
    * Set the node
    * @param[in] node The node
@@ -96,6 +104,9 @@ public:
    */
   Matrix& GetModelViewMatrix();
 
+  Matrix& GetWorldMatrix();
+
+  Vector3& GetSize();
   /**
    * Retrieve the modelView matrix.
    * @return The modelView matrix.
@@ -137,6 +148,9 @@ private:
   RenderItem& operator = ( const RenderItem& item );
 
   Matrix            mModelViewMatrix;
+  Matrix            mWorldMatrix;
+  Vector3           mSize;
+  SceneGraph::Renderer* mSceneGraphRenderer;
   Render::Renderer* mRenderer;
   Node*             mNode;
   int               mDepthIndex;

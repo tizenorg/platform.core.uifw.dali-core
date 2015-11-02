@@ -251,21 +251,7 @@ void Context::ResetGlState()
   mStencilBufferEnabled = false;
   mGlAbstraction.Disable(GL_STENCIL_TEST);
 
-  mBoundArrayBufferId = 0;
-  LOG_GL("BindBuffer GL_ARRAY_BUFFER 0\n");
-  mGlAbstraction.BindBuffer(GL_ARRAY_BUFFER, mBoundArrayBufferId);
-
-  mBoundElementArrayBufferId = 0;
-  LOG_GL("BindBuffer GL_ELEMENT_ARRAY_BUFFER 0\n");
-  mGlAbstraction.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBoundElementArrayBufferId);
-
-#ifndef EMSCRIPTEN // not in WebGL
-  mBoundTransformFeedbackBufferId = 0;
-  LOG_GL("BindBuffer GL_TRANSFORM_FEEDBACK_BUFFER 0\n");
-  mGlAbstraction.BindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, mBoundTransformFeedbackBufferId);
-#endif
-
-  mActiveTextureUnit = TEXTURE_UNIT_LAST;
+  mActiveTextureUnit = TEXTURE_UNIT_IMAGE;
 
   mUsingDefaultBlendColor = true;
   mGlAbstraction.BlendColor( 0.0f, 0.0f, 0.0f, 0.0f );
@@ -287,14 +273,6 @@ void Context::ResetGlState()
   mGlAbstraction.FrontFace(GL_CCW);
   mGlAbstraction.CullFace(GL_BACK);
 
-  // rebind texture units to 0
-  for( unsigned int i=0; i < MAX_TEXTURE_UNITS; ++i )
-  {
-    mBound2dTextureId[ i ] = 0;
-    // set active texture
-    mGlAbstraction.ActiveTexture( GL_TEXTURE0 + i );
-    mGlAbstraction.BindTexture(GL_TEXTURE_2D, mBound2dTextureId[ i ] );
-  }
 
   // get maximum texture size
   mGlAbstraction.GetIntegerv(GL_MAX_TEXTURE_SIZE, &mMaxTextureSize);
@@ -302,7 +280,7 @@ void Context::ResetGlState()
   // reset viewport, this will be set to something useful when rendering
   mViewPort.x = mViewPort.y = mViewPort.width = mViewPort.height = 0;
 
-  ResetVertexAttributeState();
+  //ResetVertexAttributeState();
 
   mFrameBufferStateCache.Reset();
 }

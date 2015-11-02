@@ -74,6 +74,12 @@ void Renderer::SetMaterial( Material& material )
   GetImplementation(*this).SetMaterial( GetImplementation(material) );
 }
 
+void Renderer::SetBatchMaterial(Material& material)
+{
+  DALI_ASSERT_ALWAYS( material && "Material handle not initialized" );
+  GetImplementation(*this).SetBatchMaterial( GetImplementation(material) );
+}
+
 Material Renderer::GetMaterial() const
 {
   Internal::Material* materialPtr( GetImplementation(*this).GetMaterial() );

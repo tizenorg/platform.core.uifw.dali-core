@@ -195,13 +195,13 @@ DALI_IMPORT_API Vector3 GetAnchorConstant( const std::string& value );
  * @param[in] property The property value map with the following valid fields:
  * @code
  * "filename":       type std::string
- * "load-policy"     type std::string (enum)
- * "release-policy"  type std::string (enum)
+ * "loadPolicy"     type std::string (enum)
+ * "releasePolicy"  type std::string (enum)
  * "width"           type float
  * "height"          type float
- * "pixel-format"    type std::string (enum)
- * "fitting-mode"    type std::string (enum)
- * "sampling-mode"   type std::string (enum)
+ * "pixelFormat"    type std::string (enum)
+ * "fittingMode"    type std::string (enum)
+ * "samplingMode"   type std::string (enum)
  * "orientation"     type bool
  * "type"            type std::string (FrameBufferImage|BufferImage|ResourceImage(default))
  * @endcode
@@ -222,18 +222,18 @@ DALI_IMPORT_API Image NewImage( const Property::Value& property );
  * {
  *   "vertex":                   type std::string
  *   "fragment":                 type std::string
- *   "vertex-prefix":            type std::string
- *   "fragment-prefix":          type std::string
- *   "text-vertex":              type std::string
- *   "text-fragment":            type std::string
- *   "vertex-filename":          type std::string
- *   "fragment-filename":        type std::string
- *   "vertex-prefix-filename":   type std::string
- *   "fragment-prefix-filename": type std::string
- *   "text-vertex-filename":     type std::string
- *   "text-fragment-filename":   type std::string
- *   "geometry-type":            type std::string (enum)
- *   "geometry-hints":           type std::string (enum)
+ *   "vertexPrefix":            type std::string
+ *   "fragmentPrefix":          type std::string
+ *   "textVertex":              type std::string
+ *   "textFragment":            type std::string
+ *   "vertexFilename":          type std::string
+ *   "fragmentFilename":        type std::string
+ *   "vertexPrefixFilename":   type std::string
+ *   "fragmentPrefixFilename": type std::string
+ *   "textVertexFilename":     type std::string
+ *   "textFragmentFilename":   type std::string
+ *   "geometryType":            type std::string (enum)
+ *   "geometryHints":           type std::string (enum)
  * }
  * // uniforms must be specified to be registered
  * "uUniform1":       type float,

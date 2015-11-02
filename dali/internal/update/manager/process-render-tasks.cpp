@@ -34,6 +34,7 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/update/manager/update-manager.h>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gRenderTaskLogFilter;
@@ -230,7 +231,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                          Layer& rootNode,
                          SortedLayerPointers& sortedLayers,
                          RendererSortingHelper& sortingHelper,
-                         RenderInstructionContainer& instructions )
+                         RenderInstructionContainer& instructions,
+                         UpdateManager& updateManager)
 {
   RenderTaskList::RenderTaskContainer& taskContainer = renderTasks.GetTasks();
 
@@ -317,7 +319,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 renderTask,
                                 sortingHelper,
                                 renderTracker,
-                                instructions );
+                                instructions,
+                                updateManager);
     }
 
     renderTask.SetResourcesFinished( resourcesFinished );
@@ -374,7 +377,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 renderTask,
                                 sortingHelper,
                                 NULL,
-                                instructions );
+                                instructions,
+                                updateManager);
     }
 
     renderTask.SetResourcesFinished( resourcesFinished );

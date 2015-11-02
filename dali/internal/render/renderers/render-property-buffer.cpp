@@ -1,7 +1,7 @@
 
 #include <dali/internal/render/renderers/render-property-buffer.h>
 #include <dali/internal/event/common/property-buffer-impl.h>  // Dali::Internal::PropertyBuffer
-
+#include <iostream>
 namespace
 {
 
@@ -121,6 +121,7 @@ void PropertyBuffer::SetFormat( PropertyBuffer::Format* format )
 void PropertyBuffer::SetData( Dali::Vector<char>* data )
 {
   mData = data;
+
   mDataChanged = true;
 }
 
@@ -150,6 +151,14 @@ bool PropertyBuffer::Update( Context& context, bool isIndexBuffer )
     {
       DALI_ASSERT_DEBUG( mSize && "No data in the property buffer!" );
 
+
+      std::cout<<"Uploading data to buffer "<<mGpuBuffer.Get()<<std::endl;
+      const Dali::Vector<char>* mBuffer( mData.Get() );
+      for( unsigned index = 0; index < mBuffer->Size(); index+=sizeof(Vector2) )
+      {
+        Vector2* positionOld = (Vector2*)( &mBuffer->operator[]( index ) );
+        std::cout<<*positionOld<<std::endl;
+      }
       const void *data = &((*mData)[0]);
 
       // Index buffer needs to be unsigned short which is not supported by the property system
@@ -166,6 +175,7 @@ bool PropertyBuffer::Update( Context& context, bool isIndexBuffer )
       }
 
       mGpuBuffer->UpdateDataBuffer( GetDataSize(), data, GpuBuffer::STATIC_DRAW );
+      std::cout<<"Uploaded to gpu "<< GetDataSize() <<std::endl;
     }
 
     mDataChanged = false;
@@ -178,6 +188,13 @@ void PropertyBuffer::BindBuffer(GpuBuffer::Target target)
 {
   if(mGpuBuffer)
   {
+    std::cout<<"Binding buffer"<<mGpuBuffer.Get()<<std::endl;
+    const Dali::Vector<char>* mBuffer( mData.Get() );
+    for( unsigned index = 0; index < mBuffer->Size(); index+=sizeof(Vector2) )
+    {
+      Vector2* positionOld = (Vector2*)( &mBuffer->operator[]( index ) );
+      std::cout<<*positionOld<<std::endl;
+    }
     mGpuBuffer->Bind(target);
   }
 }
@@ -206,6 +223,8 @@ unsigned int PropertyBuffer::EnableVertexAttributes( Context& context, Vector<GL
                                    GL_FALSE,  // Not normalized
                                    elementSize,
                                    (void*)attributeOffset );
+
+      std::cout<<"Setting up attribute "<<attributeLocation<<": "<< attributeSize  / GetPropertyImplementationGlSize(attributeType) <<","<<GetPropertyImplementationGlType(attributeType)<<", "<<elementSize<<std::endl;
     }
   }
 

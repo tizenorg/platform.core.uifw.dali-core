@@ -143,6 +143,8 @@ public:
    */
   int GetDepthIndex();
 
+  void SetBatchMaterial(Material& material);
+
 public:
   /**
    * @brief The constructor

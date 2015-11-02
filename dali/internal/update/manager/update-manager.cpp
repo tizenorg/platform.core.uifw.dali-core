@@ -346,6 +346,11 @@ void UpdateManager::InstallRoot( SceneGraph::Layer* layer, bool systemLevel )
   layer->SetRoot(true);
 }
 
+SceneController& UpdateManager::GetSceneController()
+{
+  return *mImpl->sceneController;
+}
+
 void UpdateManager::AddNode( Node* node )
 {
   DALI_ASSERT_ALWAYS( NULL != node );
@@ -1051,7 +1056,8 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
                            *mImpl->root,
                            mImpl->sortedLayers,
                            mImpl->renderSortingHelper,
-                           mImpl->renderInstructions );
+                           mImpl->renderInstructions,
+                           const_cast<UpdateManager&>(*this));
 
       // Process the system-level RenderTasks last
       if ( NULL != mImpl->systemLevelRoot )
@@ -1062,7 +1068,8 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
                              *mImpl->systemLevelRoot,
                              mImpl->systemLevelSortedLayers,
                              mImpl->renderSortingHelper,
-                             mImpl->renderInstructions );
+                             mImpl->renderInstructions,
+                             const_cast<UpdateManager&>(*this) );
       }
     }
   }

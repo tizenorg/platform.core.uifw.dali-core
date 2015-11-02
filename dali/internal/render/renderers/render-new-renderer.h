@@ -78,6 +78,10 @@ public:
    */
   void SetGeometry( SceneGraph::RenderGeometry* renderGeometry );
 
+  SceneGraph::RenderGeometry* GetGeometry()
+  {
+    return mRenderGeometry;
+  }
   /**
    * Write the renderer's sort attributes to the passed in reference.
    * @param[in] bufferIndex The buffer index
@@ -99,8 +103,6 @@ public:
     sortAttributes.geometry = mRenderGeometry;
   }
 
-public: // Implementation of Renderer
-
   /**
    * @copydoc SceneGraph::Renderer::GetNewRenderer()
    */
@@ -108,6 +110,10 @@ public: // Implementation of Renderer
   {
     return this;
   }
+
+public: // Implementation of Renderer
+
+
 
   /**
    * @copydoc SceneGraph::Renderer::RequiresDepthTest()

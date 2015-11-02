@@ -33,6 +33,7 @@ namespace SceneGraph
 RenderItem::RenderItem()
 : mModelViewMatrix( false ),
   mRenderer( NULL ),
+  mNode(NULL),
   mDepthIndex(0),
   mIsOpaque(true)
 {
@@ -52,6 +53,11 @@ void RenderItem::SetRenderer( Render::Renderer* renderer )
   mRenderer = renderer;
 }
 
+void RenderItem::SetSceneRenderer( SceneGraph::Renderer* renderer )
+{
+  mSceneRenderer = renderer;
+}
+
 void RenderItem::SetNode( Node* node )
 {
   mNode = node;
@@ -60,6 +66,16 @@ void RenderItem::SetNode( Node* node )
 Render::Renderer& RenderItem::GetRenderer() const
 {
   return *mRenderer;
+}
+
+Render::Renderer* RenderItem::GetRendererPointer() const
+{
+  return mRenderer;
+}
+
+SceneGraph::Renderer& RenderItem::GetSceneRenderer() const
+{
+  return *mSceneRenderer;
 }
 
 Matrix& RenderItem::GetModelViewMatrix()

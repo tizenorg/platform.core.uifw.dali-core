@@ -76,6 +76,8 @@ public:
    */
   void SetMaterial( BufferIndex bufferIndex, Material* material);
 
+  void SetBatchMaterial( BufferIndex bufferIndex, Material* material);
+
   /**
    * Get the material of this renderer
    * @return the material this renderer uses
@@ -85,6 +87,10 @@ public:
     return *mMaterial;
   }
 
+  Material* GetBatchMaterial()
+  {
+    return mBatchMaterial;
+  }
   /**
    * Set the geometry for the renderer
    * @param[in] bufferIndex The current frame's buffer index
@@ -254,6 +260,7 @@ private:
   SceneController* mSceneController;  ///< Used for initializing renderers whilst attached
   Render::NewRenderer*  mRenderer;    ///< Raw pointer to the new renderer (that's owned by RenderManager)
   Material*             mMaterial;    ///< The material this renderer uses. (Not owned)
+  Material*             mBatchMaterial;    ///< The material this renderer uses. (Not owned)
   Geometry*             mGeometry;    ///< The geometry this renderer uses. (Not owned)
 
   Dali::Vector< Integration::ResourceId > mTrackedResources; ///< Filled during PrepareResources if there are uncomplete, tracked resources.
@@ -283,6 +290,17 @@ inline void SetMaterialMessage( EventThreadServices& eventThreadServices, const 
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &renderer, &Renderer::SetMaterial, const_cast<Material*>(&material) );
+}
+
+inline void SetBatchMaterialMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, const Material& material )
+{
+  typedef MessageDoubleBuffered1< Renderer, Material* > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &renderer, &Renderer::SetBatchMaterial, const_cast<Material*>(&material) );
 }
 
 inline void SetGeometryMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, const Geometry& geometry )

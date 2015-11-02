@@ -155,6 +155,11 @@ public:
     return mSize;
   }
 
+  const Dali::Vector<char>* GetData()
+  {
+    return mData.Get();
+  }
+
 private:
   OwnerPointer< PropertyBuffer::Format >  mFormat;  ///< Format of the buffer
   OwnerPointer< Dali::Vector< char > >    mData;    ///< Data

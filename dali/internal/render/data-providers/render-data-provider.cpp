@@ -26,6 +26,7 @@ namespace SceneGraph
 
 RenderDataProvider::RenderDataProvider()
 : mMaterialDataProvider( NULL ),
+  mBatchMaterialDataProvider( NULL ),
   mUniformMapDataProvider( NULL ),
   mShader( NULL )
 {
@@ -43,6 +44,16 @@ void RenderDataProvider::SetMaterial( const MaterialDataProvider& materialDataPr
 const MaterialDataProvider& RenderDataProvider::GetMaterial() const
 {
   return *mMaterialDataProvider;
+}
+
+const MaterialDataProvider* RenderDataProvider::GetBatchMaterial() const
+{
+  return mBatchMaterialDataProvider;
+}
+
+void RenderDataProvider::SetBatchMaterial( const MaterialDataProvider& materialDataProvider )
+{
+  mBatchMaterialDataProvider = &materialDataProvider;
 }
 
 void RenderDataProvider::SetUniformMap(const UniformMapDataProvider& uniformMapDataProvider)

@@ -99,8 +99,6 @@ public:
     sortAttributes.geometry = mRenderGeometry;
   }
 
-public: // Implementation of Renderer
-
   /**
    * @copydoc SceneGraph::Renderer::GetNewRenderer()
    */
@@ -108,6 +106,10 @@ public: // Implementation of Renderer
   {
     return this;
   }
+
+public: // Implementation of Renderer
+
+
 
   /**
    * @copydoc SceneGraph::Renderer::RequiresDepthTest()

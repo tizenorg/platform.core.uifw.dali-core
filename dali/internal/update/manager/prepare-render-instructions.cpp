@@ -36,6 +36,7 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/update/manager/update-manager.h>
 
 namespace
 {
@@ -386,6 +387,36 @@ inline void SortColorRenderItems( BufferIndex bufferIndex, RenderList& renderLis
     *renderListIter = sortingHelper[ index ].renderItem;
     DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "  sortedList[%d] = %p\n", index, &sortingHelper[ index ].renderItem->GetRenderer() );
   }
+
+
+  //Automatic Batching
+
+//  const char* VERTEX_SHADER = DALI_COMPOSE_SHADER(
+//    attribute mediump vec2 aPosition;\n
+//    uniform mediump mat4 uMvpMatrix;\n
+//    uniform mediump vec3 uSize;\n
+//    \n
+//    void main()\n
+//    {\n
+//      mediump vec4 vertexPosition = vec4(aPosition, 0.0, 1.0);\n
+//      vertexPosition.xyz *= uSize;\n
+//      gl_Position = uMvpMatrix * vertexPosition;\n
+//    }\n
+//  );
+//
+//  const char* FRAGMENT_SHADER = DALI_COMPOSE_SHADER(
+//    uniform lowp vec4 uColor;\n
+//    uniform lowp vec4 uBlendColor;\n
+//    \n
+//    void main()\n
+//    {\n
+//      gl_FragColor = uBlendColor*uColor;\n
+//    }\n
+//  );
+
+ //Shader colorShader;
+
+ //Renderer newRenderer
 }
 
 /**
@@ -406,7 +437,8 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                bool stencilRenderablesExist,
                                RenderInstruction& instruction,
                                RendererSortingHelper& sortingHelper,
-                               bool tryReuseRenderList )
+                               bool tryReuseRenderList,
+                               UpdateManager& updateManager )
 {
   RenderList& renderList = instruction.GetNextFreeRenderList( layer.colorRenderables.size() );
   renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
@@ -423,6 +455,43 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
 
   AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, layer.colorRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
   SortColorRenderItems( updateBufferIndex, renderList, layer, sortingHelper );
+
+  //Batching
+  std::vector<size_t> ranges;
+  bool batching = false;
+  unsigned int renderableCount( renderList.Count() );
+  for( unsigned int index = 0; index < renderableCount; ++index )
+  {
+    RenderItem& item = renderList.GetItem(index);
+    Render::NewRenderer* renderer = item.GetRenderer().GetNewRenderer();
+    if( renderer )
+    {
+      if( renderer->mRenderDataProvider->GetBatchMaterial() )
+      {
+        if( !batching )
+        {
+          ranges.push_back(index);
+          batching = true;
+        }
+      }
+      else if( batching )
+      {
+        ranges.push_back(index-1);
+        batching = false;
+      }
+    }
+  }
+  if(batching )
+  {
+    ranges.push_back(renderList.Count()-1);
+  }
+  for( size_t i(0); i<ranges.size(); i+=2)
+  {
+    if( ranges[i+1]-ranges[i] )
+    {
+      std::cout<<"Batching renderers "<<ranges[i] <<", "<< ranges[i+1]<<std::endl;
+    }
+  }
 
   //Set render flags
   unsigned int flags = 0u;
@@ -540,7 +609,8 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                                RenderTask& renderTask,
                                RendererSortingHelper& sortingHelper,
                                RenderTracker* renderTracker,
-                               RenderInstructionContainer& instructions )
+                               RenderInstructionContainer& instructions,
+                               UpdateManager& updateManager )
 {
   // Retrieve the RenderInstruction buffer from the RenderInstructionContainer
   // then populate with instructions.
@@ -577,7 +647,8 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                          stencilRenderablesExist,
                          instruction,
                          sortingHelper,
-                         tryReuseRenderList );
+                         tryReuseRenderList,
+                         updateManager);
     }
 
     if ( overlayRenderablesExist )

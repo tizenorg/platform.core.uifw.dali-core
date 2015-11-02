@@ -33,6 +33,7 @@ namespace SceneGraph
 RenderItem::RenderItem()
 : mModelViewMatrix( false ),
   mRenderer( NULL ),
+  mNode(NULL),
   mDepthIndex(0),
   mIsOpaque(true)
 {

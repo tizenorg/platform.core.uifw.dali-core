@@ -18,17 +18,18 @@
 // CLASS HEADER
 #include <dali/internal/event/images/buffer-image-impl.h>
 
-// EXTERNAL INCLUDES
-#include <string.h>
-
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
+#include <dali/integration-api/bitmap.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/resources/resource-client.h>
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/internal/event/images/image-factory.h>
 
-using namespace Dali::Integration;
+// EXTERNAL INCLUDES
+#include <cstring>
+
+using Dali::Integration::Bitmap;
 
 namespace Dali
 {
@@ -38,192 +39,286 @@ namespace Internal
 namespace
 {
 TypeRegistration mType( typeid( Dali::BufferImage ), typeid( Dali::Image ), NULL );
+
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogFilter = Debug::Filter::New( Debug::Concise, false, "LOG_BUFFER_IMAGE" );
+#endif
+
+Integration::BitmapPtr CloneBitmap( Integration::BitmapPtr bitmap )
+{
+  DALI_ASSERT_ALWAYS( bitmap );
+
+  Bitmap::PackedPixelsProfile* const bitmapProfile = bitmap->GetPackedPixelsProfile();
+  DALI_ASSERT_DEBUG(bitmapProfile);
+
+  unsigned int  width       = bitmapProfile->GetBufferWidth();
+  unsigned int  height      = bitmapProfile->GetBufferHeight();
+  Pixel::Format pixelFormat = bitmap->GetPixelFormat();
+
+  Integration::BitmapPtr clonedBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
+  Bitmap::PackedPixelsProfile* const clonedProfile = clonedBitmap->GetPackedPixelsProfile();
+  clonedProfile->ReserveBuffer( pixelFormat, width, height, width, height );
+
+  DALI_ASSERT_DEBUG(bitmap->GetBuffer() != 0);
+  DALI_ASSERT_DEBUG(bitmap->GetBufferSize() >= width * height);
+  DALI_ASSERT_DEBUG(clonedBitmap->GetBuffer() != 0);
+
+  DALI_LOG_INFO( gLogFilter, Debug::General, "CloneBitmap() src:%p dest:%p size:%u\n",
+                 bitmap->GetBuffer(),
+                 clonedBitmap->GetBuffer(),
+                 bitmap->GetBufferSize() );
+
+  memcpy( clonedBitmap->GetBuffer(), bitmap->GetBuffer(), bitmap->GetBufferSize() );
+  return clonedBitmap ;
+}
+
 } // unnamed namespace
 
-BufferImagePtr BufferImage::New( unsigned int width,
-                                 unsigned int height,
-                                 Pixel::Format pixelformat,
-                                 ReleasePolicy releasePol )
+BufferImagePtr BufferImage::New(
+  unsigned int  width,
+  unsigned int  height,
+  Pixel::Format pixelformat )
 {
-  BufferImagePtr internal = new BufferImage( width, height, pixelformat, releasePol );
+  BufferImagePtr internal = new BufferImage( NULL, width, height, pixelformat, 0u );
   internal->Initialize();
+  RegisterImage( internal.Get() );
   return internal;
 }
 
-BufferImagePtr BufferImage::New( PixelBuffer* pixBuf,
-                                 unsigned int width,
-                                 unsigned int height,
-                                 Pixel::Format pixelformat,
-                                 unsigned int stride,
-                                 ReleasePolicy releasePol )
+BufferImagePtr BufferImage::New(
+  PixelBuffer*  pixBuf,
+  unsigned int  width,
+  unsigned int  height,
+  Pixel::Format pixelformat,
+  unsigned int  stride )
 {
-  BufferImagePtr internal = new BufferImage( pixBuf, width, height, pixelformat, stride, releasePol );
+  BufferImagePtr internal = new BufferImage( pixBuf, width, height, pixelformat, stride );
   internal->Initialize();
+  RegisterImage( internal.Get() );
   return internal;
 }
 
-BufferImage::BufferImage(unsigned int width, unsigned int height, Pixel::Format pixelformat, ReleasePolicy releasePol)
-: Image(releasePol),
-  mInternalBuffer(NULL),
-  mExternalBuffer(NULL)
-{
-  SetupBuffer( width, height, pixelformat, width, releasePol );
-
-  // Allocate a persistent internal buffer
-  mInternalBuffer = new PixelBuffer[ mBufferSize ];
-}
-
-BufferImage::BufferImage(PixelBuffer* pixBuf,
-                         unsigned int width,
-                         unsigned int height,
-                         Pixel::Format pixelformat,
-                         unsigned int stride,
-                         ReleasePolicy releasePol )
-: Image(releasePol),
-  mInternalBuffer(NULL),
-  mExternalBuffer(pixBuf)
-{
-  SetupBuffer( width, height, pixelformat, stride ? stride: width, releasePol );
-}
-
-BufferImage::~BufferImage()
-{
-  delete[] mInternalBuffer;
-}
-
-void BufferImage::SetupBuffer( unsigned int width,
-                               unsigned int height,
-                               Pixel::Format pixelformat,
-                               unsigned int byteStride,
-                               ReleasePolicy releasePol )
+BufferImage::BufferImage(
+  PixelBuffer*  pixBuf,
+  unsigned int  width,
+  unsigned int  height,
+  Pixel::Format pixelFormat,
+  unsigned int  stride )
+: Image( Dali::Image::UNUSED )
 {
   ThreadLocalStorage& tls = ThreadLocalStorage::Get();
   mResourceClient = &tls.GetResourceClient();
   mWidth  = width;
   mHeight = height;
-  mPixelFormat = pixelformat;
-  mBytesPerPixel = Pixel::GetBytesPerPixel( pixelformat );
 
-  mByteStride = byteStride * mBytesPerPixel;
-  mBufferSize = height * mByteStride;
-
-  // Respect the desired release policy
-  mResourcePolicy = releasePol == Dali::Image::UNUSED ? ResourcePolicy::OWNED_DISCARD : ResourcePolicy::OWNED_RETAIN;
+  // This bitmap is owned by the event object, and will not get discarded.
+  mBitmap = CreateBitmap( pixBuf, width, height, pixelFormat, stride, ResourcePolicy::OWNED_RETAIN );
 }
 
-bool BufferImage::IsDataExternal() const
+BufferImage::~BufferImage()
 {
-  return ( mExternalBuffer ? true : false );
+  DeregisterImage(this);
 }
 
 void BufferImage::Update( RectArea& updateArea )
 {
-  if ( !mTicket )
+  if( mTicket)
   {
-    CreateHostBitmap();
-  }
-  DALI_ASSERT_DEBUG( updateArea.x + updateArea.width <= mWidth && updateArea.y + updateArea.height <= mHeight );
-  UploadArea( mTicket->GetId(), updateArea );
-}
+    DALI_ASSERT_DEBUG( updateArea.x + updateArea.width <= mWidth && updateArea.y + updateArea.height <= mHeight );
 
-void BufferImage::CreateHostBitmap()
-{
-  Integration::Bitmap* bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, mResourcePolicy );
-  Bitmap::PackedPixelsProfile* const packedBitmap = bitmap->GetPackedPixelsProfile();
-  DALI_ASSERT_DEBUG(packedBitmap);
-
-  packedBitmap->ReserveBuffer( mPixelFormat, mWidth, mHeight );
-  DALI_ASSERT_DEBUG(bitmap->GetBuffer() != 0);
-  DALI_ASSERT_DEBUG(bitmap->GetBufferSize() >= mHeight * mWidth * mBytesPerPixel );
-
-  mTicket = mResourceClient->AddBitmapImage( bitmap );
-  mTicket->AddObserver(*this);
-}
-
-void BufferImage::UploadArea( ResourceId destId, const RectArea& area )
-{
-  Integration::Bitmap* bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, mResourcePolicy );
-  Bitmap::PackedPixelsProfile* const packedBitmap = bitmap->GetPackedPixelsProfile();
-  DALI_ASSERT_DEBUG(packedBitmap);
-  DALI_ASSERT_DEBUG( area.width <= mWidth && area.height <= mHeight );
-
-  mBufferWidth = area.width ? area.width : mWidth;
-  packedBitmap->ReserveBuffer( mPixelFormat, mBufferWidth, area.height ? area.height : mHeight );
-  DALI_ASSERT_DEBUG(bitmap->GetBuffer() != 0);
-  DALI_ASSERT_DEBUG(bitmap->GetBufferSize() >= mBufferWidth * ( area.height ? area.height : mHeight ) * mBytesPerPixel );
-
-  // Are we uploading from an external or internal buffer ?
-  if ( mExternalBuffer )
-  {
-    // Check if we're doing the entire area without stride mismatch between source and dest ?
-    if( ( mByteStride == mWidth * mBytesPerPixel ) && area.IsEmpty() )
+    if( updateArea.IsEmpty() )
     {
-      memcpy( bitmap->GetBuffer(), mExternalBuffer, mBufferSize );
+      UploadBitmap( mTicket->GetId(), 0, 0 );
     }
     else
     {
-      UpdateBufferArea( mExternalBuffer, bitmap->GetBuffer(), area );
+      Integration::Bitmap::PackedPixelsProfile* profile = mBitmap->GetPackedPixelsProfile();
+
+      Integration::BitmapPtr smallBitmap = CreateBitmap( NULL, updateArea.width, updateArea.height, mBitmap->GetPixelFormat(), profile->GetBufferStride(), ResourcePolicy::OWNED_DISCARD );
+
+      DALI_ASSERT_DEBUG(smallBitmap->GetBufferSize() >= updateArea.width * updateArea.height * Pixel::GetBytesPerPixel( smallBitmap->GetPixelFormat() ) );
+
+      CopyPixelArea( smallBitmap->GetBuffer(), updateArea );
+      mResourceClient->UploadBitmap( mTicket->GetId(), smallBitmap, updateArea.x, updateArea.y );
     }
   }
   else
   {
-    // Check if we're doing the entire internal buffer ?
-    if( area.IsEmpty() )
-    {
-      memcpy( bitmap->GetBuffer(), mInternalBuffer, bitmap->GetBufferSize() );
-    }
-    else
-    {
-      UpdateBufferArea( mInternalBuffer, bitmap->GetBuffer(), area );
-    }
+    CreateTicket(); // Will automatically clone the bitmap data and ignore the update area
   }
-  mResourceClient->UploadBitmap( destId, bitmap, area.x, area.y );
+}
 
+PixelBuffer* BufferImage::GetBuffer()
+{
+  DALI_ASSERT_DEBUG( mBitmap );
+  return mBitmap->GetBuffer();
+}
+
+unsigned int BufferImage::GetBufferSize() const
+{
+  DALI_ASSERT_DEBUG( mBitmap );
+  return mBitmap->GetBufferSize();
+}
+
+unsigned int BufferImage::GetBufferStride() const
+{
+  DALI_ASSERT_DEBUG( mBitmap );
+  Integration::Bitmap::PackedPixelsProfile* packedBitmap = mBitmap->GetPackedPixelsProfile();
+
+  DALI_ASSERT_DEBUG(packedBitmap);
+  return packedBitmap->GetBufferStride();
+}
+
+Pixel::Format BufferImage::GetPixelFormat() const
+{
+  DALI_ASSERT_DEBUG( mBitmap );
+
+  return mBitmap->GetPixelFormat();
 }
 
 void BufferImage::UploadBitmap( ResourceId destId, std::size_t xOffset, std::size_t yOffset )
 {
-  RectArea area( xOffset, yOffset, 0, 0 );
-  if ( !mTicket )
-  {
-    CreateHostBitmap();
-  }
+  DALI_ASSERT_DEBUG( mBitmap );
 
-  UploadArea( destId, area );
-}
-
-void BufferImage::UpdateBufferArea( PixelBuffer* src, PixelBuffer* dest, const RectArea& area )
-{
-  DALI_ASSERT_DEBUG( area.x + area.width <= mWidth && area.y + area.height <= mHeight );
-
-  uint32_t width = mBufferWidth * mBytesPerPixel;
-
-  src += ( area.y * mByteStride ) + ( area.x * mBytesPerPixel );
-  for ( uint32_t i = 0; i < area.height; ++i )
-  {
-    memcpy( dest, src, width );
-    src += mByteStride;
-    dest += width;
-  }
+  Integration::BitmapPtr clonedBitmap = CloneBitmap( mBitmap );
+  mResourceClient->UploadBitmap( destId, clonedBitmap, xOffset, yOffset);
 }
 
 void BufferImage::Connect()
 {
-  if ( !mConnectionCount++ )
+  ++mConnectionCount;
+
+  if( mConnectionCount == 1 )
   {
-    RectArea area;
-    Update( area );
+    if( !mTicket )
+    {
+      CreateTicket();
+    }
   }
 }
 
 void BufferImage::Disconnect()
 {
-  if ( mTicket )
+  if( !mTicket)
   {
-    if ( !( --mConnectionCount ) && mReleasePolicy == Dali::Image::UNUSED )
+    return;
+  }
+
+  --mConnectionCount;
+
+  if( mConnectionCount == 0 )
+  {
+    // release image memory when it's not visible anymore (decrease ref. count of texture)
+    mTicket->RemoveObserver(*this);
+    mTicket.Reset();
+  }
+}
+
+Integration::BitmapPtr BufferImage::CreateBitmap(
+  PixelBuffer* pixBuf,
+  unsigned int width,
+  unsigned int height,
+  Pixel::Format pixelFormat,
+  unsigned int stride,
+  ResourcePolicy::Discardable discardPolicy )
+{
+  Integration::BitmapPtr bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, discardPolicy );
+  Bitmap::PackedPixelsProfile* const packedBitmap = bitmap->GetPackedPixelsProfile();
+  DALI_ASSERT_DEBUG(packedBitmap);
+
+  packedBitmap->ReserveBuffer( pixelFormat, width, height, width, height);
+  DALI_ASSERT_DEBUG(bitmap->GetBuffer() != 0);
+  DALI_ASSERT_DEBUG(bitmap->GetBufferSize() >= width * height);
+
+  DALI_LOG_INFO(gLogFilter, Debug::General, "BufferImage::CreateBitmap(pixbuf:%p, w:%d,h:%d stride:%d)\n", pixBuf, width, height, stride);
+
+  if( pixBuf != NULL )
+  {
+    if( stride == packedBitmap->GetBufferStride() || stride == 0 )
     {
-      mTicket->RemoveObserver(*this);
-      mTicket.Reset();
+      DALI_LOG_INFO(gLogFilter, Debug::General, "  Copying complete pixel buffer\n");
+      memcpy( bitmap->GetBuffer(), pixBuf, bitmap->GetBufferSize() );
+    }
+    else
+    {
+      DALI_LOG_INFO(gLogFilter, Debug::General, "  Copying pixel buffer\n");
+
+      uint32_t bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
+      uint32_t srcStride = stride * bytesPerPixel;
+      uint32_t destStride = width * bytesPerPixel;
+      uint32_t destWidth = std::min( srcStride, destStride );
+      PixelBuffer* src = pixBuf;
+      PixelBuffer* dest = bitmap->GetBuffer();
+
+      for( uint32_t i = 0; i < height; ++i )
+      {
+        memcpy( dest, src, destWidth );
+        src += srcStride;
+        dest += destStride;
+      }
+    }
+  }
+  return bitmap;
+}
+
+
+void BufferImage::CreateTicket()
+{
+  Integration::BitmapPtr clonedBitmap = CloneBitmap( mBitmap );
+  mTicket.Reset( mResourceClient->AddBitmapImage( clonedBitmap.Get() ).Get() );
+  mTicket->AddObserver(*this);
+}
+
+void BufferImage::CopyPixelArea( PixelBuffer* dest, const RectArea& area )
+{
+  DALI_ASSERT_DEBUG( area.x + area.width <= mWidth && area.y + area.height <= mHeight );
+
+  Integration::Bitmap::PackedPixelsProfile* profile = mBitmap->GetPackedPixelsProfile();
+  uint32_t bytesPerPixel = Pixel::GetBytesPerPixel( mBitmap->GetPixelFormat() );
+  uint32_t srcWidth = profile->GetBufferWidth();
+  uint32_t srcStride = srcWidth * bytesPerPixel;
+  uint32_t destStride = area.width * bytesPerPixel;
+
+  PixelBuffer* src = mBitmap->GetBuffer();
+  src += ( area.y * srcStride ) + ( area.x * bytesPerPixel );
+
+  for( uint32_t i=0; i < area.height; ++i )
+  {
+    memcpy( dest, src, destStride );
+    src += srcStride;
+    dest += destStride;
+  }
+}
+
+Dali::Vector<BufferImage*> BufferImage::gRegisteredImages;
+
+void BufferImage::RegisterImage( BufferImage* bufferImage )
+{
+  gRegisteredImages.PushBack(bufferImage);
+}
+
+void BufferImage::DeregisterImage( BufferImage* bufferImage )
+{
+  Dali::Vector<BufferImage*>::Iterator iter = std::find( gRegisteredImages.Begin(), gRegisteredImages.End(), bufferImage);
+  if( iter != gRegisteredImages.End() )
+  {
+    gRegisteredImages.Erase( iter );
+  }
+}
+
+void BufferImage::RecoverFromContextLoss()
+{
+  for( Dali::Vector<BufferImage*>::Iterator iter = gRegisteredImages.Begin() ;
+       iter != gRegisteredImages.End() ;
+       ++iter )
+  {
+    BufferImage* image = *iter;
+    DALI_ASSERT_DEBUG( image->ReferenceCount() > 0 );
+
+    if( image->mConnectionCount > 0 )
+    {
+      RectArea empty;
+      image->Update( empty );
     }
   }
 }

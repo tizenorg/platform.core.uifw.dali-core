@@ -41,12 +41,21 @@ typedef Rect<unsigned int>    RectArea;     ///< rectangular area (x,y,w,h)
 
 /**
  * @brief BufferImage represents an image resource as a pixel data buffer
- * Its pixel buffer data is provided by the application developer.
  *
  * If the pixel format of the pixel buffer contains an alpha channel,
  * then the image is considered to be have transparent pixels without
  * regard for the actual content of the channel, and will be blended.
  *
+ * This object maintains a local pixel buffer, which may be modified
+ * following a GetBuffer() call, and uploaded to GL via copy following
+ * an Update() call. The pixel buffer lasts for the lifetime of this object.
+ *
+ * The GL memory is freed when this object is not staged ( i.e. it isn't used
+ * by an on-stage actor, and automatically uploaded when it becomes staged.
+ *
+ * On context loss, the GL memory is lost, but the local pixel buffer remains
+ * valid. On context regain, the pixel buffer is automatically uploaded for
+ * staged images.
  */
 class DALI_IMPORT_API BufferImage : public Image
 {
@@ -61,11 +70,8 @@ public:
   /**
    * @brief Create a new BufferImage.
    *
-   * Also a pixel buffer for image data is allocated.
-   * Dali has ownership of the buffer.
    * For better performance and portability use power of two dimensions.
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
-   * @note: default resource management policies are Immediate and Never
    *
    * @pre width & height are greater than zero
    * @param [in] width       image width in pixels
@@ -78,87 +84,30 @@ public:
                          Pixel::Format pixelformat=Pixel::RGBA8888);
 
   /**
-   * @deprecated DALi 1.1.3, use New( unsigned int width, unsigned int height ) instead.
-   *
    * @brief Create a new BufferImage.
    *
-   * Also a pixel buffer for image data is allocated.
-   * Dali has ownership of the buffer.
-   * For better performance and portability use power of two dimensions.
-   * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
-   *
-   * @pre width & height are greater than zero
-   * @param [in] width          Image width in pixels
-   * @param [in] height         Image height in pixels
-   * @param [in] pixelFormat    The pixel format
-   * @param [in] releasePolicy  Optionally release memory when image is not visible on screen.
-   * @return a handle to a new instance of BufferImage
-   */
-  static BufferImage New(unsigned int  width,
-                         unsigned int  height,
-                         Pixel::Format pixelFormat,
-                         ReleasePolicy releasePolicy);
-
-  /**
-   * @brief Create a new BufferImage, which uses an external data source.
-   *
-   * The PixelBuffer has to be allocated by application.
-   *
-   * The application holds ownership of the buffer. It must not
-   * destroy the PixelBuffer on a staged image if it has called
-   * Update() and hasn't received a SignalUploaded, or if it has just
-   * added it to the stage and has not received a SignalUploaded.
+   * This will initialize the BufferImage's local copy using the given pixel buffer.
    *
    * For better performance and portability use power of two dimensions.
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
    *
+   * @note Supplying a smaller pixel buffer than the requested bitmap will
+   * only copy to the start of the bitmap, and will not initialize the remaining
+   * data.
+   *
    * @pre width & height are greater than zero
-   * @param [in] pixelBuffer  pixel buffer. has to be allocated by application.
+   * @param [in] pixelBuffer  pixel buffer to copy
    * @param [in] width        image width in pixels
    * @param [in] height       image height in pixels
    * @param [in] pixelFormat  the pixel format (rgba 32 bit by default)
-   * @param [in] stride       the internal stride of the pixelbuffer in pixels
+   * @param [in] stride       the internal stride of the pixelBuffer in pixels
    * @return a handle to a new instance of BufferImage
    */
-  static BufferImage New(PixelBuffer*  pixelBuffer,
-                         unsigned int  width,
-                         unsigned int  height,
-                         Pixel::Format pixelFormat=Pixel::RGBA8888,
-                         unsigned int  stride=0);
-
-  /**
-   * @deprecated DALi 1.1.3, use New( PixelBuffer* pixelBuffer, unsigned int width, unsigned int height ) instead.
-   *
-   * @brief Create a new BufferImage, which uses an external data source.
-   *
-   * The PixelBuffer has to be allocated by application.
-   *
-   * The application holds ownership of the buffer. It must not
-   * destroy the PixelBuffer on a staged image if it has called
-   * Update() and hasn't received a SignalUploaded, or if it has just
-   * added it to the stage and has not received a SignalUploaded.
-   *
-   * For better performance and portability use power of two dimensions.
-   * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
-   *
-   * @note in case releasePolicy is "Unused", application has to call
-   * BufferImage::Update() whenever image is re-added to the stage
-   *
-   * @pre width & height are greater than zero
-   * @param [in] pixelBuffer   pixel buffer. has to be allocated by application.
-   * @param [in] width         image width in pixels
-   * @param [in] height        image height in pixels
-   * @param [in] pixelFormat   the pixel format
-   * @param [in] stride        the internal stride of the pixelbuffer in pixels
-   * @param [in] releasePolicy optionally relase memory when image is not visible on screen.
-   * @return a handle to a new instance of BufferImage
-   */
-  static BufferImage New(PixelBuffer*  pixelBuffer,
-                         unsigned int  width,
-                         unsigned int  height,
-                         Pixel::Format pixelFormat,
-                         unsigned int  stride,
-                         ReleasePolicy releasePolicy);
+  static BufferImage New( PixelBuffer*  pixelBuffer,
+                          unsigned int  width,
+                          unsigned int  height,
+                          Pixel::Format pixelFormat=Pixel::RGBA8888,
+                          unsigned int  stride=0 );
 
   /**
    * @brief Downcast an Object handle to BufferImage.
@@ -208,8 +157,7 @@ public:
    * The application can write to the buffer to modify its contents.
    *
    * Whilst the image is on stage, after writing to the buffer the
-   * application should call Update() and wait for the
-   * SignalUploaded() method before writing again.
+   * application should call Update().
    *
    * @return the pixel buffer
    */
@@ -241,12 +189,7 @@ public:
    *
    * SignalUploaded will be sent in response if the image is on stage
    * and the image data has been successfully copied to graphics
-   * memory. To avoid visual tearing, the application should wait for
-   * the SignalUploaded before modifying the data.
-   *
-   * The application must not destroy an external PixelBuffer on a staged
-   * image after calling this method until the SignalUploaded has been
-   * successfully received.
+   * memory.
    *
    * @note: BufferImage::Update might not work with BGR/BGRA formats!
    * @note: Some GPUs may not support Non power of two buffer updates (for
@@ -260,18 +203,6 @@ public:
    */
   void Update( RectArea updateArea );
 
-  /**
-   * @brief Returns whether BufferImage uses external data source or not.
-   *
-   * If not, dali holds ownership of the PixelBuffer, otherwise the application
-   * is responsible for freeing it.
-   *
-   * The application must not destroy an external PixelBuffer on a staged image
-   * if it has called Update() and hasn't received a SignalUploaded.
-   *
-   * @return true if application owns data, false otherwise
-   */
-  bool IsDataExternal() const;
 
 public: // Not intended for application developers
 

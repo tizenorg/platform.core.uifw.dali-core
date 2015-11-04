@@ -74,90 +74,6 @@ int UtcDaliBufferImageNew02(void)
   END_TEST;
 }
 
-int UtcDaliBufferImageNewWithPolicy01(void)
-{
-  TestApplication application;
-
-  tet_infoline("UtcDaliBufferImageNewWithPolicy01 - BufferImage::New(unsigned int, unsigned int, Pixel::Format, LoadPolicy, ReleasePolicy)");
-
-  // Force texture id's
-  std::vector<GLuint> ids;
-  ids.push_back( 23 );
-  application.GetGlAbstraction().SetNextTextureIds( ids );
-
-  // invoke default handle constructor
-  BufferImage image;
-
-  // initialise handle
-  image = BufferImage::New(16, 16, Pixel::A8, Image::UNUSED);
-  application.SendNotification();
-  application.Render(16);
-  application.Render(16);
-  application.SendNotification();
-
-  DALI_TEST_CHECK( image.GetWidth() == 16);
-  ImageActor actor = ImageActor::New(image);
-  Stage::GetCurrent().Add(actor);
-
-  application.SendNotification();
-  application.Render(16);
-  // testing ReleasePolicy::Unused
-  // fake loading image
-  application.Render(16);
-  application.SendNotification();
-
-  DALI_TEST_CHECK ( !application.GetGlAbstraction().CheckTextureDeleted(23) );
-
-  // discard texture when actor comes off stage
-  Stage::GetCurrent().Remove(actor);
-  application.Render(16);
-  application.SendNotification();
-  application.Render(16);
-  application.SendNotification();
-  DALI_TEST_CHECK ( application.GetGlAbstraction().CheckTextureDeleted(23) );
-  END_TEST;
-}
-
-int UtcDaliBufferImageNewWithPolicy02(void)
-{
-  TestApplication application;
-
-  tet_infoline("UtcDaliBufferImageNewWithPolicy02 - BufferImage::New(PixelBuffer*, unsigned int, unsigned int, Pixel::Format, unsigned int, ReleasePolicy)");
-
-  // Force texture id's
-  std::vector<GLuint> ids;
-  ids.push_back( 23 );
-  application.GetGlAbstraction().SetNextTextureIds( ids );
-
-  PixelBuffer* buffer = new PixelBuffer[16 * 16];
-  BufferImage image = BufferImage::New(buffer, 16, 16, Pixel::A8, 16, Image::UNUSED);
-  application.SendNotification();
-  application.Render(16);
-  application.Render(16);
-  application.SendNotification();
-
-  DALI_TEST_CHECK( image.GetWidth() == 16);
-  ImageActor actor = ImageActor::New(image);
-  Stage::GetCurrent().Add(actor);
-
-  application.SendNotification();
-  application.Render(16);
-  // testing ReleasePolicy::Unused
-  // fake loading image
-  application.Render(16);
-  application.SendNotification();
-
-  DALI_TEST_CHECK ( !application.GetGlAbstraction().CheckTextureDeleted(23) );
-
-  // discard texture when actor comes off stage
-  Stage::GetCurrent().Remove(actor);
-  application.Render(16);
-  application.SendNotification();
-  application.Render(16);
-  application.SendNotification();
-  DALI_TEST_CHECK ( application.GetGlAbstraction().CheckTextureDeleted(23) );
-  END_TEST;
-}
 
 int UtcDaliBufferImageDownCast(void)
 {
@@ -278,19 +194,16 @@ int UtcDaliBufferImageGetBufferStride(void)
   unsigned int pixelSize = Pixel::GetBytesPerPixel(image.GetPixelFormat());
   unsigned int bufferStride = image.GetBufferStride();
   DALI_TEST_CHECK( bufferStride == pixelSize );
-  DALI_TEST_CHECK( !image.IsDataExternal() );
 
   PixelBuffer* buffer = new PixelBuffer[20 * 16];
-  image = BufferImage::New(buffer, 16, 16, Pixel::A8, 20);
+  image = BufferImage::New(buffer, 16, 16, Pixel::A8, 20); // Stride is for the input image
   application.SendNotification();
   application.Render(16);
   application.Render(16);
   application.SendNotification();
 
-  bufferStride = image.GetBufferStride();
-
-  DALI_TEST_CHECK( bufferStride == 20);
-  DALI_TEST_CHECK( image.IsDataExternal() );
+  bufferStride = image.GetBufferStride(); // This stride is for the internal pixel buffer.
+  DALI_TEST_CHECK( bufferStride == 16);
 
   delete [] buffer;
   END_TEST;
@@ -313,23 +226,6 @@ int UtcDaliBufferImageGetPixelFormat(void)
   END_TEST;
 }
 
-
-int UtcDaliBufferImageIsDataExternal(void)
-{
-  TestApplication application;
-
-  tet_infoline("UtcDaliBufferImageIsDataExternal - BufferImage::IsDataExternal()");
-
-  PixelBuffer* buffer = new PixelBuffer[16 * 16];
-  BufferImage image = BufferImage::New(buffer, 16, 16, Pixel::A8);
-  application.SendNotification();
-  application.Render();
-  application.Render();
-  application.SendNotification();
-
-  DALI_TEST_CHECK( image.IsDataExternal() );
-  END_TEST;
-}
 
 namespace
 {
@@ -372,7 +268,6 @@ int UtcDaliBufferImageUpdate01(void)
   application.Render(16);
   application.SendNotification();
 
-  DALI_TEST_CHECK( image.IsDataExternal() );
   application.GetGlAbstraction().EnableTextureCallTrace(true);
 
   image.Update();//(RectArea()); // notify Core that the image has been updated
@@ -413,7 +308,6 @@ int UtcDaliBufferImageUpdate02(void)
   application.Render(16);
   application.SendNotification();
 
-  DALI_TEST_CHECK( image.IsDataExternal() );
   application.GetGlAbstraction().EnableTextureCallTrace(true);
 
   // Check that multiple updates in a frame will be properly uploaded

@@ -38,6 +38,7 @@
 #include <dali/internal/render/common/render-manager.h>
 #include <dali/internal/update/common/discard-queue.h>
 #include <dali/internal/update/resources/resource-manager.h>
+#include <dali/internal/event/images/buffer-image-impl.h>
 #include <dali/internal/event/images/image-factory.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/effects/shader-factory.h>
@@ -223,6 +224,7 @@ void Core::RecoverFromContextLoss()
 {
   DALI_LOG_INFO(gCoreFilter, Debug::Verbose, "Core::RecoverFromContextLoss()\n");
 
+  BufferImage::RecoverFromContextLoss(); // Reload images from buffers
   mImageFactory->RecoverFromContextLoss(); // Reload images from files
   mStage->GetRenderTaskList().RecoverFromContextLoss(); // Re-trigger render-tasks
 }

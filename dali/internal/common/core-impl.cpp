@@ -38,6 +38,7 @@
 #include <dali/internal/render/common/render-manager.h>
 #include <dali/internal/update/common/discard-queue.h>
 #include <dali/internal/update/resources/resource-manager.h>
+#include <dali/internal/event/images/buffer-image-impl.h>
 #include <dali/internal/event/images/image-factory.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/effects/shader-factory.h>

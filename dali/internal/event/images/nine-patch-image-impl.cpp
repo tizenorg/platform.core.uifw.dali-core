@@ -247,7 +247,8 @@ Internal::BufferImagePtr NinePatchImage::CreateCroppedBufferImage()
   {
     Pixel::Format pixelFormat = mBitmap->GetPixelFormat();
 
-    cropped = BufferImage::New( mWidth-2, mHeight-2, pixelFormat, Dali::Image::NEVER );
+    // @todo Cache for future calls to this method
+    cropped = BufferImage::New( mWidth-2, mHeight-2, pixelFormat );
 
     Integration::Bitmap::PackedPixelsProfile* srcProfile = mBitmap->GetPackedPixelsProfile();
     DALI_ASSERT_DEBUG( srcProfile && "Wrong profile for source bitmap");

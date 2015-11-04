@@ -24,6 +24,7 @@
 #include <dali/internal/event/images/image-impl.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/images/buffer-image.h>
+#include <dali/internal/event/images/context-recovery-interface.h>
 
 namespace Dali
 {
@@ -38,93 +39,47 @@ class ResourceClient;
 class ResourceManager;
 
 /**
- * BufferImage represents an image resource that can be added to actors etc.
- * Its pixel buffer data is provided by the application developer.
- * Pixel buffer memory allocation can be handled by dali or application.
+ * BufferImage represents an image resource that can be added to
+ * actors etc. It maintains a bitmap with a pixel buffer allocated by
+ * Dali, and remains allocated for the lifetime of this
+ * object. Uploads to GL are done via copy, so this local buffer is
+ * never used by RenderThread.
  */
-class BufferImage : public Image
+class BufferImage : public Image, public ContextRecoveryInterface
 {
 public:
   /**
-   * Create a new BufferImage.
-   * Also a pixel buffer for image data is allocated.
-   * Dali has ownership of the buffer.
-   * For better performance and portability use power of two dimensions.
-   * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
-   * @param [in] width       image width in pixels
-   * @param [in] height      image height in pixels
-   * @param [in] pixelformat the pixel format (rgba 32 bit by default)
-   * @param [in] releasePol  optionally relase memory when image is not visible on screen (default: keep image data until Image object is alive).
+   * @copydoc Dali::BufferImage::New()
    */
   static BufferImagePtr New( unsigned int width,
                              unsigned int height,
-                             Pixel::Format pixelformat,
-                             ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
+                             Pixel::Format pixelformat );
 
   /**
-   * @deprecated Support for externally owned Pixel Buffers is due to be removed TBA. It is recommended that a BufferImage owned Buffer be used instead.
-   *
-   * @brief Create a new BufferImage, which uses external data source.
-   *
-   * Pixel buffer has to be allocated by application.
-   * An internal copy is made of the Pixel Buffer, which can then be freed by the Application, unless if there will be a call to Update() later.
-   * The buffer should only be freed when there is no chance of an Update() being called again.
-   * Obtaining the buffer with GetBuffer() and altering the contents, then Update() will not work with externally owned buffers.
-   * For better performance and portability use power of two dimensions.
-   * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
-   *
-   * @param [in] pixBuf      pixel buffer. has to be allocated by application.
-   * @param [in] width       image width in pixels
-   * @param [in] height      image height in pixels
-   * @param [in] pixelformat the pixel format (rgba 32 bit by default)
-   * @param [in] stride      the internal stride of the pixelbuffer in pixels
-   * @param [in] releasePol  optionally relase memory when image is not visible on screen (default: keep image data until Image object is alive).
+   * @copydoc Dali::BufferImage::New()
    */
-  static BufferImagePtr New( PixelBuffer* pixBuf,
-                             unsigned int width,
-                             unsigned int height,
+  static BufferImagePtr New( PixelBuffer*  pixBuf,
+                             unsigned int  width,
+                             unsigned int  height,
                              Pixel::Format pixelformat,
-                             unsigned int stride,
-                             ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT );
-
-  /**
-   * Create a new BufferImage.
-   * Also a pixel buffer for image data is allocated.
-   * Dali has ownership of the buffer.
-   * For better performance use power of two dimensions.
-   * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
-   * @param [in] width image width in pixels
-   * @param [in] height image height in pixels
-   * @param [in] pixelformat the pixel format (rgba 32 bit by default)
-   * @param [in] releasePol optionally release memory when image is not visible on screen (default: keep image data until Image object is alive).
-   */
-  BufferImage(unsigned int width,
-              unsigned int height,
-              Pixel::Format pixelformat,
-              ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT);
+                             unsigned int  stride );
 
   /**
    * Create a new BufferImage, which uses external data source.
-   * Pixel buffer has to be allocated by application.
-   * An internal copy is made of the Pixel Buffer, which can then be freed by the Application, unless if there will be a call to Update() later.
-   * The buffer should only be freed when there is no chance of Update() being called again.
-   * Note: obtaining the buffer with GetBuffer(), writing changes, then Update() will cause any changes to be lost.
-   * In this case, the BufferImage will update from the external buffer and so changes should be written there.
    * For better performance and portability use power of two dimensions.
    * The maximum size of the image is limited by GL_MAX_TEXTURE_SIZE.
+   *
    * @param [in] pixBuf      pixel buffer. has to be allocated by application.
    * @param [in] width       image width in pixels
    * @param [in] height      image height in pixels
    * @param [in] pixelformat the pixel format (rgba 32 bit by default)
    * @param [in] stride      the internal stride of the pixelbuffer in pixels
-   * @param [in] releasePol  optionally relase memory when image is not visible on screen (default: keep image data until Image object is alive).
    */
-  BufferImage(PixelBuffer* pixBuf,
-              unsigned int width,
-              unsigned int height,
-              Pixel::Format pixelformat,
-              unsigned int stride,
-              ReleasePolicy releasePol = IMAGE_RELEASE_POLICY_DEFAULT);
+  BufferImage( PixelBuffer*  pixBuf,
+               unsigned int  width,
+               unsigned int  height,
+               Pixel::Format pixelformat,
+               unsigned int  stride );
 
 protected:
   /**
@@ -134,56 +89,32 @@ protected:
 
 public:
   /**
-   * Notify Dali that the contents of the buffer have changed.
-   * @param [in] updateArea area that has changed in buffer. An empty rect means the whole buffer has changed.
+   * @copydoc Dali::BufferImage::Update(RectArea)
    */
   void Update (RectArea& updateArea);
 
   /**
-   * @copydoc Dali::BufferImage::IsDataExternal
+   * @copydoc Dali::BufferImage::GetBuffer()
    */
-  bool IsDataExternal() const;
+  PixelBuffer* GetBuffer();
 
   /**
-   * Returns the pixel buffer of the Image.
-   * The application developer can write to the buffer.
-   * Upload the modified contents with Update().
-   * @return the pixel buffer
+   * @copydoc Dali::BufferImage::GetBuffer()
    */
-  PixelBuffer* GetBuffer() const
-  {
-    return ( mExternalBuffer ? mExternalBuffer : mInternalBuffer );
-  }
+  unsigned int GetBufferSize() const;
 
   /**
-   * Returns buffer size in bytes.
-   * @return the buffer size in bytes
+   * @copydoc Dali::BufferImage::GetBuffer()
    */
-  unsigned int GetBufferSize() const
-  {
-    return mBufferSize;
-  }
+  unsigned int GetBufferStride() const;
 
   /**
-   * Returns buffer stride (in bytes).
-   * @return the buffer stride
+   * @copydoc Dali::BufferImage::GetBuffer()
    */
-  unsigned int GetBufferStride() const
-  {
-    return mByteStride;
-  }
+  Pixel::Format GetPixelFormat() const;
 
   /**
-   * Get the pixel format
-   * @return The pixel format
-   */
-  Pixel::Format GetPixelFormat() const
-  {
-    return mPixelFormat;
-  }
-
-  /**
-   * @brief Upload pixel data to another resource at an offset
+   * @brief Upload the local pixel data to a specified resource at an offset
    *
    * @param destId ResourceId of the destination
    * @param xOffset x offset in the destination
@@ -191,7 +122,12 @@ public:
    */
   void UploadBitmap( ResourceId destId, std::size_t xOffset, std::size_t yOffset );
 
-protected: // From Image
+  /**
+   * @copydoc ContextRecoveryInterface::RecoverFromContextLoss
+   */
+  virtual void RecoverFromContextLoss();
+
+protected: // From Resource
   /**
    * @copydoc Dali::Internal::Image::Connect
    */
@@ -204,29 +140,53 @@ protected: // From Image
 
 private:
 
-  void SetupBuffer( unsigned int width,
-                    unsigned int height,
-                    Pixel::Format pixelformat,
-                    unsigned int byteStride,
-                    ReleasePolicy releasePol );
+  /**
+   * Create a bitmap of the given dimensions, possibly with some initial data.
+   *
+   * @param[in] pixBuf The pixel buffer to copy from. May be NULL
+   * @param[in] width The width of the bitmap
+   * @param[in] height The height of the bitmap
+   * @param[in] pixelFormat The pixel format of the bitmap
+   * @param[in] stride The stride of the pixBuf, if present
+   * @param[in] discardPolicy The discard policy of the bitmap
+   */
+  Integration::BitmapPtr CreateBitmap(
+    PixelBuffer* pixBuf,
+    unsigned int width,
+    unsigned int height,
+    Pixel::Format pixelFormat,
+    unsigned int stride,
+    ResourcePolicy::Discardable discardPolicy );
 
-  void CreateHostBitmap();
+  /**
+   * Create a separate bitmap for passing to Texture Cache to enforce
+   * separation of pixel buffers. This clone will discard it's pixel
+   * buffer after upload
+   */
+  void CreateTicket();
 
-  void UploadArea( ResourceId destId, const RectArea& area );
+  /**
+   * This copies an area of the source bitmap ( that held by this BufferImage )
+   * into the destination buffer. Enough space must have been allocated to hold
+   * this area.
+   * @param[in] dest The destination pixel buffer
+   * @param[in] area The area of the source to copy from
+   */
+  void CopyPixelArea( PixelBuffer* dest, const RectArea& area );
 
-  void UpdateBufferArea( PixelBuffer* src, PixelBuffer* dest, const RectArea& area );
+  /**
+   * Register newly created images
+   */
+  static void RegisterImage( BufferImage* bufferImage );
+
+  /**
+   * Deregister images that are being destroyed.
+   */
+  static void DeregisterImage( BufferImage* bufferImage );
 
 private:
-
-  PixelBuffer*                 mInternalBuffer;       ///< NULL if the data is supplied by an external buffer.
-  PixelBuffer*                 mExternalBuffer;       ///< NULL if there is no external pixel data (this is never owned by BufferImage).
-  ResourceClient*              mResourceClient;       ///< pointer to the resource client.
-  uint32_t                     mBufferSize;           ///< size of the pixel buffer.
-  uint32_t                     mByteStride;           ///< width of the pixel buffer in bytes.
-  uint32_t                     mBytesPerPixel;        ///< width of a pixel in bytes.
-  uint32_t                     mBufferWidth;          ///< cached pixel width of bitmap used for transport.
-  Pixel::Format                mPixelFormat;          ///< pixel format of bitmap.
-  ResourcePolicy::Discardable  mResourcePolicy;       ///< whether to discard the pixel buffer when removed from the stage or to retain the data.
+  ResourceClient*        mResourceClient;
+  Integration::BitmapPtr mBitmap;
 };
 
 } // namespace Internal

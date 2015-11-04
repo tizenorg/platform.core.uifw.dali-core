@@ -496,16 +496,14 @@ Image NewImage( const Property::Value& property )
       {
         ret = BufferImage::New( attributes.GetWidth(),
                                 attributes.GetHeight(),
-                                pixelFormat,
-                                releasePolicy );
+                                pixelFormat );
         break;
       }
       case FRAME_BUFFER_IMAGE :
       {
         ret = FrameBufferImage::New( attributes.GetWidth(),
                                      attributes.GetHeight(),
-                                     pixelFormat,
-                                     releasePolicy );
+                                     pixelFormat );
         break;
       }
     }
@@ -835,7 +833,3 @@ void NewAnimation( const Property::Map& map, Dali::AnimationData& outputAnimatio
 } // namespace scripting
 
 } // namespace Dali
-
-
-
-

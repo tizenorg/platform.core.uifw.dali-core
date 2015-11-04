@@ -97,6 +97,8 @@ void RenderGeometry::GetAttributeLocationFromProgram( Vector<GLint>& attributeLo
       unsigned int index = program.RegisterCustomAttribute( attributeName );
       GLint location = program.GetCustomAttributeLocation( index );
 
+      std::cout << "Geometry " << this << " attributeName: " << attributeName << " location: " << location << std::endl;
+
       if( -1 == location )
       {
         DALI_LOG_WARNING( "Attribute not found in the shader: %s\n", attributeName.c_str() );
@@ -118,6 +120,8 @@ void RenderGeometry::UploadAndDraw(
     BufferIndex bufferIndex,
     Vector<GLint>& attributeLocation )
 {
+  std::cout << "RenderGeometry::UploadAndDraw " << this << std::endl;
+
   if( !mHasBeenUpdated )
   {
     //Update buffers
@@ -167,6 +171,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
+        std::cout << "DrawElements indices: " << numIndices << std::endl;
         context.DrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0);
       }
       else

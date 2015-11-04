@@ -147,6 +147,8 @@ void Renderer::Render( Context& context,
 {
   NewRenderer* renderer = GetNewRenderer(); // avoid a dynamic cast per item per frame
 
+  std::cout << "Render " << this << std::endl;
+
   if( renderer )
   {
     // Get the shader from the material:

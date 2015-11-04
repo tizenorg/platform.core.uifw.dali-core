@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <iomanip>
+#include <iostream>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -583,6 +584,9 @@ void Program::Load()
   // Fall back to compiling and linking the vertex and fragment sources
   if( GL_FALSE == linked )
   {
+    std::cout << "Vertex shader: " << std::endl << mProgramData->GetVertexShader() << std::endl;
+    std::cout << "Fragment shader: " << std::endl << mProgramData->GetFragmentShader() << std::endl;
+
     DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "Program::Load() - Runtime compilation\n");
     if( CompileShader( GL_VERTEX_SHADER, mVertexShaderId, mProgramData->GetVertexShader() ) )
     {

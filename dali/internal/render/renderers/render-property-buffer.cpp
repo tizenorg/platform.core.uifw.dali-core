@@ -1,4 +1,6 @@
 
+#include <iostream>
+
 #include <dali/internal/render/renderers/render-property-buffer.h>
 #include <dali/internal/event/common/property-buffer-impl.h>  // Dali::Internal::PropertyBuffer
 
@@ -165,6 +167,8 @@ bool PropertyBuffer::Update( Context& context, bool isIndexBuffer )
         data = &(ushortData[0]);
       }
 
+      std::cout << "PropertyBuffer::Update " << this << " isIndexBuffer" << isIndexBuffer << std::endl;
+
       mGpuBuffer->UpdateDataBuffer( GetDataSize(), data, GpuBuffer::STATIC_DRAW );
     }
 
@@ -176,6 +180,8 @@ bool PropertyBuffer::Update( Context& context, bool isIndexBuffer )
 
 void PropertyBuffer::BindBuffer(GpuBuffer::Target target)
 {
+  std::cout << "PropertyBuffer::BindBuffer " << target << std::endl;
+
   if(mGpuBuffer)
   {
     mGpuBuffer->Bind(target);
@@ -184,7 +190,6 @@ void PropertyBuffer::BindBuffer(GpuBuffer::Target target)
 
 unsigned int PropertyBuffer::EnableVertexAttributes( Context& context, Vector<GLint>& vAttributeLocation, unsigned int locationBase )
 {
-
   unsigned int attributeCount = mFormat->components.size();
 
   GLsizei elementSize = mFormat->size;
@@ -194,12 +199,14 @@ unsigned int PropertyBuffer::EnableVertexAttributes( Context& context, Vector<GL
     GLint attributeLocation = vAttributeLocation[i+locationBase];
     if( attributeLocation != -1 )
     {
+      std::cout << "PropertyBuffer " << this << " EnableVertexAttributeArray: " << attributeLocation << std::endl;
       context.EnableVertexAttributeArray( attributeLocation );
 
       GLint attributeSize = mFormat->components[i].size;
       size_t attributeOffset = mFormat->components[i].offset;
       Property::Type attributeType = mFormat->components[i].type;
 
+      std::cout << "PropertyBuffer " << this << " VertexAttribPointer, component size: " << (attributeSize  / GetPropertyImplementationGlSize(attributeType)) << " stride: "<< elementSize << " attributeOffset: " << attributeOffset << std::endl;
       context.VertexAttribPointer( attributeLocation,
                                    attributeSize  / GetPropertyImplementationGlSize(attributeType),
                                    GetPropertyImplementationGlType(attributeType),

@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/render/gl-resources/gpu-buffer.h>
 
+#include <iostream>
+#include <stdio.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 
@@ -115,6 +118,15 @@ GpuBuffer::~GpuBuffer()
  */
 void GpuBuffer::UpdateDataBuffer(GLsizeiptr size,const GLvoid *data, Usage usage)
 {
+  std::cout << "UpdateDataBuffer size: " << size << " data: " << std::endl;
+
+  const float* floatData = (const  float*)data;
+  for( unsigned int i=0; i<size/sizeof(float); ++i, ++floatData)
+  {
+    printf( "%p : %f\n", floatData, *floatData );
+  }
+  std::cout << std::endl;
+
   DALI_ASSERT_DEBUG( size > 0 );
   mSize = size;
   // make sure we have a buffer name/id before uploading

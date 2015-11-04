@@ -128,6 +128,8 @@ void NewRenderer::DoSetBlending( Context& context )
 
 void NewRenderer::DoRender( Context& context, SceneGraph::TextureCache& textureCache, const SceneGraph::NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
 {
+  std::cout << "NewRenderer " << this << " mRenderGeometry: " << mRenderGeometry << std::endl;
+
   BindTextures( textureCache, program );
 
   SetUniforms( bufferIndex, node, program );

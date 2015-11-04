@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <algorithm>
+#include <stdio.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/constants.h>
@@ -176,12 +177,12 @@ void Context::SetVertexAttributeLocation(unsigned int location, bool state)
     // not cached, make the gl call through context
     if ( state )
     {
-       LOG_GL("EnableVertexAttribArray %d\n", location);
+       printf("Context EnableVertexAttribArray %d\n", location);
        CHECK_GL( mGlAbstraction, mGlAbstraction.EnableVertexAttribArray( location ) );
     }
     else
     {
-      LOG_GL("DisableVertexAttribArray %d\n", location);
+      printf("Context DisableVertexAttribArray %d\n", location);
       CHECK_GL( mGlAbstraction, mGlAbstraction.DisableVertexAttribArray( location ) );
     }
   }

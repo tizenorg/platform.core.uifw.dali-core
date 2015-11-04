@@ -57,13 +57,13 @@ BufferImage& BufferImage::operator=(const BufferImage& rhs)
 
 const BufferImage BufferImage::WHITE()
 {
-  Internal::BufferImage* internal = new Internal::BufferImage(1,1,Pixel::RGBA8888, Dali::Image::NEVER);
+  Internal::BufferImagePtr internal = Internal::BufferImage::New( 1u, 1u, Pixel::RGBA8888 );
   PixelBuffer* pBuf = internal->GetBuffer();
-  if ( pBuf )
+  if( pBuf )
   {
     pBuf[0] = pBuf[1] = pBuf[2] = pBuf[3] = 0xFF;
   }
-  return BufferImage(internal);
+  return BufferImage( internal.Get() );
 }
 
 BufferImage BufferImage::New(unsigned int width, unsigned int height, Pixel::Format pixelformat)
@@ -75,29 +75,12 @@ BufferImage BufferImage::New(unsigned int width, unsigned int height, Pixel::For
   return BufferImage(internal.Get());
 }
 
-BufferImage BufferImage::New(unsigned int width, unsigned int height, Pixel::Format pixelformat, ReleasePolicy releasePol)
-{
-  DALI_ASSERT_ALWAYS( 0u != width  && "Invalid BufferImage width requested" );
-  DALI_ASSERT_ALWAYS( 0u != height && "Invalid BufferImage height requested" );
-
-  Internal::BufferImagePtr internal = Internal::BufferImage::New(width, height, pixelformat, releasePol);
-  return BufferImage(internal.Get());
-}
-
 BufferImage BufferImage::New(PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride)
 {
   DALI_ASSERT_ALWAYS( 0u != width  && "Invalid BufferImage width requested" );
   DALI_ASSERT_ALWAYS( 0u != height && "Invalid BufferImage height requested" );
 
   Internal::BufferImagePtr internal = Internal::BufferImage::New(pixBuf, width, height, pixelformat, stride);
-  return BufferImage(internal.Get());
-}
-
-BufferImage BufferImage::New(PixelBuffer* pixBuf, unsigned int width, unsigned int height, Pixel::Format pixelformat, unsigned int stride, ReleasePolicy releasePol)
-{
-  DALI_ASSERT_ALWAYS( 0u != width  && "Invalid BufferImage width requested" );
-  DALI_ASSERT_ALWAYS( 0u != height && "Invalid BufferImage height requested" );
-  Internal::BufferImagePtr internal = Internal::BufferImage::New(pixBuf, width, height, pixelformat, stride, releasePol);
   return BufferImage(internal.Get());
 }
 
@@ -130,11 +113,6 @@ void BufferImage::Update ()
 void BufferImage::Update (RectArea updateArea)
 {
   GetImplementation(*this).Update(updateArea);
-}
-
-bool BufferImage::IsDataExternal() const
-{
-  return GetImplementation(*this).IsDataExternal();
 }
 
 } // namespace Dali

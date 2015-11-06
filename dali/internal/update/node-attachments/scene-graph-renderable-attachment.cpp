@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@
 #include <dali/internal/update/nodes/node.h>
 #include <dali/internal/update/resources/resource-manager.h>
 #include <dali/internal/update/resources/complete-status-manager.h>
-#include <dali/internal/update/resources/resource-tracker.h>
 #include <dali/internal/render/queue/render-queue.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
@@ -43,7 +42,6 @@ namespace SceneGraph
 RenderableAttachment::RenderableAttachment( bool usesGeometryScaling )
 : mSceneController(NULL), //@todo MESH_REWORK Pass in where required rather than store
   mShader( NULL ),
-  mTrackedResources(),
   mSortModifier( 0.0f ),
   mBlendingMode( Dali::ImageActor::DEFAULT_BLENDING_MODE ),
   mUsesGeometryScaling( usesGeometryScaling ),
@@ -101,7 +99,6 @@ void RenderableAttachment::DoGetScaleForSize( const Vector3& nodeSize, Vector3& 
 void RenderableAttachment::PrepareResources( BufferIndex updateBufferIndex, ResourceManager& resourceManager )
 {
   mHasUntrackedResources = false; // Only need to know this if the resources are not yet complete
-  mTrackedResources.Clear(); // Resource trackers are only needed if not yet completea
 
   if( mShader )
   {
@@ -113,7 +110,6 @@ void RenderableAttachment::PrepareResources( BufferIndex updateBufferIndex, Reso
 
       if(CompleteStatusManager::COMPLETE != completeStatusManager.GetStatus( id ))
       {
-        FollowTracker(id);
         mFinishedResourceAcquisition = false;
         mResourcesReady = false;
 
@@ -131,62 +127,14 @@ void RenderableAttachment::PrepareResources( BufferIndex updateBufferIndex, Reso
   mResourcesReady = DoPrepareResources( updateBufferIndex, resourceManager );
 }
 
-void RenderableAttachment::FollowTracker( Integration::ResourceId id )
-{
-  CompleteStatusManager& completeStatusManager = mSceneController->GetCompleteStatusManager();
-
-  if( completeStatusManager.FindResourceTracker(id) != NULL )
-  {
-    bool found = false;
-    std::size_t numTrackedResources = mTrackedResources.Count();
-    for( size_t i=0; i < numTrackedResources; ++i )
-    {
-      if(mTrackedResources[i] == id)
-      {
-        found = true;
-        break;
-      }
-    }
-    if( ! found )
-    {
-      mTrackedResources.PushBack( id );
-    }
-  }
-  else
-  {
-    mHasUntrackedResources = true;
-  }
-}
-
-
 void RenderableAttachment::GetReadyAndComplete(bool& ready, bool& complete) const
 {
   ready = mResourcesReady;
   complete = false;
 
-  CompleteStatusManager& completeStatusManager = mSceneController->GetCompleteStatusManager();
-
-  std::size_t numTrackedResources = mTrackedResources.Count();
-  if( mHasUntrackedResources || numTrackedResources == 0 )
+  if( mHasUntrackedResources )
   {
     complete = mFinishedResourceAcquisition;
-  }
-  else
-  {
-    // If there are tracked resources and no untracked resources, test the trackers
-    bool trackersComplete = true;
-    for( size_t i=0; i < numTrackedResources; ++i )
-    {
-      ResourceId id = mTrackedResources[i];
-      ResourceTracker* tracker = completeStatusManager.FindResourceTracker(id);
-      if( tracker  && ! tracker->IsComplete() )
-      {
-        trackersComplete = false;
-        break;
-      }
-    }
-
-    complete = mFinishedResourceAcquisition || trackersComplete;
   }
 }
 

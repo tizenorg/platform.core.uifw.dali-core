@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_FRAME_BUFFER_IMAGE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,6 @@ public:
   static FrameBufferImagePtr  New( NativeImageInterface& nativeImage );
 
   /**
-   * @copydoc Dali::FrameBufferImage::New(NativeImageInterface&, ReleasePolicy)
-   */
-  static FrameBufferImagePtr  New( NativeImageInterface& nativeImage, ReleasePolicy releasePolicy );
-
-  /**
    * @copydoc Dali::FrameBufferImage::FrameBufferImage
    */
   FrameBufferImage(unsigned int width, unsigned int height, Pixel::Format pixelFormat, RenderBuffer::Format bufferformat);
@@ -60,17 +55,12 @@ public:
   /**
    * @copydoc Dali::FrameBufferImage::FrameBufferImage
    */
-  FrameBufferImage(unsigned int width, unsigned int height, Pixel::Format pixelFormat, ReleasePolicy releasePolicy, RenderBuffer::Format bufferformat);
-
-  /**
-   * @copydoc Dali::FrameBufferImage::FrameBufferImage
-   */
   FrameBufferImage(NativeImageInterface& image);
 
   /**
-   * @copydoc Dali::FrameBufferImage::FrameBufferImage
+   * @return true if this FBO is targeting a NativeImageInterface
    */
-  FrameBufferImage(NativeImageInterface& image, ReleasePolicy releasePolicy);
+  bool IsNativeFBO() const;
 
 public: // From Image
   /**
@@ -94,6 +84,7 @@ private:
   NativeImageInterfacePtr mNativeImage;
   Pixel::Format mPixelFormat;
   RenderBuffer::Format mBufferFormat;
+  bool mIsNativeFBO;
 }; // class FrameBufferImage
 
 } // namespace Internal

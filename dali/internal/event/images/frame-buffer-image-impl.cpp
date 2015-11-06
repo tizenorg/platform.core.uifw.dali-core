@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,18 +56,12 @@ FrameBufferImagePtr  FrameBufferImage::New( NativeImageInterface& nativeImage )
   return image;
 }
 
-FrameBufferImagePtr  FrameBufferImage::New( NativeImageInterface& nativeImage, ReleasePolicy releasePolicy )
-{
-  FrameBufferImagePtr image = new FrameBufferImage(nativeImage, releasePolicy);
-  image->Initialize();
-  return image;
-}
-
 FrameBufferImage::FrameBufferImage(unsigned int width, unsigned int height, Pixel::Format pixelFormat, ReleasePolicy releasePolicy, RenderBuffer::Format bufferformat)
 : Image( releasePolicy ),
   mNativeImage(),
   mPixelFormat( pixelFormat ),
-  mBufferFormat( bufferformat )
+  mBufferFormat( bufferformat ),
+  mIsNativeFBO( false )
 {
   mWidth  = width;
   mHeight = height;
@@ -77,17 +71,8 @@ FrameBufferImage::FrameBufferImage( NativeImageInterface& nativeImage )
 : Image(),
   mNativeImage( &nativeImage ),
   mPixelFormat( Pixel::FIRST_VALID_PIXEL_FORMAT ),
-  mBufferFormat( RenderBuffer::COLOR )
-{
-  mWidth = nativeImage.GetWidth();
-  mHeight = nativeImage.GetHeight();
-}
-
-FrameBufferImage::FrameBufferImage( NativeImageInterface& nativeImage, ReleasePolicy releasePolicy )
-: Image( releasePolicy ),
-  mNativeImage( &nativeImage ),
-  mPixelFormat( Pixel::FIRST_VALID_PIXEL_FORMAT ),
-  mBufferFormat( RenderBuffer::COLOR )
+  mBufferFormat( RenderBuffer::COLOR ),
+  mIsNativeFBO( true )
 {
   mWidth = nativeImage.GetWidth();
   mHeight = nativeImage.GetHeight();
@@ -132,6 +117,11 @@ void FrameBufferImage::Disconnect()
     mTicket->RemoveObserver(*this);
     mTicket.Reset();
   }
+}
+
+bool FrameBufferImage::IsNativeFBO() const
+{
+  return mIsNativeFBO;
 }
 
 } // namespace Internal

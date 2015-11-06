@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,9 @@ namespace Internal
 namespace SceneGraph
 {
 
-RenderTaskList::RenderTaskList(CompleteStatusManager& completeStatusManager)
+RenderTaskList::RenderTaskList( RenderMessageDispatcher& renderMessageDispatcher, CompleteStatusManager& completeStatusManager )
 : mNotificationObject( NULL ),
+  mRenderMessageDispatcher( renderMessageDispatcher ),
   mCompleteStatusManager( completeStatusManager )
 {
 }
@@ -47,7 +48,7 @@ void RenderTaskList::AddTask( RenderTask* newTask )
 
   // mRenderTasks container takes ownership
   mRenderTasks.PushBack( newTask );
-  newTask->SetCompleteStatusManager( &mCompleteStatusManager );
+  newTask->Initialize( mRenderMessageDispatcher, mCompleteStatusManager );
 }
 
 void RenderTaskList::RemoveTask( RenderTask* task )

@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_COMPLETE_STATUS_MANAGER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@
  *
  */
 
-#include <dali/devel-api/common/map-wrapper.h>
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/integration-api/resource-declarations.h>
-#include <dali/internal/update/common/scene-graph-buffers.h>
 
 namespace Dali
 {
@@ -41,17 +40,9 @@ class RenderMessageDispatcher;
 }
 
 /**
- * Class to manage resource tracking and completion status.
+ * Class to manage resource load completion status.
  *
- * Resources that are tracked are usually Framebuffer objects that are
- * being rendered to by a RenderOnce render task.
- *
- * These need to change completion status either when all resources used by
- * the framebuffer are complete, or when the framebuffer is backed by a native
- * image and the native image has been written to by GL.
- *
- * This class uses ResourceManager to determine the complete status
- * of non-tracked resources.
+ * This class uses ResourceManager to determine the complete status of loaded resources.
  */
 class CompleteStatusManager
 {
@@ -63,21 +54,14 @@ public:
   {
     NOT_READY, ///< Resource is not ready yet
     COMPLETE,  ///< Resource has finished loading, or is otherwise complete
-    NEVER      ///< Resource will never be complete, e.g. load failed.
+    FAILED     ///< Resource load has failed.
   };
 
   /**
    * Constructor.
-   *
-   * @param[in] glSyncAbstraction The GlSyncObject abstraction (for creating RenderTrackers)
-   * @param[in] renderQueue The render queue (For passing ownership of RenderTrackers to RenderManager)
-   * @param[in] renderManager The render manager
-   * @param[in] query Update buffer query
    * @param[in] resourceManager The resource manager (For handling untracked resources)
    */
-  CompleteStatusManager( Integration::GlSyncAbstraction& glSyncAbstraction,
-                         SceneGraph::RenderMessageDispatcher& renderMessageDispatcher,
-                         ResourceManager& resourceManager );
+  CompleteStatusManager( ResourceManager& resourceManager );
 
   /**
    * Destructor
@@ -86,51 +70,34 @@ public:
 
   /**
    * @param[in] id The resource id to track
+   * @return true if the FBO has been rendered to, i.e. it can be considered "complete"
    */
-  void TrackResource( Integration::ResourceId id );
+  bool HasFrameBufferBeenRenderedTo( Integration::ResourceId id ) const;
 
   /**
-   * Stop tracking the resource ID. Will remove any resource / render trackers for this ID.
-   * @param[in] id The resource id to stop tracking
+   * @param[in] id of the framebuffer that has been rendered to
    */
-  void StopTrackingResource ( Integration::ResourceId id );
-
-  /**
-   * Get the resource tracker associated with this id
-   * @param[in] id The resource id
-   * @return a valid tracker if this resource is being tracked, or NULL.
-   */
-  ResourceTracker* FindResourceTracker( Integration::ResourceId id );
+  void SetFrameBufferBeenRenderedTo( Integration::ResourceId id );
 
   /**
    * Gets the complete status of the resource.  If it has a tracker,
    * it returns the status from the resource tracker, otherwise it
    * returns the load status from the resource manager
    *
-   * @param[in] id The resource id @return The complete state of the
-   * resource
+   * @param[in] id The resource id @return The complete state of the resource
+   * @return the CompleteState
    */
-  CompleteState GetStatus( Integration::ResourceId id );
+  CompleteState GetStatus( Integration::ResourceId id ) const;
 
 private:
-  /**
-   * Factory method to create a ResourceTracker or GlResourceTracker for this resource id.
-   * It creates a ResourceTracker for framebuffers without native images, or a GlResourceTracker
-   * for framebuffers with native images that require Gl FenceSync.
-   * @param[in] id The resource id
-   */
-  ResourceTracker* CreateResourceTracker(Integration::ResourceId id);
 
-  typedef std::map< Integration::ResourceId, ResourceTracker* > TrackedResources;
-  typedef TrackedResources::iterator TrackedResourcesIter;
-
-  Integration::GlSyncAbstraction& mGlSyncAbstraction; ///< The synchronisation interface
-  SceneGraph::RenderMessageDispatcher& mRenderMessageDispatcher; ///< Render thread message dispatcher
   ResourceManager& mResourceManager;   ///< The resource manager
-  TrackedResources mTrackedResources;  ///< Tracked resources
+  Dali::Vector< Integration::ResourceId > mFboRenderedIds; // the id's of FBOs that have been rendered to
+
 };
 
 } // Internal
+
 } // Dali
 
 #endif // __DALI_INTERNAL_COMPLETE_STATUS_MANAGER_H__

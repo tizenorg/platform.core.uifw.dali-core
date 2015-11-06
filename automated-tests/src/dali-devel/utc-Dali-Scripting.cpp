@@ -715,8 +715,8 @@ int UtcDaliScriptingNewActorProperties(void)
   }
 
   // Check Anchor point and parent origin STRINGS
-  map[ "parentOrigin" ] = "TOP_LEFT";
-  map[ "anchorPoint" ] = "CENTER_LEFT";
+  map[ "parent-origin" ] = "TOP_LEFT";
+  map[ "anchor-point" ] = "CENTER_LEFT";
   {
     Actor handle = NewActor( map );
     DALI_TEST_CHECK( handle );
@@ -1034,6 +1034,50 @@ int UtcDaliScriptingFindEnumIndexN(void)
   };
   const unsigned int myTableCount = sizeof( myTable ) / sizeof( myTable[0] );
   DALI_TEST_EQUALS( myTableCount, FindEnumIndex( "Foo", myTable, myTableCount ), TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliScriptingFindEnumP(void)
+{
+  const Scripting::StringEnum myTable[] =
+  {
+    { "ONE",    1 },
+    { "TWO",    2 },
+    { "THREE",  3 },
+    { "FOUR",   4 },
+    { "FIVE",   5 },
+  };
+  const unsigned int myTableCount = sizeof( myTable ) / sizeof( myTable[0] );
+
+  unsigned int integerEnum = 0;
+  DALI_TEST_CHECK( FindEnum( "ONE", myTable, myTableCount, integerEnum ) );
+
+  DALI_TEST_EQUALS( integerEnum, 1, TEST_LOCATION );
+
+  integerEnum = 0;
+  DALI_TEST_CHECK( FindEnum( "ONE,TWO", myTable, myTableCount, integerEnum ) );
+  DALI_TEST_EQUALS( integerEnum, 3, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliScriptingFindEnumN(void)
+{
+  const Scripting::StringEnum myTable[] =
+  {
+    { "ONE",    1 },
+    { "TWO",    2 },
+    { "THREE",  3 },
+    { "FOUR",   4 },
+    { "FIVE",   5 },
+  };
+  const unsigned int myTableCount = sizeof( myTable ) / sizeof( myTable[0] );
+
+  unsigned int integerEnum = 0;
+  DALI_TEST_CHECK( !FindEnum( "Foo", myTable, myTableCount, integerEnum ) );
+
+  DALI_TEST_EQUALS( integerEnum, 0, TEST_LOCATION );
 
   END_TEST;
 }

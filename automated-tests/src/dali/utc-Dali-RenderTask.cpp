@@ -299,7 +299,7 @@ bool UpdateRender(TestApplication& application, TraceCallStack& callStack, bool 
 
   bool result = (sigPassed && drawPassed && keepUpdatingPassed);
 
-  tet_printf("UpdateRender: Expected: Draw:%s Signal:%s Keep Updating: %s  Actual: Draw:%s  Signal:%s KeepUpdating: %s  %s\n",
+  tet_printf("UpdateRender: Expected: Draw:%s Signal:%s KeepUpdating: %s  Actual: Draw:%s  Signal:%s KeepUpdating: %s  %s\n",
              BOOLSTR(testDrawn), BOOLSTR(testFinished), BOOLSTR(testKeepUpdating),
              BOOLSTR(drawResult), BOOLSTR(finishedSig), BOOLSTR(keepUpdating),
              result ? "Passed":"Failed");

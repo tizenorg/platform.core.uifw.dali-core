@@ -327,30 +327,16 @@ bool ImageAttachment::DoPrepareResources( BufferIndex updateBufferIndex, Resourc
     {
       case CompleteStatusManager::NOT_READY:
       {
-        ready = false;
-
-        if( mBitmapMetadata.GetIsFramebuffer() )
-        {
-          ready = true;
-        }
         mFinishedResourceAcquisition = false;
-        FollowTracker( mTextureId );
+        break;
       }
-      break;
-
       case CompleteStatusManager::COMPLETE:
+      case CompleteStatusManager::FAILED:
       {
         ready = true;
         mFinishedResourceAcquisition = true;
+        break;
       }
-      break;
-
-      case CompleteStatusManager::NEVER:
-      {
-        ready = false;
-        mFinishedResourceAcquisition = true;
-      }
-      break;
     }
   }
   else
@@ -488,8 +474,6 @@ void ImageAttachment::SendShaderChangeMessage( BufferIndex updateBufferIndex )
   // Construct message in the mRenderer queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &GetRenderer(), &Render::Renderer::SetShader, mShader );
 }
-
-
 
 } // namespace SceneGraph
 

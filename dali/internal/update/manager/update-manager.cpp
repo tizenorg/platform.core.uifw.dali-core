@@ -143,7 +143,6 @@ typedef GestureContainer::ConstIterator        GestureConstIter;
 struct UpdateManager::Impl
 {
   Impl( NotificationManager& notificationManager,
-        GlSyncAbstraction& glSyncAbstraction,
         CompleteNotificationInterface& animationFinishedNotifier,
         PropertyNotifier& propertyNotifier,
         ResourceManager& resourceManager,
@@ -167,11 +166,11 @@ struct UpdateManager::Impl
     renderManager( renderManager ),
     renderQueue( renderQueue ),
     renderInstructions( renderManager.GetRenderInstructionContainer() ),
-    completeStatusManager( glSyncAbstraction, renderMessageDispatcher, resourceManager ),
+    completeStatusManager( resourceManager ),
     touchResampler( touchResampler ),
     backgroundColor( Dali::Stage::DEFAULT_BACKGROUND_COLOR ),
-    taskList ( completeStatusManager ),
-    systemLevelTaskList ( completeStatusManager ),
+    taskList( renderMessageDispatcher, completeStatusManager ),
+    systemLevelTaskList( renderMessageDispatcher, completeStatusManager ),
     root( NULL ),
     systemLevelRoot( NULL ),
     renderers( sceneGraphBuffers, discardQueue ),
@@ -294,7 +293,6 @@ struct UpdateManager::Impl
 };
 
 UpdateManager::UpdateManager( NotificationManager& notificationManager,
-                              GlSyncAbstraction& glSyncAbstraction,
                               CompleteNotificationInterface& animationFinishedNotifier,
                               PropertyNotifier& propertyNotifier,
                               ResourceManager& resourceManager,
@@ -307,7 +305,6 @@ UpdateManager::UpdateManager( NotificationManager& notificationManager,
   : mImpl(NULL)
 {
   mImpl = new Impl( notificationManager,
-                    glSyncAbstraction,
                     animationFinishedNotifier,
                     propertyNotifier,
                     resourceManager,
@@ -832,9 +829,6 @@ void UpdateManager::ApplyConstraints( BufferIndex bufferIndex )
   // e.g. ShaderEffect uniform a function of Actor's position.
   // Mesh vertex a function of Actor's position or world position.
 
-  // TODO: refactor this code (and reset nodes) as these are all just lists of property-owners
-  // they can be all processed in a super-list of property-owners.
-
   // Constrain system-level render-tasks
   const RenderTaskList::RenderTaskContainer& systemLevelTasks = mImpl->systemLevelTaskList.GetTasks();
 
@@ -887,6 +881,16 @@ void UpdateManager::ProcessPropertyNotifications( BufferIndex bufferIndex )
   }
 }
 
+void UpdateManager::PrepareMaterials()
+{
+  ObjectOwnerContainer<Material>::Iterator iter = mImpl->materials.GetObjectContainer().Begin();
+  const ObjectOwnerContainer<Material>::Iterator end = mImpl->materials.GetObjectContainer().End();
+  for( ; iter != end; ++iter )
+  {
+    (*iter)->Prepare( mImpl->resourceManager, mImpl->completeStatusManager );
+  }
+}
+
 void UpdateManager::ForwardCompiledShadersToEventThread()
 {
   DALI_ASSERT_DEBUG( (mImpl->shaderSaver != 0) && "shaderSaver should be wired-up during startup." );
@@ -922,7 +926,6 @@ void UpdateManager::UpdateRenderers( BufferIndex bufferIndex )
   {
     if( rendererContainer[i]->IsReferenced() )
     {
-      rendererContainer[i]->PrepareResources(bufferIndex, mImpl->resourceManager);
       rendererContainer[i]->PrepareRender( bufferIndex );
     }
   }
@@ -1019,17 +1022,19 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
     // 9) Check Property Notifications
     ProcessPropertyNotifications( bufferIndex );
 
-    // 10) Clear the lists of renderable-attachments from the previous update
+    // 10) Prepare materials
+    PrepareMaterials();
+
+    // 11) Clear the lists of renderable-attachments from the previous update
     ClearRenderables( mImpl->sortedLayers );
     ClearRenderables( mImpl->systemLevelSortedLayers );
 
-    // 11) Update node hierarchy and perform sorting / culling.
+    // 12) Update node hierarchy and perform sorting / culling.
     //     This will populate each Layer with a list of renderers which are ready.
     UpdateNodes( bufferIndex );
     UpdateRenderers( bufferIndex );
 
-
-    // 12) Prepare for the next render
+    // 14) Prepare for the next render
     PERF_MONITOR_START(PerformanceMonitor::PREPARE_RENDERABLES);
 
     PrepareRenderables( bufferIndex, mImpl->sortedLayers );
@@ -1038,7 +1043,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
     PERF_MONITOR_START(PerformanceMonitor::PROCESS_RENDER_TASKS);
 
-    // 14) Process the RenderTasks; this creates the instructions for rendering the next frame.
+    // 15) Process the RenderTasks; this creates the instructions for rendering the next frame.
     // reset the update buffer index and make sure there is enough room in the instruction container
     mImpl->renderInstructions.ResetAndReserve( bufferIndex,
                                                mImpl->taskList.GetTasks().Count() + mImpl->systemLevelTaskList.GetTasks().Count() );

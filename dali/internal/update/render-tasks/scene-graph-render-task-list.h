@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_SCENE_GRAPH_RENDER_TASK_LIST_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ class CompleteNotificationInterface;
 
 namespace SceneGraph
 {
-
+class RenderMessageDispatcher;
 class RenderTask;
 
 /**
@@ -47,8 +47,10 @@ public:
 
   /**
    * Constructor
+   * @param renderMessageDispatcher to send messages
+   * @param completeStatusManager to check completion status
    */
-  RenderTaskList( CompleteStatusManager& completeStatusManager );
+  RenderTaskList( RenderMessageDispatcher& renderMessageDispatcher, CompleteStatusManager& completeStatusManager );
 
   /**
    * Destructor
@@ -101,8 +103,9 @@ private:
 private:
 
   CompleteNotificationInterface* mNotificationObject; ///< object to pass in to the complete notification
-  RenderTaskContainer mRenderTasks; ///< A container of owned RenderTasks
+  RenderMessageDispatcher& mRenderMessageDispatcher; ///< for sending messages to render thread
   CompleteStatusManager& mCompleteStatusManager; ///< The complete status tracker (render tasks need this)
+  RenderTaskContainer mRenderTasks; ///< A container of owned RenderTasks
 
 };
 

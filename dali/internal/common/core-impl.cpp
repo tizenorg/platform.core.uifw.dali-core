@@ -112,7 +112,7 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
   std::vector< ResourcePostProcessRequest> init;
   mResourcePostProcessQueue = new ResourcePostProcessList(init);
 
-  mRenderManager = RenderManager::New( glAbstraction, *mResourcePostProcessQueue );
+  mRenderManager = RenderManager::New( glAbstraction, glSyncAbstraction, *mResourcePostProcessQueue );
 
   RenderQueue& renderQueue = mRenderManager->GetRenderQueue();
   TextureCache& textureCache = mRenderManager->GetTextureCache();
@@ -137,7 +137,6 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
   mTouchResampler = TouchResampler::New();
 
   mUpdateManager = new UpdateManager( *mNotificationManager,
-                                       glSyncAbstraction,
                                       *mAnimationPlaylist,
                                       *mPropertyNotificationManager,
                                       *mResourceManager,

@@ -70,10 +70,21 @@ public:
 
   /**
    * @brief Copy constructor.
+   * @param rhs to copy from
    */
   Uint16Pair( const Uint16Pair& rhs )
   {
     mData = rhs.mData;
+  }
+
+  /**
+   * @brief Sets the width
+   * @param width to set
+   */
+  void SetWidth( uint16_t width )
+  {
+    DALI_ASSERT_DEBUG( width < ( 1u << 16 ) && "Width parameter not representable." );
+    mComponents[0] = width;
   }
 
   /**
@@ -84,6 +95,15 @@ public:
     return mComponents[0];
   }
 
+  /**
+   * @brief Sets the height
+   * @param height to set
+   */
+  void SetHeight( uint16_t height )
+  {
+    DALI_ASSERT_DEBUG( height < ( 1u << 16 ) && "Height parameter not representable." );
+    mComponents[1] = height;
+  }
   /**
    * @returns the y dimension stored in this 2-tuple.
    */

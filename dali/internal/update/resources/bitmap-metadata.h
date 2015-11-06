@@ -2,7 +2,7 @@
 #define  __DALI_BITMAP_METADATA_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,20 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/pixel.h>
+#include <dali/public-api/common/type-traits.h>
+#include <dali/public-api/images/image-operations.h>
 #include <dali/public-api/images/native-image-interface.h>
+#include <dali/integration-api/bitmap.h>
+#include <dali/internal/update/resources/resource-manager-declarations.h>
 
 namespace Dali
 {
+
 namespace Internal
 {
 
 /**
- * Texture class.
+ * Bitmap metadata.
  */
 class BitmapMetadata
 {
@@ -39,117 +42,220 @@ public:
    * @param[in] nativeImage The native image to load
    * @return A newly allocated BitmapMetadata
    */
-  static BitmapMetadata New(NativeImageInterfacePtr nativeImage);
+  static BitmapMetadata New( ResourceId id, NativeImageInterfacePtr nativeImage )
+  {
+    return BitmapMetadata( id, nativeImage->GetWidth(), nativeImage->GetHeight(), nativeImage->RequiresBlending(), ! nativeImage->RequiresBlending() );
+  }
 
   /**
    * Creates a new BitmapMetadata object from a Bitmap
    * @param[in] bitmap The bitmap
    * @return A newly allocated BitmapMetadata
    */
-  static BitmapMetadata New(Integration::Bitmap* const bitmap);
+  static BitmapMetadata New( ResourceId id, Integration::Bitmap* const bitmap )
+  {
+    return BitmapMetadata( id, bitmap->GetImageWidth(), bitmap->GetImageHeight(), Pixel::HasAlpha(bitmap->GetPixelFormat()), bitmap->IsFullyOpaque() );
+  }
 
   /**
-   * Creates a new BitmapMetadata object from framebuffer metadata
+   * Creates a new BitmapMetadata object
    * @return A newly allocated BitmapMetadata
    */
-  static BitmapMetadata New(unsigned int width, unsigned int height, bool hasAlphaChannel);
-
-  /**
-   * Constructor
-   */
-  BitmapMetadata( unsigned int width, unsigned int height, bool hasAlphaChanne, bool opaqueness );
-
-  /**
-   * Copy constructor
-   */
-  BitmapMetadata( const BitmapMetadata& rhs );
-
-  /**
-   * Assignment operator
-   */
-  BitmapMetadata& operator=( const BitmapMetadata& rhs );
+  static BitmapMetadata New( ResourceId id, unsigned int width, unsigned int height, bool hasAlphaChannel )
+  {
+    return BitmapMetadata( id, width, height, hasAlphaChannel, !hasAlphaChannel );
+  }
 
   /**
    * Default Constructor
    */
-  BitmapMetadata();
+  BitmapMetadata()
+  : mSize( 0, 0 ),
+    mId( 0 ),
+    mHasAlphaChannel( true ),
+    mOpaqueness( false ),
+    mIsNativeImage( false ),
+    mIsFramebuffer( false )
+  {
+  }
+
+  /**
+   * Constructor
+   */
+  BitmapMetadata( ResourceId id, unsigned int width, unsigned int height, bool hasAlphaChannel, bool opaqueness )
+  : mSize( width, height ),
+    mId( id ),
+    mHasAlphaChannel( hasAlphaChannel ),
+    mOpaqueness( opaqueness ),
+    mIsNativeImage( false ),
+    mIsFramebuffer( false )
+  {
+  }
+
+  /**
+   * As this class is POD, compiler generated copy constructor and assignment operator are ok (bitwise copy)
+   */
+
+  /**
+   * @return the id
+   */
+  ResourceId GetId() const
+  {
+    return mId;
+  }
 
   /**
    * Updates the metadata with information from the native image
    * @param[in] nativeImage The native image that was updated
    */
-  void Update(NativeImageInterfacePtr nativeImage);
+  void Update( NativeImageInterfacePtr nativeImage )
+  {
+    mSize = ImageDimensions( nativeImage->GetWidth(), nativeImage->GetHeight() );
+    mHasAlphaChannel = nativeImage->RequiresBlending();
+    mOpaqueness  = ! mHasAlphaChannel;
+    mIsNativeImage = true;
+  }
 
   /**
    * Updates the metadata with information from the bitmap
    * @param[in] bitmap The bitmap that was updated
    */
-  void Update(Integration::Bitmap* const bitmap);
-
-  /**
-   * Return the width of image in pixels.
-   * @return width
-   */
-  unsigned int GetWidth() const;
-
-  /**
-   * Return the height of image in pixels.
-   * @return height
-   */
-  unsigned int GetHeight() const;
-
-  /**
-   * Query whether the texture data has an alpha channel.
-   * @return True if the texture data has an alpha channel.
-   */
-  bool HasAlphaChannel() const;
-
-  /**
-   * Query whether the texture is completely opaque
-   * @return True if all pixels of the texture data are opaque
-   */
-  bool IsFullyOpaque() const;
+  void Update( Integration::Bitmap* const bitmap )
+  {
+    mSize = ImageDimensions( bitmap->GetImageWidth(), bitmap->GetImageHeight() );
+    mHasAlphaChannel = Pixel::HasAlpha(bitmap->GetPixelFormat());
+    mOpaqueness  = bitmap->IsFullyOpaque();
+    mIsNativeImage = false;
+  }
 
   /**
    * Set the width of image
    * @param[in] width The width of the image
    */
-  void SetWidth(unsigned int width);
+  void SetWidth( unsigned int width )
+  {
+    mSize.SetWidth( width );
+  }
+
+  /**
+   * Return the width of image in pixels.
+   * @return width
+   */
+  unsigned int GetWidth() const
+  {
+    return mSize.GetWidth();
+  }
 
   /**
    * Set the height of image
    * @param[in] height The height of the image in pixels
    */
-  void SetHeight(unsigned int height);
+  void SetHeight(unsigned int height)
+  {
+    mSize.SetHeight( height );
+  }
 
   /**
-   * Set whether the texture has alpha channel
-   * @param[in] hasAlphaChannel whether the texture has alpha channel
+   * Return the height of image in pixels.
+   * @return height
    */
-  void SetHasAlphaChannel( bool hasAlphaChannel );
+  unsigned int GetHeight() const
+  {
+    return mSize.GetHeight();
+  }
+
+  /**
+   * Query whether the texture data has an alpha channel.
+   * @return True if the texture data has an alpha channel.
+   */
+  bool HasAlphaChannel() const
+  {
+    return mHasAlphaChannel;
+  }
 
   /**
    * Set whether the texture is completely opaque, i.e.
    * true if all pixels of the texture data are opaque.
    * @param[in] opaqueness If the alpha channel is set to fully opaque.
    */
-  void SetOpaqueness(bool opaqueness);
+  void SetOpaqueness( bool opaqueness )
+  {
+    mOpaqueness = opaqueness;
+  }
 
-  void SetIsNativeImage( bool isNativeImage );
-  bool GetIsNativeImage( );
-  void SetIsFramebuffer( bool isFramebuffer );
-  bool GetIsFramebuffer( );
+  /**
+   * Query whether the texture is completely opaque
+   * @return True if all pixels of the texture data are opaque
+   */
+  bool IsFullyOpaque() const
+  {
+    return mOpaqueness;
+  }
 
-private:
-  unsigned int  mImageWidth;      ///< width of the original image
-  unsigned int  mImageHeight;     ///< height of the original image
-  bool          mHasAlphaChannel:1; ///< Pixel format of the contained image data.
-  bool          mOpaqueness:1;    ///< Whether the bitmap was fully opaque when loaded / updated
-  bool          mIsNativeImage:1; ///< Whether the image is native or not
-  bool          mIsFramebuffer:1; ///< Whether the image is an FBO
+  /**
+   * @param isNativeImage flag
+   */
+  void SetIsNativeImage( bool isNativeImage )
+  {
+    mIsNativeImage = isNativeImage;
+  }
+
+  /**
+   * @return isNativeImage flag
+   */
+  bool IsNativeImage() const
+  {
+    return mIsNativeImage;
+  }
+
+  /**
+   * @param isFramebuffer flag
+   */
+  void SetIsFramebuffer( bool isFramebuffer )
+  {
+    mIsFramebuffer = isFramebuffer;
+  }
+
+  /**
+   * @return isFramebuffer flag
+   */
+  bool IsFramebuffer() const
+  {
+    return mIsFramebuffer;
+  }
+
+  /**
+   * @param value if the framebuffer has been rendered to
+   */
+  void SetFrameBufferBeenRenderedTo( bool value )
+  {
+    mHasFrameBufferBeenRenderedTo = value;
+  }
+
+  /**
+   * @return true if the framebuffer has been rendered to
+   */
+  bool HasFrameBufferBeenRenderedTo() const
+  {
+    return mHasFrameBufferBeenRenderedTo;
+  }
+
+private: // Data
+
+  ImageDimensions mSize;              ///< size compressed into 32 bits
+  ResourceId      mId;                ///< Unique resource/texture ID
+  bool            mHasAlphaChannel:1; ///< Pixel format of the contained image data.
+  bool            mOpaqueness:1;      ///< Whether the bitmap was fully opaque when loaded / updated
+  bool            mIsNativeImage:1;   ///< Whether the image is native or not
+  bool            mIsFramebuffer:1;   ///< Whether the image is an FBO
+  bool            mHasFrameBufferBeenRenderedTo:1; /// If the FBO has been rendered to
+
 };
 
 } // namespace Internal
+
+// Allow BitmapMetadataEntry to be treated as a POD type (need to do this in Dali namespace)
+template <> struct TypeTraits< Internal::BitmapMetadata > : public BasicTypes< Internal::BitmapMetadata > { enum { IS_TRIVIAL_TYPE = true }; };
 
 } // namespace Dali
 

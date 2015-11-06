@@ -532,14 +532,12 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
  * @param sortedLayers to prepare the instruction from
  * @param renderTask to get the view matrix
  * @param sortingHelper to use for sorting the renderitems (to avoid reallocating)
- * @param renderTracker An optional render tracker object
  * @param instructions container
  */
 void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                                SortedLayerPointers& sortedLayers,
                                RenderTask& renderTask,
                                RendererSortingHelper& sortingHelper,
-                               RenderTracker* renderTracker,
                                RenderInstructionContainer& instructions )
 {
   // Retrieve the RenderInstruction buffer from the RenderInstructionContainer
@@ -587,7 +585,6 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
     }
   }
 
-  instruction.mRenderTracker = renderTracker;
   instruction.mCullMode = renderTask.GetCullMode();
 
   // inform the render instruction that all renderers have been added and this frame is complete

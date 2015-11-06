@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_RESOURCE_MANAGER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -302,24 +302,39 @@ public: // Used by ResourceClient
    * @param[in] id The ID of a bitmap/texture resource.
    * @return true if the bitmap or texture has finished loading
    */
-  bool IsResourceLoaded(ResourceId id);
+  bool IsResourceLoaded( ResourceId id ) const;
 
   /**
    * Check if a resource has failed to load, e.g. file not found, etc.
    * @param[in] id The ID of a bitmap/texture resource.
    * @return true if the bitmap or texture has failed to load
    */
-  bool IsResourceLoadFailed(ResourceId id);
+  bool HasResourceLoadFailed( ResourceId id ) const;
 
   /**
-   * Get bitmap metadata. This stores meta data about the resource, but
-   * doesn't keep track of the resource
+   * @param[in] id The ID of a texture resource.
+   * @param[in] value if the FBO has been rendered to
    */
-  BitmapMetadata GetBitmapMetadata(ResourceId id);
+  void SetFrameBufferBeenRenderedTo( ResourceId id, bool value );
 
-    /********************************************************************************
-   ************************* ResourceCache Implementation  ************************
-   ********************************************************************************/
+  /**
+   * @param[in] id The ID of a texture resource.
+   * @return true if the FBO has been rendered to
+   */
+  bool HasFrameBufferBeenRenderedTo( ResourceId id ) const;
+
+  /**
+   * Get texture metadata. This stores meta data about the resource, but
+   * doesn't keep track of the resource
+   * @param id of the texture
+   * @param metadata reference
+   * @return false if metadata does not exist
+   */
+  bool GetTextureMetadata( ResourceId id, BitmapMetadata*& metadata ) const;
+
+   /********************************************************************************
+    ************************* ResourceCache Implementation  ************************
+    ********************************************************************************/
 public:
 
   /**

@@ -35,11 +35,17 @@ namespace Internal
 class FrameBufferTexture;
 class CompleteStatusManager;
 
+namespace Render
+{
+class RenderTracker;
+}
+
 namespace SceneGraph
 {
 class Node;
 class CameraAttachment;
 class RenderInstruction;
+class RenderMessageDispatcher;
 
 /**
  * RenderTasks describe how the Dali scene should be rendered.
@@ -64,6 +70,13 @@ public:
    * Virtual destructor
    */
   virtual ~RenderTask();
+
+  /**
+   * Initialize the render task. Called in update thread
+   * @param[in] renderMessageDispatcher to send messages to render thread
+   * @param[in] completeStatusManager The complete status Tracker
+   */
+  void Initialize( RenderMessageDispatcher& renderMessageDispatcher, CompleteStatusManager& completeStatusManager );
 
   /**
    * Set the nodes to be rendered.
@@ -98,8 +111,9 @@ public:
   /**
    * Set the frame-buffer used as a render target.
    * @param[in] resourceId The resource ID of the frame-buffer, or zero if not rendering off-screen.
+   * @param[in] isNativeFBO if this render task is targeting a native FBO
    */
-  void SetFrameBufferId( unsigned int resourceId );
+  void SetFrameBufferId( unsigned int resourceId, bool isNativeFBO );
 
   /**
    * Retrieve the resource ID of the frame-buffer.
@@ -309,12 +323,6 @@ public:
   bool ViewMatrixUpdated();
 
   /**
-   * Set the complete status tracker.
-   * @param[in] completeStatusManager The complete status Tracker (not owned)
-   */
-  void SetCompleteStatusManager( CompleteStatusManager* completeStatusManager );
-
-  /**
    * @return A pointer to the camera used by the RenderTask
    */
   Node* GetCamera() const;
@@ -342,7 +350,9 @@ public: // Animatable Properties
   AnimatableProperty< Vector4 >   mClearColor;          ///< clearColor
 
 private:
+  RenderMessageDispatcher* mRenderMessageDispatcher;
   CompleteStatusManager* mCompleteStatusManager;
+  Render::RenderTracker* mRenderSyncTracker;
   Node* mSourceNode;
   Node* mCameraNode;
   CameraAttachment* mCameraAttachment;
@@ -363,20 +373,21 @@ private:
   unsigned int mFrameCounter;       ///< counter for rendering every N frames
 
   unsigned int mRenderedOnceCounter;  ///< Incremented whenever state changes to RENDERED_ONCE_AND_NOTIFIED
+  bool mTargetIsNativeFramebuffer; ///< Tells if our target is a native framebuffer
 
 };
 
 // Messages for RenderTask
 
-inline void SetFrameBufferIdMessage( EventThreadServices& eventThreadServices, RenderTask& task, unsigned int resourceId )
+inline void SetFrameBufferIdMessage( EventThreadServices& eventThreadServices, RenderTask& task, unsigned int resourceId, bool isNativeFBO )
 {
-  typedef MessageValue1< RenderTask, unsigned int > LocalType;
+  typedef MessageValue2< RenderTask, unsigned int, bool > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &task, &RenderTask::SetFrameBufferId, resourceId );
+  new (slot) LocalType( &task, &RenderTask::SetFrameBufferId, resourceId, isNativeFBO );
 }
 
 inline void SetClearColorMessage( EventThreadServices& eventThreadServices, RenderTask& task, const Vector4& value )

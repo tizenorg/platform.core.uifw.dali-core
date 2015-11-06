@@ -22,12 +22,17 @@
 #include <dali/public-api/shader-effects/shader-effect.h>
 #include <dali/devel-api/rendering/material.h>
 #include <dali/internal/common/internal-constants.h>
+#include <dali/internal/update/resources/bitmap-metadata.h>
+#include <dali/internal/update/resources/resource-manager.h>
+#include <dali/internal/update/resources/complete-status-manager.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 
 namespace Dali
 {
+
 namespace Internal
 {
+
 namespace SceneGraph
 {
 
@@ -42,7 +47,8 @@ Material::Material()
   mBlendingMode( Dali::BlendingMode::AUTO ),
   mBlendingOptions(), // initializes to defaults
   mBlendPolicy( OPAQUE ),
-  mTexturesRequireBlending( false )
+  mResourcesReady( false ),
+  mFinishedResourceAcquisition( false )
 {
   // Observe own property-owner's uniform map
   AddUniformMapObserver( *this );
@@ -51,6 +57,81 @@ Material::Material()
 Material::~Material()
 {
   mConnectionObservers.Destroy( *this );
+}
+
+void Material::Prepare( const ResourceManager& resourceManager, const CompleteStatusManager& completeStatusManager )
+{
+  unsigned int opaqueCount = 0;
+  unsigned int completeCount = 0;
+  unsigned int failedCount = 0;
+  const std::size_t textureCount( mTextureId.Count() );
+  if( textureCount > 0 )
+  {
+    for( unsigned int i(0); i<textureCount; ++i )
+    {
+      const ResourceId textureId = mTextureId[ i ];
+      BitmapMetadata metaData = resourceManager.GetBitmapMetadata( textureId );
+      if( metaData.IsFullyOpaque() )
+      {
+        ++opaqueCount;
+      }
+
+      switch( completeStatusManager.GetStatus( textureId ) )
+      {
+        case CompleteStatusManager::COMPLETE :
+        {
+          completeCount++;
+          break;
+        }
+        case CompleteStatusManager::FAILED :
+        {
+          failedCount++;
+          break;
+        }
+        case CompleteStatusManager::NOT_READY :
+        {
+          // not incrementing counters is enough
+          break;
+        }
+      }
+    }
+  }
+  mBlendPolicy = OPAQUE;
+  switch( mBlendingMode )
+  {
+    case BlendingMode::OFF:
+    {
+      mBlendPolicy = OPAQUE;
+      break;
+    }
+    case BlendingMode::ON:
+    {
+      mBlendPolicy = TRANSPARENT;
+      break;
+    }
+    case BlendingMode::AUTO:
+    {
+      // @todo: Change hints for new SceneGraphShader:
+      // If shader hint OUTPUT_IS_OPAQUE is enabled, set policy to ALWAYS_OPAQUE
+      // If shader hint OUTPUT_IS_TRANSPARENT is enabled, set policy to ALWAYS_TRANSPARENT
+      // else test remainder, and set policy to either ALWAYS_TRANSPARENT or USE_ACTOR_COLOR
+
+      if( ( opaqueCount != textureCount ) ||
+          ( mShader && mShader->GeometryHintEnabled( Dali::ShaderEffect::HINT_BLENDING ) ) )
+      {
+        mBlendPolicy = Material::TRANSPARENT;
+      }
+      else
+      {
+        mBlendPolicy = Material::USE_ACTOR_COLOR;
+      }
+    }
+  }
+
+  // ready for rendering if all textures are successfully loaded, or FBOs have been rendered to
+  mResourcesReady = (completeCount == textureCount);
+  // material is complete if all resources are either loaded or failed
+  mFinishedResourceAcquisition = ( completeCount + failedCount == textureCount ) ;
 }
 
 void Material::SetShader( Shader* shader )
@@ -76,42 +157,6 @@ void Material::SetFaceCullingMode( unsigned int faceCullingMode )
 void Material::SetBlendingMode( unsigned int blendingMode )
 {
   mBlendingMode = static_cast< BlendingMode::Type >( blendingMode );
-}
-
-void Material::PrepareRender( BufferIndex bufferIndex )
-{
-  mBlendPolicy = OPAQUE;
-
-  switch( mBlendingMode )
-  {
-    case BlendingMode::OFF:
-    {
-      mBlendPolicy = OPAQUE;
-      break;
-    }
-    case BlendingMode::ON:
-    {
-      mBlendPolicy = TRANSPARENT;
-      break;
-    }
-    case BlendingMode::AUTO:
-    {
-      // @todo: Change hints for new SceneGraphShader:
-      // If shader hint OUTPUT_IS_OPAQUE is enabled, set policy to ALWAYS_OPAQUE
-      // If shader hint OUTPUT_IS_TRANSPARENT is enabled, set policy to ALWAYS_TRANSPARENT
-      // else test remainder, and set policy to either ALWAYS_TRANSPARENT or USE_ACTOR_COLOR
-
-      if( mTexturesRequireBlending ||
-          mShader->GeometryHintEnabled( Dali::ShaderEffect::HINT_BLENDING ) )
-      {
-        mBlendPolicy = Material::TRANSPARENT;
-      }
-      else
-      {
-        mBlendPolicy = Material::USE_ACTOR_COLOR;
-      }
-    }
-  }
 }
 
 Material::BlendPolicy Material::GetBlendPolicy() const
@@ -181,6 +226,12 @@ void Material::SetTextureUniformName( size_t index, const std::string& uniformNa
   mConnectionObservers.ConnectionsChanged(*this);
 }
 
+void Material::GetResourcesStatus( bool& resourcesReady, bool& finishedResourceAcquisition )
+{
+  resourcesReady = mResourcesReady;
+  finishedResourceAcquisition = mFinishedResourceAcquisition;
+}
+
 void Material::ConnectToSceneGraph( SceneController& sceneController, BufferIndex bufferIndex )
 {
 }
@@ -214,11 +265,6 @@ void Material::ConnectionsChanged( PropertyOwner& owner )
 void Material::ConnectedUniformMapChanged( )
 {
   mConnectionObservers.ConnectedUniformMapChanged();
-}
-
-void Material::SetTexturesRequireBlending( bool texturesRequireBlending )
-{
-  mTexturesRequireBlending = texturesRequireBlending;
 }
 
 } // namespace SceneGraph

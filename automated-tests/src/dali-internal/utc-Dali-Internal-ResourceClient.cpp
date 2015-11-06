@@ -25,7 +25,7 @@
 // Internal headers are allowed here
 #include <dali/public-api/shader-effects/shader-effect.h>
 #include <dali/internal/event/common/thread-local-storage.h>
-#include <dali/internal/update/resources/bitmap-metadata.h>
+#include <dali/internal/update/resources/texture-metadata.h>
 #include <dali/internal/update/resources/resource-manager.h>
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/internal/event/resources/resource-client.h>
@@ -209,9 +209,10 @@ int UtcDaliInternalRequestResourceBitmapRequests01(void)
     DALI_TEST_CHECK( application.GetPlatform().WasCalled(TestPlatformAbstraction::GetResourcesFunc ) );
 
     DALI_TEST_CHECK( resourceManager.IsResourceLoaded(req->GetId()) );
-    Internal::BitmapMetadata bitmapData = resourceManager.GetBitmapMetadata(req->GetId());
-    DALI_TEST_CHECK( bitmapData.GetWidth() == 80 );
-    DALI_TEST_CHECK( bitmapData.GetHeight() == 80 );
+    Internal::TextureMetadata* bitmapData;
+    DALI_TEST_CHECK( resourceManager.GetTextureMetadata(req->GetId(), bitmapData );
+    DALI_TEST_CHECK( bitmapData->GetWidth() == 80 );
+    DALI_TEST_CHECK( bitmapData->GetHeight() == 80 );
 
     DALI_TEST_EQUALS( imageTicket->GetWidth(), 0, TEST_LOCATION );
     DALI_TEST_EQUALS( imageTicket->GetHeight(), 0, TEST_LOCATION );

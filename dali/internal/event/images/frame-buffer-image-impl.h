@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_FRAME_BUFFER_IMAGE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,11 @@ public:
    */
   FrameBufferImage(NativeImageInterface& image, ReleasePolicy releasePolicy);
 
+  /**
+   * @return true if this FBO is targeting a NativeImageInterface
+   */
+  bool IsNativeFBO() const;
+
 public: // From Image
   /**
    * @copydoc Dali::Internal::Image::Connect()
@@ -94,6 +99,7 @@ private:
   NativeImageInterfacePtr mNativeImage;
   Pixel::Format mPixelFormat;
   RenderBuffer::Format mBufferFormat;
+  bool mIsNativeFBO;
 }; // class FrameBufferImage
 
 } // namespace Internal

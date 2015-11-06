@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_SCENE_GRAPH_RENDERABLE_ATTACHMENT_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,13 +163,6 @@ public: // For use during in the update algorithm only
   void PrepareResources( BufferIndex updateBufferIndex, ResourceManager& resourceManager );
 
   /**
-   * If the resource is being tracked, then follow it. ( Further ready tests will use this
-   * list ) Otherwise, if it's not complete, set mHasUntrackedResources.
-   * @param[in] The resource id
-   */
-  void FollowTracker( Integration::ResourceId id );
-
-  /**
    * Check whether the attachment has been marked as ready to render
    * @param[out] ready TRUE if the attachment has resources to render
    * @param[out] complete TRUE if the attachment's resources are complete
@@ -272,8 +265,6 @@ protected:
   SceneController* mSceneController;   ///< Used for initializing renderers whilst attached
   Shader*          mShader;            ///< A pointer to the shader
 
-  Dali::Vector< Integration::ResourceId > mTrackedResources; ///< Filled during PrepareResources if there are uncomplete, tracked resources.
-
   float mSortModifier;
 
   BlendingMode::Type mBlendingMode:2;  ///< Whether blending is used to render the renderable attachment. 2 bits is enough for 3 values
@@ -283,7 +274,6 @@ protected:
   bool mHasSizeAndColorFlag:1;         ///< Set during the update algorithm to tell whether this renderer can potentially be seen
   bool mResourcesReady:1;              ///< Set during the Update algorithm; true if the attachment has resources ready for the current frame.
   bool mFinishedResourceAcquisition:1; ///< Set during DoPrepareResources; true if ready & all resource acquisition has finished (successfully or otherwise)
-  bool mHasUntrackedResources:1;       ///< Set during PrepareResources, true if have tried to follow untracked resources
 };
 
 // Messages for RenderableAttachment

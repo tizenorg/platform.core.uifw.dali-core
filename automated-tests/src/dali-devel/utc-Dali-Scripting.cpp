@@ -1025,6 +1025,46 @@ int UtcDaliScriptingGetLinearEnumerationNameN(void)
 int UtcDaliScriptingFindEnumIndexN(void)
 {
   const Scripting::StringEnum myTable[] =
+    {
+      { "ONE",    (1<<1) },
+      { "TWO",    (1<<2) },
+      { "THREE",  (1<<3) },
+      { "FOUR",   (1<<4) },
+      { "FIVE",   (1<<5) },
+    };
+  const unsigned int myTableCount = sizeof( myTable ) / sizeof( myTable[0] );
+  DALI_TEST_EQUALS( myTableCount, FindEnumIndex( "Foo", myTable, myTableCount ), TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliScriptingEnumStringToIntegerP(void)
+{
+  const Scripting::StringEnum myTable[] =
+    {
+      { "ONE",    (1<<1) },
+      { "TWO",    (1<<2) },
+      { "THREE",  (1<<3) },
+      { "FOUR",   (1<<4) },
+      { "FIVE",   (1<<5) },
+    };
+  const unsigned int myTableCount = sizeof( myTable ) / sizeof( myTable[0] );
+
+  unsigned int integerEnum = 0;
+  DALI_TEST_CHECK( EnumStringToInteger( "ONE", myTable, myTableCount, integerEnum ) );
+
+  DALI_TEST_EQUALS( integerEnum, (1<<1), TEST_LOCATION );
+
+  integerEnum = 0;
+  DALI_TEST_CHECK( EnumStringToInteger( "ONE,TWO", myTable, myTableCount, integerEnum ) );
+  DALI_TEST_EQUALS( integerEnum, (1<<1) | (1<<2), TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliScriptingEnumStringToIntegerN(void)
+{
+  const Scripting::StringEnum myTable[] =
   {
     { "ONE",    1 },
     { "TWO",    2 },
@@ -1033,7 +1073,11 @@ int UtcDaliScriptingFindEnumIndexN(void)
     { "FIVE",   5 },
   };
   const unsigned int myTableCount = sizeof( myTable ) / sizeof( myTable[0] );
-  DALI_TEST_EQUALS( myTableCount, FindEnumIndex( "Foo", myTable, myTableCount ), TEST_LOCATION );
+
+  unsigned int integerEnum = 0;
+  DALI_TEST_CHECK( !EnumStringToInteger( "Foo", myTable, myTableCount, integerEnum ) );
+
+  DALI_TEST_EQUALS( integerEnum, 0, TEST_LOCATION );
 
   END_TEST;
 }

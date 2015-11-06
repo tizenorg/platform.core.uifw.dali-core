@@ -32,7 +32,8 @@ RenderGeometry::RenderGeometry( GeometryType type, bool requiresDepthTest )
 : mIndexBuffer(0),
   mGeometryType( type ),
   mRequiresDepthTest(requiresDepthTest ),
-  mHasBeenUpdated(false),
+  mIndexHasBeenUpdated(false),
+  mVertexHasBeenUpdated(false),
   mAttributesChanged(true)
 {
 }
@@ -109,7 +110,8 @@ void RenderGeometry::GetAttributeLocationFromProgram( Vector<GLint>& attributeLo
 
 void RenderGeometry::OnRenderFinished()
 {
-  mHasBeenUpdated = false;
+  mIndexHasBeenUpdated = false;
+  mVertexHasBeenUpdated = false;
   mAttributesChanged = false;
 }
 
@@ -118,17 +120,23 @@ void RenderGeometry::UploadAndDraw(
     BufferIndex bufferIndex,
     Vector<GLint>& attributeLocation )
 {
-  if( !mHasBeenUpdated )
+
+  //Update buffers
+  if( mIndexBuffer )
   {
-    //Update buffers
-    if( mIndexBuffer )
+    if( !mIndexHasBeenUpdated )
     {
       if(!mIndexBuffer->Update( context, true ) )
       {
         //Index buffer is not ready ( Size, data or format has not been specified yet )
         return;
       }
+      mIndexHasBeenUpdated = true;
     }
+  }
+
+  if( !mVertexHasBeenUpdated )
+  {
     for( unsigned int i = 0; i < mVertexBuffers.Count(); ++i )
     {
       if( !mVertexBuffers[i]->Update( context, false ) )
@@ -137,7 +145,7 @@ void RenderGeometry::UploadAndDraw(
         return;
       }
     }
-    mHasBeenUpdated = true;
+    mVertexHasBeenUpdated = true;
   }
 
   //Bind buffers to attribute locations

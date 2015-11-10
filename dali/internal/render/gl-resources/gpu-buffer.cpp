@@ -101,7 +101,7 @@ GpuBuffer::GpuBuffer( Context& context )
 GpuBuffer::~GpuBuffer()
 {
   // If we have a buffer then delete it.
-  if (mBufferId)
+  if( mBufferId )
   {
     // If a buffer object that is currently bound is deleted, the binding reverts to 0
     // (the absence of any buffer object, which reverts to client memory usage)
@@ -128,7 +128,7 @@ void GpuBuffer::UpdateDataBuffer(GLsizeiptr size,const GLvoid *data, Usage usage
   mContext.BindArrayBuffer( mBufferId );
 
   // if the buffer has already been created, just update the data providing it fits
-  if (mBufferCreated )
+  if( mBufferCreated )
   {
     // if the data will fit in the existing buffer, just update it
     if (size <= mCapacity )
@@ -158,7 +158,7 @@ void GpuBuffer::Bind(Target target) const
 {
   DALI_ASSERT_DEBUG(mCapacity);
 
-  if (target == ARRAY_BUFFER)
+  if( target == ARRAY_BUFFER )
   {
     mContext.BindArrayBuffer(mBufferId);
   }

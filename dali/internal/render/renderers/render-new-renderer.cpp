@@ -143,7 +143,8 @@ void NewRenderer::DoRender( Context& context, SceneGraph::TextureCache& textureC
 
 void NewRenderer::GlContextDestroyed()
 {
-  mRenderGeometry->GlContextDestroyed();
+  // The owner of GL resources used by this class is RenderManager.
+  // Nothing to do.
 }
 
 void NewRenderer::GlCleanup()

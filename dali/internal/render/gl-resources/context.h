@@ -590,13 +590,9 @@ public:
    */
   void DeleteBuffers(GLsizei n, const GLuint* buffers)
   {
-    // @todo: this is to prevent mesh destructor from doing GL calls when DALi core is being deleted
-    // can be taken out once render manages either knows about meshes or gpubuffers and can tell them directly that context is lost
-    if( this->IsGlContextCreated() )
-    {
-      LOG_GL("DeleteBuffers %d %p\n", n, buffers);
-      CHECK_GL( mGlAbstraction, mGlAbstraction.DeleteBuffers(n, buffers) );
-    }
+    LOG_GL("DeleteBuffers %d %p\n", n, buffers);
+    CHECK_GL( mGlAbstraction, mGlAbstraction.DeleteBuffers(n, buffers) );
+
     // reset the cached buffer id's
     // fixes problem where some drivers will a generate a buffer with the
     // same id, as the last deleted buffer id.

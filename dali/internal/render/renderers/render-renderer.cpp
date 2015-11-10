@@ -208,15 +208,6 @@ void Renderer::SetBlending( Context& context, bool blend )
   }
 }
 
-void Renderer::GlContextDestroyed()
-{
-  mRenderGeometry->GlContextDestroyed();
-}
-
-void Renderer::GlCleanup()
-{
-}
-
 void Renderer::SetUniforms( BufferIndex bufferIndex, const SceneGraph::NodeDataProvider& node, Program& program )
 {
   // Check if the map has changed

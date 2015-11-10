@@ -58,20 +58,9 @@ class UniformNameCache;
  * These objects are used during RenderManager::Render(), so properties modified during
  * the Update must either be double-buffered, or set via a message added to the RenderQueue.
  */
-class Renderer : public GlResourceOwner
+class Renderer
 {
 public:
-
-  /**
-   * @copydoc Dali::Internal::GlResourceOwner::GlContextDestroyed()
-   */
-  void GlContextDestroyed();
-
-  /**
-   * @copydoc Dali::Internal::GlResourceOwner::GlCleanup()
-   */
-  void GlCleanup();
-
   /**
    * Create a new renderer instance
    * @param[in] dataProviders The data providers for the renderer

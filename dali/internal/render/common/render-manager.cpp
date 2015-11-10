@@ -195,6 +195,15 @@ void RenderManager::ContextCreated()
 
   // renderers, textures and gpu buffers cannot reinitialize themselves
   // so they rely on someone reloading the data for them
+
+  // Enable property buffers to recover
+  PropertyBufferOwnerIter end = mImpl->propertyBufferContainer.End();
+  PropertyBufferOwnerIter iter = mImpl->propertyBufferContainer.Begin();
+  for( ; iter != end; ++iter )
+  {
+    GlResourceOwner* propertyBuffer = *iter;
+    propertyBuffer->GlContextCreated();
+  }
 }
 
 void RenderManager::ContextDestroyed()
@@ -208,13 +217,15 @@ void RenderManager::ContextDestroyed()
   // inform texture cache
   mImpl->textureCache.GlContextDestroyed(); // Clears gl texture ids
 
-  // inform renderers
-  RendererOwnerContainer::Iterator end = mImpl->rendererContainer.End();
-  RendererOwnerContainer::Iterator iter = mImpl->rendererContainer.Begin();
-  for( ; iter != end; ++iter )
+  // Inform property buffers
   {
-    GlResourceOwner* renderer = *iter;
-    renderer->GlContextDestroyed(); // Clear up vertex buffers
+    PropertyBufferOwnerIter end = mImpl->propertyBufferContainer.End();
+    PropertyBufferOwnerIter iter = mImpl->propertyBufferContainer.Begin();
+    for( ; iter != end; ++iter )
+    {
+      GlResourceOwner* propertyBuffer = *iter;
+      propertyBuffer->GlContextDestroyed(); // Clear up vertex buffers
+    }
   }
 }
 

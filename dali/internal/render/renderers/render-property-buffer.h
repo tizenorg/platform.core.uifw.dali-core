@@ -21,6 +21,7 @@
 #include <dali/devel-api/rendering/sampler.h>
 #include <dali/internal/render/renderers/render-sampler.h>
 #include <dali/internal/render/gl-resources/gpu-buffer.h>
+#include <dali/internal/render/gl-resources/gl-resource-owner.h>
 
 namespace Dali
 {
@@ -29,7 +30,7 @@ namespace Internal
 namespace Render
 {
 
-class PropertyBuffer
+class PropertyBuffer : public GlResourceOwner
 {
 public:
 
@@ -154,6 +155,23 @@ public:
   {
     return mSize;
   }
+
+protected: // Implementation of GlResourceOwner
+  /**
+   * @copydoc Dali::Internal::GlResourceOwner::GlContextCreated()
+   */
+  virtual void GlContextCreated();
+
+  /**
+   * @copydoc Dali::Internal::GlResourceOwner::GlContextDestroyed()
+   */
+  virtual void GlContextDestroyed();
+
+  /**
+   * @copydoc Dali::Internal::GlResourceOwner::GlCleanup()
+   */
+  virtual void GlCleanup();
+
 
 private:
   OwnerPointer< PropertyBuffer::Format >  mFormat;  ///< Format of the buffer

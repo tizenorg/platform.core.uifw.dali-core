@@ -64,16 +64,6 @@ public:
   ~RenderGeometry();
 
   /**
-   * Called on Gl Context created
-   */
-  void GlContextCreated( Context& context );
-
-  /**
-   * Called on Gl Context destroyed.
-   */
-  void GlContextDestroyed();
-
-  /**
    * Adds a property buffer to the geometry
    * @param[in] dataProvider The PropertyBuffer data provider
    * @param[in] isIndexBuffer True if the property buffer is intended to be used as an index buffer

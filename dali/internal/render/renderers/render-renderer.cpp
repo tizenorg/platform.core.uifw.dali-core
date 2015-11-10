@@ -336,54 +336,59 @@ void Renderer::SetUniformFromProperty( BufferIndex bufferIndex, Program& program
   }
 }
 
-void Renderer::BindTextures( SceneGraph::TextureCache& textureCache, Program& program )
+bool Renderer::BindTextures( SceneGraph::TextureCache& textureCache, Program& program )
 {
   int textureUnit = 0;
+  bool result = true;
 
   std::vector<Render::Texture>& textures( mRenderDataProvider->GetTextures() );
-  for( size_t i(0); i<textures.size(); ++i )
+  for( size_t i(0); result && i<textures.size(); ++i )
   {
     ResourceId textureId = textures[i].GetTextureId();
     Internal::Texture* texture = textureCache.GetTexture( textureId );
     if( texture )
     {
-      textureCache.BindTexture( texture, textureId, GL_TEXTURE_2D, (TextureUnit)textureUnit );
+      result = textureCache.BindTexture( texture, textureId, GL_TEXTURE_2D, (TextureUnit)textureUnit );
 
-      Render::Texture& textureMapping = textures[i];
-      // Set sampler uniform location for the texture
-      int32_t uniqueIndex = textureMapping.GetUniformUniqueIndex();
-      if( Render::Texture::NOT_INITIALIZED == uniqueIndex )
+      if( result )
       {
-        uniqueIndex = mUniformNameCache->GetSamplerUniformUniqueIndex( textureMapping.GetUniformName() );
-        textureMapping.SetUniformUniqueIndex( uniqueIndex );
-      }
-      GLint uniformLocation = program.GetSamplerUniformLocation( uniqueIndex, textureMapping.GetUniformName() );
-      if( Program::UNIFORM_UNKNOWN != uniformLocation )
-      {
-        program.SetUniform1i( uniformLocation, textureUnit );
-      }
+        Render::Texture& textureMapping = textures[i];
+        // Set sampler uniform location for the texture
+        int32_t uniqueIndex = textureMapping.GetUniformUniqueIndex();
+        if( Render::Texture::NOT_INITIALIZED == uniqueIndex )
+        {
+          uniqueIndex = mUniformNameCache->GetSamplerUniformUniqueIndex( textureMapping.GetUniformName() );
+          textureMapping.SetUniformUniqueIndex( uniqueIndex );
+        }
+        GLint uniformLocation = program.GetSamplerUniformLocation( uniqueIndex, textureMapping.GetUniformName() );
+        if( Program::UNIFORM_UNKNOWN != uniformLocation )
+        {
+          program.SetUniform1i( uniformLocation, textureUnit );
+        }
 
-      unsigned int samplerBitfield(0);
-      const Render::Sampler* sampler( textureMapping.GetSampler() );
-      if( sampler )
-      {
-        samplerBitfield = ImageSampler::PackBitfield(
-          static_cast< FilterMode::Type >(sampler->GetMinifyFilterMode()),
-          static_cast< FilterMode::Type >(sampler->GetMagnifyFilterMode()),
-          static_cast< WrapMode::Type >(sampler->GetUWrapMode()),
-          static_cast< WrapMode::Type >(sampler->GetVWrapMode())
-          );
-      }
-      else
-      {
-        samplerBitfield = ImageSampler::DEFAULT_BITFIELD;
-      }
+        unsigned int samplerBitfield(0);
+        const Render::Sampler* sampler( textureMapping.GetSampler() );
+        if( sampler )
+        {
+          samplerBitfield = ImageSampler::PackBitfield(
+            static_cast< FilterMode::Type >(sampler->GetMinifyFilterMode()),
+            static_cast< FilterMode::Type >(sampler->GetMagnifyFilterMode()),
+            static_cast< WrapMode::Type >(sampler->GetUWrapMode()),
+            static_cast< WrapMode::Type >(sampler->GetVWrapMode())
+                                                       );
+        }
+        else
+        {
+          samplerBitfield = ImageSampler::DEFAULT_BITFIELD;
+        }
 
-      texture->ApplySampler( (TextureUnit)textureUnit, samplerBitfield );
+        texture->ApplySampler( (TextureUnit)textureUnit, samplerBitfield );
 
-      ++textureUnit;
+        ++textureUnit;
+      }
     }
   }
+  return result;
 }
 
 void Renderer::SetCullFace( Dali::Material::FaceCullingMode mode )
@@ -441,19 +446,19 @@ void Renderer::Render( Context& context,
     program->SetUniform4f( loc, color.r, color.g, color.b, color.a );
   }
 
-  //Bind textures
-  BindTextures( textureCache, *program );
-
-  //Set uniforms
-  SetUniforms( bufferIndex, node, *program );
-
-  if( mUpdateAttributesLocation || mRenderGeometry->AttributesChanged() )
+  if( BindTextures( textureCache, *program ) )
   {
-    mRenderGeometry->GetAttributeLocationFromProgram( mAttributesLocation, *program, bufferIndex );
-    mUpdateAttributesLocation = false;
-  }
+    // Only set up and draw if we have textures and they are all valid
+    SetUniforms( bufferIndex, node, *program );
 
-  mRenderGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation );
+    if( mUpdateAttributesLocation || mRenderGeometry->AttributesChanged() )
+    {
+      mRenderGeometry->GetAttributeLocationFromProgram( mAttributesLocation, *program, bufferIndex );
+      mUpdateAttributesLocation = false;
+    }
+
+    mRenderGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation );
+  }
 }
 
 void Renderer::SetSortAttributes( BufferIndex bufferIndex, SceneGraph::RendererWithSortAttributes& sortAttributes ) const

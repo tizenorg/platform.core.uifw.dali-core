@@ -210,7 +210,8 @@ void Renderer::SetBlending( Context& context, bool blend )
 
 void Renderer::GlContextDestroyed()
 {
-  mRenderGeometry->GlContextDestroyed();
+  // The owner of GL resources used by this class is RenderManager.
+  // Nothing to do
 }
 
 void Renderer::GlCleanup()

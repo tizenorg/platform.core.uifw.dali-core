@@ -128,17 +128,18 @@ void NewRenderer::DoSetBlending( Context& context )
 
 void NewRenderer::DoRender( Context& context, SceneGraph::TextureCache& textureCache, const SceneGraph::NodeDataProvider& node, BufferIndex bufferIndex, Program& program, const Matrix& modelViewMatrix, const Matrix& viewMatrix )
 {
-  BindTextures( textureCache, program );
-
-  SetUniforms( bufferIndex, node, program );
-
-  if( mUpdateAttributesLocation || mRenderGeometry->AttributesChanged() )
+  if( BindTextures( textureCache, program ) )
   {
-    mRenderGeometry->GetAttributeLocationFromProgram( mAttributesLocation, program, bufferIndex );
-    mUpdateAttributesLocation = false;
-  }
+    SetUniforms( bufferIndex, node, program );
 
-  mRenderGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation );
+    if( mUpdateAttributesLocation || mRenderGeometry->AttributesChanged() )
+    {
+      mRenderGeometry->GetAttributeLocationFromProgram( mAttributesLocation, program, bufferIndex );
+      mUpdateAttributesLocation = false;
+    }
+
+    mRenderGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation );
+  }
 }
 
 void NewRenderer::GlContextDestroyed()
@@ -286,9 +287,10 @@ void NewRenderer::SetUniformFromProperty( BufferIndex bufferIndex, Program& prog
   }
 }
 
-void NewRenderer::BindTextures( SceneGraph::TextureCache& textureCache, Program& program )
+bool NewRenderer::BindTextures( SceneGraph::TextureCache& textureCache, Program& program )
 {
   int textureUnit = 0;
+  bool result = true;
 
   std::vector<Render::Texture>& textures( mRenderDataProvider->GetTextures() );
   for( size_t i(0); i<textures.size(); ++i )
@@ -297,7 +299,11 @@ void NewRenderer::BindTextures( SceneGraph::TextureCache& textureCache, Program&
     Internal::Texture* texture = textureCache.GetTexture( textureId );
     if( texture )
     {
-      textureCache.BindTexture( texture, textureId, GL_TEXTURE_2D, (TextureUnit)textureUnit );
+      result = textureCache.BindTexture( texture, textureId, GL_TEXTURE_2D, (TextureUnit)textureUnit );
+      if( !result )
+      {
+        break;
+      }
 
       Render::Texture& textureMapping = textures[i];
       // Set sampler uniform location for the texture
@@ -334,6 +340,7 @@ void NewRenderer::BindTextures( SceneGraph::TextureCache& textureCache, Program&
       ++textureUnit;
     }
   }
+  return result;
 }
 
 } // SceneGraph

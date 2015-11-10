@@ -261,7 +261,12 @@ void ImageRenderer::DoRender( Context& context, SceneGraph::TextureCache& textur
 
   DALI_ASSERT_DEBUG( mVertexBuffer );
 
-  mTextureCache->BindTexture( mTexture, mTextureId,  GL_TEXTURE_2D, TEXTURE_UNIT_IMAGE );
+  bool bound = mTextureCache->BindTexture( mTexture, mTextureId,  GL_TEXTURE_2D, TEXTURE_UNIT_IMAGE );
+
+  if( ! bound )
+  {
+    return;
+  }
 
   if( mTexture->GetTextureId() == 0 )
   {

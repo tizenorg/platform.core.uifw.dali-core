@@ -41,14 +41,6 @@ RenderGeometry::~RenderGeometry()
 {
 }
 
-void RenderGeometry::GlContextCreated( Context& context )
-{
-}
-
-void RenderGeometry::GlContextDestroyed()
-{
-}
-
 void RenderGeometry::AddPropertyBuffer( Render::PropertyBuffer* propertyBuffer, bool isIndexBuffer )
 {
   if( isIndexBuffer )

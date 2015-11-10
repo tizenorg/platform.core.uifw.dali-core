@@ -221,6 +221,23 @@ unsigned int PropertyBuffer::EnableVertexAttributes( Context& context, Vector<GL
 
 }
 
+void PropertyBuffer::GlContextCreated()
+{
+  mDataChanged = true; // Ensure the GpuBuffer gets re-uploaded on next Update
+}
+
+void PropertyBuffer::GlContextDestroyed()
+{
+  if( mGpuBuffer )
+  {
+    mGpuBuffer->GlContextDestroyed();
+  }
+}
+
+void PropertyBuffer::GlCleanup()
+{
+}
+
 } //Render
 } //Internal
 } //Dali

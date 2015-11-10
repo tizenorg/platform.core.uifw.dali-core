@@ -38,6 +38,17 @@ public:
   virtual ~GlResourceOwner()
   { }
 
+
+  /**
+   * Triggered when the context has been created.
+   *
+   * Used to ensure GL resources are not created prematurely.
+   * @pre This method can only be called from the render-thread.
+   */
+  virtual void GlContextCreated()
+  {
+  };
+
   /**
    * Reset all GL resources.
    * This method is called when context is or has been deleted.

@@ -452,6 +452,17 @@ private:
   EndAction mDisconnectAction;
   AlphaFunction mDefaultAlpha;
 
+  struct SetPropertyOnPlay {
+    Object* mTargetObject;
+    Property::Index mPropertyIndex;
+    Property::Value mValue;
+
+    SetPropertyOnPlay(Object& targetObject, const Property::Index index, const Property::Value& value)
+    : mTargetObject(&targetObject), mPropertyIndex(index), mValue(value) {}
+  };
+
+  std::vector<SetPropertyOnPlay> mSetOnPlay;
+
 };
 
 } // namespace Internal

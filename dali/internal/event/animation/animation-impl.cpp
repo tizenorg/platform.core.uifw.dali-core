@@ -246,6 +246,11 @@ Dali::Animation::EndAction Animation::GetDisconnectAction() const
 
 void Animation::Play()
 {
+  for( std::vector<SetPropertyOnPlay>::iterator iter = mSetOnPlay.begin(); iter != mSetOnPlay.end(); ++iter)
+  {
+    (*iter).mTargetObject->SetProperty( (*iter).mPropertyIndex, (*iter).mValue );
+  }
+
   // Update the current playlist
   mPlaylist.OnPlay( *this );
 
@@ -427,6 +432,13 @@ void Animation::AnimateTo(Property& target, Property::Value& destinationValue, A
 
 void Animation::AnimateTo(Object& targetObject, Property::Index targetPropertyIndex, int componentIndex, Property::Value& destinationValue, AlphaFunction alpha, TimePeriod period)
 {
+  // store properties to set immediately on play
+  if( static_cast<int>(period.delaySeconds + period.durationSeconds) == 0 )
+  {
+    mSetOnPlay.push_back( SetPropertyOnPlay(targetObject, targetPropertyIndex, destinationValue) );
+    return;
+  }
+
   Property::Type type = targetObject.GetPropertyType(targetPropertyIndex);
   if(componentIndex != Property::INVALID_COMPONENT_INDEX)
   {

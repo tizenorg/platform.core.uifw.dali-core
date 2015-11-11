@@ -226,6 +226,7 @@ public:
    * @param [in] name The name of the property.
    * @param [in] propertyValue The new value of the property.
    * @return The index of the property or Property::INVALID_INDEX if registration failed
+   * @note If a property with the desired name already exists, then the value given is just set.
    */
   Property::Index RegisterProperty( const std::string& name, const Property::Value& propertyValue );
 

@@ -189,11 +189,11 @@ void BaseSignal::OnDisconnect( ConnectionTrackerInterface* tracker, CallbackBase
     // temporary pointer to disconnected callback
     CallbackBase* disconnectedCallback = mSignalConnections[index]->GetCallback();
 
-    // close the signal side connection first.
-    DeleteConnection( index );
-
-    // close the slot side connection
+    // close the slot side connectiona first.
     tracker->SignalDisconnected( this, disconnectedCallback );
+
+    // close the signal side connection.
+    DeleteConnection( index );
   }
 
   // call back is a temporary created to find which slot should be disconnected.

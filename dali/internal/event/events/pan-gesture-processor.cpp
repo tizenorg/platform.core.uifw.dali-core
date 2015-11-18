@@ -283,8 +283,12 @@ void PanGestureProcessor::RemoveGestureDetector( PanGestureDetector* gestureDete
 
   if (mGestureDetectors.empty())
   {
-    Integration::GestureRequest request(Gesture::Pan);
-    mGestureManager.Unregister(request);
+    // Guard against invalid GestureManager access after Core destruction
+    if( Stage::IsInstalled() )
+    {
+      Integration::GestureRequest request(Gesture::Pan);
+      mGestureManager.Unregister(request);
+    }
   }
   else
   {
@@ -366,35 +370,42 @@ void PanGestureProcessor::UpdateDetection()
 {
   DALI_ASSERT_DEBUG(!mGestureDetectors.empty());
 
-  unsigned int minimumRequired = UINT_MAX;
-  unsigned int maximumRequired = 0;
-
-  for ( PanGestureDetectorContainer::iterator iter = mGestureDetectors.begin(), endIter = mGestureDetectors.end(); iter != endIter; ++iter )
+  // Guard against invalid GestureManager access after Core destruction
+  if( Stage::IsInstalled() )
   {
-    PanGestureDetector* detector(*iter);
+    unsigned int minimumRequired = UINT_MAX;
+    unsigned int maximumRequired = 0;
 
-    unsigned int minimum = detector->GetMinimumTouchesRequired();
-    if (minimum < minimumRequired)
+    for ( PanGestureDetectorContainer::iterator iter = mGestureDetectors.begin(), endIter = mGestureDetectors.end(); iter != endIter; ++iter )
     {
-      minimumRequired = minimum;
+      PanGestureDetector* detector(*iter);
+
+      if( detector )
+      {
+        unsigned int minimum = detector->GetMinimumTouchesRequired();
+        if (minimum < minimumRequired)
+        {
+          minimumRequired = minimum;
+        }
+
+        unsigned int maximum = detector->GetMaximumTouchesRequired();
+        if (maximum > maximumRequired)
+        {
+          maximumRequired = maximum;
+        }
+      }
     }
 
-    unsigned int maximum = detector->GetMaximumTouchesRequired();
-    if (maximum > maximumRequired)
+    if ( (minimumRequired != mMinTouchesRequired)||(maximumRequired != mMaxTouchesRequired) )
     {
-      maximumRequired = maximum;
+      mMinTouchesRequired = minimumRequired;
+      mMaxTouchesRequired = maximumRequired;
+
+      Integration::PanGestureRequest request;
+      request.minTouches = mMinTouchesRequired;
+      request.maxTouches = mMaxTouchesRequired;
+      mGestureManager.Update(request);
     }
-  }
-
-  if ( (minimumRequired != mMinTouchesRequired)||(maximumRequired != mMaxTouchesRequired) )
-  {
-    mMinTouchesRequired = minimumRequired;
-    mMaxTouchesRequired = maximumRequired;
-
-    Integration::PanGestureRequest request;
-    request.minTouches = mMinTouchesRequired;
-    request.maxTouches = mMaxTouchesRequired;
-    mGestureManager.Update(request);
   }
 }
 

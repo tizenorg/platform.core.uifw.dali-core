@@ -233,8 +233,12 @@ void PinchGestureProcessor::RemoveGestureDetector( PinchGestureDetector* gesture
 
   if (mGestureDetectors.empty())
   {
-    Integration::GestureRequest request(Gesture::Pinch);
-    mGestureManager.Unregister(request);
+    // Guard against invalid GestureManager access after Core destruction
+    if( Stage::IsInstalled() )
+    {
+      Integration::GestureRequest request(Gesture::Pinch);
+      mGestureManager.Unregister(request);
+    }
   }
 }
 

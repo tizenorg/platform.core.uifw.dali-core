@@ -243,8 +243,12 @@ void LongPressGestureProcessor::RemoveGestureDetector( LongPressGestureDetector*
 
   if ( mGestureDetectors.empty() )
   {
-    Integration::GestureRequest request( Gesture::LongPress );
-    mGestureManager.Unregister(request);
+    // Guard against invalid GestureManager access after Core destruction
+    if( Stage::IsInstalled() )
+    {
+      Integration::GestureRequest request( Gesture::LongPress );
+      mGestureManager.Unregister(request);
+    }
   }
   else
   {
@@ -263,35 +267,42 @@ void LongPressGestureProcessor::UpdateDetection()
 {
   DALI_ASSERT_DEBUG(!mGestureDetectors.empty());
 
-  unsigned int minimumRequired = UINT_MAX;
-  unsigned int maximumRequired = 0;
-
-  for ( LongPressGestureDetectorContainer::iterator iter = mGestureDetectors.begin(), endIter = mGestureDetectors.end(); iter != endIter; ++iter )
+  // Guard against invalid GestureManager access after Core destruction
+  if( Stage::IsInstalled() )
   {
-    LongPressGestureDetector* current(*iter);
+    unsigned int minimumRequired = UINT_MAX;
+    unsigned int maximumRequired = 0;
 
-    unsigned int minimum = current->GetMinimumTouchesRequired();
-    if (minimum < minimumRequired)
+    for ( LongPressGestureDetectorContainer::iterator iter = mGestureDetectors.begin(), endIter = mGestureDetectors.end(); iter != endIter; ++iter )
     {
-      minimumRequired = minimum;
+      LongPressGestureDetector* current(*iter);
+
+      if( current )
+      {
+        unsigned int minimum = current->GetMinimumTouchesRequired();
+        if (minimum < minimumRequired)
+        {
+          minimumRequired = minimum;
+        }
+
+        unsigned int maximum = current->GetMaximumTouchesRequired();
+        if ( maximum > maximumRequired )
+        {
+          maximumRequired = maximum;
+        }
+      }
     }
 
-    unsigned int maximum = current->GetMaximumTouchesRequired();
-    if ( maximum > maximumRequired )
+    if ( (minimumRequired != mMinTouchesRequired) || (maximumRequired != mMaxTouchesRequired) )
     {
-      maximumRequired = maximum;
+      mMinTouchesRequired = minimumRequired;
+      mMaxTouchesRequired = maximumRequired;
+
+      Integration::LongPressGestureRequest request;
+      request.minTouches = mMinTouchesRequired;
+      request.maxTouches = mMaxTouchesRequired;
+      mGestureManager.Update(request);
     }
-  }
-
-  if ( (minimumRequired != mMinTouchesRequired) || (maximumRequired != mMaxTouchesRequired) )
-  {
-    mMinTouchesRequired = minimumRequired;
-    mMaxTouchesRequired = maximumRequired;
-
-    Integration::LongPressGestureRequest request;
-    request.minTouches = mMinTouchesRequired;
-    request.maxTouches = mMaxTouchesRequired;
-    mGestureManager.Update(request);
   }
 }
 

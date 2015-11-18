@@ -217,8 +217,12 @@ void TapGestureProcessor::RemoveGestureDetector( TapGestureDetector* gestureDete
 
   if ( mGestureDetectors.empty() )
   {
-    Integration::GestureRequest request(Gesture::Tap);
-    mGestureManager.Unregister(request);
+    // Guard against invalid GestureManager access after Core destruction
+    if( Stage::IsInstalled() )
+    {
+      Integration::GestureRequest request(Gesture::Tap);
+      mGestureManager.Unregister(request);
+    }
 
     ResetActor();
   }
@@ -244,34 +248,41 @@ void TapGestureProcessor::UpdateDetection()
 {
   DALI_ASSERT_DEBUG(!mGestureDetectors.empty());
 
-  unsigned int minTaps = UINT_MAX;
-  unsigned int maxTaps = 0;
-  unsigned int minTouches = UINT_MAX;
-  unsigned int maxTouches = 0;
-
-  for ( TapGestureDetectorContainer::iterator iter = mGestureDetectors.begin(), endIter = mGestureDetectors.end(); iter != endIter; ++iter )
+  // Guard against invalid GestureManager access after Core destruction
+  if( Stage::IsInstalled() )
   {
-    TapGestureDetector* detector(*iter);
+    unsigned int minTaps = UINT_MAX;
+    unsigned int maxTaps = 0;
+    unsigned int minTouches = UINT_MAX;
+    unsigned int maxTouches = 0;
 
-    const unsigned int minTapsRequired = detector->GetMinimumTapsRequired();
-    const unsigned int maxTapsRequired = detector->GetMaximumTapsRequired();
-    const unsigned int touchesRequired = detector->GetTouchesRequired();
+    for ( TapGestureDetectorContainer::iterator iter = mGestureDetectors.begin(), endIter = mGestureDetectors.end(); iter != endIter; ++iter )
+    {
+      TapGestureDetector* detector(*iter);
 
-    minTaps = minTapsRequired < minTaps ? minTapsRequired : minTaps;
-    maxTaps = maxTapsRequired > maxTaps ? maxTapsRequired : maxTaps;
-    minTouches = touchesRequired < minTouches ? touchesRequired : minTouches;
-    maxTouches = touchesRequired > maxTouches ? touchesRequired : maxTouches;
-  }
+      if( detector )
+      {
+        const unsigned int minTapsRequired = detector->GetMinimumTapsRequired();
+        const unsigned int maxTapsRequired = detector->GetMaximumTapsRequired();
+        const unsigned int touchesRequired = detector->GetTouchesRequired();
 
-  if ( (minTaps != mMinTapsRequired)||(maxTaps != mMaxTapsRequired) ||
-       (minTouches != mMinTouchesRequired)||(maxTouches != mMaxTouchesRequired) )
-  {
-    Integration::TapGestureRequest request;
-    request.minTaps = mMinTapsRequired = minTaps;
-    request.maxTaps = mMaxTapsRequired = maxTaps;
-    request.minTouches = mMinTouchesRequired = minTouches;
-    request.maxTouches = mMaxTouchesRequired = maxTouches;
-    mGestureManager.Update(request);
+        minTaps = minTapsRequired < minTaps ? minTapsRequired : minTaps;
+        maxTaps = maxTapsRequired > maxTaps ? maxTapsRequired : maxTaps;
+        minTouches = touchesRequired < minTouches ? touchesRequired : minTouches;
+        maxTouches = touchesRequired > maxTouches ? touchesRequired : maxTouches;
+      }
+    }
+
+    if ( (minTaps != mMinTapsRequired)||(maxTaps != mMaxTapsRequired) ||
+         (minTouches != mMinTouchesRequired)||(maxTouches != mMaxTouchesRequired) )
+    {
+      Integration::TapGestureRequest request;
+      request.minTaps = mMinTapsRequired = minTaps;
+      request.maxTaps = mMaxTapsRequired = maxTaps;
+      request.minTouches = mMinTouchesRequired = minTouches;
+      request.maxTouches = mMaxTouchesRequired = maxTouches;
+      mGestureManager.Update(request);
+    }
   }
 }
 

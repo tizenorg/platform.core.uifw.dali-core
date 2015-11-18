@@ -23,7 +23,6 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/event/actors/layer-impl.h> // for the default sorting function
-#include <dali/internal/update/node-attachments/scene-graph-renderable-attachment.h>
 #include <dali/internal/update/nodes/scene-graph-layer.h>
 #include <dali/internal/update/manager/sorted-layers.h>
 #include <dali/internal/update/render-tasks/scene-graph-render-task.h>
@@ -52,45 +51,6 @@ namespace Internal
 
 namespace SceneGraph
 {
-
-/**
- * Add a renderer to the list
- * @param updateBufferIndex to read the model matrix from
- * @param renderList to add the item to
- * @param renderable attachment
- * @param viewMatrix used to calculate modelview matrix for the item
- * @param cameraAttachment The camera used to render
- * @param isLayer3d Whether we are processing a 3D layer or not
- */
-inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
-                                     RenderList& renderList,
-                                     RenderableAttachment& renderable,
-                                     const Matrix& viewMatrix,
-                                     SceneGraph::CameraAttachment& cameraAttachment,
-                                     bool isLayer3d )
-{
-  const Node& parentNode = renderable.GetParent();
-  const Matrix& worldMatrix = parentNode.GetWorldMatrix( updateBufferIndex );
-
-  // Get the next free RenderItem and initialization
-  RenderItem& item = renderList.GetNextFreeItem();
-  const Render::Renderer& renderer = renderable.GetRenderer();
-  item.SetRenderer( const_cast< Render::Renderer* >( &renderer ) );
-  item.SetNode( const_cast< Node* >( &parentNode ) );
-
-  item.SetIsOpaque( renderable.IsFullyOpaque(updateBufferIndex) );
-  if( isLayer3d )
-  {
-    item.SetDepthIndex( renderable.GetDepthIndex() );
-  }
-  else
-  {
-    item.SetDepthIndex( renderable.GetDepthIndex() + static_cast<int>( parentNode.GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER );
-  }
-
-  // save MV matrix onto the item
-  Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
-}
 
 /**
  * Add a renderer to the list
@@ -168,25 +128,12 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
  */
 inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
                                       RenderList& renderList,
-                                      RenderableAttachmentContainer& attachments,
                                       NodeRendererContainer& renderers,
                                       const Matrix& viewMatrix,
                                       SceneGraph::CameraAttachment& cameraAttachment,
                                       bool isLayer3d )
 {
   DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "AddRenderersToRenderList()\n");
-
-  // Add renderer for each attachment
-  unsigned int index(0);
-  const RenderableAttachmentIter endIter = attachments.end();
-  for ( RenderableAttachmentIter iter = attachments.begin(); iter != endIter; ++iter )
-  {
-    RenderableAttachment& attachment = **iter;
-    AddRendererToRenderList( updateBufferIndex, renderList, attachment, viewMatrix, cameraAttachment, isLayer3d );
-
-    DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "  List[%d].renderer = %p\n", index, &(attachment.GetRenderer()));
-    ++index;
-  }
 
   unsigned int rendererCount( renderers.Size() );
   for( unsigned int i(0); i<rendererCount; ++i )
@@ -203,36 +150,38 @@ inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
  * @param renderList that is cached from frame N-1
  * @param attachmentList that is being used
  */
+//@FERRAN Fix this function
 inline bool TryReuseCachedRenderers( Layer& layer,
-                                     RenderList& renderList,
-                                     RenderableAttachmentContainer& attachmentList )
+                                     RenderList& renderList)
+                                     //RenderableAttachmentContainer& attachmentList )
 {
-  bool retValue = false;
-  size_t renderableCount = attachmentList.size();
-  // check that the cached list originates from this layer and that the counts match
-  if( ( renderList.GetSourceLayer() == &layer )&&
-      ( renderList.GetCachedItemCount() == renderableCount ) )
-  {
-    // check that all the same renderers are there. This gives us additional security in avoiding rendering the wrong attachments
-    // Attachments are not sorted, but render list is so at this stage renderers may be in different order
-    // therefore we check a combined sum of all renderer addresses
-    size_t checkSumNew = 0;
-    size_t checkSumOld = 0;
-    for( size_t index = 0; index < renderableCount; ++index )
-    {
-      RenderableAttachment* attachment = attachmentList[ index ];
-      const Render::Renderer& renderer = attachment->GetRenderer();
-      checkSumNew += size_t( &renderer );
-      checkSumOld += size_t( &renderList.GetRenderer( index ) );
-    }
-    if( checkSumNew == checkSumOld )
-    {
-      // tell list to reuse its existing items
-      renderList.ReuseCachedItems();
-      retValue = true;
-    }
-  }
-  return retValue;
+//  bool retValue = false;
+//  size_t renderableCount = attachmentList.size();
+//  // check that the cached list originates from this layer and that the counts match
+//  if( ( renderList.GetSourceLayer() == &layer )&&
+//      ( renderList.GetCachedItemCount() == renderableCount ) )
+//  {
+//    // check that all the same renderers are there. This gives us additional security in avoiding rendering the wrong attachments
+//    // Attachments are not sorted, but render list is so at this stage renderers may be in different order
+//    // therefore we check a combined sum of all renderer addresses
+//    size_t checkSumNew = 0;
+//    size_t checkSumOld = 0;
+//    for( size_t index = 0; index < renderableCount; ++index )
+//    {
+//      RenderableAttachment* attachment = attachmentList[ index ];
+//      const Render::Renderer& renderer = attachment->GetRenderer();
+//      checkSumNew += size_t( &renderer );
+//      checkSumOld += size_t( &renderList.GetRenderer( index ) );
+//    }
+//    if( checkSumNew == checkSumOld )
+//    {
+//      // tell list to reuse its existing items
+//      renderList.ReuseCachedItems();
+//      retValue = true;
+//    }
+//  }
+//  return retValue;
+  return false;
 }
 
 
@@ -408,20 +357,21 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                RendererSortingHelper& sortingHelper,
                                bool tryReuseRenderList )
 {
-  RenderList& renderList = instruction.GetNextFreeRenderList( layer.colorRenderables.size() );
+  RenderList& renderList = instruction.GetNextFreeRenderList( layer.colorRenderers.Size() );
   renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
   renderList.SetHasColorRenderItems( true );
 
   // try to reuse cached renderitems from last time around
   if( tryReuseRenderList )
   {
-    if( TryReuseCachedRenderers( layer, renderList, layer.colorRenderables ) )
-    {
-      return;
-    }
+    //FERRAN: Fix this
+    //if( TryReuseCachedRenderers( layer, renderList, layer.colorRenderables ) )
+    //{
+    //  return;
+   // }
   }
 
-  AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, layer.colorRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
+  AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
   SortColorRenderItems( updateBufferIndex, renderList, layer, sortingHelper );
 
   //Set render flags
@@ -470,7 +420,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
                                  RenderInstruction& instruction,
                                  bool tryReuseRenderList )
 {
-  RenderList& overlayRenderList = instruction.GetNextFreeRenderList( layer.overlayRenderables.size() );
+  RenderList& overlayRenderList = instruction.GetNextFreeRenderList( layer.overlayRenderers.Size() );
   overlayRenderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
   overlayRenderList.SetHasColorRenderItems( false );
 
@@ -484,12 +434,13 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
   // try to reuse cached renderitems from last time around
   if( tryReuseRenderList )
   {
-    if( TryReuseCachedRenderers( layer, overlayRenderList, layer.overlayRenderables ) )
-    {
-      return;
-    }
+    //FERRAN: Fix this
+    //if( TryReuseCachedRenderers( layer, overlayRenderList, layer.overlayRenderables ) )
+    //{
+    //  return;
+    // }
   }
-  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, layer.overlayRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
+  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
 }
 
 /**
@@ -507,7 +458,7 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
                                  RenderInstruction& instruction,
                                  bool tryReuseRenderList )
 {
-  RenderList& stencilRenderList = instruction.GetNextFreeRenderList( layer.stencilRenderables.size() );
+  RenderList& stencilRenderList = instruction.GetNextFreeRenderList( layer.stencilRenderers.Size() );
   stencilRenderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
   stencilRenderList.SetHasColorRenderItems( false );
 
@@ -518,12 +469,13 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
   // try to reuse cached renderitems from last time around
   if( tryReuseRenderList )
   {
-    if( TryReuseCachedRenderers( layer, stencilRenderList, layer.stencilRenderables ) )
-    {
-      return;
-    }
+    //FERRAN: Fix this
+    //if( TryReuseCachedRenderers( layer, stencilRenderList, layer.stencilRenderables ) )
+    //{
+    //  return;
+    //}
   }
-  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, layer.stencilRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
+  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderers, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
 }
 
 /**
@@ -556,9 +508,9 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
   {
     Layer& layer = **iter;
 
-    const bool stencilRenderablesExist( !layer.stencilRenderables.empty() || !layer.stencilRenderers.Empty() );
-    const bool colorRenderablesExist( !layer.colorRenderables.empty() || !layer.colorRenderers.Empty() );
-    const bool overlayRenderablesExist( !layer.overlayRenderables.empty() || !layer.overlayRenderers.Empty() );
+    const bool stencilRenderablesExist( !layer.stencilRenderers.Empty() );
+    const bool colorRenderablesExist( !layer.colorRenderers.Empty() );
+    const bool overlayRenderablesExist( !layer.overlayRenderers.Empty() );
     const bool tryReuseRenderList( viewMatrixHasNotChanged && layer.CanReuseRenderers(renderTask.GetCamera()) );
 
     // Ignore stencils if there's nothing to test

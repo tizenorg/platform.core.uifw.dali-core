@@ -57,7 +57,6 @@
 
 #include <dali/internal/render/gl-resources/bitmap-texture.h>
 #include <dali/internal/render/renderers/render-geometry.h>
-#include <dali/internal/render/renderers/render-image-renderer.h>
 #include <dali/internal/render/renderers/render-new-renderer.h>
 #include <dali/internal/render/renderers/render-property-buffer.h>
 #include <dali/internal/render/renderers/render-renderer.h>
@@ -114,7 +113,7 @@ const int CAMERA_ACTOR_MEMORY_SIZE(
 const int IMAGE_ACTOR_MEMORY_SIZE(
   sizeof( Internal::ImageActor ) +
   sizeof( Internal::SceneGraph::Node ) +
-  sizeof( Internal::Render::ImageRenderer ));
+  sizeof( Internal::Render::NewRenderer ));
 const int LAYER_MEMORY_SIZE(
   sizeof( Internal::Layer ) +
   sizeof( Internal::ActorAttachment ) +

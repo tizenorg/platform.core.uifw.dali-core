@@ -20,13 +20,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/update/manager/prepare-render-instructions.h>
-#include <dali/internal/update/manager/prepare-render-algorithms.h>
 #include <dali/internal/update/manager/sorted-layers.h>
 #include <dali/internal/update/resources/complete-status-manager.h>
 #include <dali/internal/update/resources/sync-resource-tracker.h>
 #include <dali/internal/update/render-tasks/scene-graph-render-task.h>
 #include <dali/internal/update/render-tasks/scene-graph-render-task-list.h>
-#include <dali/internal/update/node-attachments/scene-graph-renderable-attachment.h>
 #include <dali/internal/update/nodes/scene-graph-layer.h>
 #include <dali/internal/render/common/render-item.h>
 #include <dali/internal/render/common/render-tracker.h>
@@ -96,8 +94,8 @@ static Layer* FindLayer( Node& node )
 
 /**
  * Rebuild the Layer::opaqueRenderables, transparentRenderables and overlayRenderables members,
- * including only renderable-attachments which are included in the current render-task.
- * Returns true if all renderable attachments have finshed acquiring resources.
+ * including only renderers which are included in the current render-task.
+ * Returns true if all renderers have finshed acquiring resources.
  */
 static bool AddRenderablesForTask( BufferIndex updateBufferIndex,
                                    Node& node,
@@ -135,45 +133,6 @@ static bool AddRenderablesForTask( BufferIndex updateBufferIndex,
 
   inheritedDrawMode |= node.GetDrawMode();
 
-
-  if ( node.HasAttachment() )
-  {
-    RenderableAttachment* renderable = node.GetAttachment().GetRenderable(); // not all attachments render
-    if ( renderable )
-    {
-      bool visible = renderable->HasVisibleSizeAndColor();
-      // if its not potentially visible, then don't consider this renderable for render complete checking
-      // note that whilst visibility is inherited (if parent is insible, skip the sub-tree),
-      // size and color may not be so this needs to be done per renderable
-      if( visible ) // i.e. some resources are ready
-      {
-        bool ready = false;
-        bool complete = false;
-        renderable->GetReadyAndComplete(ready, complete);
-
-        DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "Testing renderable:%p ready:%s complete:%s\n", renderable, ready?"T":"F", complete?"T":"F");
-
-        resourcesFinished = !complete ? complete : resourcesFinished;
-
-        if( ready ) // i.e. some resources are ready
-        {
-          if( DrawMode::STENCIL == inheritedDrawMode )
-          {
-            layer->stencilRenderables.push_back( renderable );
-          }
-          else if( DrawMode::OVERLAY_2D == inheritedDrawMode )
-          {
-            layer->overlayRenderables.push_back( renderable );
-          }
-          else
-          {
-            layer->colorRenderables.push_back( renderable );
-          }
-        }
-      }
-    }
-  }
-
   if( node.ResolveVisibility( updateBufferIndex ) )
   {
     for( unsigned int i(0); i<node.GetRendererCount(); ++i )
@@ -204,9 +163,6 @@ static bool AddRenderablesForTask( BufferIndex updateBufferIndex,
           layer->colorRenderers.PushBack( NodeRenderer(&node, renderer ) );
         }
       }
-
-
-
     }
   }
 
@@ -286,8 +242,6 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
     bool resourcesFinished = false;
     if( renderTask.IsRenderRequired() )
     {
-      ClearRenderables( sortedLayers );
-
       resourcesFinished = AddRenderablesForTask( updateBufferIndex,
                                                  *sourceNode,
                                                  *layer,
@@ -361,7 +315,14 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
     bool resourcesFinished = false;
     if( renderTask.IsRenderRequired() )
     {
-      ClearRenderables( sortedLayers );
+      // Clear the lists of renderables from the previous update
+      size_t layerCount( sortedLayers.size() );
+      for( size_t i(0); i<layerCount; ++i )
+      {
+        sortedLayers[i]->stencilRenderers.Clear();
+        sortedLayers[i]->colorRenderers.Clear();
+        sortedLayers[i]->overlayRenderers.Clear();
+      }
 
       resourcesFinished = AddRenderablesForTask( updateBufferIndex,
                                                  *sourceNode,

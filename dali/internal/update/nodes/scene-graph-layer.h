@@ -22,15 +22,12 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/internal/event/common/event-thread-services.h>
 #include <dali/internal/update/nodes/node.h>
-#include <dali/internal/update/node-attachments/scene-graph-renderable-attachment-declarations.h>
 
 namespace Dali
 {
 
 namespace Internal
 {
-
-class RenderableAttachment;
 
 // value types used by messages
 template <> struct ParameterType< Dali::Layer::SortFunctionType >
@@ -218,10 +215,6 @@ private:
   Layer& operator=(const Layer& rhs);
 
 public: // For update-algorithms
-
-  RenderableAttachmentContainer stencilRenderables;
-  RenderableAttachmentContainer colorRenderables;
-  RenderableAttachmentContainer overlayRenderables;
 
   NodeRendererContainer stencilRenderers;
   NodeRendererContainer colorRenderers;

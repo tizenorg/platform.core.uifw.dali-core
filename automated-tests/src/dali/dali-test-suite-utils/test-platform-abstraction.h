@@ -163,6 +163,17 @@ public:
 
   virtual void JoinLoaderThreads();
 
+  virtual const char* GetNativeSourceVertexShaderCode()
+  {
+    return NULL;
+  }
+
+  virtual const char* GetNativeSourceFragmentShaderCode()
+  {
+    return NULL;
+  }
+
+
 public: // TEST FUNCTIONS
 
   // Enumeration of Platform Abstraction methods

@@ -163,6 +163,23 @@ public:
 
   virtual void JoinLoaderThreads();
 
+ /**
+  * @copydoc PlatformAbstraction::GetNativeSourceVertexShaderCode()
+  */
+  virtual const char* GetNativeSourceVertexShaderCode()
+  {
+    return "";
+  }
+
+ /**
+  * @copydoc PlatformAbstraction::GetNativeSourceFragmentShaderCode()
+  */
+  virtual const char* GetNativeSourceFragmentShaderCode()
+  {
+    return "";
+  }
+
+
 public: // TEST FUNCTIONS
 
   // Enumeration of Platform Abstraction methods

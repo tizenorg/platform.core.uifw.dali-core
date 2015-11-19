@@ -28,6 +28,8 @@
 namespace Dali
 {
 
+class NativeImageInterface;
+
 namespace Integration
 {
 

@@ -103,6 +103,10 @@ public:
    */
   static NativeImage DownCast( BaseHandle handle );
 
+  const char* GetCustomVertexShaderCode();
+
+  const char* GetCustomFragmentShaderCode();
+
 public: // Not intended for application developers
 
   explicit DALI_INTERNAL NativeImage( Internal::NativeImage* );

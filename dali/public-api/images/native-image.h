@@ -99,9 +99,23 @@ public:
    * If handle points to a NativeImage object, the downcast produces valid handle.
    * If not, the returned handle is left unintialized.
    * @param[in] handle Handle to an object.
-   * @return handle to a NativeImage or an uninitialized handle.
+   * @return Handle to a NativeImage or an uninitialized handle.
    */
   static NativeImage DownCast( BaseHandle handle );
+
+  /**
+   * @brief Get custom vertex shader code for rendering a native image.
+   *
+   * @return String for custom vertex shader code
+   */
+  const char* GetCustomVertexShaderCode();
+
+  /**
+   * @brief Get custom fragment shader code for rendering a native image.
+   *
+   * @return String for custom fragment shader code
+   */
+  const char* GetCustomFragmentShaderCode();
 
 public: // Not intended for application developers
 

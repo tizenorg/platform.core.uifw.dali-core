@@ -64,4 +64,14 @@ NativeImage NativeImage::DownCast( BaseHandle handle )
   return NativeImage( dynamic_cast<Internal::NativeImage*>( handle.GetObjectPtr()) );
 }
 
+const char* NativeImage::GetCustomVertexShaderCode()
+{
+  return GetImplementation(*this).GetCustomVertexShaderCode();
+}
+
+const char* NativeImage::GetCustomFragmentShaderCode()
+{
+  return GetImplementation(*this).GetCustomFragmentShaderCode();
+}
+
 } // namespace Dali

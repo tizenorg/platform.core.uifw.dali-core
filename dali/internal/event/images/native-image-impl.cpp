@@ -22,6 +22,7 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/platform-abstraction.h>
 #include <dali/internal/event/resources/resource-ticket.h>
 #include <dali/internal/event/common/thread-local-storage.h>
 #include <dali/internal/event/resources/resource-client.h>
@@ -40,14 +41,17 @@ namespace
 TypeRegistration mType( typeid(Dali::NativeImage), typeid(Dali::Image), NULL );
 }
 
-NativeImage::NativeImage()
+NativeImage::NativeImage( NativeImageInterface& resourceData )
 : Image()
 {
+  Integration::PlatformAbstraction& platformAbstraction = Internal::ThreadLocalStorage::Get().GetPlatformAbstraction();
+  mCustomVertexShaderCode = platformAbstraction.GetNativeSourceVertexShaderCode();
+  mCustomFragmentShaderCode = platformAbstraction.GetNativeSourceFragmentShaderCode();
 }
 
 NativeImagePtr NativeImage::New( NativeImageInterface& resourceData )
 {
-  NativeImagePtr image = new NativeImage;
+  NativeImagePtr image = new NativeImage( resourceData );
   image->Initialize();
 
   ResourceClient &resourceClient = ThreadLocalStorage::Get().GetResourceClient();
@@ -71,6 +75,16 @@ void NativeImage::CreateGlTexture()
 {
   ResourceClient& resourceClient = ThreadLocalStorage::Get().GetResourceClient();
   resourceClient.CreateGlTexture( GetResourceId() );
+}
+
+const char* NativeImage::GetCustomVertexShaderCode()
+{
+  return mCustomVertexShaderCode.c_str();
+}
+
+const char* NativeImage::GetCustomFragmentShaderCode()
+{
+  return mCustomFragmentShaderCode.c_str();
 }
 
 } // namespace Internal

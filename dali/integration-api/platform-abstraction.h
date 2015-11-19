@@ -28,6 +28,8 @@
 namespace Dali
 {
 
+class NativeImageInterface;
+
 namespace Integration
 {
 
@@ -205,6 +207,18 @@ public:
    * @result             true if the file is saved, else false.
    */
   virtual bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const = 0;
+
+  /**
+   * Get a custom vertex shader code for native image source.
+   * @return String of custom vertex shader code
+   */
+  virtual const char* GetNativeSourceVertexShaderCode() = 0;
+
+  /**
+   * Get a custom fragment shader code for native image source.
+   * @return String of custom fragment shader code
+   */
+  virtual const char* GetNativeSourceFragmentShaderCode() = 0;
 
 }; // class PlatformAbstraction
 

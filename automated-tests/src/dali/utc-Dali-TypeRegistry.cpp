@@ -993,7 +993,7 @@ int UtcDaliTypeRegistryPropertyRegistrationP(void)
   // Check property count of type-info is 1
   Property::IndexContainer indices;
   typeInfo.GetPropertyIndices( indices );
-  DALI_TEST_EQUALS( indices.Size(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)indices.Size(), 1u, TEST_LOCATION );
 
   // Ensure indices returned from actor and customActor differ by two
   Actor actor = Actor::New();
@@ -1081,7 +1081,7 @@ int UtcDaliTypeRegistryAnimatablePropertyRegistrationP(void)
   // Check property count of type-info is 1
   Property::IndexContainer indices;
   typeInfo.GetPropertyIndices( indices );
-  DALI_TEST_EQUALS( indices.Size(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)indices.Size(), 1u, TEST_LOCATION );
 
   // Ensure indices returned from actor and customActor differ by one
   Actor actor = Actor::New();
@@ -1170,7 +1170,7 @@ int UtcDaliTypeRegistryAnimatablePropertyComponentRegistrationP(void)
   // Check property count of type-info is 1
   Property::IndexContainer indices;
   typeInfo.GetPropertyIndices( indices );
-  DALI_TEST_EQUALS( indices.Size(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)indices.Size(), 1u, TEST_LOCATION );
 
   // Register animatable property components
   std::string animatablePropertyComponentName1( "animatableProp1X" );
@@ -1709,7 +1709,7 @@ int UtcDaliTypeInfoGetActionNameN(void)
 
   std::string name = typeInfo.GetActionName(std::numeric_limits<size_t>::max());
 
-  DALI_TEST_EQUALS( 0u, name.size(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 0u, (unsigned int)name.size(), TEST_LOCATION );
 
   END_TEST;
 }
@@ -1743,7 +1743,7 @@ int UtcDaliTypeInfoGetSignalNameN(void)
 
   std::string name = typeInfo.GetSignalName(std::numeric_limits<size_t>::max());
 
-  DALI_TEST_EQUALS( 0u, name.size(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 0u, (unsigned int)name.size(), TEST_LOCATION );
 
   END_TEST;
 }

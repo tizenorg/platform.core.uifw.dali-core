@@ -98,7 +98,7 @@ int UtcDaliPropertyBufferCopyConstructor(void)
   PropertyBuffer propertyBufferCopy(propertyBuffer);
 
   DALI_TEST_EQUALS( (bool)propertyBufferCopy, true, TEST_LOCATION );
-  DALI_TEST_EQUALS( propertyBufferCopy.GetSize(), 4u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)propertyBufferCopy.GetSize(), 4u, TEST_LOCATION );
 
   END_TEST;
 }
@@ -114,7 +114,7 @@ int UtcDaliPropertyBufferAssignmentOperator(void)
 
   propertyBuffer2 = propertyBuffer;
   DALI_TEST_EQUALS( (bool)propertyBuffer2, true, TEST_LOCATION );
-  DALI_TEST_EQUALS( propertyBuffer2.GetSize(), 4u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)propertyBuffer2.GetSize(), 4u, TEST_LOCATION );
 
   END_TEST;
 }
@@ -158,7 +158,7 @@ int UtcDaliPropertyBufferSetData01(void)
   const TestGlAbstraction::BufferDataCalls& bufferDataCalls =
       application.GetGlAbstraction().GetBufferDataCalls();
 
-  DALI_TEST_EQUALS( bufferDataCalls.size(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)bufferDataCalls.size(), 1u, TEST_LOCATION );
 
   DALI_TEST_EQUALS( bufferDataCalls[0], sizeof(texturedQuadVertexData), TEST_LOCATION );
 
@@ -205,7 +205,7 @@ int UtcDaliPropertyBufferSetData02(void)
     const TestGlAbstraction::BufferDataCalls& bufferDataCalls =
       application.GetGlAbstraction().GetBufferDataCalls();
 
-    DALI_TEST_EQUALS( bufferDataCalls.size(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)bufferDataCalls.size(), 1u, TEST_LOCATION );
 
     DALI_TEST_EQUALS( bufferDataCalls[0], sizeof(texturedQuadVertexData), TEST_LOCATION );
   }
@@ -225,8 +225,8 @@ int UtcDaliPropertyBufferSetData02(void)
     const TestGlAbstraction::BufferDataCalls& bufferDataCalls =
           application.GetGlAbstraction().GetBufferDataCalls();
 
-    DALI_TEST_EQUALS( bufferSubDataCalls.size(), 1u, TEST_LOCATION );
-    DALI_TEST_EQUALS( bufferDataCalls.size(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)bufferSubDataCalls.size(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)bufferDataCalls.size(), 1u, TEST_LOCATION );
 
     if ( bufferSubDataCalls.size() )
     {
@@ -250,11 +250,11 @@ int UtcDaliPropertyBufferSetGetSize01(void)
   DALI_TEST_EQUALS( (bool)propertyBuffer, true, TEST_LOCATION );
 
   size_t size = propertyBuffer.GetSize();
-  DALI_TEST_EQUALS( size, 4u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)size, 4u, TEST_LOCATION );
 
   propertyBuffer.SetSize( 10u );
   size = propertyBuffer.GetSize();
-  DALI_TEST_EQUALS( size, 10u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)size, 10u, TEST_LOCATION );
 
   END_TEST;
 }
@@ -268,7 +268,7 @@ int UtcDaliPropertyBufferSetGetSize02(void)
   texturedQuadVertexFormat["aPosition"] = Property::VECTOR2;
   texturedQuadVertexFormat["aVertexCoord"] = Property::VECTOR2;
 
-  int size = 5u;
+  std::size_t size = 5u;
   PropertyBuffer propertyBuffer = PropertyBuffer::New( texturedQuadVertexFormat, size );
   DALI_TEST_EQUALS( propertyBuffer.GetSize(), size, TEST_LOCATION );
   DALI_TEST_EQUALS( propertyBuffer.GetSize(), size, TEST_LOCATION );

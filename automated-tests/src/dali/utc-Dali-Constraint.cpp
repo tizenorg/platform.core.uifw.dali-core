@@ -569,7 +569,7 @@ int UtcDaliConstraintGetTargetPropertyP(void)
 
   Actor actor = Actor::New();
   Constraint constraint = Constraint::New< Vector3 >( actor, Actor::Property::POSITION, &BasicFunction< Vector3 > );
-  DALI_TEST_EQUALS( constraint.GetTargetProperty(), Actor::Property::POSITION, TEST_LOCATION );
+  DALI_TEST_EQUALS( constraint.GetTargetProperty(), (Property::Index)Actor::Property::POSITION, TEST_LOCATION );
 
   END_TEST;
 }
@@ -1025,7 +1025,7 @@ namespace UtcDaliConstraintAddSource
 {
 void Function( Vector3& /* current */, const PropertyInputContainer& inputs )
 {
-  DALI_TEST_EQUALS( inputs.Size(), 4u, TEST_LOCATION );
+  DALI_TEST_EQUALS( inputs.Size(), (VectorBase::SizeType)4u, TEST_LOCATION );
   DALI_TEST_EQUALS( inputs[0]->GetType(), Property::VECTOR3, TEST_LOCATION );
   DALI_TEST_EQUALS( inputs[1]->GetType(), Property::ROTATION, TEST_LOCATION );
   DALI_TEST_EQUALS( inputs[2]->GetType(), Property::VECTOR4, TEST_LOCATION );

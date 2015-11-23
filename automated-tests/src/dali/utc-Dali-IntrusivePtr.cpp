@@ -28,12 +28,12 @@ namespace
 
 const int REPEAT = 1000;
 
-size_t g_creationCount = 0;
-size_t g_destructionCount = 0;
-size_t g_creationCountSubclass = 0;
-size_t g_destructionCountSubclass = 0;
-size_t g_creationCountUnrelated = 0;
-size_t g_destructionCountUnrelated = 0;
+unsigned int g_creationCount = 0;
+unsigned int g_destructionCount = 0;
+unsigned int g_creationCountSubclass = 0;
+unsigned int g_destructionCountSubclass = 0;
+unsigned int g_creationCountUnrelated = 0;
+unsigned int g_destructionCountUnrelated = 0;
 
 class Counted : public RefObject
 {

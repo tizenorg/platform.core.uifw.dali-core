@@ -163,8 +163,8 @@ std::ostream& operator<<( std::ostream& ostream, Degree angle );
  * @param[in] value2 The second value
  * @param[in] location The TEST_LOCATION macro should be used here
  */
-template<typename TypeA, typename TypeB>
-inline void DALI_TEST_EQUALS(TypeA value1, TypeB value2, const char* location)
+template<typename Type>
+inline void DALI_TEST_EQUALS(Type value1, Type value2, const char* location)
 {
   if (!(value1 == value2))
   {

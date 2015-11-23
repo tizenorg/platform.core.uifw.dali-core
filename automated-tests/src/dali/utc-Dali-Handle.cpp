@@ -514,7 +514,7 @@ int UtcDaliHandleNonAnimtableCompositeProperties(void)
   array->PushBack( "a string" );
   array->PushBack( Property::Value( Vector3(1,2,3) ) );
 
-  DALI_TEST_EQUALS( 3, array->Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( (Property::Array::SizeType)3, array->Count(), TEST_LOCATION );
 
   Property::Index propertyIndex = actor.RegisterProperty( "composite", value, Property::READ_WRITE );
 
@@ -693,7 +693,7 @@ int UtcDaliHandleGetPropertyIndices(void)
   Actor actor = Actor::New();
   actor.GetPropertyIndices( indices );
   DALI_TEST_CHECK( indices.Size() );
-  DALI_TEST_EQUALS( indices.Size(), actor.GetPropertyCount(), TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)indices.Size(), actor.GetPropertyCount(), TEST_LOCATION );
   END_TEST;
 }
 

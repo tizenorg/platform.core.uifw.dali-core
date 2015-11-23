@@ -208,19 +208,19 @@ int UtcDaliMaterialGetNumberOfTextures(void)
 
   material.AddTexture( image, "sTexture0" );
   material.AddTexture( image, "sTexture1" );
-  DALI_TEST_EQUALS( material.GetNumberOfTextures(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)material.GetNumberOfTextures(), 2u, TEST_LOCATION );
 
   material.AddTexture( image, "sTexture2" );
   material.AddTexture( image, "sTexture3" );
   material.AddTexture( image, "sTexture4" );
-  DALI_TEST_EQUALS( material.GetNumberOfTextures(), 5u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)material.GetNumberOfTextures(), 5u, TEST_LOCATION );
 
   material.RemoveTexture(3);
-  DALI_TEST_EQUALS( material.GetNumberOfTextures(), 4u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)material.GetNumberOfTextures(), 4u, TEST_LOCATION );
 
   material.RemoveTexture(3);
   material.RemoveTexture(0);
-  DALI_TEST_EQUALS( material.GetNumberOfTextures(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)material.GetNumberOfTextures(), 2u, TEST_LOCATION );
 
   END_TEST;
 }
@@ -1233,21 +1233,21 @@ int UtcDaliMaterialRemoveTexture(void)
 
   Material material = CreateMaterial();
   material.RemoveTexture(0);
-  DALI_TEST_EQUALS( material.GetNumberOfTextures(), 0, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)material.GetNumberOfTextures(), 0u, TEST_LOCATION );
 
   material.RemoveTexture(1);
-  DALI_TEST_EQUALS( material.GetNumberOfTextures(), 0, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)material.GetNumberOfTextures(), 0u, TEST_LOCATION );
 
   Sampler sampler = Sampler::New();
   sampler.SetFilterMode( FilterMode::NEAREST, FilterMode::NEAREST );
   material.AddTexture( image, "sTexture", sampler );
-  DALI_TEST_EQUALS( material.GetNumberOfTextures(), 1, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)material.GetNumberOfTextures(), 1u, TEST_LOCATION );
 
   material.RemoveTexture(1);
-  DALI_TEST_EQUALS( material.GetNumberOfTextures(), 1, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)material.GetNumberOfTextures(), 1u, TEST_LOCATION );
 
   material.RemoveTexture(0);
-  DALI_TEST_EQUALS( material.GetNumberOfTextures(), 0, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)material.GetNumberOfTextures(), 0u, TEST_LOCATION );
 
   END_TEST;
 }

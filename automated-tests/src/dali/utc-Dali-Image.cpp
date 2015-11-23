@@ -102,8 +102,8 @@ int UtcDaliImageGetWidthHeight(void)
   Vector2 testSize(8.0f, 16.0f);
   application.GetPlatform().SetClosestImageSize(testSize);
   Image image1 = ResourceImage::New(gTestImageFilename);
-  DALI_TEST_EQUALS( image1.GetWidth(), testSize.width, TEST_LOCATION );
-  DALI_TEST_EQUALS( image1.GetHeight(), testSize.height, TEST_LOCATION );
+  DALI_TEST_EQUALS( (float)image1.GetWidth(), testSize.width, TEST_LOCATION );
+  DALI_TEST_EQUALS( (float)image1.GetHeight(), testSize.height, TEST_LOCATION );
 
   Image image2 = ResourceImage::New( gTestImageFilename, ImageDimensions(128, 256), FittingMode::SCALE_TO_FILL, SamplingMode::DEFAULT );
   DALI_TEST_EQUALS( image2.GetWidth(), 128u, TEST_LOCATION );

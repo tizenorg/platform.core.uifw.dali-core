@@ -170,7 +170,7 @@ int UtcDaliGeometryAddVertexBuffer(void)
     const TestGlAbstraction::BufferDataCalls& bufferDataCalls =
         application.GetGlAbstraction().GetBufferDataCalls();
 
-    DALI_TEST_EQUALS( bufferDataCalls.size(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)bufferDataCalls.size(), 1u, TEST_LOCATION );
 
     DALI_TEST_EQUALS( bufferDataCalls[0], 4*sizeof( TexturedQuadVertex ), TEST_LOCATION );
   }
@@ -190,7 +190,7 @@ int UtcDaliGeometryAddVertexBuffer(void)
         application.GetGlAbstraction().GetBufferDataCalls();
 
     //Check that only the new buffer gets uploaded
-    DALI_TEST_EQUALS( bufferDataCalls.size(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)bufferDataCalls.size(), 1u, TEST_LOCATION );
     DALI_TEST_EQUALS( bufferDataCalls[0], 4*sizeof( TexturedQuadVertex ), TEST_LOCATION );
   }
 
@@ -208,14 +208,14 @@ int UtcDaliGeometryGetNumberOfVertexBuffers(void)
 
   Geometry geometry = Geometry::New();
   geometry.AddVertexBuffer( vertexBuffer1 );
-  DALI_TEST_EQUALS( geometry.GetNumberOfVertexBuffers(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)geometry.GetNumberOfVertexBuffers(), 1u, TEST_LOCATION );
 
   geometry.AddVertexBuffer( vertexBuffer2 );
   geometry.AddVertexBuffer( vertexBuffer3 );
-  DALI_TEST_EQUALS( geometry.GetNumberOfVertexBuffers(), 3u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)geometry.GetNumberOfVertexBuffers(), 3u, TEST_LOCATION );
 
   geometry.RemoveVertexBuffer( 2u );
-  DALI_TEST_EQUALS( geometry.GetNumberOfVertexBuffers(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)geometry.GetNumberOfVertexBuffers(), 2u, TEST_LOCATION );
 
   END_TEST;
 }
@@ -239,14 +239,14 @@ int UtcDaliGeometryRemoveVertexBuffer(void)
   actor.AddRenderer(renderer);
   Stage::GetCurrent().Add(actor);
 
-  DALI_TEST_EQUALS( geometry.GetNumberOfVertexBuffers(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)geometry.GetNumberOfVertexBuffers(), 1u, TEST_LOCATION );
 
   geometry.RemoveVertexBuffer( 0 );
   geometry.AddVertexBuffer( vertexBuffer2 );
-  DALI_TEST_EQUALS( geometry.GetNumberOfVertexBuffers(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)geometry.GetNumberOfVertexBuffers(), 1u, TEST_LOCATION );
 
   geometry.RemoveVertexBuffer( 0 );
-  DALI_TEST_EQUALS( geometry.GetNumberOfVertexBuffers(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)geometry.GetNumberOfVertexBuffers(), 0u, TEST_LOCATION );
 
   //Todo: test by checking the BufferDataCalls
   // make sure the vertex buffer in actually removed from gl
@@ -282,7 +282,7 @@ int UtcDaliGeometrySetIndexBuffer(void)
     const TestGlAbstraction::BufferDataCalls& bufferDataCalls =
         application.GetGlAbstraction().GetBufferDataCalls();
 
-    DALI_TEST_EQUALS( bufferDataCalls.size(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)bufferDataCalls.size(), 1u, TEST_LOCATION );
 
     DALI_TEST_EQUALS( bufferDataCalls[0], 4*sizeof( TexturedQuadVertex ), TEST_LOCATION );
   }
@@ -301,7 +301,7 @@ int UtcDaliGeometrySetIndexBuffer(void)
         application.GetGlAbstraction().GetBufferDataCalls();
 
     //Only the index buffer should be uploaded
-    DALI_TEST_EQUALS( bufferDataCalls.size(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)bufferDataCalls.size(), 1u, TEST_LOCATION );
 
     // should be unsigned short instead of unsigned int
     DALI_TEST_EQUALS( bufferDataCalls[0], 6*sizeof( unsigned short ), TEST_LOCATION );

@@ -54,11 +54,11 @@ public:
 
   void CheckNoConnections()
   {
-    DALI_TEST_EQUALS( mVoidSignalVoid.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mVoidSignalFloat.GetConnectionCount(), 0u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)mVoidSignalVoid.GetConnectionCount(), 0u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)mVoidSignalFloat.GetConnectionCount(), 0u, TEST_LOCATION );
 
-    DALI_TEST_EQUALS( mFloatSignalVoid.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mFloatSignalFloat.GetConnectionCount(), 0u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)mFloatSignalVoid.GetConnectionCount(), 0u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)mFloatSignalFloat.GetConnectionCount(), 0u, TEST_LOCATION );
   }
 
   VoidSignalVoid mVoidSignalVoid;
@@ -466,7 +466,7 @@ int UtcDaliSignalFunctorsDestroySignal(void)
     signals.mVoidSignalVoid.Emit();
     DALI_TEST_EQUALS( VoidFunctorVoid::mCallbackCount,1, TEST_LOCATION );
 
-    DALI_TEST_EQUALS( tracker.GetConnectionCount(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)tracker.GetConnectionCount(), 1u, TEST_LOCATION );
   }
 
   // Functor should have been deleted with signal
@@ -474,7 +474,7 @@ int UtcDaliSignalFunctorsDestroySignal(void)
   DALI_TEST_EQUALS( VoidFunctorVoid::mCurrentInstanceCount, 0, TEST_LOCATION );
   DALI_TEST_EQUALS( VoidFunctorVoid::mCallbackCount, 1, TEST_LOCATION );
 
-  DALI_TEST_EQUALS( tracker.GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)tracker.GetConnectionCount(), 0u, TEST_LOCATION );
   END_TEST;
 }
 

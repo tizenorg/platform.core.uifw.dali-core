@@ -445,7 +445,7 @@ int UtcDaliRenderTaskSetSourceActorP01(void)
   application.Render();
 
   // Check that nothing was rendered
-  DALI_TEST_EQUALS( boundTextures.size(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 0u, TEST_LOCATION );
 
   END_TEST;
 }
@@ -492,7 +492,7 @@ int UtcDaliRenderTaskSetSourceActorP02(void)
   application.Render();
 
   // Check that nothing was rendered
-  DALI_TEST_EQUALS( boundTextures.size(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 0u, TEST_LOCATION );
 
   // Set newActor as the new source Actor
   task.SetSourceActor( newActor );
@@ -505,7 +505,7 @@ int UtcDaliRenderTaskSetSourceActorP02(void)
   application.Render();
 
   // Check that the newActor was rendered
-  DALI_TEST_EQUALS( boundTextures.size(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 1u, TEST_LOCATION );
   if ( boundTextures.size() )
   {
     DALI_TEST_EQUALS( boundTextures[0], 7u, TEST_LOCATION );
@@ -547,7 +547,7 @@ int UtcDaliRenderTaskSetSourceActorOffStage(void)
   application.Render();
 
   // Check that nothing was rendered
-  DALI_TEST_EQUALS( boundTextures.size(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 0u, TEST_LOCATION );
 
   // Now add to stage
   stage.Add( newActor );
@@ -558,7 +558,7 @@ int UtcDaliRenderTaskSetSourceActorOffStage(void)
   application.Render();
 
   // Check that the newActor was rendered
-  DALI_TEST_EQUALS( boundTextures.size(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 1u, TEST_LOCATION );
   if ( boundTextures.size() )
   {
     DALI_TEST_EQUALS( boundTextures[0], expectedTextureId, TEST_LOCATION );
@@ -614,7 +614,7 @@ int UtcDaliRenderTaskSetSourceActorEmpty(void)
   application.Render();
 
   // Check that nothing was rendered
-  DALI_TEST_EQUALS( boundTextures.size(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 0u, TEST_LOCATION );
 
   // Set with non-empty handle
   task.SetSourceActor( newActor );
@@ -626,7 +626,7 @@ int UtcDaliRenderTaskSetSourceActorEmpty(void)
   application.Render();
 
   // Check that the newActor was rendered
-  DALI_TEST_EQUALS( boundTextures.size(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 1u, TEST_LOCATION );
   if ( boundTextures.size() )
   {
     DALI_TEST_EQUALS( boundTextures[0], expectedTextureId, TEST_LOCATION );
@@ -717,7 +717,7 @@ int UtcDaliRenderTaskSetExclusive(void)
 
   // Check that the actor1 was rendered
   const std::vector<GLuint>& boundTextures = application.GetGlAbstraction().GetBoundTextures( GL_TEXTURE0 );
-  DALI_TEST_EQUALS( boundTextures.size(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 1u, TEST_LOCATION );
 
   if ( boundTextures.size() )
   {
@@ -740,7 +740,7 @@ int UtcDaliRenderTaskSetExclusive(void)
   application.Render();
 
   // Check that the actors were rendered
-  DALI_TEST_EQUALS( boundTextures.size(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 2u, TEST_LOCATION );
 
   if ( boundTextures.size() )
   {
@@ -764,7 +764,7 @@ int UtcDaliRenderTaskSetExclusive(void)
   application.Render();
 
   // Check that the actors were rendered
-  DALI_TEST_EQUALS( boundTextures.size(), 3u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 3u, TEST_LOCATION );
 
   if ( boundTextures.size() )
   {
@@ -790,7 +790,7 @@ int UtcDaliRenderTaskSetExclusive(void)
   application.SendNotification();
   application.Render();
 
-  DALI_TEST_EQUALS( boundTextures.size(), 4u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 4u, TEST_LOCATION );
 
   if ( boundTextures.size() == 4 )
   {
@@ -814,7 +814,7 @@ int UtcDaliRenderTaskSetExclusive(void)
   application.SendNotification();
   application.Render();
 
-  DALI_TEST_EQUALS( boundTextures.size(), 3u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)boundTextures.size(), 3u, TEST_LOCATION );
   if ( boundTextures.size() == 3 )
   {
     // Test that task 1 renders actor3 & actor1
@@ -1779,12 +1779,12 @@ int UtcDaliRenderTaskSignalFinished(void)
   DALI_TEST_CHECK( lastSyncObj != NULL );
 
   application.Render();
-  DALI_TEST_EQUALS( (application.GetUpdateStatus() & Integration::KeepUpdating::RENDER_TASK_SYNC), Integration::KeepUpdating::RENDER_TASK_SYNC, TEST_LOCATION );
+  DALI_TEST_EQUALS( (Integration::KeepUpdating::Reasons)(application.GetUpdateStatus() & Integration::KeepUpdating::RENDER_TASK_SYNC), Integration::KeepUpdating::RENDER_TASK_SYNC, TEST_LOCATION );
   application.SendNotification();
   DALI_TEST_CHECK( !finished );
 
   application.Render();
-  DALI_TEST_EQUALS( (application.GetUpdateStatus() & Integration::KeepUpdating::RENDER_TASK_SYNC), Integration::KeepUpdating::RENDER_TASK_SYNC, TEST_LOCATION );
+  DALI_TEST_EQUALS( (Integration::KeepUpdating::Reasons)(application.GetUpdateStatus() & Integration::KeepUpdating::RENDER_TASK_SYNC), Integration::KeepUpdating::RENDER_TASK_SYNC, TEST_LOCATION );
   application.SendNotification();
   DALI_TEST_CHECK( ! finished );
 
@@ -3251,7 +3251,7 @@ int UtcDaliRenderTaskProperties(void)
   Property::IndexContainer indices;
   task.GetPropertyIndices( indices );
   DALI_TEST_CHECK( indices.Size() );
-  DALI_TEST_EQUALS( indices.Size(), task.GetPropertyCount(), TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)indices.Size(), task.GetPropertyCount(), TEST_LOCATION );
   END_TEST;
 }
 
@@ -3384,12 +3384,12 @@ int UtcDaliRenderTaskFinishInvisibleSourceActor(void)
   DALI_TEST_CHECK( lastSyncObj != NULL );
 
   application.Render();
-  DALI_TEST_EQUALS( (application.GetUpdateStatus() & Integration::KeepUpdating::RENDER_TASK_SYNC), Integration::KeepUpdating::RENDER_TASK_SYNC, TEST_LOCATION );
+  DALI_TEST_EQUALS( (Integration::KeepUpdating::Reasons)(application.GetUpdateStatus() & Integration::KeepUpdating::RENDER_TASK_SYNC), Integration::KeepUpdating::RENDER_TASK_SYNC, TEST_LOCATION );
   application.SendNotification();
   DALI_TEST_CHECK( !finished );
 
   application.Render();
-  DALI_TEST_EQUALS( (application.GetUpdateStatus() & Integration::KeepUpdating::RENDER_TASK_SYNC), Integration::KeepUpdating::RENDER_TASK_SYNC, TEST_LOCATION );
+  DALI_TEST_EQUALS( (Integration::KeepUpdating::Reasons)(application.GetUpdateStatus() & Integration::KeepUpdating::RENDER_TASK_SYNC), Integration::KeepUpdating::RENDER_TASK_SYNC, TEST_LOCATION );
   application.SendNotification();
   DALI_TEST_CHECK( ! finished );
 

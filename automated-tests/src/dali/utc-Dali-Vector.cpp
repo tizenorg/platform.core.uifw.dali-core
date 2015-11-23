@@ -152,40 +152,42 @@ int UtcDaliVectorIntResize(void)
   DALI_TEST_EQUALS( ZERO, vector.Count(), TEST_LOCATION );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(10), vector.Capacity(), TEST_LOCATION );
 
-  vector.Resize( 12u, 123 );
+  const short firstValue = 123;
+  vector.Resize( 12u, firstValue );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(12), vector.Count(), TEST_LOCATION );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(12), vector.Capacity(), TEST_LOCATION );
 
-  DALI_TEST_EQUALS( vector[ 0 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 4 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 5 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 6 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 7 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 8 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 9 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 10 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 11 ], 123, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 5 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 6 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 7 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 8 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 9 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 10 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 11 ], firstValue, TEST_LOCATION );
 
-  vector.Resize( 13u, 321 );
+  const short secondValue = 321;
+  vector.Resize( 13u, secondValue );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(13), vector.Count(), TEST_LOCATION );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(13), vector.Capacity(), TEST_LOCATION );
 
-  DALI_TEST_EQUALS( vector[ 0 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 4 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 5 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 6 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 7 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 8 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 9 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 10 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 11 ], 123, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 12 ], 321, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 5 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 6 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 7 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 8 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 9 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 10 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 11 ], firstValue, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 12 ], secondValue, TEST_LOCATION );
   END_TEST;
 }
 
@@ -202,30 +204,30 @@ int UtcDaliVectorIntErase(void)
   vector.PushBack( 4 );
   vector.PushBack( 5 );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(5), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 1, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 4, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 4 ], 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], (char)4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], (char)5, TEST_LOCATION );
 
   vector.Erase( vector.Begin() );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(4), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 4, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], (char)5, TEST_LOCATION );
 
   Vector< char >::Iterator ret = vector.Erase( std::find( vector.Begin(), vector.End(), 4 ) );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(3), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 5, TEST_LOCATION );
-  DALI_TEST_EQUALS( *ret, 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)5, TEST_LOCATION );
+  DALI_TEST_EQUALS( *ret, (char)5, TEST_LOCATION );
 
   // try erasing last
   vector.PushBack( 99 );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(4), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 99, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], (char)99, TEST_LOCATION );
   ret = vector.Erase( vector.End() - 1 );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(3), vector.Count(), TEST_LOCATION );
   DALI_TEST_EQUALS( ret, vector.End(), TEST_LOCATION );
@@ -266,18 +268,18 @@ int UtcDaliVectorIntErase(void)
 
 
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(3), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)5, TEST_LOCATION );
 
   vector.Erase( vector.Begin() + 1 );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(2), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)5, TEST_LOCATION );
 
   vector.Erase( vector.Begin() + 1 );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(1), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)2, TEST_LOCATION );
 
   try
   {
@@ -296,7 +298,7 @@ int UtcDaliVectorIntErase(void)
     tet_result(TET_FAIL);
   }
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(1), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)2, TEST_LOCATION );
 
   vector.Erase( vector.Begin() );
   DALI_TEST_EQUALS( ZERO, vector.Count(), TEST_LOCATION );
@@ -724,17 +726,17 @@ int UtcDaliVectorAcidTest(void)
     longvector.PushBack( (long)i );
     charvector.PushBack( (char)i );
   }
-  DALI_TEST_EQUALS( acidCount, pairvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( acidCount, (unsigned int)pairvector.Count(), TEST_LOCATION );
   std::size_t pairCapacity = pairvector.Capacity();
-  DALI_TEST_EQUALS( acidCount, doublevector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( acidCount, (unsigned int)doublevector.Count(), TEST_LOCATION );
   std::size_t doubleCapacity = doublevector.Capacity();
-  DALI_TEST_EQUALS( acidCount, intptrvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( acidCount, (unsigned int)intptrvector.Count(), TEST_LOCATION );
   std::size_t intptrCapacity = intptrvector.Capacity();
-  DALI_TEST_EQUALS( acidCount, actorptrvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( acidCount, (unsigned int)actorptrvector.Count(), TEST_LOCATION );
   std::size_t actorptrCapacity = actorptrvector.Capacity();
-  DALI_TEST_EQUALS( acidCount, longvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( acidCount, (unsigned int)longvector.Count(), TEST_LOCATION );
   std::size_t longCapacity = longvector.Capacity();
-  DALI_TEST_EQUALS( acidCount, charvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( acidCount, (unsigned int)charvector.Count(), TEST_LOCATION );
   std::size_t charCapacity = charvector.Capacity();
 
   tet_printf("Dali::Vector< pair > capacity after %d pushbacks is %d", acidCount, pairCapacity );
@@ -780,19 +782,19 @@ int UtcDaliVectorPushBack(void)
 
   vector.Reserve( 2u );
   DALI_TEST_EQUALS( ZERO, vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( 2u, vector.Capacity(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 2u, (unsigned int)vector.Capacity(), TEST_LOCATION );
 
   vector.PushBack( 0u );
   vector.PushBack( 1u );
   vector.PushBack( 2u );
 
-  DALI_TEST_EQUALS( 3u, vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( 6u, vector.Capacity(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 3u, (unsigned int)vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 6u, (unsigned int)vector.Capacity(), TEST_LOCATION );
 
   vector.PushBack( 3u );
 
-  DALI_TEST_EQUALS( 4u, vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( 6u, vector.Capacity(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 4u, (unsigned int)vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 6u, (unsigned int)vector.Capacity(), TEST_LOCATION );
 
   DALI_TEST_EQUALS( 0u, vector[0u], TEST_LOCATION );
   DALI_TEST_EQUALS( 1u, vector[1u], TEST_LOCATION );
@@ -812,7 +814,7 @@ int UtcDaliVectorInsert01(void)
   for( unsigned int i = 8u; i <= 8u; --i )
   {
     orderedVector.Insert( orderedVector.Begin(), i );
-    DALI_TEST_EQUALS( 10u - i, orderedVector.Count(), TEST_LOCATION );
+    DALI_TEST_EQUALS( 10u - i, (unsigned int)orderedVector.Count(), TEST_LOCATION );
     DALI_TEST_EQUALS( i, orderedVector[0u], TEST_LOCATION );
   }
 
@@ -917,7 +919,7 @@ int UtcDaliVectorInsert01(void)
   vector.PushBack( 3u );
 
   vector.Insert( vector.Begin() + 2, vector.Begin(), vector.End() );
-  DALI_TEST_EQUALS( 8u, vector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 8u, (unsigned int)vector.Count(), TEST_LOCATION );
   DALI_TEST_EQUALS( 0u, vector[0u], TEST_LOCATION );
   DALI_TEST_EQUALS( 1u, vector[1u], TEST_LOCATION );
   DALI_TEST_EQUALS( 0u, vector[2u], TEST_LOCATION );
@@ -955,36 +957,36 @@ int UtcDaliVectorInsert02(void)
   // Test insert at end
   vector.Insert( vector.End(), vector2.Begin(), vector2.Begin() + 1u );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(6), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 1, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 4, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 4 ], 5, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 5 ], 6, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], (char)4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], (char)5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 5 ], (char)6, TEST_LOCATION );
 
   // Test insert at begin
   vector.Insert( vector.Begin(), vector2.Begin()+1, vector2.Begin() + 2u );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(7), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 7, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 1, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 4 ], 4, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 5 ], 5, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 6 ], 6, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)7, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], (char)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], (char)4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 5 ], (char)5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 6 ], (char)6, TEST_LOCATION );
 
   // Test insert in the middle
   vector.Insert( vector.Begin() + 3, vector2.Begin()+3, vector2.End() );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(9), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 7, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 1, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 9, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 4 ], 10, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 5 ], 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 6 ], 4, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 7 ], 5, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 8 ], 6, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)7, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], (char)9, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], (char)10, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 5 ], (char)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 6 ], (char)4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 7 ], (char)5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 8 ], (char)6, TEST_LOCATION );
   END_TEST;
 }
 
@@ -1079,35 +1081,35 @@ int UtcDaliVectorIntEraseRange(void)
   vector.PushBack( 4 );
   vector.PushBack( 5 );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(5), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 1, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 4, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 4 ], 5, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], (char)4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 4 ], (char)5, TEST_LOCATION );
 
   Vector< char >::Iterator ret;
 
   ret = vector.Erase( vector.Begin() + 1u, vector.Begin() + 2u );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(4), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 1, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 4, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 5, TEST_LOCATION );
-  DALI_TEST_EQUALS( *ret, 3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)1, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], (char)5, TEST_LOCATION );
+  DALI_TEST_EQUALS( *ret, (char)3, TEST_LOCATION );
 
   ret = vector.Erase( vector.Begin(), vector.Begin() + 2 );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(2), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 4, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 5, TEST_LOCATION );
-  DALI_TEST_EQUALS( *ret, 4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)5, TEST_LOCATION );
+  DALI_TEST_EQUALS( *ret, (char)4, TEST_LOCATION );
 
   // try erasing last
   vector.PushBack( 99 );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(3), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 99, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)99, TEST_LOCATION );
   ret = vector.Erase( vector.Begin() + 1u, vector.End() );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(1), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)4, TEST_LOCATION );
   DALI_TEST_EQUALS( ret, vector.End(), TEST_LOCATION );
 
   // try erasing all
@@ -1116,10 +1118,10 @@ int UtcDaliVectorIntEraseRange(void)
   vector.PushBack( 102 );
 
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(4), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 4, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 100, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 101, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 3 ], 102, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)4, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)100, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)101, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 3 ], (char)102, TEST_LOCATION );
 
   ret = vector.Erase( vector.Begin(), vector.End() );
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(0), vector.Count(), TEST_LOCATION );
@@ -1131,18 +1133,18 @@ int UtcDaliVectorIntEraseRange(void)
   vector.PushBack( 102 );
 
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(3), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 100, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 101, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 102, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)100, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)101, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)102, TEST_LOCATION );
 
   ret = vector.Erase( vector.Begin() + 1, vector.Begin() + 1 );
 
   DALI_TEST_EQUALS( static_cast<Dali::VectorBase::SizeType>(3), vector.Count(), TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 0 ], 100, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 1 ], 101, TEST_LOCATION );
-  DALI_TEST_EQUALS( vector[ 2 ], 102, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 0 ], (char)100, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 1 ], (char)101, TEST_LOCATION );
+  DALI_TEST_EQUALS( vector[ 2 ], (char)102, TEST_LOCATION );
 
-  DALI_TEST_EQUALS( *ret, 101, TEST_LOCATION );
+  DALI_TEST_EQUALS( *ret, (char)101, TEST_LOCATION );
 
   END_TEST;
 }
@@ -1264,12 +1266,12 @@ int UtcDaliVectorVector2P(void)
 
   classvector.PushBack( Vector2() );
 
-  DALI_TEST_EQUALS( 1u, classvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 1u, (unsigned int)classvector.Count(), TEST_LOCATION );
   DALI_TEST_GREATER( classvector.Capacity(), ZERO, TEST_LOCATION );
 
   classvector.PushBack( Vector2( 0.1f, 0.2f ) );
 
-  DALI_TEST_EQUALS( 2u, classvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 2u, (unsigned int)classvector.Count(), TEST_LOCATION );
 
   DALI_TEST_EQUALS( Vector2(), classvector[ 0 ], TEST_LOCATION );
   DALI_TEST_EQUALS( Vector2( 0.1f, 0.2f ), classvector[ 1 ], TEST_LOCATION );
@@ -1288,12 +1290,12 @@ int UtcDaliVectorVector3P(void)
 
   classvector.PushBack( Vector3() );
 
-  DALI_TEST_EQUALS( 1u, classvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 1u, (unsigned int)classvector.Count(), TEST_LOCATION );
   DALI_TEST_GREATER( classvector.Capacity(), ZERO, TEST_LOCATION );
 
   classvector.PushBack( Vector3( 0.1f, 0.2f, 0.3f ) );
 
-  DALI_TEST_EQUALS( 2u, classvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 2u, (unsigned int)classvector.Count(), TEST_LOCATION );
 
   DALI_TEST_EQUALS( Vector3(), classvector[ 0 ], TEST_LOCATION );
   DALI_TEST_EQUALS( Vector3( 0.1f, 0.2f, 0.3f ), classvector[ 1 ], TEST_LOCATION );
@@ -1312,12 +1314,12 @@ int UtcDaliVectorMatrixP(void)
 
   classvector.PushBack( Matrix() );
 
-  DALI_TEST_EQUALS( 1u, classvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 1u, (unsigned int)classvector.Count(), TEST_LOCATION );
   DALI_TEST_GREATER( classvector.Capacity(), ZERO, TEST_LOCATION );
 
   classvector.PushBack( Matrix::IDENTITY );
 
-  DALI_TEST_EQUALS( 2u, classvector.Count(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 2u, (unsigned int)classvector.Count(), TEST_LOCATION );
 
   DALI_TEST_EQUALS( Matrix(), classvector[ 0 ], TEST_LOCATION );
   DALI_TEST_EQUALS( Matrix::IDENTITY, classvector[ 1 ], TEST_LOCATION );

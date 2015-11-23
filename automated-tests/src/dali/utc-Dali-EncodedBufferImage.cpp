@@ -794,7 +794,7 @@ int UtcDaliEncodedBufferImageDownCastP(void)
   Image image1 = EncodedBufferImage::New( sEncodedBufferImageDataPNG, sEncodedBufferImageDataPNGLength, ImageDimensions(), FittingMode::DEFAULT, SamplingMode::DEFAULT, Image::NEVER );
   EncodedBufferImage image2 = DownCast< EncodedBufferImage >(image1);
 
-  DALI_TEST_EQUALS( image1, image2, TEST_LOCATION );
+  DALI_TEST_EQUALS( image1, (Image)image2, TEST_LOCATION );
   END_TEST;
 }
 

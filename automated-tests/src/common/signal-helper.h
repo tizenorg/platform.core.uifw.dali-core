@@ -177,19 +177,21 @@ public:
 
   void CheckNoConnections()
   {
-    DALI_TEST_EQUALS( mSignalVoid0.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mSignalVoid1R.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mSignalVoid1V.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mSignalVoid2V.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mSignalVoid3V.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mSignalBool1V.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mSignalBool2V.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mSignalInt2V.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mSignalFloat0.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mSignalFloat1V.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mSignalFloat2V.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mVoidSignalFloatValue3.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( mFloatSignalFloatValue3.GetConnectionCount(), 0u, TEST_LOCATION );
+    std::size_t zero = 0u;
+
+    DALI_TEST_EQUALS( mSignalVoid0.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mSignalVoid1R.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mSignalVoid1V.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mSignalVoid2V.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mSignalVoid3V.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mSignalBool1V.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mSignalBool2V.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mSignalInt2V.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mSignalFloat0.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mSignalFloat1V.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mSignalFloat2V.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mVoidSignalFloatValue3.GetConnectionCount(), zero, TEST_LOCATION );
+    DALI_TEST_EQUALS( mFloatSignalFloatValue3.GetConnectionCount(), zero, TEST_LOCATION );
   }
 
   void EmitVoidSignalVoid()

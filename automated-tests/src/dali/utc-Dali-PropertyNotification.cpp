@@ -344,7 +344,7 @@ int UtcDaliPropertyNotificationGetProperty(void)
                                                                     GreaterThanCondition(100.0f));
   Property::Index targetProperty = notification.GetTargetProperty();
 
-  DALI_TEST_EQUALS( targetProperty, Actor::Property::POSITION_X, TEST_LOCATION );
+  DALI_TEST_EQUALS( targetProperty, (Property::Index)Actor::Property::POSITION_X, TEST_LOCATION );
   END_TEST;
 }
 
@@ -736,13 +736,13 @@ int UtcDaliPropertyConditionGetArguments(void)
 
   PropertyCondition condition = GreaterThanCondition( 50.0f );
 
-  DALI_TEST_EQUALS( condition.GetArgumentCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( condition.GetArgumentCount(), (std::size_t)1u, TEST_LOCATION );
   float value = condition.GetArgument( 0 );
   DALI_TEST_EQUALS( value, 50.0f, TEST_LOCATION );
 
   condition = InsideCondition( 125.0f, 250.0f );
 
-  DALI_TEST_EQUALS( condition.GetArgumentCount(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( condition.GetArgumentCount(), (std::size_t)2u, TEST_LOCATION );
   float value1 = condition.GetArgument( 0 );
   float value2 = condition.GetArgument( 1 );
   DALI_TEST_EQUALS( value1, 125.0f, TEST_LOCATION );

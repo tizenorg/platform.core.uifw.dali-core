@@ -30,8 +30,8 @@ int UtcDaliUint16PairConstructor01P(void)
 
   Uint16Pair v;
 
-  DALI_TEST_EQUALS(v.GetX(), 0u, TEST_LOCATION);
-  DALI_TEST_EQUALS(v.GetY(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(v.GetX(), (uint16_t)0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(v.GetY(), (uint16_t)0u, TEST_LOCATION);
 
   END_TEST;
 }
@@ -42,8 +42,8 @@ int UtcDaliUint16PairConstructor02P(void)
 
   Uint16Pair v(10,10);
 
-  DALI_TEST_EQUALS(v.GetX(), 10u, TEST_LOCATION);
-  DALI_TEST_EQUALS(v.GetY(), 10u, TEST_LOCATION);
+  DALI_TEST_EQUALS(v.GetX(), (uint16_t)10u, TEST_LOCATION);
+  DALI_TEST_EQUALS(v.GetY(), (uint16_t)10u, TEST_LOCATION);
 
   END_TEST;
 }
@@ -54,8 +54,8 @@ int UtcDaliUint16PairCopyConstructor01P(void)
 
   Uint16Pair u(5,5);
   Uint16Pair v(u);
-  DALI_TEST_EQUALS(v.GetX(), 5u, TEST_LOCATION);
-  DALI_TEST_EQUALS(v.GetY(), 5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(v.GetX(), (uint16_t)5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(v.GetY(), (uint16_t)5u, TEST_LOCATION);
 
   END_TEST;
 }
@@ -65,7 +65,7 @@ int UtcDaliUint16PairGetWidthP(void)
   Dali::TestApplication testApp;
 
   Uint16Pair v(5,5);
-  DALI_TEST_EQUALS(v.GetWidth(), 5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(v.GetWidth(), (uint16_t)5u, TEST_LOCATION);
 
   END_TEST;
 }
@@ -75,7 +75,7 @@ int UtcDaliUint16PairGetHeightP(void)
   Dali::TestApplication testApp;
 
   Uint16Pair v(5,5);
-  DALI_TEST_EQUALS(v.GetHeight(), 5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(v.GetHeight(), (uint16_t)5u, TEST_LOCATION);
 
   END_TEST;
 }
@@ -85,7 +85,7 @@ int UtcDaliUint16PairGetXP(void)
   Dali::TestApplication testApp;
 
   Uint16Pair v(5,5);
-  DALI_TEST_EQUALS(v.GetX(), 5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(v.GetX(), (uint16_t)5u, TEST_LOCATION);
 
   END_TEST;
 }
@@ -95,7 +95,7 @@ int UtcDaliUint16PairGetYP(void)
   Dali::TestApplication testApp;
 
   Uint16Pair v(5,5);
-  DALI_TEST_EQUALS(v.GetY(), 5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(v.GetY(), (uint16_t)5u, TEST_LOCATION);
 
   END_TEST;
 }
@@ -174,14 +174,14 @@ int UtcDaliUint16PairFromFloatVecP(void)
   Dali::Vector2 v2(5.f, 5.f);
 
   Uint16Pair u = Uint16Pair::FromFloatVec2(v2);
-  DALI_TEST_EQUALS(u.GetX(), 5u, TEST_LOCATION);
-  DALI_TEST_EQUALS(u.GetY(), 5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(u.GetX(), (uint16_t)5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(u.GetY(), (uint16_t)5u, TEST_LOCATION);
 
   Dali::Vector3 v3(5.f, 5.f, 5.f);
 
   u = Uint16Pair::FromFloatVec2(v3);
-  DALI_TEST_EQUALS(u.GetX(), 5u, TEST_LOCATION);
-  DALI_TEST_EQUALS(u.GetY(), 5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(u.GetX(), (uint16_t)5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(u.GetY(), (uint16_t)5u, TEST_LOCATION);
 
   END_TEST;
 }
@@ -193,8 +193,8 @@ int UtcDaliUint16PairFromFloatArrayP(void)
   float array[] = {5.f, 5.f};
 
   Uint16Pair u = Uint16Pair::FromFloatArray(array);
-  DALI_TEST_EQUALS(u.GetX(), 5u, TEST_LOCATION);
-  DALI_TEST_EQUALS(u.GetY(), 5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(u.GetX(), (uint16_t)5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(u.GetY(), (uint16_t)5u, TEST_LOCATION);
 
   END_TEST;
 }

@@ -1083,17 +1083,17 @@ int UtcDaliSignalCustomConnectionTracker(void)
   {
     TestSignals::VoidRetNoParamSignal signal;
     DALI_TEST_CHECK( signal.Empty() );
-    DALI_TEST_EQUALS( 0u, customTracker2.GetConnectionCount(), TEST_LOCATION );
+    DALI_TEST_EQUALS( 0u, (unsigned int)customTracker2.GetConnectionCount(), TEST_LOCATION );
 
     signal.Connect( &customTracker2, &TestBasicConnectionTrackerInterface::VoidSlotVoid );
     DALI_TEST_CHECK( ! signal.Empty() );
-    DALI_TEST_EQUALS( 1u, customTracker2.GetConnectionCount(), TEST_LOCATION );
+    DALI_TEST_EQUALS( 1u, (unsigned int)customTracker2.GetConnectionCount(), TEST_LOCATION );
 
     DALI_TEST_EQUALS( customTracker2.mCallbackHandled, false, TEST_LOCATION );
     signal.Emit();
     DALI_TEST_EQUALS( customTracker2.mCallbackHandled, true, TEST_LOCATION );
   }
-  DALI_TEST_EQUALS( 0u, customTracker2.GetConnectionCount(), TEST_LOCATION );
+  DALI_TEST_EQUALS( 0u, (unsigned int)customTracker2.GetConnectionCount(), TEST_LOCATION );
 
   // Test for removing a null callback
   {
@@ -1101,11 +1101,11 @@ int UtcDaliSignalCustomConnectionTracker(void)
 
      TestSignals::VoidRetNoParamSignal signal;
      DALI_TEST_CHECK( signal.Empty() );
-     DALI_TEST_EQUALS( 0u, customTracker3.GetConnectionCount(), TEST_LOCATION );
+     DALI_TEST_EQUALS( 0u, (unsigned int)customTracker3.GetConnectionCount(), TEST_LOCATION );
 
      signal.Connect( &customTracker3, &TestBasicConnectionTrackerInterface::VoidSlotVoid );
      DALI_TEST_CHECK( ! signal.Empty() );
-     DALI_TEST_EQUALS( 1u, customTracker3.GetConnectionCount(), TEST_LOCATION );
+     DALI_TEST_EQUALS( 1u, (unsigned int)customTracker3.GetConnectionCount(), TEST_LOCATION );
      try
      {
        // should assert
@@ -1224,23 +1224,23 @@ int UtcDaliSignalMultipleConnections(void)
   {
     TestSignals::VoidRet1ValueParamSignal tempSignal;
 
-    DALI_TEST_EQUALS( handler4.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( handler5.GetConnectionCount(), 0u, TEST_LOCATION );
-    DALI_TEST_EQUALS( handler6.GetConnectionCount(), 0u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)handler4.GetConnectionCount(), 0u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)handler5.GetConnectionCount(), 0u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)handler6.GetConnectionCount(), 0u, TEST_LOCATION );
 
     tempSignal.Connect( &handler4, &TestSlotHandler::VoidSlotIntValue );
     tempSignal.Connect( &handler5, &TestSlotHandler::VoidSlotIntValue );
     tempSignal.Connect( &handler6, &TestSlotHandler::VoidSlotIntValue );
 
-    DALI_TEST_EQUALS( handler4.GetConnectionCount(), 1u, TEST_LOCATION );
-    DALI_TEST_EQUALS( handler5.GetConnectionCount(), 1u, TEST_LOCATION );
-    DALI_TEST_EQUALS( handler6.GetConnectionCount(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)handler4.GetConnectionCount(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)handler5.GetConnectionCount(), 1u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)handler6.GetConnectionCount(), 1u, TEST_LOCATION );
   }
   // End of tempSignal lifetime
 
-  DALI_TEST_EQUALS( handler4.GetConnectionCount(), 0u, TEST_LOCATION );
-  DALI_TEST_EQUALS( handler5.GetConnectionCount(), 0u, TEST_LOCATION );
-  DALI_TEST_EQUALS( handler6.GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)handler4.GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)handler5.GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)handler6.GetConnectionCount(), 0u, TEST_LOCATION );
   END_TEST;
 }
 
@@ -1334,7 +1334,7 @@ int UtcDaliSignalMultipleConnections3(void)
   {
     TestSignals::VoidRet1ValueParamSignal tempSignal;
 
-    DALI_TEST_EQUALS( handler1.GetConnectionCount(), 0u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)handler1.GetConnectionCount(), 0u, TEST_LOCATION );
     DALI_TEST_EQUALS( handler1.mHandledCount, 0, TEST_LOCATION );
     DALI_TEST_EQUALS( handler1.mIntParam1, 0, TEST_LOCATION );
 
@@ -1342,7 +1342,7 @@ int UtcDaliSignalMultipleConnections3(void)
     tempSignal.Connect( &handler1, &TestSlotHandler::VoidSlotIntValue );
     tempSignal.Connect( &handler1, &TestSlotHandler::VoidDuplicateSlotIntValue );
 
-    DALI_TEST_EQUALS( handler1.GetConnectionCount(), 2u, TEST_LOCATION );
+    DALI_TEST_EQUALS( (unsigned int)handler1.GetConnectionCount(), 2u, TEST_LOCATION );
     DALI_TEST_EQUALS( handler1.mHandledCount, 0, TEST_LOCATION );
 
     tempSignal.Emit( 10 );
@@ -1353,7 +1353,7 @@ int UtcDaliSignalMultipleConnections3(void)
   }
   // End of tempSignal lifetime
 
-  DALI_TEST_EQUALS( handler1.GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)handler1.GetConnectionCount(), 0u, TEST_LOCATION );
   END_TEST;
 }
 
@@ -1570,7 +1570,7 @@ int UtcDaliSignalDisconnectDuringCallback2(void)
   DALI_TEST_CHECK( ! signal.Empty() );
 
   // Odd slots are disconnected
-  DALI_TEST_EQUALS( handler.GetConnectionCount(), 5u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)handler.GetConnectionCount(), 5u, TEST_LOCATION );
   END_TEST;
 }
 
@@ -1666,13 +1666,13 @@ int UtcDaliSignalTestApp01(void)
   button->DownSignal().Connect(&app,&TestApp::OnButtonPress);
 
   // check we have both the button, and the app have 1 connection
-  DALI_TEST_EQUALS( app.GetConnectionCount(), 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( button->DownSignal().GetConnectionCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)app.GetConnectionCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)button->DownSignal().GetConnectionCount(), 1u, TEST_LOCATION );
 
   delete button;  // should automatically destroy the connection
 
   // check we have a 0 connections
-  DALI_TEST_EQUALS( app.GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)app.GetConnectionCount(), 0u, TEST_LOCATION );
 
   END_TEST;
 }
@@ -1687,13 +1687,13 @@ int UtcDaliSignalTestApp02(void)
   button.DownSignal().Connect( app, &TestApp::OnButtonPress);
 
   // check we have a 1 connection
-  DALI_TEST_EQUALS( app->GetConnectionCount(), 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( button.DownSignal().GetConnectionCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)app->GetConnectionCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)button.DownSignal().GetConnectionCount(), 1u, TEST_LOCATION );
 
   delete app;  // should automatically destroy the connection
 
   // check we have a 0 connections
-  DALI_TEST_EQUALS( button.DownSignal().GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)button.DownSignal().GetConnectionCount(), 0u, TEST_LOCATION );
   END_TEST;
 }
 
@@ -1710,13 +1710,13 @@ int UtcDaliSignalTestApp03(void)
   button.DownSignal().Connect( app2, &TestApp::OnButtonPress);
 
     // check we have a 2 connections to the signal
-  DALI_TEST_EQUALS( button.DownSignal().GetConnectionCount(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)button.DownSignal().GetConnectionCount(), 2u, TEST_LOCATION );
 
   // kill the first slot
   delete app1;  // should automatically destroy the connection
 
   // check we have 1 connection left
-  DALI_TEST_EQUALS( button.DownSignal().GetConnectionCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)button.DownSignal().GetConnectionCount(), 1u, TEST_LOCATION );
 
   button.Press();   // emit the signal (to ensure it doesn't seg fault)
 
@@ -1724,7 +1724,7 @@ int UtcDaliSignalTestApp03(void)
   delete app2;  // should automatically destroy the connection
 
   // check we have 1 connection left
-  DALI_TEST_EQUALS( button.DownSignal().GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)button.DownSignal().GetConnectionCount(), 0u, TEST_LOCATION );
 
   END_TEST;
 }
@@ -1742,15 +1742,15 @@ int UtcDaliSignalTestApp04(void)
   button->DownSignal().Connect(&app2,&TestApp::OnButtonPress);
 
   // check the connection counts
-  DALI_TEST_EQUALS( app1.GetConnectionCount(), 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( app2.GetConnectionCount(), 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( button->DownSignal().GetConnectionCount(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)app1.GetConnectionCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)app2.GetConnectionCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)button->DownSignal().GetConnectionCount(), 2u, TEST_LOCATION );
 
   delete button;  // should automatically destroy the connection
 
   // check both slot owners have zero connections
-  DALI_TEST_EQUALS( app1.GetConnectionCount(), 0u, TEST_LOCATION );
-  DALI_TEST_EQUALS( app2.GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)app1.GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)app2.GetConnectionCount(), 0u, TEST_LOCATION );
   END_TEST;
 }
 
@@ -1768,9 +1768,9 @@ int UtcDaliSignalTestApp05(void)
   button2->DownSignal().Connect(&app,&TestApp::OnButtonPress);
 
   // check the connection counts
-  DALI_TEST_EQUALS( app.GetConnectionCount(), 2u, TEST_LOCATION );
-  DALI_TEST_EQUALS( button1->DownSignal().GetConnectionCount(), 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( button2->DownSignal().GetConnectionCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)app.GetConnectionCount(), 2u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)button1->DownSignal().GetConnectionCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)button2->DownSignal().GetConnectionCount(), 1u, TEST_LOCATION );
 
   // make sure both signals emit ok
   button2->Press();
@@ -1782,7 +1782,7 @@ int UtcDaliSignalTestApp05(void)
   delete button1;  // should automatically destroy 1 connection
 
   // check both slot owners have zero connections
-  DALI_TEST_EQUALS( app.GetConnectionCount(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)app.GetConnectionCount(), 1u, TEST_LOCATION );
 
   // check remaining connection still works
   button2->Press();
@@ -1790,7 +1790,7 @@ int UtcDaliSignalTestApp05(void)
 
   // kill the last signal
   delete button2;
-  DALI_TEST_EQUALS( app.GetConnectionCount(), 0u, TEST_LOCATION );
+  DALI_TEST_EQUALS( (unsigned int)app.GetConnectionCount(), 0u, TEST_LOCATION );
   END_TEST;
 }
 

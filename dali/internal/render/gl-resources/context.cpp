@@ -237,6 +237,19 @@ void Context::InitializeGlState()
   // reset viewport, this will be set to something useful when rendering
   mViewPort.x = mViewPort.y = mViewPort.width = mViewPort.height = 0;
 
+  //Initialze vertex attribute cache
+  for( unsigned int i=0; i < MAX_ATTRIBUTE_CACHE_SIZE; ++i )
+  {
+    mVertexAttributeCachedState[ i ] = false;
+    mVertexAttributeCurrentState[ i ] = false;
+  }
+
+  //Initialize bound 2d texture cache
+  for( unsigned int i=0; i < MAX_TEXTURE_UNITS; ++i )
+  {
+    mBound2dTextureId[ i ] = 0;
+  }
+
   mFrameBufferStateCache.Reset();
 }
 

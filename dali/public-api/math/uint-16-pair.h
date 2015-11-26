@@ -78,8 +78,9 @@ public:
   }
 
   /**
-   * @brief Sets the width
-   * @param width to set
+   * @brief Sets the width.
+   * @since DALi version 1.1.13
+   * @param[in] width The x dimension to be stored in this 2-tuple.
    */
   void SetWidth( uint16_t width )
   {
@@ -95,8 +96,9 @@ public:
   }
 
   /**
-   * @brief Sets the height
-   * @param height to set
+   * @brief Sets the height.
+   * @since DALi version 1.1.13
+   * @param[in] height The y dimension to be stored in this 2-tuple.
    */
   void SetHeight( uint16_t height )
   {
@@ -111,11 +113,29 @@ public:
   }
 
   /**
+   * @since DALi version 1.1.14
+   * @param[in] width The x dimension to be stored in this 2-tuple.
+   */
+  void SetX( uint16_t x )
+  {
+    mComponents[0] = x;
+  }
+
+  /**
    * @returns the x dimension stored in this 2-tuple.
    */
   uint16_t GetX()  const
   {
     return mComponents[0];
+  }
+
+  /**
+   * @since DALi version 1.1.14
+   * @param[in] height The y dimension to be stored in this 2-tuple.
+   */
+  void SetY( uint16_t y )
+  {
+    mComponents[1] = y;
   }
 
   /**

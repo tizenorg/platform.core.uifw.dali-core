@@ -1730,6 +1730,11 @@ private: // Implementation
   void FlushVertexAttributeLocations();
 
   /**
+   * Reset the cached internal vertex attribute state
+   */
+  void ResetVertexAttributeState();
+
+  /**
    * Either enables or disables a vertex attribute location in the cache
    * The cahnges won't take affect until FlushVertexAttributeLocations is called
    * @param location attribute location
@@ -1740,7 +1745,7 @@ private: // Implementation
   /**
    * Sets the initial GL state.
    */
-  void InitializeGlState();
+  void ResetGlState();
 
 private: // Data
 

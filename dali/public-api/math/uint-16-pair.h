@@ -109,6 +109,42 @@ public:
   }
 
   /**
+   * @since DALi version 1.1.12
+   * @param[in] width The x dimension to be stored in this 2-tuple.
+   */
+  void SetWidth( uint16_t width )
+  {
+    mComponents[0] = width;
+  }
+
+  /**
+   * @since DALi version 1.1.12
+   * @param[in] height The y dimension to be stored in this 2-tuple.
+   */
+  void SetHeight( uint16_t height )
+  {
+    mComponents[1] = height;
+  }
+
+  /**
+   * @since DALi version 1.1.12
+   * @param[in] width The x dimension to be stored in this 2-tuple.
+   */
+  void SetX( uint16_t width )
+  {
+    mComponents[0] = width;
+  }
+
+  /**
+   * @since DALi version 1.1.12
+   * @param[in] height The y dimension to be stored in this 2-tuple.
+   */
+  void SetY( uint16_t height )
+  {
+    mComponents[1] = height;
+  }
+
+  /**
    * Equality operator.
    */
   bool operator==( const Uint16Pair& rhs ) const

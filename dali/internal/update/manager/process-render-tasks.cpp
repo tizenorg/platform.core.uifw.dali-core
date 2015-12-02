@@ -258,6 +258,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 sortedLayers,
                                 renderTask,
                                 sortingHelper,
+                                renderTask.GetCullMode(),
                                 instructions );
     }
 
@@ -318,6 +319,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 sortedLayers,
                                 renderTask,
                                 sortingHelper,
+                                renderTask.GetCullMode(),
                                 instructions );
     }
 

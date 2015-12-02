@@ -206,7 +206,7 @@ public:
    *
    * @param bufferIndex The buffer to read from.
    * @param origin the world position center of the cubeoid to check.
-   * @param extents The half length of the cubeoid in world co-ordinates in each axis.
+   * @param extents The length of the cubeoid in world co-ordinates in each axis.
    *
    * @return false if the cubeoid lies outside of the frustum.
    */

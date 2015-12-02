@@ -278,11 +278,10 @@ inline int UpdateNodesAndAttachments( Node& node,
     UpdateNodeWorldMatrix( node, nodeDirtyFlags, updateBufferIndex );
   }
 
-  if( node.ResolveVisibility(updateBufferIndex) )
+  if( node.ResolveVisibility( updateBufferIndex ) )
   {
     node.PrepareRender( updateBufferIndex );
   }
-
 
   // if any child node has moved or had its sort modifier changed, layer is not clean and old frame cannot be reused
   // also if node has been deleted, dont reuse old render items

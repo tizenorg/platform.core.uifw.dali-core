@@ -320,35 +320,20 @@ void Renderer::GetReadyAndComplete( bool& ready, bool& complete ) const
   complete = mFinishedResourceAcquisition;
 }
 
-// Called by ProcessRenderTasks after DoPrepareRender
-bool Renderer::IsFullyOpaque( BufferIndex updateBufferIndex, const Node& node ) const
+Renderer::Opacity Renderer::GetOpacity( BufferIndex updateBufferIndex, const Node& node ) const
 {
-  bool opaque = false;
+  Renderer::Opacity opacity = Renderer::TRANSLUCENT;
 
-  if( mMaterial != NULL )
+  if( mMaterial->GetBlendPolicy() == Material::OPAQUE )
   {
-    Material::BlendPolicy blendPolicy = mMaterial->GetBlendPolicy();
-    switch( blendPolicy )
-    {
-      case Material::OPAQUE:
-      {
-        opaque = true;
-        break;
-      }
-      case Material::TRANSPARENT:
-      {
-        opaque = false;
-        break;
-      }
-      case Material::USE_ACTOR_COLOR:
-      {
-        opaque = node.GetWorldColor( updateBufferIndex ).a >= FULLY_OPAQUE;
-        break;
-      }
-    }
+    opacity = Renderer::OPAQUE;
+  }
+  else if( mMaterial->GetBlendPolicy() == Material::USE_ACTOR_COLOR && node.GetWorldColor( updateBufferIndex ).a <= FULLY_TRANSPARENT )
+  {
+    opacity = TRANSPARENT;
   }
 
-  return opaque;
+  return opacity;
 }
 
 void Renderer::ConnectionsChanged( PropertyOwner& object )

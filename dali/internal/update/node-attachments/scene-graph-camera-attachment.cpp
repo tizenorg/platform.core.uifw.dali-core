@@ -19,11 +19,12 @@
 #include <dali/internal/update/node-attachments/scene-graph-camera-attachment.h>
 
 // INTERNAL HEADERS
-#include <dali/public-api/common/dali-common.h>
-#include <dali/internal/update/nodes/node.h>
-#include <dali/internal/update/controllers/scene-controller.h>
-#include <dali/internal/update/resources/resource-manager.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/update/controllers/scene-controller.h>
+#include <dali/internal/update/nodes/node.h>
+#include <dali/internal/update/resources/resource-manager.h>
+#include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/math/math-utils.h>
 
 namespace // unnamed namespace
 {
@@ -462,56 +463,14 @@ bool CameraAttachment::CheckSphereInFrustum( BufferIndex bufferIndex, const Vect
 bool CameraAttachment::CheckAABBInFrustum( BufferIndex bufferIndex, const Vector3& origin, const Vector3& halfExtents )
 {
   const FrustumPlanes& planes = mFrustum[ bufferIndex ];
-  Vector3 tln = origin + Vector3( -halfExtents );
-  Vector3 trn = origin + Vector3( halfExtents.x, -halfExtents.y, -halfExtents.z );
-  Vector3 bln = origin + Vector3( -halfExtents.x, halfExtents.y, -halfExtents.z );
-  Vector3 brn = origin + Vector3( halfExtents.x, halfExtents.y, -halfExtents.z );
-  Vector3 tlf = origin + Vector3( -halfExtents.x, -halfExtents.y, halfExtents.z );
-  Vector3 trf = origin + Vector3( halfExtents.x, -halfExtents.y, halfExtents.z );
-  Vector3 blf = origin + Vector3( -halfExtents.x, halfExtents.y, halfExtents.z );
-  Vector3 brf = origin + Vector3( halfExtents.x, halfExtents.y, halfExtents.z );
-
   for ( uint32_t i = 0; i < 6; ++i )
   {
-    if ( planes.mPlanes[ i ].mDistance + planes.mPlanes[ i ].mNormal.Dot( tln ) >= 0 )
+    Vector3 signFlip(Sign(planes.mPlanes[ i ].mNormal.x), Sign(planes.mPlanes[ i ].mNormal.y), Sign(planes.mPlanes[ i ].mNormal.z));
+    if( planes.mPlanes[ i ].mNormal.Dot( origin + (halfExtents * signFlip) ) > -(planes.mPlanes[ i ].mDistance) )
     {
       continue;
     }
 
-    if ( planes.mPlanes[ i ].mDistance + planes.mPlanes[ i ].mNormal.Dot( trn ) >= 0 )
-    {
-      continue;
-    }
-
-    if ( planes.mPlanes[ i ].mDistance + planes.mPlanes[ i ].mNormal.Dot( bln ) >= 0 )
-    {
-      continue;
-    }
-
-    if ( planes.mPlanes[ i ].mDistance + planes.mPlanes[ i ].mNormal.Dot( brn ) >= 0 )
-    {
-      continue;
-    }
-
-    if ( planes.mPlanes[ i ].mDistance + planes.mPlanes[ i ].mNormal.Dot( tlf ) >= 0 )
-    {
-      continue;
-    }
-
-     if ( planes.mPlanes[ i ].mDistance + planes.mPlanes[ i ].mNormal.Dot( trf ) >= 0 )
-    {
-      continue;
-    }
-
-     if ( planes.mPlanes[ i ].mDistance + planes.mPlanes[ i ].mNormal.Dot( blf ) >= 0 )
-    {
-      continue;
-    }
-
-    if ( planes.mPlanes[ i ].mDistance + planes.mPlanes[ i ].mNormal.Dot( brf ) >= 0 )
-    {
-      continue;
-    }
     return false;
   }
   return true;

@@ -508,7 +508,7 @@ public:
    */
   void CopyPreviousWorldPosition( BufferIndex updateBufferIndex )
   {
-    mWorldPosition.CopyPrevious( updateBufferIndex );
+//    mWorldPosition.CopyPrevious( updateBufferIndex );
   }
 
   /**
@@ -602,7 +602,7 @@ public:
    */
   void CopyPreviousWorldOrientation( BufferIndex updateBufferIndex )
   {
-    mWorldOrientation.CopyPrevious( updateBufferIndex );
+//    mWorldOrientation.CopyPrevious( updateBufferIndex );
   }
 
   /**
@@ -679,7 +679,7 @@ public:
    */
   void CopyPreviousWorldScale( BufferIndex updateBufferIndex )
   {
-    mWorldScale.CopyPrevious( updateBufferIndex );
+//    mWorldScale.CopyPrevious( updateBufferIndex );
   }
 
   /**
@@ -713,15 +713,6 @@ public:
   bool IsScaleInherited() const
   {
     return mInheritScale;
-  }
-
-  /**
-   * Copies the previously used size, if this changed in the previous frame.
-   * @param[in] updateBufferIndex The current update buffer index.
-   */
-  void CopyPreviousSize( BufferIndex updateBufferIndex )
-  {
-    SetSize( updateBufferIndex, GetSize( 1u - updateBufferIndex ) );
   }
 
   /**
@@ -810,7 +801,7 @@ public:
    */
   void CopyPreviousWorldColor( BufferIndex updateBufferIndex )
   {
-    mWorldColor.CopyPrevious( updateBufferIndex );
+//    mWorldColor.CopyPrevious( updateBufferIndex );
   }
 
   /**
@@ -901,7 +892,7 @@ public:
    */
   void CopyPreviousWorldMatrix( BufferIndex updateBufferIndex )
   {
-    mWorldMatrix.CopyPrevious( updateBufferIndex );
+//    mWorldMatrix.CopyPrevious( updateBufferIndex );
   }
 
   /**

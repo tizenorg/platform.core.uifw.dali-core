@@ -41,26 +41,6 @@
 #include <dali/internal/render/renderers/render-sampler.h>
 #include <dali/internal/render/shaders/program-controller.h>
 
-// Uncomment the next line to enable frame snapshot logging
-//#define FRAME_SNAPSHOT_LOGGING
-
-#ifdef FRAME_SNAPSHOT_LOGGING
-
-
-namespace // unnamed namespace
-{
-unsigned int SNAPSHOT_FRAME_FREQUENCY = 1200; // dump every 20-30 seconds
-} // unnamed namespace
-
-#define SET_SNAPSHOT_FRAME_LOG_LEVEL \
-  DALI_LOG_FILTER_SET_LEVEL(Context::gGlLogFilter, ((GetFrameCount() % SNAPSHOT_FRAME_FREQUENCY)==5 ? Debug::General : Debug::Concise));
-
-#else // FRAME_SNAPSHOT_LOGGING
-
-#define SET_SNAPSHOT_FRAME_LOG_LEVEL
-
-#endif // FRAME_SNAPSHOT_LOGGING
-
 namespace Dali
 {
 
@@ -459,9 +439,6 @@ bool RenderManager::Render( Integration::RenderStatus& status )
 
   // Increment the frame count at the beginning of each frame
   ++(mImpl->frameCount);
-  mImpl->context.SetFrameCount(mImpl->frameCount);
-  mImpl->context.ClearRendererCount();
-  mImpl->context.ClearCulledCount();
 
   PERF_MONITOR_START(PerformanceMonitor::DRAW_NODES);
 

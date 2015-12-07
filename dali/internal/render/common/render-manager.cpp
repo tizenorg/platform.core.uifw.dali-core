@@ -459,9 +459,6 @@ bool RenderManager::Render( Integration::RenderStatus& status )
 
   // Increment the frame count at the beginning of each frame
   ++(mImpl->frameCount);
-  mImpl->context.SetFrameCount(mImpl->frameCount);
-  mImpl->context.ClearRendererCount();
-  mImpl->context.ClearCulledCount();
 
   PERF_MONITOR_START(PerformanceMonitor::DRAW_NODES);
 

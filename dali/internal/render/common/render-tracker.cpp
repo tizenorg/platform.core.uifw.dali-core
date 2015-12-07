@@ -44,7 +44,7 @@ RenderTracker::RenderTracker()
 RenderTracker::~RenderTracker()
 {
   TRACKER_LOG(Debug::Verbose);
-  if( mSyncObject )
+  if( mGlSyncAbstraction && mSyncObject )
   {
     mGlSyncAbstraction->DestroySyncObject( mSyncObject );
     mSyncObject = NULL;

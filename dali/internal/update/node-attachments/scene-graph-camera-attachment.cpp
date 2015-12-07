@@ -356,7 +356,7 @@ unsigned int CameraAttachment::UpdateViewMatrix( BufferIndex updateBufferIndex, 
     if( COPY_PREVIOUS_MATRIX == mUpdateViewFlag )
     {
       // The projection matrix was updated in the previous frame; copy it
-      mViewMatrix.CopyPrevious( updateBufferIndex );
+//      mViewMatrix.CopyPrevious( updateBufferIndex );
     }
     else // UPDATE_COUNT == mUpdateViewFlag
     {
@@ -493,7 +493,7 @@ unsigned int CameraAttachment::UpdateProjection( BufferIndex updateBufferIndex )
     if ( COPY_PREVIOUS_MATRIX == mUpdateProjectionFlag )
     {
       // The projection matrix was updated in the previous frame; copy it
-      mProjectionMatrix.CopyPrevious( updateBufferIndex );
+//      mProjectionMatrix.CopyPrevious( updateBufferIndex );
     }
     else // UPDATE_COUNT == mUpdateProjectionFlag
     {

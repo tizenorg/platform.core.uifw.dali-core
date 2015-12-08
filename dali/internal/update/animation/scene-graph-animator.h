@@ -833,7 +833,7 @@ struct RotateToQuaternion : public AnimatorFunctionBase
 
   Quaternion operator()(float alpha, const Quaternion& rotation)
   {
-    return Quaternion::Slerp(rotation, mTarget, alpha);
+    return Quaternion(rotation + ((mTarget - rotation) * alpha));
   }
 
   Quaternion mTarget;

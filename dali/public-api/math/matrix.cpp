@@ -551,53 +551,34 @@ void Matrix::SetTransformComponents(const Vector3&    scale,
                                     const Quaternion& rotation,
                                     const Vector3&    translation )
 {
-  if( rotation.IsIdentity() )
-  {
-    mMatrix[0] = scale.x;
-    mMatrix[1] = 0.0f;
-    mMatrix[2] = 0.0f;
-    mMatrix[3] = 0.0f;
+  MATH_INCREASE_COUNTER(PerformanceMonitor::MATRIX_MULTIPLYS);
+  MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,27); // 27 = 9+18
 
-    mMatrix[4] = 0.0f;
-    mMatrix[5] = scale.y;
-    mMatrix[6] = 0.0f;
-    mMatrix[7] = 0.0f;
+  const float xx = rotation.mVector.x * rotation.mVector.x;
+  const float yy = rotation.mVector.y * rotation.mVector.y;
+  const float zz = rotation.mVector.z * rotation.mVector.z;
+  const float xy = rotation.mVector.x * rotation.mVector.y;
+  const float xz = rotation.mVector.x * rotation.mVector.z;
+  const float wx = rotation.mVector.w * rotation.mVector.x;
+  const float wy = rotation.mVector.w * rotation.mVector.y;
+  const float wz = rotation.mVector.w * rotation.mVector.z;
+  const float yz = rotation.mVector.y * rotation.mVector.z;
 
-    mMatrix[8] = 0.0f;
-    mMatrix[9] = 0.0f;
-    mMatrix[10]= scale.z;
-    mMatrix[11]= 0.0f;
-  }
-  else
-  {
-    MATH_INCREASE_COUNTER(PerformanceMonitor::MATRIX_MULTIPLYS);
-    MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,27); // 27 = 9+18
+  mMatrix[0] = (scale.x * (1.0f - 2.0f * (yy + zz)));
+  mMatrix[1] = (scale.x * (       2.0f * (xy + wz)));
+  mMatrix[2] = (scale.x * (       2.0f * (xz - wy)));
+  mMatrix[3] = 0.0f;
 
-    const float xx = rotation.mVector.x * rotation.mVector.x;
-    const float yy = rotation.mVector.y * rotation.mVector.y;
-    const float zz = rotation.mVector.z * rotation.mVector.z;
-    const float xy = rotation.mVector.x * rotation.mVector.y;
-    const float xz = rotation.mVector.x * rotation.mVector.z;
-    const float wx = rotation.mVector.w * rotation.mVector.x;
-    const float wy = rotation.mVector.w * rotation.mVector.y;
-    const float wz = rotation.mVector.w * rotation.mVector.z;
-    const float yz = rotation.mVector.y * rotation.mVector.z;
+  mMatrix[4] = (scale.y * (       2.0f * (xy - wz)));
+  mMatrix[5] = (scale.y * (1.0f - 2.0f * (xx + zz)));
+  mMatrix[6] = (scale.y * (       2.0f * (yz + wx)));
+  mMatrix[7] = 0.0f;
 
-    mMatrix[0] = (scale.x * (1.0f - 2.0f * (yy + zz)));
-    mMatrix[1] = (scale.x * (       2.0f * (xy + wz)));
-    mMatrix[2] = (scale.x * (       2.0f * (xz - wy)));
-    mMatrix[3] = 0.0f;
+  mMatrix[8] = (scale.z * (       2.0f * (xz + wy)));
+  mMatrix[9] = (scale.z * (       2.0f * (yz - wx)));
+  mMatrix[10]= (scale.z * (1.0f - 2.0f * (xx + yy)));
+  mMatrix[11]= 0.0f;
 
-    mMatrix[4] = (scale.y * (       2.0f * (xy - wz)));
-    mMatrix[5] = (scale.y * (1.0f - 2.0f * (xx + zz)));
-    mMatrix[6] = (scale.y * (       2.0f * (yz + wx)));
-    mMatrix[7] = 0.0f;
-
-    mMatrix[8] = (scale.z * (       2.0f * (xz + wy)));
-    mMatrix[9] = (scale.z * (       2.0f * (yz - wx)));
-    mMatrix[10]= (scale.z * (1.0f - 2.0f * (xx + yy)));
-    mMatrix[11]= 0.0f;
-  }
   // apply translation
   mMatrix[12] = translation.x;
   mMatrix[13] = translation.y;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,7 @@
 
 namespace // unnamed namespace
 {
-const unsigned int UPDATE_COUNT        = 2u;  // Update projection or view matrix this many frames after a change
-const unsigned int COPY_PREVIOUS_MATRIX = 1u; // Copy view or projection matrix from previous frame
+const unsigned int UPDATE_COUNT = 1u;  // Update projection or view matrix this many frames after a change
 }
 
 namespace Dali
@@ -291,7 +290,7 @@ const Matrix& CameraAttachment::GetViewMatrix( BufferIndex bufferIndex ) const
 
 const Matrix& CameraAttachment::GetInverseViewProjectionMatrix( BufferIndex bufferIndex ) const
 {
-  return mInverseViewProjection[ bufferIndex ];
+  return mInverseViewProjection;
 }
 
 const PropertyInputImpl* CameraAttachment::GetProjectionMatrix() const
@@ -306,7 +305,7 @@ const PropertyInputImpl* CameraAttachment::GetViewMatrix() const
 
 void CameraAttachment::Update( BufferIndex updateBufferIndex, const Node& owningNode, int nodeDirtyFlags )
 {
-  // if owning node has changes in world position we need to update camera for next 2 frames
+  // if owning node has changes in world position we need to update camera
   if( nodeDirtyFlags & TransformFlag )
   {
     mUpdateViewFlag = UPDATE_COUNT;
@@ -325,21 +324,14 @@ void CameraAttachment::Update( BufferIndex updateBufferIndex, const Node& owning
   unsigned int projectionUpdateCount = UpdateProjection( updateBufferIndex );
 
   // if model or view matrix changed we need to either recalculate the inverse VP or copy previous
-  if( viewUpdateCount > COPY_PREVIOUS_MATRIX || projectionUpdateCount > COPY_PREVIOUS_MATRIX )
+  if( viewUpdateCount == UPDATE_COUNT || projectionUpdateCount == UPDATE_COUNT )
   {
     // either has actually changed so recalculate
-    Matrix::Multiply( mInverseViewProjection[ updateBufferIndex ], mViewMatrix[ updateBufferIndex ], mProjectionMatrix[ updateBufferIndex ] );
+    Matrix::Multiply( mInverseViewProjection, mViewMatrix[ updateBufferIndex ], mProjectionMatrix[ updateBufferIndex ] );
     UpdateFrustum( updateBufferIndex );
 
     // ignore the error, if the view projection is incorrect (non inversible) then you will have tough times anyways
-    static_cast< void >( mInverseViewProjection[ updateBufferIndex ].Invert() );
-  }
-  else if( viewUpdateCount == COPY_PREVIOUS_MATRIX || projectionUpdateCount == COPY_PREVIOUS_MATRIX )
-  {
-    // neither has actually changed, but we might copied previous frames value so need to
-    // copy the previous inverse and frustum as well
-    mInverseViewProjection[updateBufferIndex] = mInverseViewProjection[updateBufferIndex ? 0 : 1];
-    mFrustum[ updateBufferIndex ] = mFrustum[ updateBufferIndex ? 0 : 1 ];
+    static_cast< void >( mInverseViewProjection.Invert() );
   }
 }
 
@@ -353,35 +345,26 @@ unsigned int CameraAttachment::UpdateViewMatrix( BufferIndex updateBufferIndex, 
   unsigned int retval( mUpdateViewFlag );
   if( 0u != mUpdateViewFlag )
   {
-    if( COPY_PREVIOUS_MATRIX == mUpdateViewFlag )
+    switch( mType )
     {
-      // The projection matrix was updated in the previous frame; copy it
-      mViewMatrix.CopyPrevious( updateBufferIndex );
-    }
-    else // UPDATE_COUNT == mUpdateViewFlag
-    {
-      switch( mType )
-      {
-        // camera orientation taken from node - i.e. look in abitrary, unconstrained direction
-        case Dali::Camera::FREE_LOOK:
-          {
-          Matrix& viewMatrix = mViewMatrix.Get( updateBufferIndex );
-          viewMatrix.SetInverseTransformComponents( Vector3::ONE, owningNode.GetWorldOrientation( updateBufferIndex ),
-                                                    owningNode.GetWorldPosition( updateBufferIndex ) );
-          mViewMatrix.SetDirty( updateBufferIndex );
-          break;
-        }
-          // camera orientation constrained to look at a target
-        case Dali::Camera::LOOK_AT_TARGET:
-          {
-          Matrix& viewMatrix = mViewMatrix.Get( updateBufferIndex );
-          LookAt( viewMatrix, owningNode.GetWorldPosition( updateBufferIndex ), mTargetPosition,
-                  owningNode.GetWorldOrientation( updateBufferIndex ).Rotate( Vector3::YAXIS ) );
-          mViewMatrix.SetDirty( updateBufferIndex );
-          break;
-        }
+      // camera orientation taken from node - i.e. look in abitrary, unconstrained direction
+      case Dali::Camera::FREE_LOOK:
+        {
+        Matrix& viewMatrix = mViewMatrix.Get( updateBufferIndex );
+        viewMatrix.SetInverseTransformComponents( Vector3::ONE, owningNode.GetWorldOrientation( updateBufferIndex ),
+                                                  owningNode.GetWorldPosition( updateBufferIndex ) );
+        break;
+      }
+        // camera orientation constrained to look at a target
+      case Dali::Camera::LOOK_AT_TARGET:
+        {
+        Matrix& viewMatrix = mViewMatrix.Get( updateBufferIndex );
+        LookAt( viewMatrix, owningNode.GetWorldPosition( updateBufferIndex ), mTargetPosition,
+                owningNode.GetWorldOrientation( updateBufferIndex ).Rotate( Vector3::YAXIS ) );
+        break;
       }
     }
+    mViewMatrix.SetDirty( updateBufferIndex );
     --mUpdateViewFlag;
   }
   return retval;
@@ -395,7 +378,7 @@ void CameraAttachment::UpdateFrustum( BufferIndex updateBufferIndex, bool normal
   Matrix::Multiply( clipMatrix, mViewMatrix[ updateBufferIndex ], mProjectionMatrix[ updateBufferIndex ] );
 
   const float* cm = clipMatrix.AsFloat();
-  FrustumPlanes& planes = mFrustum[ updateBufferIndex ];
+  FrustumPlanes& planes = mFrustum;
 
   // Left
   planes.mPlanes[ 0 ].mNormal.x = cm[ 3 ]  + cm[ 0 ]; // column 4 + column 1
@@ -453,25 +436,12 @@ void CameraAttachment::UpdateFrustum( BufferIndex updateBufferIndex, bool normal
       planes.mSign[i] = Vector3( Sign(planes.mPlanes[ i ].mNormal.x), Sign(planes.mPlanes[ i ].mNormal.y), Sign(planes.mPlanes[ i ].mNormal.z) );
     }
   }
-  mFrustum[ updateBufferIndex ? 0 : 1 ] = planes;
-}
-
-bool CameraAttachment::CheckSphereInFrustum( BufferIndex bufferIndex, const Vector3& origin, float radius )
-{
-  const FrustumPlanes& planes = mFrustum[ bufferIndex ];
-  for ( uint32_t i = 0; i < 6; ++i )
-  {
-    if ( ( planes.mPlanes[ i ].mDistance + planes.mPlanes[ i ].mNormal.Dot( origin ) ) < -radius )
-    {
-      return false;
-    }
-  }
-  return true;
+  mFrustum = planes;
 }
 
 bool CameraAttachment::CheckAABBInFrustum( BufferIndex bufferIndex, const Vector3& origin, const Vector3& halfExtents )
 {
-  const FrustumPlanes& planes = mFrustum[ bufferIndex ];
+  const FrustumPlanes& planes = mFrustum;
   for ( uint32_t i = 0; i < 6; ++i )
   {
     if( planes.mPlanes[ i ].mNormal.Dot( origin + (halfExtents * planes.mSign[i]) ) > -(planes.mPlanes[ i ].mDistance) )
@@ -490,41 +460,32 @@ unsigned int CameraAttachment::UpdateProjection( BufferIndex updateBufferIndex )
   // Early-exit if no update required
   if ( 0u != mUpdateProjectionFlag )
   {
-    if ( COPY_PREVIOUS_MATRIX == mUpdateProjectionFlag )
+    switch( mProjectionMode )
     {
-      // The projection matrix was updated in the previous frame; copy it
-      mProjectionMatrix.CopyPrevious( updateBufferIndex );
-    }
-    else // UPDATE_COUNT == mUpdateProjectionFlag
-    {
-      switch( mProjectionMode )
+      case Dali::Camera::PERSPECTIVE_PROJECTION:
       {
-        case Dali::Camera::PERSPECTIVE_PROJECTION:
-        {
-          Matrix &projectionMatrix = mProjectionMatrix.Get(updateBufferIndex);
-          Perspective( projectionMatrix,
-                       mFieldOfView,
-                       mAspectRatio,
-                       mNearClippingPlane,
-                       mFarClippingPlane,
-                       mInvertYAxis,
-                       mStereoBias );
-          break;
-        }
-        case Dali::Camera::ORTHOGRAPHIC_PROJECTION:
-        {
-          Matrix &projectionMatrix = mProjectionMatrix.Get(updateBufferIndex);
-          Orthographic( projectionMatrix,
-                        mLeftClippingPlane,   mRightClippingPlane,
-                        mBottomClippingPlane, mTopClippingPlane,
-                        mNearClippingPlane,   mFarClippingPlane,
-                        mInvertYAxis );
-          break;
-        }
+        Matrix &projectionMatrix = mProjectionMatrix.Get(updateBufferIndex);
+        Perspective( projectionMatrix,
+                     mFieldOfView,
+                     mAspectRatio,
+                     mNearClippingPlane,
+                     mFarClippingPlane,
+                     mInvertYAxis,
+                     mStereoBias );
+        break;
       }
-
-      mProjectionMatrix.SetDirty(updateBufferIndex);
+      case Dali::Camera::ORTHOGRAPHIC_PROJECTION:
+      {
+        Matrix &projectionMatrix = mProjectionMatrix.Get(updateBufferIndex);
+        Orthographic( projectionMatrix,
+                      mLeftClippingPlane,   mRightClippingPlane,
+                      mBottomClippingPlane, mTopClippingPlane,
+                      mNearClippingPlane,   mFarClippingPlane,
+                      mInvertYAxis );
+        break;
+      }
     }
+    mProjectionMatrix.SetDirty(updateBufferIndex);
     --mUpdateProjectionFlag;
   }
   return retval;

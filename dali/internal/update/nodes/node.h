@@ -860,16 +860,7 @@ public:
    */
   const Matrix& GetWorldMatrix( BufferIndex bufferIndex ) const
   {
-    return mWorldMatrix[ bufferIndex ];
-  }
-
-  /**
-   * Copy previous frames world matrix
-   * @param[in] updateBufferIndex The current update buffer index.
-   */
-  void CopyPreviousWorldMatrix( BufferIndex updateBufferIndex )
-  {
-    mWorldMatrix.CopyPrevious( updateBufferIndex );
+    return mWorldMatrix.Get( bufferIndex );
   }
 
   /**

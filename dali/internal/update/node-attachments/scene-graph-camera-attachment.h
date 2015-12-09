@@ -314,8 +314,8 @@ public:  // PROPERTIES
   InheritedMatrix mViewMatrix;           ///< The viewMatrix; this is double buffered for input handling.
   InheritedMatrix mProjectionMatrix;     ///< The projectionMatrix; this is double buffered for input handling.
 
-  DoubleBuffered< FrustumPlanes > mFrustum;               ///< Clipping frustum; double buffered for input handling
-  DoubleBuffered< Matrix >        mInverseViewProjection; ///< Inverted viewprojection; double buffered for input handling
+  FrustumPlanes mFrustum;               ///< Clipping frustum
+  Matrix        mInverseViewProjection; ///< Inverted viewprojection
 
 };
 

@@ -163,9 +163,9 @@ public:
   {
     if (CLEAN_FLAG != mDirtyFlags)
     {
-      mValue[updateBufferIndex] = mBaseValue;
+      mValue = mBaseValue;
 
-      mDirtyFlags = ( mDirtyFlags >> 1 );
+      mDirtyFlags = CLEAN_FLAG;
     }
   }
 
@@ -174,7 +174,7 @@ public:
    */
   virtual const bool& GetBoolean( BufferIndex bufferIndex ) const
   {
-    return mValue[ bufferIndex ];
+    return mValue;
   }
 
   /**
@@ -186,9 +186,9 @@ public:
   void Set(BufferIndex bufferIndex, bool value)
   {
     // check if the value actually changed to avoid dirtying nodes unnecessarily
-    if( mValue[bufferIndex] != value )
+    if( mValue != value )
     {
-      mValue[bufferIndex] = value;
+      mValue = value;
 
       OnSet();
     }
@@ -203,9 +203,9 @@ public:
   {
     // check if the value actually changed to avoid dirtying nodes unnecessarily
     // false + false does not change value, true + false does not either
-    if( delta && !mValue[bufferIndex] )
+    if( delta && !mValue )
     {
-      mValue[bufferIndex] += delta;
+      mValue += delta;
 
       OnSet();
     }
@@ -214,37 +214,9 @@ public:
   /**
    * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
    */
-  bool& Get(size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
-   */
   const bool& Get(size_t bufferIndex) const
   {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  bool& operator[](size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  const bool& operator[](size_t bufferIndex) const
-  {
-    return mValue[bufferIndex];
+    return mValue;
   }
 
   /**
@@ -258,7 +230,7 @@ public:
     if( mBaseValue != value )
     {
       mBaseValue = value;
-      mValue[bufferIndex] = value;
+      mValue = value;
 
       OnBake();
     }
@@ -271,8 +243,8 @@ public:
    */
   void BakeRelative(BufferIndex bufferIndex, bool delta)
   {
-    mValue[bufferIndex] += delta;
-    mBaseValue = mValue[bufferIndex];
+    mValue += delta;
+    mBaseValue = mValue;
 
     OnBake();
   }
@@ -287,8 +259,8 @@ private:
 
 private:
 
-  DoubleBuffered<bool> mValue; ///< The double-buffered property value
-  bool mBaseValue;             ///< Reset to this base value at the beginning of each frame
+  bool mValue;     ///< The property value, no need to double buffer as reads and writes are atomic by CPU memory architecture
+  bool mBaseValue; ///< Reset to this base value at the beginning of each frame
 
 };
 
@@ -333,9 +305,9 @@ public:
   {
     if (CLEAN_FLAG != mDirtyFlags)
     {
-      mValue[updateBufferIndex] = mBaseValue;
+      mValue = mBaseValue;
 
-      mDirtyFlags = ( mDirtyFlags >> 1 );
+      mDirtyFlags = CLEAN_FLAG;
     }
   }
 
@@ -344,7 +316,7 @@ public:
    */
   virtual const int& GetInteger( BufferIndex bufferIndex ) const
   {
-    return mValue[ bufferIndex ];
+    return mValue;
   }
 
   /**
@@ -355,7 +327,7 @@ public:
    */
   void Set(BufferIndex bufferIndex, int value)
   {
-    mValue[bufferIndex] = value;
+    mValue = value;
 
     OnSet();
   }
@@ -367,7 +339,7 @@ public:
    */
   void SetRelative(BufferIndex bufferIndex, int delta)
   {
-    mValue[bufferIndex] = mValue[bufferIndex] + delta;
+    mValue += delta;
 
     OnSet();
   }
@@ -375,37 +347,9 @@ public:
   /**
    * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
    */
-  int& Get(size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
-   */
   const int& Get(size_t bufferIndex) const
   {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  int& operator[](size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  const int& operator[](size_t bufferIndex) const
-  {
-    return mValue[bufferIndex];
+    return mValue;
   }
 
   /**
@@ -415,8 +359,8 @@ public:
    */
   void Bake(BufferIndex bufferIndex, int value)
   {
-    mValue[bufferIndex] = value;
-    mBaseValue = mValue[bufferIndex];
+    mValue = value;
+    mBaseValue = value;
 
     OnBake();
   }
@@ -428,8 +372,8 @@ public:
    */
   void BakeRelative(BufferIndex bufferIndex, int delta)
   {
-    mValue[bufferIndex] = mValue[bufferIndex] + delta;
-    mBaseValue = mValue[bufferIndex];
+    mValue += delta;
+    mBaseValue = mValue;
 
     OnBake();
   }
@@ -441,9 +385,8 @@ public:
    */
   void SetInitial(const int& value)
   {
-    mValue[0]  = value;
-    mValue[1]  = mValue[0];
-    mBaseValue = mValue[0];
+    mValue     = value;
+    mBaseValue = value;
   }
 
   /**
@@ -453,9 +396,8 @@ public:
    */
   void SetInitialRelative(const int& delta)
   {
-    mValue[0] = mValue[0] + delta;
-    mValue[1] = mValue[0];
-    mBaseValue = mValue[0];
+    mValue += delta;
+    mBaseValue = mValue;
   }
 
 private:
@@ -468,8 +410,8 @@ private:
 
 private:
 
-  DoubleBuffered<int> mValue; ///< The double-buffered property value
-  int mBaseValue;             ///< Reset to this base value at the beginning of each frame
+  int mValue;     ///< The property value, no need to double buffer as reads and writes are atomic by CPU memory architecture
+  int mBaseValue; ///< Reset to this base value at the beginning of each frame
 
 };
 
@@ -513,9 +455,9 @@ public:
   {
     if (CLEAN_FLAG != mDirtyFlags)
     {
-      mValue[updateBufferIndex] = mBaseValue;
+      mValue = mBaseValue;
 
-      mDirtyFlags = ( mDirtyFlags >> 1 );
+      mDirtyFlags = CLEAN_FLAG;
     }
   }
 
@@ -524,7 +466,7 @@ public:
    */
   virtual const float& GetFloat( BufferIndex bufferIndex ) const
   {
-    return mValue[ bufferIndex ];
+    return mValue;
   }
 
   /**
@@ -535,7 +477,7 @@ public:
    */
   void Set(BufferIndex bufferIndex, float value)
   {
-    mValue[bufferIndex] = value;
+    mValue = value;
 
     OnSet();
   }
@@ -547,7 +489,7 @@ public:
    */
   void SetRelative(BufferIndex bufferIndex, float delta)
   {
-    mValue[bufferIndex] = mValue[bufferIndex] + delta;
+    mValue += delta;
 
     OnSet();
   }
@@ -555,37 +497,9 @@ public:
   /**
    * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
    */
-  float& Get(size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
-   */
   const float& Get(size_t bufferIndex) const
   {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  float& operator[](size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  const float& operator[](size_t bufferIndex) const
-  {
-    return mValue[bufferIndex];
+    return mValue;
   }
 
   /**
@@ -595,8 +509,8 @@ public:
    */
   void Bake(BufferIndex bufferIndex, float value)
   {
-    mValue[bufferIndex] = value;
-    mBaseValue = mValue[bufferIndex];
+    mValue     = value;
+    mBaseValue = value;
 
     OnBake();
   }
@@ -608,8 +522,8 @@ public:
    */
   void BakeRelative(BufferIndex bufferIndex, float delta)
   {
-    mValue[bufferIndex] = mValue[bufferIndex] + delta;
-    mBaseValue = mValue[bufferIndex];
+    mValue    += delta;
+    mBaseValue = mValue;
 
     OnBake();
   }
@@ -621,9 +535,8 @@ public:
    */
   void SetInitial(const float& value)
   {
-    mValue[0]  = value;
-    mValue[1]  = mValue[0];
-    mBaseValue = mValue[0];
+    mValue     = value;
+    mBaseValue = value;
   }
 
   /**
@@ -633,9 +546,8 @@ public:
    */
   void SetInitialRelative(const float& delta)
   {
-    mValue[0] = mValue[0] + delta;
-    mValue[1] = mValue[0];
-    mBaseValue = mValue[0];
+    mValue    += delta;
+    mBaseValue = mValue;
   }
 
 private:
@@ -648,8 +560,9 @@ private:
 
 private:
 
-  DoubleBuffered<float> mValue; ///< The double-buffered property value
-  float mBaseValue;             ///< Reset to this base value at the beginning of each frame
+  float mValue;     ///< The property value, no need to double buffer as reads and writes are atomic by CPU memory architecture
+  float mBaseValue; ///< Reset to this base value at the beginning of each frame
+
 };
 
 /**
@@ -784,35 +697,7 @@ public:
   /**
    * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
    */
-  Vector2& Get(size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
-   */
   const Vector2& Get(size_t bufferIndex) const
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  Vector2& operator[](size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  const Vector2& operator[](size_t bufferIndex) const
   {
     return mValue[bufferIndex];
   }
@@ -1076,35 +961,7 @@ public:
   /**
    * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
    */
-  Vector3& Get(size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
-   */
   const Vector3& Get(size_t bufferIndex) const
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  Vector3& operator[](size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  const Vector3& operator[](size_t bufferIndex) const
   {
     return mValue[bufferIndex];
   }
@@ -1423,35 +1280,7 @@ public:
   /**
    * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
    */
-  Vector4& Get(size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
-   */
   const Vector4& Get(size_t bufferIndex) const
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  Vector4& operator[](size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  const Vector4& operator[](size_t bufferIndex) const
   {
     return mValue[bufferIndex];
   }
@@ -1703,35 +1532,7 @@ public:
   /**
    * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
    */
-  Quaternion& Get(size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
-   */
   const Quaternion& Get(size_t bufferIndex) const
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  Quaternion& operator[](size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  const Quaternion& operator[](size_t bufferIndex) const
   {
     return mValue[bufferIndex];
   }
@@ -1861,35 +1662,7 @@ public:
   /**
    * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
    */
-  Matrix& Get(size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
-   */
   const Matrix& Get(size_t bufferIndex) const
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  Matrix& operator[](size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  const Matrix& operator[](size_t bufferIndex) const
   {
     return mValue[bufferIndex];
   }
@@ -2019,35 +1792,7 @@ public:
   /**
    * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
    */
-  Matrix3& Get(size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * @copydoc Dali::SceneGraph::AnimatableProperty::Get()
-   */
   const Matrix3& Get(size_t bufferIndex) const
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  Matrix3& operator[](size_t bufferIndex)
-  {
-    return mValue[bufferIndex];
-  }
-
-  /**
-   * Retrieve the property value.
-   * @param[in] bufferIndex The buffer to read.
-   * @return The property value.
-   */
-  const Matrix3& operator[](size_t bufferIndex) const
   {
     return mValue[bufferIndex];
   }

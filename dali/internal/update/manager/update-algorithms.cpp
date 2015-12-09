@@ -134,7 +134,7 @@ inline void UpdateNodeTransformValues( Node& node, int& nodeDirtyFlags, BufferIn
   {
     // With a non-central anchor-point, the world rotation and scale affects the world position.
     // Therefore the world rotation & scale must be updated before the world position.
-    if( node.IsOrientationInherited() )
+    if( DALI_LIKELY( node.IsOrientationInherited() ) )
     {
       node.InheritWorldOrientation( updateBufferIndex );
     }
@@ -143,7 +143,7 @@ inline void UpdateNodeTransformValues( Node& node, int& nodeDirtyFlags, BufferIn
       node.SetWorldOrientation( updateBufferIndex, node.GetOrientation( updateBufferIndex ) );
     }
 
-    if( node.IsScaleInherited() )
+    if( DALI_LIKELY( node.IsScaleInherited() ) )
     {
       node.InheritWorldScale( updateBufferIndex );
     }
@@ -172,10 +172,6 @@ inline void UpdateNodeWorldMatrix( Node &node, int nodeDirtyFlags, BufferIndex u
                          node.GetWorldScale(updateBufferIndex),
                          node.GetWorldOrientation(updateBufferIndex),
                          node.GetWorldPosition(updateBufferIndex) );
-  }
-  else
-  {
-    node.CopyPreviousWorldMatrix( updateBufferIndex );
   }
 }
 

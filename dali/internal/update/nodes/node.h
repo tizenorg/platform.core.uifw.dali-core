@@ -387,7 +387,7 @@ public:
    */
   const Vector3& GetPosition(BufferIndex bufferIndex) const
   {
-    return mPosition[bufferIndex];
+    return mPosition.Get( bufferIndex );
   }
 
   /**
@@ -430,7 +430,7 @@ public:
 
         finalPosition += mParentOrigin.mValue;
         finalPosition *= mParent->GetSize(updateBufferIndex);
-        finalPosition += mPosition[updateBufferIndex];
+        finalPosition += mPosition.Get(updateBufferIndex);
         finalPosition *= mParent->GetWorldScale(updateBufferIndex);
         const Quaternion& parentWorldOrientation = mParent->GetWorldOrientation(updateBufferIndex);
         if(!parentWorldOrientation.IsIdentity())
@@ -447,27 +447,28 @@ public:
             ( fabsf( localOffset.y ) >= Math::MACHINE_EPSILON_0 ) ||
             ( fabsf( localOffset.z ) >= Math::MACHINE_EPSILON_0 ) )
         {
-          localOffset *= mSize[updateBufferIndex];
+          localOffset *= mSize.Get( updateBufferIndex );
 
-          Vector3 scale = mWorldScale[updateBufferIndex];
+          Vector3 scale = mWorldScale.Get( updateBufferIndex );
+          const Vector3& localScale = mScale.Get( updateBufferIndex );
 
           // Pick up sign of local scale
-          if (mScale[updateBufferIndex].x < 0.0f)
+          if ( localScale.x < 0.0f )
           {
             scale.x = -scale.x;
           }
-          if (mScale[updateBufferIndex].y < 0.0f)
+          if ( localScale.y < 0.0f )
           {
             scale.y = -scale.y;
           }
-          if (mScale[updateBufferIndex].z < 0.0f)
+          if ( localScale.z < 0.0f )
           {
             scale.z = -scale.z;
           }
 
           // If the anchor-point is not central, then position is affected by the local orientation & scale
           localOffset *= scale;
-          const Quaternion& localWorldOrientation = mWorldOrientation[updateBufferIndex];
+          const Quaternion& localWorldOrientation = mWorldOrientation.Get( updateBufferIndex );
           if(!localWorldOrientation.IsIdentity())
           {
             localOffset *= localWorldOrientation;
@@ -482,7 +483,7 @@ public:
       case USE_PARENT_POSITION_PLUS_LOCAL_POSITION :
       {
         // copy parents position plus local transform
-        mWorldPosition.Set( updateBufferIndex, mParent->GetWorldPosition(updateBufferIndex) + mPosition[updateBufferIndex] );
+        mWorldPosition.Set( updateBufferIndex, mParent->GetWorldPosition(updateBufferIndex) + mPosition.Get(updateBufferIndex) );
         break;
       }
       case USE_PARENT_POSITION :
@@ -494,7 +495,7 @@ public:
       case DONT_INHERIT_POSITION :
       {
         // use local position as world position
-        mWorldPosition.Set( updateBufferIndex, mPosition[updateBufferIndex] );
+        mWorldPosition.Set( updateBufferIndex, mPosition.Get(updateBufferIndex) );
         break;
       }
     }
@@ -547,7 +548,7 @@ public:
    */
   const Quaternion& GetOrientation(BufferIndex bufferIndex) const
   {
-    return mOrientation[bufferIndex];
+    return mOrientation.Get(bufferIndex);
   }
 
   /**
@@ -580,7 +581,7 @@ public:
   {
     DALI_ASSERT_DEBUG(mParent != NULL);
 
-    const Quaternion& localOrientation = mOrientation[updateBufferIndex];
+    const Quaternion& localOrientation = mOrientation.Get(updateBufferIndex);
 
     if(localOrientation.IsIdentity())
     {
@@ -645,7 +646,7 @@ public:
    */
   const Vector3& GetScale(BufferIndex bufferIndex) const
   {
-    return mScale[bufferIndex];
+    return mScale.Get( bufferIndex );
   }
 
   /**
@@ -668,7 +669,7 @@ public:
   {
     DALI_ASSERT_DEBUG(mParent != NULL);
 
-    mWorldScale.Set( updateBufferIndex, mParent->GetWorldScale(updateBufferIndex) * mScale[updateBufferIndex] );
+    mWorldScale.Set( updateBufferIndex, mParent->GetWorldScale(updateBufferIndex) * mScale.Get(updateBufferIndex) );
   }
 
   /**
@@ -689,7 +690,7 @@ public:
    */
   const Vector3& GetWorldScale( BufferIndex bufferIndex ) const
   {
-    return mWorldScale[bufferIndex];
+    return mWorldScale.Get(bufferIndex);
   }
 
   /**
@@ -722,7 +723,7 @@ public:
    */
   bool IsVisible(BufferIndex bufferIndex) const
   {
-    return mVisible[bufferIndex];
+    return mVisible.Get( bufferIndex );
   }
 
   /**
@@ -732,7 +733,7 @@ public:
    */
   float GetOpacity(BufferIndex bufferIndex) const
   {
-    return mColor[bufferIndex].a;
+    return mColor.Get( bufferIndex ).a;
   }
 
   /**
@@ -742,7 +743,7 @@ public:
    */
   const Vector4& GetColor(BufferIndex bufferIndex) const
   {
-    return mColor[bufferIndex];
+    return mColor.Get( bufferIndex );
   }
 
   /**
@@ -768,12 +769,12 @@ public:
     // default first
     if( mColorMode == USE_OWN_MULTIPLY_PARENT_ALPHA )
     {
-      const Vector4& ownColor = mColor[updateBufferIndex];
+      const Vector4& ownColor = mColor.Get(updateBufferIndex);
       mWorldColor.Set( updateBufferIndex, ownColor.r, ownColor.g, ownColor.b, ownColor.a * mParent->GetWorldColor(updateBufferIndex).a );
     }
     else if( mColorMode == USE_OWN_MULTIPLY_PARENT_COLOR )
     {
-      mWorldColor.Set( updateBufferIndex, mParent->GetWorldColor(updateBufferIndex) * mColor[updateBufferIndex] );
+      mWorldColor.Set( updateBufferIndex, mParent->GetWorldColor(updateBufferIndex) * mColor.Get(updateBufferIndex) );
     }
     else if( mColorMode == USE_PARENT_COLOR )
     {
@@ -781,7 +782,7 @@ public:
     }
     else // USE_OWN_COLOR
     {
-      mWorldColor.Set( updateBufferIndex, mColor[updateBufferIndex] );
+      mWorldColor.Set( updateBufferIndex, mColor.Get(updateBufferIndex) );
     }
   }
 
@@ -804,7 +805,7 @@ public:
    */
   const Vector4& GetWorldColor(BufferIndex bufferIndex) const
   {
-    return mWorldColor[bufferIndex];
+    return mWorldColor.Get(bufferIndex);
   }
 
   /**
@@ -835,7 +836,7 @@ public:
    */
   const Vector3& GetSize(BufferIndex bufferIndex) const
   {
-    return mSize[bufferIndex];
+    return mSize.Get(bufferIndex);
   }
 
   /**
@@ -850,7 +851,6 @@ public:
   void SetWorldMatrix( BufferIndex updateBufferIndex, const Vector3& scale, const Quaternion& rotation, const Vector3& translation )
   {
     mWorldMatrix.Get( updateBufferIndex ).SetTransformComponents( scale, rotation, translation );
-    mWorldMatrix.SetDirty( updateBufferIndex );
   }
 
   /**
@@ -860,16 +860,7 @@ public:
    */
   const Matrix& GetWorldMatrix( BufferIndex bufferIndex ) const
   {
-    return mWorldMatrix[ bufferIndex ];
-  }
-
-  /**
-   * Copy previous frames world matrix
-   * @param[in] updateBufferIndex The current update buffer index.
-   */
-  void CopyPreviousWorldMatrix( BufferIndex updateBufferIndex )
-  {
-    mWorldMatrix.CopyPrevious( updateBufferIndex );
+    return mWorldMatrix.Get( bufferIndex );
   }
 
   /**

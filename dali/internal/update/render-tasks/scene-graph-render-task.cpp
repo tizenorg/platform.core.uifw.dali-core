@@ -142,10 +142,12 @@ bool RenderTask::QueryViewport( BufferIndex bufferIndex, Viewport& viewport ) co
     return false;
   }
 
-  viewport.x = mViewportPosition[bufferIndex].x;
-  viewport.y = mViewportPosition[bufferIndex].y;
-  viewport.width = mViewportSize[bufferIndex].width;
-  viewport.height = mViewportSize[bufferIndex].height;
+  const Vector2& position = mViewportPosition.Get( bufferIndex );
+  const Vector2& size = mViewportSize.Get( bufferIndex );
+  viewport.x = position.x;
+  viewport.y = position.y;
+  viewport.width = size.width;
+  viewport.height = size.height;
 
   return true;
 }
@@ -157,7 +159,7 @@ void RenderTask::SetClearColor( BufferIndex updateBufferIndex, const Vector4& va
 
 const Vector4& RenderTask::GetClearColor( BufferIndex bufferIndex ) const
 {
-  return mClearColor[bufferIndex];
+  return mClearColor.Get( bufferIndex );
 }
 
 void RenderTask::BakeClearColor( BufferIndex updateBufferIndex, const Vector4& value )
@@ -452,7 +454,7 @@ void RenderTask::SetViewportPosition( BufferIndex updateBufferIndex, const Vecto
 
 const Vector2& RenderTask::GetViewportPosition( BufferIndex bufferIndex ) const
 {
-  return mViewportPosition[bufferIndex];
+  return mViewportPosition.Get( bufferIndex );
 }
 
 void RenderTask::BakeViewportPosition( BufferIndex updateBufferIndex, const Vector2& value )
@@ -467,7 +469,7 @@ void RenderTask::SetViewportSize( BufferIndex updateBufferIndex, const Vector2& 
 
 const Vector2& RenderTask::GetViewportSize( BufferIndex bufferIndex ) const
 {
-  return mViewportSize[bufferIndex];
+  return mViewportSize.Get( bufferIndex );
 }
 
 void RenderTask::BakeViewportSize( BufferIndex updateBufferIndex, const Vector2& value )
@@ -477,10 +479,12 @@ void RenderTask::BakeViewportSize( BufferIndex updateBufferIndex, const Vector2&
 
 bool RenderTask::GetViewportEnabled( BufferIndex bufferIndex ) const
 {
-  if(fabsf(mViewportPosition[bufferIndex].x) > Math::MACHINE_EPSILON_1 ||
-     fabsf(mViewportPosition[bufferIndex].y) > Math::MACHINE_EPSILON_1 ||
-     fabsf(mViewportSize[bufferIndex].width) > Math::MACHINE_EPSILON_1 ||
-     fabsf(mViewportSize[bufferIndex].height) > Math::MACHINE_EPSILON_1)
+  const Vector2& position = mViewportPosition.Get( bufferIndex );
+  const Vector2& size = mViewportSize.Get( bufferIndex );
+  if(fabsf(position.x) > Math::MACHINE_EPSILON_1 ||
+     fabsf(position.y) > Math::MACHINE_EPSILON_1 ||
+     fabsf(size.width) > Math::MACHINE_EPSILON_1 ||
+     fabsf(size.height) > Math::MACHINE_EPSILON_1)
   {
     return true;
   }

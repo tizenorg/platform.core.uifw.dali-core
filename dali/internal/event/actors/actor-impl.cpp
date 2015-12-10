@@ -2754,49 +2754,49 @@ Property::Value Actor::GetDefaultProperty( Property::Index index ) const
 
     case Dali::Actor::Property::SIZE:
     {
-      value = GetCurrentSize();
+      value = GetTargetSize();
       break;
     }
 
     case Dali::Actor::Property::SIZE_WIDTH:
     {
-      value = GetCurrentSize().width;
+      value = GetTargetSize().width;
       break;
     }
 
     case Dali::Actor::Property::SIZE_HEIGHT:
     {
-      value = GetCurrentSize().height;
+      value = GetTargetSize().height;
       break;
     }
 
     case Dali::Actor::Property::SIZE_DEPTH:
     {
-      value = GetCurrentSize().depth;
+      value = GetTargetSize().depth;
       break;
     }
 
     case Dali::Actor::Property::POSITION:
     {
-      value = GetCurrentPosition();
+      value = GetTargetPosition();
       break;
     }
 
     case Dali::Actor::Property::POSITION_X:
     {
-      value = GetCurrentPosition().x;
+      value = GetTargetPosition().x;
       break;
     }
 
     case Dali::Actor::Property::POSITION_Y:
     {
-      value = GetCurrentPosition().y;
+      value = GetTargetPosition().y;
       break;
     }
 
     case Dali::Actor::Property::POSITION_Z:
     {
-      value = GetCurrentPosition().z;
+      value = GetTargetPosition().z;
       break;
     }
 

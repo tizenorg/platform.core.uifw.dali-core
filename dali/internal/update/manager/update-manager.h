@@ -519,12 +519,16 @@ private:
   void Animate( BufferIndex bufferIndex, float elapsedSeconds );
 
   /**
-   * Perform constraint updates.
-   * @note Applies constraints to nodes first (depth first search order).
-   * Then shader constraints second (construction order)
+   * Applies constraints to RenderTasks
    * @param[in] bufferIndex to use
    */
-  void ApplyConstraints( BufferIndex bufferIndex );
+  void ApplyConstraintsToRenderTasks( BufferIndex bufferIndex );
+
+  /**
+   * Applies constraints to Shaders
+   * @param[in] bufferIndex to use
+   */
+  void ApplyConstraintsToShaders( BufferIndex bufferIndex );
 
   /**
    * Perform property notification updates
@@ -535,7 +539,7 @@ private:
   /**
    * Prepare materials for rendering
    */
-  void PrepareMaterials();
+  void PrepareMaterials( BufferIndex bufferIndex );
 
   /**
    * Pass shader binaries queued here on to event thread.

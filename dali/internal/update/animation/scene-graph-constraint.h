@@ -105,8 +105,7 @@ public:
       return; // Early-out when property owners have been disconnected
     }
 
-    if ( mFunc->InputsInitialized() &&
-         ApplyNeeded() )
+    if ( mFunc->InputsInitialized() )
     {
       PropertyType current = mTargetProperty.Get( updateBufferIndex );
       mFunc->Apply( updateBufferIndex, current );

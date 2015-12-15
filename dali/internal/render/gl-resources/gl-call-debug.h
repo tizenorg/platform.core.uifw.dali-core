@@ -30,7 +30,6 @@ class GlAbstraction;
 
 namespace Internal
 {
-
 /**
  * Helper to check GL errors
  * @param glAbstraction to use for error check

@@ -22,7 +22,14 @@
 #include <cmath> // fmod
 
 // INTERNAL INCLUDES
+#include <dali/internal/common/memory-pool-object-allocator.h>
 #include <dali/internal/render/common/performance-monitor.h>
+
+namespace //Unnamed namespace
+{
+//Memory pool used to allocate new animations
+Dali::Internal::MemoryPoolObjectAllocator<Dali::Internal::SceneGraph::Animation> animationMemoryPool;
+}
 
 namespace Dali
 {
@@ -33,6 +40,12 @@ namespace Internal
 namespace SceneGraph
 {
 
+Animation* Animation::New( float durationSeconds, float speedFactor, const Vector2& playRange, bool isLooping, EndAction endAction, EndAction disconnectAction )
+{
+  void* memBlock = animationMemoryPool.AllocateRaw();
+  Animation* animation = new(memBlock) Animation( durationSeconds, speedFactor, playRange, isLooping, endAction, disconnectAction );
+  return animation;
+}
 
 Animation::Animation( float durationSeconds, float speedFactor, const Vector2& playRange, bool isLooping, Dali::Animation::EndAction endAction, Dali::Animation::EndAction disconnectAction )
 : mDurationSeconds(durationSeconds),
@@ -49,6 +62,11 @@ Animation::Animation( float durationSeconds, float speedFactor, const Vector2& p
 
 Animation::~Animation()
 {
+}
+
+void Animation::operator delete( void* ptr )
+{
+  animationMemoryPool.Free( static_cast<Animation*>( ptr ) );
 }
 
 void Animation::SetDuration(float durationSeconds)

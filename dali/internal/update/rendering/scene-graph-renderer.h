@@ -62,6 +62,11 @@ public:
   };
 
   /**
+   * Construct a new Renderer
+   */
+  static Renderer* New();
+
+  /**
    * Default constructor
    */
   Renderer();
@@ -70,6 +75,12 @@ public:
    * Destructor
    */
   virtual ~Renderer();
+
+  /**
+   * Overriden delete operator
+   * Deletes the renderer from the global memory pool
+   */
+  void operator delete( void* ptr );
 
   /**
    * Set the material for the renderer

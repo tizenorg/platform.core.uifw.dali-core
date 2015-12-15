@@ -107,9 +107,21 @@ public:
   static Node* New();
 
   /**
+   * Default constructor.
+   * This method should not be used. Use Node::New() instead
+   */
+  Node();
+
+  /**
    * Virtual destructor
    */
   virtual ~Node();
+
+  /**
+   * Overriden delete operator
+   * Deletes the node from the global memory pool
+   */
+  void operator delete( void* ptr );
 
   /**
    * When a Node is marked "active" it has been disconnected, but its properties have been modified.
@@ -951,11 +963,6 @@ protected:
    * @param[in] parentNode the new parent.
    */
   void SetParent(Node& parentNode);
-
-  /**
-   * Protected constructor; See also Node::New()
-   */
-  Node();
 
 private: // from NodeDataProvider
 

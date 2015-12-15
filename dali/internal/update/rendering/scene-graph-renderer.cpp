@@ -29,6 +29,7 @@
 #include <dali/internal/update/nodes/node.h>
 #include <dali/internal/render/queue/render-queue.h>
 #include <dali/internal/common/internal-constants.h>
+#include <dali/internal/common/memory-pool-object-allocator.h>
 
 
 namespace // unnamed namespace
@@ -37,6 +38,9 @@ namespace // unnamed namespace
 const unsigned int UNIFORM_MAP_READY      = 0;
 const unsigned int COPY_UNIFORM_MAP       = 1;
 const unsigned int REGENERATE_UNIFORM_MAP = 2;
+
+//Memory pool used to allocate new renderers
+Dali::Internal::MemoryPoolObjectAllocator<Dali::Internal::SceneGraph::Renderer> rendererMemoryPool;
 
 void AddMappings( Dali::Internal::SceneGraph::CollectedUniformMap& localMap, const Dali::Internal::SceneGraph::UniformMap& uniformMap )
 {
@@ -92,6 +96,12 @@ namespace Internal
 namespace SceneGraph
 {
 
+Renderer* Renderer::New()
+{
+  Renderer* renderer = rendererMemoryPool.Allocate();
+  return renderer;
+}
+
 Renderer::Renderer()
 :mSceneController(0),
  mRenderer(NULL),
@@ -125,6 +135,12 @@ Renderer::~Renderer()
     mGeometry=NULL;
   }
 }
+
+void Renderer::operator delete( void* ptr )
+{
+  rendererMemoryPool.Free( static_cast<Renderer*>( ptr ) );
+}
+
 
 void Renderer::PrepareRender( BufferIndex updateBufferIndex )
 {

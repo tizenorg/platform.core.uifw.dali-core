@@ -61,6 +61,11 @@ public:
   };
 
   /**
+   * Construct a new Material.
+   */
+  static Material* New();
+
+  /**
    * Constructor
    */
   Material();
@@ -69,6 +74,11 @@ public:
    * Destructor
    */
   virtual ~Material();
+
+  /**
+   * Overriden delete operator
+   */
+  void operator delete( void* ptr );
 
   /**
    * Prepare material, check texture loading status, opacity etc

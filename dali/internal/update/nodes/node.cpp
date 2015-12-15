@@ -24,12 +24,18 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/constants.h>
 #include <dali/internal/common/internal-constants.h>
+#include <dali/internal/common/memory-pool-object-allocator.h>
 
 namespace Dali
 {
 
 namespace Internal
 {
+
+namespace
+{
+  MemoryPoolObjectAllocator<SceneGraph::Node> nodeMemoryPool;
+}
 
 namespace SceneGraph
 {
@@ -39,7 +45,8 @@ const ColorMode Node::DEFAULT_COLOR_MODE( USE_OWN_MULTIPLY_PARENT_ALPHA );
 
 Node* Node::New()
 {
-  return new Node();
+  Node* node = nodeMemoryPool.Allocate();
+  return node;
 }
 
 Node::Node()
@@ -77,6 +84,11 @@ Node::Node()
 
 Node::~Node()
 {
+}
+
+void Node::operator delete( void* ptr )
+{
+  nodeMemoryPool.Free( (Node*)ptr );
 }
 
 void Node::OnDestroy()

@@ -30,6 +30,8 @@ class GlAbstraction;
 
 namespace Internal
 {
+//todor
+#define DALI_GL_ERROR_CHECK
 
 /**
  * Helper to check GL errors

@@ -35,6 +35,7 @@
 
 namespace
 {
+//TODO: Move to core::pixel.cpp ? todor
 void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& bitMask)
 {
   switch (pixelFormat)
@@ -115,6 +116,34 @@ void GetRedOffsetAndMask(Dali::Pixel::Format pixelFormat, int& byteOffset, int& 
     case Dali::Pixel::COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2:
     case Dali::Pixel::COMPRESSED_RGBA8_ETC2_EAC:
     case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_4x4_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_5x4_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_5x5_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_6x5_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_6x6_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_8x5_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_8x6_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_8x8_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_10x5_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_10x6_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_10x8_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_10x10_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_12x10_KHR:
+    case Dali::Pixel::COMPRESSED_RGBA_ASTC_12x12_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR:
+    case Dali::Pixel::COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
     {
       DALI_LOG_ERROR("Pixel formats for compressed images are not compatible with simple masking-out of per-pixel alpha.\n");
       byteOffset=0;

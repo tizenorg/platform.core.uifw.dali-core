@@ -55,6 +55,7 @@ enum Format ///< pixel format, default color depth is RGBA 32 bit with alpha
   BGR8888,         ///< color depth 32 bit, alpha is reserved but not used, 8-8-8-8#
   RGBA8888,        ///< color depth 32 bit with alpha, 8-8-8-8
   BGRA8888,        ///< color depth 32 bit with alpha, 8-8-8-8
+
   // GLES 3 Standard compressed formats:
   COMPRESSED_R11_EAC,                       ///< ETC2 / EAC single-channel, unsigned
   COMPRESSED_SIGNED_R11_EAC,                ///< ETC2 / EAC single-channel, signed
@@ -66,6 +67,37 @@ enum Format ///< pixel format, default color depth is RGBA 32 bit with alpha
   COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2,///< ETC2 / EAC RGB using sRGB colourspace, with single bit per pixel alpha mask.
   COMPRESSED_RGBA8_ETC2_EAC,                ///< ETC2 / EAC RGB plus separate alpha channel.
   COMPRESSED_SRGB8_ALPHA8_ETC2_EAC,         ///< ETC2 / EAC RGB using sRGB colourspace, plus separate alpha channel.
+
+  // GLES 3.1 compressed formats:
+  COMPRESSED_RGBA_ASTC_4x4_KHR,
+  COMPRESSED_RGBA_ASTC_5x4_KHR,
+  COMPRESSED_RGBA_ASTC_5x5_KHR,
+  COMPRESSED_RGBA_ASTC_6x5_KHR,
+  COMPRESSED_RGBA_ASTC_6x6_KHR,
+  COMPRESSED_RGBA_ASTC_8x5_KHR,
+  COMPRESSED_RGBA_ASTC_8x6_KHR,
+  COMPRESSED_RGBA_ASTC_8x8_KHR,
+  COMPRESSED_RGBA_ASTC_10x5_KHR,
+  COMPRESSED_RGBA_ASTC_10x6_KHR,
+  COMPRESSED_RGBA_ASTC_10x8_KHR,
+  COMPRESSED_RGBA_ASTC_10x10_KHR,
+  COMPRESSED_RGBA_ASTC_12x10_KHR,
+  COMPRESSED_RGBA_ASTC_12x12_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR,
+  COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR,
+
   // GLES 2 extension compressed formats:
   COMPRESSED_RGB8_ETC1,                     ///< ETC1 RGB as defined by GLES 2 extension OES_compressed_ETC1_RGB8_texture: http://www.khronos.org/registry/gles/extensions/OES/OES_compressed_ETC1_RGB8_texture.txt
   COMPRESSED_RGB_PVRTC_4BPPV1               ///< PowerVR 4bpp RGB format (v1) as defined by extension IMG_texture_compression_pvrtc: http://www.khronos.org/registry/gles/extensions/IMG/IMG_texture_compression_pvrtc.txt

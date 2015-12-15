@@ -281,7 +281,7 @@ void BitmapTexture::Update( const unsigned char* pixels, std::size_t width, std:
 
 #if DALI_GLES_VERSION >= 30
 // for gles 3.0, uploading sub-image with different format is a valid operation
-  Integration::ConvertToGlFormat( srcBitmap->GetPixelFormat(), pixelDataType, pixelGLFormat );
+  //todor Integration::ConvertToGlFormat( srcBitmap->GetPixelFormat(), pixelDataType, pixelGLFormat );
 #else
   // allows RGB888 source bitmap to be added to RGBA8888 texture, need to convert the bitmap format manually
   if(pixelFormat == Pixel::RGB888 && mPixelFormat == Pixel::RGBA8888 )

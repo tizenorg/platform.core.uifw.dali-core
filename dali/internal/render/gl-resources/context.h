@@ -31,6 +31,8 @@
 #include <dali/internal/render/gl-resources/texture-units.h>
 #include <dali/internal/render/gl-resources/frame-buffer-state-cache.h>
 #include <dali/internal/render/gl-resources/gl-call-debug.h>
+//todor
+#include <iostream>
 
 namespace Dali
 {
@@ -470,6 +472,7 @@ public:
   void CompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height,
                             GLint border, GLsizei imageSize, const void* data)
   {
+    std::cout << "todor: CompressedTexImage2D: t:" << target << " lvl:" << level << " ifmt:" << internalformat << " w:" << width << " h:" << height << " border:" << border << " isize:" << imageSize << " data:" << (uint64_t)data << std::endl;
     LOG_GL("CompressedTexImage2D %d %d %x %d %d %d %d %p\n", target, level, internalformat, width, height, border, imageSize, data);
     CHECK_GL( mGlAbstraction, mGlAbstraction.CompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data) );
   }

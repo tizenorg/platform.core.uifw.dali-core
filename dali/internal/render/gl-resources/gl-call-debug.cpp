@@ -23,6 +23,8 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+//todor
+#include <iostream>
 
 namespace
 {
@@ -68,6 +70,7 @@ namespace Internal
 Debug::Filter* gGlLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_CONTEXT");
 #endif // DEBUG_ENABLED
 
+#if 0
 void CheckGlError( Integration::GlAbstraction& glAbstraction, const char* operation )
 {
   for( GLint error = glAbstraction.GetError(); error; error = glAbstraction.GetError() )
@@ -75,6 +78,24 @@ void CheckGlError( Integration::GlAbstraction& glAbstraction, const char* operat
     DALI_LOG_ERROR( "glError (0x%x) %s - after %s\n",  error, ErrorToString(error), operation );
     DALI_ASSERT_ALWAYS( !error && "GL ERROR"); // if errors are being checked we should assert
   }
+}
+#endif
+
+void CheckGlError( Integration::GlAbstraction& glAbstraction, const char* operation )
+{
+  bool foundError = false;
+  for( GLint error = glAbstraction.GetError(); true; error = glAbstraction.GetError() )
+  {
+    if( !error )
+    {
+      break;
+    }
+
+    foundError = true;
+    std::cout << "glError (" << error << ") " << ErrorToString(error) << " - after " << operation << std::endl;
+    DALI_LOG_ERROR( "glError (0x%x) %s - after %s\n",  error, ErrorToString(error), operation );
+  }
+  DALI_ASSERT_ALWAYS( !foundError && "GL ERROR"); // if errors are being checked we should assert
 }
 
 }

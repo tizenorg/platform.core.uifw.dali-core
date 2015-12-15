@@ -24,6 +24,8 @@
 // INTERNAL INCLUDES
 #include <dali/internal/common/core-impl.h>
 #include <dali/integration-api/debug.h>
+//todor
+#include <iostream>
 
 namespace Dali
 {
@@ -58,6 +60,7 @@ Dali::Integration::PixelBuffer* BitmapCompressed::ReserveBufferOfSize( Pixel::Fo
                                     const unsigned int  height,
                                     const size_t        bufferSize )
 {
+  std::cout << "todor: BitmapCompressed::ReserveBufferOfSize" << std::endl;
   // Sanity check that a not-outrageous amount of data is being passed in (indicating a client error):
   DALI_ASSERT_DEBUG(bufferSize < (1U << 27U) && "That is far too much compressed data."); // 128MB of compressed data == unreasonable.
   // delete existing buffer

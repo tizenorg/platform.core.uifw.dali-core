@@ -25,6 +25,8 @@
 #include <dali/public-api/object/ref-object.h>
 #include <dali/internal/common/core-impl.h>
 #include <dali/integration-api/debug.h>
+//todor
+#include <iostream>
 
 namespace Dali
 {
@@ -49,6 +51,7 @@ Dali::Integration::PixelBuffer* BitmapPackedPixel::ReserveBuffer(Pixel::Format p
                                     unsigned int  bufferWidth,
                                     unsigned int  bufferHeight)
 {
+  std::cout << "todor: BitmapPackedPixel::ReserveBuffer" << std::endl;
   // delete existing buffer
   DeletePixelBuffer();
 

@@ -162,6 +162,20 @@ void ConvertToGlFormat( Format pixelformat, unsigned& pixelDataType, unsigned& i
       break;
     }
 
+    // GLES 2 extension compressed formats:
+    case COMPRESSED_RGB8_ETC1:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using non-standard GLES 2.0 extension compressed pixel format COMPRESSED_RGB8_ETC1.\n" );
+      internalFormat = 0x8D64; ///! < Hardcoded so we can test before we move to GLES 3.0 or greater.
+      break;
+    }
+    case COMPRESSED_RGB_PVRTC_4BPPV1:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using non-standard GLES 2.0 extension compressed pixel format COMPRESSED_RGB_PVRTC_4BPPV1.\n" );
+      internalFormat = 0x8C00; ///! < Hardcoded so we can test before we move to GLES 3.0 or greater.
+      break;
+    }
+
     // GLES 3.0 standard compressed formats:
     case COMPRESSED_R11_EAC:
     {
@@ -225,17 +239,173 @@ void ConvertToGlFormat( Format pixelformat, unsigned& pixelDataType, unsigned& i
       break;
     }
 
-    // GLES 2 extension compressed formats:
-    case COMPRESSED_RGB8_ETC1:
+    // GLES 3.1 extension compressed formats:
+    case COMPRESSED_RGBA_ASTC_4x4_KHR:
     {
-      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using non-standard GLES 2.0 extension compressed pixel format COMPRESSED_RGB8_ETC1.\n" );
-      internalFormat = 0x8D64; ///! < Hardcoded so we can test before we move to GLES 3.0 or greater.
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_4x4_KHR.\n" );
+      internalFormat = 0x93B0; ///! < Hardcoded until we move to GLES 3.1 or greater.
       break;
     }
-    case COMPRESSED_RGB_PVRTC_4BPPV1:
+    case COMPRESSED_RGBA_ASTC_5x4_KHR:
     {
-      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using non-standard GLES 2.0 extension compressed pixel format COMPRESSED_RGB_PVRTC_4BPPV1.\n" );
-      internalFormat = 0x8C00; ///! < Hardcoded so we can test before we move to GLES 3.0 or greater.
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_5x4_KHR.\n" );
+      internalFormat = 0x93B1; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_5x5_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_5x5_KHR.\n" );
+      internalFormat = 0x93B2; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_6x5_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_6x5_KHR.\n" );
+      internalFormat = 0x93B3; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_6x6_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_6x6_KHR.\n" );
+      internalFormat = 0x93B4; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_8x5_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_8x5_KHR.\n" );
+      internalFormat = 0x93B5; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_8x6_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_8x6_KHR.\n" );
+      internalFormat = 0x93B6; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_8x8_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_8x8_KHR.\n" );
+      internalFormat = 0x93B7; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_10x5_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_10x5_KHR.\n" );
+      internalFormat = 0x93B8; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_10x6_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_10x6_KHR.\n" );
+      internalFormat = 0x93B9; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_10x8_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_10x8_KHR.\n" );
+      internalFormat = 0x93BA; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_10x10_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_10x10_KHR.\n" );
+      internalFormat = 0x93BB; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_12x10_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_12x10_KHR.\n" );
+      internalFormat = 0x93BC; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_RGBA_ASTC_12x12_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_12x12_KHR.\n" );
+      internalFormat = 0x93BD; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR.\n" );
+      internalFormat = 0x93D0; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR.\n" );
+      internalFormat = 0x93D1; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR.\n" );
+      internalFormat = 0x93D2; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR.\n" );
+      internalFormat = 0x93D3; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR.\n" );
+      internalFormat = 0x93D4; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR.\n" );
+      internalFormat = 0x93D5; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR.\n" );
+      internalFormat = 0x93D6; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR.\n" );
+      internalFormat = 0x93D7; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR.\n" );
+      internalFormat = 0x93D8; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR.\n" );
+      internalFormat = 0x93D9; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR.\n" );
+      internalFormat = 0x93DA; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR.\n" );
+      internalFormat = 0x93DB; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR.\n" );
+      internalFormat = 0x93DC; ///! < Hardcoded until we move to GLES 3.1 or greater.
+      break;
+    }
+    case COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
+    {
+      DALI_LOG_INFO( Debug::Filter::gImage, Debug::Verbose, "Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR.\n" );
+      internalFormat = 0x93DD; ///! < Hardcoded until we move to GLES 3.1 or greater.
       break;
     }
   }

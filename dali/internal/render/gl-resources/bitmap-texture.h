@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_BITMAP_TEXTURE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -183,10 +183,10 @@ private:
   void Update( const unsigned char* pixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat, std::size_t xOffset, std::size_t yOffset );
 
 private:
-  Integration::BitmapPtr      mBitmap;          ///< The Bitmap the Texture was created from (may be NULL)
-  bool                        mClearPixels:1;   ///< true if initial texture should be cleared on creation
-  ResourcePolicy::Discardable mDiscardPolicy:2; ///< The bitmap discard policy
-  Pixel::Format               mPixelFormat:5;   ///< Pack pixel format into bitfield
+  Integration::BitmapPtr      mBitmap;            ///< The Bitmap the Texture was created from (may be NULL)
+  bool                        mClearPixels   :1;  ///< true if initial texture should be cleared on creation
+  ResourcePolicy::Discardable mDiscardPolicy :2;  ///< The bitmap discard policy
+  Pixel::Format               mPixelFormat   :6;  ///< Pack pixel format into bitfield
 
   // Changes scope, should be at end of class
   DALI_LOG_OBJECT_STRING_DECLARATION;

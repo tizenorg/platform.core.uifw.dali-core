@@ -47,7 +47,14 @@ my @system_packages = (
     "libharfbuzz-dev",
     "doxygen",
     "lcov",
-    "libcurl4-gnutls-dev"
+    "libcurl4-gnutls-dev",
+    "curl",             # emscripten
+    "tar",              # emscripten
+    "build-essential",  # emscripten
+    "cmake",            # emscripten
+    "nodejs",           # emscripten
+    "default-jre",      # emscripten
+    "python2.7"         # emscripten
 );
 
 # Some packages like require building from source
@@ -62,7 +69,11 @@ my @source_pkgs = (
 
      # original version used with DALi is 3.25.19. 3.32.7 is the latest we can use before
      # upgrading DALi to use  c++0x or c++11
-     "version" => " 3.32.7", "make" => "make -j8 library=shared", "build-mode" =>"debug" }
+     "version" => " 3.32.7", "make" => "make -j8 library=shared", "build-mode" =>"debug" },
+
+    {"name" => "emscripten",
+     "portable" => "https://s3.amazonaws.com/mozilla-games/emscripten/releases/emsdk-portable.tar.gz"
+    }
 );
 
 ### Detect any http proxy, part of v8 installation requires this information
@@ -129,9 +140,11 @@ else
     }
 }
 
-my $src_path     = "$root_path/src-packages";
-my $sbs_path     = "$root_path/target";
-my $install_path = "$root_path/opt";
+my $src_path         = "$root_path/src-packages";
+my $sbs_path         = "$root_path/target";
+my $install_path     = "$root_path/opt";
+my $emscripten_path  = "$root_path/emsdk_portable";
+my @emsdk_env        = ["# error: emsdk env not complete "];
 
 my $opt_create=0;
 my $opt_setenv=0;
@@ -176,6 +189,21 @@ sub in_dali_env
 sub create_setenv
 {
     print <<"EOF";
+#
+# Emscripten environment
+#  - which brazenly overwrites PATH from the system so we set this first
+#  - NB: If you change the tools with emsdk then you'll need to recreate this file
+#
+
+EOF
+    open(FILE, $emscripten_path . '/emsdk_set_env.sh') or die "Can't read file 'filename' [$!]\n";
+    @emsdk_env = <FILE>;
+    close (FILE);
+    print @emsdk_env;
+
+    print <<"EOF";
+
+#
 # To use the desktop libraries, please add the following lines to your .bashrc or
 # create a setenv script from them, e.g. by running this command as follows
 # \$ $install_path/bin/dali_env -s > setenv
@@ -244,6 +272,10 @@ sub check_source_packages
         if($pkg eq "v8")
         {
             install_v8( $pkgref );
+        }
+        elsif($pkg eq "emscripten")
+        {
+            install_emscripten( $pkgref );
         }
     }
 }
@@ -363,7 +395,7 @@ sub install_v8
 {
     my $v8 = $_[0];
     my $ret;
-    my $v8Version = $v8->{"version"} ;
+    my $v8Version = $v8->{"version"};
     print( "Checking if V8 ". $v8Version. " is installed \n");
 
 ####
@@ -525,6 +557,63 @@ END
       close( $versionFile );
       print("Installing V8 version $v8Version\n");
 
+}
+
+################################################################################
+#
+# install the latest emscripten in a portable directory
+#
+################################################################################
+sub install_emscripten
+{
+    my $info = $_[0];
+    my $ret;
+    print( "Checking if Emscripten is up to date\n");
+
+    my $portable = $info->{"portable"};
+
+    my $current_dir = getcwd();
+
+    print( "\n");
+    print( "Installing or updating Emscripten.\n");
+    print( ".....You may need a cup of tea.\n");
+    print( ".......... In fact, take the afternoon off.\n");
+    print( "\n");
+
+    if(-e $emscripten_path)
+    {
+        chdir( $emscripten_path );
+    }
+    else
+    {
+        chdir( $root_path );
+
+        system("curl -O " . $portable) == 0
+            or die "curl failed with error $?. :" . $portable;
+
+        my($filename, $dirs, $suffix) = fileparse($portable);
+
+        system("tar -xvf " . $filename . $suffix) == 0
+            or die "tar unpack failed (nb tar.gz is the presumed downloaded format):" . $filename . $suffix;
+
+        system("rm " . $filename . $suffix) == 0
+            or die "Cannot remove emsdk portable tar file:" . $filename . $suffix;
+
+        chdir( $emscripten_path );
+    }
+
+    system("./emsdk update") == 0
+        or die "Cannot run emsdk? Did the install fail?";
+
+    system("./emsdk install latest");
+    system("./emsdk activate latest");
+    system("bash -c \"source ./emsdk_env.sh\""); # emsdk uses popd ie expects bash
+
+    @emsdk_env = <"emsdk_set_env.sh">;
+
+    system("emsdk list");
+
+    chdir($current_dir);
 }
 
 

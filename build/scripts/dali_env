@@ -47,7 +47,14 @@ my @system_packages = (
     "libharfbuzz-dev",
     "doxygen",
     "lcov",
-    "libcurl4-gnutls-dev"
+    "libcurl4-gnutls-dev",
+	 "curl",					# emscripten
+	 "tar",					# emscripten
+	 "build-essential", 	# emscripten
+	 "cmake",				# emscripten
+	 "nodejs",				# emscripten
+	 "default-jre",		# emscripten
+	 "python2.7"			# emscripten
 );
 
 # Some packages like require building from source
@@ -62,7 +69,11 @@ my @source_pkgs = (
 
      # original version used with DALi is 3.25.19. 3.32.7 is the latest we can use before
      # upgrading DALi to use  c++0x or c++11
-     "version" => " 3.32.7", "make" => "make -j8 library=shared", "build-mode" =>"debug" }
+     "version" => " 3.32.7", "make" => "make -j8 library=shared", "build-mode" =>"debug" },
+	 
+	 {"name" => "emscripten",
+	  "portable" => "https://s3.amazonaws.com/mozilla-games/emscripten/releases/emsdk-portable.tar.gz"
+	 }
 );
 
 ### Detect any http proxy, part of v8 installation requires this information
@@ -129,9 +140,10 @@ else
     }
 }
 
-my $src_path     = "$root_path/src-packages";
-my $sbs_path     = "$root_path/target";
-my $install_path = "$root_path/opt";
+my $src_path     		= "$root_path/src-packages";
+my $sbs_path     		= "$root_path/target";
+my $install_path 		= "$root_path/opt";
+my $emscripten_path 	= "$root_path/emsdk_portable";
 
 my $opt_create=0;
 my $opt_setenv=0;
@@ -192,6 +204,7 @@ export LD_LIBRARY_PATH=$install_path/lib:\$LD_LIBRARY_PATH
 export INCLUDEDIR=$install_path/include
 export PKG_CONFIG_PATH=$install_path/lib/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
 
+source $emscripten_path/emsdk_set_env.sh
 EOF
 }
 
@@ -244,6 +257,10 @@ sub check_source_packages
         if($pkg eq "v8")
         {
             install_v8( $pkgref );
+        }
+        elsif($pkg eq "emscripten")
+        {
+            install_emscripten( $pkgref );
         }
     }
 }
@@ -525,6 +542,61 @@ END
       close( $versionFile );
       print("Installing V8 version $v8Version\n");
 
+}
+
+################################################################################
+# 
+# install the latest emscripten in a portable directory
+# 
+################################################################################
+sub install_emscripten
+{
+    my $info = $_[0];
+    my $ret;
+    print( "Checking if Emscripten is up to date\n");
+
+    my $portable = $info->{"portable"} ;
+
+	 my $current_dir = getcwd();
+	 
+	 print( "\n");
+	 print( "Installing or updating Emscripten.\n");
+	 print( ".....You may need a cup of tea.\n");
+	 print( ".......... In fact, take the afternoon off.\n");
+	 print( "\n");
+
+    if(-e $emscripten_path)
+	 {
+		  chdir( $emscripten_path );
+	 }
+	 else
+	 {
+		  chdir( $root_path );
+
+		  system("curl -O " . $portable) == 0
+				or die "curl failed with error $?. :" . $portable;
+		  
+		  my($filename, $dirs, $suffix) = fileparse($portable);
+
+		  system("tar -xvf " . $filename . $suffix) == 0
+				or die "tar unpack failed (nb tar.gz is the presumed downloaded format):" . $filename . $suffix;
+		  
+		  system("rm " . $filename . $suffix) == 0
+				or die "Cannot remove emsdk portable tar file:" . $filename . $suffix;
+		  
+		  chdir( $emscripten_path );
+	 }
+
+	 system("./emsdk update") == 0
+		  or die "Cannot run emsdk? Did the install fail?";
+
+	 system("./emsdk install latest");
+	 system("./emsdk activate latest");
+	 system("bash -c \"source ./emsdk_env.sh\""); # emsdk uses popd ie expects bash
+
+	 system("emsdk list");
+
+	 chdir($current_dir);
 }
 
 

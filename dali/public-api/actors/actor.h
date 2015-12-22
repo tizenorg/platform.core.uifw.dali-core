@@ -1,6 +1,8 @@
 #ifndef __DALI_ACTOR_H__
 #define __DALI_ACTOR_H__
 
+asasddasd
+
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *

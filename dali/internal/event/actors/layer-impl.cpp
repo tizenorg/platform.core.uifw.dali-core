@@ -38,8 +38,8 @@ namespace
 typedef Dali::Layer::Behavior Behavior;
 
 DALI_ENUM_TO_STRING_TABLE_BEGIN( Behavior )
-DALI_ENUM_TO_STRING( Dali::Layer::LAYER_2D )
-DALI_ENUM_TO_STRING( Dali::Layer::LAYER_3D )
+DALI_ENUM_TO_STRING( Layer::LAYER_2D )
+DALI_ENUM_TO_STRING( Layer::LAYER_3D )
 DALI_ENUM_TO_STRING_TABLE_END( Behavior )
 } // namespace
 

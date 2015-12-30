@@ -28,7 +28,6 @@ namespace Dali
 
 Material Material::New( Shader shader )
 {
-  // TODO: MESH_REWORK
   Internal::MaterialPtr material = Internal::Material::New();
   material->SetShader( GetImplementation(shader) );
 
@@ -119,19 +118,32 @@ void Material::SetTextureSampler( size_t index, Sampler sampler )
   GetImplementation(*this).SetTextureSampler( index, samplerPtr );
 }
 
+Sampler Material::GetTextureSampler( size_t index ) const
+{
+  Internal::Sampler* samplerPtr( GetImplementation(*this).GetTextureSampler( index ) );
+  return Dali::Sampler( samplerPtr );
+}
+
 void Material::SetTextureUniformName( size_t index, const std::string& uniformName )
 {
   GetImplementation(*this).SetTextureUniformName( index, uniformName );
 }
 
-int Material::GetTextureIndex( const std::string& uniformName )
+int Material::GetTextureIndex( const std::string& uniformName ) const
 {
   return GetImplementation(*this).GetTextureIndex( uniformName );
 }
 
-void Material::SetTextureAffectsTransparency( size_t index, bool affectsTransparency )
+Image Material::GetTexture( const std::string& uniformName ) const
 {
-  GetImplementation(*this).SetTextureAffectsTransparency( index, affectsTransparency );
+  Internal::Image* imagePtr( GetImplementation(*this).GetTexture( uniformName ) );
+  return Dali::Image( imagePtr );
+}
+
+Image Material::GetTexture( size_t index ) const
+{
+  Internal::Image* imagePtr( GetImplementation(*this).GetTexture( index ) );
+  return Dali::Image( imagePtr );
 }
 
 std::size_t Material::GetNumberOfTextures() const
@@ -143,6 +155,11 @@ std::size_t Material::GetNumberOfTextures() const
 void Material::SetFaceCullingMode( FaceCullingMode cullingMode )
 {
   GetImplementation(*this).SetFaceCullingMode( cullingMode );
+}
+
+Material::FaceCullingMode Material::GetFaceCullingMode()
+{
+  return GetImplementation(*this).GetFaceCullingMode();
 }
 
 void Material::SetBlendMode( BlendingMode::Type mode )
@@ -199,7 +216,7 @@ void Material::SetBlendColor( const Vector4& color )
   GetImplementation(*this).SetBlendColor( color );
 }
 
-const Vector4& Material::GetBlendColor() const
+Vector4 Material::GetBlendColor() const
 {
   return GetImplementation(*this).GetBlendColor();
 }

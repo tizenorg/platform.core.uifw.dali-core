@@ -250,12 +250,6 @@ int Node::GetDirtyFlags() const
     }
   }
 
-  // Check whether the visible property has changed
-  if ( !mVisible.IsClean() )
-  {
-    flags |= VisibleFlag;
-  }
-
   // Check whether the color property has changed
   if ( !mColor.IsClean() )
   {
@@ -276,12 +270,13 @@ void Node::ResetDefaultProperties( BufferIndex updateBufferIndex )
   // clear dirty flags in parent origin & anchor point
   mParentOrigin.Clear();
   mAnchorPoint.Clear();
+  mVisible.Clear();
+
   // Reset default properties
   mSize.ResetToBaseValue( updateBufferIndex );
   mPosition.ResetToBaseValue( updateBufferIndex );
   mOrientation.ResetToBaseValue( updateBufferIndex );
   mScale.ResetToBaseValue( updateBufferIndex );
-  mVisible.ResetToBaseValue( updateBufferIndex );
   mColor.ResetToBaseValue( updateBufferIndex );
 
   mDirtyFlags = NothingFlag;

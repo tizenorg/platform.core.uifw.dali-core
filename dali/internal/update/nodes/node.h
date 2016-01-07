@@ -291,10 +291,9 @@ public:
    * @pre childNode is a child of this Node.
    * @param[in] updateBufferIndex The current update buffer index.
    * @param[in] childNode The node to disconnect.
-   * @param[in] connectedNodes Disconnected Node attachments should be removed from here.
-   * @param[in] disconnectedNodes Disconnected Node attachments should be added here.
+   * @param[in] discardQueue Disconnected Node attachments should be added here.
    */
-  void DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, std::set<Node*>& connectedNodes,  std::set<Node*>& disconnectedNodes );
+  void DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, DiscardQueue& discardQueue );
 
   /**
    * Retrieve the children a Node.
@@ -1020,10 +1019,9 @@ private:
    * Recursive helper to disconnect a Node and its children.
    * Disconnected Nodes have no parent or children.
    * @param[in] updateBufferIndex The current update buffer index.
-   * @param[in] connectedNodes Disconnected Node attachments should be removed from here.
-   * @param[in] disconnectedNodes Disconnected Node attachments should be added here.
+   * @param[in] discardQueue Disconnected Node attachments should be added here.
    */
-  void RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std::set<Node*>& connectedNodes, std::set<Node*>& disconnectedNodes );
+  void RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, DiscardQueue& discardQueue );
 
 public: // Default properties
 

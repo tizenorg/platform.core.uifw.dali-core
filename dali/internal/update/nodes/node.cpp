@@ -193,7 +193,7 @@ void Node::ConnectChild( Node* childNode )
   }
 }
 
-void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, std::set<Node*>& connectedNodes,  std::set<Node*>& disconnectedNodes )
+void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, DiscardQueue& discardQueue )
 {
   DALI_ASSERT_ALWAYS( this != &childNode );
   DALI_ASSERT_ALWAYS( childNode.GetParent() == this );
@@ -214,7 +214,7 @@ void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode, std:
   }
   DALI_ASSERT_ALWAYS( NULL != found );
 
-  found->RecursiveDisconnectFromSceneGraph( updateBufferIndex, connectedNodes, disconnectedNodes );
+  found->RecursiveDisconnectFromSceneGraph( updateBufferIndex, discardQueue );
 }
 
 void Node::RemoveRenderer( Renderer* renderer )
@@ -297,7 +297,7 @@ void Node::SetParent(Node& parentNode)
   mDepth = mParent->GetDepth() + 1u;
 }
 
-void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std::set<Node*>& connectedNodes,  std::set<Node*>& disconnectedNodes )
+void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, DiscardQueue& discardQueue )
 {
   DALI_ASSERT_ALWAYS(!mIsRoot);
   DALI_ASSERT_ALWAYS(mParent != NULL);
@@ -305,7 +305,7 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std
   const NodeIter endIter = mChildren.End();
   for ( NodeIter iter = mChildren.Begin(); iter != endIter; ++iter )
   {
-    (*iter)->RecursiveDisconnectFromSceneGraph( updateBufferIndex, connectedNodes, disconnectedNodes );
+    (*iter)->RecursiveDisconnectFromSceneGraph( updateBufferIndex, discardQueue );
   }
 
   // Animators, Constraints etc. should be disconnected from the child's properties.
@@ -324,10 +324,6 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex, std
     mAttachment->DisconnectedFromSceneGraph();
   }
 
-  // Move into disconnectedNodes
-  std::set<Node*>::size_type removed = connectedNodes.erase( this );
-  DALI_ASSERT_ALWAYS( removed );
-  disconnectedNodes.insert( this );
 }
 
 } // namespace SceneGraph

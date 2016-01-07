@@ -103,25 +103,6 @@ namespace Internal
 namespace SceneGraph
 {
 
-namespace
-{
-
-void DestroyNodeSet( std::set<Node*>& nodeSet )
-{
-  for( std::set<Node*>::iterator iter = nodeSet.begin(); iter != nodeSet.end(); ++iter )
-  {
-    Node* node( *iter );
-
-    // Call Node::OnDestroy as each node is destroyed
-    node->OnDestroy();
-
-    delete node;
-  }
-  nodeSet.clear();
-}
-
-} //namespace
-
 typedef OwnerContainer< Shader* >              ShaderContainer;
 typedef ShaderContainer::Iterator              ShaderIter;
 typedef ShaderContainer::ConstIterator         ShaderConstIter;
@@ -203,9 +184,13 @@ struct UpdateManager::Impl
     }
 
     // UpdateManager owns the Nodes
-    DestroyNodeSet( activeDisconnectedNodes );
-    DestroyNodeSet( connectedNodes );
-    DestroyNodeSet( disconnectedNodes );
+    Vector<Node*>::Iterator iter = nodeRegistry.Begin();
+    Vector<Node*>::Iterator endIter = nodeRegistry.End();
+    for(;iter!=endIter;++iter)
+    {
+      (*iter)->OnDestroy();
+      delete(*iter);
+    }
 
     // If there is root, reset it, otherwise do nothing as rendering was never started
     if( root )
@@ -250,9 +235,8 @@ struct UpdateManager::Impl
 
   Layer*                              root;                          ///< The root node (root is a layer)
   Layer*                              systemLevelRoot;               ///< A separate root-node for system-level content
-  std::set< Node* >                   activeDisconnectedNodes;       ///< A container of new or modified nodes (without parent) owned by UpdateManager
-  std::set< Node* >                   connectedNodes;                ///< A container of connected (with parent) nodes owned by UpdateManager
-  std::set< Node* >                   disconnectedNodes;             ///< A container of inactive disconnected nodes (without parent) owned by UpdateManager
+
+  Vector<Node*>                       nodeRegistry;                  ///< A container of all instantiated nodes
 
   SortedLayerPointers                 sortedLayers;                  ///< A container of Layer pointers sorted by depth
   SortedLayerPointers                 systemLevelSortedLayers;       ///< A separate container of system-level Layers
@@ -342,7 +326,16 @@ void UpdateManager::AddNode( Node* node )
   DALI_ASSERT_ALWAYS( NULL != node );
   DALI_ASSERT_ALWAYS( NULL == node->GetParent() ); // Should not have a parent yet
 
-  mImpl->activeDisconnectedNodes.insert( node ); // Takes ownership of node
+  Vector<Node*>::Iterator iter = mImpl->nodeRegistry.Begin();
+  Vector<Node*>::Iterator end = mImpl->nodeRegistry.End();
+  Vector<Node*>::Iterator lastIter = iter;
+  for(;iter!=end;++iter)
+  {
+    if(*iter > node)
+      break;
+    lastIter = iter;
+  }
+  mImpl->nodeRegistry.Insert(lastIter, node);
 }
 
 void UpdateManager::ConnectNode( Node* parent, Node* node )
@@ -350,15 +343,6 @@ void UpdateManager::ConnectNode( Node* parent, Node* node )
   DALI_ASSERT_ALWAYS( NULL != parent );
   DALI_ASSERT_ALWAYS( NULL != node );
   DALI_ASSERT_ALWAYS( NULL == node->GetParent() ); // Should not have a parent yet
-
-  // Move from active/disconnectedNodes to connectedNodes
-  std::set<Node*>::size_type removed = mImpl->activeDisconnectedNodes.erase( node );
-  if( !removed )
-  {
-    removed = mImpl->disconnectedNodes.erase( node );
-    DALI_ASSERT_ALWAYS( removed );
-  }
-  mImpl->connectedNodes.insert( node );
 
   node->SetActive( true );
 
@@ -371,19 +355,14 @@ void UpdateManager::DisconnectNode( Node* node )
   DALI_ASSERT_ALWAYS( NULL != parent );
   parent->SetDirtyFlag( ChildDeletedFlag ); // make parent dirty so that render items dont get reused
 
-  // Move from connectedNodes to activeDisconnectedNodes (reset properties next frame)
-  parent->DisconnectChild( mSceneGraphBuffers.GetUpdateBufferIndex(), *node, mImpl->connectedNodes, mImpl->activeDisconnectedNodes );
+  parent->DisconnectChild( mSceneGraphBuffers.GetUpdateBufferIndex(), *node, mImpl->discardQueue );
+  node->SetActive(false);
 }
 
 void UpdateManager::SetNodeActive( Node* node )
 {
   DALI_ASSERT_ALWAYS( NULL != node );
   DALI_ASSERT_ALWAYS( NULL == node->GetParent() ); // Should not have a parent yet
-
-  // Move from disconnectedNodes to activeDisconnectedNodes (reset properties next frame)
-  std::set<Node*>::size_type removed = mImpl->disconnectedNodes.erase( node );
-  DALI_ASSERT_ALWAYS( removed );
-  mImpl->activeDisconnectedNodes.insert( node );
 
   node->SetActive( true );
 }
@@ -393,14 +372,17 @@ void UpdateManager::DestroyNode( Node* node )
   DALI_ASSERT_ALWAYS( NULL != node );
   DALI_ASSERT_ALWAYS( NULL == node->GetParent() ); // Should have been disconnected
 
-  // Transfer ownership from new/disconnectedNodes to the discard queue
-  // This keeps the nodes alive, until the render-thread has finished with them
-  std::set<Node*>::size_type removed = mImpl->activeDisconnectedNodes.erase( node );
-  if( !removed )
+  Vector<Node*>::Iterator iter = mImpl->nodeRegistry.Begin();
+  Vector<Node*>::Iterator endIter = mImpl->nodeRegistry.End();
+  for(;iter!=endIter;++iter)
   {
-    removed = mImpl->disconnectedNodes.erase( node );
-    DALI_ASSERT_ALWAYS( removed );
+    if((*iter) == node)
+    {
+      mImpl->nodeRegistry.Erase(iter);
+      break;
+    }
   }
+
   mImpl->discardQueue.Add( mSceneGraphBuffers.GetUpdateBufferIndex(), node );
 
   // Notify the Node about impending destruction
@@ -680,22 +662,11 @@ void UpdateManager::ResetProperties( BufferIndex bufferIndex )
   }
 
   // Reset the Connected Nodes
-  const std::set<Node*>::iterator endIter = mImpl->connectedNodes.end();
-  for( std::set<Node*>::iterator iter = mImpl->connectedNodes.begin(); endIter != iter; ++iter )
+  Vector<Node*>::Iterator iter = mImpl->nodeRegistry.Begin();
+  Vector<Node*>::Iterator endIter = mImpl->nodeRegistry.End();
+  for(;iter != endIter; ++iter)
   {
     (*iter)->ResetToBaseValues( bufferIndex );
-  }
-
-  // If a Node is disconnected, it may still be "active" (requires a reset in next frame)
-  for( std::set<Node*>::iterator iter = mImpl->activeDisconnectedNodes.begin(); mImpl->activeDisconnectedNodes.end() != iter; iter = mImpl->activeDisconnectedNodes.begin() )
-  {
-    Node* node = *iter;
-    node->ResetToBaseValues( bufferIndex );
-    node->SetActive( false );
-
-    // Move everything from activeDisconnectedNodes to disconnectedNodes (no need to reset again)
-    mImpl->activeDisconnectedNodes.erase( iter );
-    mImpl->disconnectedNodes.insert( node );
   }
 
   // Reset system-level render-task list properties to base values
@@ -723,7 +694,6 @@ void UpdateManager::ResetProperties( BufferIndex bufferIndex )
   mImpl->materials.ResetToBaseValues( bufferIndex );
   mImpl->geometries.ResetToBaseValues( bufferIndex );
   mImpl->renderers.ResetToBaseValues( bufferIndex );
-
 
   // Reset animatable shader properties to base values
   for (ShaderIter iter = mImpl->shaders.Begin(); iter != mImpl->shaders.End(); ++iter)

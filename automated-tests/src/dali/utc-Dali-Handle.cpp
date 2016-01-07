@@ -263,7 +263,7 @@ int UtcDaliHandleIsPropertyAnimatable(void)
   DALI_TEST_CHECK( true == actor.IsPropertyAnimatable( Actor::Property::SCALE_X ) );
   DALI_TEST_CHECK( true == actor.IsPropertyAnimatable( Actor::Property::SCALE_Y ) );
   DALI_TEST_CHECK( true == actor.IsPropertyAnimatable( Actor::Property::SCALE_Z ) );
-  DALI_TEST_CHECK( true == actor.IsPropertyAnimatable( Actor::Property::VISIBLE ) );
+  DALI_TEST_CHECK( false == actor.IsPropertyAnimatable( Actor::Property::VISIBLE ) );
   DALI_TEST_CHECK( true == actor.IsPropertyAnimatable( Actor::Property::COLOR ) );
   DALI_TEST_CHECK( true == actor.IsPropertyAnimatable( Actor::Property::COLOR_RED ) );
   DALI_TEST_CHECK( true == actor.IsPropertyAnimatable( Actor::Property::COLOR_GREEN ) );

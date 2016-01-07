@@ -311,14 +311,6 @@ void CameraAttachment::Update( BufferIndex updateBufferIndex, const Node& owning
   {
     mUpdateViewFlag = UPDATE_COUNT;
   }
-  if( nodeDirtyFlags & VisibleFlag )
-  {
-    // If the visibility changes, the projection matrix needs to be re-calculated.
-    // It may happen the first time an actor is rendered it's rendered only once and becomes invisible,
-    // in the following update the node will be skipped leaving the projection matrix (double buffered)
-    // with the Identity.
-    mUpdateProjectionFlag = UPDATE_COUNT;
-  }
 
   // if either matrix changed, we need to recalculate the inverse matrix for hit testing to work
   unsigned int viewUpdateCount = UpdateViewMatrix( updateBufferIndex, owningNode );

@@ -28,6 +28,7 @@
 #include <dali/internal/common/message.h>
 #include <dali/internal/event/common/event-thread-services.h>
 #include <dali/internal/update/common/animatable-property.h>
+#include <dali/internal/update/common/property-boolean.h>
 #include <dali/internal/update/common/property-owner.h>
 #include <dali/internal/update/common/property-vector3.h>
 #include <dali/internal/update/common/scene-graph-buffers.h>
@@ -64,21 +65,19 @@ enum NodePropertyFlags
 {
   NothingFlag          = 0x000,
   TransformFlag        = 0x001,
-  VisibleFlag          = 0x002,
-  ColorFlag            = 0x004,
-  SizeFlag             = 0x008,
-  OverlayFlag          = 0x010,
-  SortModifierFlag     = 0x020,
-  ChildDeletedFlag     = 0x040
+  ColorFlag            = 0x002,
+  SizeFlag             = 0x004,
+  OverlayFlag          = 0x008,
+  SortModifierFlag     = 0x010,
+  ChildDeletedFlag     = 0x020
 };
 
 static const int AllFlags = ( ChildDeletedFlag << 1 ) - 1; // all the flags
 
 /**
  * Size is not inherited.
- * VisibleFlag is inherited so that attachments can be synchronized with nodes after they become visible
  */
-static const int InheritedDirtyFlags = TransformFlag | VisibleFlag | ColorFlag | OverlayFlag;
+static const int InheritedDirtyFlags = TransformFlag | ColorFlag | OverlayFlag;
 
 // Flags which require the scene renderable lists to be updated
 static const int RenderableUpdateFlags = TransformFlag | SortModifierFlag | ChildDeletedFlag;
@@ -367,6 +366,14 @@ public:
     mParentOrigin.OnSet();
   }
 
+  /**
+   * Sets the visibility of the node
+   * @param[in] visible True if node is visible, false otherwise
+   */
+  void SetVisible(bool visible)
+  {
+    mVisible.mValue = visible;
+  }
   /**
    * Retrieve the anchor-point of the node.
    * @return The anchor-point.
@@ -728,7 +735,7 @@ public:
    */
   bool IsVisible(BufferIndex bufferIndex) const
   {
-    return mVisible[bufferIndex];
+    return mVisible.mValue;
   }
 
   /**
@@ -1030,15 +1037,16 @@ public: // Default properties
   PropertyVector3                mParentOrigin;  ///< Local transform; the position is relative to this. Sets the TransformFlag dirty when changed
   PropertyVector3                mAnchorPoint;   ///< Local transform; local center of rotation. Sets the TransformFlag dirty when changed
 
+
   AnimatableProperty<Vector3>    mSize;          ///< Size is provided for layouting
   AnimatableProperty<Vector3>    mPosition;      ///< Local transform; distance between parent-origin & anchor-point
   AnimatableProperty<Quaternion> mOrientation;   ///< Local transform; rotation relative to parent node
   AnimatableProperty<Vector3>    mScale;         ///< Local transform; scale relative to parent node
-  AnimatableProperty<bool>       mVisible;       ///< Visibility can be inherited from the Node hierachy
+  PropertyBoolean                mVisible;
+
   AnimatableProperty<Vector4>    mColor;         ///< Color can be inherited from the Node hierarchy
 
   // Inherited properties; read-only from public API
-
   InheritedVector3    mWorldPosition;     ///< Full inherited position
   InheritedQuaternion mWorldOrientation;  ///< Full inherited orientation
   InheritedVector3    mWorldScale;        ///< Full inherited scale
@@ -1098,6 +1106,17 @@ inline void SetParentOriginMessage( EventThreadServices& eventThreadServices, co
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::SetParentOrigin, origin );
+}
+
+inline void SetVisibleMessage( EventThreadServices& eventThreadServices, const Node& node, bool visible )
+{
+  typedef MessageValue1< Node, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::SetVisible, visible );
 }
 
 inline void SetAnchorPointMessage( EventThreadServices& eventThreadServices, const Node& node, const Vector3& anchor )

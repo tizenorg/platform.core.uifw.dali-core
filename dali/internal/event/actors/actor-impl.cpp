@@ -204,7 +204,7 @@ DALI_PROPERTY( "scaleX",            FLOAT,    true,  true,  true,  Dali::Actor::
 DALI_PROPERTY( "scaleY",            FLOAT,    true,  true,  true,  Dali::Actor::Property::SCALE_Y )
 DALI_PROPERTY( "scaleZ",            FLOAT,    true,  true,  true,  Dali::Actor::Property::SCALE_Z )
 DALI_PROPERTY( "worldScale",        VECTOR3,  false, false, true,  Dali::Actor::Property::WORLD_SCALE )
-DALI_PROPERTY( "visible",           BOOLEAN,  true,  true,  true,  Dali::Actor::Property::VISIBLE )
+DALI_PROPERTY( "visible",           BOOLEAN,  true,  false,  true, Dali::Actor::Property::VISIBLE )
 DALI_PROPERTY( "color",             VECTOR4,  true,  true,  true,  Dali::Actor::Property::COLOR )
 DALI_PROPERTY( "colorRed",          FLOAT,    true,  true,  true,  Dali::Actor::Property::COLOR_RED )
 DALI_PROPERTY( "colorGreen",        FLOAT,    true,  true,  true,  Dali::Actor::Property::COLOR_GREEN )
@@ -922,7 +922,7 @@ void Actor::SetVisible( bool visible )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<bool>::Send( GetEventThreadServices(), mNode, &mNode->mVisible, &AnimatableProperty<bool>::Bake, visible );
+    SetVisibleMessage( GetEventThreadServices(), *mNode, visible );
   }
 }
 
@@ -3144,10 +3144,6 @@ const PropertyBase* Actor::GetSceneObjectAnimatableProperty( Property::Index ind
 
       case Dali::Actor::Property::SCALE_Z:
         property = &mNode->mScale;
-        break;
-
-      case Dali::Actor::Property::VISIBLE:
-        property = &mNode->mVisible;
         break;
 
       case Dali::Actor::Property::COLOR:

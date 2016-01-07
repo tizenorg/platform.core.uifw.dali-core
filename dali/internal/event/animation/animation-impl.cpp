@@ -49,9 +49,6 @@ namespace Dali
 namespace Internal
 {
 
-static bool SHOW_VALUE = true;
-static bool HIDE_VALUE = false;
-
 namespace
 {
 
@@ -830,28 +827,12 @@ void Animation::Animate( Actor& actor, const Path& path, const Vector3& forward,
   }
 }
 
-void Animation::Show(Actor& actor, float delaySeconds)
+void Animation::Show(Actor& /*actor*/, float /*delaySeconds*/)
 {
-  ExtendDuration( TimePeriod(delaySeconds, 0) );
-
-  AddAnimatorConnector( AnimatorConnector<bool>::New( actor,
-                                                      Dali::Actor::Property::VISIBLE,
-                                                      Property::INVALID_COMPONENT_INDEX,
-                                                      new AnimateToBoolean(SHOW_VALUE),
-                                                      mDefaultAlpha,
-                                                      TimePeriod(delaySeconds, 0.0f/*immediate*/) ) );
 }
 
-void Animation::Hide(Actor& actor, float delaySeconds)
+void Animation::Hide(Actor& /*actor*/, float /*delaySeconds*/)
 {
-  ExtendDuration( TimePeriod(delaySeconds, 0) );
-
-  AddAnimatorConnector( AnimatorConnector<bool>::New( actor,
-                                                      Dali::Actor::Property::VISIBLE,
-                                                      Property::INVALID_COMPONENT_INDEX,
-                                                      new AnimateToBoolean(HIDE_VALUE),
-                                                      mDefaultAlpha,
-                                                      TimePeriod(delaySeconds, 0.0f/*immediate*/) ) );
 }
 
 bool Animation::DoAction( BaseObject* object, const std::string& actionName, const Property::Map& attributes )

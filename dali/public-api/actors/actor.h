@@ -230,6 +230,7 @@ typedef Rect<float> Padding;      ///< Padding definition
  * | wheelEvent        | @ref WheelEventSignal()      |
  * | onStage           | @ref OnStageSignal()         |
  * | offStage          | @ref OffStageSignal()        |
+ * | onRelayout        | @ref OnRelayoutSignal()      |
  *
  * Actions
  * | %Action Name      | %Actor method called         |

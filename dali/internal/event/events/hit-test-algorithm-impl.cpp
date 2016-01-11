@@ -215,9 +215,20 @@ HitActor HitTestWithinLayer( Actor& actor,
             hit.actor = &actor;
             hit.x = hitPointLocal.x;
             hit.y = hitPointLocal.y;
-            hit.distance = distance;
-            hit.depth = actor.GetHierarchyDepth() * Dali::Layer::TREE_DEPTH_MULTIPLIER;
 
+            if( DALI_UNLIKELY( actor.IsOverlay() ) )
+            {
+              //If actor is an overlay it will be rendered on top of everything else
+              //so we make sure it will be the selected actor by the algorithm.
+              //Last overlay in tree order wins, which is the rendering order of overlays
+              hit.distance = 0.0f;
+              hit.depth = std::numeric_limits<int>::max();
+            }
+            else
+            {
+              hit.distance = distance;
+              hit.depth = actor.GetHierarchyDepth() * Dali::Layer::TREE_DEPTH_MULTIPLIER;
+            }
             if ( actor.GetRendererCount() > 0 )
             {
               //Get renderer with maximum depth

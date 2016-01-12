@@ -193,6 +193,7 @@ int RunAllInParallel(  const char* processName, ::testcase tc_array[], bool reRu
       {
         TestCase tc(nextTestCase, tc_array[nextTestCase].name);
         children[pid] = tc;
+        // @todo Store current time.
         nextTestCase++;
         numRunningChildren++;
       }
@@ -201,11 +202,18 @@ int RunAllInParallel(  const char* processName, ::testcase tc_array[], bool reRu
     // Wait for the next child to finish
 
     int status=0;
-    int childPid = waitpid(-1, &status, 0);
+    int options=0; // WNOHANG
+
+    int childPid = waitpid(-1, &status, options);
     if( childPid == -1 )
     {
       perror("waitpid");
       exit(EXIT_STATUS_WAITPID_FAILED);
+    }
+
+    if( childPid == 0 ) // For use with WNOHANG
+    {
+      continue;
     }
 
     if( WIFEXITED(status) )

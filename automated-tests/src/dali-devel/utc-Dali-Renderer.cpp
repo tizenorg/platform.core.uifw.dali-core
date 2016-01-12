@@ -884,3 +884,204 @@ int UtcDaliRendererUniformMapMultipleUniforms02(void)
 
   END_TEST;
 }
+
+
+int UtcDaliRendererRenderOrder2DLayer(void)
+{
+  TestApplication application;
+  tet_infoline("Test the rendering order in a 2D layer is correct");
+
+  Shader shader = Shader::New("VertexSource", "FragmentSource");
+  PropertyBuffer vertexBuffer = CreatePropertyBuffer();
+  Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
+
+  Actor actor0 = Actor::New();
+  Image image0 = BufferImage::New( 64, 64, Pixel::RGB888 );
+  Material material0 = Material::New( shader );
+  material0.AddTexture( image0, "sTexture0" );
+  Renderer renderer0 = Renderer::New( geometry, material0 );
+  actor0.AddRenderer(renderer0);
+  actor0.SetSize(1, 1);
+  Stage::GetCurrent().Add(actor0);
+  application.SendNotification();
+  application.Render(0);
+
+  Actor actor1 = Actor::New();
+  Image image1= BufferImage::New( 64, 64, Pixel::RGB888 );
+  Material material1 = Material::New( shader );
+  material1.AddTexture( image1, "sTexture1" );
+  Renderer renderer1 = Renderer::New( geometry, material1 );
+  actor1.AddRenderer(renderer1);
+  actor1.SetSize(1, 1);
+  Stage::GetCurrent().Add(actor1);
+  application.SendNotification();
+  application.Render(0);
+
+  Actor actor2 = Actor::New();
+  Image image2= BufferImage::New( 64, 64, Pixel::RGB888 );
+  Material material2 = Material::New( shader );
+  material2.AddTexture( image2, "sTexture2" );
+  Renderer renderer2 = Renderer::New( geometry, material2 );
+  actor2.AddRenderer(renderer2);
+  actor2.SetSize(1, 1);
+  Stage::GetCurrent().Add(actor2);
+  application.SendNotification();
+  application.Render(0);
+
+  Actor actor3 = Actor::New();
+  Image image3 = BufferImage::New( 64, 64, Pixel::RGB888 );
+  Material material3 = Material::New( shader );
+  material3.AddTexture( image3, "sTexture3" );
+  Renderer renderer3 = Renderer::New( geometry, material3 );
+  actor3.AddRenderer(renderer3);
+  actor3.SetSize(1, 1);
+  Stage::GetCurrent().Add(actor3);
+  application.SendNotification();
+  application.Render(0);
+
+  /*
+   * Create the following hierarchy:
+   *
+   *            actor2
+   *              /
+   *             /
+   *          actor1
+   *           /
+   *          /
+   *       actor0
+   *        /
+   *       /
+   *    actor3
+   *
+   *  Expected rendering order : actor2 - actor1 - actor0 - actor3
+   */
+  actor2.Add(actor1);
+  actor1.Add(actor0);
+  actor0.Add(actor3);
+
+  TestGlAbstraction& gl = application.GetGlAbstraction();
+  gl.EnableTextureCallTrace(true);
+  application.SendNotification();
+  application.Render(0);
+
+  int textureBindIndex[4];
+  for( unsigned int i(0); i<4; ++i )
+  {
+    std::stringstream params;
+    params << GL_TEXTURE_2D<<", "<<i+1;
+    textureBindIndex[i] = gl.GetTextureTrace().FindIndexFromMethodAndParams("BindTexture", params.str() );
+  }
+
+  //Check that actor1 has been rendered after actor2
+  DALI_TEST_GREATER( textureBindIndex[1], textureBindIndex[2], TEST_LOCATION );
+
+  //Check that actor0 has been rendered after actor1
+  DALI_TEST_GREATER( textureBindIndex[0], textureBindIndex[1], TEST_LOCATION );
+
+  //Check that actor3 has been rendered after actor0
+  DALI_TEST_GREATER( textureBindIndex[3], textureBindIndex[0], TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliRendererRenderOrder2DLayerOverlay(void)
+{
+  TestApplication application;
+  tet_infoline("Test the rendering order in a 2D layer is correct for overlays");
+
+  Shader shader = Shader::New("VertexSource", "FragmentSource");
+  PropertyBuffer vertexBuffer = CreatePropertyBuffer();
+  Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
+
+  Actor actor0 = Actor::New();
+  actor0.SetDrawMode( DrawMode::OVERLAY_2D );
+  Image image0 = BufferImage::New( 64, 64, Pixel::RGB888 );
+  Material material0 = Material::New( shader );
+  material0.AddTexture( image0, "sTexture0" );
+  Renderer renderer0 = Renderer::New( geometry, material0 );
+  actor0.AddRenderer(renderer0);
+  actor0.SetSize(1, 1);
+  Stage::GetCurrent().Add(actor0);
+  application.SendNotification();
+  application.Render(0);
+
+  Actor actor1 = Actor::New();
+  actor1.SetDrawMode( DrawMode::OVERLAY_2D );
+  Image image1= BufferImage::New( 64, 64, Pixel::RGB888 );
+  Material material1 = Material::New( shader );
+  material1.AddTexture( image1, "sTexture1" );
+  Renderer renderer1 = Renderer::New( geometry, material1 );
+  actor1.AddRenderer(renderer1);
+  actor1.SetSize(1, 1);
+  Stage::GetCurrent().Add(actor1);
+  application.SendNotification();
+  application.Render(0);
+
+  Actor actor2 = Actor::New();
+  actor2.SetDrawMode( DrawMode::OVERLAY_2D );
+  Image image2= BufferImage::New( 64, 64, Pixel::RGB888 );
+  Material material2 = Material::New( shader );
+  material2.AddTexture( image2, "sTexture2" );
+  Renderer renderer2 = Renderer::New( geometry, material2 );
+  actor2.AddRenderer(renderer2);
+  actor2.SetSize(1, 1);
+  Stage::GetCurrent().Add(actor2);
+  application.SendNotification();
+  application.Render(0);
+
+  Actor actor3 = Actor::New();
+  actor3.SetDrawMode( DrawMode::OVERLAY_2D );
+  Image image3 = BufferImage::New( 64, 64, Pixel::RGB888 );
+  Material material3 = Material::New( shader );
+  material3.AddTexture( image3, "sTexture3" );
+  Renderer renderer3 = Renderer::New( geometry, material3 );
+  actor3.AddRenderer(renderer3);
+  actor3.SetSize(1, 1);
+  Stage::GetCurrent().Add(actor3);
+  application.SendNotification();
+  application.Render(0);
+
+  /*
+   * Create the following hierarchy:
+   *
+   *            actor2
+   *              /
+   *             /
+   *          actor1
+   *           /
+   *          /
+   *       actor0
+   *        /
+   *       /
+   *    actor3
+   *
+   *  Expected rendering order : actor2 - actor1 - actor0 - actor3
+   */
+  actor2.Add(actor1);
+  actor1.Add(actor0);
+  actor0.Add(actor3);
+
+  TestGlAbstraction& gl = application.GetGlAbstraction();
+  gl.EnableTextureCallTrace(true);
+  application.SendNotification();
+  application.Render(0);
+
+  int textureBindIndex[4];
+  for( unsigned int i(0); i<4; ++i )
+  {
+    std::stringstream params;
+    params << GL_TEXTURE_2D<<", "<<i+1;
+    textureBindIndex[i] = gl.GetTextureTrace().FindIndexFromMethodAndParams("BindTexture", params.str() );
+  }
+
+  //Check that actor1 has been rendered after actor2
+  DALI_TEST_GREATER( textureBindIndex[1], textureBindIndex[2], TEST_LOCATION );
+
+  //Check that actor0 has been rendered after actor1
+  DALI_TEST_GREATER( textureBindIndex[0], textureBindIndex[1], TEST_LOCATION );
+
+  //Check that actor3 has been rendered after actor0
+  DALI_TEST_GREATER( textureBindIndex[3], textureBindIndex[0], TEST_LOCATION );
+
+  END_TEST;
+}

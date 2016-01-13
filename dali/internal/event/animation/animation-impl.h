@@ -83,9 +83,19 @@ public:
   float GetDuration() const;
 
   /**
-   * @copydoc Dali::Animation::SetLooping()
+   * @copydoc Dali::Animation::SetLoopCount()
    */
-  void SetLooping(bool looping);
+  void SetLoopCount(int count);
+
+  /**
+   * @copydoc Dali::Animation::SetLoopCount()
+   */
+  int GetLoopCount();
+
+  /**
+   * Decrement the loop count by 1, halting at zero
+   */
+  void DecrementLoopCount();
 
   /**
    * @copydoc Dali::Animation::IsLooping()
@@ -434,7 +444,7 @@ private:
 
   const SceneGraph::Animation* mAnimation;
 
-  int mNotificationCount; ///< Keep track of how many Finished signals have been emitted.
+  int mPlayedCount; ///< Keep track of how many Finished signals have been emitted.
 
   Dali::Animation::AnimationSignalType mFinishedSignal;
 
@@ -446,7 +456,7 @@ private:
   // Cached for public getters
   float mDurationSeconds;
   float mSpeedFactor;
-  bool mIsLooping;
+  int mLoopCount;
   Vector2 mPlayRange;
   EndAction mEndAction;
   EndAction mDisconnectAction;

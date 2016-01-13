@@ -206,9 +206,18 @@ public:
   /**
    * @brief Set whether the animation will loop.
    *
+   * This function sets the loop count and should not be used with SetLoopCount(int).
    * @param[in] looping True if the animation will loop.
    */
   void SetLooping(bool looping);
+
+  /**
+   * @brief Enable looping for 'count' repeats.
+   *
+   * A negative value is the same as SetLooping(true) ie repeat forever.
+   * @param[in] count The number of times to loop.
+   */
+  void SetLoopCount(int count);
 
   /**
    * @brief Query whether the animation will loop.

@@ -66,12 +66,12 @@ public:
    * @param[in] durationSeconds The duration of the animation in seconds.
    * @param[in] speedFactor Multiplier to the animation velocity.
    * @param[in] playRange Minimum and maximum progress between which the animation will play.
-   * @param[in] isLooping Whether the animation will loop.
+   * @param[in] loopCount Whether the animation will loop.
    * @param[in] endAction The action to perform when the animation ends.
    * @param[in] disconnectAction The action to perform when the property owner of an animator is disconnected.
    * @return A new Animation
    */
-  static Animation* New( float durationSeconds, float speedFactor, const Vector2& playRange, bool isLooping, EndAction endAction, EndAction disconnectAction );
+  static Animation* New( float durationSeconds, float speedFactor, const Vector2& playRange, int loopCount, EndAction endAction, EndAction disconnectAction );
 
   /**
    * Virtual destructor
@@ -132,7 +132,7 @@ public:
    * Set whether the animation will loop.
    * @param[in] looping True if the animation will loop.
    */
-  void SetLooping(bool looping);
+  void SetLoopCount(int loopCount);
 
   /**
    * Query whether the animation will loop.
@@ -140,7 +140,12 @@ public:
    */
   bool IsLooping() const
   {
-    return mLooping;
+    return mLoopCount != 0;
+  }
+
+  int GetLoopCount() const
+  {
+    return mLoopCount;
   }
 
   /**
@@ -264,7 +269,7 @@ protected:
   /**
    * Protected constructor. See New()
    */
-  Animation( float durationSeconds, float speedFactor, const Vector2& playRange, bool isLooping, EndAction endAction, EndAction disconnectAction );
+  Animation( float durationSeconds, float speedFactor, const Vector2& playRange, int loopCount, EndAction endAction, EndAction disconnectAction );
 
 
 private:
@@ -301,7 +306,7 @@ protected:
 
   float mDurationSeconds;
   float mSpeedFactor;
-  bool mLooping;
+  int mLoopCount;
   EndAction mEndAction;
   EndAction mDisconnectAction;
 
@@ -334,15 +339,15 @@ inline void SetDurationMessage( EventThreadServices& eventThreadServices, const 
   new (slot) LocalType( &animation, &Animation::SetDuration, durationSeconds );
 }
 
-inline void SetLoopingMessage( EventThreadServices& eventThreadServices, const Animation& animation, bool looping )
+inline void SetLoopingMessage( EventThreadServices& eventThreadServices, const Animation& animation, int loopCount )
 {
-  typedef MessageValue1< Animation, bool > LocalType;
+  typedef MessageValue1< Animation, int > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &animation, &Animation::SetLooping, looping );
+  new (slot) LocalType( &animation, &Animation::SetLoopCount, loopCount );
 }
 
 inline void SetEndActionMessage( EventThreadServices& eventThreadServices, const Animation& animation, Dali::Animation::EndAction action )

@@ -84,6 +84,8 @@ void AnimationPlaylist::NotifyCompleted()
   {
     Animation* animation = *iter;
 
+    animation->DecrementLoopCount();
+
     if ( animation->HasFinished() )
     {
       finishedAnimations.push_back( Dali::Animation(animation) );

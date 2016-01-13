@@ -204,11 +204,44 @@ public:
   float GetDuration() const;
 
   /**
-   * @brief Set whether the animation will loop.
+   * @brief Set whether the animation will loop forever.
    *
-   * @param[in] looping True if the animation will loop.
+   * This function resets the loop count and should not be used with SetLoopCount(int).
+   * @param[in] looping True if the animation will loop forever.
    */
   void SetLooping(bool looping);
+
+  /**
+   * @brief Enable looping for 'count' repeats.
+   *
+   * @since 1.1.18
+   *
+   * A negative value is the same as SetLooping(true) ie repeat forever.
+   * A zero means don't repeat and just play once.
+   * @param[in] count The number of times to loop.
+   */
+  void SetLoopCount(int count);
+
+  /**
+   * @brief Get the loop count.
+   *
+   * @since 1.1.18
+   *
+   * A negative value is the same as SetLooping(true) ie repeat forever.
+   * A zero means don't repeat and just play once.
+   * @return The number of times to loop.
+   */
+  int GetLoopCount();
+
+  /**
+   * @brief Get the current loop count.
+   *
+   * @since 1.1.18
+   *
+   * A value 0 to GetLoopCount() indicating the current loop count when looping.
+   * @return The current number of loops that have occured.
+   */
+  int GetCurrentLoop();
 
   /**
    * @brief Query whether the animation will loop.

@@ -211,6 +211,13 @@ public:
   void SetLooping(bool looping);
 
   /**
+   * @brief Set the animation loop count.
+   *
+   * @param[in] count The number of times to loop.
+   */
+  void SetLoopCount(int count);
+
+  /**
    * @brief Query whether the animation will loop.
    *
    * @return True if the animation will loop.

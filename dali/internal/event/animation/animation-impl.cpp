@@ -117,12 +117,12 @@ Animation::Animation( EventThreadServices& eventThreadServices, AnimationPlaylis
 : mEventThreadServices( eventThreadServices ),
   mPlaylist( playlist ),
   mAnimation( NULL ),
-  mNotificationCount( 0 ),
+  mPlayedCount( 0 ),
   mFinishedCallback( NULL ),
   mFinishedCallbackObject( NULL ),
   mDurationSeconds( durationSeconds ),
   mSpeedFactor(1.0f),
-  mIsLooping( false ),
+  mLoopCount( 0 ),
   mPlayRange( Vector2(0.0f,1.0f)),
   mEndAction( endAction ),
   mDisconnectAction( disconnectAction ),
@@ -159,7 +159,7 @@ void Animation::CreateSceneObject()
   DALI_ASSERT_DEBUG( mAnimation == NULL );
 
   // Create a new animation, temporarily owned
-  SceneGraph::Animation* animation = SceneGraph::Animation::New( mDurationSeconds, mSpeedFactor, mPlayRange, mIsLooping, mEndAction, mDisconnectAction );
+  SceneGraph::Animation* animation = SceneGraph::Animation::New( mDurationSeconds, mSpeedFactor, mPlayRange, mLoopCount, mEndAction, mDisconnectAction );
 
   // Keep a const pointer to the animation.
   mAnimation = animation;
@@ -199,19 +199,31 @@ float Animation::GetDuration() const
   return mDurationSeconds;
 }
 
-void Animation::SetLooping(bool looping)
+void Animation::SetLoopCount(int count)
 {
   // Cache for public getters
-  mIsLooping = looping;
+  mLoopCount = count;
 
   // mAnimation is being used in a separate thread; queue a message to set the value
-  SetLoopingMessage( mEventThreadServices, *mAnimation, looping );
+  SetLoopingMessage( mEventThreadServices, *mAnimation, mLoopCount );
+}
+
+int Animation::GetLoopCount()
+{
+  return mLoopCount;
+}
+
+void Animation::DecrementLoopCount()
+{
+  if( mLoopCount > 0 )
+  {
+    mLoopCount--;
+  }
 }
 
 bool Animation::IsLooping() const
 {
-  // This is not animatable; the cached value is up-to-date.
-  return mIsLooping;
+  return (mLoopCount < 0) || (mLoopCount > 0);
 }
 
 void Animation::SetEndAction(EndAction action)
@@ -289,7 +301,7 @@ void Animation::Clear()
   CreateSceneObject();
 
   // Reset the notification count, since the new scene-object has never been played
-  mNotificationCount = 0;
+  mPlayedCount = 0;
 
   // Update the current playlist
   mPlaylist.OnClear( *this );
@@ -722,14 +734,19 @@ bool Animation::HasFinished()
 {
   bool hasFinished(false);
   const int playCount(mAnimation->GetPlayCount());
+  const int loopCount(mAnimation->GetLoopCount());
 
   // If the play count has been incremented, then another notification is required
-  if (playCount > mNotificationCount)
+  if (playCount > mPlayedCount)
   {
-    // Note that only one signal is emitted, if the animation has been played repeatedly
-    mNotificationCount = playCount;
+    mPlayedCount = playCount;
 
-    hasFinished = true;
+    if (playCount >= loopCount)
+    {
+      // Note that only one signal is emitted, if the animation has been played repeatedly
+      hasFinished = true;
+    }
+
   }
 
   return hasFinished;

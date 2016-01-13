@@ -122,7 +122,8 @@ Animation::Animation( EventThreadServices& eventThreadServices, AnimationPlaylis
   mFinishedCallbackObject( NULL ),
   mDurationSeconds( durationSeconds ),
   mSpeedFactor(1.0f),
-  mIsLooping( false ),
+  mLoopCount(0),
+  mCurrentLoop(0),
   mPlayRange( Vector2(0.0f,1.0f)),
   mEndAction( endAction ),
   mDisconnectAction( disconnectAction ),
@@ -159,7 +160,7 @@ void Animation::CreateSceneObject()
   DALI_ASSERT_DEBUG( mAnimation == NULL );
 
   // Create a new animation, temporarily owned
-  SceneGraph::Animation* animation = SceneGraph::Animation::New( mDurationSeconds, mSpeedFactor, mPlayRange, mIsLooping, mEndAction, mDisconnectAction );
+  SceneGraph::Animation* animation = SceneGraph::Animation::New( mDurationSeconds, mSpeedFactor, mPlayRange, mLoopCount, mEndAction, mDisconnectAction );
 
   // Keep a const pointer to the animation.
   mAnimation = animation;
@@ -199,19 +200,29 @@ float Animation::GetDuration() const
   return mDurationSeconds;
 }
 
-void Animation::SetLooping(bool looping)
+void Animation::SetLoopCount(int count)
 {
   // Cache for public getters
-  mIsLooping = looping;
+  mLoopCount = count;
+  mCurrentLoop = 0;
 
   // mAnimation is being used in a separate thread; queue a message to set the value
-  SetLoopingMessage( mEventThreadServices, *mAnimation, looping );
+  SetLoopingMessage( mEventThreadServices, *mAnimation, mLoopCount );
+}
+
+int Animation::GetLoopCount()
+{
+  return mLoopCount;
+}
+
+int Animation::GetCurrentLoop()
+{
+  return mCurrentLoop;
 }
 
 bool Animation::IsLooping() const
 {
-  // This is not animatable; the cached value is up-to-date.
-  return mIsLooping;
+  return mLoopCount != 0;
 }
 
 void Animation::SetEndAction(EndAction action)
@@ -723,10 +734,11 @@ bool Animation::HasFinished()
   bool hasFinished(false);
   const int playCount(mAnimation->GetPlayCount());
 
-  // If the play count has been incremented, then another notification is required
+  mCurrentLoop = mAnimation->GetCurrentLoop();
+
   if (playCount > mNotificationCount)
   {
-    // Note that only one signal is emitted, if the animation has been played repeatedly
+    // trigger once
     mNotificationCount = playCount;
 
     hasFinished = true;

@@ -76,7 +76,22 @@ float Animation::GetDuration() const
 
 void Animation::SetLooping(bool looping)
 {
-  GetImplementation(*this).SetLooping(looping);
+  SetLoopCount( looping ? -1 : 0 );
+}
+
+void Animation::SetLoopCount(int count)
+{
+  GetImplementation(*this).SetLoopCount(count);
+}
+
+int Animation::GetLoopCount()
+{
+  return GetImplementation(*this).GetLoopCount();
+}
+
+int Animation::GetCurrentLoop()
+{
+  return GetImplementation(*this).GetCurrentLoop();
 }
 
 bool Animation::IsLooping() const

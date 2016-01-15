@@ -1051,37 +1051,45 @@ int UtcDaliTypeRegistryAnimatablePropertyRegistrationP(void)
   unsigned int customPropertyCount( customActor.GetPropertyCount() );
 
   // Register animatable property
-  std::string animatablePropertyName( "animatableProp1" );
-  int animatablePropertyIndex( ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX );
+  std::string animatablePropertyName1( "animatableProp1" );
+  int animatablePropertyIndex1( ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX );
   Property::Type animatablePropertyType( Property::FLOAT );
-  AnimatablePropertyRegistration animatableProperty1( customType1, animatablePropertyName, animatablePropertyIndex, animatablePropertyType );
+  AnimatablePropertyRegistration animatableProperty1( customType1, animatablePropertyName1, animatablePropertyIndex1, animatablePropertyType );
+
+  std::string animatablePropertyName2( "animatableProp2" );
+  int animatablePropertyIndex2( ANIMATABLE_PROPERTY_REGISTRATION_START_INDEX + 1);
+  AnimatablePropertyRegistration animatableProperty2( customType1, animatablePropertyName2, animatablePropertyIndex2, 10.5f );
 
   // Check property count after registration
-  DALI_TEST_EQUALS( customPropertyCount + 1u, customActor.GetPropertyCount(), TEST_LOCATION );
+  DALI_TEST_EQUALS( customPropertyCount + 2u, customActor.GetPropertyCount(), TEST_LOCATION );
 
   // Set the animatable property value
-  customActor.SetProperty( animatablePropertyIndex, 25.0f );
+  customActor.SetProperty( animatablePropertyIndex1, 25.0f );
 
   // Render and notify
   application.SendNotification();
   application.Render();
 
   // Check the animatable property value
-  DALI_TEST_EQUALS( customActor.GetProperty< float >( animatablePropertyIndex ), 25.0f, TEST_LOCATION );
+  DALI_TEST_EQUALS( customActor.GetProperty< float >( animatablePropertyIndex1 ), 25.0f, TEST_LOCATION );
+  DALI_TEST_EQUALS( customActor.GetProperty< float >( animatablePropertyIndex2 ), 10.5f, TEST_LOCATION );
 
   // Check the animatable property name
-  DALI_TEST_EQUALS( customActor.GetPropertyName( animatablePropertyIndex ), animatablePropertyName, TEST_LOCATION );
+  DALI_TEST_EQUALS( customActor.GetPropertyName( animatablePropertyIndex1 ), animatablePropertyName1, TEST_LOCATION );
+  DALI_TEST_EQUALS( customActor.GetPropertyName( animatablePropertyIndex2 ), animatablePropertyName2, TEST_LOCATION );
 
   // Check the animatable property index
-  DALI_TEST_EQUALS( customActor.GetPropertyIndex( animatablePropertyName ), animatablePropertyIndex, TEST_LOCATION );
+  DALI_TEST_EQUALS( customActor.GetPropertyIndex( animatablePropertyName1 ), animatablePropertyIndex1, TEST_LOCATION );
+  DALI_TEST_EQUALS( customActor.GetPropertyIndex( animatablePropertyName2 ), animatablePropertyIndex2, TEST_LOCATION );
 
   // Check the animatable property type
-  DALI_TEST_EQUALS( customActor.GetPropertyType( animatablePropertyIndex ), animatablePropertyType, TEST_LOCATION );
+  DALI_TEST_EQUALS( customActor.GetPropertyType( animatablePropertyIndex1 ), animatablePropertyType, TEST_LOCATION );
+  DALI_TEST_EQUALS( customActor.GetPropertyType( animatablePropertyIndex2 ), animatablePropertyType, TEST_LOCATION );
 
-  // Check property count of type-info is 1
+  // Check property count of type-info is 2
   Property::IndexContainer indices;
   typeInfo.GetPropertyIndices( indices );
-  DALI_TEST_EQUALS( indices.Size(), 1u, TEST_LOCATION );
+  DALI_TEST_EQUALS( indices.Size(), 2u, TEST_LOCATION );
 
   // Ensure indices returned from actor and customActor differ by one
   Actor actor = Actor::New();
@@ -1089,7 +1097,7 @@ int UtcDaliTypeRegistryAnimatablePropertyRegistrationP(void)
   unsigned int actorIndices = indices.Size();
   customActor.GetPropertyIndices( indices );
   unsigned int customActorIndices = indices.Size();
-  DALI_TEST_EQUALS( actorIndices + 1u, customActorIndices, TEST_LOCATION ); // Custom property + registered property
+  DALI_TEST_EQUALS( actorIndices + 2u, customActorIndices, TEST_LOCATION ); // Custom property + registered property
 
   END_TEST;
 }

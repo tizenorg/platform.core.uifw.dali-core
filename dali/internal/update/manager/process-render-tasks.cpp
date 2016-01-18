@@ -134,35 +134,37 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
 
   inheritedDrawMode |= node.GetDrawMode();
 
-  const unsigned int count = node.GetRendererCount();
-  for( unsigned int i = 0; i < count; ++i )
+  if( node.ResolveVisibility( updateBufferIndex ) )
   {
-    SceneGraph::Renderer* renderer = node.GetRendererAt( i );
-    bool ready = false;
-    bool complete = false;
-    renderer->GetReadyAndComplete( ready, complete );
-
-    DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "Testing renderable:%p ready:%s complete:%s\n", renderer, ready?"T":"F", complete?"T":"F");
-
-    resourcesFinished &= complete;
-
-    if( ready ) // i.e. should be rendered (all resources are available)
+    const unsigned int count = node.GetRendererCount();
+    for( unsigned int i = 0; i < count; ++i )
     {
-      if( DrawMode::STENCIL == inheritedDrawMode )
+      SceneGraph::Renderer* renderer = node.GetRendererAt( i );
+      bool ready = false;
+      bool complete = false;
+      renderer->GetReadyAndComplete( ready, complete );
+
+      DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "Testing renderable:%p ready:%s complete:%s\n", renderer, ready?"T":"F", complete?"T":"F");
+
+      resourcesFinished &= complete;
+
+      if( ready ) // i.e. should be rendered (all resources are available)
       {
-        layer->stencilRenderables.PushBack( Renderable(&node, renderer ) );
-      }
-      else if( DrawMode::OVERLAY_2D == inheritedDrawMode )
-      {
-        layer->overlayRenderables.PushBack( Renderable(&node, renderer ) );
-      }
-      else
-      {
-        layer->colorRenderables.PushBack( Renderable(&node, renderer ) );
+        if( DrawMode::STENCIL == inheritedDrawMode )
+        {
+          layer->stencilRenderables.PushBack( Renderable(&node, renderer ) );
+        }
+        else if( DrawMode::OVERLAY_2D == inheritedDrawMode )
+        {
+          layer->overlayRenderables.PushBack( Renderable(&node, renderer ) );
+        }
+        else
+        {
+          layer->colorRenderables.PushBack( Renderable(&node, renderer ) );
+        }
       }
     }
   }
-
 
 
   // Recurse children
@@ -256,7 +258,6 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 sortedLayers,
                                 renderTask,
                                 sortingHelper,
-                                renderTask.GetCullMode(),
                                 instructions );
     }
 
@@ -317,7 +318,6 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                 sortedLayers,
                                 renderTask,
                                 sortingHelper,
-                                renderTask.GetCullMode(),
                                 instructions );
     }
 

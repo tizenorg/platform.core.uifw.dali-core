@@ -405,6 +405,7 @@ void Renderer::Render( Context& context,
                        const Matrix& modelViewMatrix,
                        const Matrix& viewMatrix,
                        const Matrix& projectionMatrix,
+                       bool cull,
                        bool blend )
 {
   // Get the program to use:

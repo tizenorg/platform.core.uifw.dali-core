@@ -60,53 +60,59 @@ namespace SceneGraph
  * @param viewMatrix used to calculate modelview matrix for the item
  * @param cameraAttachment The camera used to render
  * @param isLayer3d Whether we are processing a 3D layer or not
- * @param cull Whether frustum culling is enabled or not
  */
 inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
                                      RenderList& renderList,
                                      Renderable& renderable,
                                      const Matrix& viewMatrix,
                                      SceneGraph::CameraAttachment& cameraAttachment,
-                                     bool isLayer3d,
-                                     bool cull )
+                                     bool isLayer3d )
 {
-  bool inside( true );
-
+  // Check for cull against view frustum
   const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
-  if ( cull && renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
+  bool inside = true;
+
+  if ( renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
     const Vector3& position = worldMatrix.GetTranslation3();
     const Vector3& scale = renderable.mNode->GetScale( updateBufferIndex );
     const Vector3& halfSize = renderable.mNode->GetSize( updateBufferIndex ) * scale * 0.5f;
-    float radius( halfSize.Length() );
 
-    inside = (radius > Math::MACHINE_EPSILON_1000) &&
-             (cameraAttachment.CheckAABBInFrustum( updateBufferIndex, position, halfSize) );
-
+    // Do a fast sphere check
+    if ( cameraAttachment.CheckSphereInFrustum( updateBufferIndex, position, halfSize.Length() ) )
+    {
+      // Check geometry AABB
+      //TODO: Take into account orientation
+      if ( !cameraAttachment.CheckAABBInFrustum( updateBufferIndex, position, halfSize ) )
+      {
+        inside = false;
+      }
+    }
+    else
+    {
+      inside = false;
+    }
   }
 
   if ( inside )
   {
-    Renderer::Opacity opacity = renderable.mRenderer->GetOpacity( updateBufferIndex, *renderable.mNode );
-    if( opacity != Renderer::TRANSPARENT )
-    {
-      // Get the next free RenderItem
-      RenderItem& item = renderList.GetNextFreeItem();
-      item.SetRenderer( &renderable.mRenderer->GetRenderer() );
-      item.SetNode( renderable.mNode );
-      item.SetIsOpaque( opacity == Renderer::OPAQUE );
+    // Get the next free RenderItem
+    RenderItem& item = renderList.GetNextFreeItem();
+    item.SetRenderer( &renderable.mRenderer->GetRenderer() );
+    item.SetNode( renderable.mNode );
+    item.SetIsOpaque( renderable.mRenderer->IsFullyOpaque(updateBufferIndex, *renderable.mNode ) );
 
-      if( isLayer3d )
-      {
-        item.SetDepthIndex( renderable.mRenderer->GetDepthIndex() );
-      }
-      else
-      {
-        item.SetDepthIndex( renderable.mRenderer->GetDepthIndex() + static_cast<int>( renderable.mNode->GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER );
-      }
-      // save MV matrix onto the item
-      Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
+    if( isLayer3d )
+    {
+      item.SetDepthIndex( renderable.mRenderer->GetDepthIndex() );
     }
+    else
+    {
+      item.SetDepthIndex( renderable.mRenderer->GetDepthIndex() + static_cast<int>( renderable.mNode->GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER );
+    }
+
+    // save MV matrix onto the item
+    Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
   }
 }
 
@@ -119,22 +125,20 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
  * @param viewMatrix used to calculate modelview matrix for the items
  * @param cameraAttachment The camera used to render
  * @param isLayer3d Whether we are processing a 3D layer or not
- * @param cull Whether frustum culling is enabled or not
  */
 inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
                                       RenderList& renderList,
                                       RenderableContainer& renderables,
                                       const Matrix& viewMatrix,
                                       SceneGraph::CameraAttachment& cameraAttachment,
-                                      bool isLayer3d,
-                                      bool cull)
+                                      bool isLayer3d )
 {
   DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "AddRenderersToRenderList()\n");
 
   unsigned int rendererCount( renderables.Size() );
   for( unsigned int i(0); i<rendererCount; ++i )
   {
-    AddRendererToRenderList( updateBufferIndex, renderList, renderables[i], viewMatrix, cameraAttachment, isLayer3d, cull );
+    AddRendererToRenderList( updateBufferIndex, renderList, renderables[i], viewMatrix, cameraAttachment, isLayer3d );
   }
 }
 
@@ -340,7 +344,6 @@ inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, La
  * @param instruction to fill in
  * @param sortingHelper to use for sorting the renderitems (to avoid reallocating)
  * @param tryReuseRenderList whether to try to reuse the cached items from the instruction
- * @param cull Whether frustum culling is enabled or not
  */
 inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                Layer& layer,
@@ -349,8 +352,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                bool stencilRenderablesExist,
                                RenderInstruction& instruction,
                                RendererSortingHelper& sortingHelper,
-                               bool tryReuseRenderList,
-                               bool cull)
+                               bool tryReuseRenderList )
 {
   RenderList& renderList = instruction.GetNextFreeRenderList( layer.colorRenderables.Size() );
   renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
@@ -365,7 +367,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
     }
   }
 
-  AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+  AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
   SortRenderItems( updateBufferIndex, renderList, layer, sortingHelper );
 
   //Set render flags
@@ -405,7 +407,6 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
  * @param stencilRenderablesExist is true if there are stencil renderers on this layer
  * @param instruction to fill in
  * @param tryReuseRenderList whether to try to reuse the cached items from the instruction
- * @param cull Whether frustum culling is enabled or not
  */
 inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
                                  Layer& layer,
@@ -414,8 +415,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
                                  bool stencilRenderablesExist,
                                  RenderInstruction& instruction,
                                  RendererSortingHelper& sortingHelper,
-                                 bool tryReuseRenderList,
-                                 bool cull )
+                                 bool tryReuseRenderList )
 {
   RenderList& overlayRenderList = instruction.GetNextFreeRenderList( layer.overlayRenderables.Size() );
   overlayRenderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
@@ -436,7 +436,8 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+
+  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
   SortRenderItems( updateBufferIndex, overlayRenderList, layer, sortingHelper );
 }
 
@@ -447,15 +448,13 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
  * @param viewmatrix for the camera from rendertask
  * @param instruction to fill in
  * @param tryReuseRenderList whether to try to reuse the cached items from the instruction
- * @param cull Whether frustum culling is enabled or not
  */
 inline void AddStencilRenderers( BufferIndex updateBufferIndex,
                                  Layer& layer,
                                  const Matrix& viewMatrix,
                                  SceneGraph::CameraAttachment& cameraAttachment,
                                  RenderInstruction& instruction,
-                                 bool tryReuseRenderList,
-                                 bool cull )
+                                 bool tryReuseRenderList )
 {
   RenderList& stencilRenderList = instruction.GetNextFreeRenderList( layer.stencilRenderables.Size() );
   stencilRenderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
@@ -473,14 +472,21 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D );
 }
 
+/**
+ * Prepare a single render instruction
+ * @param updateBufferIndex to use
+ * @param sortedLayers to prepare the instruction from
+ * @param renderTask to get the view matrix
+ * @param sortingHelper to use for sorting the renderitems (to avoid reallocating)
+ * @param instructions container
+ */
 void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                                SortedLayerPointers& sortedLayers,
                                RenderTask& renderTask,
                                RendererSortingHelper& sortingHelper,
-                               bool cull,
                                RenderInstructionContainer& instructions )
 {
   // Retrieve the RenderInstruction buffer from the RenderInstructionContainer
@@ -506,7 +512,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
     if( stencilRenderablesExist &&
         ( colorRenderablesExist || overlayRenderablesExist ) )
     {
-      AddStencilRenderers( updateBufferIndex, layer, viewMatrix, cameraAttachment, instruction, tryReuseRenderList, cull );
+      AddStencilRenderers( updateBufferIndex, layer, viewMatrix, cameraAttachment, instruction, tryReuseRenderList );
     }
 
     if ( colorRenderablesExist )
@@ -518,16 +524,17 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                          stencilRenderablesExist,
                          instruction,
                          sortingHelper,
-                         tryReuseRenderList,
-                         cull );
+                         tryReuseRenderList );
     }
 
     if ( overlayRenderablesExist )
     {
       AddOverlayRenderers( updateBufferIndex, layer, viewMatrix, cameraAttachment, stencilRenderablesExist,
-                           instruction, sortingHelper, tryReuseRenderList, cull );
+                           instruction, sortingHelper, tryReuseRenderList );
     }
   }
+
+  instruction.mCullMode = renderTask.GetCullMode();
 
   // inform the render instruction that all renderers have been added and this frame is complete
   instruction.UpdateCompleted();

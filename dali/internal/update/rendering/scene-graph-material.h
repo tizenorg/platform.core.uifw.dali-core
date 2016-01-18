@@ -55,8 +55,8 @@ public:
    */
   enum BlendPolicy
   {
-    OPAQUE,          ///< If the renderer should never use blending
-    TRANSLUCENT,     ///< If the renderer should always be use blending
+    OPAQUE,          ///< If the renderer should always be opaque
+    TRANSPARENT,     ///< If the renderer should always be transparent
     USE_ACTOR_COLOR  ///< If the renderer should determine opacity using the actor color
   };
 

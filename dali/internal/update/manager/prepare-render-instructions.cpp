@@ -76,13 +76,22 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
   if ( cull && renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
     const Vector3& position = worldMatrix.GetTranslation3();
+    const Quaternion& rotation = renderable.mNode->GetWorldOrientation( updateBufferIndex );
     const Vector3& scale = renderable.mNode->GetWorldScale( updateBufferIndex );
     const Vector3& halfSize = renderable.mNode->GetSize( updateBufferIndex ) * scale * 0.5f;
     float radius( halfSize.Length() );
+    bool axisAligned = rotation.IsIdentity();
 
-    inside = (radius > Math::MACHINE_EPSILON_1000) &&
-             (cameraAttachment.CheckAABBInFrustum( updateBufferIndex, position, halfSize) );
-
+    if( axisAligned )
+    {
+      inside = ( radius > Math::MACHINE_EPSILON_1000 ) &&
+               ( cameraAttachment.CheckAABBInFrustum( updateBufferIndex, position, halfSize ) );
+    }
+    else
+    {
+      inside = ( radius > Math::MACHINE_EPSILON_1000 ) &&
+               ( cameraAttachment.CheckSphereInFrustum( updateBufferIndex, position, halfSize.Length() ) );
+    }
   }
 
   if ( inside )

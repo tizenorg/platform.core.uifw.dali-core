@@ -35,12 +35,14 @@ namespace Dali
 
 namespace
 {
-typedef Dali::Layer::Behavior Behavior;
+
+typedef Layer::Behavior Behavior;
 
 DALI_ENUM_TO_STRING_TABLE_BEGIN( Behavior )
-DALI_ENUM_TO_STRING( Dali::Layer::LAYER_2D )
-DALI_ENUM_TO_STRING( Dali::Layer::LAYER_3D )
+DALI_ENUM_TO_STRING_PAIR( "LAYER_2D", Layer::LAYER_2D )
+DALI_ENUM_TO_STRING_PAIR( "LAYER_3D", Layer::LAYER_3D )
 DALI_ENUM_TO_STRING_TABLE_END( Behavior )
+
 } // namespace
 
 namespace Internal

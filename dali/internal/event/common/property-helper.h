@@ -94,6 +94,7 @@ struct PropertyDetails
 #define DALI_ENUM_TO_STRING_TABLE_BEGIN( t ) const Dali::Scripting::StringEnum t##Table[] = {
 #define DALI_ENUM_TO_STRING_TABLE_END( t )   }; const unsigned int t##TableCount = sizeof( t##Table ) / sizeof( t##Table[0] );
 #define DALI_ENUM_TO_STRING( s ) { #s, s },
+#define DALI_ENUM_TO_STRING_PAIR( string, value ) { string, value },
 
 
 } // namespace Internal

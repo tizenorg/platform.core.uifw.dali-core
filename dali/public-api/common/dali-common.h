@@ -76,6 +76,7 @@
 #endif
 
 /**
+ * @SINCE_1_0.0
  * Two macros to provide branch predictor information.
  * DALI_LIKELY should be used when a branch is taken in almost all cases so the
  * branch predictor can avoid pre-fetching the code for else branch
@@ -86,6 +87,7 @@
 
 /**
  * @brief The DALi namespace
+ * @SINCE_1_0.0
  */
 namespace Dali
 {
@@ -97,6 +99,7 @@ namespace Dali
 /**
  * @brief Method to log assertion message in DALI_ASSERT_ALWAYS macro below.
  *
+ * @SINCE_1_0.0
  * @param[in] location Where the assertion occurred
  * @param[in] condition The assertion condition
  */
@@ -104,6 +107,7 @@ DALI_IMPORT_API void DaliAssertMessage( const char* location, const char* condit
 
 /**
  * @brief Exception class for Dali Core library - Raised by assertions in codebase.
+ * @SINCE_1_0.0
  */
 class DALI_IMPORT_API DaliException
 {
@@ -113,6 +117,7 @@ public:
    *
    * Will always display a backtrace when raised in a debug build.
    *
+   * @SINCE_1_0.0
    * @param[in] location  - the location of the assertion
    * @param[in] condition - The assertion condition
    */
@@ -149,6 +154,7 @@ public:
  */
 
 /**
+ * @SINCE_1_0.0
  * Strip assert location for release builds, assert text is descriptive enough
  * This is to save space for low spec devices
  */
@@ -181,6 +187,7 @@ public:
  * @brief An invariant concurrent assertion to ensure its argument evaluates TRUE in debug builds.
  *
  * Use this to sanity check algorithms and prevent internal programming errors
+ * @SINCE_1_0.0
  */
 #if defined(DEBUG_ENABLED)
 #define DALI_ASSERT_DEBUG(cond) DALI_ASSERT_ALWAYS(cond)

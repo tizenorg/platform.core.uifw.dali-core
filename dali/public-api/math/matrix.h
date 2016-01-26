@@ -308,6 +308,7 @@ public:
    */
   Vector4 operator*(const Vector4& rhs) const;
 
+  Vector3 MultiplyAbsolute(const Vector3& rhs ) const;
   /**
    * @brief The equality operator.
    *

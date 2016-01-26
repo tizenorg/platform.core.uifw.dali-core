@@ -73,31 +73,16 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
   bool inside( true );
 
   const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
+  Vector3 size(0.0f,0.0f,0.0f);
   if ( cull && renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
-    const Vector3& scale = renderable.mNode->GetWorldScale( updateBufferIndex );
-    const Vector3& halfSize = renderable.mNode->GetSize( updateBufferIndex ) * scale * 0.5f;
+    const Vector3& position = worldMatrix.GetTranslation3();
+    size = renderable.mNode->GetSize( updateBufferIndex );
+    const Vector3& halfSize = size * 0.5f;
     float radius( halfSize.Length() );
 
-    if( radius > Math::MACHINE_EPSILON_1000 )
-    {
-      const Vector3& position = worldMatrix.GetTranslation3();
-      const Quaternion& rotation = renderable.mNode->GetWorldOrientation( updateBufferIndex );
-      bool axisAligned = rotation.IsIdentity();
-
-      if( axisAligned )
-      {
-        inside = cameraAttachment.CheckAABBInFrustum( updateBufferIndex, position, halfSize );
-      }
-      else
-      {
-        inside = cameraAttachment.CheckSphereInFrustum( updateBufferIndex, position, halfSize.Length() );
-      }
-    }
-    else
-    {
-      inside = false;
-    }
+    inside = (radius > Math::MACHINE_EPSILON_1000) &&
+        (cameraAttachment.CheckSphereInFrustum( updateBufferIndex, position, radius ) );
   }
 
   if ( inside )
@@ -121,6 +106,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
       }
       // save MV matrix onto the item
       Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
+      item.SetSize( size );
     }
   }
 }

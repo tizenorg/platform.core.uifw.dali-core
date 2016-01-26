@@ -120,6 +120,7 @@ private:
   unsigned int mBitmask; ///< A bitmask of blending options
 
   Vector4* mOptionalColor; ///< A heap-allocated color (owned)
+
 };
 
 } // namespace Internal

@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_SCENE_GRAPH_MATERIAL_DATA_PROVIDER_H
-#define DALI_INTERNAL_SCENE_GRAPH_MATERIAL_DATA_PROVIDER_H
+#ifndef DALI_INTERNAL_SCENE_GRAPH_RENDERING_OPTIONS_PROVIDER_H
+#define DALI_INTERNAL_SCENE_GRAPH_RENDERING_OPTIONS_PROVIDER_H
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
@@ -17,7 +17,7 @@
  */
 
 #include <dali/internal/common/buffer-index.h>
-#include <dali/devel-api/rendering/material.h>
+#include <dali/devel-api/rendering/renderer.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/actors/blending.h>
 
@@ -34,13 +34,13 @@ namespace SceneGraph
  * Interface to provide data of the material to the renderer.
  * This interface must not be used to pass object pointers.
  */
-class MaterialDataProvider
+class RenderingOptionsDataProvider
 {
 public:
   /**
    * Construtor
    */
-  MaterialDataProvider()
+  RenderingOptionsDataProvider()
   {
   }
 
@@ -60,13 +60,19 @@ public:
    * Get the cull face mode
    * @return the cull face mode
    */
-  virtual Dali::Material::FaceCullingMode GetFaceCullingMode() const = 0;
+  virtual Dali::Renderer::FaceCullingMode GetFaceCullingMode() const = 0;
+
+  /**
+   * Query whether pre-multiplied alpha blending is required
+   * @return true if alpha is pre-multiplied to color
+   */
+  virtual bool IsPreMultipiledAphaEnabled() const = 0;
 
 protected:
   /**
    * Destructor. No deletion through this interface
    */
-  virtual ~MaterialDataProvider()
+  virtual ~RenderingOptionsDataProvider()
   {
   }
 };
@@ -77,4 +83,4 @@ protected:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_SCENE_GRAPH_MATERIAL_DATA_PROVIDER_H
+#endif // DALI_INTERNAL_SCENE_GRAPH_RENDERING_OPTIONS_PROVIDER_H

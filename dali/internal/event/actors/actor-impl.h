@@ -473,7 +473,7 @@ public:
   /**
    * @copydoc Dali::Actor::GetCurrentWorldPosition()
    */
-  const Vector3& GetCurrentWorldPosition() const;
+  Vector3 GetCurrentWorldPosition() const;
 
   /**
    * @copydoc Dali::Actor::SetPositionInheritanceMode()
@@ -547,7 +547,7 @@ public:
   /**
    * @copydoc Dali::Actor::GetCurrentWorldOrientation()
    */
-  const Quaternion& GetCurrentWorldOrientation() const;
+  Quaternion GetCurrentWorldOrientation() const;
 
   /**
    * Sets a scale factor applied to an actor.
@@ -602,7 +602,7 @@ public:
   /**
    * @copydoc Dali::Actor::GetCurrentWorldScale()
    */
-  const Vector3& GetCurrentWorldScale() const;
+  Vector3 GetCurrentWorldScale() const;
 
   /**
    * @copydoc Dali::Actor::SetInheritScale()

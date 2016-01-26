@@ -32,6 +32,7 @@
 #include <dali/internal/update/common/scene-graph-buffers.h>
 #include <dali/internal/update/common/scene-graph-property-notification.h>
 #include <dali/internal/update/manager/object-owner-container.h>
+#include <dali/internal/update/manager/tx-manager.h>
 #include <dali/internal/update/node-attachments/node-attachment.h>
 #include <dali/internal/update/nodes/node.h>
 #include <dali/internal/update/nodes/scene-graph-layer.h>
@@ -79,6 +80,7 @@ class TextureCache;
 class Geometry;
 class PropertyBuffer;
 class Material;
+
 
 /**
  * UpdateManager maintains a scene graph i.e. a tree of nodes and attachments and
@@ -129,6 +131,7 @@ public:
    * @return The list of render tasks
    */
   RenderTaskList* GetRenderTaskList( bool systemLevel );
+
 
   /**
    * Installs a new layer as the root node.

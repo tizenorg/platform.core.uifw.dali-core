@@ -130,8 +130,7 @@ struct UpdateManager::Impl
         TextureCache& textureCache,
         TouchResampler& touchResampler,
         SceneGraphBuffers& sceneGraphBuffers )
-  :
-    renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers ),
+  : renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers ),
     notificationManager( notificationManager ),
     animationFinishedNotifier( animationFinishedNotifier ),
     propertyNotifier( propertyNotifier ),
@@ -216,6 +215,7 @@ struct UpdateManager::Impl
     delete sceneController;
   }
 
+  TxManager                           txManager;
   SceneGraphBuffers                   sceneGraphBuffers;             ///< Used to keep track of which buffers are being written or read
   RenderMessageDispatcher             renderMessageDispatcher;       ///< Used for passing messages to the render-thread
   NotificationManager&                notificationManager;           ///< Queues notification messages for the event-thread.
@@ -314,11 +314,13 @@ void UpdateManager::InstallRoot( SceneGraph::Layer* layer, bool systemLevel )
   {
     DALI_ASSERT_DEBUG( mImpl->root == NULL && "Root Node already installed" );
     mImpl->root = layer;
+    mImpl->root->CreateTransform( &mImpl->txManager);
   }
   else
   {
     DALI_ASSERT_DEBUG( mImpl->systemLevelRoot == NULL && "System-level Root Node already installed" );
     mImpl->systemLevelRoot = layer;
+    mImpl->systemLevelRoot->CreateTransform( &mImpl->txManager);
   }
 
   layer->SetRoot(true);
@@ -336,6 +338,7 @@ void UpdateManager::AddNode( Node* node )
     if(node > (*iter))
     {
       mImpl->nodes.Insert((iter+1), node);
+      node->CreateTransform( &mImpl->txManager);
       break;
     }
   }
@@ -958,6 +961,9 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
     //Update renderers and apply constraints
     UpdateRenderers( bufferIndex );
+
+    mImpl->txManager.Update();
+
 
     //Process Property Notifications
     ProcessPropertyNotifications( bufferIndex );

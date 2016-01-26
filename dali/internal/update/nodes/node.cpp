@@ -50,7 +50,9 @@ Node* Node::New()
 }
 
 Node::Node()
-: mParentOrigin( ParentOrigin::DEFAULT ),
+: mTxManager(0),
+  mTxId( INVALID_ID ),
+  mParentOrigin( ParentOrigin::DEFAULT ),
   mAnchorPoint( AnchorPoint::DEFAULT ),
   mSize(),     // zero initialized by default
   mPosition(), // zero initialized by default
@@ -83,6 +85,19 @@ Node::Node()
 
 Node::~Node()
 {
+  mTxManager->RemoveTransform(mTxId);
+}
+
+void Node::CreateTransform( TxManager* txManager )
+{
+  mTxManager = txManager;
+  mTxId = txManager->CreateTransform();
+}
+
+void Node::UpdateTransform(BufferIndex updateBufferIndex)
+{
+  mTxManager->SetTransform( mTxId, mPosition[updateBufferIndex], mScale[updateBufferIndex],
+                            mSize[updateBufferIndex], mOrientation[updateBufferIndex], mParentOrigin.mValue, mAnchorPoint.mValue );
 }
 
 void Node::operator delete( void* ptr )
@@ -291,6 +306,8 @@ void Node::SetParent(Node& parentNode)
 
   mParent = &parentNode;
   mDepth = mParent->GetDepth() + 1u;
+
+  mTxManager->SetParent( mTxId, parentNode.GetTxId() );
 }
 
 void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
@@ -320,6 +337,8 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
     mAttachment->DisconnectedFromSceneGraph();
   }
 
+  //@FERRAN: Remove the transformation from txManager??
+  mTxManager->SetParent( mTxId, INVALID_ID );
 }
 
 } // namespace SceneGraph

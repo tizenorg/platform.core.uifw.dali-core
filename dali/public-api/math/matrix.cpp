@@ -464,6 +464,19 @@ Vector4 Matrix::operator*(const Vector4& rhs) const
   return temp;
 }
 
+Vector3 Matrix::MultiplyAbsolute(const Vector3& rhs) const
+{
+  MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,16);
+
+  Vector3 temp;
+
+  temp.x = rhs.x * fabsf(mMatrix[0]) + rhs.y * fabsf(mMatrix[4]) + rhs.z * fabsf(mMatrix[8]);
+  temp.y = rhs.x * fabsf(mMatrix[1]) + rhs.y * fabsf(mMatrix[5]) + rhs.z * fabsf(mMatrix[9]);
+  temp.z = rhs.x * fabsf(mMatrix[2]) + rhs.y * fabsf(mMatrix[6]) + rhs.z * fabsf(mMatrix[10]);
+
+  return temp;
+}
+
 bool Matrix::operator==(const Matrix& rhs) const
 {
   return (

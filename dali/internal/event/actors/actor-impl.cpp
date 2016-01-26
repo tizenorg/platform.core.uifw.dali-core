@@ -1693,7 +1693,10 @@ bool Actor::RayActorTest( const Vector4& rayOrigin, const Vector4& rayDir, Vecto
 
     BufferIndex bufferIndex( GetEventThreadServices().GetEventBufferIndex() );
     // need to use the components as world matrix is only updated for actors that need it
-    invModelMatrix.SetInverseTransformComponents( mNode->GetWorldScale( bufferIndex ), mNode->GetWorldOrientation( bufferIndex ), mNode->GetWorldPosition( bufferIndex ) );
+    //invModelMatrix.SetInverseTransformComponents( mNode->GetWorldScale( bufferIndex ), mNode->GetWorldOrientation( bufferIndex ), mNode->GetWorldPosition( bufferIndex ) );
+
+    invModelMatrix = mNode->GetWorldMatrix(0);
+    invModelMatrix.Invert();
 
     Vector4 rayOriginLocal( invModelMatrix * rayOrigin );
     Vector4 rayDirLocal( invModelMatrix * rayDir - invModelMatrix.GetTranslation() );

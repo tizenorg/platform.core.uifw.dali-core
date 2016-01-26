@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/buffer-index.h>
+#include <dali/internal/update/manager/tx-manager.h>
 
 namespace Dali
 {

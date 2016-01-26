@@ -205,7 +205,7 @@ namespace Internal
 
 BlendingOptions::BlendingOptions()
 : mBitmask( 0u ),
-  mOptionalColor( NULL )
+  mBlendColor( NULL )
 {
   SetBlendFunc( DEFAULT_BLENDING_SRC_FACTOR_RGB,   DEFAULT_BLENDING_DEST_FACTOR_RGB,
                 DEFAULT_BLENDING_SRC_FACTOR_ALPHA, DEFAULT_BLENDING_DEST_FACTOR_ALPHA );
@@ -215,7 +215,7 @@ BlendingOptions::BlendingOptions()
 
 BlendingOptions::~BlendingOptions()
 {
-  delete mOptionalColor;
+  delete mBlendColor;
 }
 
 void BlendingOptions::SetBitmask( unsigned int bitmask )
@@ -277,39 +277,22 @@ BlendingEquation::Type BlendingOptions::GetBlendEquationAlpha() const
   return RetrieveBlendingEquation( mBitmask, MASK_EQUATION_ALPHA, SHIFT_TO_EQUATION_ALPHA );
 }
 
-bool BlendingOptions::SetBlendColor( const Vector4& color )
+void BlendingOptions::SetBlendColor( const Vector4& color )
 {
-  bool changed( false );
-
-  if( Vector4::ZERO == color )
+  if( mBlendColor )
   {
-    if( mOptionalColor )
-    {
-      // Discard unnecessary vector
-      delete mOptionalColor;
-      mOptionalColor = NULL;
-
-      changed = true;
-    }
+    *mBlendColor = color;
   }
-  else if( !mOptionalColor )
+  else
   {
     // Lazy allocation when non-default is set
-    mOptionalColor = new Vector4( color );
-    changed = true;
+    mBlendColor = new Vector4( color );
   }
-  else if( *mOptionalColor != color )
-  {
-    *mOptionalColor = color;
-    changed = true;
-  }
-
-  return changed;
 }
 
 const Vector4* BlendingOptions::GetBlendColor() const
 {
-  return mOptionalColor;
+  return mBlendColor;
 }
 
 } // namespace Internal

@@ -106,6 +106,10 @@ Renderer::Renderer()
  mRenderer(NULL),
  mMaterial(NULL),
  mGeometry(NULL),
+ mBlendColor(NULL),
+ mBlendBitmask(0u),
+ mFaceCullingMode( 0u ),
+ mBlendingMode( Dali::BlendingMode::AUTO ),
  mReferenceCount(0),
  mRegenerateUniformMap(0),
  mResendDataProviders(false),
@@ -248,6 +252,65 @@ void Renderer::SetDepthIndex( int depthIndex )
   mDepthIndex = depthIndex;
 }
 
+void Renderer::SetFaceCullingMode( unsigned int faceCullingMode )
+{
+  if( mRenderer )
+  {
+    typedef MessageValue1< Render::Renderer, unsigned int > DerivedType;
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( 0u, sizeof( DerivedType ) );
+    new (slot) DerivedType( mRenderer, &Render::Renderer::SetFaceCullingMode, faceCullingMode );
+  }
+
+  mFaceCullingMode = faceCullingMode;
+}
+
+void Renderer::SetBlendingMode( unsigned int blendingMode )
+{
+  mBlendingMode = static_cast< BlendingMode::Type >( blendingMode );
+}
+
+void Renderer::SetBlendingOptions( unsigned int options )
+{
+  if( mRenderer && mBlendBitmask != options)
+  {
+    typedef MessageValue1< Render::Renderer, unsigned int > DerivedType;
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( 0u, sizeof( DerivedType ) );
+    new (slot) DerivedType( mRenderer, &Render::Renderer::SetBlendingBitMask, options );
+  }
+
+  mBlendBitmask = options;
+}
+
+void Renderer::SetBlendColor( const Vector4& blendColor )
+{
+  if( !mBlendColor )
+  {
+    mBlendColor = new Vector4( blendColor );
+  }
+  else
+  {
+    *mBlendColor = blendColor;
+  }
+
+  if( mRenderer )
+  {
+    typedef MessageValue1< Render::Renderer, const Vector4* > DerivedType;
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( 0u, sizeof( DerivedType ) );
+    new (slot) DerivedType( mRenderer, &Render::Renderer::SetBlendColor, mBlendColor );
+  }
+}
+
+void Renderer::EnablePreMultipliedAlpha( bool preMultipled )
+{
+  if( mRenderer )
+  {
+    typedef MessageValue1< Render::Renderer, bool > DerivedType;
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( 0u, sizeof( DerivedType ) );
+    new (slot) DerivedType( mRenderer, &Render::Renderer::EnablePreMultipliedAlpha, preMultipled );
+  }
+  mPremultipledAlphaEnabled = preMultipled;
+}
+
 //Called when a node with this renderer is added to the stage
 void Renderer::OnStageConnect()
 {
@@ -257,7 +320,10 @@ void Renderer::OnStageConnect()
     RenderDataProvider* dataProvider = NewRenderDataProvider();
 
     RenderGeometry* renderGeometry = mGeometry->GetRenderGeometry(mSceneController);
-    mRenderer = Render::Renderer::New( dataProvider, renderGeometry );
+    mRenderer = Render::Renderer::New( dataProvider, renderGeometry,
+                                       mBlendBitmask, mBlendColor,
+                                       static_cast< Dali::Renderer::FaceCullingMode >( mFaceCullingMode ),
+                                       mPremultipledAlphaEnabled );
     mSceneController->GetRenderMessageDispatcher().AddRenderer( *mRenderer );
     mResendDataProviders = false;
     mResendGeometry = false;
@@ -303,7 +369,6 @@ RenderDataProvider* Renderer::NewRenderDataProvider()
 {
   RenderDataProvider* dataProvider = new RenderDataProvider();
 
-  dataProvider->mMaterialDataProvider = mMaterial;
   dataProvider->mUniformMapDataProvider = this;
   dataProvider->mShader = mMaterial->GetShader();
 
@@ -341,20 +406,38 @@ Renderer::Opacity Renderer::GetOpacity( BufferIndex updateBufferIndex, const Nod
 
   if( mMaterial )
   {
-    if( mMaterial->GetBlendPolicy() == Material::TRANSLUCENT )
+    switch( mBlendingMode )
     {
-      opacity = Renderer::TRANSLUCENT;
-    }
-    else if( mMaterial->GetBlendPolicy() == Material::USE_ACTOR_COLOR  )
-    {
-      float alpha = node.GetWorldColor( updateBufferIndex ).a;
-      if( alpha <= FULLY_TRANSPARENT )
+      case BlendingMode::ON: // If the renderer should always be use blending
       {
-        opacity = TRANSPARENT;
+        opacity = Renderer::TRANSLUCENT;
+        break;
       }
-      else if( alpha <= FULLY_OPAQUE )
+      case BlendingMode::AUTO:
       {
-        opacity = TRANSLUCENT;
+        if(mMaterial->IsTranslucent() ) // If the renderer should determine opacity using the material
+        {
+          opacity = Renderer::TRANSLUCENT;
+        }
+        else // renderer should determine opacity using the actor color
+        {
+          float alpha = node.GetWorldColor( updateBufferIndex ).a;
+          if( alpha <= FULLY_TRANSPARENT )
+          {
+            opacity = TRANSPARENT;
+          }
+          else if( alpha <= FULLY_OPAQUE )
+          {
+            opacity = TRANSLUCENT;
+          }
+        }
+        break;
+      }
+      case BlendingMode::OFF: // the renderer should never use blending
+      default:
+      {
+        opacity = Renderer::OPAQUE;
+        break;
       }
     }
   }

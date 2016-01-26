@@ -307,7 +307,7 @@ const PropertyInputImpl* CameraAttachment::GetViewMatrix() const
 void CameraAttachment::Update( BufferIndex updateBufferIndex, const Node& owningNode, int nodeDirtyFlags )
 {
   // if owning node has changes in world position we need to update camera for next 2 frames
-  if( nodeDirtyFlags & TransformFlag )
+  if( owningNode.IsWorldMatrixDirty() )
   {
     mUpdateViewFlag = UPDATE_COUNT;
   }
@@ -366,17 +366,21 @@ unsigned int CameraAttachment::UpdateViewMatrix( BufferIndex updateBufferIndex, 
         case Dali::Camera::FREE_LOOK:
           {
           Matrix& viewMatrix = mViewMatrix.Get( updateBufferIndex );
-          viewMatrix.SetInverseTransformComponents( Vector3::ONE, owningNode.GetWorldOrientation( updateBufferIndex ),
-                                                    owningNode.GetWorldPosition( updateBufferIndex ) );
+          Matrix owningNodeWorldMatrix = owningNode.GetWorldMatrix(updateBufferIndex);
+          owningNodeWorldMatrix.InvertTransform(viewMatrix);
           mViewMatrix.SetDirty( updateBufferIndex );
           break;
         }
           // camera orientation constrained to look at a target
         case Dali::Camera::LOOK_AT_TARGET:
           {
+          const Matrix& owningNodeMatrix( owningNode.GetWorldMatrix(updateBufferIndex) );
+          Vector3 position, scale;
+          Quaternion orientation;
+          owningNodeMatrix.GetTransformComponents( position, orientation, scale );
           Matrix& viewMatrix = mViewMatrix.Get( updateBufferIndex );
-          LookAt( viewMatrix, owningNode.GetWorldPosition( updateBufferIndex ), mTargetPosition,
-                  owningNode.GetWorldOrientation( updateBufferIndex ).Rotate( Vector3::YAXIS ) );
+          LookAt( viewMatrix, position, mTargetPosition,
+                  orientation.Rotate( Vector3::YAXIS ) );
           mViewMatrix.SetDirty( updateBufferIndex );
           break;
         }

@@ -136,6 +136,16 @@ public:
     return mIsOpaque;
   }
 
+  void SetSize( const Vector3& size)
+  {
+    mSize = size;
+  }
+
+  const Vector3& GetSize() const
+  {
+    return mSize;
+  }
+
 private:
 
   /**
@@ -148,6 +158,7 @@ private:
   RenderItem& operator = ( const RenderItem& item );
 
   Matrix            mModelViewMatrix;
+  Vector3           mSize;
   Render::Renderer* mRenderer;
   Node*             mNode;
   int               mDepthIndex;

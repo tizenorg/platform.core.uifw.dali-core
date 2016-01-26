@@ -1728,6 +1728,9 @@ int UtcDaliActorScreenToLocal(void)
   float localX;
   float localY;
 
+  application.SendNotification();
+  application.Render();
+
   DALI_TEST_CHECK( actor.ScreenToLocal(localX, localY, 50.0f, 50.0f) );
 
   DALI_TEST_EQUALS(localX, 40.0f, 0.01f, TEST_LOCATION);
@@ -2296,10 +2299,6 @@ int UtcDaliActorGetCurrentWorldMatrix(void)
   child.SetScale( childScale );
   parent.Add( child );
 
-  // The actors should not have a world matrix yet
-  DALI_TEST_EQUALS( parent.GetCurrentWorldMatrix(), Matrix::IDENTITY, 0.001, TEST_LOCATION );
-  DALI_TEST_EQUALS( child.GetCurrentWorldMatrix(), Matrix::IDENTITY, 0.001, TEST_LOCATION );
-
   app.SendNotification();
   app.Render(0);
   app.Render();
@@ -2308,12 +2307,12 @@ int UtcDaliActorGetCurrentWorldMatrix(void)
   Matrix parentMatrix(false);
   parentMatrix.SetTransformComponents(parentScale, parentRotation, parentPosition);
 
-  Vector3 childWorldPosition = parentPosition + parentRotation * parentScale * childPosition;
-  Quaternion childWorldRotation = parentRotation * childRotation;
-  Vector3 childWorldScale = parentScale * childScale;
+  Matrix childMatrix(false);
+  childMatrix.SetTransformComponents( childScale, childRotation, childPosition );
 
+  //Child matrix should be the composition of child and parent
   Matrix childWorldMatrix(false);
-  childWorldMatrix.SetTransformComponents(childWorldScale, childWorldRotation, childWorldPosition);
+  Matrix::Multiply( childWorldMatrix, childMatrix, parentMatrix);
 
   DALI_TEST_EQUALS( parent.GetCurrentWorldMatrix(), parentMatrix, 0.001, TEST_LOCATION );
   DALI_TEST_EQUALS( child.GetCurrentWorldMatrix(), childWorldMatrix, 0.001, TEST_LOCATION );
@@ -2346,10 +2345,6 @@ int UtcDaliActorConstrainedToWorldMatrix(void)
   posConstraint.Apply();
 
   Stage::GetCurrent().Add( child );
-
-  // The actors should not have a world matrix yet
-  DALI_TEST_EQUALS( parent.GetCurrentWorldMatrix(), Matrix::IDENTITY, 0.001, TEST_LOCATION );
-  DALI_TEST_EQUALS( child.GetCurrentWorldMatrix(), Matrix::IDENTITY, 0.001, TEST_LOCATION );
 
   app.SendNotification();
   app.Render(0);

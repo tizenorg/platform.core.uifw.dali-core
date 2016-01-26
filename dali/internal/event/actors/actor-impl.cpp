@@ -723,7 +723,7 @@ const Vector3& Actor::GetTargetPosition() const
   return mTargetPosition;
 }
 
-const Vector3& Actor::GetCurrentWorldPosition() const
+Vector3 Actor::GetCurrentWorldPosition() const
 {
   if( NULL != mNode )
   {
@@ -799,7 +799,7 @@ const Quaternion& Actor::GetCurrentOrientation() const
   return Quaternion::IDENTITY;
 }
 
-const Quaternion& Actor::GetCurrentWorldOrientation() const
+Quaternion Actor::GetCurrentWorldOrientation() const
 {
   if( NULL != mNode )
   {
@@ -876,7 +876,7 @@ const Vector3& Actor::GetCurrentScale() const
   return Vector3::ONE;
 }
 
-const Vector3& Actor::GetCurrentWorldScale() const
+Vector3 Actor::GetCurrentWorldScale() const
 {
   if( NULL != mNode )
   {
@@ -907,14 +907,7 @@ Matrix Actor::GetCurrentWorldMatrix() const
 {
   if( NULL != mNode )
   {
-    // World matrix is no longer updated unless there is something observing the node.
-    // Need to calculate it from node's world position, orientation and scale:
-    BufferIndex updateBufferIndex = GetEventThreadServices().GetEventBufferIndex();
-    Matrix worldMatrix(false);
-    worldMatrix.SetTransformComponents( mNode->GetWorldScale( updateBufferIndex ),
-                                        mNode->GetWorldOrientation( updateBufferIndex ),
-                                        mNode->GetWorldPosition( updateBufferIndex ) );
-    return worldMatrix;
+    return mNode->GetWorldMatrix(0);
   }
 
   return Matrix::IDENTITY;
@@ -1693,7 +1686,10 @@ bool Actor::RayActorTest( const Vector4& rayOrigin, const Vector4& rayDir, Vecto
 
     BufferIndex bufferIndex( GetEventThreadServices().GetEventBufferIndex() );
     // need to use the components as world matrix is only updated for actors that need it
-    invModelMatrix.SetInverseTransformComponents( mNode->GetWorldScale( bufferIndex ), mNode->GetWorldOrientation( bufferIndex ), mNode->GetWorldPosition( bufferIndex ) );
+    //invModelMatrix.SetInverseTransformComponents( mNode->GetWorldScale( bufferIndex ), mNode->GetWorldOrientation( bufferIndex ), mNode->GetWorldPosition( bufferIndex ) );
+
+    invModelMatrix = mNode->GetWorldMatrix(0);
+    invModelMatrix.Invert();
 
     Vector4 rayOriginLocal( invModelMatrix * rayOrigin );
     Vector4 rayDirLocal( invModelMatrix * rayDir - invModelMatrix.GetTranslation() );

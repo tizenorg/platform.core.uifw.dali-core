@@ -31,6 +31,8 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/math/quaternion.h>
 #include <dali/public-api/math/radian.h>
+#include <dali/internal/update/animation/property-accessor.h>
+
 
 namespace Dali
 {
@@ -522,6 +524,169 @@ protected:
   float mCurrentProgress;
 };
 
+
+
+/**
+ * An animator for a specific property type PropertyType.
+ */
+template <typename T, typename PropertyAccessorType>
+class AnimatorTransformProperty : public AnimatorBase, public PropertyOwner::Observer
+{
+public:
+
+  /**
+   * Construct a new property animator.
+   * @param[in] property The animatable property; only valid while the Animator is attached.
+   * @param[in] animatorFunction The function used to animate the property.
+   * @param[in] alphaFunction The alpha function to apply.
+   * @param[in] timePeriod The time period of this animation.
+   * @return A newly allocated animator.
+   */
+  static AnimatorBase* New( const PropertyOwner& propertyOwner,
+                            const PropertyBase& property,
+                            AnimatorFunctionBase* animatorFunction,
+                            AlphaFunction alphaFunction,
+                            const TimePeriod& timePeriod )
+  {
+
+    // The property was const in the actor-thread, but animators are used in the scene-graph thread.
+    AnimatorTransformProperty* animator = new AnimatorTransformProperty( const_cast<PropertyOwner*>( &propertyOwner ),
+                                               const_cast<PropertyBase*>( &property ),
+                                               animatorFunction );
+
+    animator->SetAlphaFunction( alphaFunction );
+    animator->SetInitialDelay( timePeriod.delaySeconds );
+    animator->SetDuration( timePeriod.durationSeconds );
+
+    //std::cout<<"Creating position animator "<<timePeriod.delaySeconds<<","<<timePeriod.durationSeconds<<std::endl;
+
+    return animator;
+  }
+
+  /**
+   * Virtual destructor.
+   */
+  virtual ~AnimatorTransformProperty()
+  {
+    if (mPropertyOwner && mConnectedToSceneGraph)
+    {
+      mPropertyOwner->RemoveObserver(*this);
+    }
+
+    if( mAnimatorFunction )
+    {
+      delete mAnimatorFunction;
+    }
+  }
+
+  /**
+   * Called when Animator is added to the scene-graph in update-thread.
+   */
+  virtual void ConnectToSceneGraph()
+  {
+    mConnectedToSceneGraph = true;
+    mPropertyOwner->AddObserver(*this);
+  }
+
+  /**
+   * Called when mPropertyOwner is connected to the scene graph.
+   */
+  virtual void PropertyOwnerConnected( PropertyOwner& owner )
+  {
+    mEnabled = true;
+  }
+
+  /**
+   * Called when mPropertyOwner is disconnected from the scene graph.
+   */
+  virtual void PropertyOwnerDisconnected( BufferIndex bufferIndex, PropertyOwner& owner )
+  {
+    // If we are active, then bake the value if required
+    if ( mActive && mDisconnectAction != Dali::Animation::Discard )
+    {
+      // Bake to target-value if BakeFinal, otherwise bake current value
+      Update( bufferIndex, ( mDisconnectAction == Dali::Animation::Bake ? mCurrentProgress : 1.0f ), true );
+    }
+
+    mActive = false;
+    mEnabled = false;
+  }
+
+  /**
+   * Called shortly before mPropertyOwner is destroyed
+   */
+  virtual void PropertyOwnerDestroyed( PropertyOwner& owner )
+  {
+    mPropertyOwner = NULL;
+    mPropertyAccessor.Reset();
+    mEnabled = false;
+  }
+
+  /**
+   * From AnimatorBase.
+   */
+  virtual void Update( BufferIndex bufferIndex, float progress, bool bake )
+  {
+    //std::cout<<"Progress: "<<progress<<std::endl;
+    float alpha = ApplyAlphaFunction(progress);
+
+    const T& current = mPropertyAccessor.Get( bufferIndex );
+
+    const T result = (*mAnimatorFunction)( alpha, current );
+
+
+    if ( bake )
+    {
+      mPropertyAccessor.Bake( bufferIndex, result );
+    }
+    else
+    {
+      mPropertyAccessor.Set( bufferIndex, result );
+    }
+
+    mCurrentProgress = progress;
+  }
+
+  /**
+   * From AnimatorBase.
+   */
+  virtual bool Orphan()
+  {
+    return (mPropertyOwner == NULL);
+  }
+
+private:
+
+  /**
+   * Private constructor; see also Animator::New().
+   */
+  AnimatorTransformProperty( PropertyOwner* propertyOwner,
+            PropertyBase* property,
+            AnimatorFunctionBase* animatorFunction )
+  : mPropertyOwner( propertyOwner ),
+    mPropertyAccessor( property ),
+    mAnimatorFunction( animatorFunction ),
+    mCurrentProgress( 0.0f )
+  {
+    // WARNING - this object is created in the event-thread
+    // The scene-graph mPropertyOwner object cannot be observed here
+  }
+
+  // Undefined
+  AnimatorTransformProperty( const AnimatorTransformProperty& );
+
+  // Undefined
+  AnimatorTransformProperty& operator=( const AnimatorTransformProperty& );
+
+protected:
+
+  PropertyOwner* mPropertyOwner;
+  PropertyAccessorType mPropertyAccessor;
+
+  AnimatorFunctionBase* mAnimatorFunction;
+  float mCurrentProgress;
+};
+
 } // namespace SceneGraph
 
 /*
@@ -698,7 +863,11 @@ struct AnimateToVector3 : public AnimatorFunctionBase
 
   Vector3 operator()(float alpha, const Vector3& property)
   {
-    return Vector3(property + ((mTarget - property) * alpha));
+
+
+    Vector3 r = Vector3(property + ((mTarget - property) * alpha));
+    //std::cout<<"Animating from :"<<property<<" to "<<mTarget<<" with t "<<alpha<<"= "<<r<<std::endl;
+    return r;
   }
 
   Vector3 mTarget;
@@ -1021,7 +1190,6 @@ struct PathRotationFunctor : public AnimatorFunctionBase
   PathPtr mPath;
   Vector3 mForward;
 };
-
 
 } // namespace Internal
 

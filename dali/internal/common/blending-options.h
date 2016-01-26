@@ -51,7 +51,12 @@ struct BlendingOptions
    * Retrieve the blending options as a bitmask.
    * @return A bitmask of blending options.
    */
-  unsigned int GetBitmask() const;
+  unsigned int GetBitmask();
+
+  /**
+   * Set the bitmask of the blending option for pre-multiplied alpha.
+   */
+  void SetBitmaskForPreMultipliedAlphaBlend();
 
   /**
    * @copydoc Dali::RenderableActor::SetBlendFunc()
@@ -120,6 +125,7 @@ private:
   unsigned int mBitmask; ///< A bitmask of blending options
 
   Vector4* mOptionalColor; ///< A heap-allocated color (owned)
+
 };
 
 } // namespace Internal

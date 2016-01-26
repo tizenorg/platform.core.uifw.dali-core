@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/buffer-index.h>
+#include <dali/internal/update/manager/tx-manager.h>
 
 namespace Dali
 {
@@ -56,6 +57,7 @@ void ConstrainPropertyOwner( PropertyOwner& propertyOwner, BufferIndex updateBuf
  * @return The cumulative (ORed) dirty flags for the updated nodes
  */
 int UpdateNodesAndAttachments( Layer& rootNode,
+                               TxManager* txManager,
                                BufferIndex updateBufferIndex,
                                ResourceManager& resourceManager,
                                RenderQueue& renderQueue );

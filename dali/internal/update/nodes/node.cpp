@@ -50,7 +50,8 @@ Node* Node::New()
 }
 
 Node::Node()
-: mParentOrigin( ParentOrigin::DEFAULT ),
+: mTxId( INVALID_ID ),
+  mParentOrigin( ParentOrigin::DEFAULT ),
   mAnchorPoint( AnchorPoint::DEFAULT ),
   mSize(),     // zero initialized by default
   mPosition(), // zero initialized by default
@@ -79,10 +80,13 @@ Node::Node()
 {
   mUniformMapChanged[0] = 0u;
   mUniformMapChanged[1] = 0u;
+
+  mTxId = TxManager::GetTxManager().CreateTransform();
 }
 
 Node::~Node()
 {
+  TxManager::GetTxManager().RemoveTransform(mTxId);
 }
 
 void Node::operator delete( void* ptr )
@@ -291,6 +295,8 @@ void Node::SetParent(Node& parentNode)
 
   mParent = &parentNode;
   mDepth = mParent->GetDepth() + 1u;
+
+  TxManager::GetTxManager().SetParent( mTxId, parentNode.GetTxId() );
 }
 
 void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
@@ -320,6 +326,8 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
     mAttachment->DisconnectedFromSceneGraph();
   }
 
+  //@FERRAN: Remove the transformation from txManager??
+  TxManager::GetTxManager().SetParent( mTxId, INVALID_ID );
 }
 
 } // namespace SceneGraph

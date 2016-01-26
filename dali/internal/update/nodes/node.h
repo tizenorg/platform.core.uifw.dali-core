@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/update/manager/tx-manager.h>
 #include <dali/public-api/actors/actor-enumerations.h>
 #include <dali/public-api/actors/draw-mode.h>
 #include <dali/devel-api/common/set-wrapper.h>
@@ -838,6 +839,12 @@ public:
     mWorldMatrix.SetDirty( updateBufferIndex );
   }
 
+  void SetWorldMatrix( BufferIndex updateBufferIndex, const Matrix& m )
+  {
+    mWorldMatrix.Get( updateBufferIndex ) = m;
+    mWorldMatrix.SetDirty( updateBufferIndex );
+  }
+
   /**
    * Retrieve the cached world-matrix of a node.
    * @param[in] bufferIndex The buffer to read from.
@@ -845,7 +852,7 @@ public:
    */
   const Matrix& GetWorldMatrix( BufferIndex bufferIndex ) const
   {
-    return mWorldMatrix[ bufferIndex ];
+    return TxManager::GetTxManager().GetWorldTx(mTxId);
   }
 
   /**
@@ -891,6 +898,12 @@ public:
   DrawMode::Type GetDrawMode() const
   {
     return mDrawMode;
+  }
+
+
+  TxId GetTxId()
+  {
+    return mTxId;
   }
 
   /**
@@ -1004,8 +1017,10 @@ private:
 
 public: // Default properties
 
+  TxId mTxId;
   PropertyVector3                mParentOrigin;  ///< Local transform; the position is relative to this. Sets the TransformFlag dirty when changed
   PropertyVector3                mAnchorPoint;   ///< Local transform; local center of rotation. Sets the TransformFlag dirty when changed
+
 
   AnimatableProperty<Vector3>    mSize;          ///< Size is provided for layouting
   AnimatableProperty<Vector3>    mPosition;      ///< Local transform; distance between parent-origin & anchor-point

@@ -26,6 +26,11 @@ const BlendingFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_RGB(   BlendingFactor:
 const BlendingFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_ALPHA(  BlendingFactor::ONE );
 const BlendingFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_ALPHA( BlendingFactor::ONE_MINUS_SRC_ALPHA );
 
+const BlendingFactor::Type   PRE_MULTIPLIED_ALPHA_BLENDING_SRC_FACTOR_RGB(    BlendingFactor::ONE );
+const BlendingFactor::Type   PRE_MULTIPLIED_ALPHA_BLENDING_DEST_FACTOR_RGB(   BlendingFactor::ONE_MINUS_SRC_ALPHA );
+const BlendingFactor::Type   PRE_MULTIPLIED_ALPHA_BLENDING_SRC_FACTOR_ALPHA(  BlendingFactor::ONE );
+const BlendingFactor::Type   PRE_MULTIPLIED_ALPHA_BLENDING_DEST_FACTOR_ALPHA( BlendingFactor::ONE );
+
 const BlendingEquation::Type DEFAULT_BLENDING_EQUATION_RGB(   BlendingEquation::ADD );
 const BlendingEquation::Type DEFAULT_BLENDING_EQUATION_ALPHA( BlendingEquation::ADD );
 

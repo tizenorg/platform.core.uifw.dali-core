@@ -106,6 +106,10 @@ Renderer::Renderer()
  mRenderer(NULL),
  mMaterial(NULL),
  mGeometry(NULL),
+ mBlendColor( NULL ),
+ mFaceCullingMode( Dali::Renderer::NONE ),
+ mBlendingMode( Dali::BlendingMode::AUTO ),
+ mBlendingOptions(), // initializes to defaults
  mReferenceCount(0),
  mRegenerateUniformMap(0),
  mResendDataProviders(false),
@@ -248,6 +252,63 @@ void Renderer::SetDepthIndex( int depthIndex )
   mDepthIndex = depthIndex;
 }
 
+void Renderer::SetFaceCullingMode( unsigned int faceCullingMode )
+{
+  mFaceCullingMode = static_cast< Dali::Renderer::FaceCullingMode >( faceCullingMode );
+}
+
+void Renderer::SetBlendingMode( unsigned int blendingMode )
+{
+  mBlendingMode = static_cast< BlendingMode::Type >( blendingMode );
+}
+
+void Renderer::SetBlendingOptions( unsigned int options )
+{
+  mBlendingOptions.SetBitmask( options );
+}
+
+void Renderer::SetBlendColor( const Vector4& blendColor )
+{
+  if( mBlendColor )
+  {
+    *mBlendColor = blendColor;
+  }
+  else
+  {
+    mBlendColor = new Vector4( blendColor );
+  }
+}
+
+void Renderer::EnablePreMultipliedAlpha( bool preMultipled )
+{
+  mPremultipledAlphaEnabled = preMultipled;
+
+  if( preMultipled )
+  {
+    mBlendingOptions.SetBitmaskForPreMultipliedAlphaBlend();
+  }
+}
+
+Vector4* Renderer::GetBlendColor() const
+{
+  return mBlendColor;
+}
+
+const BlendingOptions& Renderer::GetBlendingOptions() const
+{
+  return mBlendingOptions;
+}
+
+Dali::Renderer::FaceCullingMode Renderer::GetFaceCullingMode() const
+{
+  return mFaceCullingMode;
+}
+
+bool Renderer::IsPreMultipiledAphaEnabled() const
+{
+  return mPremultipledAlphaEnabled;
+}
+
 //Called when a node with this renderer is added to the stage
 void Renderer::OnStageConnect()
 {
@@ -303,7 +364,7 @@ RenderDataProvider* Renderer::NewRenderDataProvider()
 {
   RenderDataProvider* dataProvider = new RenderDataProvider();
 
-  dataProvider->mMaterialDataProvider = mMaterial;
+  dataProvider->mRenderingOptionsDataProvider = this;
   dataProvider->mUniformMapDataProvider = this;
   dataProvider->mShader = mMaterial->GetShader();
 
@@ -341,20 +402,38 @@ Renderer::Opacity Renderer::GetOpacity( BufferIndex updateBufferIndex, const Nod
 
   if( mMaterial )
   {
-    if( mMaterial->GetBlendPolicy() == Material::TRANSLUCENT )
+    switch( mBlendingMode )
     {
-      opacity = Renderer::TRANSLUCENT;
-    }
-    else if( mMaterial->GetBlendPolicy() == Material::USE_ACTOR_COLOR  )
-    {
-      float alpha = node.GetWorldColor( updateBufferIndex ).a;
-      if( alpha <= FULLY_TRANSPARENT )
+      case BlendingMode::ON: // If the renderer should always be use blending
       {
-        opacity = TRANSPARENT;
+        opacity = Renderer::TRANSLUCENT;
+        break;
       }
-      else if( alpha <= FULLY_OPAQUE )
+      case BlendingMode::AUTO:
       {
-        opacity = TRANSLUCENT;
+        if(mMaterial->IsTranslucent() ) // If the renderer should determine opacity using the material
+        {
+          opacity = Renderer::TRANSLUCENT;
+        }
+        else // renderer should determine opacity using the actor color
+        {
+          float alpha = node.GetWorldColor( updateBufferIndex ).a;
+          if( alpha <= FULLY_TRANSPARENT )
+          {
+            opacity = TRANSPARENT;
+          }
+          else if( alpha <= FULLY_OPAQUE )
+          {
+            opacity = TRANSLUCENT;
+          }
+        }
+        break;
+      }
+      case BlendingMode::OFF: // the renderer should never use blending
+      default:
+      {
+        opacity = Renderer::OPAQUE;
+        break;
       }
     }
   }

@@ -126,7 +126,7 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
   mAttributesLocation(),
   mSamplerBitfield( ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) ),
   mUpdateAttributesLocation( true ),
-  mCullFaceMode( Dali::Material::NONE  )
+  mCullFaceMode( Dali::Renderer::NONE  )
 {
 }
 
@@ -166,10 +166,10 @@ void Renderer::SetBlending( Context& context, bool blend )
   context.SetBlend( blend );
   if( blend )
   {
-    const SceneGraph::MaterialDataProvider& material = mRenderDataProvider->GetMaterial();
+    const SceneGraph::RenderingOptionsDataProvider& renderingOptions = mRenderDataProvider->GetRenderingOptions();
 
     // Blend color is optional and rarely used
-    Vector4* blendColor = material.GetBlendColor();
+    Vector4* blendColor = renderingOptions.GetBlendColor();
     if( blendColor )
     {
       context.SetCustomBlendColor( *blendColor );
@@ -179,7 +179,7 @@ void Renderer::SetBlending( Context& context, bool blend )
       context.SetDefaultBlendColor();
     }
 
-    const BlendingOptions& blending = material.GetBlendingOptions();
+    const BlendingOptions& blending = renderingOptions.GetBlendingOptions();
     // Set blend source & destination factors
     context.BlendFuncSeparate( blending.GetBlendSrcFactorRgb(),
                                blending.GetBlendDestFactorRgb(),
@@ -386,9 +386,9 @@ void Renderer::BindTextures( SceneGraph::TextureCache& textureCache, Program& pr
   }
 }
 
-void Renderer::SetCullFace( Dali::Material::FaceCullingMode mode )
+void Renderer::SetCullFace( Dali::Renderer::FaceCullingMode mode )
 {
-  DALI_ASSERT_DEBUG( mode >= Dali::Material::NONE && mode <= Dali::Material::CULL_BACK_AND_FRONT );
+  DALI_ASSERT_DEBUG( mode >= Dali::Renderer::NONE && mode <= Dali::Renderer::CULL_BACK_AND_FRONT );
   mCullFaceMode = mode;
 }
 
@@ -422,7 +422,7 @@ void Renderer::Render( Context& context,
   }
 
   //Set cull face  mode
-  context.CullFace( mRenderDataProvider->GetMaterial().GetFaceCullingMode() );
+  context.CullFace( mRenderDataProvider->GetRenderingOptions().GetFaceCullingMode() );
 
   //Set blending mode
   SetBlending( context, blend );
@@ -438,7 +438,14 @@ void Renderer::Render( Context& context,
   if( Program::UNIFORM_UNKNOWN != loc )
   {
     const Vector4& color = node.GetRenderColor( bufferIndex );
-    program->SetUniform4f( loc, color.r, color.g, color.b, color.a );
+    if( mRenderDataProvider->GetRenderingOptions().IsPreMultipiledAphaEnabled() )
+    {
+      program->SetUniform4f( loc, color.r*color.a, color.g*color.a, color.b*color.a, color.a );
+    }
+    else
+    {
+      program->SetUniform4f( loc, color.r, color.g, color.b, color.a );
+    }
   }
 
   //Bind textures

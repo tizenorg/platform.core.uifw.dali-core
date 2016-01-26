@@ -94,6 +94,11 @@ DALI_IMPORT_API extern const BlendingFactor::Type   DEFAULT_BLENDING_DEST_FACTOR
 DALI_IMPORT_API extern const BlendingFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_ALPHA;  ///< BlendingFactor::ONE
 DALI_IMPORT_API extern const BlendingFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_ALPHA; ///< BlendingFactor::ONE_MINUS_SRC_ALPHA
 
+DALI_IMPORT_API extern const BlendingFactor::Type   PRE_MULTIPLIED_ALPHA_BLENDING_SRC_FACTOR_RGB;    ///< BlendingFactor::ONE
+DALI_IMPORT_API extern const BlendingFactor::Type   PRE_MULTIPLIED_ALPHA_BLENDING_DEST_FACTOR_RGB;   ///< BlendingFactor::ONE_MINUS_SRC_ALPHA
+DALI_IMPORT_API extern const BlendingFactor::Type   PRE_MULTIPLIED_ALPHA_BLENDING_SRC_FACTOR_ALPHA;  ///< BlendingFactor::ONE
+DALI_IMPORT_API extern const BlendingFactor::Type   PRE_MULTIPLIED_ALPHA_BLENDING_DEST_FACTOR_ALPHA; ///< BlendingFactor::ONE
+
 DALI_IMPORT_API extern const BlendingEquation::Type DEFAULT_BLENDING_EQUATION_RGB;     ///< BlendingEquation::ADD
 DALI_IMPORT_API extern const BlendingEquation::Type DEFAULT_BLENDING_EQUATION_ALPHA;   ///< BlendingEquation::ADD
 

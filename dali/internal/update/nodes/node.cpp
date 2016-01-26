@@ -50,7 +50,8 @@ Node* Node::New()
 }
 
 Node::Node()
-: mParentOrigin( ParentOrigin::DEFAULT ),
+: mTxId( INVALID_ID ),
+  mParentOrigin( ParentOrigin::DEFAULT ),
   mAnchorPoint( AnchorPoint::DEFAULT ),
   mSize(),     // zero initialized by default
   mPosition(), // zero initialized by default

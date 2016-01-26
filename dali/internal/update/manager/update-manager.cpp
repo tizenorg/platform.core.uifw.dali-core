@@ -130,7 +130,7 @@ struct UpdateManager::Impl
         TextureCache& textureCache,
         TouchResampler& touchResampler,
         SceneGraphBuffers& sceneGraphBuffers )
-  :
+  : txManager(),
     renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers ),
     notificationManager( notificationManager ),
     animationFinishedNotifier( animationFinishedNotifier ),
@@ -216,6 +216,7 @@ struct UpdateManager::Impl
     delete sceneController;
   }
 
+  TxManager                           txManager;
   SceneGraphBuffers                   sceneGraphBuffers;             ///< Used to keep track of which buffers are being written or read
   RenderMessageDispatcher             renderMessageDispatcher;       ///< Used for passing messages to the render-thread
   NotificationManager&                notificationManager;           ///< Queues notification messages for the event-thread.
@@ -324,6 +325,11 @@ void UpdateManager::InstallRoot( SceneGraph::Layer* layer, bool systemLevel )
   layer->SetRoot(true);
 }
 
+TxManager& UpdateManager::GetTxManager()
+{
+  return mImpl->txManager;
+}
+
 void UpdateManager::AddNode( Node* node )
 {
   DALI_ASSERT_ALWAYS( NULL != node );
@@ -335,6 +341,7 @@ void UpdateManager::AddNode( Node* node )
   {
     if(node > (*iter))
     {
+      node->SetTxId( mImpl->txManager.CreateTransform() );
       mImpl->nodes.Insert((iter+1), node);
       break;
     }
@@ -347,6 +354,7 @@ void UpdateManager::ConnectNode( Node* parent, Node* node )
   DALI_ASSERT_ALWAYS( NULL != node );
   DALI_ASSERT_ALWAYS( NULL == node->GetParent() ); // Should not have a parent yet
 
+  mImpl->txManager.SetParent( node->GetTxId(), parent->GetTxId() );
   parent->ConnectChild( node );
 }
 
@@ -356,6 +364,7 @@ void UpdateManager::DisconnectNode( Node* node )
   DALI_ASSERT_ALWAYS( NULL != parent );
   parent->SetDirtyFlag( ChildDeletedFlag ); // make parent dirty so that render items dont get reused
 
+  mImpl->txManager.SetParent( node->GetTxId(), INVALID_ID );
   parent->DisconnectChild( mSceneGraphBuffers.GetUpdateBufferIndex(), *node );
 }
 
@@ -370,6 +379,7 @@ void UpdateManager::DestroyNode( Node* node )
   {
     if((*iter) == node)
     {
+      mImpl->txManager.RemoveTransform(node->GetTxId());
       mImpl->nodes.Erase(iter);
       break;
     }
@@ -868,6 +878,7 @@ void UpdateManager::UpdateNodes( BufferIndex bufferIndex )
   // Prepare resources, update shaders, update attachments, for each node
   // And add the renderers to the sorted layers. Start from root, which is also a layer
   mImpl->nodeDirtyFlags = UpdateNodesAndAttachments( *( mImpl->root ),
+                                                     &mImpl->txManager,
                                                      bufferIndex,
                                                      mImpl->resourceManager,
                                                      mImpl->renderQueue );
@@ -875,6 +886,7 @@ void UpdateManager::UpdateNodes( BufferIndex bufferIndex )
   if ( mImpl->systemLevelRoot )
   {
     mImpl->nodeDirtyFlags |= UpdateNodesAndAttachments( *( mImpl->systemLevelRoot ),
+                                                        &mImpl->txManager,
                                                         bufferIndex,
                                                         mImpl->resourceManager,
                                                         mImpl->renderQueue );
@@ -958,6 +970,9 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
     //Update renderers and apply constraints
     UpdateRenderers( bufferIndex );
+
+    mImpl->txManager.Update();
+
 
     //Process Property Notifications
     ProcessPropertyNotifications( bufferIndex );

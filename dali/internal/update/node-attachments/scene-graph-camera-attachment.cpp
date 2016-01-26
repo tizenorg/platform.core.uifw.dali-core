@@ -366,8 +366,8 @@ unsigned int CameraAttachment::UpdateViewMatrix( BufferIndex updateBufferIndex, 
         case Dali::Camera::FREE_LOOK:
           {
           Matrix& viewMatrix = mViewMatrix.Get( updateBufferIndex );
-          viewMatrix.SetInverseTransformComponents( Vector3::ONE, owningNode.GetWorldOrientation( updateBufferIndex ),
-                                                    owningNode.GetWorldPosition( updateBufferIndex ) );
+          const Matrix& nodeWorldTransform = owningNode.GetWorldMatrix(updateBufferIndex);
+          nodeWorldTransform.InvertTransform(viewMatrix);
           mViewMatrix.SetDirty( updateBufferIndex );
           break;
         }

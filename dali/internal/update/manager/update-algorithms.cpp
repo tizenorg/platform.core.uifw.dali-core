@@ -101,7 +101,7 @@ inline void UpdateNodeOpacity( Node& node, int nodeDirtyFlags, BufferIndex updat
   }
 }
 
-inline void UpdateRootNodeTransformValues( Layer& rootNode, int nodeDirtyFlags, BufferIndex updateBufferIndex )
+inline void UpdateRootNodeTransformValues( Layer& rootNode, TxManager* txManager, int nodeDirtyFlags, BufferIndex updateBufferIndex )
 {
   // If the transform values need to be reinherited
   if ( nodeDirtyFlags & TransformFlag )
@@ -127,51 +127,13 @@ inline void UpdateRootNodeTransformValues( Layer& rootNode, int nodeDirtyFlags, 
  * @param[in,out] nodeDirtyFlags A reference to the dirty flags, these may be modified by this function
  * @param[in]     updateBufferIndex The current index to use for this frame
  */
-inline void UpdateNodeTransformValues( Node& node, int& nodeDirtyFlags, BufferIndex updateBufferIndex )
+inline void UpdateNodeTransformValues( Node& node, TxManager* txManager, int& nodeDirtyFlags, BufferIndex updateBufferIndex )
 {
   // If the transform values need to be reinherited
   if( nodeDirtyFlags & TransformFlag )
   {
-    // With a non-central anchor-point, the world rotation and scale affects the world position.
-    // Therefore the world rotation & scale must be updated before the world position.
-    if( node.IsOrientationInherited() )
-    {
-      node.InheritWorldOrientation( updateBufferIndex );
-    }
-    else
-    {
-      node.SetWorldOrientation( updateBufferIndex, node.GetOrientation( updateBufferIndex ) );
-    }
-
-    if( node.IsScaleInherited() )
-    {
-      node.InheritWorldScale( updateBufferIndex );
-    }
-    else
-    {
-      node.SetWorldScale( updateBufferIndex, node.GetScale( updateBufferIndex ) );
-    }
-
-    node.InheritWorldPosition( updateBufferIndex );
-  }
-  else
-  {
-    // Copy inherited values, if those changed in the previous frame
-    node.CopyPreviousWorldOrientation( updateBufferIndex );
-    node.CopyPreviousWorldScale( updateBufferIndex );
-    node.CopyPreviousWorldPosition( updateBufferIndex );
-  }
-}
-
-inline void UpdateNodeWorldMatrix( Node &node, int nodeDirtyFlags, BufferIndex updateBufferIndex )
-{
-  // If world-matrix needs to be recalculated
-  if ( nodeDirtyFlags & TransformFlag )
-  {
-    node.SetWorldMatrix( updateBufferIndex,
-                         node.GetWorldScale(updateBufferIndex),
-                         node.GetWorldOrientation(updateBufferIndex),
-                         node.GetWorldPosition(updateBufferIndex) );
+    txManager->SetTransform( node.GetTxId(), node.GetPosition( updateBufferIndex), node.GetScale(updateBufferIndex), node.GetOrientation(updateBufferIndex) );
+    node.SetWorldMatrix(updateBufferIndex, txManager->GetWorldTx(node.GetTxId()));
   }
   else
   {
@@ -183,6 +145,7 @@ inline void UpdateNodeWorldMatrix( Node &node, int nodeDirtyFlags, BufferIndex u
  * This is called recursively for all children of the root Node
  */
 inline int UpdateNodesAndAttachments( Node& node,
+                                      TxManager* txManager,
                                       int parentFlags,
                                       BufferIndex updateBufferIndex,
                                       ResourceManager& resourceManager,
@@ -230,7 +193,7 @@ inline int UpdateNodesAndAttachments( Node& node,
   UpdateNodeOpacity( node, nodeDirtyFlags, updateBufferIndex );
 
   // Note: nodeDirtyFlags are passed in by reference and may be modified by the following function
-  UpdateNodeTransformValues( node, nodeDirtyFlags, updateBufferIndex );
+  UpdateNodeTransformValues( node, txManager, nodeDirtyFlags, updateBufferIndex );
 
   // Setting STENCIL will override OVERLAY_2D, if that would otherwise have been inherited.
   inheritedDrawMode |= node.GetDrawMode();
@@ -247,12 +210,6 @@ inline int UpdateNodesAndAttachments( Node& node,
 
     //Update the attachment
     attachment.Update( updateBufferIndex, node, nodeDirtyFlags );
-  }
-  else if( node.IsObserved() || node.GetRendererCount() )
-  {
-    // This node is being used as a property input for an animation, constraint,
-    // camera or bone. Ensure it's matrix is updated
-    UpdateNodeWorldMatrix( node, nodeDirtyFlags, updateBufferIndex );
   }
 
   node.PrepareRender( updateBufferIndex );
@@ -272,6 +229,7 @@ inline int UpdateNodesAndAttachments( Node& node,
   {
     Node& child = **iter;
     cumulativeDirtyFlags |=UpdateNodesAndAttachments( child,
+                                                      txManager,
                                                       nodeDirtyFlags,
                                                       updateBufferIndex,
                                                       resourceManager,
@@ -287,6 +245,7 @@ inline int UpdateNodesAndAttachments( Node& node,
  * The root node is treated separately; it cannot inherit values since it has no parent
  */
 int UpdateNodesAndAttachments( Layer& rootNode,
+                               TxManager* txManager,
                                BufferIndex updateBufferIndex,
                                ResourceManager& resourceManager,
                                RenderQueue& renderQueue )
@@ -313,7 +272,7 @@ int UpdateNodesAndAttachments( Layer& rootNode,
 
   UpdateRootNodeOpacity( rootNode, nodeDirtyFlags, updateBufferIndex );
 
-  UpdateRootNodeTransformValues( rootNode, nodeDirtyFlags, updateBufferIndex );
+  UpdateRootNodeTransformValues( rootNode, txManager, nodeDirtyFlags, updateBufferIndex );
 
   DrawMode::Type drawMode( rootNode.GetDrawMode() );
 
@@ -324,6 +283,7 @@ int UpdateNodesAndAttachments( Layer& rootNode,
   {
     Node& child = **iter;
     cumulativeDirtyFlags |= UpdateNodesAndAttachments( child,
+                                                       txManager,
                                                        nodeDirtyFlags,
                                                        updateBufferIndex,
                                                        resourceManager,

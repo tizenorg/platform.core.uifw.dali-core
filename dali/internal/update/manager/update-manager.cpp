@@ -130,8 +130,7 @@ struct UpdateManager::Impl
         TextureCache& textureCache,
         TouchResampler& touchResampler,
         SceneGraphBuffers& sceneGraphBuffers )
-  :
-    renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers ),
+  : renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers ),
     notificationManager( notificationManager ),
     animationFinishedNotifier( animationFinishedNotifier ),
     propertyNotifier( propertyNotifier ),
@@ -958,6 +957,9 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
     //Update renderers and apply constraints
     UpdateRenderers( bufferIndex );
+
+    TxManager::GetTxManager().Update();
+
 
     //Process Property Notifications
     ProcessPropertyNotifications( bufferIndex );

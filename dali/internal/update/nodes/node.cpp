@@ -50,17 +50,19 @@ Node* Node::New()
 }
 
 Node::Node()
-: mParentOrigin( ParentOrigin::DEFAULT ),
-  mAnchorPoint( AnchorPoint::DEFAULT ),
-  mSize(),     // zero initialized by default
-  mPosition(), // zero initialized by default
+: mTransformManager(0),
+  mTransformId( INVALID_TRANSFORM_ID ),
+  mParentOrigin( TRANSFORM_PROPERTY_PARENT_ORIGIN ),
+  mAnchorPoint( TRANSFORM_PROPERTY_ANCHOR_POINT ),
+  mSize(TRANSFORM_PROPERTY_SIZE),     // zero initialized by default
+  mPosition(TRANSFORM_PROPERTY_POSITION), // zero initialized by default
   mOrientation(), // initialized to identity by default
-  mScale( Vector3::ONE ),
+  mScale( TRANSFORM_PROPERTY_SCALE ),
   mVisible( true ),
   mColor( Color::WHITE ),
-  mWorldPosition(), // zero initialized by default
+  mWorldPosition(TRANSFORM_PROPERTY_WORLD_POSITION), // zero initialized by default
+  mWorldScale( TRANSFORM_PROPERTY_WORLD_SCALE ),
   mWorldOrientation(), // initialized to identity by default
-  mWorldScale( Vector3::ONE ),
   mWorldMatrix(),
   mWorldColor( Color::WHITE ),
   mParent( NULL ),
@@ -83,6 +85,43 @@ Node::Node()
 
 Node::~Node()
 {
+  mTransformManager->RemoveTransform(mTransformId);
+}
+
+void Node::CreateTransform( SceneGraph::TransformManager* transformManager )
+{
+  mTransformManager = transformManager;
+  mTransformId = transformManager->CreateTransform();
+
+  mPosition.mTxManager = transformManager;
+  mPosition.mId = mTransformId;
+
+  mScale.mTxManager = transformManager;
+  mScale.mId = mTransformId;
+
+  mOrientation.mTxManager = transformManager;
+  mOrientation.mId = mTransformId;
+
+  mSize.mTxManager = transformManager;
+  mSize.mId = mTransformId;
+
+  mParentOrigin.mTxManager = transformManager;
+  mParentOrigin.mId = mTransformId;
+
+  mAnchorPoint.mTxManager = transformManager;
+  mAnchorPoint.mId = mTransformId;
+
+  mWorldPosition.mTxManager = transformManager;
+  mWorldPosition.mId = mTransformId;
+
+  mWorldScale.mTxManager = transformManager;
+  mWorldScale.mId = mTransformId;
+
+  mWorldOrientation.mTxManager = transformManager;
+  mWorldOrientation.mId = mTransformId;
+
+  mWorldMatrix.mTxManager = transformManager;
+  mWorldMatrix.mId = mTransformId;
 }
 
 void Node::operator delete( void* ptr )
@@ -230,21 +269,6 @@ int Node::GetDirtyFlags() const
 {
   // get initial dirty flags, they are reset ResetDefaultProperties, but setters may have made the node dirty already
   int flags = mDirtyFlags;
-  const bool sizeFlag = mSize.IsClean();
-
-  if ( !(flags & TransformFlag) )
-  {
-    // Check whether the transform related properties have changed
-    if( !sizeFlag            ||
-        !mPosition.IsClean() ||
-        !mOrientation.IsClean() ||
-        !mScale.IsClean()    ||
-        mParentOrigin.InputChanged() || // parent origin and anchor point rarely change
-        mAnchorPoint.InputChanged() )
-    {
-      flags |= TransformFlag;
-    }
-  }
 
   // Check whether the visible property has changed
   if ( !mVisible.IsClean() )
@@ -258,25 +282,11 @@ int Node::GetDirtyFlags() const
     flags |= ColorFlag;
   }
 
-  // Check whether the size property has changed
-  if ( !sizeFlag )
-  {
-    flags |= SizeFlag;
-   }
-
   return flags;
 }
 
 void Node::ResetDefaultProperties( BufferIndex updateBufferIndex )
 {
-  // clear dirty flags in parent origin & anchor point
-  mParentOrigin.Clear();
-  mAnchorPoint.Clear();
-  // Reset default properties
-  mSize.ResetToBaseValue( updateBufferIndex );
-  mPosition.ResetToBaseValue( updateBufferIndex );
-  mOrientation.ResetToBaseValue( updateBufferIndex );
-  mScale.ResetToBaseValue( updateBufferIndex );
   mVisible.ResetToBaseValue( updateBufferIndex );
   mColor.ResetToBaseValue( updateBufferIndex );
 
@@ -291,6 +301,8 @@ void Node::SetParent(Node& parentNode)
 
   mParent = &parentNode;
   mDepth = mParent->GetDepth() + 1u;
+
+  mTransformManager->SetParent( mTransformId, parentNode.GetTransformId() );
 }
 
 void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
@@ -320,6 +332,8 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
     mAttachment->DisconnectedFromSceneGraph();
   }
 
+  //@FERRAN: Remove the transformation from TransformManager??
+  mTransformManager->SetParent( mTransformId, INVALID_TRANSFORM_ID );
 }
 
 } // namespace SceneGraph

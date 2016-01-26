@@ -660,7 +660,7 @@ void Actor::SetPosition( const Vector3& position )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mPosition, &AnimatableProperty<Vector3>::Bake, position );
+    SceneGraph::NodeTransformPropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mPosition, &SceneGraph::TransformManagerPropertyHandler<Vector3>::Bake, position );
   }
 }
 
@@ -671,7 +671,7 @@ void Actor::SetX( float x )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mPosition, &AnimatableProperty<Vector3>::BakeX, x );
+    SceneGraph::NodeTransformComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mPosition, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeX, x );
   }
 }
 
@@ -682,7 +682,7 @@ void Actor::SetY( float y )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mPosition, &AnimatableProperty<Vector3>::BakeY, y );
+    SceneGraph::NodeTransformComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mPosition, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeY, y );
   }
 }
 
@@ -693,7 +693,7 @@ void Actor::SetZ( float z )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mPosition, &AnimatableProperty<Vector3>::BakeZ, z );
+    SceneGraph::NodeTransformComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mPosition, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeZ, z );
   }
 }
 
@@ -704,7 +704,7 @@ void Actor::TranslateBy( const Vector3& distance )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mPosition, &AnimatableProperty<Vector3>::BakeRelative, distance );
+    SceneGraph::NodeTransformPropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mPosition, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeRelative, distance );
   }
 }
 
@@ -724,7 +724,7 @@ const Vector3& Actor::GetTargetPosition() const
   return mTargetPosition;
 }
 
-const Vector3& Actor::GetCurrentWorldPosition() const
+Vector3 Actor::GetCurrentWorldPosition() const
 {
   if( NULL != mNode )
   {
@@ -754,9 +754,10 @@ PositionInheritanceMode Actor::GetPositionInheritanceMode() const
 
 void Actor::SetInheritPosition( bool inherit )
 {
-  mInheritPosition = inherit;
-  if( NULL != mNode )
+  if( mInheritPosition != inherit && NULL != mNode )
   {
+    // non animateable so keep local copy
+    mInheritPosition = inherit;
     SetInheritPositionMessage( GetEventThreadServices(), *mNode, inherit );
   }
 }
@@ -781,7 +782,7 @@ void Actor::SetOrientation( const Quaternion& orientation )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Quaternion>::Send( GetEventThreadServices(), mNode, &mNode->mOrientation, &AnimatableProperty<Quaternion>::Bake, orientation );
+    SceneGraph::NodeTransformPropertyMessage<Quaternion>::Send( GetEventThreadServices(), mNode, &mNode->mOrientation, &SceneGraph::TransformManagerPropertyHandler<Quaternion>::Bake, orientation );
   }
 }
 
@@ -790,7 +791,7 @@ void Actor::RotateBy( const Radian& angle, const Vector3& axis )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Quaternion>::Send( GetEventThreadServices(), mNode, &mNode->mOrientation, &AnimatableProperty<Quaternion>::BakeRelative, Quaternion(angle, axis) );
+    SceneGraph::NodeTransformPropertyMessage<Quaternion>::Send( GetEventThreadServices(), mNode, &mNode->mOrientation, &SceneGraph::TransformManagerPropertyHandler<Quaternion>::BakeRelative, Quaternion(angle, axis) );
   }
 }
 
@@ -799,7 +800,7 @@ void Actor::RotateBy( const Quaternion& relativeRotation )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Quaternion>::Send( GetEventThreadServices(), mNode, &mNode->mOrientation, &AnimatableProperty<Quaternion>::BakeRelative, relativeRotation );
+    SceneGraph::NodeTransformPropertyMessage<Quaternion>::Send( GetEventThreadServices(), mNode, &mNode->mOrientation, &SceneGraph::TransformManagerPropertyHandler<Quaternion>::BakeRelative, relativeRotation );
   }
 }
 
@@ -814,7 +815,7 @@ const Quaternion& Actor::GetCurrentOrientation() const
   return Quaternion::IDENTITY;
 }
 
-const Quaternion& Actor::GetCurrentWorldOrientation() const
+Quaternion Actor::GetCurrentWorldOrientation() const
 {
   if( NULL != mNode )
   {
@@ -840,7 +841,7 @@ void Actor::SetScale( const Vector3& scale )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mScale, &AnimatableProperty<Vector3>::Bake, scale );
+    SceneGraph::NodeTransformPropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mScale, &SceneGraph::TransformManagerPropertyHandler<Vector3>::Bake, scale );
   }
 }
 
@@ -849,7 +850,7 @@ void Actor::SetScaleX( float x )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mScale, &AnimatableProperty<Vector3>::BakeX, x );
+    SceneGraph::NodeTransformComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mScale, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeX, x );
   }
 }
 
@@ -858,7 +859,7 @@ void Actor::SetScaleY( float y )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mScale, &AnimatableProperty<Vector3>::BakeY, y );
+    SceneGraph::NodeTransformComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mScale, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeY, y );
   }
 }
 
@@ -867,7 +868,7 @@ void Actor::SetScaleZ( float z )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mScale, &AnimatableProperty<Vector3>::BakeZ, z );
+    SceneGraph::NodeTransformComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mScale, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeZ, z );
   }
 }
 
@@ -876,7 +877,7 @@ void Actor::ScaleBy(const Vector3& relativeScale)
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mScale, &AnimatableProperty<Vector3>::BakeRelativeMultiply, relativeScale );
+    SceneGraph::NodeTransformPropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mScale, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeRelativeMultiply, relativeScale );
   }
 }
 
@@ -891,7 +892,7 @@ const Vector3& Actor::GetCurrentScale() const
   return Vector3::ONE;
 }
 
-const Vector3& Actor::GetCurrentWorldScale() const
+Vector3 Actor::GetCurrentWorldScale() const
 {
   if( NULL != mNode )
   {
@@ -904,10 +905,11 @@ const Vector3& Actor::GetCurrentWorldScale() const
 
 void Actor::SetInheritScale( bool inherit )
 {
-  // non animateable so keep local copy
-  mInheritScale = inherit;
-  if( NULL != mNode )
+
+  if( mInheritScale != inherit && NULL != mNode )
   {
+    // non animateable so keep local copy
+    mInheritScale = inherit;
     // mNode is being used in a separate thread; queue a message to set the value
     SetInheritScaleMessage( GetEventThreadServices(), *mNode, inherit );
   }
@@ -922,14 +924,7 @@ Matrix Actor::GetCurrentWorldMatrix() const
 {
   if( NULL != mNode )
   {
-    // World matrix is no longer updated unless there is something observing the node.
-    // Need to calculate it from node's world position, orientation and scale:
-    BufferIndex updateBufferIndex = GetEventThreadServices().GetEventBufferIndex();
-    Matrix worldMatrix(false);
-    worldMatrix.SetTransformComponents( mNode->GetWorldScale( updateBufferIndex ),
-                                        mNode->GetWorldOrientation( updateBufferIndex ),
-                                        mNode->GetWorldPosition( updateBufferIndex ) );
-    return worldMatrix;
+    return mNode->GetWorldMatrix(0);
   }
 
   return Matrix::IDENTITY;
@@ -1034,10 +1029,10 @@ const Vector4& Actor::GetCurrentColor() const
 
 void Actor::SetInheritOrientation( bool inherit )
 {
-  // non animateable so keep local copy
-  mInheritOrientation = inherit;
-  if( NULL != mNode )
+  if( mInheritOrientation != inherit && NULL != mNode)
   {
+    // non animateable so keep local copy
+    mInheritOrientation = inherit;
     // mNode is being used in a separate thread; queue a message to set the value
     SetInheritOrientationMessage( GetEventThreadServices(), *mNode, inherit );
   }
@@ -1128,7 +1123,7 @@ void Actor::SetSizeInternal( const Vector3& size )
     mTargetSize = size;
 
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mSize, &AnimatableProperty<Vector3>::Bake, mTargetSize );
+    SceneGraph::NodeTransformPropertyMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mSize, &SceneGraph::TransformManagerPropertyHandler<Vector3>::Bake, mTargetSize );
 
     // Notification for derived classes
     mInsideOnSizeSet = true;
@@ -1197,7 +1192,7 @@ void Actor::SetWidth( float width )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mSize, &AnimatableProperty<Vector3>::BakeX, width );
+    SceneGraph::NodeTransformComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mSize, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeX, width );
   }
 }
 
@@ -1208,7 +1203,7 @@ void Actor::SetHeight( float height )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mSize, &AnimatableProperty<Vector3>::BakeY, height );
+    SceneGraph::NodeTransformComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mSize, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeY, height );
   }
 }
 
@@ -1219,7 +1214,7 @@ void Actor::SetDepth( float depth )
   if( NULL != mNode )
   {
     // mNode is being used in a separate thread; queue a message to set the value & base value
-    SceneGraph::NodePropertyComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mSize, &AnimatableProperty<Vector3>::BakeZ, depth );
+    SceneGraph::NodeTransformComponentMessage<Vector3>::Send( GetEventThreadServices(), mNode, &mNode->mSize, &SceneGraph::TransformManagerPropertyHandler<Vector3>::BakeZ, depth );
   }
 }
 
@@ -1556,12 +1551,8 @@ bool Actor::ScreenToLocal( const Matrix& viewMatrix, const Matrix& projectionMat
     return false;
   }
 
-  BufferIndex bufferIndex( GetEventThreadServices().GetEventBufferIndex() );
-
-  // Calculate the ModelView matrix
-  Matrix modelView( false/*don't init*/);
-  // need to use the components as world matrix is only updated for actors that need it
-  modelView.SetTransformComponents( mNode->GetWorldScale( bufferIndex ), mNode->GetWorldOrientation( bufferIndex ), mNode->GetWorldPosition( bufferIndex ) );
+  // Get the ModelView matrix
+  Matrix modelView = mNode->GetWorldMatrix(0);
   Matrix::Multiply( modelView, modelView, viewMatrix );
 
   // Calculate the inverted ModelViewProjection matrix; this will be used for 2 unprojects
@@ -1708,7 +1699,10 @@ bool Actor::RayActorTest( const Vector4& rayOrigin, const Vector4& rayDir, Vecto
 
     BufferIndex bufferIndex( GetEventThreadServices().GetEventBufferIndex() );
     // need to use the components as world matrix is only updated for actors that need it
-    invModelMatrix.SetInverseTransformComponents( mNode->GetWorldScale( bufferIndex ), mNode->GetWorldOrientation( bufferIndex ), mNode->GetWorldPosition( bufferIndex ) );
+    //invModelMatrix.SetInverseTransformComponents( mNode->GetWorldScale( bufferIndex ), mNode->GetWorldOrientation( bufferIndex ), mNode->GetWorldPosition( bufferIndex ) );
+
+    invModelMatrix = mNode->GetWorldMatrix(0);
+    invModelMatrix.Invert();
 
     Vector4 rayOriginLocal( invModelMatrix * rayOrigin );
     Vector4 rayDirLocal( invModelMatrix * rayDir - invModelMatrix.GetTranslation() );

@@ -115,7 +115,7 @@ public:
    * Set the face-culling mode.
    * @param[in] mode The face-culling mode.
    */
-  void SetCullFace( Dali::Material::FaceCullingMode mode );
+  void SetCullFace( Dali::Renderer::FaceCullingMode mode );
 
   /**
    * Set the sampler used to render the set texture.
@@ -218,7 +218,7 @@ private:
 
   unsigned int mSamplerBitfield;                    ///< Sampler options used for texture filtering
   bool mUpdateAttributesLocation:1;                 ///< Indicates attribute locations have changed
-  Dali::Material::FaceCullingMode mCullFaceMode:2;  ///< cullface enum, 3 bits is enough
+  Dali::Renderer::FaceCullingMode mCullFaceMode:2;  ///< cullface enum, 3 bits is enough
 };
 
 } // namespace SceneGraph

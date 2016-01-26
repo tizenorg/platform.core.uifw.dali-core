@@ -18,10 +18,10 @@
  *
  */
 
-#include <dali/internal/render/data-providers/material-data-provider.h>
 #include <dali/internal/render/data-providers/node-data-provider.h>
 #include <dali/internal/render/data-providers/property-buffer-data-provider.h>
 #include <dali/internal/render/data-providers/uniform-map-data-provider.h>
+#include <dali/internal/render/data-providers/rendering-options-data-provider.h>
 #include <dali/internal/render/renderers/render-texture.h>
 namespace Dali
 {
@@ -65,13 +65,13 @@ public:
    * Set the material data provider
    * @param[in] materialDataProvider The material data provider
    */
-  void SetMaterial( const MaterialDataProvider& materialDataProvider );
+  void SetRenderingOptions( const RenderingOptionsDataProvider& renderingOptionsDataProvider );
 
   /**
    * Get the material data provider
    * @return the material data provider
    */
-  const MaterialDataProvider& GetMaterial() const;
+  const RenderingOptionsDataProvider& GetRenderingOptions() const;
 
   /**
    * Set the uniform map data provider
@@ -103,12 +103,13 @@ public:
   Textures& GetTextures();
 
 private:
-  const MaterialDataProvider*   mMaterialDataProvider;
-  const UniformMapDataProvider* mUniformMapDataProvider;
+
+  const UniformMapDataProvider*       mUniformMapDataProvider;
+  const RenderingOptionsDataProvider* mRenderingOptionsDataProvider;
   Shader*                       mShader;
   Textures                      mTextures;
 
-// Give Renderer access to our private data to reduce copying vectors on construction.
+  // Give Renderer access to our private data to reduce copying vectors on construction.
   friend class Renderer;
 };
 

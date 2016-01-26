@@ -223,9 +223,15 @@ void BlendingOptions::SetBitmask( unsigned int bitmask )
   mBitmask = bitmask;
 }
 
-unsigned int BlendingOptions::GetBitmask() const
+unsigned int BlendingOptions::GetBitmask()
 {
   return mBitmask;
+}
+
+void BlendingOptions::SetBitmaskForPreMultipliedAlphaBlend()
+{
+  SetBlendFunc( PRE_MULTIPLIED_ALPHA_BLENDING_SRC_FACTOR_RGB,   PRE_MULTIPLIED_ALPHA_BLENDING_DEST_FACTOR_RGB,
+                PRE_MULTIPLIED_ALPHA_BLENDING_SRC_FACTOR_ALPHA, PRE_MULTIPLIED_ALPHA_BLENDING_DEST_FACTOR_ALPHA );
 }
 
 void BlendingOptions::SetBlendFunc( BlendingFactor::Type srcFactorRgb,   BlendingFactor::Type destFactorRgb,

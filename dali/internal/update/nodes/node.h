@@ -19,6 +19,8 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/update/manager/transform-manager.h>
+#include <dali/internal/update/manager/transform-manager-property.h>
 #include <dali/public-api/actors/actor-enumerations.h>
 #include <dali/public-api/actors/draw-mode.h>
 #include <dali/devel-api/common/set-wrapper.h>
@@ -372,18 +374,9 @@ public:
    */
   const Vector3& GetPosition(BufferIndex bufferIndex) const
   {
-    return mPosition[bufferIndex];
+    return mPosition.Get(bufferIndex);
   }
 
-  /**
-   * Sets both the local & base positions of the node.
-   * @param[in] updateBufferIndex The current update buffer index.
-   * @param[in] position The new local & base position.
-   */
-  void BakePosition(BufferIndex updateBufferIndex, const Vector3& position)
-  {
-    mPosition.Bake( updateBufferIndex, position );
-  }
 
   /**
    * Sets the world of the node derived from the position of all its parents.
@@ -395,95 +388,7 @@ public:
     mWorldPosition.Set( updateBufferIndex, position );
   }
 
-  /**
-   * Sets the position of the node derived from the position of all its parents.
-   * This method should only be called when the parent's world position is up-to-date.
-   * With a non-central anchor-point, the local orientation and scale affects the world position.
-   * Therefore the world orientation & scale must be updated before the world position.
-   * @pre The node has a parent.
-   * @param[in] updateBufferIndex The current update buffer index.
-   */
-  void InheritWorldPosition(BufferIndex updateBufferIndex)
-  {
-    DALI_ASSERT_DEBUG(mParent != NULL);
 
-    switch( mPositionInheritanceMode )
-    {
-      case INHERIT_PARENT_POSITION  : ///@see Dali::PositionInheritanceMode for how these modes are expected to work
-      {
-        Vector3 finalPosition(-0.5f, -0.5f, -0.5f);
-
-        finalPosition += mParentOrigin.mValue;
-        finalPosition *= mParent->GetSize(updateBufferIndex);
-        finalPosition += mPosition[updateBufferIndex];
-        finalPosition *= mParent->GetWorldScale(updateBufferIndex);
-        const Quaternion& parentWorldOrientation = mParent->GetWorldOrientation(updateBufferIndex);
-        if(!parentWorldOrientation.IsIdentity())
-        {
-          finalPosition *= parentWorldOrientation;
-        }
-
-        // check if a node needs to be offsetted locally (only applies when AnchorPoint is not central)
-        // dont use operator== as that does a slower comparison (and involves function calls)
-        Vector3 localOffset(0.5f, 0.5f, 0.5f);    // AnchorPoint::CENTER
-        localOffset -= mAnchorPoint.mValue;
-
-        if( ( fabsf( localOffset.x ) >= Math::MACHINE_EPSILON_0 ) ||
-            ( fabsf( localOffset.y ) >= Math::MACHINE_EPSILON_0 ) ||
-            ( fabsf( localOffset.z ) >= Math::MACHINE_EPSILON_0 ) )
-        {
-          localOffset *= mSize[updateBufferIndex];
-
-          Vector3 scale = mWorldScale[updateBufferIndex];
-
-          // Pick up sign of local scale
-          if (mScale[updateBufferIndex].x < 0.0f)
-          {
-            scale.x = -scale.x;
-          }
-          if (mScale[updateBufferIndex].y < 0.0f)
-          {
-            scale.y = -scale.y;
-          }
-          if (mScale[updateBufferIndex].z < 0.0f)
-          {
-            scale.z = -scale.z;
-          }
-
-          // If the anchor-point is not central, then position is affected by the local orientation & scale
-          localOffset *= scale;
-          const Quaternion& localWorldOrientation = mWorldOrientation[updateBufferIndex];
-          if(!localWorldOrientation.IsIdentity())
-          {
-            localOffset *= localWorldOrientation;
-          }
-          finalPosition += localOffset;
-        }
-
-        finalPosition += mParent->GetWorldPosition(updateBufferIndex);
-        mWorldPosition.Set( updateBufferIndex, finalPosition );
-        break;
-      }
-      case USE_PARENT_POSITION_PLUS_LOCAL_POSITION :
-      {
-        // copy parents position plus local transform
-        mWorldPosition.Set( updateBufferIndex, mParent->GetWorldPosition(updateBufferIndex) + mPosition[updateBufferIndex] );
-        break;
-      }
-      case USE_PARENT_POSITION :
-      {
-        // copy parents position
-        mWorldPosition.Set( updateBufferIndex, mParent->GetWorldPosition(updateBufferIndex) );
-        break;
-      }
-      case DONT_INHERIT_POSITION :
-      {
-        // use local position as world position
-        mWorldPosition.Set( updateBufferIndex, mPosition[updateBufferIndex] );
-        break;
-      }
-    }
-  }
 
   /**
    * Copies the previous inherited position, if this changed in the previous frame.
@@ -500,9 +405,17 @@ public:
    * Retrieve the position of the node derived from the position of all its parents.
    * @return The world position.
    */
-  const Vector3& GetWorldPosition( BufferIndex bufferIndex ) const
+  Vector3 GetWorldPosition( BufferIndex bufferIndex ) const
   {
-    return mWorldPosition[bufferIndex];
+    if( mTransformId != INVALID_TRANSFORM_ID )
+    {
+      const Matrix& worldMatrix = mTransformManager->GetWorldMatrix( mTransformId );
+      return worldMatrix.GetTranslation3();
+    }
+    else
+    {
+      return Vector3::ZERO;
+    }
   }
 
   /**
@@ -532,62 +445,7 @@ public:
    */
   const Quaternion& GetOrientation(BufferIndex bufferIndex) const
   {
-    return mOrientation[bufferIndex];
-  }
-
-  /**
-   * Sets both the local & base orientations of the node.
-   * @param[in] updateBufferIndex The current update buffer index.
-   * @param[in] orientation The new local & base orientation.
-   */
-  void BakeOrientation(BufferIndex updateBufferIndex, const Quaternion& orientation)
-  {
-    mOrientation.Bake( updateBufferIndex, orientation );
-  }
-
-  /**
-   * Sets the orientation of the node derived from the rotation of all its parents.
-   * @param[in] updateBufferIndex The current update buffer index.
-   * @param[in] orientation The world orientation.
-   */
-  void SetWorldOrientation( BufferIndex updateBufferIndex, const Quaternion& orientation )
-  {
-    mWorldOrientation.Set( updateBufferIndex, orientation );
-  }
-
-  /**
-   * Sets the orientation of the node derived from the rotation of all its parents.
-   * This method should only be called when the parents world orientation is up-to-date.
-   * @pre The node has a parent.
-   * @param[in] updateBufferIndex The current update buffer index.
-   */
-  void InheritWorldOrientation( BufferIndex updateBufferIndex )
-  {
-    DALI_ASSERT_DEBUG(mParent != NULL);
-
-    const Quaternion& localOrientation = mOrientation[updateBufferIndex];
-
-    if(localOrientation.IsIdentity())
-    {
-      mWorldOrientation.Set( updateBufferIndex, mParent->GetWorldOrientation(updateBufferIndex) );
-    }
-    else
-    {
-      Quaternion finalOrientation( mParent->GetWorldOrientation(updateBufferIndex) );
-      finalOrientation *= localOrientation;
-      mWorldOrientation.Set( updateBufferIndex, finalOrientation );
-    }
-  }
-
-  /**
-   * Copies the previous inherited orientation, if this changed in the previous frame.
-   * This method should be called instead of InheritWorldOrientation i.e. if the inherited orientation
-   * does not need to be recalculated in the current frame.
-   * @param[in] updateBufferIndex The current update buffer index.
-   */
-  void CopyPreviousWorldOrientation( BufferIndex updateBufferIndex )
-  {
-    mWorldOrientation.CopyPrevious( updateBufferIndex );
+    return mOrientation.Get(0);
   }
 
   /**
@@ -595,9 +453,16 @@ public:
    * @param[in] bufferIndex The buffer to read from.
    * @return The world rotation.
    */
-  const Quaternion& GetWorldOrientation( BufferIndex bufferIndex ) const
+  Quaternion GetWorldOrientation( BufferIndex bufferIndex ) const
   {
-    return mWorldOrientation[bufferIndex];
+    Quaternion result;
+    if( mTransformId != INVALID_TRANSFORM_ID )
+    {
+      const Matrix& worldMatrix = mTransformManager->GetWorldMatrix( mTransformId );
+      Vector3 position, scale;
+      worldMatrix.GetTransformComponents(position, result, scale );
+    }
+    return result;
   }
 
   /**
@@ -630,51 +495,26 @@ public:
    */
   const Vector3& GetScale(BufferIndex bufferIndex) const
   {
-    return mScale[bufferIndex];
+    return mScale.Get(0);
   }
 
-  /**
-   * Sets the scale of the node derived from the scale of all its parents and a pre-scale
-   * @param[in] updateBufferIndex The current update buffer index.
-   * @param[in] scale The world scale.
-   */
-  void SetWorldScale(BufferIndex updateBufferIndex, const Vector3& scale)
-  {
-    mWorldScale.Set( updateBufferIndex, scale );
-  }
-
-  /**
-   * Sets the scale of the node derived from the scale of all its parents and a pre-scale.
-   * This method should only be called when the parents world scale is up-to-date.
-   * @pre The node has a parent.
-   * @param[in] updateBufferIndex The current update buffer index.
-   */
-  void InheritWorldScale(BufferIndex updateBufferIndex)
-  {
-    DALI_ASSERT_DEBUG(mParent != NULL);
-
-    mWorldScale.Set( updateBufferIndex, mParent->GetWorldScale(updateBufferIndex) * mScale[updateBufferIndex] );
-  }
-
-  /**
-   * Copies the previous inherited scale, if this changed in the previous frame.
-   * This method should be called instead of InheritWorldScale i.e. if the inherited scale
-   * does not need to be recalculated in the current frame.
-   * @param[in] updateBufferIndex The current update buffer index.
-   */
-  void CopyPreviousWorldScale( BufferIndex updateBufferIndex )
-  {
-    mWorldScale.CopyPrevious( updateBufferIndex );
-  }
 
   /**
    * Retrieve the scale of the node derived from the scale of all its parents.
    * @param[in] bufferIndex The buffer to read from.
    * @return The world scale.
    */
-  const Vector3& GetWorldScale( BufferIndex bufferIndex ) const
+  Vector3 GetWorldScale( BufferIndex bufferIndex ) const
   {
-    return mWorldScale[bufferIndex];
+    Vector3 scale(1.0f,1.0f,1.0f);
+    if( mTransformId != INVALID_TRANSFORM_ID )
+    {
+      const Matrix& worldMatrix = mTransformManager->GetWorldMatrix( mTransformId );
+      Vector3 position;
+      Quaternion orientation;
+      worldMatrix.GetTransformComponents(position, orientation, scale );
+    }
+    return scale;
   }
 
   /**
@@ -820,7 +660,7 @@ public:
    */
   const Vector3& GetSize(BufferIndex bufferIndex) const
   {
-    return mSize[bufferIndex];
+    return mSize.Get(0);
   }
 
   /**
@@ -838,6 +678,12 @@ public:
     mWorldMatrix.SetDirty( updateBufferIndex );
   }
 
+  void SetWorldMatrix( BufferIndex updateBufferIndex, const Matrix& m )
+  {
+    mWorldMatrix.Get( updateBufferIndex ) = m;
+    mWorldMatrix.SetDirty( updateBufferIndex );
+  }
+
   /**
    * Retrieve the cached world-matrix of a node.
    * @param[in] bufferIndex The buffer to read from.
@@ -845,7 +691,14 @@ public:
    */
   const Matrix& GetWorldMatrix( BufferIndex bufferIndex ) const
   {
-    return mWorldMatrix[ bufferIndex ];
+    if( mTransformId != INVALID_TRANSFORM_ID )
+    {
+      return mTransformManager->GetWorldMatrix(mTransformId);
+    }
+    else
+    {
+      return Matrix::IDENTITY;
+    }
   }
 
   /**
@@ -893,6 +746,12 @@ public:
     return mDrawMode;
   }
 
+
+  TransformId GetTransformId()
+  {
+    return mTransformId;
+  }
+
   /**
    * Equality operator, checks for identity, not values.
    *
@@ -928,6 +787,9 @@ public:
    * @param[in] updateBufferIndex The current update buffer index.
    */
   void PrepareRender( BufferIndex bufferIndex );
+
+  void CreateTransform( SceneGraph::TransformManager* transformManager );
+  void UpdateTransform(BufferIndex updateBufferIndex);
 
 protected:
 
@@ -1004,15 +866,18 @@ private:
 
 public: // Default properties
 
+  TransformManager* mTransformManager;
+  TransformId mTransformId;
   PropertyVector3                mParentOrigin;  ///< Local transform; the position is relative to this. Sets the TransformFlag dirty when changed
   PropertyVector3                mAnchorPoint;   ///< Local transform; local center of rotation. Sets the TransformFlag dirty when changed
 
-  AnimatableProperty<Vector3>    mSize;          ///< Size is provided for layouting
-  AnimatableProperty<Vector3>    mPosition;      ///< Local transform; distance between parent-origin & anchor-point
-  AnimatableProperty<Quaternion> mOrientation;   ///< Local transform; rotation relative to parent node
-  AnimatableProperty<Vector3>    mScale;         ///< Local transform; scale relative to parent node
-  AnimatableProperty<bool>       mVisible;       ///< Visibility can be inherited from the Node hierachy
-  AnimatableProperty<Vector4>    mColor;         ///< Color can be inherited from the Node hierarchy
+
+  TransformManagerPropertyVector3    mSize;          ///< Size is provided for layouting
+  TransformManagerPropertyVector3    mPosition;      ///< Local transform; distance between parent-origin & anchor-point
+  TransformManagerPropertyQuaternion mOrientation;   ///< Local transform; rotation relative to parent node
+  TransformManagerPropertyVector3    mScale;         ///< Local transform; scale relative to parent node
+  AnimatableProperty<bool>           mVisible;       ///< Visibility can be inherited from the Node hierachy
+  AnimatableProperty<Vector4>        mColor;         ///< Color can be inherited from the Node hierarchy
 
   // Inherited properties; read-only from public API
 

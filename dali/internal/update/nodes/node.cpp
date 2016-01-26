@@ -50,12 +50,14 @@ Node* Node::New()
 }
 
 Node::Node()
-: mParentOrigin( ParentOrigin::DEFAULT ),
+: mTransformManager(0),
+  mTransformId( INVALID_TRANSFORM_ID ),
+  mParentOrigin( ParentOrigin::DEFAULT ),
   mAnchorPoint( AnchorPoint::DEFAULT ),
-  mSize(),     // zero initialized by default
-  mPosition(), // zero initialized by default
+  mSize(TRANSFORM_PROPERTY_SIZE),     // zero initialized by default
+  mPosition(TRANSFORM_PROPERTY_POSITION), // zero initialized by default
   mOrientation(), // initialized to identity by default
-  mScale( Vector3::ONE ),
+  mScale( TRANSFORM_PROPERTY_SCALE ),
   mVisible( true ),
   mColor( Color::WHITE ),
   mWorldPosition(), // zero initialized by default
@@ -83,6 +85,31 @@ Node::Node()
 
 Node::~Node()
 {
+  mTransformManager->RemoveTransform(mTransformId);
+}
+
+void Node::CreateTransform( SceneGraph::TransformManager* transformManager )
+{
+  mTransformManager = transformManager;
+  mTransformId = transformManager->CreateTransform();
+
+  mPosition.mTxManager = transformManager;
+  mPosition.mId = mTransformId;
+
+  mScale.mTxManager = transformManager;
+  mScale.mId = mTransformId;
+
+  mOrientation.mTxManager = transformManager;
+  mOrientation.mId = mTransformId;
+
+  mSize.mTxManager = transformManager;
+  mSize.mId = mTransformId;
+}
+
+void Node::UpdateTransform(BufferIndex updateBufferIndex)
+{
+  mTransformManager->SetTransform( mTransformId, Vector3(0.0f,0.0f,0.0f), Vector3(0.0f,0.0f,0.0f),
+                                   Vector3(0.0f,0.0f,0.0f), Quaternion(0.0f,0.0f,0.0f,1.0f), mParentOrigin.mValue, mAnchorPoint.mValue );
 }
 
 void Node::operator delete( void* ptr )
@@ -230,15 +257,15 @@ int Node::GetDirtyFlags() const
 {
   // get initial dirty flags, they are reset ResetDefaultProperties, but setters may have made the node dirty already
   int flags = mDirtyFlags;
-  const bool sizeFlag = mSize.IsClean();
+  //const bool sizeFlag = mSize.IsClean();
 
   if ( !(flags & TransformFlag) )
   {
     // Check whether the transform related properties have changed
-    if( !sizeFlag            ||
-        !mPosition.IsClean() ||
-        !mOrientation.IsClean() ||
-        !mScale.IsClean()    ||
+    if( true || //!sizeFlag            ||
+        //!mPosition.IsClean() ||
+        //!mOrientation.IsClean() ||
+        //!mScale.IsClean()    ||
         mParentOrigin.InputChanged() || // parent origin and anchor point rarely change
         mAnchorPoint.InputChanged() )
     {
@@ -259,10 +286,10 @@ int Node::GetDirtyFlags() const
   }
 
   // Check whether the size property has changed
-  if ( !sizeFlag )
-  {
+//  if ( !sizeFlag )
+//  {
     flags |= SizeFlag;
-   }
+//   }
 
   return flags;
 }
@@ -273,10 +300,11 @@ void Node::ResetDefaultProperties( BufferIndex updateBufferIndex )
   mParentOrigin.Clear();
   mAnchorPoint.Clear();
   // Reset default properties
-  mSize.ResetToBaseValue( updateBufferIndex );
-  mPosition.ResetToBaseValue( updateBufferIndex );
-  mOrientation.ResetToBaseValue( updateBufferIndex );
-  mScale.ResetToBaseValue( updateBufferIndex );
+  //mSize.ResetToBaseValue( updateBufferIndex );
+  //mPosition.ResetToBaseValue( updateBufferIndex );
+  //mOrientation.ResetToBaseValue( updateBufferIndex );
+  //mScale.ResetToBaseValue( updateBufferIndex );
+
   mVisible.ResetToBaseValue( updateBufferIndex );
   mColor.ResetToBaseValue( updateBufferIndex );
 
@@ -291,6 +319,8 @@ void Node::SetParent(Node& parentNode)
 
   mParent = &parentNode;
   mDepth = mParent->GetDepth() + 1u;
+
+  mTransformManager->SetParent( mTransformId, parentNode.GetTransformId() );
 }
 
 void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
@@ -320,6 +350,8 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
     mAttachment->DisconnectedFromSceneGraph();
   }
 
+  //@FERRAN: Remove the transformation from TransformManager??
+  mTransformManager->SetParent( mTransformId, INVALID_TRANSFORM_ID );
 }
 
 } // namespace SceneGraph

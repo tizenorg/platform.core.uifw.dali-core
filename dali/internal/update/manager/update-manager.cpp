@@ -130,9 +130,9 @@ struct UpdateManager::Impl
         TextureCache& textureCache,
         TouchResampler& touchResampler,
         SceneGraphBuffers& sceneGraphBuffers )
-  :
-    renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers ),
+  : renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers ),
     notificationManager( notificationManager ),
+    transformManager(),
     animationFinishedNotifier( animationFinishedNotifier ),
     propertyNotifier( propertyNotifier ),
     shaderSaver( NULL ),
@@ -219,6 +219,7 @@ struct UpdateManager::Impl
   SceneGraphBuffers                   sceneGraphBuffers;             ///< Used to keep track of which buffers are being written or read
   RenderMessageDispatcher             renderMessageDispatcher;       ///< Used for passing messages to the render-thread
   NotificationManager&                notificationManager;           ///< Queues notification messages for the event-thread.
+  TransformManager                    transformManager;              ///< Used to update the transformation matrices of the nodes
   CompleteNotificationInterface&      animationFinishedNotifier;     ///< Provides notification to applications when animations are finished.
   PropertyNotifier&                   propertyNotifier;              ///< Provides notification to applications when properties are modified.
   ShaderSaver*                        shaderSaver;                   ///< Saves shader binaries.
@@ -314,11 +315,13 @@ void UpdateManager::InstallRoot( SceneGraph::Layer* layer, bool systemLevel )
   {
     DALI_ASSERT_DEBUG( mImpl->root == NULL && "Root Node already installed" );
     mImpl->root = layer;
+    mImpl->root->CreateTransform( &mImpl->transformManager);
   }
   else
   {
     DALI_ASSERT_DEBUG( mImpl->systemLevelRoot == NULL && "System-level Root Node already installed" );
     mImpl->systemLevelRoot = layer;
+    mImpl->systemLevelRoot->CreateTransform( &mImpl->transformManager);
   }
 
   layer->SetRoot(true);
@@ -336,6 +339,7 @@ void UpdateManager::AddNode( Node* node )
     if(node > (*iter))
     {
       mImpl->nodes.Insert((iter+1), node);
+      node->CreateTransform( &mImpl->transformManager);
       break;
     }
   }
@@ -916,6 +920,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
   {
     //Reset properties from the previous update
     ResetProperties( bufferIndex );
+    mImpl->transformManager.ResetToBaseValue();
   }
 
   //Process the queued scene messages
@@ -963,6 +968,9 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
     //Update renderers and apply constraints
     UpdateRenderers( bufferIndex );
+
+    //Update the trnasformations of all the nodes
+    mImpl->transformManager.Update();
 
     //Process Property Notifications
     ProcessPropertyNotifications( bufferIndex );

@@ -238,6 +238,8 @@ bool RenderTask::ReadyToRender( BufferIndex updateBufferIndex )
     return false;
   }
 
+  mCameraNode->GetAttachment().Update( updateBufferIndex, *mCameraNode, mCameraNode->GetDirtyFlags() );
+
   TASK_LOG_FMT(Debug::General, " =T (FBO ID:%d) FC:%d\n", mFrameBufferResourceId , mFrameCounter );
   return true;
 }

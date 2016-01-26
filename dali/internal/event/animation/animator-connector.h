@@ -195,11 +195,21 @@ private:
       //Cast to AnimatableProperty
       const PropertyInterfaceType* animatableProperty = dynamic_cast< const PropertyInterfaceType* >( baseProperty );
 
-      //Dynamic cast will fail if BaseProperty is not an AnimatableProperty
-      DALI_ASSERT_DEBUG( animatableProperty != NULL && "Animating non-animatable property" );
+      if( animatableProperty == NULL )
+      {
+        const SceneGraph::TransformManagerPropertyHandler<PropertyType>* p = dynamic_cast <const SceneGraph::TransformManagerPropertyHandler<PropertyType>* >( baseProperty  );
+        if( p == NULL )
+        {
+          DALI_ASSERT_DEBUG( animatableProperty != NULL && "Animating non-animatable property" );
+        }
 
-      //Create the animator
-      mAnimator = AnimatorType::New( *propertyOwner, *animatableProperty, mAnimatorFunction, mAlphaFunction, mTimePeriod );
+        mAnimator = SceneGraph::AnimatorTransformProperty<PropertyType>::New( *propertyOwner, *p, mAnimatorFunction, mAlphaFunction, mTimePeriod );
+      }
+      else
+      {
+        //Create the animator
+        mAnimator = AnimatorType::New( *propertyOwner, *animatableProperty, mAnimatorFunction, mAlphaFunction, mTimePeriod );
+      }
 
     }
     else

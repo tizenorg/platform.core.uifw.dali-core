@@ -217,7 +217,7 @@ void Renderer::GlCleanup()
 {
 }
 
-void Renderer::SetUniforms( BufferIndex bufferIndex, const SceneGraph::NodeDataProvider& node, Program& program )
+void Renderer::SetUniforms( BufferIndex bufferIndex, const SceneGraph::NodeDataProvider& node, const Vector3& size, Program& program )
 {
   // Check if the map has changed
   DALI_ASSERT_DEBUG( mRenderDataProvider && "No Uniform map data provider available" );
@@ -278,7 +278,6 @@ void Renderer::SetUniforms( BufferIndex bufferIndex, const SceneGraph::NodeDataP
   GLint sizeLoc = program.GetUniformLocation( Program::UNIFORM_SIZE );
   if( -1 != sizeLoc )
   {
-    Vector3 size = node.GetRenderSize( bufferIndex );
     program.SetSizeUniform3f( sizeLoc, size.x, size.y, size.z );
   }
 }
@@ -435,6 +434,7 @@ void Renderer::Render( Context& context,
                        const Matrix& modelViewMatrix,
                        const Matrix& viewMatrix,
                        const Matrix& projectionMatrix,
+                       const Vector3& size,
                        bool blend )
 {
   // Get the program to use:
@@ -482,7 +482,7 @@ void Renderer::Render( Context& context,
   BindTextures( textureCache, *program );
 
   //Set uniforms
-  SetUniforms( bufferIndex, node, *program );
+  SetUniforms( bufferIndex, node, size, *program );
 
   if( mUpdateAttributesLocation || mRenderGeometry->AttributesChanged() )
   {

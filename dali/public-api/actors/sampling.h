@@ -33,7 +33,7 @@ namespace FilterMode
 /**
  * @brief Texture filtering mode.
  * @SINCE_1_0.0
- * @see Dali::RenderableActor::SetFilterMode() and Dali::RenderableActor::GetFilterMode()
+ * @see Dali::Sampler::SetFilterMode()
  */
 enum Type
 {
@@ -48,9 +48,14 @@ enum Type
 namespace WrapMode
 {
 
+/**
+ * @brief Texture wrapping mode.
+ * @SINCE_1_1.7
+ * @see Dali::Sampler::SetWrapMode()
+ */
 enum Type
 {
-  DEFAULT = 0,    ///< Clamp to edge @SINCE_1_0.0
+  DEFAULT = 0,    ///< Clamp to edge @SINCE_1_1.7
   CLAMP_TO_EDGE,
   REPEAT,
   MIRRORED_REPEAT

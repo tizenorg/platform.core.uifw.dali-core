@@ -70,6 +70,7 @@ class DALI_IMPORT_API ImageActor : public Actor
 public:
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief An enumeration of properties belonging to the ImageActor class.
    * Properties additional to RenderableActor.
    * @SINCE_1_0.0
@@ -79,6 +80,7 @@ public:
     enum
     {
       /**
+       * @DEPRECATED_1_1.11
        * @brief name "pixelArea",   type Rect<int>
        * @SINCE_1_0.0
        */
@@ -96,6 +98,7 @@ public:
        */
       BORDER,
       /**
+       * @DEPRECATED_1_1.11
        * @brief name "image",       type Map {"filename":"", "loadPolicy":...}
        * @SINCE_1_0.0
        */
@@ -145,6 +148,7 @@ public:
   };
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Pixel area is relative to the top-left (0,0) of the image.
    * @SINCE_1_0.0
    */
@@ -153,6 +157,7 @@ public:
   static const BlendingMode::Type DEFAULT_BLENDING_MODE; ///< default value is BlendingMode::AUTO
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Create an uninitialized ImageActor handle.
    *
    * This can be initialized with ImageActor::New(...)
@@ -162,6 +167,7 @@ public:
   ImageActor();
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Create an empty image actor object.
    *
    * @SINCE_1_0.0
@@ -170,6 +176,7 @@ public:
   static ImageActor New();
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Create a image actor object.
    *
    * The actor will take the image's natural size unless a custom size
@@ -183,6 +190,7 @@ public:
   static ImageActor New(Image image);
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Create a image actor object.
    *
    * The actor will take the image's natural size unless a custom size
@@ -198,6 +206,7 @@ public:
   static ImageActor New(Image image, PixelArea pixelArea);
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Downcast an Object handle to ImageActor.
    *
    *
@@ -211,6 +220,7 @@ public:
   static ImageActor DownCast( BaseHandle handle );
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
@@ -219,6 +229,7 @@ public:
   ~ImageActor();
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Copy constructor
    *
    * @SINCE_1_0.0
@@ -227,6 +238,7 @@ public:
   ImageActor(const ImageActor& copy);
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Assignment operator
    *
    * @SINCE_1_0.0
@@ -235,7 +247,9 @@ public:
   ImageActor& operator=(const ImageActor& rhs);
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Set the image rendered by the actor.
+   *
    * Set the image rendered by the actor.
    * If actor was already displaying a different image, the old image is dropped and actor may
    * temporarily display nothing. Setting an empty image (handle) causes the current image to be
@@ -250,6 +264,7 @@ public:
   void SetImage(Image image);
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Retrieve the image rendered by the actor.
    *
    * If no image is assigned, an empty handle is returned
@@ -259,6 +274,7 @@ public:
   Image GetImage();
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Set a region of the image to display, in pixels.
    *
    * When the image is loaded the actor's size will be reset to the pixelArea,
@@ -272,6 +288,7 @@ public:
   void SetPixelArea(const PixelArea& pixelArea);
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Retrieve the region of the image to display, in pixels.
    *
    * @SINCE_1_0.0
@@ -330,6 +347,7 @@ public:
 
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Allows modification of an actors position in the depth sort algorithm.
    *
    * The offset can be altered for each coplanar actor hence allowing an order of painting.
@@ -340,6 +358,7 @@ public:
   void SetSortModifier(float depthOffset);
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Retrieves the offset used to modify an actors position in the depth sort algorithm.
    *
    * The offset can be altered for each coplanar actor hence allowing an order of painting.
@@ -350,6 +369,7 @@ public:
   float GetSortModifier() const;
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Sets the blending mode.
    *
    * Possible values are: BlendingMode::OFF, BlendingMode::AUTO and BlendingMode::ON. Default is BlendingMode::AUTO.
@@ -368,6 +388,7 @@ public:
   void SetBlendMode( BlendingMode::Type mode );
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Retrieves the blending mode.
    *
    * @SINCE_1_0.0
@@ -376,6 +397,7 @@ public:
   BlendingMode::Type GetBlendMode() const;
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Specify the pixel arithmetic used when the actor is blended.
    *
    * @SINCE_1_0.0
@@ -392,6 +414,7 @@ public:
   void SetBlendFunc( BlendingFactor::Type srcFactorRgba, BlendingFactor::Type destFactorRgba );
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Specify the pixel arithmetic used when the actor is blended.
    *
    * @SINCE_1_0.0
@@ -415,6 +438,7 @@ public:
                      BlendingFactor::Type srcFactorAlpha, BlendingFactor::Type destFactorAlpha );
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Query the pixel arithmetic used when the actor is blended.
    *
    * @SINCE_1_0.0
@@ -427,6 +451,7 @@ public:
                      BlendingFactor::Type& srcFactorAlpha, BlendingFactor::Type& destFactorAlpha ) const;
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Specify the equation used when the actor is blended.
    *
    * The options are BlendingEquation::ADD, SUBTRACT, or REVERSE_SUBTRACT.
@@ -436,6 +461,7 @@ public:
   void SetBlendEquation( BlendingEquation::Type equationRgba );
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Specify the equation used when the actor is blended.
    *
    * @SINCE_1_0.0
@@ -446,6 +472,7 @@ public:
   void SetBlendEquation( BlendingEquation::Type equationRgb, BlendingEquation::Type equationAlpha );
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Query the equation used when the actor is blended.
    *
    * @SINCE_1_0.0
@@ -455,6 +482,7 @@ public:
   void GetBlendEquation( BlendingEquation::Type& equationRgb, BlendingEquation::Type& equationAlpha ) const;
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Specify the color used when the actor is blended; the default is Vector4::ZERO.
    *
    * @SINCE_1_0.0
@@ -463,6 +491,7 @@ public:
   void SetBlendColor( const Vector4& color );
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Query the color used when the actor is blended.
    *
    * @SINCE_1_0.0
@@ -471,6 +500,7 @@ public:
   const Vector4& GetBlendColor() const;
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Sets the filtering mode.
    *
    * Possible values are: FilterMode::NEAREST and FilterMode::LINEAR. Default is FilterMode::LINEAR.
@@ -487,6 +517,7 @@ public:
   void SetFilterMode( FilterMode::Type minFilter, FilterMode::Type magFilter );
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Retrieves the filtering mode.
    *
    * @SINCE_1_0.0
@@ -496,6 +527,7 @@ public:
   void GetFilterMode( FilterMode::Type& minFilter, FilterMode::Type& magFilter) const;
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Sets the shader effect for the RenderableActor.
    *
    * Shader effects provide special effects like ripple and bend.
@@ -508,6 +540,7 @@ public:
   void SetShaderEffect( ShaderEffect effect );
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Retrieve the custom shader effect for the RenderableActor.
    * If default shader is used an empty handle is returned.
    *
@@ -518,6 +551,7 @@ public:
   ShaderEffect GetShaderEffect() const;
 
   /**
+   * @DEPRECATED_1_1.11
    * @brief Removes the current shader effect.
    *
    * @SINCE_1_0.0
@@ -533,6 +567,7 @@ public: // Not intended for application developers
 
 
 /**
+ * @DEPRECATED_1_1.11
  * @brief Sets the shader effect for all ImageActors in a tree of Actors.
  *
  * @SINCE_1_0.0
@@ -544,6 +579,7 @@ public: // Not intended for application developers
 DALI_IMPORT_API void SetShaderEffectRecursively( Actor actor, ShaderEffect effect );
 
 /**
+ * @DEPRECATED_1_1.11
  * @brief Removes the shader effect from all ImageActors in a tree of Actors.
  *
  * @SINCE_1_0.0

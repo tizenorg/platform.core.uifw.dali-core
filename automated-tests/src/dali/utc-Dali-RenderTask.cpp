@@ -2475,6 +2475,7 @@ int UtcDaliRenderTaskOnce08(void)
   application.GetGlAbstraction().SetCheckFramebufferStatusResult( GL_FRAMEBUFFER_COMPLETE );
   TestGlSyncAbstraction& sync = application.GetGlSyncAbstraction();
   TraceCallStack& drawTrace = application.GetGlAbstraction().GetDrawTrace();
+  sync.GetTrace().Enable(true);
   drawTrace.Enable(true);
 
   Actor rootActor = Actor::New();
@@ -2504,6 +2505,8 @@ int UtcDaliRenderTaskOnce08(void)
   // START PROCESS/RENDER                    Input,    Expected  Input,    Expected
   DALI_TEST_CHECK( UpdateRender(application, drawTrace, true,    finished, false, false, __LINE__ ) );
   Integration::GlSyncAbstraction::SyncObject* lastSyncObj = sync.GetLastSyncObject();
+  DALI_TEST_CHECK( lastSyncObj == NULL );
+  DALI_TEST_EQUALS( sync.GetTrace().CountMethod( "CreateSyncObject" ), 0, TEST_LOCATION );
 
   // CHANGE TO RENDER ONCE,
   newTask.SetRefreshRate(RenderTask::REFRESH_ONCE);
@@ -2513,7 +2516,14 @@ int UtcDaliRenderTaskOnce08(void)
   DALI_TEST_CHECK( lastSyncObj != NULL );
 
   DALI_TEST_CHECK( UpdateRender(application, drawTrace, false,   finished, false, true, __LINE__ ) );
+
+  DALI_TEST_EQUALS( sync.GetNumberOfSyncObjects(), 1, TEST_LOCATION );
+  DALI_TEST_EQUALS( sync.GetTrace().CountMethod( "CreateSyncObject" ), 1, TEST_LOCATION );
+
   DALI_TEST_CHECK( UpdateRender(application, drawTrace, false,   finished, false, true, __LINE__ ) );
+
+  DALI_TEST_EQUALS( sync.GetNumberOfSyncObjects(), 1, TEST_LOCATION );
+  DALI_TEST_EQUALS( sync.GetTrace().CountMethod( "CreateSyncObject" ), 1, TEST_LOCATION );
 
   sync.SetObjectSynced( lastSyncObj, true );
   DALI_TEST_CHECK( UpdateRender(application, drawTrace, false,   finished, false, true, __LINE__ ) );
@@ -2834,15 +2844,26 @@ int UtcDaliRenderTaskOnceNoSync04(void)
   DALI_TEST_CHECK( UpdateRender(application, drawTrace, false,   finished, false, true, __LINE__ ) );
   DALI_TEST_CHECK( UpdateRender(application, drawTrace, false,   finished, false, true, __LINE__ ) );
 
+  TestGlSyncAbstraction& sync = application.GetGlSyncAbstraction();
+  Integration::GlSyncAbstraction::SyncObject* lastSyncObj = sync.GetLastSyncObject();
+  DALI_TEST_CHECK( lastSyncObj == NULL );
+
   // FINISH RESOURCE LOADING
   CompleteImageLoad(application, imageRequestId, imageType); // Need to run update again for this to complete
   DALI_TEST_CHECK( UpdateRender(application, drawTrace, true,    finished, false, false, __LINE__ ) );
   application.GetPlatform().ClearReadyResources();
 
+  lastSyncObj = sync.GetLastSyncObject();
+  DALI_TEST_CHECK( lastSyncObj == NULL );
+
   newTask.SetRefreshRate(RenderTask::REFRESH_ONCE);
   application.SendNotification(); //         Input,    Expected  Input,    Expected
   DALI_TEST_CHECK( UpdateRender(application, drawTrace, true,    finished, false, true, __LINE__ ) );
   DALI_TEST_CHECK( UpdateRender(application, drawTrace, false,   finished, true, false, __LINE__ ) );
+
+  lastSyncObj = sync.GetLastSyncObject();
+  DALI_TEST_CHECK( lastSyncObj == NULL );
+
   END_TEST;
 }
 
@@ -2876,6 +2897,10 @@ int UtcDaliRenderTaskOnceNoSync05(void)
   RenderTaskFinished renderTaskFinished( finished );
   newTask.FinishedSignal().Connect( &application, renderTaskFinished );
   application.SendNotification();
+
+  TestGlSyncAbstraction& sync = application.GetGlSyncAbstraction();
+  Integration::GlSyncAbstraction::SyncObject* lastSyncObj = sync.GetLastSyncObject();
+  DALI_TEST_CHECK( lastSyncObj == NULL );
 
   // START PROCESS/RENDER                    Input,    Expected  Input,    Expected
   DALI_TEST_CHECK( UpdateRender(application, drawTrace, false,    finished, false, true, __LINE__ ) );

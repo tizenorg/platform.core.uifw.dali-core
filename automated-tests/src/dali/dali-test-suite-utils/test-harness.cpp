@@ -37,6 +37,17 @@ const char* ASCII_RESET="\e[0m";
 const char* ASCII_BOLD="\e[1m";
 }
 
+const char* basename(const char* path)
+{
+  const char* ptr=path;
+  const char* slash=NULL;
+  for( ; *ptr != '\0' ; ++ptr )
+  {
+    if(*ptr == '/') slash=ptr;
+  }
+  if(slash != NULL) ++slash;
+  return slash;
+}
 
 int RunTestCase( struct ::testcase_s& testCase )
 {
@@ -70,6 +81,12 @@ int RunTestCaseInChildProcess( struct ::testcase_s& testCase, bool suppressOutpu
     {
       close(STDOUT_FILENO);
       close(STDERR_FILENO);
+    }
+    else
+    {
+      printf("\n");
+      for(int i=0; i<80; ++i) printf("#");
+      printf("\nTC: %s\n", testCase.name);
     }
     exit( RunTestCase( testCase ) );
   }
@@ -118,7 +135,7 @@ int RunTestCaseInChildProcess( struct ::testcase_s& testCase, bool suppressOutpu
   return testResult;
 }
 
-void OutputStatistics( int numPasses, int numFailures )
+void OutputStatistics( const char* processName, int numPasses, int numFailures )
 {
   const char* failureColor = GREEN_COLOR;
   if( numFailures > 0 )
@@ -128,10 +145,32 @@ void OutputStatistics( int numPasses, int numFailures )
   printf("\rNumber of test passes:   %s%4d (%5.2f%%)%s\n", ASCII_BOLD, numPasses, 100.0f * (float)numPasses / (numPasses+numFailures),  ASCII_RESET);
   printf("%sNumber of test failures:%s %s%4d%s\n", failureColor, ASCII_RESET, ASCII_BOLD, numFailures, ASCII_RESET);
 
+  FILE* fp=fopen("summary.xml", "a");
+  if( fp != NULL )
+  {
+    fprintf( fp,
+             "  <suite name=\"%s\">\n"
+             "    <total_case>%d</total_case>\n"
+             "    <pass_case>%d</pass_case>\n"
+             "    <pass_rate>%5.2f</pass_rate>\n"
+             "    <fail_case>%d</fail_case>\n"
+             "    <fail_rate>%5.2f</fail_rate>\n"
+             "    <block_case>0</block_case>\n"
+             "    <block_rate>0.00</block_rate>\n"
+             "    <na_case>0</na_case>\n"
+             "    <na_rate>0.00</na_rate>\n"
+             "  </suite>\n",
+             basename(processName),
+             numPasses+numFailures,
+             numPasses,
+             (float)numPasses/(numPasses+numFailures),
+             numFailures,
+             (float)numFailures/(numPasses+numFailures) );
+    fclose(fp);
+  }
 }
 
-
-int RunAll(const char* processName, ::testcase tc_array[], bool reRunFailed)
+int RunAll( const char* processName, ::testcase tc_array[] )
 {
   int numFailures = 0;
   int numPasses = 0;
@@ -139,7 +178,7 @@ int RunAll(const char* processName, ::testcase tc_array[], bool reRunFailed)
   // Run test cases in child process( to kill output/handle signals ), but run serially.
   for( unsigned int i=0; tc_array[i].name; i++)
   {
-    int result = RunTestCaseInChildProcess( tc_array[i], true );
+    int result = RunTestCaseInChildProcess( tc_array[i], false );
     if( result == 0 )
     {
       numPasses++;
@@ -150,7 +189,7 @@ int RunAll(const char* processName, ::testcase tc_array[], bool reRunFailed)
     }
   }
 
-  OutputStatistics(numPasses, numFailures);
+  OutputStatistics( processName, numPasses, numFailures);
 
   return numFailures;
 }
@@ -250,7 +289,7 @@ int RunAllInParallel(  const char* processName, ::testcase tc_array[], bool reRu
     }
   }
 
-  OutputStatistics( numPasses, numFailures );
+  OutputStatistics( processName, numPasses, numFailures );
 
   if( reRunFailed )
   {

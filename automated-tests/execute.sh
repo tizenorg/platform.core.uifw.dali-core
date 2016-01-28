@@ -12,6 +12,7 @@ function usage
     echo -e "Usage: execute.sh\t\tExecute test cases from all modules in parallel"
     echo -e "       execute.sh <testmodule>\tExecute test cases from the given module in parallel"
     echo -e "       execute.sh -s\t\tExecute test cases in serial using Testkit-Lite"
+    echo -e "       execute.sh -S\t\tExecute test cases in serial"
     echo -e "       execute.sh -r\t\tExecute test cases in parallel, re-running failed test cases in serial afterwards"
     echo -e "       execute.sh <testcase>\tFind and execute the given test case"
     exit 2
@@ -22,7 +23,8 @@ opt_rerun=""
 while true ; do
     case "$1" in
         -h|--help)     usage ;;
-        -s|--serial)   opt_serial=1 ; shift ;;
+        -s|--tct)      opt_serial=1 ; shift ;;
+        -S|--serial)   opt_serial=2 ; shift ;;
         -r|--rerun)    opt_rerun="-r" ; shift ;;
         --) shift; break;;
         *) echo "Internal error $1!" ; exit 1 ;;
@@ -68,10 +70,46 @@ if [ $opt_serial = 1 ] ; then
     fi
 
     scripts/summarize.pl
+elif [ $opt_serial = 2 ] ; then
+
+    elif [ -f "build/src/$1/tct-$1-core" ] ; then
+        # First argument is an executable filename - execute only that with any
+        # remaining arguments
+        module=$1
+        shift;
+        build/src/$module/tct-$module-core $opt_rerun $*
+
+    else
+       # First argument is not an executable. Is it a test case name?
+       # Try executing each executable with the test case name until success/known failure
+        for mod in `ls -1 src/ | grep -v CMakeList | grep -v common | grep -v manual`
+        do
+            output=`build/src/$mod/tct-$mod-core $1`
+            ret=$?
+            if [ $ret -ne 6 ] ; then
+               echo $output
+               if [ $ret -eq 0 ] ; then echo -e "\nPassed" ; fi
+               exit $ret
+            fi
+        done
+        echo $1 not found
+    fi
+
 else
     # if $1 is an executable filename, execute it·
 
     if [ -z "$1" ] ; then
+        start=`date +"%Y-%m-%d_%H_%M_%S"`
+        cat > summary.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="./style/summary.xsl"?>
+<result_summary plan_name="Core">
+  <other xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string" />
+  <summary test_plan_name="Dali">
+    <start_at>$start</start_at>
+    <end_at>$start</end_at>
+  </summary>
+EOF
         # No arguments:
         # Execute each test executable in turn, using parallel execution
         for mod in `ls -1 src/ | grep -v CMakeList | grep -v common | grep -v manual`
@@ -80,7 +118,9 @@ else
             echo -e "Executing $mod$ASCII_RESET"
             build/src/$mod/tct-$mod-core $opt_rerun
         done
-
+        cat >> summary.xml <<EOF
+</result_summary>
+EOF
     elif [ -f "build/src/$1/tct-$1-core" ] ; then
         # First argument is an executable filename - execute only that with any
         # remaining arguments

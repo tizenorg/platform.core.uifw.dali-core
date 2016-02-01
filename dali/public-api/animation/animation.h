@@ -140,6 +140,21 @@ public:
   };
 
   /**
+   * @brief What state the animation is in
+   *
+   * Note: Calling Reset() on this class will NOT reset the animation. It will call BaseHandle::Reset() which drops the object handle.
+   *
+   * @SINCE_1_1.21
+   */
+  enum State
+  {
+    Stopped,   ///< Animation has stopped
+    Playing,   ///< The animation is playing
+    Paused,    ///< The animation is paused
+    Destroyed  ///< The animation is destroyed
+  };
+
+  /**
    * @brief Create an uninitialized Animation; this can be initialized with Animation::New().
    *
    * Calling member functions with an uninitialized Dali::Object is not allowed.
@@ -401,6 +416,13 @@ public:
    * @SINCE_1_0.0
    */
   void Pause();
+
+  /**
+   * @brief Query the state of the animation.
+   * @SINCE_1_1.21
+   * @return The Animation::State
+   */
+  State GetState() const;
 
   /**
    * @brief Stop the animation.

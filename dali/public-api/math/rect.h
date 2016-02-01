@@ -204,6 +204,47 @@ struct Rect
       (other.y + other.height) <= (y + height);
   }
 
+
+  /**
+   * @brief Mutable array subscript operator overload.
+   *
+   * Asserts if index is out of range. Should be 0, 1 or 2
+   * @param[in] index Subscript index
+   * @return    The float at the given index.
+   */
+  float& operator[](const unsigned int index)
+  {
+    DALI_ASSERT_ALWAYS( index < 4 && "Rect element index out of bounds" );
+    if(0 == index)
+    {
+      return x;
+    }
+    else if(1 == index)
+    {
+      return y;
+    }
+    else if(2 == index)
+    {
+      return width;
+    }
+    else if(3 == index)
+    {
+      return height;
+    }
+  }
+
+  /**
+   * @brief Const array subscript operator overload.
+   *
+   * Asserts if index is out of range. Should be 0, 1 or 2
+   * @param[in] index Subscript
+   * @return    The float at the given index.
+   */
+  const float& operator[](const unsigned int index) const
+  {
+    return this->[index];
+  }
+
 public:   // Data
 
   union

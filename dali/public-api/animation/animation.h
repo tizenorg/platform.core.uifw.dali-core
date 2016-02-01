@@ -403,6 +403,12 @@ public:
   void Pause();
 
   /**
+   * @brief Pause the animation.
+   * @SINCE_1_1.21
+   */
+  bool IsPaused();
+
+  /**
    * @brief Stop the animation.
    * @SINCE_1_0.0
    */

@@ -403,6 +403,13 @@ public:
   void Pause();
 
   /**
+   * @brief Query whether the animation is paused.
+   * @SINCE_1_1.21
+   * @return true if the animation is paused.
+   */
+  bool IsPaused();
+
+  /**
    * @brief Stop the animation.
    * @SINCE_1_0.0
    */

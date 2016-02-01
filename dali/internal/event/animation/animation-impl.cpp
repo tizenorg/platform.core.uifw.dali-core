@@ -127,7 +127,8 @@ Animation::Animation( EventThreadServices& eventThreadServices, AnimationPlaylis
   mPlayRange( Vector2(0.0f,1.0f)),
   mEndAction( endAction ),
   mDisconnectAction( disconnectAction ),
-  mDefaultAlpha( defaultAlpha )
+  mDefaultAlpha( defaultAlpha ),
+  mIsPaused(false)
 {
 }
 
@@ -264,6 +265,8 @@ void Animation::Play()
   // Update the current playlist
   mPlaylist.OnPlay( *this );
 
+  mIsPaused = false;
+
   // mAnimation is being used in a separate thread; queue a Play message
   PlayAnimationMessage( mEventThreadServices, *mAnimation );
 }
@@ -275,6 +278,8 @@ void Animation::PlayFrom( float progress )
     // Update the current playlist
     mPlaylist.OnPlay( *this );
 
+    mIsPaused = false;
+
     // mAnimation is being used in a separate thread; queue a Play message
     PlayAnimationFromMessage( mEventThreadServices, *mAnimation, progress );
   }
@@ -282,12 +287,21 @@ void Animation::PlayFrom( float progress )
 
 void Animation::Pause()
 {
+  mIsPaused = true;
+
   // mAnimation is being used in a separate thread; queue a Pause message
   PauseAnimationMessage( mEventThreadServices, *mAnimation );
 }
 
+bool Animation::IsPaused()
+{
+  return mIsPaused;
+}
+
 void Animation::Stop()
 {
+  mIsPaused = false;
+
   // mAnimation is being used in a separate thread; queue a Stop message
   StopAnimationMessage( mEventThreadServices.GetUpdateManager(), *mAnimation );
 }
@@ -745,6 +759,8 @@ bool Animation::HasFinished()
   {
     // Note that only one signal is emitted, if the animation has been played repeatedly
     mNotificationCount = playedCount;
+
+    mIsPaused = false;
 
     hasFinished = true;
   }

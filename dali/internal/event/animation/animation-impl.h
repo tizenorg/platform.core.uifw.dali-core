@@ -159,6 +159,11 @@ public:
   void Pause();
 
   /**
+   * @copydoc Dali::Animation::IsPaused()
+   */
+  bool IsPaused();
+
+  /**
    * @copydoc Dali::Animation::Stop()
    */
   void Stop();
@@ -467,6 +472,7 @@ private:
   EndAction mEndAction;
   EndAction mDisconnectAction;
   AlphaFunction mDefaultAlpha;
+  bool mIsPaused;
 
 };
 

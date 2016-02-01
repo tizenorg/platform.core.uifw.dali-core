@@ -145,6 +145,11 @@ void Animation::Pause()
   GetImplementation(*this).Pause();
 }
 
+bool Animation::IsPaused()
+{
+  return GetImplementation(*this).IsPaused();
+}
+
 void Animation::Stop()
 {
   GetImplementation(*this).Stop();

@@ -48,7 +48,251 @@ inline bool IsIntegerType( Property::Type type )
 {
   return ( Property::BOOLEAN == type )||( Property::INTEGER == type );
 }
+
+// true if character represent a digit
+inline bool IsDigit(char c)
+{
+  return (c >= '0' && c <= '9');
 }
+
+// convert string to integer
+bool StringToInteger(const char *first, const char *last, int& out)
+{
+  int sign = 1;
+  if (first != last)
+  {
+    if (*first == '-')
+    {
+      sign = -1;
+      ++first;
+    }
+    else if (*first == '+')
+    {
+      ++first;
+    }
+  }
+
+  if( 0 == (*first - '0') && (first+1 != last))
+  {
+    return false;
+  }
+
+  int result = 0;
+  for (; first != last && IsDigit(*first); ++first)
+  {
+    result = 10 * result + (*first - '0');
+  }
+  out = result * sign;
+
+  if(first != last)
+  {
+    return false;
+  }
+  else
+  {
+    return true;
+  }
+}
+
+// convert hexadecimal string to unsigned integer
+bool HexStringToUnsignedInteger(const char *first, const char *last, unsigned int& out)
+{
+  unsigned int result = 0;
+  for (; first != last; ++first)
+  {
+    int digit;
+    if (IsDigit(*first))
+    {
+      digit = *first - '0';
+    }
+    else if (*first >= 'a' && *first <= 'f')
+    {
+      digit = *first - 'a' + 10;
+    }
+    else if (*first >= 'A' && *first <= 'F')
+    {
+      digit = *first - 'A' + 10;
+    }
+    else
+    {
+      break;
+    }
+    result = 16 * result + digit;
+  }
+  out = result;
+
+  if(first != last)
+  {
+    return false;
+  }
+  else
+  {
+    return true;
+  }
+}
+
+// convert string to floating point
+bool StringToFloat(const char* first, const char* last, float& out)
+{
+  // sign
+  float sign = 1;
+  if (first != last)
+  {
+    if (*first == '-')
+    {
+      sign = -1;
+      ++first;
+    }
+    else if (*first == '+')
+    {
+      ++first;
+    }
+  }
+
+  // integer part
+  float result = 0;
+  for (; first != last && IsDigit(*first); ++first)
+  {
+    result = 10 * result + (*first - '0');
+  }
+
+  // fraction part
+  if (first != last && *first == '.')
+  {
+    ++first;
+
+    float inv_base = 0.1f;
+    for (; first != last && IsDigit(*first); ++first)
+    {
+      result += (*first - '0') * inv_base;
+      inv_base *= 0.1f;
+    }
+  }
+
+  // result w\o exponent
+  result *= sign;
+
+  // exponent
+  bool exponent_negative = false;
+  int exponent = 0;
+  if (first != last && (*first == 'e' || *first == 'E'))
+  {
+    ++first;
+
+    if (*first == '-')
+    {
+      exponent_negative = true;
+      ++first;
+    }
+    else if (*first == '+')
+    {
+      ++first;
+    }
+
+    if(first == last || !IsDigit(*first))
+    {
+      return false;
+    }
+
+    for (; first != last && IsDigit(*first); ++first)
+    {
+      exponent = 10 * exponent + (*first - '0');
+    }
+  }
+
+  if (exponent)
+  {
+    float power_of_ten = 10;
+    for (; exponent > 1; exponent--)
+    {
+      power_of_ten *= 10;
+    }
+
+    if (exponent_negative)
+    {
+      result /= power_of_ten;
+    }
+    else
+    {
+      result *= power_of_ten;
+    }
+  }
+
+  out = result;
+
+  if(first != last)
+  {
+    return false;
+  }
+  else
+  {
+    return true;
+  }
+}
+
+/**
+ * Converts a HTML style 'color' hex string ("#FF0000" for bright red) to a Vector4.
+ * The Vector4 alpha component will be set to 1.0f
+ * @param hexString The HTML style hex string
+ * @return a Vector4 containing the new color value
+ */
+Vector4 HexStringToVector4( const char* s )
+{
+  unsigned int value(0u);
+  std::istringstream( s ) >> std::hex >> value;
+  return Vector4( ((value >> 16 ) & 0xff ) / 255.0f,
+                  ((value >> 8 ) & 0xff ) / 255.0f,
+                  (value & 0xff ) / 255.0f,
+                  1.0f );
+}
+
+template<> struct Component {}
+template<> struct Component<Vector2> { static const int Size = 2}
+template<> struct Component<Vector3> { static const int Size = 3}
+template<> struct Component<Vector4> { static const int Size = 4}
+template<> struct Component<Matrix3x3> { static const int Size = 9}
+template<> struct Component<Matrix> { static const int Size = 16}
+template<> struct Component<Rect<int> > { static const int Size = 4}
+
+template<typename T>
+inline bool CopyNumbers(Property::Array& array, T& vector)
+{
+  if( array.Size() >= Component<T>::Size  )
+  {
+    for(int i = 0; i < Component<T>::Size; ++i)
+    {
+      Value item& = array.GetElementAt(i);
+
+      float value = 0.f;
+
+      if( item.Get<float>(value) )
+      {
+        vector[i] = value;
+      }
+      else
+      {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+inline bool GetMapComponent(Property::Map& map, const std::string& field, float& out)
+{
+  bool found = false
+  Value* value = map.Find(field);
+  if(value)
+  {
+    if( Get<float>(out) )
+    {
+      found = true;
+    }
+  }
+  return found;
+}
+
+} // anonymous namespace
 
 struct Property::Value::Impl
 {
@@ -584,11 +828,61 @@ Property::Type Property::Value::GetType() const
 bool Property::Value::Get( bool& booleanValue ) const
 {
   bool converted = false;
-  if( mImpl && IsIntegerType( mImpl->type ) )
+  if( mImpl )
   {
-    booleanValue = mImpl->integerValue;
-    converted = true;
+    if( IsIntegerType( mImpl->type ) )
+    {
+      booleanValueValue = mImpl->integerValue ? true : false;
+      converted = true;
+    }
+    else if( Property::FLOAT == mImpl->type )
+    {
+      booleanValue = (mImpl->floatValue == f ? true : false);
+      converted = true;
+    }
+    else if( Property::ARRAY == mImpl->type)
+    {
+      if( mImpl->arrayValue )
+      {
+        booleanValue = !mImpl->arrayValue->Empty();
+        converted = true;
+      }
+    }
+    else if( Property::STRING == mImpl->type )
+    {
+      std::s = std::toupper( Get<std::string>() );
+      if( s == "TRUE" )
+      {
+        booleanValue = true;
+        converted = true;
+      }
+      else if( s == "FALSE" )
+      {
+        booleanValue = false;
+        converted = true;
+      }
+      else if( s == "1" )
+      {
+        booleanValue = true;
+        converted = true;
+      }
+      else if( s == "0" )
+      {
+        booleanValue = false;
+        converted = true;
+      }
+      else
+      {
+        int i = 0;
+        if( Get<int>(i) )
+        {
+          booleanValue = i ? true : false;
+          converted = true;
+        }
+      }
+    }
   }
+
   return converted;
 }
 
@@ -597,15 +891,21 @@ bool Property::Value::Get( float& floatValue ) const
   bool converted = false;
   if( mImpl )
   {
-    if( mImpl->type == FLOAT )
+    if( Property::FLOAT == mImpl->type )
     {
       floatValue = mImpl->floatValue;
       converted = true;
     }
-    else if( IsIntegerType( mImpl->type ) )
+    else if( Property::INTEGER == mImpl->type )
     {
-      floatValue = static_cast< float >( mImpl->integerValue );
+      floatValue = static_cast<float>(mImpl->integerValue);
       converted = true;
+    }
+    else if( Property::STRING == mImpl->type )
+    {
+      const char* first = *mImpl->stringValue.c_str();
+      const char* last = first + mImpl->stringValue.size() - 1;
+      converted = StringToFloat(first, last, floatValue);
     }
   }
   return converted;
@@ -626,6 +926,13 @@ bool Property::Value::Get( int& integerValue ) const
       integerValue = static_cast< int >( mImpl->floatValue );
       converted = true;
     }
+    else if( Property::STRING == mImpl->type )
+    {
+      const char* first = *mImpl->stringValue.c_str();
+      const char* last = first + mImpl->stringValue.size() - 1;
+      converted = StringToInteger(first, last, integerValue);
+      // @todo hex strings?
+    }
   }
   return converted;
 }
@@ -633,10 +940,31 @@ bool Property::Value::Get( int& integerValue ) const
 bool Property::Value::Get( Vector2& vectorValue ) const
 {
   bool converted = false;
-  if( mImpl && (mImpl->type == VECTOR2) ) // type cannot change in mImpl so vector is allocated
+  if( mImpl )
   {
-    vectorValue = *(mImpl->vector2Value);
-    converted = true;
+    if( mImpl->type == VECTOR2 ) // type cannot change in mImpl so vector is allocated
+    {
+      vectorValue = *(mImpl->vector2Value);
+      converted = true;
+    }
+    else if( mImpl->type == ARRAY )
+    {
+      if(mImpl->arrayValue)
+      {
+        converted = CopyNumbers( *mimpl->arrayValue, vectorValue );
+      }
+    }
+    else if( mImpl->type == MAP )
+    {
+      if(mImpl->mapValue)
+      {
+        if( GetMapComponent(*mImpl->mapValue, "x", vectorValue.x) &&
+            GetMapComponent(*mImpl->mapValue, "y", vectorValue.y) )
+        {
+          converted = true;
+        }
+      }
+    }
   }
   return converted;
 }
@@ -644,32 +972,177 @@ bool Property::Value::Get( Vector2& vectorValue ) const
 bool Property::Value::Get( Vector3& vectorValue ) const
 {
   bool converted = false;
-  if( mImpl && (mImpl->type == VECTOR3) ) // type cannot change in mImpl so vector is allocated
+  if( mImpl )
   {
-    vectorValue = *(mImpl->vector3Value);
-    converted = true;
+    if( mImpl->type == VECTOR3 ) // type cannot change in mImpl so vector is allocated
+    {
+      vectorValue = *(mImpl->vector3Value);
+      converted = true;
+    }
+    else if( mImpl->type == ARRAY )
+    {
+      if(mImpl->arrayValue)
+      {
+        converted = CopyNumbers( *mimpl->arrayValue, vectorValue );
+      }
+    }
+    else if( mImpl->type == MAP )
+    {
+      if(mImpl->mapValue)
+      {
+        if( GetMapComponent(*mImpl->mapValue, "x", vectorValue.x) &&
+            GetMapComponent(*mImpl->mapValue, "y", vectorValue.y) &&
+            GetMapComponent(*mImpl->mapValue, "z", vectorValue.z) )
+        {
+          converted = true;
+        }
+
+        if( !converted )
+        {
+          if( GetMapComponent(*mImpl->mapValue, "r", vectorValue.x) &&
+              GetMapComponent(*mImpl->mapValue, "g", vectorValue.y) &&
+              GetMapComponent(*mImpl->mapValue, "b", vectorValue.z) )
+          {
+            converted = true;
+          }
+        }
+      }
+    }
+    else if( mImpl->type == STRING )
+    {
+      Property::Array array;
+      if( Get(array) )
+      {
+        converted = CopyNumbers( *mimpl->arrayValue, vectorValue );
+      }
+    }
   }
+
   return converted;
 }
 
 bool Property::Value::Get( Vector4& vectorValue ) const
 {
   bool converted = false;
-  if( mImpl && (mImpl->type == VECTOR4) ) // type cannot change in mImpl so vector is allocated
+  if( mImpl )
   {
-    vectorValue = *(mImpl->vector4Value);
-    converted = true;
+    if( mImpl && (mImpl->type == VECTOR4) ) // type cannot change in mImpl so vector is allocated
+    {
+      vectorValue = *(mImpl->vector4Value);
+      converted = true;
+    }
+    else if( mImpl->type == ARRAY )
+    {
+      if(mImpl->arrayValue)
+      {
+        converted = CopyNumbers( *mimpl->arrayValue, vectorValue );
+      }
+    }
+    else if( mImpl->type == MAP )
+    {
+      if(mImpl->mapValue)
+      {
+        if( GetMapComponent(*mImpl->mapValue, "x", vectorValue.x) &&
+            GetMapComponent(*mImpl->mapValue, "y", vectorValue.y) &&
+            GetMapComponent(*mImpl->mapValue, "z", vectorValue.z) &&
+            GetMapComponent(*mImpl->mapValue, "w", vectorValue.w) )
+        {
+          converted = true;
+        }
+
+        if( !converted )
+        {
+          if( GetMapComponent(*mImpl->mapValue, "r", vectorValue.x) &&
+              GetMapComponent(*mImpl->mapValue, "g", vectorValue.y) &&
+              GetMapComponent(*mImpl->mapValue, "b", vectorValue.z) &&
+              GetMapComponent(*mImpl->mapValue, "a", vectorValue.w) )
+          {
+            converted = true;
+          }
+        }
+      }
+    }
+    else if( mImpl->type == STRING )
+    {
+      if( mImpl->stringValue )
+      {
+        if( (*mImpl->stringValue)[0] == '#' && 7 == (*mImpl->stringValue).size() )
+        {
+          value = HexStringToVector4( &(*mImpl->stringValue)[1] );
+          converted = true;
+        }
+        else if( Dali::ColorController::Get() )
+        {
+          Vector4 color;
+          converted = Dali::ColorController::Get().RetrieveColor( *mImpl->stringValue, color );
+          value = color;
+        }
+        if(!converted)
+        {
+          Property::Array array;
+          if( Get(array) )
+          {
+            converted = CopyNumbers( *mimpl->arrayValue, vectorValue );
+          }
+        }
+      }
+    }
   }
+
   return converted;
 }
 
 bool Property::Value::Get( Matrix3& matrixValue ) const
 {
   bool converted = false;
-  if( mImpl && (mImpl->type == MATRIX3) ) // type cannot change in mImpl so matrix is allocated
+  if( mImpl )
   {
-    matrixValue = *(mImpl->matrix3Value);
-    converted = true;
+    if( mImpl->type == MATRIX3 ) // type cannot change in mImpl so matrix is allocated
+    {
+      matrixValue = *(mImpl->matrix3Value);
+      converted = true;
+    }
+    else if( mImpl->type == ARRAY )
+    {
+      if(mImpl->arrayValue)
+      {
+        converted = CopyNumbers( *mimpl->matrix3Value, matrixValue );
+      }
+    }
+    else if( mImpl->type == MAP )
+    {
+      if(mImpl->mapValue)
+      {
+        if( GetMapComponent(*mImpl->mapValue, "e1", *mImpl->matrix3Value->AsFloat(0) ) &&
+            GetMapComponent(*mImpl->mapValue, "e2", *mImpl->matrix3Value->AsFloat(1) ) &&
+            GetMapComponent(*mImpl->mapValue, "e3", *mImpl->matrix3Value->AsFloat(2) ) &&
+            GetMapComponent(*mImpl->mapValue, "e4", *mImpl->matrix3Value->AsFloat(3) ) &&
+            GetMapComponent(*mImpl->mapValue, "e5", *mImpl->matrix3Value->AsFloat(4) ) &&
+            GetMapComponent(*mImpl->mapValue, "e6", *mImpl->matrix3Value->AsFloat(5) ) &&
+            GetMapComponent(*mImpl->mapValue, "e7", *mImpl->matrix3Value->AsFloat(6) ) &&
+            GetMapComponent(*mImpl->mapValue, "e8", *mImpl->matrix3Value->AsFloat(7) ) &&
+            GetMapComponent(*mImpl->mapValue, "e9", *mImpl->matrix3Value->AsFloat(8) ) )
+        {
+          converted = true;
+        }
+
+        if( !converted )
+        {
+          if( GetMapComponent(*mImpl->mapValue, "s00", *mImpl->matrix3Value->AsFloat(0) ) &&
+              GetMapComponent(*mImpl->mapValue, "s01", *mImpl->matrix3Value->AsFloat(1) ) &&
+              GetMapComponent(*mImpl->mapValue, "s02", *mImpl->matrix3Value->AsFloat(2) ) &&
+              GetMapComponent(*mImpl->mapValue, "s10", *mImpl->matrix3Value->AsFloat(3) ) &&
+              GetMapComponent(*mImpl->mapValue, "s11", *mImpl->matrix3Value->AsFloat(4) ) &&
+              GetMapComponent(*mImpl->mapValue, "s12", *mImpl->matrix3Value->AsFloat(5) ) &&
+              GetMapComponent(*mImpl->mapValue, "s20", *mImpl->matrix3Value->AsFloat(6) ) &&
+              GetMapComponent(*mImpl->mapValue, "s21", *mImpl->matrix3Value->AsFloat(7) ) &&
+              GetMapComponent(*mImpl->mapValue, "s22", *mImpl->matrix3Value->AsFloat(8) ) )
+          {
+            converted = true;
+          }
+        }
+      }
+    }
   }
   return converted;
 }
@@ -677,10 +1150,68 @@ bool Property::Value::Get( Matrix3& matrixValue ) const
 bool Property::Value::Get( Matrix& matrixValue ) const
 {
   bool converted = false;
-  if( mImpl && (mImpl->type == MATRIX) ) // type cannot change in mImpl so matrix is allocated
+  if( mImpl )
   {
-    matrixValue = *(mImpl->matrixValue);
-    converted = true;
+    if( mImpl->type == MATRIX ) // type cannot change in mImpl so matrix is allocated
+    {
+      matrixValue = *(mImpl->matrixValue);
+      converted = true;
+    }
+    else if( mImpl->type == ARRAY )
+    {
+      if(mImpl->arrayValue)
+      {
+        converted = CopyNumbers( *mimpl->matrixValue, matrixValue );
+      }
+    }
+    else if( mImpl->type == MAP )
+    {
+      if(mImpl->mapValue)
+      {
+        if( GetMapComponent(*mImpl->mapValue, "e1",  *mImpl->matrixValue->AsFloat(0) ) &&
+            GetMapComponent(*mImpl->mapValue, "e2",  *mImpl->matrixValue->AsFloat(1) ) &&
+            GetMapComponent(*mImpl->mapValue, "e3",  *mImpl->matrixValue->AsFloat(2) ) &&
+            GetMapComponent(*mImpl->mapValue, "e4",  *mImpl->matrixValue->AsFloat(3) ) &&
+            GetMapComponent(*mImpl->mapValue, "e5",  *mImpl->matrixValue->AsFloat(4) ) &&
+            GetMapComponent(*mImpl->mapValue, "e6",  *mImpl->matrixValue->AsFloat(5) ) &&
+            GetMapComponent(*mImpl->mapValue, "e7",  *mImpl->matrixValue->AsFloat(6) ) &&
+            GetMapComponent(*mImpl->mapValue, "e8",  *mImpl->matrixValue->AsFloat(7) ) &&
+            GetMapComponent(*mImpl->mapValue, "e9",  *mImpl->matrixValue->AsFloat(8) ) &&
+            GetMapComponent(*mImpl->mapValue, "e10", *mImpl->matrixValue->AsFloat(9) ) &&
+            GetMapComponent(*mImpl->mapValue, "e11", *mImpl->matrixValue->AsFloat(10) ) &&
+            GetMapComponent(*mImpl->mapValue, "e12", *mImpl->matrixValue->AsFloat(11) ) &&
+            GetMapComponent(*mImpl->mapValue, "e13", *mImpl->matrixValue->AsFloat(12) ) &&
+            GetMapComponent(*mImpl->mapValue, "e14", *mImpl->matrixValue->AsFloat(13) ) &&
+            GetMapComponent(*mImpl->mapValue, "e15", *mImpl->matrixValue->AsFloat(14) ) &&
+            GetMapComponent(*mImpl->mapValue, "e16", *mImpl->matrixValue->AsFloat(15) ) )
+        {
+          converted = true;
+        }
+
+        if( !converted )
+        {
+          if( GetMapComponent(*mImpl->mapValue, "s00", *mImpl->matrixValue->AsFloat(0) ) &&
+              GetMapComponent(*mImpl->mapValue, "s01", *mImpl->matrixValue->AsFloat(1) ) &&
+              GetMapComponent(*mImpl->mapValue, "s02", *mImpl->matrixValue->AsFloat(2) ) &&
+              GetMapComponent(*mImpl->mapValue, "s03", *mImpl->matrixValue->AsFloat(3) ) &&
+              GetMapComponent(*mImpl->mapValue, "s10", *mImpl->matrixValue->AsFloat(4) ) &&
+              GetMapComponent(*mImpl->mapValue, "s11", *mImpl->matrixValue->AsFloat(5) ) &&
+              GetMapComponent(*mImpl->mapValue, "s12", *mImpl->matrixValue->AsFloat(6) ) &&
+              GetMapComponent(*mImpl->mapValue, "s13", *mImpl->matrixValue->AsFloat(7) ) &&
+              GetMapComponent(*mImpl->mapValue, "s20", *mImpl->matrixValue->AsFloat(8) ) &&
+              GetMapComponent(*mImpl->mapValue, "s21", *mImpl->matrixValue->AsFloat(9) ) &&
+              GetMapComponent(*mImpl->mapValue, "s22", *mImpl->matrixValue->AsFloat(10) ) &&
+              GetMapComponent(*mImpl->mapValue, "s23", *mImpl->matrixValue->AsFloat(11) ) &&
+              GetMapComponent(*mImpl->mapValue, "s30", *mImpl->matrixValue->AsFloat(12) ) &&
+              GetMapComponent(*mImpl->mapValue, "s31", *mImpl->matrixValue->AsFloat(13) ) &&
+              GetMapComponent(*mImpl->mapValue, "s32", *mImpl->matrixValue->AsFloat(14) ) &&
+              GetMapComponent(*mImpl->mapValue, "s33", *mImpl->matrixValue->AsFloat(15) ) )
+          {
+            converted = true;
+          }
+        }
+      }
+    }
   }
   return converted;
 }
@@ -688,10 +1219,33 @@ bool Property::Value::Get( Matrix& matrixValue ) const
 bool Property::Value::Get( Rect<int>& rectValue ) const
 {
   bool converted = false;
-  if( mImpl && (mImpl->type == RECTANGLE) ) // type cannot change in mImpl so rect is allocated
+  if( mImpl )
   {
-    rectValue = *(mImpl->rectValue);
-    converted = true;
+    if( mImpl->type == RECTANGLE ) // type cannot change in mImpl so rect is allocated
+    {
+      rectValue = *(mImpl->rectValue);
+      converted = true;
+    }
+    else if( mImpl->type == ARRAY )
+    {
+      if(mImpl->arrayValue)
+      {
+        converted = CopyNumbers( *mimpl->rectValue, rectValue );
+      }
+    }
+    else if( mImpl->type == MAP )
+    {
+      if(mImpl->mapValue)
+      {
+        if( GetMapComponent(*mImpl->mapValue, "x",  *mImpl->rectValue.x ) &&
+            GetMapComponent(*mImpl->mapValue, "y",  *mImpl->rectValue.y ) &&
+            GetMapComponent(*mImpl->mapValue, "width",  *mImpl->rectValue.width ) &&
+            GetMapComponent(*mImpl->mapValue, "height",  *mImpl->rectValue.height) )
+        {
+          converted = true;
+        }
+      }
+    }
   }
   return converted;
 }
@@ -699,11 +1253,33 @@ bool Property::Value::Get( Rect<int>& rectValue ) const
 bool Property::Value::Get( AngleAxis& angleAxisValue ) const
 {
   bool converted = false;
-  if( mImpl && (mImpl->type == ROTATION) ) // type cannot change in mImpl so quaternion is allocated
-  {
-    mImpl->quaternionValue->ToAxisAngle( angleAxisValue.axis, angleAxisValue.angle );
-    converted = true;
-  }
+  if( mImpl )
+    if( mImpl->type == ROTATION ) // type cannot change in mImpl so quaternion is allocated
+    {
+      mImpl->quaternionValue->ToAxisAngle( angleAxisValue.axis, angleAxisValue.angle );
+      converted = true;
+    }
+    else if( mImpl->type == ARRAY )
+    {
+      if(mImpl->arrayValue)
+      {
+        converted = CopyNumbers( *mimpl->rectValue, rectValue );
+      }
+    }
+    else if( mImpl->type == MAP )
+    {
+      if(mImpl->mapValue)
+      {
+        if( GetMapComponent(*mImpl->mapValue, "x",  *mImpl->rectValue.x ) &&
+            GetMapComponent(*mImpl->mapValue, "y",  *mImpl->rectValue.y ) &&
+            GetMapComponent(*mImpl->mapValue, "width",  *mImpl->rectValue.width ) &&
+            GetMapComponent(*mImpl->mapValue, "height",  *mImpl->rectValue.height) )
+        {
+          converted = true;
+        }
+      }
+    }
+
   return converted;
 }
 

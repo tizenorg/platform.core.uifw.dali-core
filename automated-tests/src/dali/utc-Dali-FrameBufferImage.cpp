@@ -112,7 +112,7 @@ int UtcDaliFrameBufferImageNew03(void)
   DALI_TEST_CHECK( image );
 
   //ReleasePolicy is always never for framebuffer images
-  DALI_TEST_EQUALS( image.GetReleasePolicy(), Image::NEVER, TEST_LOCATION );
+  DALI_TEST_EQUALS( image.GetReleasePolicy(), Image::UNUSED, TEST_LOCATION );
 
   // initialise handle with NEVER release policy
   image.Reset();

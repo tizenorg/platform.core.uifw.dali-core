@@ -123,7 +123,11 @@ struct DALI_IMPORT_API KeyEvent
   std::string keyPressed;
 
   /**
-   * @brief Keycode for the key pressed.
+   * @brief The code of the key that was pressed or released.
+   *
+   * You can directly compare this value with Dali::Key enum values to know what a key event means.
+   * @SINCE_1_0.0
+   * @see Dali::Key
    */
   int  keyCode;
 

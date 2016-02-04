@@ -27,7 +27,7 @@
 namespace Dali
 {
 /**
- * @addtogroup dali_core_render_tasks
+ * @addtogroup dali_core_rendering_effects
  * @{
  */
 
@@ -293,9 +293,9 @@ public:
    *
    * The local coordinates of the actor are mapped as frame-buffer coordinates.
    * This is useful for hit-testing actors which are rendered off-screen.
-   * Note: The mapping actor needs to be rendered by the default render task to make the mapping work properly.
    * @SINCE_1_0.0
    * @param[in] mappingActor The actor used for conversion.
+   * @note The mapping actor needs to be rendered by the default render task to make the mapping work properly.
    */
   void SetScreenToFrameBufferMappingActor( Actor mappingActor );
 
@@ -399,7 +399,7 @@ public:
   /**
    * @brief Set whether the render task will cull the actors to the camera's view frustum.
    *
-   * Note that this will only affect image actors that use the default vertex shader.
+   * Note that this will only affect image views that use the default vertex shader.
    * The default mode is to cull actors.
    * @SINCE_1_0.0
    * @param[in] cullMode True if the renderers should be culled.

@@ -318,6 +318,8 @@ int UtcDaliActorAddP(void)
   DALI_TEST_EQUALS( parent.GetChildCount(), 0u, TEST_LOCATION );
   DALI_TEST_EQUALS( parent2.GetChildCount(), 1u, TEST_LOCATION );
 
+  DALI_TEST_CHECK( 0 );
+
   // try Adding to same parent again, works
   parent2.Add( child );
   DALI_TEST_EQUALS( parent2.GetChildCount(), 1u, TEST_LOCATION );
@@ -2907,4 +2909,3 @@ int UtcDaliActorGetHierachyDepth(void)
 
   END_TEST;
 }
-

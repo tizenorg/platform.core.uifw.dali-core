@@ -67,6 +67,8 @@ int UtcDaliDegreeComparison01(void)
   DALI_TEST_CHECK( degree5.degree == 90.0f );
   DALI_TEST_CHECK( degree5.degree != 180.0f );
 
+  DALI_TEST_EQUALS( 0, 1, TEST_LOCATION );
+
   END_TEST;
 }
 

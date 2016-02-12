@@ -475,6 +475,9 @@ bool RenderManager::Render( Integration::RenderStatus& status )
     // this ensures we will set view and projection matrix once per program per camera
     mImpl->programController.ResetProgramMatrices();
 
+    int size = mImpl->instructions.Count(mImpl->renderBufferIndex);
+    size = size;
+
     // if we don't have default shader, no point doing the render calls
     if( mImpl->defaultShader )
     {

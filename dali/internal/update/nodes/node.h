@@ -4,7 +4,7 @@
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -184,6 +184,8 @@ public:
       mDirtyFlags |= TransformFlag;
     }
 
+    // make a connection between node and renderer
+    renderer->mNode = this;
     mRenderer.PushBack( renderer );
   }
 
@@ -1022,6 +1024,8 @@ public: // Default properties
   InheritedMatrix     mWorldMatrix;       ///< Full inherited world matrix
   InheritedColor      mWorldColor;        ///< Full inherited color
 
+  mutable bool mBatching:1;
+
 protected:
 
   Node*               mParent;                       ///< Pointer to parent node (a child is owned by its parent)
@@ -1047,6 +1051,7 @@ protected:
   DrawMode::Type          mDrawMode:2;               ///< How the Node and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode:2;///< Determines how position is inherited, 2 bits is enough
   ColorMode               mColorMode:2;              ///< Determines whether mWorldColor is inherited, 2 bits is enough
+
 
   // Changes scope, should be at end of class
   DALI_LOG_OBJECT_STRING_DECLARATION;

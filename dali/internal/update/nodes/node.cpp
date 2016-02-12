@@ -220,7 +220,9 @@ void Node::RemoveRenderer( Renderer* renderer )
   {
     if( mRenderer[i] == renderer )
     {
+      renderer->mNode = NULL; // may not be really needed
       mRenderer.Erase( mRenderer.Begin()+i);
+
       return;
     }
   }

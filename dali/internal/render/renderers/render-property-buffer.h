@@ -155,6 +155,19 @@ public:
     return mSize;
   }
 
+  //inline void CopyDataInto( Dali::Vector< char >& buf );
+  inline Dali::Vector< char >& GetData()
+  {
+    Dali::Vector< char >& retval = *mData.Release();
+    mData = &retval;
+    return retval;
+  }
+
+  inline const PropertyBuffer::Format* GetFormat()
+  {
+    return mFormat.Get();
+  }
+
 private:
   OwnerPointer< PropertyBuffer::Format >  mFormat;  ///< Format of the buffer
   OwnerPointer< Dali::Vector< char > >    mData;    ///< Data

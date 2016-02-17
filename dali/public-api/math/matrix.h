@@ -300,6 +300,18 @@ public:
   static void Multiply( Matrix& result, const Matrix& lhs, const Quaternion& rhs );
 
   /**
+   * @brief Function to multiply a matrix and vector and store the result onto third.
+   *
+   * Use this method in time critical path as it does not require temporaries
+   * @param result of the multiplication
+   * @param lhs matrix, this can be same matrix as result
+   * @param rhs quaternion
+   */
+  static void Multiply(Vector4& result, const Matrix& lhs, const Vector4& rhs);
+  static void Multiply(Vector3& result, const Matrix& lhs, const Vector3& rhs);
+  static void Multiply(Vector2& result, const Matrix& lhs, const Vector2& rhs);
+
+  /**
    * @brief The multiplication operator.
    *
    * @SINCE_1_0.0

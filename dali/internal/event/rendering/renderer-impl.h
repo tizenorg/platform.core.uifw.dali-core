@@ -161,6 +161,14 @@ public:
     */
    bool IsPreMultipliedAlphaEnabled() const;
 
+   /**
+    * @brief SetBatchable
+    * @param value
+    */
+   void SetBatchable( bool value );
+
+   bool IsBatchable() const;
+
   /**
    * @brief Get the scene graph object ( the node attachment )
    *
@@ -295,6 +303,7 @@ private: // data
   BlendingOptions mBlendingOptions;                 ///< Local copy of blending options bitmask
   bool mPremultipledAlphaEnabled;                   ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
 
+  bool mBatchable;                                  ///< Flag indicating whether render is batchable or not
 };
 
 } // namespace Internal

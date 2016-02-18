@@ -71,10 +71,10 @@ Node::Node()
   mDepth(0u),
   mDirtyFlags(AllFlags),
   mIsRoot( false ),
+  mInheritPosition(true),
   mInheritOrientation( true ),
   mInheritScale( true ),
   mDrawMode( DrawMode::NORMAL ),
-  mPositionInheritanceMode( DEFAULT_POSITION_INHERITANCE_MODE ),
   mColorMode( DEFAULT_COLOR_MODE )
 {
   mUniformMapChanged[0] = 0u;

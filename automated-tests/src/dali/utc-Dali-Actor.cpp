@@ -1073,8 +1073,8 @@ int UtcDaliActorInheritPosition(void)
   DALI_TEST_EQUALS( parent.GetCurrentWorldPosition(), Vector3::ZERO, TEST_LOCATION );
   DALI_TEST_EQUALS( child.GetCurrentWorldPosition(), Vector3::ZERO, TEST_LOCATION );
 
-  // first test default, which is INHERIT_PARENT_POSITION
-  DALI_TEST_EQUALS( child.GetPositionInheritanceMode(), Dali::INHERIT_PARENT_POSITION, TEST_LOCATION );
+  // first test default, which is inherit position from parent
+  DALI_TEST_EQUALS( child.IsPositionInherited(), true, TEST_LOCATION);
   application.SendNotification();
   application.Render(0); // should only really call Update as Render is not required to update scene
   DALI_TEST_EQUALS( parent.GetCurrentPosition(), parentPosition, TEST_LOCATION );
@@ -1082,29 +1082,9 @@ int UtcDaliActorInheritPosition(void)
   DALI_TEST_EQUALS( parent.GetCurrentWorldPosition(), parentPosition, TEST_LOCATION );
   DALI_TEST_EQUALS( child.GetCurrentWorldPosition(), parentPosition + childPosition, TEST_LOCATION );
 
-  // Change inheritance mode to use parent
-  child.SetPositionInheritanceMode( Dali::USE_PARENT_POSITION );
-  DALI_TEST_EQUALS( child.GetPositionInheritanceMode(), Dali::USE_PARENT_POSITION, TEST_LOCATION );
-  application.SendNotification();
-  application.Render(0); // should only really call Update as Render is not required to update scene
-  DALI_TEST_EQUALS( parent.GetCurrentPosition(), parentPosition, TEST_LOCATION );
-  DALI_TEST_EQUALS( child.GetCurrentPosition(), childPosition, TEST_LOCATION );
-  DALI_TEST_EQUALS( parent.GetCurrentWorldPosition(), parentPosition, TEST_LOCATION );
-  DALI_TEST_EQUALS( child.GetCurrentWorldPosition(), parentPosition, TEST_LOCATION );
-
-  // Change inheritance mode to use parent + offset
-  child.SetPositionInheritanceMode( Dali::USE_PARENT_POSITION_PLUS_LOCAL_POSITION );
+  // Change inheritance mode to not inherit
   Vector3 childOffset( -1.0f, 1.0f, 0.0f );
   child.SetPosition( childOffset );
-  DALI_TEST_EQUALS( child.GetPositionInheritanceMode(), Dali::USE_PARENT_POSITION_PLUS_LOCAL_POSITION, TEST_LOCATION );
-  application.SendNotification();
-  application.Render(0); // should only really call Update as Render is not required to update scene
-  DALI_TEST_EQUALS( parent.GetCurrentPosition(), parentPosition, TEST_LOCATION );
-  DALI_TEST_EQUALS( child.GetCurrentPosition(), childOffset, TEST_LOCATION );
-  DALI_TEST_EQUALS( parent.GetCurrentWorldPosition(), parentPosition, TEST_LOCATION );
-  DALI_TEST_EQUALS( child.GetCurrentWorldPosition(), parentPosition + childOffset, TEST_LOCATION );
-
-  // Change inheritance mode to not inherit
   child.SetPositionInheritanceMode( Dali::DONT_INHERIT_POSITION );
   DALI_TEST_EQUALS( child.GetPositionInheritanceMode(), Dali::DONT_INHERIT_POSITION, TEST_LOCATION );
   application.SendNotification();
@@ -1116,6 +1096,51 @@ int UtcDaliActorInheritPosition(void)
   END_TEST;
 }
 
+int UtcDaliActorInheritPositionMode(void)
+{
+  tet_infoline("Testing Actor::SetPositionInheritanceMode");
+  TestApplication application;
+
+  Actor parent = Actor::New();
+  Vector3 parentPosition( 1.0f, 2.0f, 3.0f );
+  parent.SetPosition( parentPosition );
+  parent.SetParentOrigin( ParentOrigin::CENTER );
+  parent.SetAnchorPoint( AnchorPoint::CENTER );
+  Stage::GetCurrent().Add( parent );
+
+  Actor child = Actor::New();
+  child.SetParentOrigin( ParentOrigin::CENTER );
+  child.SetAnchorPoint( AnchorPoint::CENTER );
+  Vector3 childPosition( 10.0f, 11.0f, 12.0f );
+  child.SetPosition( childPosition );
+  parent.Add( child );
+
+  // The actors should not have a world position yet
+  DALI_TEST_EQUALS( parent.GetCurrentWorldPosition(), Vector3::ZERO, TEST_LOCATION );
+  DALI_TEST_EQUALS( child.GetCurrentWorldPosition(), Vector3::ZERO, TEST_LOCATION );
+
+  // first test default, which is INHERIT_PARENT_POSITION
+  DALI_TEST_EQUALS( child.GetPositionInheritanceMode(), Dali::INHERIT_PARENT_POSITION, TEST_LOCATION );
+  application.SendNotification();
+  application.Render(0); // should only really call Update as Render is not required to update scene
+  DALI_TEST_EQUALS( parent.GetCurrentPosition(), parentPosition, TEST_LOCATION );
+  DALI_TEST_EQUALS( child.GetCurrentPosition(), childPosition, TEST_LOCATION );
+  DALI_TEST_EQUALS( parent.GetCurrentWorldPosition(), parentPosition, TEST_LOCATION );
+  DALI_TEST_EQUALS( child.GetCurrentWorldPosition(), parentPosition + childPosition, TEST_LOCATION );
+
+  // Change inheritance mode to not inherit
+  Vector3 childOffset( -1.0f, 1.0f, 0.0f );
+  child.SetPosition( childOffset );
+  child.SetPositionInheritanceMode( Dali::DONT_INHERIT_POSITION );
+  DALI_TEST_EQUALS( child.GetPositionInheritanceMode(), Dali::DONT_INHERIT_POSITION, TEST_LOCATION );
+  application.SendNotification();
+  application.Render(0); // should only really call Update as Render is not required to update scene
+  DALI_TEST_EQUALS( parent.GetCurrentPosition(), parentPosition, TEST_LOCATION );
+  DALI_TEST_EQUALS( child.GetCurrentPosition(), childOffset, TEST_LOCATION );
+  DALI_TEST_EQUALS( parent.GetCurrentWorldPosition(), parentPosition, TEST_LOCATION );
+  DALI_TEST_EQUALS( child.GetCurrentWorldPosition(), childOffset, TEST_LOCATION );
+  END_TEST;
+}
 // SetOrientation(float angleRadians, Vector3 axis)
 int UtcDaliActorSetOrientation01(void)
 {

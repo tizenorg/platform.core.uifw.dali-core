@@ -41,6 +41,7 @@ enum ColorMode
 };
 
 /**
+ * @DEPRECATED_1_1.23 Use SetInheritPosition instead
  * @brief Actor position inheritance mode.
  * @SINCE_1_0.0
  */

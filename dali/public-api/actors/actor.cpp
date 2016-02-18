@@ -256,6 +256,11 @@ PositionInheritanceMode Actor::GetPositionInheritanceMode() const
   return GetImplementation(*this).GetPositionInheritanceMode();
 }
 
+bool Actor::IsPositionInherited() const
+{
+  return GetImplementation(*this).IsPositionInherited();
+}
+
 void Actor::SetOrientation(const Radian& angle, const Vector3& axis)
 {
   GetImplementation(*this).SetOrientation(angle, axis);

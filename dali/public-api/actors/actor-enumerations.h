@@ -42,7 +42,7 @@ enum ColorMode
 
 /**
  * @brief Actor position inheritance mode.
- * @SINCE_1_0.0
+ * @deprecated 1_1.23
  */
 enum PositionInheritanceMode
 {

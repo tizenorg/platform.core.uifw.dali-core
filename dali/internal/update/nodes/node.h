@@ -407,81 +407,65 @@ public:
   {
     DALI_ASSERT_DEBUG(mParent != NULL);
 
-    switch( mPositionInheritanceMode )
+    if( mInheritPosition )
     {
-      case INHERIT_PARENT_POSITION  : ///@see Dali::PositionInheritanceMode for how these modes are expected to work
-      {
-        Vector3 finalPosition(-0.5f, -0.5f, -0.5f);
+      Vector3 finalPosition(-0.5f, -0.5f, -0.5f);
 
-        finalPosition += mParentOrigin.mValue;
-        finalPosition *= mParent->GetSize(updateBufferIndex);
-        finalPosition += mPosition[updateBufferIndex];
-        finalPosition *= mParent->GetWorldScale(updateBufferIndex);
-        const Quaternion& parentWorldOrientation = mParent->GetWorldOrientation(updateBufferIndex);
-        if(!parentWorldOrientation.IsIdentity())
+      finalPosition += mParentOrigin.mValue;
+      finalPosition *= mParent->GetSize(updateBufferIndex);
+      finalPosition += mPosition[updateBufferIndex];
+      finalPosition *= mParent->GetWorldScale(updateBufferIndex);
+      const Quaternion& parentWorldOrientation = mParent->GetWorldOrientation(updateBufferIndex);
+      if(!parentWorldOrientation.IsIdentity())
+      {
+        finalPosition *= parentWorldOrientation;
+      }
+
+      // check if a node needs to be offsetted locally (only applies when AnchorPoint is not central)
+      // dont use operator== as that does a slower comparison (and involves function calls)
+      Vector3 localOffset(0.5f, 0.5f, 0.5f);    // AnchorPoint::CENTER
+      localOffset -= mAnchorPoint.mValue;
+
+      if( ( fabsf( localOffset.x ) >= Math::MACHINE_EPSILON_0 ) ||
+          ( fabsf( localOffset.y ) >= Math::MACHINE_EPSILON_0 ) ||
+          ( fabsf( localOffset.z ) >= Math::MACHINE_EPSILON_0 ) )
+      {
+        localOffset *= mSize[updateBufferIndex];
+
+        Vector3 scale = mWorldScale[updateBufferIndex];
+
+        // Pick up sign of local scale
+        if (mScale[updateBufferIndex].x < 0.0f)
         {
-          finalPosition *= parentWorldOrientation;
+          scale.x = -scale.x;
+        }
+        if (mScale[updateBufferIndex].y < 0.0f)
+        {
+          scale.y = -scale.y;
+        }
+        if (mScale[updateBufferIndex].z < 0.0f)
+        {
+          scale.z = -scale.z;
         }
 
-        // check if a node needs to be offsetted locally (only applies when AnchorPoint is not central)
-        // dont use operator== as that does a slower comparison (and involves function calls)
-        Vector3 localOffset(0.5f, 0.5f, 0.5f);    // AnchorPoint::CENTER
-        localOffset -= mAnchorPoint.mValue;
-
-        if( ( fabsf( localOffset.x ) >= Math::MACHINE_EPSILON_0 ) ||
-            ( fabsf( localOffset.y ) >= Math::MACHINE_EPSILON_0 ) ||
-            ( fabsf( localOffset.z ) >= Math::MACHINE_EPSILON_0 ) )
+        // If the anchor-point is not central, then position is affected by the local orientation & scale
+        localOffset *= scale;
+        const Quaternion& localWorldOrientation = mWorldOrientation[updateBufferIndex];
+        if(!localWorldOrientation.IsIdentity())
         {
-          localOffset *= mSize[updateBufferIndex];
-
-          Vector3 scale = mWorldScale[updateBufferIndex];
-
-          // Pick up sign of local scale
-          if (mScale[updateBufferIndex].x < 0.0f)
-          {
-            scale.x = -scale.x;
-          }
-          if (mScale[updateBufferIndex].y < 0.0f)
-          {
-            scale.y = -scale.y;
-          }
-          if (mScale[updateBufferIndex].z < 0.0f)
-          {
-            scale.z = -scale.z;
-          }
-
-          // If the anchor-point is not central, then position is affected by the local orientation & scale
-          localOffset *= scale;
-          const Quaternion& localWorldOrientation = mWorldOrientation[updateBufferIndex];
-          if(!localWorldOrientation.IsIdentity())
-          {
-            localOffset *= localWorldOrientation;
-          }
-          finalPosition += localOffset;
+          localOffset *= localWorldOrientation;
         }
+        finalPosition += localOffset;
+      }
 
-        finalPosition += mParent->GetWorldPosition(updateBufferIndex);
-        mWorldPosition.Set( updateBufferIndex, finalPosition );
-        break;
-      }
-      case USE_PARENT_POSITION_PLUS_LOCAL_POSITION :
-      {
-        // copy parents position plus local transform
-        mWorldPosition.Set( updateBufferIndex, mParent->GetWorldPosition(updateBufferIndex) + mPosition[updateBufferIndex] );
-        break;
-      }
-      case USE_PARENT_POSITION :
-      {
-        // copy parents position
-        mWorldPosition.Set( updateBufferIndex, mParent->GetWorldPosition(updateBufferIndex) );
-        break;
-      }
-      case DONT_INHERIT_POSITION :
-      {
-        // use local position as world position
-        mWorldPosition.Set( updateBufferIndex, mPosition[updateBufferIndex] );
-        break;
-      }
+      finalPosition += mParent->GetWorldPosition(updateBufferIndex);
+      mWorldPosition.Set( updateBufferIndex, finalPosition );
+
+    }
+    else
+    {
+      // use local position as world position
+      mWorldPosition.Set( updateBufferIndex, mPosition[updateBufferIndex] );
     }
   }
 
@@ -506,23 +490,17 @@ public:
   }
 
   /**
-   * Set the position inheritance mode.
-   * @see Dali::Actor::PositionInheritanceMode
-   * @param[in] mode The new position inheritance mode.
+   * Set whether the Node inherits position.
+   * @param[in] inherit True if the parent position is inherited.
    */
-  void SetPositionInheritanceMode( PositionInheritanceMode mode )
+  void SetInheritPosition(bool inherit)
   {
-    mPositionInheritanceMode = mode;
+    if (inherit != mInheritPosition)
+    {
+      mInheritPosition = inherit;
 
-    SetDirtyFlag(TransformFlag);
-  }
-
-  /**
-   * @return The position inheritance mode.
-   */
-  PositionInheritanceMode GetPositionInheritanceMode() const
-  {
-    return mPositionInheritanceMode;
+      SetDirtyFlag(TransformFlag);
+    }
   }
 
   /**
@@ -1041,11 +1019,11 @@ protected:
   int  mDirtyFlags:8;                               ///< A composite set of flags for each of the Node properties
 
   bool mIsRoot:1;                                    ///< True if the node cannot have a parent
+  bool mInheritPosition:1;                        ///< Whether the parent's orientation should be inherited.
   bool mInheritOrientation:1;                        ///< Whether the parent's orientation should be inherited.
   bool mInheritScale:1;                              ///< Whether the parent's scale should be inherited.
 
   DrawMode::Type          mDrawMode:2;               ///< How the Node and its children should be drawn
-  PositionInheritanceMode mPositionInheritanceMode:2;///< Determines how position is inherited, 2 bits is enough
   ColorMode               mColorMode:2;              ///< Determines whether mWorldColor is inherited, 2 bits is enough
 
   // Changes scope, should be at end of class
@@ -1087,15 +1065,15 @@ inline void SetAnchorPointMessage( EventThreadServices& eventThreadServices, con
   new (slot) LocalType( &node, &Node::SetAnchorPoint, anchor );
 }
 
-inline void SetPositionInheritanceModeMessage( EventThreadServices& eventThreadServices, const Node& node, PositionInheritanceMode mode )
+inline void SetInheritPositionMessage( EventThreadServices& eventThreadServices, const Node& node, bool inherit )
 {
-  typedef MessageValue1< Node, PositionInheritanceMode > LocalType;
+  typedef MessageValue1< Node, bool > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &node, &Node::SetPositionInheritanceMode, mode );
+  new (slot) LocalType( &node, &Node::SetInheritPosition, inherit );
 }
 
 inline void SetInheritScaleMessage( EventThreadServices& eventThreadServices, const Node& node, bool inherit )

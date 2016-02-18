@@ -215,6 +215,7 @@ DALI_PROPERTY( "worldMatrix",       MATRIX,   false, false, true,  Dali::Actor::
 DALI_PROPERTY( "name",              STRING,   true,  false, false, Dali::Actor::Property::NAME )
 DALI_PROPERTY( "sensitive",         BOOLEAN,  true,  false, false, Dali::Actor::Property::SENSITIVE )
 DALI_PROPERTY( "leaveRequired",     BOOLEAN,  true,  false, false, Dali::Actor::Property::LEAVE_REQUIRED )
+DALI_PROPERTY( "inheritPosition",   BOOLEAN,  true,  false, false, Dali::Actor::Property::INHERIT_POSITION )
 DALI_PROPERTY( "inheritOrientation", BOOLEAN, true,  false, false, Dali::Actor::Property::INHERIT_ORIENTATION )
 DALI_PROPERTY( "inheritScale",      BOOLEAN,  true,  false, false, Dali::Actor::Property::INHERIT_SCALE )
 DALI_PROPERTY( "colorMode",         STRING,   true,  false, false, Dali::Actor::Property::COLOR_MODE )
@@ -737,18 +738,46 @@ const Vector3& Actor::GetCurrentWorldPosition() const
 void Actor::SetPositionInheritanceMode( PositionInheritanceMode mode )
 {
   // this flag is not animatable so keep the value
-  mPositionInheritanceMode = mode;
   if( NULL != mNode )
   {
-    // mNode is being used in a separate thread; queue a message to set the value
-    SetPositionInheritanceModeMessage( GetEventThreadServices(), *mNode, mode );
+    if( mode == DONT_INHERIT_POSITION )
+    {
+      mInheritPosition = false;
+      return SetInheritPositionMessage( GetEventThreadServices(), *mNode, false );
+    }
+    else
+    {
+      mInheritPosition = true;
+      return SetInheritPositionMessage( GetEventThreadServices(), *mNode, true );
+    }
+  }
+}
+
+void Actor::SetInheritPosition( bool inherit )
+{
+  mInheritPosition = inherit;
+  if( NULL != mNode )
+  {
+    SetInheritPositionMessage( GetEventThreadServices(), *mNode, inherit );
   }
 }
 
 PositionInheritanceMode Actor::GetPositionInheritanceMode() const
 {
   // Cached for event-thread access
-  return mPositionInheritanceMode;
+  if( mInheritPosition )
+  {
+    return INHERIT_PARENT_POSITION;
+  }
+  else
+  {
+    return DONT_INHERIT_POSITION;
+  }
+}
+
+bool Actor::IsPositionInherited() const
+{
+  return mInheritPosition;
 }
 
 void Actor::SetOrientation( const Radian& angle, const Vector3& axis )
@@ -1927,10 +1956,10 @@ Actor::Actor( DerivedType derivedType )
   mDerivedRequiresWheelEvent( false ),
   mOnStageSignalled( false ),
   mInsideOnSizeSet( false ),
+  mInheritPosition( true ),
   mInheritOrientation( true ),
   mInheritScale( true ),
   mDrawMode( DrawMode::NORMAL ),
-  mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ),
   mColorMode( Node::DEFAULT_COLOR_MODE )
 {
 }
@@ -2463,6 +2492,12 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
       break;
     }
 
+    case Dali::Actor::Property::INHERIT_POSITION:
+    {
+      SetInheritPosition( property.Get< bool >() );
+      break;
+    }
+
     case Dali::Actor::Property::INHERIT_ORIENTATION:
     {
       SetInheritOrientation( property.Get< bool >() );
@@ -2967,6 +3002,12 @@ Property::Value Actor::GetDefaultProperty( Property::Index index ) const
     case Dali::Actor::Property::LEAVE_REQUIRED:
     {
       value = GetLeaveRequired();
+      break;
+    }
+
+    case Dali::Actor::Property::INHERIT_POSITION:
+    {
+      value = IsPositionInherited();
       break;
     }
 

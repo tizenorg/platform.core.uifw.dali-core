@@ -292,10 +292,11 @@ public:
       NAME,                                               ///< name "name",                  type std::string @SINCE_1_0.0
       SENSITIVE,                                          ///< name "sensitive",             type bool @SINCE_1_0.0
       LEAVE_REQUIRED,                                     ///< name "leaveRequired",         type bool @SINCE_1_0.0
+      INHERIT_POSITION,                                   ///< name "inheritPosition",       type bool @SINCE_1_1.22
       INHERIT_ORIENTATION,                                ///< name "inheritOrientation",    type bool @SINCE_1_0.0
       INHERIT_SCALE,                                      ///< name "inheritScale",          type bool @SINCE_1_0.0
-      COLOR_MODE,                                         ///< name "colorMode",             type std::string @SINCE_1_0.0
-      POSITION_INHERITANCE,                               ///< name "positionInheritance",   type std::string @SINCE_1_0.0
+      COLOR_MODE,                                         ///< name "colorMode",             type std::string @SINCE_1_1.0
+      POSITION_INHERITANCE,                               ///< name "positionInheritance",   type std::string @deprecated 1_1.22 Use INHERIT_POSITION instead
       DRAW_MODE,                                          ///< name "drawMode",              type std::string @SINCE_1_0.0
       SIZE_MODE_FACTOR,                                   ///< name "sizeModeFactor",        type Vector3 @SINCE_1_0.0
       WIDTH_RESIZE_POLICY,                                ///< name "widthResizePolicy",     type String @SINCE_1_0.0
@@ -762,7 +763,7 @@ public:
    *
    * The default is to inherit.
    * Switching this off means that using SetPosition() sets the actor's world position.
-   * @SINCE_1_0.0
+   * @deprecated 1_1.22 Use SetInheritPosition instead
    * @param[in] mode to use
    * @pre The Actor has been initialized.
    * @see PositionInheritanceMode
@@ -770,13 +771,33 @@ public:
   void SetPositionInheritanceMode( PositionInheritanceMode mode );
 
   /**
+   * @brief Set whether a child actor inherits it's parent's position.
+   *
+   * Default is to inherit.
+   * Switching this off means that using SetPosition() sets the actor's world position.
+   * @SINCE_1_1.22
+   * @param[in] inherit - true if the actor should inherit position, false otherwise.
+   * @pre The Actor has been initialized.
+   */
+  void SetInheritPosition( bool inherit );
+
+  /**
    * @brief Returns the actors position inheritance mode.
    *
-   * @SINCE_1_0.0
+   * @deprecated 1_1.22 Use IsPositionInherited
    * @return Return the position inheritance mode.
    * @pre The Actor has been initialized.
    */
   PositionInheritanceMode GetPositionInheritanceMode() const;
+
+  /**
+   * @brief Returns whether the actor inherits its parent's position.
+   *
+   * @SINCE_1_1.22
+   * @return True if the actor inherits its parent position, false if it uses world position.
+   * @pre The Actor has been initialized.
+   */
+  bool IsPositionInherited() const;
 
   /**
    * @brief Sets the orientation of the Actor.

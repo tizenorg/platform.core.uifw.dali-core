@@ -151,7 +151,6 @@ inline void ProcessRenderList(
 
       item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, !item.IsOpaque() );
     }
-
   }
 }
 

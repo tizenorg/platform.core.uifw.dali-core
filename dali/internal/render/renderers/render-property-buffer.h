@@ -84,6 +84,12 @@ public:
   void SetSize( unsigned int size );
 
   /**
+   * @brief Set the offset of binding element
+   * @param[in] size The offset of binding element
+   */
+  void SetOffset( unsigned int offset );
+
+  /**
    * @brief Bind the property buffer
    * @param[in] target The binding point
    */
@@ -155,12 +161,26 @@ public:
     return mSize;
   }
 
+  //inline void CopyDataInto( Dali::Vector< char >& buf );
+  inline Dali::Vector< char >& GetData()
+  {
+    Dali::Vector< char >& retval = *mData.Release();
+    mData = &retval;
+    return retval;
+  }
+
+  inline const PropertyBuffer::Format* GetFormat()
+  {
+    return mFormat.Get();
+  }
+
 private:
   OwnerPointer< PropertyBuffer::Format >  mFormat;  ///< Format of the buffer
   OwnerPointer< Dali::Vector< char > >    mData;    ///< Data
   OwnerPointer<GpuBuffer> mGpuBuffer;               ///< Pointer to the GpuBuffer associated with this RenderPropertyBuffer
 
   size_t  mSize;      ///< Number of Elements in the buffer
+  unsigned int mOffset; ///< Offset of binding element in the buffer
   bool mDataChanged;  ///< Flag to know if data has changed in a frame
 
 };

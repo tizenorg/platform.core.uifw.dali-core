@@ -36,6 +36,8 @@
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 
+#include <cstdio>
+
 namespace
 {
 #if defined(DEBUG_ENABLED)
@@ -408,6 +410,97 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
     flags |= RenderList::DEPTH_CLEAR;
   }
 
+  // analyze stuff for baaaatching after sorting
+  //int count = renderList.Count();
+
+  int numBatches(0);
+  int perBatch(0);
+  int notBatched(0);
+
+  struct BatchKey
+  {
+    Material*     prevBatchMaterial;
+    Geometry*     prevBatchGeometry;
+    Node*         prevBatchParent;
+
+    BatchKey( Material* m = 0, Geometry* g = 0, Node* b = 0 ) :
+      prevBatchMaterial(m),
+      prevBatchGeometry(g),
+      prevBatchParent(b)
+    {}
+
+    bool operator==(const BatchKey& key)
+    {
+      return key.prevBatchMaterial == prevBatchMaterial &&
+          key.prevBatchGeometry == prevBatchGeometry &&
+          key.prevBatchParent == prevBatchParent;
+    }
+
+    bool operator!()
+    {
+      return !prevBatchMaterial || !prevBatchGeometry || !prevBatchParent;
+    }
+
+  };
+
+  BatchKey prevKey;
+  puts("FRAME START --------------------------------------");
+  //for(int i = 0; i < 1; ++i)
+  //{
+    RenderItemContainer& container = renderList.GetContainer();
+    int size = container.Size();
+    for(int j = 0; j < size; ++j )
+    {
+      RenderItem* item = container[j];
+      //const Render::Renderer& renderer = item->GetRenderer();
+
+      Node& node = const_cast<Node&>(item->GetNode());
+      Renderer* sg_renderer = node.GetRendererAt(0);
+
+      if( sg_renderer->IsBatchable() )
+      {
+        BatchKey currKey(
+              &sg_renderer->GetMaterial(),
+              &sg_renderer->GetGeometry(),
+              node.GetBatchParent());
+        if(!prevKey)
+        {
+          prevKey = currKey;
+          perBatch = 1;
+        }
+        else
+        {
+          if(prevKey == currKey)
+          {
+            ++perBatch;
+          }
+          else
+          {
+            printf("Batch %d: batched cound: %d\n", numBatches, perBatch );
+            ++numBatches;
+            prevKey = currKey;
+            perBatch = 1;
+          }
+        }
+      }
+      else
+      {
+        if(perBatch)
+        {
+          printf("Batch %d: batched cound: %d\n", numBatches, perBatch );
+          ++numBatches;
+        }
+        perBatch = 0;
+        prevKey = BatchKey();
+        ++notBatched;
+      }
+    }
+//  }
+  printf("Not batched: %d\n", notBatched );
+  printf("DRAW calls: batched: %d, not batched: %d\n", numBatches+notBatched, size);
+  puts("FRAME END ------------------------------------");
+
+  fflush(stdout);
   renderList.ClearFlags();
   renderList.SetFlags( flags );
 }

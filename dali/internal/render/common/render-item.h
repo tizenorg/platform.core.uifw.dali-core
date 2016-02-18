@@ -152,6 +152,7 @@ private:
   Node*             mNode;
   int               mDepthIndex;
   bool              mIsOpaque:1;
+  bool              mSkipIfBatched:1;
 };
 
 } // namespace SceneGraph

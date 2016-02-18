@@ -46,7 +46,8 @@ RenderItem::RenderItem()
   mRenderer( NULL ),
   mNode( NULL ),
   mDepthIndex( 0 ),
-  mIsOpaque( true )
+  mIsOpaque( true ),
+  mSkipIfBatched( false )
 {
 }
 

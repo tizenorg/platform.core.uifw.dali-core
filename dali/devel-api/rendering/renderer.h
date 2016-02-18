@@ -72,6 +72,7 @@ public:
       BLENDING_DEST_FACTOR_ALPHA,                         ///< name "destinationBlendFactorAlpha",    type INTEGER
       BLENDING_COLOR,                                     ///< name "blendingColor",                     type VECTOR4
       BLEND_PRE_MULTIPLIED_ALPHA,                         ///< name "blendPreMultipledAlpha",         type BOOLEAN
+      BATCHABLE,                                          ///< name "batchable",                      type BOOLEAN
     };
   };
 

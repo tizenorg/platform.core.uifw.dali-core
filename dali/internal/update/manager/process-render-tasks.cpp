@@ -30,7 +30,7 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/integration-api/debug.h>
-
+#include <ttrace.h> 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gRenderTaskLogFilter;
 #endif
@@ -186,8 +186,9 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                          RendererSortingHelper& sortingHelper,
                          RenderInstructionContainer& instructions )
 {
+  traceBegin(TTRACE_TAG_GRAPHICS,"ProcessRenderTasks-GetTasks");
   RenderTaskList::RenderTaskContainer& taskContainer = renderTasks.GetTasks();
-
+  traceEnd(TTRACE_TAG_GRAPHICS);
   if ( taskContainer.IsEmpty() )
   {
     // Early-exit if there are no tasks to process
@@ -204,6 +205,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
 
   // First process off screen render tasks - we may need the results of these for the on screen renders
   RenderTaskList::RenderTaskContainer::ConstIterator endIter = taskContainer.End();
+  traceBegin(TTRACE_TAG_GRAPHICS,"ProcessRenderTasks-FirstFor");
   for ( RenderTaskList::RenderTaskContainer::Iterator iter = taskContainer.Begin(); endIter != iter; ++iter )
   {
     RenderTask& renderTask = **iter;
@@ -262,8 +264,12 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
 
     renderTask.SetResourcesFinished( resourcesFinished );
   }
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
   DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "ProcessRenderTasks() Onscreen\n");
+
+
+  traceBegin(TTRACE_TAG_GRAPHICS,"ProcessRenderTasks-PrepareRender");
 
   // Now that the off screen renders are done we can process on screen render tasks
   for ( RenderTaskList::RenderTaskContainer::Iterator iter = taskContainer.Begin(); endIter != iter; ++iter )
@@ -281,7 +287,6 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
       // Skip to next task
       continue;
     }
-
     Node* sourceNode = renderTask.GetSourceNode();
     DALI_ASSERT_DEBUG( NULL != sourceNode ); // otherwise Prepare() should return false
 
@@ -301,28 +306,36 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
     bool resourcesFinished = false;
     if( renderTask.IsRenderRequired() )
     {
+
+	  traceBegin(TTRACE_TAG_GRAPHICS,"PrepareRender-ClearRenderables");
       size_t layerCount( sortedLayers.size() );
       for( size_t i(0); i<layerCount; ++i )
       {
         sortedLayers[i]->ClearRenderables();
       }
+	  traceEnd(TTRACE_TAG_GRAPHICS);
 
+	  traceBegin(TTRACE_TAG_GRAPHICS,"PrepareRender-AddRenderablesForTask");
       resourcesFinished = AddRenderablesForTask( updateBufferIndex,
                                                  *sourceNode,
                                                  *layer,
                                                  renderTask,
                                                  sourceNode->GetDrawMode() );
-
+	  traceEnd(TTRACE_TAG_GRAPHICS);
+	  traceBegin(TTRACE_TAG_GRAPHICS,"PrepareRender-PrepareRenderInstruction");
       PrepareRenderInstruction( updateBufferIndex,
                                 sortedLayers,
                                 renderTask,
                                 sortingHelper,
                                 renderTask.GetCullMode(),
                                 instructions );
-    }
+	  traceEnd(TTRACE_TAG_GRAPHICS);
+
+	}
 
     renderTask.SetResourcesFinished( resourcesFinished );
   }
+  traceEnd(TTRACE_TAG_GRAPHICS);
 }
 
 

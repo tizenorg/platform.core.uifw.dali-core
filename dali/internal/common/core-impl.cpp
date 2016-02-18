@@ -48,6 +48,7 @@
 
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/gl-resources/context.h>
+#include <ttrace.h>
 
 using Dali::Internal::SceneGraph::UpdateManager;
 using Dali::Internal::SceneGraph::RenderManager;
@@ -255,12 +256,15 @@ void Core::Update( float elapsedSeconds, unsigned int lastVSyncTimeMilliseconds,
 
   // Render returns true when there are updates on the stage or one or more animations are completed.
   // Use the estimated time diff till we render as the elapsed time.
+  traceBegin(TTRACE_TAG_GRAPHICS, "core-imple-update");
   status.keepUpdating = mUpdateManager->Update( elapsedSeconds,
                                                 lastVSyncTimeMilliseconds,
                                                 nextVSyncTimeMilliseconds );
-
+  traceEnd(TTRACE_TAG_GRAPHICS);
   // Check the Notification Manager message queue to set needsNotification
+  traceBegin(TTRACE_TAG_GRAPHICS, "core-imple-MessagesToProcess");
   status.needsNotification = mNotificationManager->MessagesToProcess();
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
   // No need to keep update running if there are notifications to process.
   // Any message to update will wake it up anyways
@@ -274,9 +278,13 @@ void Core::Update( float elapsedSeconds, unsigned int lastVSyncTimeMilliseconds,
 
 void Core::Render( RenderStatus& status )
 {
+  traceBegin(TTRACE_TAG_GRAPHICS, "core-imple-Render");	
   bool updateRequired = mRenderManager->Render( status );
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
+  traceBegin(TTRACE_TAG_GRAPHICS, "core-imple-SetNeedsUpdate");
   status.SetNeedsUpdate( updateRequired );
+  traceEnd(TTRACE_TAG_GRAPHICS);
 }
 
 void Core::Suspend()

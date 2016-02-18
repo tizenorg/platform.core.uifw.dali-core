@@ -65,9 +65,11 @@ libdali_core_la_CXXFLAGS = -DDALI_COMPILATION \
                            -DDALI_DATA_RO_DIR="\"${daliReadOnlyDir}\"" \
                            $(cxx_flags) \
                            $(dali_core_includes) \
-                           $(DALI_CFLAGS)
+                           $(DALI_CFLAGS) \
+			   $(TTRACE_CFLAGS)
 
 libdali_core_la_LIBADD = $(DALI_LDFLAGS) \
+                         $(TTRACE_LIBS) \
                          -lpthread
 
 # Install headers under the correct subdirectories

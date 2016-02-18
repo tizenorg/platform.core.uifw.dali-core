@@ -31,7 +31,8 @@
 #include <dali/internal/render/gl-resources/texture-units.h>
 #include <dali/internal/render/gl-resources/frame-buffer-state-cache.h>
 #include <dali/internal/render/gl-resources/gl-call-debug.h>
-
+#include <ttrace.h>
+#include <dali/integration-api/debug.h>
 namespace Dali
 {
 
@@ -405,12 +406,15 @@ public:
   void Clear(GLbitfield mask, ClearMode mode )
   {
     bool forceClear = (mode == FORCE_CLEAR );
+	traceBegin(TTRACE_TAG_GRAPHICS, "gl-resources clear() mFrameBufferStateCache.GetClearMask");
     mask = mFrameBufferStateCache.GetClearMask( mask, forceClear , mScissorTestEnabled );
-
+	traceEnd(TTRACE_TAG_GRAPHICS);
     if( mask > 0 )
     {
+      traceBegin(TTRACE_TAG_GRAPHICS, "gl-resources clear() CHECK_GL");
       LOG_GL("Clear %d\n", mask);
       CHECK_GL( mGlAbstraction, mGlAbstraction.Clear( mask ) );
+	  traceEnd(TTRACE_TAG_GRAPHICS);
     }
   }
 

@@ -33,7 +33,7 @@
 #include <dali/internal/render/renderers/render-renderer.h>
 
 #include <dali/integration-api/debug.h>
-
+#include <ttrace.h>
 namespace Dali
 {
 
@@ -191,6 +191,7 @@ inline int UpdateNodesAndAttachments( Node& node,
                                       int inheritedDrawMode )
 {
   //Apply constraints to the node
+  
   ConstrainPropertyOwner( node, updateBufferIndex );
 
   // Short-circuit for invisible nodes
@@ -304,22 +305,33 @@ int UpdateNodesAndAttachments( Layer& rootNode,
   if ( DALI_UNLIKELY( !rootNode.IsVisible( previousBuffer ) ) ) // almost never ever true
   {
     // The node was skipped in the previous update; it must recalculate everything
+	traceBegin(TTRACE_TAG_GRAPHICS, "SetAllDirtyFlags");
     rootNode.SetAllDirtyFlags();
+	traceEnd(TTRACE_TAG_GRAPHICS);
   }
 
   int nodeDirtyFlags( rootNode.GetDirtyFlags() );
 
   int cumulativeDirtyFlags = nodeDirtyFlags;
 
+  traceBegin(TTRACE_TAG_GRAPHICS, "UpdateRootNodeOpacity");
   UpdateRootNodeOpacity( rootNode, nodeDirtyFlags, updateBufferIndex );
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
+  traceBegin(TTRACE_TAG_GRAPHICS, "UpdateRootNodeTransformValues");
   UpdateRootNodeTransformValues( rootNode, nodeDirtyFlags, updateBufferIndex );
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
   DrawMode::Type drawMode( rootNode.GetDrawMode() );
 
+
+  traceBegin(TTRACE_TAG_GRAPHICS, "GetChildren & children.End()");
   // recurse children
   NodeContainer& children = rootNode.GetChildren();
   const NodeIter endIter = children.End();
+  traceEnd(TTRACE_TAG_GRAPHICS);
+
+  traceBegin(TTRACE_TAG_GRAPHICS, "cumulativeDirtyFlags-for");
   for ( NodeIter iter = children.Begin(); iter != endIter; ++iter )
   {
     Node& child = **iter;
@@ -330,8 +342,8 @@ int UpdateNodesAndAttachments( Layer& rootNode,
                                                        renderQueue,
                                                        rootNode,
                                                        drawMode );
-  }
-
+ }
+  traceEnd(TTRACE_TAG_GRAPHICS);
   return cumulativeDirtyFlags;
 }
 

@@ -11,7 +11,7 @@ Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
-
+BuildRequires:  pkgconfig(ttrace)
 %description
 The OpenGLES Canvas Core Library provides a 3D scene graph
 
@@ -47,6 +47,7 @@ Integration development package for the OpenGLES Canvas - headers for integratin
 %define dali_data_ro_dir /usr/share/dali/
 %define dev_include_path %{_includedir}
 
+
 ##############################
 # Build
 ##############################
@@ -54,6 +55,9 @@ Integration development package for the OpenGLES Canvas - headers for integratin
 PREFIX="/usr"
 CXXFLAGS+=" -Wall -g -Os -DNDEBUG -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections "
 LDFLAGS+=" -Wl,--rpath=$PREFIX/lib -Wl,--as-needed -Wl,--gc-sections -lgcc_s -lgcc -lpthread -Wl,-Bsymbolic-functions "
+
+
+CXXFLAGS+=" -DENABLE_TTRACE"
 
 %ifarch %{arm}
 CXXFLAGS+=" -D_ARCH_ARM_ -mfpu=neon"
@@ -74,6 +78,7 @@ CFLAGS="${CFLAGS:-%optflags}" ; export CFLAGS;
 CXXFLAGS="${CXXFLAGS:-%optflags}" ; export CXXFLAGS;
 LDFLAGS="${LDFLAGS:-%optflags}" ; export LDFLAGS;
 ./configure \
+      --enable-debug \
       --program-prefix=%{?_program_prefix} \
       --prefix=%{_prefix} \
       --exec-prefix=%{_exec_prefix} \

@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-defines.h>
-
+#include <ttrace.h>
 namespace Dali
 {
 
@@ -46,7 +46,9 @@ GLbitfield FrameBufferStateCache::GetClearMask( GLbitfield mask, bool forceClear
     // buffer is cleared or not.
     return mask;
   }
+  traceBegin(TTRACE_TAG_GRAPHICS, "gl-resources GetClearMask() GetFrameBufferState");
   FrameBufferState* state = GetFrameBufferState( mCurrentFrameBufferId );
+  traceEnd(TTRACE_TAG_GRAPHICS);
   if( !state )
   {
     DALI_LOG_ERROR("FrameBuffer not found %d \n", mCurrentFrameBufferId);
@@ -56,10 +58,13 @@ GLbitfield FrameBufferStateCache::GetClearMask( GLbitfield mask, bool forceClear
   // if we are forcing the clear operation, then just update the internal cached values
   if( forceClear )
   {
+    traceBegin(TTRACE_TAG_GRAPHICS, "gl-resources GetClearMask() forceClear SetClearState");
     SetClearState( state, mask );
+	traceEnd(TTRACE_TAG_GRAPHICS);
     return mask;
   }
 
+  traceBegin(TTRACE_TAG_GRAPHICS, "gl-resources GetClearMask() use the cached values");
   // use the cached values
   if( mask & GL_COLOR_BUFFER_BIT)
   {
@@ -89,9 +94,12 @@ GLbitfield FrameBufferStateCache::GetClearMask( GLbitfield mask, bool forceClear
       mask&= ~GL_STENCIL_BUFFER_BIT;
     }
   }
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
   // set the clear state based, what's about to be cleared
+  traceBegin(TTRACE_TAG_GRAPHICS, "gl-resources GetClearMask() SetClearState");
   SetClearState( state, mask );
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
   return mask;
 }

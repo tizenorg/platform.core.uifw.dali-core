@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/common/memory-pool-object-allocator.h>
 #include <dali/internal/render/common/performance-monitor.h>
-
+#include <ttrace.h>
 namespace //Unnamed namespace
 {
 //Memory pool used to allocate new animations. Memory used by this pool will be released when shutting down DALi
@@ -247,9 +247,9 @@ bool Animation::Update(BufferIndex bufferIndex, float elapsedSeconds)
                               (( mSpeedFactor > 0.0f && mElapsedSeconds > playRangeSeconds.y )  ||
                                ( mSpeedFactor < 0.0f && mElapsedSeconds < playRangeSeconds.x ))
                               );
-
+  traceBegin(TTRACE_TAG_GRAPHICS, "SceneGraph-animate-update");
   UpdateAnimators(bufferIndex, animationFinished && (mEndAction != Dali::Animation::Discard), animationFinished);
-
+  traceEnd(TTRACE_TAG_GRAPHICS);
   if (animationFinished)
   {
     // The animation has now been played to completion
@@ -264,12 +264,15 @@ bool Animation::Update(BufferIndex bufferIndex, float elapsedSeconds)
 
 void Animation::UpdateAnimators( BufferIndex bufferIndex, bool bake, bool animationFinished )
 {
+  traceBegin(TTRACE_TAG_GRAPHICS, "UpdateAnimators-Clamp");
   float elapsedSecondsClamped = Clamp( mElapsedSeconds, mPlayRange.x * mDurationSeconds,mPlayRange.y * mDurationSeconds );
-
+  traceEnd(TTRACE_TAG_GRAPHICS);
   //Loop through all animators
   bool applied(true);
+
   for ( AnimatorIter iter = mAnimators.Begin(); iter != mAnimators.End(); )
   {
+    traceBegin(TTRACE_TAG_GRAPHICS, "UpdateAnimators-for");
     AnimatorBase *animator = *iter;
 
     if( animator->Orphan() )
@@ -312,8 +315,8 @@ void Animation::UpdateAnimators( BufferIndex bufferIndex, bool bake, bool animat
 
       ++iter;
     }
+    traceEnd(TTRACE_TAG_GRAPHICS);
   }
-
 }
 
 } // namespace SceneGraph

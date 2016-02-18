@@ -66,7 +66,7 @@
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-sampler.h>
-
+#include <ttrace.h>
 // Un-comment to enable node tree debug logging
 //#define NODE_TREE_LOGGING 1
 
@@ -713,16 +713,26 @@ bool UpdateManager::ProcessGestures( BufferIndex bufferIndex, unsigned int lastV
 
 void UpdateManager::Animate( BufferIndex bufferIndex, float elapsedSeconds )
 {
+  traceBegin(TTRACE_TAG_GRAPHICS, "Animate-Initialize");
   AnimationContainer &animations = mImpl->animations;
   AnimationIter iter = animations.Begin();
+  traceEnd(TTRACE_TAG_GRAPHICS);
+
+  traceBegin(TTRACE_TAG_GRAPHICS, "Animate-while");
   while ( iter != animations.End() )
   {
     Animation* animation = *iter;
+    traceBegin(TTRACE_TAG_GRAPHICS, "Animate-while-update");
     bool finished = animation->Update( bufferIndex, elapsedSeconds );
-
+    traceEnd(TTRACE_TAG_GRAPHICS);
+ 
+    traceBegin(TTRACE_TAG_GRAPHICS, "Animate-while-animationFinishedDuringUpdate");
     mImpl->animationFinishedDuringUpdate = mImpl->animationFinishedDuringUpdate || finished;
+    traceEnd(TTRACE_TAG_GRAPHICS);
 
     // Remove animations that had been destroyed but were still waiting for an update
+   
+    traceBegin(TTRACE_TAG_GRAPHICS, "Animation-while-iter");
     if (animation->GetState() == Animation::Destroyed)
     {
       iter = animations.Erase(iter);
@@ -731,13 +741,17 @@ void UpdateManager::Animate( BufferIndex bufferIndex, float elapsedSeconds )
     {
       ++iter;
     }
+    traceEnd(TTRACE_TAG_GRAPHICS);
   }
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
+  traceBegin(TTRACE_TAG_GRAPHICS, "Animate-QueueCompleteNotification");
   if ( mImpl->animationFinishedDuringUpdate )
   {
     // The application should be notified by NotificationManager, in another thread
     mImpl->notificationManager.QueueCompleteNotification( &mImpl->animationFinishedNotifier );
   }
+  traceEnd(TTRACE_TAG_GRAPHICS);
 }
 
 void UpdateManager::ConstrainCustomObjects( BufferIndex bufferIndex )
@@ -858,20 +872,25 @@ void UpdateManager::UpdateRenderers( BufferIndex bufferIndex )
 
 void UpdateManager::UpdateNodes( BufferIndex bufferIndex )
 {
+  traceBegin(TTRACE_TAG_GRAPHICS, "Update-Initialize");
   mImpl->nodeDirtyFlags = NothingFlag;
 
   if ( !mImpl->root )
   {
     return;
   }
-
+  traceEnd(TTRACE_TAG_GRAPHICS);
   // Prepare resources, update shaders, update attachments, for each node
   // And add the renderers to the sorted layers. Start from root, which is also a layer
+ 
+  traceBegin(TTRACE_TAG_GRAPHICS, "Update-UpdateNodesAndAttachments-root");
   mImpl->nodeDirtyFlags = UpdateNodesAndAttachments( *( mImpl->root ),
                                                      bufferIndex,
                                                      mImpl->resourceManager,
                                                      mImpl->renderQueue );
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
+  traceBegin(TTRACE_TAG_GRAPHICS,"Update-UpdateNodesAndAttachments-systemLevelRoot");
   if ( mImpl->systemLevelRoot )
   {
     mImpl->nodeDirtyFlags |= UpdateNodesAndAttachments( *( mImpl->systemLevelRoot ),
@@ -879,12 +898,14 @@ void UpdateManager::UpdateNodes( BufferIndex bufferIndex )
                                                         mImpl->resourceManager,
                                                         mImpl->renderQueue );
   }
+  traceEnd(TTRACE_TAG_GRAPHICS);
 }
 
 unsigned int UpdateManager::Update( float elapsedSeconds,
                                     unsigned int lastVSyncTimeMilliseconds,
                                     unsigned int nextVSyncTimeMilliseconds )
 {
+  traceBegin(TTRACE_TAG_GRAPHICS, "Update-manager-step1");  
   const BufferIndex bufferIndex = mSceneGraphBuffers.GetUpdateBufferIndex();
 
   //Clear nodes/resources which were previously discarded
@@ -907,61 +928,96 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
   // Although the scene-graph may not require an update, we still need to synchronize double-buffered
   // values if the scene was updated in the previous frame.
-  if( updateScene || mImpl->previousUpdateScene )
+  traceEnd(TTRACE_TAG_GRAPHICS);
+
+  traceBegin(TTRACE_TAG_GRAPHICS, "Update-manager-step2");  
+ 
+  traceBegin(TTRACE_TAG_GRAPHICS, "step2-ResetProperties");
+   if( updateScene || mImpl->previousUpdateScene )
   {
     //Reset properties from the previous update
     ResetProperties( bufferIndex );
   }
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
+  traceBegin(TTRACE_TAG_GRAPHICS, "step2-ProcessMessages");
   //Process the queued scene messages
   mImpl->messageQueue.ProcessMessages( bufferIndex );
-
+  traceEnd(TTRACE_TAG_GRAPHICS);
+ 
+  traceBegin(TTRACE_TAG_GRAPHICS, "step2-PostProcessResources");
   //Post Process Ids of resources updated by renderer
   mImpl->resourceManager.PostProcessResources( bufferIndex );
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
+  traceBegin(TTRACE_TAG_GRAPHICS, "step2-ForwardCompiledShadersToEventThread");
   //Forward compiled shader programs to event thread for saving
   ForwardCompiledShadersToEventThread();
+  traceEnd(TTRACE_TAG_GRAPHICS);
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
+
+  traceBegin(TTRACE_TAG_GRAPHICS, "Update-manager-step3");  
   // Although the scene-graph may not require an update, we still need to synchronize double-buffered
   // renderer lists if the scene was updated in the previous frame.
   // We should not start skipping update steps or reusing lists until there has been two frames where nothing changes
   if( updateScene || mImpl->previousUpdateScene )
   {
+    traceBegin(TTRACE_TAG_GRAPHICS, "step3-animate"); 
     //Animate
     Animate( bufferIndex, elapsedSeconds );
+    traceEnd(TTRACE_TAG_GRAPHICS);
 
+    traceBegin(TTRACE_TAG_GRAPHICS, "step3-ConstrainCustomObjects");
     //Constraint custom objects
     ConstrainCustomObjects( bufferIndex );
+    traceEnd(TTRACE_TAG_GRAPHICS);
 
+    traceBegin(TTRACE_TAG_GRAPHICS, "step3-PrepareMaterials");     
     //Prepare materials and apply constraints to them
     PrepareMaterials( bufferIndex );
+    traceEnd(TTRACE_TAG_GRAPHICS);
 
+    traceBegin(TTRACE_TAG_GRAPHICS, "step3-sortedLayers-ClearRenderables-for-statement");
     //Clear the lists of renderable-attachments from the previous update
     for( size_t i(0); i<mImpl->sortedLayers.size(); ++i )
     {
       mImpl->sortedLayers[i]->ClearRenderables();
     }
+    traceEnd(TTRACE_TAG_GRAPHICS);
 
+    traceBegin(TTRACE_TAG_GRAPHICS, "step3-systemLevelSortedLayers-ClearRenderables-for-statement");
     for( size_t i(0); i<mImpl->systemLevelSortedLayers.size(); ++i )
     {
       mImpl->systemLevelSortedLayers[i]->ClearRenderables();
     }
+    traceEnd(TTRACE_TAG_GRAPHICS);
 
     //Update node hierarchy, apply constraints and perform sorting / culling.
     //This will populate each Layer with a list of renderers which are ready.
+    
+    traceBegin(TTRACE_TAG_GRAPHICS, "step3-UpdateNodes");
     UpdateNodes( bufferIndex );
+    traceEnd(TTRACE_TAG_GRAPHICS);
 
+    traceBegin(TTRACE_TAG_GRAPHICS, "step3-apply-constraints");
     //Apply constraints to RenderTasks, shaders and geometries
     ConstrainRenderTasks( bufferIndex );
     ConstrainShaders( bufferIndex );
     mImpl->geometries.ConstrainObjects( bufferIndex );
+    traceEnd(TTRACE_TAG_GRAPHICS);
 
+    traceBegin(TTRACE_TAG_GRAPHICS, "step3-Update-renders-and-apply-constraints");
     //Update renderers and apply constraints
     UpdateRenderers( bufferIndex );
+    traceEnd(TTRACE_TAG_GRAPHICS);
 
+    traceBegin(TTRACE_TAG_GRAPHICS, "step3-ProcessPropertyNotifications");
     //Process Property Notifications
     ProcessPropertyNotifications( bufferIndex );
+    traceEnd(TTRACE_TAG_GRAPHICS);
 
+    traceBegin(TTRACE_TAG_GRAPHICS, "step3-ProcessRenderTasks");
     //Process the RenderTasks; this creates the instructions for rendering the next frame.
     //reset the update buffer index and make sure there is enough room in the instruction container
     mImpl->renderInstructions.ResetAndReserve( bufferIndex,
@@ -987,8 +1043,11 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
                              mImpl->renderInstructions );
       }
     }
+    traceEnd(TTRACE_TAG_GRAPHICS);
   }
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
+  traceBegin(TTRACE_TAG_GRAPHICS, "Update-manager-step4");  
   // check the countdown and notify (note, at the moment this is only done for normal tasks, not for systemlevel tasks)
   bool doRenderOnceNotify = false;
   mImpl->renderTaskWaiting = false;
@@ -1017,7 +1076,8 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
     DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "Notify a render task has finished\n");
     mImpl->notificationManager.QueueCompleteNotification( mImpl->taskList.GetCompleteNotificationInterface() );
   }
-
+  traceEnd(TTRACE_TAG_GRAPHICS);
+  traceBegin(TTRACE_TAG_GRAPHICS, "Update-manager-step5");  
   // Macro is undefined in release build.
   SNAPSHOT_NODE_LOGGING;
 
@@ -1032,7 +1092,7 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
 
   // The update has finished; swap the double-buffering indices
   mSceneGraphBuffers.Swap();
-
+  traceEnd(TTRACE_TAG_GRAPHICS);
   return keepUpdating;
 }
 

@@ -23,7 +23,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
-
+#include <ttrace.h>
 namespace
 {
 /**
@@ -71,11 +71,14 @@ Debug::Filter* gGlLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_CON
 void CheckGlError( Integration::GlAbstraction& glAbstraction, const char* operation )
 {
   bool foundError = false;
+  
+  traceBegin(TTRACE_TAG_GRAPHICS, "Gl-call-debug CheckGlError glAbstraction.GetError"); 
   while( GLint error = glAbstraction.GetError() )
   {
     DALI_LOG_ERROR( "glError (0x%x) %s - after %s\n",  error, ErrorToString( error ), operation );
     foundError = true;
   }
+  traceEnd(TTRACE_TAG_GRAPHICS);
   DALI_ASSERT_ALWAYS( !foundError && "GL ERROR" ); // if errors are being checked we should assert
 }
 

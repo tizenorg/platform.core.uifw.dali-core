@@ -40,7 +40,7 @@
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/internal/render/renderers/render-sampler.h>
 #include <dali/internal/render/shaders/program-controller.h>
-
+#include <ttrace.h>
 namespace Dali
 {
 
@@ -430,6 +430,8 @@ ProgramCache* RenderManager::GetProgramCache()
 
 bool RenderManager::Render( Integration::RenderStatus& status )
 {
+  traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step1"); 
+
   DALI_PRINT_RENDER_START( mImpl->renderBufferIndex );
 
   // Core::Render documents that GL context must be current before calling Render
@@ -442,38 +444,60 @@ bool RenderManager::Render( Integration::RenderStatus& status )
 
   // Process messages queued during previous update
   mImpl->renderQueue.ProcessMessages( mImpl->renderBufferIndex );
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
+  traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2");	
   // No need to make any gl calls if we've done 1st glClear & don't have any renderers to render during startup.
   if( !mImpl->firstRenderCompleted || mImpl->renderersAdded )
   {
     // switch rendering to adaptor provided (default) buffer
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 context.BindFramebuffer"); 
     mImpl->context.BindFramebuffer( GL_FRAMEBUFFER, 0 );
+	traceEnd(TTRACE_TAG_GRAPHICS);
 
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 context.Viewport"); 
     mImpl->context.Viewport( mImpl->defaultSurfaceRect.x,
                              mImpl->defaultSurfaceRect.y,
                              mImpl->defaultSurfaceRect.width,
                              mImpl->defaultSurfaceRect.height );
+	traceEnd(TTRACE_TAG_GRAPHICS);
 
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 context.ClearColor"); 
     mImpl->context.ClearColor( mImpl->backgroundColor.r,
                                mImpl->backgroundColor.g,
                                mImpl->backgroundColor.b,
                                mImpl->backgroundColor.a );
+	traceEnd(TTRACE_TAG_GRAPHICS);
 
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 context.ClearStencil"); 
     mImpl->context.ClearStencil( 0 );
+	traceEnd(TTRACE_TAG_GRAPHICS);
 
     // Clear the entire color, depth and stencil buffers for the default framebuffer.
     // It is important to clear all 3 buffers, for performance on deferred renderers like Mali
     // e.g. previously when the depth & stencil buffers were NOT cleared, it caused the DDK to exceed a "vertex count limit",
     // and then stall. That problem is only noticeable when rendering a large number of vertices per frame.
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 context.SetScissorTest"); 
     mImpl->context.SetScissorTest( false );
+	traceEnd(TTRACE_TAG_GRAPHICS);
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 context.ColorMask"); 
     mImpl->context.ColorMask( true );
+	traceEnd(TTRACE_TAG_GRAPHICS);
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 context.DepthMask"); 
     mImpl->context.DepthMask( true );
+	traceEnd(TTRACE_TAG_GRAPHICS);
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 context.StencilMask"); 
     mImpl->context.StencilMask( 0xFF ); // 8 bit stencil mask, all 1's
+	traceEnd(TTRACE_TAG_GRAPHICS);
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 context.Clear"); 
     mImpl->context.Clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,  Context::FORCE_CLEAR );
+	traceEnd(TTRACE_TAG_GRAPHICS);
 
     // reset the program matrices for all programs once per frame
     // this ensures we will set view and projection matrix once per program per camera
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 programController.ResetProgramMatrices"); 
     mImpl->programController.ResetProgramMatrices();
+	traceEnd(TTRACE_TAG_GRAPHICS);
 
     // if we don't have default shader, no point doing the render calls
     if( mImpl->defaultShader )
@@ -481,27 +505,45 @@ bool RenderManager::Render( Integration::RenderStatus& status )
       size_t count = mImpl->instructions.Count( mImpl->renderBufferIndex );
       for ( size_t i = 0; i < count; ++i )
       {
+        traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 instructions.At"); 
         RenderInstruction& instruction = mImpl->instructions.At( mImpl->renderBufferIndex, i );
+		traceEnd(TTRACE_TAG_GRAPHICS);
 
+		traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 defaultShader"); 
         DoRender( instruction, *mImpl->defaultShader );
+		traceEnd(TTRACE_TAG_GRAPHICS);
 
+		traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 instruction.RenderListCount"); 
         const RenderListContainer::SizeType countRenderList = instruction.RenderListCount();
         if ( countRenderList > 0 )
         {
           status.SetHasRendered( true );
         }
+		traceEnd(TTRACE_TAG_GRAPHICS);
+
       }
       GLenum attachments[] = { GL_DEPTH, GL_STENCIL };
+
+	  traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 InvalidateFramebuffer"); 
       mImpl->context.InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
+	  traceEnd(TTRACE_TAG_GRAPHICS);
 
+
+	  traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 UpdateTrackers"); 
       mImpl->UpdateTrackers();
+	  traceEnd(TTRACE_TAG_GRAPHICS);
 
+	  traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step2 firstRenderCompleted"); 
       mImpl->firstRenderCompleted = true;
+	  traceEnd(TTRACE_TAG_GRAPHICS);
     }
   }
 
+  traceEnd(TTRACE_TAG_GRAPHICS);
+
   // check if anything has been posted to the update thread
   bool updateRequired = !mImpl->resourcePostProcessQueue[ mImpl->renderBufferIndex ].empty();
+  traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager Render() step3");	
 
   //Notify RenderGeometries that rendering has finished
   for ( RenderGeometryOwnerIter iter = mImpl->renderGeometryContainer.Begin(); iter != mImpl->renderGeometryContainer.End(); ++iter )
@@ -517,30 +559,40 @@ bool RenderManager::Render( Integration::RenderStatus& status )
   mImpl->renderBufferIndex = (0 != mImpl->renderBufferIndex) ? 0 : 1;
 
   DALI_PRINT_RENDER_END();
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
   return updateRequired;
 }
 
 void RenderManager::DoRender( RenderInstruction& instruction, Shader& defaultShader )
 {
+
   Rect<int> viewportRect;
   Vector4   clearColor;
 
   if ( instruction.mIsClearColorSet )
   {
+    traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() mClearColor"); 
     clearColor = instruction.mClearColor;
+	traceEnd(TTRACE_TAG_GRAPHICS);
+
   }
   else
   {
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() Dali::RenderTask::DEFAULT_CLEAR_COLOR"); 
     clearColor = Dali::RenderTask::DEFAULT_CLEAR_COLOR;
+	traceEnd(TTRACE_TAG_GRAPHICS);
   }
 
   FrameBufferTexture* offscreen = NULL;
 
   if ( instruction.mOffscreenTextureId != 0 )
   {
+    traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() GetFramebuffer"); 
     offscreen = mImpl->textureCache.GetFramebuffer( instruction.mOffscreenTextureId );
-    DALI_ASSERT_DEBUG( NULL != offscreen );
+	traceEnd(TTRACE_TAG_GRAPHICS);
+
+	DALI_ASSERT_DEBUG( NULL != offscreen );
 
     if( NULL != offscreen &&
         offscreen->Prepare() )
@@ -549,12 +601,16 @@ void RenderManager::DoRender( RenderInstruction& instruction, Shader& defaultSha
       if ( instruction.mIsViewportSet )
       {
         // For glViewport the lower-left corner is (0,0)
-        const int y = ( offscreen->GetHeight() - instruction.mViewport.height ) - instruction.mViewport.y;
+		traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() if NULL != offscreen&&offscreen->Prepare() viewportRect.set with instruction"); 
+		const int y = ( offscreen->GetHeight() - instruction.mViewport.height ) - instruction.mViewport.y;
         viewportRect.Set( instruction.mViewport.x,  y, instruction.mViewport.width, instruction.mViewport.height );
+		traceEnd(TTRACE_TAG_GRAPHICS);
       }
       else
       {
+        traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() viewportRect.set with offscreen"); 
         viewportRect.Set( 0, 0, offscreen->GetWidth(), offscreen->GetHeight() );
+		traceEnd(TTRACE_TAG_GRAPHICS);
       }
     }
     else
@@ -566,54 +622,79 @@ void RenderManager::DoRender( RenderInstruction& instruction, Shader& defaultSha
   else // !(instruction.mOffscreenTexture)
   {
     // switch rendering to adaptor provided (default) buffer
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() context.BindFramebuffer"); 
     mImpl->context.BindFramebuffer( GL_FRAMEBUFFER, 0 );
+	traceEnd(TTRACE_TAG_GRAPHICS);
 
     // Check whether a viewport is specified, otherwise the full surface size is used
     if ( instruction.mIsViewportSet )
     {
       // For glViewport the lower-left corner is (0,0)
+	  traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() else viewportRect.set with instruction"); 
       const int y = ( mImpl->defaultSurfaceRect.height - instruction.mViewport.height ) - instruction.mViewport.y;
       viewportRect.Set( instruction.mViewport.x,  y, instruction.mViewport.width, instruction.mViewport.height );
+	  traceEnd(TTRACE_TAG_GRAPHICS);
     }
     else
     {
+      traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() mImpl->defaultSurfaceRect "); 
       viewportRect = mImpl->defaultSurfaceRect;
+	  traceEnd(TTRACE_TAG_GRAPHICS);
     }
   }
 
+  traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() context.Viewport"); 
   mImpl->context.Viewport(viewportRect.x, viewportRect.y, viewportRect.width, viewportRect.height);
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
   if ( instruction.mIsClearColorSet )
   {
+    traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() context.ClearColor"); 
     mImpl->context.ClearColor( clearColor.r,
                                clearColor.g,
                                clearColor.b,
                                clearColor.a );
+	traceEnd(TTRACE_TAG_GRAPHICS);
 
     // Clear the viewport area only
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() context.SetScissorTest"); 
     mImpl->context.SetScissorTest( true );
+	traceEnd(TTRACE_TAG_GRAPHICS);
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() context.Scissor"); 
     mImpl->context.Scissor( viewportRect.x, viewportRect.y, viewportRect.width, viewportRect.height );
+	traceEnd(TTRACE_TAG_GRAPHICS);
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() context.ColorMask"); 
     mImpl->context.ColorMask( true );
+	traceEnd(TTRACE_TAG_GRAPHICS);
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() context.Clear"); 
     mImpl->context.Clear( GL_COLOR_BUFFER_BIT , Context::CHECK_CACHED_VALUES );
+	traceEnd(TTRACE_TAG_GRAPHICS);
+	traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() context.SetScissorTest"); 
     mImpl->context.SetScissorTest( false );
+	traceEnd(TTRACE_TAG_GRAPHICS);
   }
-
+  traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() Render::ProcessRenderInstruction"); 
   Render::ProcessRenderInstruction( instruction,
                                     mImpl->context,
                                     mImpl->textureCache,
                                     defaultShader,
                                     mImpl->renderBufferIndex );
+  traceEnd(TTRACE_TAG_GRAPHICS);
 
   if(instruction.mOffscreenTextureId != 0)
   {
+    traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() context.InvalidateFramebuffer"); 
     GLenum attachments[] = { GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT };
     mImpl->context.InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
+	traceEnd(TTRACE_TAG_GRAPHICS);
   }
 
   if( instruction.mRenderTracker && offscreen != NULL )
   {
+    traceBegin(TTRACE_TAG_GRAPHICS, "Render-manager DoRender() mRenderTracker->CreateSyncObject"); 
     instruction.mRenderTracker->CreateSyncObject( mImpl->glSyncAbstraction );
     instruction.mRenderTracker = NULL; // Only create once.
+	traceEnd(TTRACE_TAG_GRAPHICS);
   }
 }
 

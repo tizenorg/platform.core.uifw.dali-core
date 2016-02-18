@@ -66,6 +66,11 @@ AC_ARG_ENABLE([gles],
               [enable_gles=$enableval],
               [enable_gles=20])
 
+
+PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available]),
+                  [ AC_MSG_NOTICE([Tizen Trace not avaiable]) ]
+                  )
+
 DALI_CFLAGS="$DALI_CFLAGS -DDALI_GLES_VERSION=${enable_gles}"
 
 if test "x$enable_debug" = "xyes"; then

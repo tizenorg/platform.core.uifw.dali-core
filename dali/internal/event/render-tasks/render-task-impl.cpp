@@ -58,6 +58,7 @@ DALI_PROPERTY_TABLE_BEGIN
 DALI_PROPERTY( "viewportPosition",   VECTOR2,    true,    true,    true,    Dali::RenderTask::Property::VIEWPORT_POSITION )
 DALI_PROPERTY( "viewportSize",       VECTOR2,    true,    true,    true,    Dali::RenderTask::Property::VIEWPORT_SIZE     )
 DALI_PROPERTY( "clearColor",         VECTOR4,    true,    true,    true,    Dali::RenderTask::Property::CLEAR_COLOR       )
+DALI_PROPERTY( "requiresSync",       BOOLEAN,    true,    false,   false,   Dali::RenderTask::Property::REQUIRES_SYNC     )
 DALI_PROPERTY_TABLE_END( DEFAULT_OBJECT_PROPERTY_START_INDEX )
 
 // Signals
@@ -621,6 +622,11 @@ Property::Value RenderTask::GetDefaultProperty(Property::Index index) const
     case Dali::RenderTask::Property::CLEAR_COLOR:
     {
       value = GetClearColor();
+      break;
+    }
+    case Dali::RenderTask::Property::REQUIRES_SYNC:
+    {
+      value = IsSyncRequired();
       break;
     }
 

@@ -445,6 +445,7 @@ private:
   bool mClearEnabled  : 1; ///< True if the render-task should be clear the color buffer.
   bool mCullMode      : 1; ///< True if the render-task's actors should be culled
   bool mIsSystemLevel : 1; ///< True if the render-task is on the system level task list.
+  bool mRequiresSync  : 1; ///< True if the GL sync is required to track the render of
 
   //Signals
   Dali::RenderTask::RenderTaskSignalType  mSignalFinished; ///< Signal emmited when the render task has been processed.

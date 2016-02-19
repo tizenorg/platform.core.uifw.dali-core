@@ -333,6 +333,11 @@ public:
    */
   Node* GetCamera() const;
 
+  /**
+   * Set whether GL sync is required for native render target.
+   */
+  void RequireSync( bool requiresSync );
+
 private:
 
   /**
@@ -380,6 +385,7 @@ private:
 
   unsigned int mRenderedOnceCounter;  ///< Incremented whenever state changes to RENDERED_ONCE_AND_NOTIFIED
   bool mTargetIsNativeFramebuffer; ///< Tells if our target is a native framebuffer
+  bool mRequiresSync;              ///< Whether sync is needed to track the render
 
 };
 
@@ -488,6 +494,17 @@ inline void SetExclusiveMessage( EventThreadServices& eventThreadServices, Rende
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &task, &RenderTask::SetExclusive, exclusive );
+}
+
+inline void RequireSyncMessage(EventThreadServices& eventThreadServices, RenderTask& task, bool requiresSync )
+{
+  typedef MessageValue1< RenderTask, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &task, &RenderTask::RequireSync, requiresSync );
 }
 
 inline void BakeViewportPositionMessage( EventThreadServices& eventThreadServices, const RenderTask& task, const Vector2& value )

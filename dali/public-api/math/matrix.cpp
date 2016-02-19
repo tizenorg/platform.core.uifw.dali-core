@@ -425,6 +425,46 @@ void Matrix::Multiply( Matrix& result, const Matrix& lhs, const Quaternion& rhs 
 #endif
 }
 
+void Matrix::Multiply(Vector4& result, const Matrix& lhs, const Vector4& rhs)
+{
+  MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,16);
+
+  const float *matrix = &lhs.mMatrix[0];
+
+#ifndef  __ARM_NEON__
+
+  result.x = rhs.x * matrix[0] + rhs.y * matrix[4] + rhs.z * matrix[8]  +  rhs.w * matrix[12];
+  result.y = rhs.x * matrix[1] + rhs.y * matrix[5] + rhs.z * matrix[9]  +  rhs.w * matrix[13];
+  result.z = rhs.x * matrix[2] + rhs.y * matrix[6] + rhs.z * matrix[10] +  rhs.w * matrix[14];
+  result.w = rhs.x * matrix[3] + rhs.y * matrix[7] + rhs.z * matrix[11] +  rhs.w * matrix[15];
+
+#else
+
+  // 64 32bit registers,
+  // aliased to
+  // d = 64 bit double-word d0 -d31
+  // q =128 bit quad-word   q0 -q15  (enough to handle a column of 4 floats in a matrix)
+  // e.g. q0 = d0 and d1
+  // load and stores interleaved as NEON can load and store while calculating
+  asm volatile ( "VLD1.F32     {q0}, [%1]        \n\t"   //q0 = rhs
+                 "VLD1.F32     {q9}, [%0]!       \n\t"
+                 "VMUL.F32     q10,  q9,   d0[0] \n\t"
+                 "VLD1.F32     {q9}, [%0]!       \n\t"
+                 "VMLA.F32     q10,  q9,   d0[1] \n\t"   //q10 = mMatrix[0..3] * rhs + mMatrix[4..7] * rhs
+                 "VLD1.F32     {q9}, [%0]!       \n\t"
+                 "VMUL.F32     q11,  q9,   d1[0] \n\t"
+                 "VLD1.F32     {q9}, [%0]!       \n\t"
+                 "VMLA.F32     q11,  q9,   d1[1] \n\t"   //q11 = mMatrix[8..11] * rhs + mMatrix[12..15] * rhs
+                 "VADD.F32     q10,  q10,  q11   \n\t"
+                 "VST1.F32     {q10},[%2]        \n\t"   //temp = q10 + q11
+                 :
+                 : "r"(mMatrix), "r"(&rhs), "r"(&temp)
+                 : "q0", "q9", "q10", "q11", "memory" );
+#endif
+}
+
+
+
 Vector4 Matrix::operator*(const Vector4& rhs) const
 {
   MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,16);

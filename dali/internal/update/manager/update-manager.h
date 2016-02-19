@@ -427,6 +427,14 @@ public:
    */
   void SetPropertyBufferSize(Render::PropertyBuffer* propertyBuffer, size_t size );
 
+  /**
+   * Sets the offset of an existing property buffer
+   * @param[in] propertyBuffer The property buffer.
+   * @param[in] offset The new offset of the buffer
+   * @post Sends a message to RenderManager to set the new offset to the property buffer.
+   */
+  void SetPropertyBufferOffset(Render::PropertyBuffer* propertyBuffer, unsigned int offset );
+
 public:
 
   /**
@@ -985,6 +993,17 @@ inline void SetPropertyBufferSize( UpdateManager& manager, Render::PropertyBuffe
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &manager, &UpdateManager::SetPropertyBufferSize, &propertyBuffer, size );
+}
+
+inline void SetPropertyBufferOffset( UpdateManager& manager, Render::PropertyBuffer& propertyBuffer, unsigned int offset )
+{
+  typedef MessageValue2< UpdateManager, Render::PropertyBuffer*, unsigned int  > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::SetPropertyBufferOffset, &propertyBuffer, offset );
 }
 
 

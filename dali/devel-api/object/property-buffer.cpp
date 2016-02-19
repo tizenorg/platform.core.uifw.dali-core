@@ -74,6 +74,16 @@ void PropertyBuffer::SetData( const void* data )
   GetImplementation(*this).SetData( data );
 }
 
+void PropertyBuffer::SetOffset( unsigned int offset )
+{
+  GetImplementation(*this).SetOffset( offset );
+}
+
+unsigned int PropertyBuffer::GetOffset()
+{
+  return GetImplementation(*this).GetOffset();
+}
+
 PropertyBuffer::PropertyBuffer( Internal::PropertyBuffer* pointer )
 : BaseHandle( pointer )
 {

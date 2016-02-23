@@ -119,6 +119,11 @@ void Renderer::GetBlendEquation( BlendingEquation::Type& equationRgb,
   GetImplementation(*this).GetBlendEquation( equationRgb, equationAlpha );
 }
 
+void Renderer::SetIndicesRange( size_t offset, size_t length )
+{
+  GetImplementation(*this).SetIndicesRange( offset, length );
+}
+
 Renderer::Renderer( Internal::Renderer* pointer )
 : Handle( pointer )
 {

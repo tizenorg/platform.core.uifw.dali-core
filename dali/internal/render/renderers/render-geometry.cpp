@@ -116,7 +116,9 @@ void RenderGeometry::OnRenderFinished()
 void RenderGeometry::UploadAndDraw(
     Context& context,
     BufferIndex bufferIndex,
-    Vector<GLint>& attributeLocation )
+    Vector<GLint>& attributeLocation,
+    size_t elementOffset,
+    size_t elementLength )
 {
   if( !mHasBeenUpdated )
   {
@@ -159,7 +161,7 @@ void RenderGeometry::UploadAndDraw(
   unsigned int numIndices(0u);
   if( mIndexBuffer )
   {
-    numIndices = mIndexBuffer->GetDataSize() / mIndexBuffer->GetElementSize();
+    numIndices = elementLength ? elementLength : mIndexBuffer->GetDataSize() / mIndexBuffer->GetElementSize();
   }
 
   //Draw call
@@ -169,7 +171,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT,  (void*)elementOffset );
       }
       else
       {
@@ -182,7 +184,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_LINES, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_LINES, numIndices, GL_UNSIGNED_SHORT, (void*)elementOffset );
       }
       else
       {
@@ -201,7 +203,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, (void*)elementOffset );
       }
       else
       {
@@ -214,7 +216,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, (void*)elementOffset );
       }
       else
       {

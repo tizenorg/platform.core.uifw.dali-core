@@ -96,7 +96,8 @@ enum Flags
   RESEND_FACE_CULLING_MODE = 1 << 2,
   RESEND_BLEND_COLOR = 1 << 3,
   RESEND_BLEND_BIT_MASK = 1 << 4,
-  RESEND_PREMULTIPLIED_ALPHA = 1 << 5
+  RESEND_PREMULTIPLIED_ALPHA = 1 << 5,
+  RESEND_ELEMENTS_RANGE = 1 << 6,
 };
 
 }
@@ -127,7 +128,11 @@ Renderer::Renderer()
  mResendFlag(0),
  mResourcesReady(false),
  mFinishedResourceAcquisition(false),
- mDepthIndex(0)
+ mBatchable(false),
+ mElementOffset( 0 ),
+ mElementLength( 0 ),
+ mDepthIndex(0),
+ mNode(NULL)
 {
   mUniformMapChanged[0]=false;
   mUniformMapChanged[1]=false;
@@ -263,6 +268,14 @@ void Renderer::PrepareRender( BufferIndex updateBufferIndex )
     new (slot) DerivedType( mRenderer, &Render::Renderer::EnablePreMultipliedAlpha, mPremultipledAlphaEnabled );
     mResendFlag &= ~RESEND_PREMULTIPLIED_ALPHA;
   }
+
+  if( mResendFlag & RESEND_ELEMENTS_RANGE  )
+  {
+    typedef MessageValue2< Render::Renderer, size_t, size_t > DerivedType;
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    new (slot) DerivedType( mRenderer, &Render::Renderer::SetElementsRange, mElementOffset, mElementLength );
+    mResendFlag &= ~RESEND_ELEMENTS_RANGE;
+  }
 }
 
 void Renderer::SetMaterial( BufferIndex bufferIndex, Material* material)
@@ -339,6 +352,20 @@ void Renderer::EnablePreMultipliedAlpha( bool preMultipled )
   mPremultipledAlphaEnabled = preMultipled;
   mResendFlag |= RESEND_PREMULTIPLIED_ALPHA;
 }
+
+void Renderer::SetBatchable( bool batchable )
+{
+  mBatchable = batchable;
+  //mResendFlag |= RESEND_PREMULTIPLIED_ALPHA;
+}
+
+void Renderer::SetElementRange( size_t offset, size_t length )
+{
+  mElementOffset = offset;
+  mElementLength = length;
+  mResendFlag |= RESEND_ELEMENTS_RANGE;
+}
+
 
 //Called when a node with this renderer is added to the stage
 void Renderer::OnStageConnect()

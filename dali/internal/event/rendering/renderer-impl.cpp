@@ -50,6 +50,7 @@ DALI_PROPERTY( "sourceBlendFactorAlpha",          INTEGER,   true, false,  false
 DALI_PROPERTY( "destinationBlendFactorAlpha",     INTEGER,   true, false,  false, Dali::Renderer::Property::BLENDING_DEST_FACTOR_ALPHA )
 DALI_PROPERTY( "blendingColor",                   VECTOR4,   true, false,  false, Dali::Renderer::Property::BLENDING_COLOR )
 DALI_PROPERTY( "blendPreMultipliedAlpha",         BOOLEAN,   true, false,  false, Dali::Renderer::Property::BLEND_PRE_MULTIPLIED_ALPHA )
+DALI_PROPERTY( "batchable",                       BOOLEAN,   true, false,  false, Dali::Renderer::Property::BATCHABLE )
 DALI_PROPERTY_TABLE_END( DEFAULT_OBJECT_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> RENDERER_IMPL = { DEFAULT_PROPERTY_DETAILS };
@@ -224,6 +225,24 @@ void Renderer::EnablePreMultipliedAlpha( bool preMultipled )
 bool Renderer::IsPreMultipliedAlphaEnabled() const
 {
   return mPremultipledAlphaEnabled;
+}
+
+void Renderer::SetBatchable( bool value )
+{
+  mBatchable = value;
+  SetBatchableMessage( GetEventThreadServices(), *mSceneObject, mBatchable );
+}
+
+bool Renderer::IsBatchable() const
+{
+  return mBatchable;
+}
+
+void Renderer::SetIndicesRange( size_t offset, size_t length )
+{
+  mElementOffset = offset;
+  mElementLength = length;
+  SetIndicesRangeMesssage( GetEventThreadServices(), *mSceneObject, offset, length );
 }
 
 SceneGraph::Renderer* Renderer::GetRendererSceneObject()
@@ -407,6 +426,15 @@ void Renderer::SetDefaultProperty( Property::Index index,
       }
       break;
     }
+    case Dali::Renderer::Property::BATCHABLE:
+    {
+      bool batchable;
+      if( propertyValue.Get( batchable ) )
+      {
+        SetBatchable( batchable );
+      }
+      break;
+    }
   }
 }
 
@@ -505,6 +533,11 @@ Property::Value Renderer::GetDefaultProperty( Property::Index index ) const
       value = IsPreMultipliedAlphaEnabled();
       break;
     }
+    case Dali::Renderer::Property::BATCHABLE:
+    {
+      value = mBatchable;
+      break;
+    }
   }
   return value;
 }
@@ -593,7 +626,10 @@ Renderer::Renderer()
   mFaceCullingMode(Dali::Renderer::NONE),
   mBlendingMode( Dali::BlendingMode::AUTO ),
   mBlendingOptions(),
-  mPremultipledAlphaEnabled( false )
+  mPremultipledAlphaEnabled( false ),
+  mBatchable(false),
+  mElementOffset( 0 ),
+  mElementLength( 0 )
 {
 }
 

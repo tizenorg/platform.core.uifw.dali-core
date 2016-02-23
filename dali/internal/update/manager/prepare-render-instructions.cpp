@@ -35,6 +35,9 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/render/renderers/render-property-buffer.h>
+
+#include <cstdio>
 
 namespace
 {
@@ -119,6 +122,9 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
       {
         item.SetDepthIndex( renderable.mRenderer->GetDepthIndex() + static_cast<int>( renderable.mNode->GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER );
       }
+      // save model matrix
+      item.GetModelMatrix() = worldMatrix;
+
       // save MV matrix onto the item
       Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
     }
@@ -345,6 +351,14 @@ inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, La
   }
 }
 
+struct BatchTEntry
+{
+  BatchTEntry( const Matrix& m, const Vector< char >& b )
+    : mTransformatrix(m), mBackup( b ) {}
+  Matrix mTransformatrix;
+  Vector< char > mBackup;
+  Node* mNode;
+};
 /**
  * Add color renderers from the layer onto the next free render list
  * @param updateBufferIndex to use
@@ -367,6 +381,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                bool tryReuseRenderList,
                                bool cull)
 {
+  tryReuseRenderList = false;
   RenderList& renderList = instruction.GetNextFreeRenderList( layer.colorRenderables.Size() );
   renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
   renderList.SetHasColorRenderItems( true );
@@ -408,6 +423,183 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
     flags |= RenderList::DEPTH_CLEAR;
   }
 
+  // analyze stuff for baaaatching after sorting
+  //int count = renderList.Count();
+
+  int numBatches(0);
+  int perBatch(0);
+  int notBatched(0);
+
+  struct BatchKey
+  {
+    Material*     prevBatchMaterial;
+    Geometry*     prevBatchGeometry;
+    Node*         prevBatchParent;
+
+    BatchKey( Material* m = 0, Geometry* g = 0, Node* b = 0 ) :
+      prevBatchMaterial(m),
+      prevBatchGeometry(g),
+      prevBatchParent(b)
+    {}
+
+    bool operator==(const BatchKey& key)
+    {
+      return key.prevBatchMaterial == prevBatchMaterial &&
+          key.prevBatchGeometry == prevBatchGeometry &&
+          key.prevBatchParent == prevBatchParent;
+    }
+
+    bool operator!()
+    {
+      return !prevBatchMaterial || !prevBatchGeometry || !prevBatchParent;
+    }
+
+  };
+
+
+
+  typedef std::map<Render::PropertyBuffer*, BatchTEntry*> BatchTMap;
+  BatchTMap bmap;
+  BatchKey prevKey;
+  RenderItemContainer& container = renderList.GetContainer();
+  int size = container.Size();
+  printf("FRAME START [ %d ] --------------------------------------\n", size);
+  //for(int i = 0; i < 1; ++i)
+  //{
+
+    for(int j = 0; j < size; ++j )
+    {
+      RenderItem* item = container[j];
+      item->mSkipIfBatched = false;
+      //const Render::Renderer& renderer = item->GetRenderer();
+
+      Node& node = const_cast<Node&>(item->GetNode());
+      Renderer* sg_renderer = node.GetRendererAt(0);
+      //Render::Renderer* gr_renderer = &item->GetRenderer();
+
+      if( sg_renderer->IsBatchable() )
+      {
+        BatchKey currKey(
+              &sg_renderer->GetMaterial(),
+              &sg_renderer->GetGeometry(),
+              node.GetBatchParent());
+
+        if(!prevKey)
+        {
+          prevKey = currKey;
+          perBatch = 1;
+        }
+        else
+        {
+          if(prevKey == currKey)
+          {
+            ++perBatch;
+            item->mSkipIfBatched = false;
+          }
+          else
+          {
+            printf("Batch %d: batched count: %d, parent = %p\n", numBatches, perBatch, prevKey.prevBatchParent );
+            ++numBatches;
+            prevKey = currKey;
+            perBatch = 1;
+          }
+        }
+
+        // transform geometry here
+        //if(!item->mSkipIfBatched )
+        {
+          if(node.GetBatchParent())
+          {
+            Render::PropertyBuffer* verts = sg_renderer->GetGeometry().GetVertexBuffers()[0];
+            if( verts->GetFormat() )
+            {
+              // get the matrix to transform vertices
+              Matrix nodeMatrix = node.GetWorldMatrix( updateBufferIndex );
+              Matrix parentMatrix = node.GetBatchParent()->GetWorldMatrix( updateBufferIndex );
+              Matrix invParentMatrix(parentMatrix);
+              invParentMatrix.Invert();
+              Matrix vertexMatrix = Matrix::IDENTITY;
+              Matrix::Multiply( vertexMatrix, nodeMatrix, invParentMatrix );
+
+              if( bmap.find( verts ) == bmap.end() )
+              {
+                bmap[ verts ] = new BatchTEntry( vertexMatrix, verts->GetData() );
+              }
+              //Matrix::Multiply( item->GetModelViewMatrix(), parentMatrix, *instruction.GetViewMatrix(updateBufferIndex));
+              //item->mBatchUpdated = true;
+              //printf("Updated: PropertyBuffer: %p ");
+              //Matrix::Multiply( item->GetModelViewMatrix(), parentMatrix, *instruction.GetViewMatrix(updateBufferIndex));
+            }
+          }
+        }
+      }
+      else
+      {
+        if(perBatch)
+        {
+          printf("Batch %d: batched count: %d, parent = %p\n", numBatches, perBatch, prevKey.prevBatchParent );
+
+          ++numBatches;
+        }
+        perBatch = 0;
+        prevKey = BatchKey();
+        ++notBatched;
+      }
+    }
+//  }
+
+    if(perBatch)
+    {
+      printf("Batch %d: batched count: %d, parent = %p\n", numBatches, perBatch, prevKey.prevBatchParent );
+    }
+  printf("Not batched: %d\n", notBatched );
+  printf("DRAW calls: batched: %d, not batched: %d\n", numBatches+notBatched, size);
+  puts("FRAME END ------------------------------------");
+
+  // transform buffers
+  BatchTMap::iterator it = bmap.begin();
+  BatchTMap::iterator end = bmap.end();
+
+  /*
+  printf("BMAP size: %d\n", (int)bmap.size() );
+  for(; it != end; ++it )
+  {
+    Render::PropertyBuffer* verts = it->first;
+    printf("Transforming: %p\n", verts);
+    BatchTEntry* ent = it->second;
+    Vector4* xyuv = (Vector4*)&verts->GetData()[0];
+    Vector4* xyuv_in = (Vector4*)&ent->mBackup[0];
+
+    if( ent->mBackup.Size() != verts->GetData().Size() )
+    {
+      puts("WORNG SIZE!!!!");
+    }
+
+    size_t esize = verts->GetElementCount();
+    Vector4 result;
+    float off = 0.0f;
+
+    for( size_t e = 0; e < esize; ++e )
+    {
+      if(e % 6 == 0 )
+      {
+        off += 1.0f;
+      }
+      Vector4& loc = xyuv_in[e];
+      Vector4& out = xyuv[e];
+      Vector4 pos( loc.x, loc.y, 0.0f, 1.0f );
+      Matrix::Multiply( result, ent->mTransformatrix, pos );
+      out.x = loc.x;
+      out.y = loc.y;
+
+    }
+
+    verts->UpdateData();
+
+  }
+  */
+
+  fflush(stdout);
   renderList.ClearFlags();
   renderList.SetFlags( flags );
 }

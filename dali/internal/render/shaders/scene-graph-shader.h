@@ -74,9 +74,8 @@ public:
   /**
    * Second stage initialization, called when added to the UpdateManager
    * @param renderQueue Used to queue messages from update to render thread.
-   * @param textureCache Used to retrieve effect textures when rendering.
    */
-  void Initialize( RenderQueue& renderQueue, TextureCache& textureCache );
+  void Initialize( RenderQueue& renderQueue );
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // The following methods are called during UpdateManager::Update()
@@ -248,20 +247,6 @@ public:
    */
   Program* GetProgram();
 
-  /**
-   * Sets the shader specific uniforms including custom uniforms
-   * @pre The shader has been initialized.
-   * @pre This method is not thread-safe, and should only be called from the render-thread.
-   * @param[in] context The context used to render.
-   * @param[in] program to use.
-   * @param[in] bufferIndex The buffer to read shader properties from.
-   * @param[in] type        the type of the object (geometry) that is being rendered.
-   * @param[in] subType     Identifier for geometry types with specialised default shaders
-   */
-  void SetUniforms( Context& context,
-                    Program& program,
-                    BufferIndex bufferIndex );
-
 private: // Data
 
   Dali::ShaderEffect::GeometryHints mGeometryHints;    ///< shader geometry hints for building the geometry
@@ -278,9 +263,6 @@ private: // Data
 
   // These members are only safe to access during UpdateManager::Update()
   RenderQueue*                   mRenderQueue;                   ///< Used for queuing a message for the next Render
-
-  // These members are only safe to access in render thread
-  TextureCache*                  mTextureCache; // Used for retrieving textures in the render thread
 };
 
 // Messages for Shader, to be processed in Update thread.

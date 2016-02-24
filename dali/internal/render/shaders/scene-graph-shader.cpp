@@ -80,8 +80,7 @@ Shader::Shader( Dali::ShaderEffect::GeometryHints& hints )
   mRenderTextureId( 0 ),
   mUpdateTextureId( 0 ),
   mProgram( NULL ),
-  mRenderQueue( NULL ),
-  mTextureCache( NULL )
+  mRenderQueue( NULL )
 {
 }
 
@@ -89,10 +88,9 @@ Shader::~Shader()
 {
 }
 
-void Shader::Initialize( RenderQueue& renderQueue, TextureCache& textureCache )
+void Shader::Initialize( RenderQueue& renderQueue )
 {
   mRenderQueue = &renderQueue;
-  mTextureCache = &textureCache;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -216,184 +214,6 @@ void Shader::SetProgram( Internal::ShaderDataPtr shaderData,
 Program* Shader::GetProgram()
 {
   return mProgram;
-}
-
-void Shader::SetUniforms( Context& context,
-                          Program& program,
-                          BufferIndex bufferIndex )
-{
-  if( mRenderTextureId && ( mTexture == NULL ) )
-  {
-    mTexture = mTextureCache->GetTexture( mRenderTextureId );
-
-    DALI_ASSERT_DEBUG( mTexture != NULL );
-  }
-
-  GLint loc = Program::UNIFORM_UNKNOWN;
-
-  if( mTexture )
-  {
-    // if effect sampler uniform used by the program ?
-    const GLint loc = program.GetUniformLocation( Program::UNIFORM_EFFECT_SAMPLER );
-    if( Program::UNIFORM_UNKNOWN != loc )
-    {
-      // got effect texture, bind it to texture unit 1
-      mTextureCache->BindTexture( mTexture, mRenderTextureId, GL_TEXTURE_2D, TEXTURE_UNIT_SHADER);
-
-      // Apply the default sampling options for now
-      mTexture->ApplySampler( TEXTURE_UNIT_SHADER, ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) );
-
-      DALI_PRINT_UNIFORM( debugStream, bufferIndex, "sEffect", TEXTURE_UNIT_SHADER );
-      // set the uniform
-      program.SetUniform1i( loc, TEXTURE_UNIT_SHADER );
-    }
-  }
-
-  // We should have one UniformMeta per uniform property
-  for ( unsigned int i = 0u; i < mUniformMetadata.Count(); ++i )
-  {
-    UniformMeta& metadata = *mUniformMetadata[i];
-    const PropertyBase& property = metadata.property;
-
-    // send the updated uniform to the program
-    if ( metadata.name.length() > 0 )
-    {
-      // 0 means program has not got a cache index for this uniform
-      if( 0 == metadata.cacheIndex )
-      {
-        // register cacheindex for this program
-        metadata.cacheIndex = program.RegisterUniform( metadata.name );
-      }
-      loc = program.GetUniformLocation( metadata.cacheIndex );
-
-      // if we find uniform with location
-      if ( Program::UNIFORM_UNKNOWN != loc )
-      {
-        DALI_PRINT_CUSTOM_UNIFORM( debugStream, bufferIndex, metadata.name, property );
-
-        // switch based on property type to use correct GL uniform setter
-        switch ( property.GetType() )
-        {
-          case Property::BOOLEAN :
-          {
-            program.SetUniform1i( loc, property.GetBoolean( bufferIndex ) );
-            break;
-          }
-          case Property::INTEGER :
-          {
-            program.SetUniform1i( loc, property.GetInteger( bufferIndex ) );
-            break;
-          }
-          case Property::FLOAT :
-          {
-            program.SetUniform1f( loc, property.GetFloat( bufferIndex ) );
-            break;
-          }
-          case Property::VECTOR2 :
-          {
-            Vector2 value( property.GetVector2( bufferIndex ) );
-
-            switch ( metadata.coordinateType )
-            {
-              case Dali::ShaderEffect::COORDINATE_TYPE_VIEWPORT_POSITION :
-              {
-                /**
-                 * Convert coordinates from viewport to GL view space
-                 *
-                 * Viewport coordinate
-                 * (0,0)
-                 *      +-----+
-                 *      |     |
-                 *      |     |
-                 *      +-----+
-                 *             (width,height)
-                 *
-                 * GL view space coordinates
-                 * (width/2,-height/2)
-                 *      +-----+
-                 *      |     |
-                 *      |     |
-                 *      +-----+
-                 *             (-width/2,height/2)
-                 **/
-                const Rect< int >& viewport = context.GetViewport();
-                value.x = viewport.width * 0.5f - value.x;
-                value.y = value.y - viewport.height * 0.5f;
-
-                break;
-              }
-              case Dali::ShaderEffect::COORDINATE_TYPE_VIEWPORT_DIRECTION :
-              {
-                // Check diagram in COORDINATE_TYPE_VIEWPORT_POSITION
-                value.x *= -1.0f;
-                break;
-              }
-              case Dali::ShaderEffect::COORDINATE_TYPE_DEFAULT :
-              {
-                // nothing to do in this case
-                break;
-              }
-              // no default so compiler will warn if a case is not handled
-            }
-
-            program.SetUniform2f( loc, value.x, value.y );
-            break;
-          }
-
-          case Property::VECTOR3 :
-          {
-            Vector3 value( property.GetVector3( bufferIndex ) );
-            if( Dali::ShaderEffect::COORDINATE_TYPE_VIEWPORT_DIRECTION == metadata.coordinateType)
-            {
-              value.y *= -1.0f;
-            }
-
-            program.SetUniform3f( loc, value.x, value.y, value.z );
-            break;
-          }
-
-          case Property::VECTOR4 :
-          {
-            Vector4 value( property.GetVector4( bufferIndex ) );
-            if( Dali::ShaderEffect::COORDINATE_TYPE_VIEWPORT_DIRECTION == metadata.coordinateType)
-            {
-              value.y *= -1.0f;
-            }
-
-            program.SetUniform4f( loc, value.x, value.y, value.z, value.w );
-            break;
-          }
-
-          case Property::MATRIX:
-          {
-            const Matrix& value = property.GetMatrix(bufferIndex);
-            program.SetUniformMatrix4fv(loc, 1, value.AsFloat() );
-            break;
-          }
-
-          case Property::MATRIX3:
-          {
-            const Matrix3& value = property.GetMatrix3(bufferIndex);
-            program.SetUniformMatrix3fv(loc, 1, value.AsFloat() );
-            break;
-          }
-
-          case Property::NONE:
-          case Property::ROTATION:
-          case Property::STRING:
-          case Property::RECTANGLE:
-          case Property::MAP:
-          case Property::ARRAY:
-          {
-            DALI_LOG_ERROR( "Invalid property type for a uniform" );
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  DALI_PRINT_SHADER_UNIFORMS(debugStream);
 }
 
 

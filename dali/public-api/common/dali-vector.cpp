@@ -44,15 +44,17 @@ VectorBase::SizeType VectorBase::Capacity() const
   return capacity;
 }
 
-
 void VectorBase::Release()
 {
   if( mData )
   {
     // adjust pointer to real beginning
     SizeType* metadata = reinterpret_cast< SizeType* >( mData );
-    // TODO would be nice to memset to a bitpattern to catch illegal use of container after release
-    // but that would require knowledge of the itemsize
+#if defined( DEBUG_ENABLED )
+    // in debug build this will help identify a vector that has been released
+    // we dont know the itemsize to just reset Capacity worth of bytes
+    memset( metadata, 0x55, Capacity() );
+#endif
     delete [] ( metadata - 2u );
     mData = 0u;
   }

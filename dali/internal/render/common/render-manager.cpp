@@ -220,7 +220,7 @@ void RenderManager::ContextDestroyed()
 
 void RenderManager::DispatchPostProcessRequest(ResourcePostProcessRequest& request)
 {
-  mImpl->resourcePostProcessQueue[ mImpl->renderBufferIndex ].push_back( request );
+  mImpl->resourcePostProcessQueue.PushBack( request );
 }
 
 void RenderManager::SetShaderSaver( ShaderSaver& upstream )
@@ -501,7 +501,7 @@ bool RenderManager::Render( Integration::RenderStatus& status )
   }
 
   // check if anything has been posted to the update thread
-  bool updateRequired = !mImpl->resourcePostProcessQueue[ mImpl->renderBufferIndex ].empty();
+  bool updateRequired = !mImpl->resourcePostProcessQueue.Empty();
 
   //Notify RenderGeometries that rendering has finished
   for ( RenderGeometryOwnerIter iter = mImpl->renderGeometryContainer.Begin(); iter != mImpl->renderGeometryContainer.End(); ++iter )

@@ -195,13 +195,16 @@ void ResourceManager::PostProcessResources( BufferIndex updateBufferIndex )
   DALI_ASSERT_DEBUG( mImpl->mResourceClient != NULL );
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::Verbose, "ResourceManager: PostProcessResources()\n");
 
-  unsigned int numIds = mImpl->mResourcePostProcessQueue[ updateBufferIndex ].size();
+  std::vector< ResourcePostProcessRequest > queue;
+  mImpl->mResourcePostProcessQueue.CopyAndClear( queue );
+
+  unsigned int numIds = queue.size();
   unsigned int i;
 
   // process the list where RenderManager put post process requests
   for (i = 0; i < numIds; ++i)
   {
-    ResourcePostProcessRequest ppRequest = mImpl->mResourcePostProcessQueue[ updateBufferIndex ][i];
+    ResourcePostProcessRequest ppRequest = queue[i];
     switch(ppRequest.postProcess)
     {
       case ResourcePostProcessRequest::UPLOADED:
@@ -216,8 +219,6 @@ void ResourceManager::PostProcessResources( BufferIndex updateBufferIndex )
       }
     }
   }
-
-  mImpl->mResourcePostProcessQueue[ updateBufferIndex ].clear();
 }
 
 

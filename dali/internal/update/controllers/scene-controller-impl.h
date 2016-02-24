@@ -43,12 +43,10 @@ public:
    * @param[in] rendererDispatcher Used for passing ownership of renderers to the render-thread.
    * @param[in] renderQueue  The renderQueue
    * @param[in] discardQueue The discardQueue
-   * @param[in] textureCache
    */
   SceneControllerImpl( RenderMessageDispatcher& renderMessageDispatcher,
                        RenderQueue& renderQueue,
-                       DiscardQueue& discardQueue,
-                       TextureCache& textureCache );
+                       DiscardQueue& discardQueue );
 
   /**
    * Destructor
@@ -72,11 +70,6 @@ public:  // from SceneController
    */
   virtual DiscardQueue& GetDiscardQueue() { return mDiscardQueue; }
 
-  /**
-   * @copydoc SceneController::GetTextureCache()
-   */
-  virtual TextureCache& GetTextureCache() { return mTextureCache; }
-
 private:
 
   // Undefined copy constructor.
@@ -90,8 +83,6 @@ private:
   RenderMessageDispatcher& mRenderMessageDispatcher;    ///< Used for passing messages to the render-thread
   RenderQueue&             mRenderQueue;           ///< render queue
   DiscardQueue&            mDiscardQueue;          ///< discard queue
-  TextureCache&            mTextureCache;          ///< texture cache
-
 };
 
 } // namespace SceneGraph

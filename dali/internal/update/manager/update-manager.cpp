@@ -41,6 +41,7 @@
 #include <dali/internal/update/animation/scene-graph-animation.h>
 #include <dali/internal/update/common/discard-queue.h>
 #include <dali/internal/update/common/scene-graph-buffers.h>
+#include <dali/internal/update/common/texture-cache-dispatcher.h>
 #include <dali/internal/update/controllers/render-message-dispatcher.h>
 #include <dali/internal/update/controllers/scene-controller-impl.h>
 #include <dali/internal/update/gestures/scene-graph-pan-gesture.h>
@@ -128,7 +129,6 @@ struct UpdateManager::Impl
         RenderController& renderController,
         RenderManager& renderManager,
         RenderQueue& renderQueue,
-        TextureCache& textureCache,
         TouchResampler& touchResampler,
         SceneGraphBuffers& sceneGraphBuffers )
   : renderMessageDispatcher( renderManager, renderQueue, sceneGraphBuffers ),
@@ -162,7 +162,7 @@ struct UpdateManager::Impl
     renderSortingHelper(),
     renderTaskWaiting( false )
   {
-    sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue, textureCache );
+    sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue );
 
     renderers.SetSceneController( *sceneController );
     geometries.SetSceneController( *sceneController );
@@ -213,7 +213,6 @@ struct UpdateManager::Impl
       systemLevelRoot = NULL;
     }
 
-    sceneController->GetTextureCache().SetBufferIndices(NULL); // TODO - Remove
     delete sceneController;
   }
 
@@ -283,7 +282,7 @@ UpdateManager::UpdateManager( NotificationManager& notificationManager,
                               RenderController& controller,
                               RenderManager& renderManager,
                               RenderQueue& renderQueue,
-                              TextureCache& textureCache,
+                              TextureCacheDispatcher& textureCacheDispatcher,
                               TouchResampler& touchResampler )
   : mImpl(NULL)
 {
@@ -295,11 +294,10 @@ UpdateManager::UpdateManager( NotificationManager& notificationManager,
                     controller,
                     renderManager,
                     renderQueue,
-                    textureCache,
                     touchResampler,
                     mSceneGraphBuffers );
 
-  textureCache.SetBufferIndices( &mSceneGraphBuffers );
+  textureCacheDispatcher.SetBufferIndices( &mSceneGraphBuffers );
 }
 
 UpdateManager::~UpdateManager()
@@ -386,7 +384,6 @@ void UpdateManager::DestroyNode( Node* node )
   node->OnDestroy();
 }
 
-//@todo MESH_REWORK Extend to allow arbitrary scene objects to connect to each other
 void UpdateManager::AttachToNode( Node* node, NodeAttachment* attachment )
 {
   DALI_ASSERT_DEBUG( node != NULL );

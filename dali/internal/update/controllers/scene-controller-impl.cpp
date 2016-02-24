@@ -31,12 +31,10 @@ namespace SceneGraph
 
 SceneControllerImpl::SceneControllerImpl( RenderMessageDispatcher& renderMessageDispatcher,
                                           RenderQueue& renderQueue,
-                                          DiscardQueue& discardQueue,
-                                          TextureCache& textureCache )
+                                          DiscardQueue& discardQueue )
 : mRenderMessageDispatcher( renderMessageDispatcher ),
   mRenderQueue( renderQueue ),
-  mDiscardQueue( discardQueue ),
-  mTextureCache( textureCache )
+  mDiscardQueue( discardQueue )
 {
 }
 

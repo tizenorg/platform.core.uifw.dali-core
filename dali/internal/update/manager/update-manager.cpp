@@ -522,8 +522,6 @@ void UpdateManager::AddShader( Shader* shader )
   }
 
   mImpl->shaders.PushBack( shader );
-
-  shader->Initialize( mImpl->renderQueue );
 }
 
 void UpdateManager::RemoveShader( Shader* shader )

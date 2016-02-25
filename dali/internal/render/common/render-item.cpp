@@ -42,11 +42,14 @@ RenderItem* RenderItem::New()
 }
 
 RenderItem::RenderItem()
-: mModelViewMatrix( false ),
+: mModelMatrix( false ),
+  mModelViewMatrix( false ),
   mRenderer( NULL ),
   mNode( NULL ),
   mDepthIndex( 0 ),
-  mIsOpaque( true )
+  mIsOpaque( true ),
+  mSkipIfBatched( false ),
+  mBatchUpdated( false )
 {
 }
 
@@ -77,6 +80,16 @@ void RenderItem::SetNode( Node* node )
 Render::Renderer& RenderItem::GetRenderer() const
 {
   return *mRenderer;
+}
+
+Matrix& RenderItem::GetModelMatrix()
+{
+  return mModelMatrix;
+}
+
+const Matrix& RenderItem::GetModelMatrix() const
+{
+  return mModelMatrix;
 }
 
 Matrix& RenderItem::GetModelViewMatrix()

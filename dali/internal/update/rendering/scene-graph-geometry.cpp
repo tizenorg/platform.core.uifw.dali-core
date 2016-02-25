@@ -130,7 +130,7 @@ Vector<Render::PropertyBuffer*>& Geometry::GetVertexBuffers()
   return mVertexBuffers;
 }
 
-Render::PropertyBuffer* Geometry::GetIndexBuffer()
+Render::PropertyBuffer* Geometry::GetIndexBuffer() const
 {
   return mIndexBuffer;
 }

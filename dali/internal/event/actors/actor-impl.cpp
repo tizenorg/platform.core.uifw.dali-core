@@ -229,6 +229,7 @@ DALI_PROPERTY( "heightForWidth",    BOOLEAN,  true,  false, false, Dali::Actor::
 DALI_PROPERTY( "padding",           VECTOR4,  true,  false, false, Dali::Actor::Property::PADDING )
 DALI_PROPERTY( "minimumSize",       VECTOR2,  true,  false, false, Dali::Actor::Property::MINIMUM_SIZE )
 DALI_PROPERTY( "maximumSize",       VECTOR2,  true,  false, false, Dali::Actor::Property::MAXIMUM_SIZE )
+DALI_PROPERTY( "batching",          BOOLEAN,  true,  false, false, Dali::Actor::Property::BATCHING )
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 // Signals
@@ -2571,6 +2572,12 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
       break;
     }
 
+    case Dali::Actor::Property::BATCHING:
+    {
+      bool value = property.Get< bool >();
+      SetBatching(value);
+      break;
+    }
     default:
     {
       // this can happen in the case of a non-animatable default property so just do nothing
@@ -3056,6 +3063,12 @@ Property::Value Actor::GetDefaultProperty( Property::Index index ) const
       break;
     }
 
+    case Dali::Actor::Property::BATCHING:
+    {
+      value = mNode->mBatching;
+      break;
+    }
+
     default:
     {
       DALI_ASSERT_ALWAYS( false && "Actor Property index invalid" ); // should not come here
@@ -3075,6 +3088,12 @@ const SceneGraph::PropertyOwner* Actor::GetSceneObject() const
 {
   // This method should only return an object connected to the scene-graph
   return OnStage() ? mNode : NULL;
+}
+
+void Actor::SetBatching( bool value )
+{
+  // set batching for node
+  mNode->mBatching = value;
 }
 
 const PropertyBase* Actor::GetSceneObjectAnimatableProperty( Property::Index index ) const

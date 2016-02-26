@@ -100,14 +100,14 @@ public:
    * There should exactly one of these objects per Dali Core.
    * @param[in] platformAbstraction Used to request resources from the native filesystem.
    * @param[in] notificationManager Used to send NotifyTickets message.
-   * @param[in] postProcessResourcesQueue Used for performing post processing on resources
+   * @param[in] textureUploadedProcessResourcesQueue Used for performing post processing on resources
    * @param[in] discardQueue Used to cleanup nodes & resources when no longer in use.
    * @param[in] renderQueue Used to queue resource updates until the next Render.
    */
   ResourceManager( Integration::PlatformAbstraction& platformAbstraction,
                    NotificationManager& notificationManager,
                    SceneGraph::TextureCacheDispatcher& textureCacheDispatcher,
-                   ResourcePostProcessList& postProcessResourcesQueue,
+                   LockedResourceQueue& textureUploadedProcessResourcesQueue,
                    SceneGraph::PostProcessResourceDispatcher& postProcessResourceDispatcher,
                    SceneGraph::DiscardQueue& discardQueue,
                    SceneGraph::RenderQueue& renderQueue );

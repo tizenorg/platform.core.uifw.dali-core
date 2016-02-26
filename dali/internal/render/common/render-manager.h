@@ -77,7 +77,7 @@ public:
    */
   static RenderManager* New( Integration::GlAbstraction& glAbstraction,
                              Integration::GlSyncAbstraction& glSyncAbstraction,
-                             ResourcePostProcessList& resourcePostProcessQueue );
+                             LockedResourceQueue& resourcePostProcessQueue );
 
   /**
    * Non-virtual destructor; not intended as a base class
@@ -109,9 +109,9 @@ public:
 
   /**
    * Dispatch requests onto the postProcessResourcesQueue
-   * @param[in] request The request to dispatch
+   * @param[in] resource The Id of the resource to dispatch
    */
-  virtual void DispatchPostProcessRequest( ResourcePostProcessRequest& request );
+  virtual void DispatchPostProcessRequest( ResourceId resource );
 
   /**
    * Set the upstream interface for compiled shader binaries to be sent back to for eventual

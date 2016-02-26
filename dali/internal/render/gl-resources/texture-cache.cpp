@@ -165,7 +165,7 @@ void TextureCache::UpdateTexture( ResourceId id, Integration::BitmapPtr bitmap )
     {
       texturePtr->Update( bitmap.Get() );
 
-      ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
+      ResourceId ppRequest( id );
       mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
     }
   }
@@ -183,7 +183,7 @@ void TextureCache::UpdateTexture( ResourceId id, Integration::BitmapPtr bitmap, 
     {
       texturePtr->Update( bitmap.Get(), xOffset, yOffset );
 
-      ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
+      ResourceId ppRequest( id  );
       mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
     }
   }
@@ -214,7 +214,7 @@ void TextureCache::UpdateTexture( ResourceId id, PixelDataPtr pixelData, std::si
     {
       texturePtr->Update( pixelData.Get(), xOffset, yOffset );
 
-      ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
+      ResourceId ppRequest( id );
       mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
     }
   }
@@ -232,7 +232,7 @@ void TextureCache::UpdateTextureArea( ResourceId id, const Dali::RectArea& area 
     {
       texturePtr->UpdateArea( area );
 
-      ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
+      ResourceId ppRequest( id );
       mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
     }
   }
@@ -293,10 +293,6 @@ void TextureCache::DiscardTexture( ResourceId id )
         mObservers.erase( observersIter );
       }
     }
-
-    // Tell resource manager
-    ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::DELETED );
-    mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
   }
 }
 
@@ -305,7 +301,7 @@ void TextureCache::BindTexture( Texture *texture, ResourceId id, GLenum target, 
   bool created = texture->Bind(target, textureunit);
   if( created && texture->UpdateOnCreate() ) // i.e. the pixel data was sent to GL
   {
-    ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
+    ResourceId ppRequest( id );
     mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
   }
 }

@@ -109,8 +109,7 @@ Core::Core( RenderController& renderController, PlatformAbstraction& platform,
 
   mPropertyNotificationManager = PropertyNotificationManager::New();
 
-  std::vector< ResourcePostProcessRequest> init;
-  mResourcePostProcessQueue = new ResourcePostProcessList(init);
+  mResourcePostProcessQueue = new LockedResourceQueue;
 
   mRenderManager = RenderManager::New( glAbstraction, glSyncAbstraction, *mResourcePostProcessQueue );
 

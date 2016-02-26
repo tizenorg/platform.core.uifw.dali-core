@@ -107,7 +107,7 @@ public:
   ResourceManager( Integration::PlatformAbstraction& platformAbstraction,
                    NotificationManager& notificationManager,
                    SceneGraph::TextureCacheDispatcher& textureCacheDispatcher,
-                   ResourcePostProcessList& postProcessResourcesQueue,
+                   LockedResourceRequestQueue& postProcessResourcesQueue,
                    SceneGraph::PostProcessResourceDispatcher& postProcessResourceDispatcher,
                    SceneGraph::DiscardQueue& discardQueue,
                    SceneGraph::RenderQueue& renderQueue );

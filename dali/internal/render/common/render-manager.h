@@ -77,7 +77,7 @@ public:
    */
   static RenderManager* New( Integration::GlAbstraction& glAbstraction,
                              Integration::GlSyncAbstraction& glSyncAbstraction,
-                             ResourcePostProcessList& resourcePostProcessQueue );
+                             LockedResourceRequestQueue& resourcePostProcessQueue );
 
   /**
    * Non-virtual destructor; not intended as a base class

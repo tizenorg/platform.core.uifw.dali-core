@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/internal/update/common/double-buffered.h>
 
@@ -51,7 +52,36 @@ struct ResourcePostProcessRequest
   }
 };
 
-typedef SceneGraph::DoubleBuffered<std::vector< ResourcePostProcessRequest> > ResourcePostProcessList;
+typedef std::vector< ResourcePostProcessRequest > ResourceRequestQueue;
+
+class LockedResourceRequestQueue
+{
+
+public:
+  void PushBack( ResourcePostProcessRequest& request )
+  {
+    Dali::Mutex::ScopedLock lock( mMutex );
+    mQueue.push_back( request );
+  }
+
+  bool IsEmpty() const
+  {
+    Dali::Mutex::ScopedLock lock( mMutex );
+    return mQueue.empty();
+  }
+
+  void SwapQueue( ResourceRequestQueue& list )
+  {
+    Dali::Mutex::ScopedLock lock( mMutex );
+    std::swap( list, mQueue );
+  }
+
+private:
+
+  ResourceRequestQueue mQueue;
+  mutable Dali::Mutex mMutex;
+};
+
 
 } // Internal
 } // Dali

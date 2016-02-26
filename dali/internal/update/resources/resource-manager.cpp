@@ -81,7 +81,7 @@ struct ResourceManager::ResourceManagerImpl
   ResourceManagerImpl( PlatformAbstraction& platformAbstraction,
                        NotificationManager& notificationManager,
                        SceneGraph::TextureCacheDispatcher& textureCacheDispatcher,
-                       ResourcePostProcessList& resourcePostProcessQueue,
+                       LockedResourceRequestQueue& resourcePostProcessQueue,
                        SceneGraph::PostProcessResourceDispatcher& postProcessResourceDispatcher,
                        DiscardQueue& discardQueue,
                        RenderQueue& renderQueue )
@@ -103,16 +103,16 @@ struct ResourceManager::ResourceManagerImpl
   {
   }
 
-  PlatformAbstraction&     mPlatformAbstraction;
-  NotificationManager&     mNotificationManager;
-  ResourceClient*          mResourceClient; // (needs to be a ptr - it's not instantiated yet)
-  TextureCacheDispatcher&  mTextureCacheDispatcher;
-  ResourcePostProcessList& mResourcePostProcessQueue;
+  PlatformAbstraction&        mPlatformAbstraction;
+  NotificationManager&        mNotificationManager;
+  ResourceClient*             mResourceClient; // (needs to be a ptr - it's not instantiated yet)
+  TextureCacheDispatcher&     mTextureCacheDispatcher;
+  LockedResourceRequestQueue& mResourcePostProcessQueue;
   SceneGraph::PostProcessResourceDispatcher& mPostProcessResourceDispatcher;
-  DiscardQueue&            mDiscardQueue; ///< Unwanted resources are added here during UpdateCache()
-  RenderQueue&             mRenderQueue;
-  unsigned int             mNotificationCount;
-  bool                     cacheUpdated; ///< returned by UpdateCache(). Set true in NotifyTickets to indicate a change in a resource
+  DiscardQueue&               mDiscardQueue; ///< Unwanted resources are added here during UpdateCache()
+  RenderQueue&                mRenderQueue;
+  unsigned int                mNotificationCount;
+  bool                        cacheUpdated; ///< returned by UpdateCache(). Set true in NotifyTickets to indicate a change in a resource
 
   /**
    * These containers are used to processs requests, and ResourceCache callbacks.
@@ -142,7 +142,7 @@ struct ResourceManager::ResourceManagerImpl
 ResourceManager::ResourceManager( PlatformAbstraction& platformAbstraction,
                                   NotificationManager& notificationManager,
                                   TextureCacheDispatcher& textureCacheDispatcher,
-                                  ResourcePostProcessList& resourcePostProcessQueue,
+                                  LockedResourceRequestQueue& resourcePostProcessQueue,
                                   SceneGraph::PostProcessResourceDispatcher& postProcessResourceDispatcher,
                                   DiscardQueue& discardQueue,
                                   RenderQueue& renderQueue )
@@ -195,13 +195,16 @@ void ResourceManager::PostProcessResources( BufferIndex updateBufferIndex )
   DALI_ASSERT_DEBUG( mImpl->mResourceClient != NULL );
   DALI_LOG_INFO(Debug::Filter::gResource, Debug::Verbose, "ResourceManager: PostProcessResources()\n");
 
-  unsigned int numIds = mImpl->mResourcePostProcessQueue[ updateBufferIndex ].size();
+  ResourceRequestQueue queue;
+  mImpl->mResourcePostProcessQueue.CopyQueue( queue );
+
+  unsigned int numIds = queue.size();
   unsigned int i;
 
   // process the list where RenderManager put post process requests
   for (i = 0; i < numIds; ++i)
   {
-    ResourcePostProcessRequest ppRequest = mImpl->mResourcePostProcessQueue[ updateBufferIndex ][i];
+    ResourcePostProcessRequest ppRequest = queue[i];
     switch(ppRequest.postProcess)
     {
       case ResourcePostProcessRequest::UPLOADED:
@@ -216,8 +219,6 @@ void ResourceManager::PostProcessResources( BufferIndex updateBufferIndex )
       }
     }
   }
-
-  mImpl->mResourcePostProcessQueue[ updateBufferIndex ].clear();
 }
 
 

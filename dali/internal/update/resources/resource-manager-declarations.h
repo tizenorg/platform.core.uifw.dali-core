@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/internal/update/common/double-buffered.h>
 
@@ -34,24 +35,37 @@ typedef Integration::ResourceId ResourceId;
  * Post processing required on the resource after the resource has been modified by the render thread
  * Should only be handled by update thread
  */
-struct ResourcePostProcessRequest
+
+typedef std::vector< ResourceId > TextureUploadedQueue;
+
+class LockedResourceQueue
 {
-  enum PostProcess
-  {
-    UPLOADED,
-    DELETED
-  };
 
-  ResourceId   id;
-  PostProcess  postProcess;
-
-  ResourcePostProcessRequest( ResourceId anId, PostProcess aPostProcess )
-  : id(anId), postProcess(aPostProcess)
+public:
+  void PushBack( ResourceId request )
   {
+    Dali::Mutex::ScopedLock lock( mMutex );
+    mQueue.push_back( request );
   }
+
+  bool IsEmpty() const
+  {
+    Dali::Mutex::ScopedLock lock( mMutex );
+    return mQueue.empty();
+  }
+
+  void SwapQueue( TextureUploadedQueue& list )
+  {
+    Dali::Mutex::ScopedLock lock( mMutex );
+    std::swap( list, mQueue );
+  }
+
+private:
+
+  TextureUploadedQueue mQueue;
+  mutable Dali::Mutex mMutex;
 };
 
-typedef SceneGraph::DoubleBuffered<std::vector< ResourcePostProcessRequest> > ResourcePostProcessList;
 
 } // Internal
 } // Dali

@@ -23,8 +23,8 @@
 #include <dali/internal/common/shader-saver.h>
 #include <dali/internal/update/resources/resource-manager-declarations.h>
 #include <dali/internal/render/shaders/program.h>
-#include <dali/internal/render/common/post-process-resource-dispatcher.h>
 #include <dali/internal/render/gl-resources/gl-call-debug.h>
+#include "../common/texture-uploaded-dispatcher.h"
 
 namespace Dali
 {

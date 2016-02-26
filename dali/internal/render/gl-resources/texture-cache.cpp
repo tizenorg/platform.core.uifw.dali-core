@@ -20,7 +20,6 @@
 #include <dali/integration-api/bitmap.h>
 
 #include <dali/internal/update/resources/resource-manager-declarations.h>
-#include <dali/internal/render/common/post-process-resource-dispatcher.h>
 #include <dali/internal/render/queue/render-queue.h>
 #include <dali/internal/render/gl-resources/context.h>
 #include <dali/internal/render/gl-resources/texture-factory.h>
@@ -31,6 +30,7 @@
 #include <dali/internal/render/gl-resources/frame-buffer-texture.h>
 
 #include <dali/integration-api/debug.h>
+#include "../common/texture-uploaded-dispatcher.h"
 
 using Dali::Internal::Texture;
 using Dali::Internal::FrameBufferTexture;
@@ -75,10 +75,10 @@ void GlContextDestroyed( TextureContainer& textures )
 }
 
 TextureCache::TextureCache( RenderQueue& renderQueue,
-                            PostProcessResourceDispatcher& postProcessResourceDispatcher,
+                            TextureUploadedDispatcher& postProcessResourceDispatcher,
                             Context& context)
 : TextureCacheDispatcher(renderQueue),
-  mPostProcessResourceDispatcher(postProcessResourceDispatcher),
+  mTextureUploadedDispatcher(postProcessResourceDispatcher),
   mContext(context),
   mDiscardBitmapsPolicy(ResourcePolicy::OWNED_DISCARD)
 {
@@ -165,8 +165,8 @@ void TextureCache::UpdateTexture( ResourceId id, Integration::BitmapPtr bitmap )
     {
       texturePtr->Update( bitmap.Get() );
 
-      ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
-      mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
+      ResourceId ppRequest( id );
+      mTextureUploadedDispatcher.DispatchTextureUploaded(ppRequest);
     }
   }
 }
@@ -183,8 +183,8 @@ void TextureCache::UpdateTexture( ResourceId id, Integration::BitmapPtr bitmap, 
     {
       texturePtr->Update( bitmap.Get(), xOffset, yOffset );
 
-      ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
-      mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
+      ResourceId ppRequest( id  );
+      mTextureUploadedDispatcher.DispatchTextureUploaded(ppRequest);
     }
   }
 }
@@ -214,8 +214,8 @@ void TextureCache::UpdateTexture( ResourceId id, PixelDataPtr pixelData, std::si
     {
       texturePtr->Update( pixelData.Get(), xOffset, yOffset );
 
-      ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
-      mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
+      ResourceId ppRequest( id );
+      mTextureUploadedDispatcher.DispatchTextureUploaded(ppRequest);
     }
   }
 }
@@ -232,8 +232,8 @@ void TextureCache::UpdateTextureArea( ResourceId id, const Dali::RectArea& area 
     {
       texturePtr->UpdateArea( area );
 
-      ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
-      mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
+      ResourceId ppRequest( id );
+      mTextureUploadedDispatcher.DispatchTextureUploaded(ppRequest);
     }
   }
 }
@@ -293,10 +293,6 @@ void TextureCache::DiscardTexture( ResourceId id )
         mObservers.erase( observersIter );
       }
     }
-
-    // Tell resource manager
-    ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::DELETED );
-    mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
   }
 }
 
@@ -305,8 +301,8 @@ void TextureCache::BindTexture( Texture *texture, ResourceId id, GLenum target, 
   bool created = texture->Bind(target, textureunit);
   if( created && texture->UpdateOnCreate() ) // i.e. the pixel data was sent to GL
   {
-    ResourcePostProcessRequest ppRequest( id, ResourcePostProcessRequest::UPLOADED );
-    mPostProcessResourceDispatcher.DispatchPostProcessRequest(ppRequest);
+    ResourceId ppRequest( id );
+    mTextureUploadedDispatcher.DispatchTextureUploaded(ppRequest);
   }
 }
 

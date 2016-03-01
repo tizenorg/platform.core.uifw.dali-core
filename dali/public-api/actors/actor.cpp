@@ -246,16 +246,6 @@ Vector3 Actor::GetCurrentWorldPosition() const
   return GetImplementation(*this).GetCurrentWorldPosition();
 }
 
-void Actor::SetPositionInheritanceMode( PositionInheritanceMode mode )
-{
-  GetImplementation(*this).SetPositionInheritanceMode( mode );
-}
-
-PositionInheritanceMode Actor::GetPositionInheritanceMode() const
-{
-  return GetImplementation(*this).GetPositionInheritanceMode();
-}
-
 void Actor::SetOrientation(const Radian& angle, const Vector3& axis)
 {
   GetImplementation(*this).SetOrientation(angle, axis);

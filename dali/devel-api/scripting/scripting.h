@@ -163,22 +163,6 @@ DALI_IMPORT_API ColorMode GetColorMode( const std::string& value );
 DALI_IMPORT_API std::string GetColorMode( ColorMode value );
 
 /**
- * @brief Takes a string and returns the appropriate position inheritance mode.
- *
- * @param[in] value The input string
- * @return    The corresponding position-inheritance-mode.
- */
-DALI_IMPORT_API PositionInheritanceMode GetPositionInheritanceMode( const std::string& value );
-
-/**
- * @brief Takes a position inheritance mode and returns the string equivalent.
- *
- * @param[in] value The position-inheritance-mode.
- * @return    The corresponding string.
- */
-DALI_IMPORT_API std::string GetPositionInheritanceMode( PositionInheritanceMode value );
-
-/**
  * @brief Takes a string and returns the appropriate draw mode.
  *
  * @param[in] value The input string

@@ -218,7 +218,6 @@ DALI_PROPERTY( "leaveRequired",     BOOLEAN,  true,  false, false, Dali::Actor::
 DALI_PROPERTY( "inheritOrientation", BOOLEAN, true,  false, false, Dali::Actor::Property::INHERIT_ORIENTATION )
 DALI_PROPERTY( "inheritScale",      BOOLEAN,  true,  false, false, Dali::Actor::Property::INHERIT_SCALE )
 DALI_PROPERTY( "colorMode",         STRING,   true,  false, false, Dali::Actor::Property::COLOR_MODE )
-DALI_PROPERTY( "positionInheritance", STRING, true,  false, false, Dali::Actor::Property::POSITION_INHERITANCE )
 DALI_PROPERTY( "drawMode",          STRING,   true,  false, false, Dali::Actor::Property::DRAW_MODE )
 DALI_PROPERTY( "sizeModeFactor",    VECTOR3,  true,  false, false, Dali::Actor::Property::SIZE_MODE_FACTOR )
 DALI_PROPERTY( "widthResizePolicy",  STRING,  true,  false, false, Dali::Actor::Property::WIDTH_RESIZE_POLICY )
@@ -733,23 +732,6 @@ const Vector3& Actor::GetCurrentWorldPosition() const
   }
 
   return Vector3::ZERO;
-}
-
-void Actor::SetPositionInheritanceMode( PositionInheritanceMode mode )
-{
-  // this flag is not animatable so keep the value
-  mPositionInheritanceMode = mode;
-  if( NULL != mNode )
-  {
-    // mNode is being used in a separate thread; queue a message to set the value
-    SetPositionInheritanceModeMessage( GetEventThreadServices(), *mNode, mode );
-  }
-}
-
-PositionInheritanceMode Actor::GetPositionInheritanceMode() const
-{
-  // Cached for event-thread access
-  return mPositionInheritanceMode;
 }
 
 void Actor::SetInheritPosition( bool inherit )
@@ -1946,7 +1928,6 @@ Actor::Actor( DerivedType derivedType )
   mInheritOrientation( true ),
   mInheritScale( true ),
   mDrawMode( DrawMode::NORMAL ),
-  mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ),
   mColorMode( Node::DEFAULT_COLOR_MODE )
 {
 }
@@ -2503,12 +2484,6 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
       break;
     }
 
-    case Dali::Actor::Property::POSITION_INHERITANCE:
-    {
-      SetPositionInheritanceMode( Scripting::GetPositionInheritanceMode( property.Get< std::string >() ) );
-      break;
-    }
-
     case Dali::Actor::Property::DRAW_MODE:
     {
       SetDrawMode( Scripting::GetDrawMode( property.Get< std::string >() ) );
@@ -3013,12 +2988,6 @@ Property::Value Actor::GetDefaultProperty( Property::Index index ) const
     case Dali::Actor::Property::COLOR_MODE:
     {
       value = Scripting::GetColorMode( GetColorMode() );
-      break;
-    }
-
-    case Dali::Actor::Property::POSITION_INHERITANCE:
-    {
-      value = Scripting::GetPositionInheritanceMode( GetPositionInheritanceMode() );
       break;
     }
 

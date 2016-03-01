@@ -476,16 +476,6 @@ public:
   const Vector3& GetCurrentWorldPosition() const;
 
   /**
-   * @copydoc Dali::Actor::SetPositionInheritanceMode()
-   */
-  void SetPositionInheritanceMode( PositionInheritanceMode mode );
-
-  /**
-   * @copydoc Dali::Actor::GetPositionInheritanceMode()
-   */
-  PositionInheritanceMode GetPositionInheritanceMode() const;
-
-  /**
    * @copydoc Dali::Actor::SetInheritPosition()
    */
   void SetInheritPosition( bool inherit );
@@ -1839,7 +1829,6 @@ protected:
   bool mInheritOrientation                         : 1; ///< Cached: Whether the parent's orientation should be inherited.
   bool mInheritScale                               : 1; ///< Cached: Whether the parent's scale should be inherited.
   DrawMode::Type mDrawMode                         : 2; ///< Cached: How the actor and its children should be drawn
-  PositionInheritanceMode mPositionInheritanceMode : 2; ///< Cached: Determines how position is inherited
   ColorMode mColorMode                             : 2; ///< Cached: Determines whether mWorldColor is inherited
 
 private:

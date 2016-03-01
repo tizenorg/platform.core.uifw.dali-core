@@ -67,15 +67,6 @@ const StringEnum COLOR_MODE_TABLE[] =
 };
 const unsigned int COLOR_MODE_TABLE_COUNT = sizeof( COLOR_MODE_TABLE ) / sizeof( COLOR_MODE_TABLE[0] );
 
-const StringEnum POSITION_INHERITANCE_MODE_TABLE[] =
-{
-  { "INHERIT_PARENT_POSITION",                    INHERIT_PARENT_POSITION                    },
-  { "USE_PARENT_POSITION",                        USE_PARENT_POSITION                        },
-  { "USE_PARENT_POSITION_PLUS_LOCAL_POSITION",    USE_PARENT_POSITION_PLUS_LOCAL_POSITION    },
-  { "DONT_INHERIT_POSITION",                      DONT_INHERIT_POSITION                      },
-};
-const unsigned int POSITION_INHERITANCE_MODE_TABLE_COUNT = sizeof( POSITION_INHERITANCE_MODE_TABLE ) / sizeof( POSITION_INHERITANCE_MODE_TABLE[0] );
-
 const StringEnum DRAW_MODE_TABLE[] =
 {
   { "NORMAL",     DrawMode::NORMAL     },
@@ -294,26 +285,6 @@ std::string GetColorMode( ColorMode value )
   }
   return std::string();
 }
-
-PositionInheritanceMode GetPositionInheritanceMode( const std::string& value )
-{
-  // return default on error
-  PositionInheritanceMode mode( INHERIT_PARENT_POSITION );
-  GetEnumeration< PositionInheritanceMode >( value.c_str(), POSITION_INHERITANCE_MODE_TABLE, POSITION_INHERITANCE_MODE_TABLE_COUNT, mode );
-  return mode;
-}
-
-
-std::string GetPositionInheritanceMode( PositionInheritanceMode value )
-{
-  const char* name = GetEnumerationName< PositionInheritanceMode >( value, POSITION_INHERITANCE_MODE_TABLE, POSITION_INHERITANCE_MODE_TABLE_COUNT );
-  if( name )
-  {
-    return std::string( name );
-  }
-  return std::string();
-}
-
 
 DrawMode::Type GetDrawMode( const std::string& value )
 {

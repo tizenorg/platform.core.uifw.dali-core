@@ -144,7 +144,9 @@ public:
    */
   void UploadAndDraw(Context& context,
                      BufferIndex bufferIndex,
-                     Vector<GLint>& attributeLocation );
+                     Vector<GLint>& attributeLocation,
+                     size_t elementOffset,
+                     size_t elementLength );
 
 private:
 

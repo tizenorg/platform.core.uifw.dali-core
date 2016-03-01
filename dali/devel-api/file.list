@@ -11,6 +11,7 @@ devel_api_src_files = \
   $(devel_api_src_dir)/object/property-buffer.cpp \
   $(devel_api_src_dir)/object/weak-handle.cpp \
   $(devel_api_src_dir)/rendering/cull-face.cpp \
+  $(devel_api_src_dir)/rendering/geometry-batcher.cpp \
   $(devel_api_src_dir)/rendering/geometry.cpp \
   $(devel_api_src_dir)/rendering/material.cpp \
   $(devel_api_src_dir)/rendering/renderer.cpp \

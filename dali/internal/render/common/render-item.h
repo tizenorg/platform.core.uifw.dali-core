@@ -96,6 +96,19 @@ public:
   {
     return *mNode;
   }
+
+  /**
+   * Retrieve the model matrix.
+   * @return The model matrix.
+   */
+  Matrix& GetModelMatrix();
+
+  /**
+   * Retrieve the model matrix.
+   * @return The model matrix.
+   */
+  const Matrix& GetModelMatrix() const;
+
   /**
    * Retrieve the modelView matrix.
    * @return The modelView matrix.
@@ -147,11 +160,15 @@ private:
   RenderItem( const RenderItem& item );
   RenderItem& operator = ( const RenderItem& item );
 
+  Matrix            mModelMatrix;
   Matrix            mModelViewMatrix;
   Render::Renderer* mRenderer;
   Node*             mNode;
   int               mDepthIndex;
   bool              mIsOpaque:1;
+public:
+  bool              mSkipIfBatched:1;
+  bool              mBatchUpdated:1;
 };
 
 } // namespace SceneGraph

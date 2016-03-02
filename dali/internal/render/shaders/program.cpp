@@ -222,29 +222,63 @@ GLint Program::GetUniformLocation( unsigned int uniformIndex )
   return location;
 }
 
-GLint Program::GetSamplerUniformLocation( int32_t uniqueIndex, const std::string& samplerName  )
+namespace
 {
-  // don't accept negative values (should never happen)
-  DALI_ASSERT_DEBUG( 0 <= uniqueIndex );
-  const uint32_t index( uniqueIndex ); // avoid compiler warning of signed vs unsigned comparisons
+bool sortByPosition( Program::LocationPosition a, Program::LocationPosition b )
+{
+  return a.characterPosition < b.characterPosition;
+}
+}
 
-  GLint location = UNIFORM_NOT_QUERIED;
+void Program::GetActiveSamplerUniforms()
+{
+  int total = -1;
+  mGlAbstraction.GetProgramiv( mProgramId, GL_ACTIVE_UNIFORMS, &total );
 
-  if( index < mSamplerUniformLocations.Size() )
+  std::vector<std::string> samplerNames;
+
+  for( int i=0; i<total; ++i )
   {
-    location = mSamplerUniformLocations[ index ];
+    int nameLength = -1;
+    int number = -1;
+    GLenum type = GL_ZERO;
+    char name[100];
+    mGlAbstraction.GetActiveUniform( mProgramId, (GLuint)i, sizeof(name)-1,
+                                     &nameLength, &number, &type, name );
+    name[nameLength] = 0;
+    if( type == GL_SAMPLER_2D ) /// Is there a native sampler type?
+    {
+      GLuint location = mGlAbstraction.GetUniformLocation( mProgramId, name );
+      samplerNames.push_back(name);
+      mSamplerUniformLocations.push_back(LocationPosition(location, 0u));
+    }
   }
-  else
+
+  if( mSamplerUniformLocations.size() > 1 )
   {
-    // not in cache yet, make space and initialize value to not queried
-    mSamplerUniformLocations.Resize( index + 1, UNIFORM_NOT_QUERIED );
+    // Now, re-order according to declaration order in the fragment source.
+    std::string fragShader( mProgramData->GetFragmentShader() );
+    for( unsigned int i=0; i<mSamplerUniformLocations.size(); ++i )
+    {
+      // Better to write own search algorithm that searches for all of
+      // the sampler names simultaneously, ensuring only one iteration
+      // over fragShader.
+      size_t characterPosition = fragShader.find( samplerNames[i] );
+      mSamplerUniformLocations[i].characterPosition = characterPosition;
+    }
+    std::sort( mSamplerUniformLocations.begin(), mSamplerUniformLocations.end(), sortByPosition);
   }
-  if( location == UNIFORM_NOT_QUERIED )
+}
+
+bool Program::GetSamplerUniformLocation( unsigned int index, GLint& location  )
+{
+  bool result = false;
+  if( index < mSamplerUniformLocations.size() )
   {
-    location = CHECK_GL( mGlAbstraction, mGlAbstraction.GetUniformLocation( mProgramId, samplerName.c_str() ) );
-    mSamplerUniformLocations[ index ] = location;
+    location = mSamplerUniformLocations[index].uniformLocation;
+    result = true;
   }
-  return location;
+  return result;
 }
 
 void Program::SetUniform1i( GLint location, GLint value0 )
@@ -612,6 +646,8 @@ void Program::Load()
     }
   }
 
+  GetActiveSamplerUniforms();
+
   // No longer needed
   FreeShaders();
 }
@@ -740,11 +776,6 @@ void Program::ResetAttribsUniformCache()
   {
     // reset gl program locations and names
     mUniformLocations[ i ].second = UNIFORM_NOT_QUERIED;
-  }
-
-  for( unsigned int i = 0; i < mSamplerUniformLocations.Size(); ++i )
-  {
-    mSamplerUniformLocations[ i ] = UNIFORM_NOT_QUERIED;
   }
 
   // reset uniform caches

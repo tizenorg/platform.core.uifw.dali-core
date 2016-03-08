@@ -255,6 +255,13 @@ public:
   void SetPropertyBufferSize(Render::PropertyBuffer* propertyBuffer, size_t size );
 
   /**
+   * Sets the offset of an existing property buffer
+   * @param[in] propertyBuffer The property buffer.
+   * @param[in] offset The new offset of the buffer
+   */
+  void SetPropertyBufferOffset(Render::PropertyBuffer* propertyBuffer, unsigned int offset );
+
+  /**
    * Set the geometry type of an existing render geometry
    * @param[in] geometry The render geometry
    * @param[in] geometryType The new geometry type

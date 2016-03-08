@@ -1792,6 +1792,8 @@ private:
    */
   Vector2 ApplySizeSetPolicy( const Vector2 size );
 
+  void SetBatching( bool value );
+
 protected:
 
   Actor* mParent;                 ///< Each actor (except the root) can have one parent

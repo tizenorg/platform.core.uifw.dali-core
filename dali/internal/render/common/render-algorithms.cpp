@@ -133,12 +133,24 @@ inline void ProcessRenderList(
     for ( size_t index = 0; index < count; ++index )
     {
       const RenderItem& item = renderList.GetItem( index );
-      DALI_PRINT_RENDER_ITEM( item );
+      if( !item.mSkipIfBatched )
+      {
+        DALI_PRINT_RENDER_ITEM( item );
 
-      //Enable depth writes if depth buffer is enabled and item is opaque
-      context.DepthMask( depthBufferEnabled && ( item.IsOpaque() || item.GetRenderer().RequiresDepthTest() ) );
+        //Enable depth writes if depth buffer is enabled and item is opaque
+        context.DepthMask( depthBufferEnabled && ( item.IsOpaque() || item.GetRenderer().RequiresDepthTest() ) );
 
-      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, !item.IsOpaque() );
+        item.GetRenderer().Render( context,
+                                   textureCache,
+                                   bufferIndex,
+                                   item.GetNode(),
+                                   defaultShader,
+                                   item.GetModelViewMatrix(),
+                                   viewMatrix,
+                                   projectionMatrix,
+                                   item.GetBatchGeometry(),
+                                   !item.IsOpaque() );
+      }
     }
   }
   else
@@ -149,9 +161,8 @@ inline void ProcessRenderList(
       const RenderItem& item = renderList.GetItem( index );
       DALI_PRINT_RENDER_ITEM( item );
 
-      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, !item.IsOpaque() );
+      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, item.GetBatchGeometry(), !item.IsOpaque() );
     }
-
   }
 }
 

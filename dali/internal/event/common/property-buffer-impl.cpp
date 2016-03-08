@@ -146,6 +146,20 @@ std::size_t PropertyBuffer::GetSize() const
   return mSize;
 }
 
+void PropertyBuffer::SetOffset( unsigned int offset )
+{
+  mOffset = offset;
+
+  //OffsetChanged();
+
+  SceneGraph::SetPropertyBufferOffset(mEventThreadServices.GetUpdateManager(),*mRenderObject, mOffset );
+}
+
+unsigned int PropertyBuffer::GetOffset() const
+{
+  return mOffset;
+}
+
 void PropertyBuffer::SetData( const void* data )
 {
   DALI_ASSERT_DEBUG( mFormat.Count() && "Format must be set before setting the data." );
@@ -187,6 +201,7 @@ PropertyBuffer::PropertyBuffer()
 ,mRenderObject(NULL)
 ,mBufferFormat( NULL )
 ,mSize( 0 )
+,mOffset( 0 )
 {
 }
 

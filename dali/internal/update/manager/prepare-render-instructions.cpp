@@ -35,6 +35,11 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/render/renderers/render-property-buffer.h>
+
+#include "geometry-batcher.h"
+
+#include <cstdio>
 
 namespace
 {
@@ -73,7 +78,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
   bool inside( true );
 
   const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
-  if ( cull && renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
+  if ( cull && !renderable.mRenderer->IsBatchable() && renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
     const Vector3& scale = renderable.mNode->GetWorldScale( updateBufferIndex );
     const Vector3& halfSize = renderable.mNode->GetSize( updateBufferIndex ) * scale * 0.5f;
@@ -119,6 +124,9 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
       {
         item.SetDepthIndex( renderable.mRenderer->GetDepthIndex() + static_cast<int>( renderable.mNode->GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER );
       }
+      // save model matrix
+      item.GetModelMatrix() = worldMatrix;
+
       // save MV matrix onto the item
       Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
     }
@@ -203,15 +211,21 @@ bool CompareItems( const RendererWithSortAttributes& lhs, const RendererWithSort
 {
   if( lhs.renderItem->GetDepthIndex() == rhs.renderItem->GetDepthIndex() )
   {
-    if( lhs.shader == rhs.shader )
+    if( lhs.renderItem->GetNode().GetBatchParent() == rhs.renderItem->GetNode().GetBatchParent() )
     {
-      if( lhs.textureResourceId == rhs.textureResourceId )
+      if( lhs.shader == rhs.shader )
       {
-        return lhs.geometry < rhs.geometry;
+        if( lhs.textureResourceId == rhs.textureResourceId )
+        {
+          {
+            return lhs.geometry < rhs.geometry;
+          }
+        }
+        return lhs.textureResourceId < rhs.textureResourceId;
       }
-      return lhs.textureResourceId < rhs.textureResourceId;
+      return lhs.shader < rhs.shader;
     }
-    return lhs.shader < rhs.shader;
+    return lhs.renderItem->GetNode().GetBatchParent() < rhs.renderItem->GetNode().GetBatchParent();
   }
   return lhs.renderItem->GetDepthIndex() < rhs.renderItem->GetDepthIndex();
 }
@@ -343,6 +357,14 @@ inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, La
   }
 }
 
+struct BatchTEntry
+{
+  BatchTEntry( const Matrix& m, const Vector< char >& b )
+    : mTransformatrix(m), mBackup( b ) {}
+  Matrix mTransformatrix;
+  Vector< char > mBackup;
+  Node* mNode;
+};
 /**
  * Add color renderers from the layer onto the next free render list
  * @param updateBufferIndex to use
@@ -365,6 +387,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                bool tryReuseRenderList,
                                bool cull)
 {
+  //tryReuseRenderList = true;
   RenderList& renderList = instruction.GetNextFreeRenderList( layer.colorRenderables.Size() );
   renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
   renderList.SetHasColorRenderItems( true );
@@ -406,6 +429,54 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
     flags |= RenderList::DEPTH_CLEAR;
   }
 
+  // analyze stuff for baaaatching after sorting
+  //int count = renderList.Count();
+
+  //int numBatches(0);
+  //int perBatch(0);
+  //int notBatched(0);
+
+  struct BatchKey
+  {
+    Material*     prevBatchMaterial;
+    Geometry*     prevBatchGeometry;
+    Node*         prevBatchParent;
+
+    BatchKey( Material* m = 0, Geometry* g = 0, Node* b = 0 ) :
+      prevBatchMaterial(m),
+      prevBatchGeometry(g),
+      prevBatchParent(b)
+    {}
+
+    bool operator==(const BatchKey& key)
+    {
+      return key.prevBatchMaterial == prevBatchMaterial &&
+          key.prevBatchGeometry == prevBatchGeometry &&
+          key.prevBatchParent == prevBatchParent;
+    }
+
+    bool operator!()
+    {
+      return !prevBatchMaterial || !prevBatchGeometry || !prevBatchParent;
+    }
+
+  };
+
+
+
+  //typedef std::map<Render::PropertyBuffer*, BatchTEntry*> BatchTMap;
+  RenderItemContainer& container = renderList.GetContainer();
+
+
+  // ------------------------------------------------------------------
+
+  if( container.Size() > 1 )
+  {
+    GeometryBatcher batcher;
+    batcher.RebuildBatches( (RenderItem**)container.Begin(), container.Size(), viewMatrix, updateBufferIndex );
+  }
+
+  fflush(stdout);
   renderList.ClearFlags();
   renderList.SetFlags( flags );
 }

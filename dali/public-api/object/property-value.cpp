@@ -836,12 +836,30 @@ std::ostream& operator<<( std::ostream& stream, const Property::Value& value )
       }
       case Dali::Property::ARRAY:
       {
-        stream << "Array containing" << impl.arrayValue->Count() << " elements"; // TODO add ostream<< operator in array
+        stream << "Array("<<impl.arrayValue->Count()<<") = [";
+        for( unsigned int i=0; i<impl.arrayValue->Count(); ++i )
+        {
+          if( i>0 )
+          {
+            stream << ", ";
+          }
+          stream << impl.arrayValue->GetElementAt( i );
+        }
+        stream << "]";
         break;
       }
       case Dali::Property::MAP:
       {
-        stream << "Map containing " << impl.mapValue->Count() << " elements"; // TODO add ostream<< operator in map
+        stream << "Map = {";
+        for( unsigned int i=0; i<impl.mapValue->Count(); ++i )
+        {
+          if( i>0 )
+          {
+            stream << ", ";
+          }
+          stream << impl.mapValue->GetKey( i ) << ":" << impl.mapValue->GetValue( i );
+        }
+        stream << "}";
         break;
       }
       case Dali::Property::NONE:

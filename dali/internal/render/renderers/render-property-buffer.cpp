@@ -104,7 +104,9 @@ PropertyBuffer::PropertyBuffer()
  mData(NULL),
  mGpuBuffer(NULL),
  mSize(0),
- mDataChanged(true)
+ mOffset(0),
+ mDataChanged(true),
+ mBatchChanged(false)
 {
 }
 
@@ -121,6 +123,15 @@ void PropertyBuffer::SetFormat( PropertyBuffer::Format* format )
 void PropertyBuffer::SetData( Dali::Vector<char>* data )
 {
   mData = data;
+
+  // this is plain silly, but will work for prototype
+  mBaseData = new Vector< char >( *mData );
+
+  mDataChanged = true;
+}
+
+void PropertyBuffer::UpdateData()
+{
   mDataChanged = true;
 }
 
@@ -130,6 +141,11 @@ void PropertyBuffer::SetSize( unsigned int size )
   mDataChanged = true;
 }
 
+void PropertyBuffer::SetOffset( unsigned int offset )
+{
+  mOffset = offset;
+  mDataChanged = true;
+}
 
 bool PropertyBuffer::Update( Context& context, bool isIndexBuffer )
 {

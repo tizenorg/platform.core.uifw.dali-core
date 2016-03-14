@@ -30,6 +30,8 @@
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/public-api/actors/blending.h>
 
+#include <cstdio>
+
 namespace Dali
 {
 
@@ -136,7 +138,9 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
   mFaceCullingMode( faceCullingMode  ),
   mSamplerBitfield( ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) ),
   mUpdateAttributesLocation( true ),
-  mPremultipledAlphaEnabled( preMultipliedAlphaEnabled )
+  mPremultipledAlphaEnabled( preMultipliedAlphaEnabled ),
+  mElementOffset( 0 ),
+  mElementLength( 0 )
 {
   if(  blendingBitmask != 0u )
   {
@@ -407,6 +411,12 @@ bool Renderer::BindTextures( SceneGraph::TextureCache& textureCache, Program& pr
   return result;
 }
 
+void Renderer::SetElementsRange( size_t offset, size_t length )
+{
+  mElementOffset = offset;
+  mElementLength = length;
+}
+
 void Renderer::SetFaceCullingMode( Dali::Renderer::FaceCullingMode mode )
 {
   mFaceCullingMode =  mode;
@@ -440,7 +450,8 @@ void Renderer::Render( Context& context,
                        const Matrix& modelViewMatrix,
                        const Matrix& viewMatrix,
                        const Matrix& projectionMatrix,
-                       bool blend )
+                       SceneGraph::RenderGeometry* externalGeometry,
+                       bool blend)
 {
   // Get the program to use:
   Program* program = mRenderDataProvider->GetShader().GetProgram();
@@ -495,7 +506,14 @@ void Renderer::Render( Context& context,
       mUpdateAttributesLocation = false;
     }
 
-    mRenderGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation );
+    SceneGraph::RenderGeometry* geometry = externalGeometry ? externalGeometry : mRenderGeometry;
+
+    geometry->UploadAndDraw(
+            context,
+            bufferIndex,
+            mAttributesLocation,
+            mElementOffset,
+            mElementLength );
   }
 }
 

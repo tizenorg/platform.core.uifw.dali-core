@@ -72,6 +72,7 @@ public:
       BLENDING_DEST_FACTOR_ALPHA,                         ///< name "destinationBlendFactorAlpha",    type INTEGER
       BLENDING_COLOR,                                     ///< name "blendingColor",                     type VECTOR4
       BLEND_PRE_MULTIPLIED_ALPHA,                         ///< name "blendPreMultipledAlpha",         type BOOLEAN
+      BATCHABLE,                                          ///< name "batchable",                      type BOOLEAN
     };
   };
 
@@ -217,6 +218,13 @@ public:
    * @param[out] equationAlpha The equation used for combining the alpha component.
    */
   void GetBlendEquation( BlendingEquation::Type& equationRgb, BlendingEquation::Type& equationAlpha ) const;
+
+  /**
+   * @brief Sets effective range of indices when reusing large index/vertex buffer
+   * @param[in] offset An index of first element
+   * @param[in] length Number of elements to draw ( must match selected primitive type )
+   */
+  void SetIndicesRange( size_t offset, size_t length );
 
 public:
   /**

@@ -177,6 +177,8 @@ inline void UpdateNodeWorldMatrix( Node &node, int nodeDirtyFlags, BufferIndex u
   {
     node.CopyPreviousWorldMatrix( updateBufferIndex );
   }
+
+
 }
 
 /**

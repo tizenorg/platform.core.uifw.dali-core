@@ -134,6 +134,20 @@ public:
   std::size_t GetSize() const;
 
   /**
+   * @brief SetOffset Sets the binding offset of the buffer
+   *
+   * @param[in] offset offset of first element in the buffer
+   */
+  void SetOffset( unsigned int offset );
+
+  /**
+   * @brief GetOffset Gets current binding element offset
+   *
+   * @return Current binding element offset
+   */
+  unsigned int GetOffset();
+
+  /**
    * @brief Update the whole buffer information
    *
    * This function expects a pointer to an array of structures with the same

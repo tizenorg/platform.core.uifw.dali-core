@@ -339,6 +339,11 @@ void RenderManager::SetPropertyBufferSize(Render::PropertyBuffer* propertyBuffer
   propertyBuffer->SetSize( size );
 }
 
+void RenderManager::SetPropertyBufferOffset(Render::PropertyBuffer* propertyBuffer, unsigned int offset )
+{
+  propertyBuffer->SetOffset( offset );
+}
+
 void RenderManager::AddGeometry( RenderGeometry* renderGeometry )
 {
   mImpl->renderGeometryContainer.PushBack( renderGeometry );
@@ -471,6 +476,9 @@ bool RenderManager::Render( Integration::RenderStatus& status )
     // reset the program matrices for all programs once per frame
     // this ensures we will set view and projection matrix once per program per camera
     mImpl->programController.ResetProgramMatrices();
+
+    int size = mImpl->instructions.Count(mImpl->renderBufferIndex);
+    size = size;
 
     // if we don't have default shader, no point doing the render calls
     if( mImpl->defaultShader )

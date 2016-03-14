@@ -67,6 +67,14 @@
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-sampler.h>
 
+#include <dali/internal/render/common/render-item.h>
+#include <dali/internal/render/common/render-tracker.h>
+#include <dali/internal/render/common/render-instruction.h>
+#include <dali/internal/render/common/render-instruction-container.h>
+
+#include <dali/internal/update/manager/geometry-batcher.h>
+#include <cstdio>
+
 // Un-comment to enable node tree debug logging
 //#define NODE_TREE_LOGGING 1
 
@@ -166,7 +174,7 @@ struct UpdateManager::Impl
     renderers.SetSceneController( *sceneController );
     geometries.SetSceneController( *sceneController );
     materials.SetSceneController( *sceneController );
-
+    geometryBatcher.SetSceneController( *sceneController );
     // create first 'dummy' node
     nodes.PushBack(0u);
   }
@@ -271,6 +279,7 @@ struct UpdateManager::Impl
 
   GestureContainer                    gestures;                      ///< A container of owned gesture detectors
   bool                                renderTaskWaiting;             ///< A REFRESH_ONCE render task is waiting to be rendered
+  GeometryBatcher                     geometryBatcher;
 };
 
 UpdateManager::UpdateManager( NotificationManager& notificationManager,
@@ -847,18 +856,45 @@ void UpdateManager::ForwardCompiledShadersToEventThread()
 
 void UpdateManager::UpdateRenderers( BufferIndex bufferIndex )
 {
+
   const OwnerContainer<Renderer*>& rendererContainer( mImpl->renderers.GetObjectContainer() );
   unsigned int rendererCount( rendererContainer.Size() );
-  for( unsigned int i(0); i<rendererCount; ++i )
+
+  for( unsigned int i(0); i<rendererCount; i++ )
   {
     //Apply constraints
     ConstrainPropertyOwner( *rendererContainer[i], bufferIndex );
+
+    Renderer* renderer = rendererContainer[i];
+
+
+    Render::PropertyBuffer* buffer = renderer->GetGeometry().GetVertexBuffers()[0];
+    Vector< char >* data = &buffer->GetData();
+
+    if(data && buffer->GetFormat())
+    {
+
+
+      //const Render::PropertyBuffer::Format* format = buffer->GetFormat();
+      //printf("buffer size: %d, %d\n", (int)data->Size(), (int)format->size);
+      //fflush(stdout);
+
+
+
+
+    }
+    //Material* mat = &renderer->GetMaterial();
+    //Geometry* geom = &renderer->GetGeometry();
+
+
+    //printf( "mat: %p\n", mat );
 
     if( rendererContainer[i]->IsReferenced() )
     {
       rendererContainer[i]->PrepareRender( bufferIndex );
     }
   }
+  //puts("<---- frame ends");
 }
 
 void UpdateManager::UpdateNodes( BufferIndex bufferIndex )
@@ -992,6 +1028,13 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
                              mImpl->renderInstructions );
       }
     }
+
+
+
+    mImpl->geometryBatcher.Update(  bufferIndex,
+                                    mImpl->renderInstructions
+                                    );
+
   }
 
   // check the countdown and notify (note, at the moment this is only done for normal tasks, not for systemlevel tasks)
@@ -1218,6 +1261,17 @@ void UpdateManager::SetPropertyBufferSize(Render::PropertyBuffer* propertyBuffer
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
   new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::SetPropertyBufferSize, propertyBuffer, size );
+}
+
+void UpdateManager::SetPropertyBufferOffset(Render::PropertyBuffer* propertyBuffer, unsigned int offset )
+{
+  typedef MessageValue2< RenderManager, Render::PropertyBuffer*, unsigned int > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::SetPropertyBufferOffset, propertyBuffer, offset );
 }
 
 } // namespace SceneGraph

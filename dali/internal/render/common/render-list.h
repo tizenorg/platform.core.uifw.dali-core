@@ -22,6 +22,9 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/devel-api/common/owner-container.h>
 #include <dali/internal/render/common/render-item.h>
+//todor
+#include <string>
+#include <iostream>
 
 namespace Dali
 {
@@ -85,6 +88,7 @@ public:
     mSourceLayer( NULL ),
     mHasColorRenderItems( false )
   {
+    std::cout << "todor: .................................................LIST. CONSTRUCTING: " << (void *)( this ) << std::endl;
   }
 
   /**
@@ -92,6 +96,7 @@ public:
    */
   ~RenderList()
   {
+    std::cout << "todor: .................................................LIST. DESTRUCTING:  " << (void *)( this ) << std::endl;
     // pointer container deletes the render items
     delete mClippingBox;
   }
@@ -127,6 +132,7 @@ public:
    */
   void Reset()
   {
+    std::cout << "todor: ...................................................LIST. RESETING:  " << (void *)( this ) << std::endl;
     // we dont want to delete and re-create the render items every frame
     mNextFree = 0;
     mRenderFlags = 0u;
@@ -307,8 +313,18 @@ public:
     return mHasColorRenderItems;
   }
 
+  void SetName( std::string name )
+  {
+    mName = name;
+  }
+  std::string GetName(void) const
+  {
+    return mName;
+  }
 private:
 
+  //todor
+public:
   /*
    * Copy constructor and assignment operator not defined
    */
@@ -323,6 +339,8 @@ private:
   ClippingBox* mClippingBox;               ///< The clipping box, in window coordinates, when clipping is enabled
   Layer*       mSourceLayer;              ///< The originating layer where the renderers are from
   bool         mHasColorRenderItems : 1;  ///< True if list contains color render items
+
+  std::string mName;//todor
 };
 
 } // namespace SceneGraph

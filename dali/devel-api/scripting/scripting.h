@@ -2,7 +2,7 @@
 #define __DALI_SCRIPTING_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,16 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/actors/actor-enumerations.h>
 #include <dali/public-api/actors/draw-mode.h>
-#include <dali/devel-api/animation/animation-data.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/shader-effects/shader-effect.h>
 #include <dali/public-api/object/property-map.h>
 #include <dali/public-api/object/property-value.h>
+#include <dali/devel-api/animation/animation-data.h>
+//todor del #include <dali/devel-api/scripting/actor-enumeration-tables.h>
+//todorn del
+// EXTERNAL INCLUDES
+#include <string>
 
 namespace Dali
 {
@@ -38,6 +41,19 @@ class Actor;
 namespace Scripting
 {
 
+//todor del
+//#define DALI_ENUM_TO_STRING_TABLE_BEGIN( t ) const Dali::Scripting::StringEnum t##Table[] = {
+//#define DALI_ENUM_TO_STRING_TABLE_END( t )   }; const unsigned int t##TableCount = sizeof( t##Table ) / sizeof( t##Table[0] );
+//#define DALI_ENUM_TO_STRING( s ) { #s, s },
+//todor del
+//Scripting::GetLinearEnumerationName< ClippingMode >( GetClippingMode(), Dali::EnumerationTables::ClippingModeTable, Dali::EnumerationTables::ClippingModeTableCount );
+//todor
+//template< typename T >
+//const char * GetLinearEnumerationName2( T value );
+//#define DALI_GET_STRING_FROM_ENUM( t, f ) Scripting::GetLinearEnumerationName< t >( f, Dali::EnumerationTables::t##Table, Dali::EnumerationTables::t##TableCount )
+//#define DALI_GET_ENUM_FROM_STRING( t, p, v ) Scripting::GetEnumeration< t >( p.Get< std::string >().c_str(), Dali::EnumerationTables::t##Table, Dali::EnumerationTables::t##TableCount, v )
+
+#if 1
 /**
  * @brief Structure which stores an enumeration and its string equivalent.
  */
@@ -46,6 +62,7 @@ struct StringEnum
   const char* string; ///< The string representation
   const int value;    ///< The enumeration value wrapped in int
 };
+#endif
 
 /**
  * @brief Find the given enum index from the table
@@ -145,6 +162,19 @@ const char * GetLinearEnumerationName( T value, const StringEnum* table, unsigne
   }
   return NULL;
 }
+
+//todor
+#if 0
+template< typename T >
+const char * GetLinearEnumerationName2( T value, const StringEnum* table, unsigned int tableCount )
+{
+  if ( table && ( value > 0 || value <= (int)tableCount ) )
+  {
+    return table[value].string;
+  }
+  return NULL;
+}
+#endif
 
 /**
  * @brief Takes a string and returns the appropriate color mode.

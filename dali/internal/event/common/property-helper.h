@@ -2,7 +2,7 @@
 #define __DALI_PROPERTY_HELPER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/bitmap.h>
-#include <dali/devel-api/scripting/scripting.h>
+#include <dali/public-api/object/property.h>
 
 namespace Dali
 {
@@ -34,7 +34,7 @@ namespace Internal
 struct PropertyDetails
 {
   const char* name;             ///< The name of the property.
-  Property::Type type;          ///< The property type.
+  Dali::Property::Type type;    ///< The property type.
   bool writable:1;              ///< Whether the property is writable
   bool animatable:1;            ///< Whether the property is animatable.
   bool constraintInput:1;       ///< Whether the property can be used as an input to a constraint.
@@ -91,13 +91,13 @@ struct PropertyDetails
  * { "SIZE_EQUAL_TO_PARENT", SIZE_EQUAL_TO_PARENT },
  * }; const unsigned int SizeModeTableCount = sizeof( SizeModeTable ) / sizeof( SizeModeTable[0] );
  */
-#define DALI_ENUM_TO_STRING_TABLE_BEGIN( t ) const Dali::Scripting::StringEnum t##Table[] = {
+#define DALI_ENUM_TO_STRING_TABLE_BEGIN( t ) const StringEnum t##Table[] = {
 #define DALI_ENUM_TO_STRING_TABLE_END( t )   }; const unsigned int t##TableCount = sizeof( t##Table ) / sizeof( t##Table[0] );
 #define DALI_ENUM_TO_STRING( s ) { #s, s },
 
 /**
  * DALI_ENUM_TO_STRING_INSIDE_CLASS
- * Example converts ( Layer, LAYER_2D) to ( "LAYER_2D", Layer::Layer2D)
+ * Example converts ( Layer, LAYER_2D ) to ( "LAYER_2D", Layer::Layer2D )
  */
 #define DALI_ENUM_TO_STRING_INSIDE_CLASS( className, enumName) { #enumName, className::enumName },
 

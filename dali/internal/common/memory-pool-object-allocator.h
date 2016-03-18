@@ -20,6 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/fixed-size-memory-pool.h>
+//todor
+#include <iostream>
 
 namespace Dali
 {
@@ -106,7 +108,7 @@ public:
    */
   void Free( T* object )
   {
-    object->~T();
+    //object->~T();
 
     mPool->Free( object );
   }
@@ -118,7 +120,7 @@ public:
    */
   void FreeThreadSafe( T* object )
   {
-    object->~T();
+    //object->~T();
 
     mPool->FreeThreadSafe( object );
   }

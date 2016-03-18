@@ -48,7 +48,7 @@ DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> SHADER_IMPL = { DEFAULT_PROPERTY_DETAILS };
 
-Dali::Scripting::StringEnum ShaderHintsTable[] =
+Dali::StringEnum ShaderHintsTable[] =
   { { "HINT_NONE",                     Dali::Shader::HINT_NONE},
     { "HINT_REQUIRES_SELF_DEPTH_TEST", Dali::Shader::HINT_REQUIRES_SELF_DEPTH_TEST},
     { "HINT_OUTPUT_IS_TRANSPARENT",    Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT},

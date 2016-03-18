@@ -28,6 +28,9 @@
 #include <dali/internal/event/common/object-impl.h> // Dali::Internal::Object
 #include <dali/internal/event/rendering/material-impl.h> // Dali::Internal::Material
 #include <dali/internal/event/rendering/geometry-impl.h> // Dali::Internal::Geometry
+//todor
+#include <string>
+#include <iostream>
 
 namespace Dali
 {
@@ -54,6 +57,11 @@ public:
    * @return A smart-pointer to the newly allocated Renderer.
    */
   static RendererPtr New();
+
+  void SetName( std::string name );
+  std::string GetName();
+  void SetClippingMode( Dali::Renderer::ClippingMode mode );
+  Dali::Renderer::ClippingMode GetClippingMode();
 
   /**
    * @copydoc Dali::Renderer::SetGeometry()
@@ -294,6 +302,8 @@ private: // data
   BlendingMode::Type mBlendingMode;                 ///< Local copy of blending mode
   BlendingOptions mBlendingOptions;                 ///< Local copy of blending options bitmask
   bool mPremultipledAlphaEnabled;                   ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  std::string mName;//todor
+  Dali::Renderer::ClippingMode mClippingMode;//todor
 
 };
 

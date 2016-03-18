@@ -2,7 +2,7 @@
 #define DALI_RENDERER_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@
 #include <dali/public-api/object/property-index-ranges.h> // DEFAULT_OBJECT_PROPERTY_START_INDEX
 #include <dali/devel-api/rendering/geometry.h> // Dali::Geometry
 #include <dali/devel-api/rendering/material.h> // Dali::Material
+//todor
+#include <iostream>
 
 namespace Dali
 {
@@ -52,6 +54,16 @@ public:
     CULL_FRONT,               ///< Cull front face, back face should never be shown
     CULL_BACK,                ///< Cull back face, back face should never be shown
     CULL_BACK_AND_FRONT,      ///< Cull back and front faces, if the geometry is composed of triangles none of the faces will be shown
+  };
+
+  /**
+   * @brief todor
+   */
+  enum ClippingMode
+  {
+    CLIPPING_DISABLED,        ///< todor
+    CLIPPING_ENABLED,         ///< todor
+    CLIP_AND_RENDER,          ///< todor
   };
 
   /**
@@ -99,6 +111,10 @@ public:
    * @param[in] handle Handle to an object
    */
   Renderer( const Renderer& handle );
+
+  void SetName( std::string name );
+  std::string GetName();
+
 
   /**
    * @brief Downcast to a renderer handle.

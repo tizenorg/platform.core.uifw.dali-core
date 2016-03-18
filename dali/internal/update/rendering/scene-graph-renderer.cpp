@@ -340,6 +340,28 @@ void Renderer::EnablePreMultipliedAlpha( bool preMultipled )
   mResendFlag |= RESEND_PREMULTIPLIED_ALPHA;
 }
 
+//todor delete
+void Renderer::SetName( std::string name )
+{
+  mName = name;
+  //mRenderer->SetName( name );
+}
+std::string Renderer::GetName()
+{
+  return mName;
+}
+
+void Renderer::SetClippingMode( Dali::Renderer::ClippingMode mode )
+{
+  mClippingMode = mode;
+  //mRenderer->SetClippingEnabled( enable ); //todor delete
+}
+
+Dali::Renderer::ClippingMode Renderer::GetClippingMode()
+{
+  return mClippingMode;
+}
+
 //Called when a node with this renderer is added to the stage
 void Renderer::OnStageConnect()
 {

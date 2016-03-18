@@ -30,6 +30,9 @@
 #include <dali/internal/common/type-abstraction-enums.h>
 #include <dali/internal/update/manager/prepare-render-instructions.h>
 #include <dali/internal/render/renderers/render-geometry.h>
+//todor
+#include <iostream>
+#include <string>
 
 namespace Dali
 {
@@ -71,6 +74,24 @@ public:
    * @copydoc Dali::Internal::GlResourceOwner::GlCleanup()
    */
   void GlCleanup();
+
+  //todor
+  void SetName( std::string name )
+  {
+    mName = name;
+  }
+  std::string GetName()
+  {
+    return mName;
+  }
+  void SetClippingEnabled( bool enabled )
+  {
+    mClippingEnabled = enabled;
+  }
+  bool GetClippingEnabled()
+  {
+    return mClippingEnabled;
+  }
 
   /**
    * Create a new renderer instance
@@ -259,6 +280,9 @@ private:
   unsigned int mSamplerBitfield;                    ///< Sampler options used for texture filtering
   bool mUpdateAttributesLocation:1;                 ///< Indicates attribute locations have changed
   bool mPremultipledAlphaEnabled:1;      ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+
+  std::string mName;//todor
+  bool mClippingEnabled;//todor
 };
 
 } // namespace SceneGraph

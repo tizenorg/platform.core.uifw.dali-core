@@ -23,6 +23,9 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/math/matrix.h>
 #include <dali/internal/update/nodes/node.h>
+//todor
+#include <iostream>
+#include <string>
 
 namespace Dali
 {
@@ -136,6 +139,33 @@ public:
     return mIsOpaque;
   }
 
+  void SetName( std::string name )
+  {
+    mName = name;
+  }
+  std::string GetName() const
+  {
+    return mName;
+  }
+  void SetClippingMode( Dali::Renderer::ClippingMode mode )
+  {
+    std::cout << "todor SETTING clipping mode of RenderItem:" << mName << " to:" << (int)mode << std::endl;
+    mClippingMode = mode;
+  }
+  Dali::Renderer::ClippingMode GetClippingMode() const
+  {
+    std::cout << "todor GETTING clipping mode of RenderItem:" << mName << " :" << (int)mClippingMode << std::endl;
+    return mClippingMode;
+  }
+  void SetClippingId( int id )
+  {
+    mClippingId = id;
+  }
+  int GetClippingId() const
+  {
+    return mClippingId;
+  }
+
 private:
 
   /**
@@ -147,11 +177,16 @@ private:
   RenderItem( const RenderItem& item );
   RenderItem& operator = ( const RenderItem& item );
 
-  Matrix            mModelViewMatrix;
-  Render::Renderer* mRenderer;
-  Node*             mNode;
-  int               mDepthIndex;
-  bool              mIsOpaque:1;
+  Matrix                       mModelViewMatrix;
+  Render::Renderer*            mRenderer;
+  Node*                        mNode;
+  Dali::Renderer::ClippingMode mClippingMode;//todor
+  int                          mClippingId;//todor
+  int                          mDepthIndex;
+  bool                         mIsOpaque:1;
+
+  std::string mName;//todor
+
 };
 
 } // namespace SceneGraph

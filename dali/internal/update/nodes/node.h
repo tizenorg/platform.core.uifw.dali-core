@@ -166,6 +166,7 @@ public:
    */
   void AddRenderer( Renderer* renderer )
   {
+    std::cout << "todor NODE:AddRenderer: START:" << renderer->GetName() << std::endl;
     //Check that it has not been already added
     unsigned int rendererCount( mRenderer.Size() );
     for( unsigned int i(0); i<rendererCount; ++i )
@@ -184,6 +185,7 @@ public:
       mDirtyFlags |= TransformFlag;
     }
 
+    std::cout << "todor NODE:AddRenderer: END:" << renderer->GetName() << std::endl;
     mRenderer.PushBack( renderer );
   }
 

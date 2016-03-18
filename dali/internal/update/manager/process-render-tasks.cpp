@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/integration-api/debug.h>
+//todor
+#include <iostream>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gRenderTaskLogFilter;
@@ -98,11 +100,15 @@ Layer* FindLayer( Node& node )
  * including only renderers which are included in the current render-task.
  * Returns true if all renderers have finished acquiring resources.
  */
+//todor this walks tree, so good place to set clipping pre-calc.
+//todor Note: ClippingId is passed by reference, so it is permanently modified when traversing back up the tree.
 bool AddRenderablesForTask( BufferIndex updateBufferIndex,
                             Node& node,
                             Layer& currentLayer,
                             RenderTask& renderTask,
-                            int inheritedDrawMode )
+                            int inheritedDrawMode,
+                            int& currentClippingId,
+                            int clippingDepth )
 {
   bool resourcesFinished = true;
 
@@ -120,19 +126,49 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
     return resourcesFinished;
   }
 
+  // Assume all children go to this layer (if this node is a layer).
+  Layer* layer = node.GetLayer();
+  if ( layer )
+  {
+    // Layers do not inherit the DrawMode from their parents
+    inheritedDrawMode = node.GetDrawMode();
+  }
+  else
+  {
+    // This node is not a layer.
+    layer = &currentLayer;
+    inheritedDrawMode |= node.GetDrawMode();
+  }
+
+  //todor
+#if 0
   Layer* layer = &currentLayer;
-  Layer* nodeIsLayer( node.GetLayer() );
-  if ( nodeIsLayer )
+  Layer* nodeLayer( node.GetLayer() );
+  if ( nodeLayer )
   {
     // All children go to this layer
-    layer = nodeIsLayer;
+    layer = nodeLayer;
 
     // Layers do not inherit the DrawMode from their parents
     inheritedDrawMode = DrawMode::NORMAL;
   }
+  //inheritedDrawMode |= node.GetDrawMode();
+#endif
+
   DALI_ASSERT_DEBUG( NULL != layer );
 
-  inheritedDrawMode |= node.GetDrawMode();
+  //bool clippingInfoUpdated = false;//todor
+#if 1
+  // todor change comment: This must only happen once per node.
+  if( node.GetClippingMode() != Dali::ClippingMode::CLIPPING_DISABLED )
+  {
+    std::cout << "found clipping mode -------------------------------------------------------------------------------------------------------------" << std::endl;
+    ++currentClippingId;
+    ++clippingDepth;
+  }
+
+  node.SetClippingSortModifier( currentClippingId, clippingDepth );
+#endif
 
   const unsigned int count = node.GetRendererCount();
   for( unsigned int i = 0; i < count; ++i )
@@ -150,20 +186,42 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
     {
       if( DrawMode::STENCIL == inheritedDrawMode )
       {
-        layer->stencilRenderables.PushBack( Renderable(&node, renderer ) );
+        layer->stencilRenderables.PushBack( Renderable( &node, renderer ) );
       }
       else if( DrawMode::OVERLAY_2D == inheritedDrawMode )
       {
-        layer->overlayRenderables.PushBack( Renderable(&node, renderer ) );
+        layer->overlayRenderables.PushBack( Renderable( &node, renderer ) );
       }
       else
       {
-        layer->colorRenderables.PushBack( Renderable(&node, renderer ) );
+        //todor
+        std::cout << "todor #### Building renderlist: node: x  rendererNum:" << i << "  curClipId: " << currentClippingId << "  curClipDepth: " << clippingDepth << "  name: " << renderer->GetName() << std::endl;
+
+        //todor
+#if 0
+        // This must only happen once per node.
+        if( ( node.GetClippingMode() != Dali::CLIPPING_DISABLED ) && ( !clippingInfoUpdated ) )
+        //if( renderer->GetClippingMode() != Dali::Renderer::CLIPPING_DISABLED && !clippingInfoUpdated ) //todor
+        {
+          //todor MOVE THIS OUTSIDE LOOP - IF - STAYING AS ONCE PER NODE.
+          std::cout << "found clipping mode -------------------------------------------------------------------------------------------------------------" << std::endl;
+          ++currentClippingId;
+          ++clippingDepth;
+          //node.GetRendererAt( i )->SetClippingMode( Dali::Renderer::CLIPPING_DISABLED );
+          //todorscnow check
+          //node.SetClippingSortModifier( currentClippingId, clippingDepth );
+
+          // todor: mode set is redundant.
+          clippingInfoUpdated = true;
+        }
+#endif
+        //todorscnow delete
+        //renderer->SetClippingInformation( renderer->GetClippingMode(), currentClippingId, clippingDepth );
+
+        layer->colorRenderables.PushBack( Renderable( &node, renderer ) );
       }
     }
   }
-
-
 
   // Recurse children
   NodeContainer& children = node.GetChildren();
@@ -171,12 +229,13 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
   for ( NodeIter iter = children.Begin(); iter != endIter; ++iter )
   {
     Node& child = **iter;
-    bool childResourcesComplete = AddRenderablesForTask( updateBufferIndex, child, *layer, renderTask, inheritedDrawMode );
+    bool childResourcesComplete = AddRenderablesForTask( updateBufferIndex, child, *layer, renderTask, inheritedDrawMode, currentClippingId, clippingDepth );
     resourcesFinished &= childResourcesComplete;
   }
 
   return resourcesFinished;
 }
+
 } //Unnamed namespace
 
 void ProcessRenderTasks( BufferIndex updateBufferIndex,
@@ -186,6 +245,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                          RendererSortingHelper& sortingHelper,
                          RenderInstructionContainer& instructions )
 {
+  std::cout << "todor: ProcessRenderTasks: START" << std::endl;
   RenderTaskList::RenderTaskContainer& taskContainer = renderTasks.GetTasks();
 
   if ( taskContainer.IsEmpty() )
@@ -203,6 +263,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
   DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "ProcessRenderTasks() Offscreens first\n");
 
   // First process off screen render tasks - we may need the results of these for the on screen renders
+  int clippingId = 0; //todor unsigned?
   RenderTaskList::RenderTaskContainer::ConstIterator endIter = taskContainer.End();
   for ( RenderTaskList::RenderTaskContainer::Iterator iter = taskContainer.Begin(); endIter != iter; ++iter )
   {
@@ -215,6 +276,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
       continue;
     }
 
+    std::cout << "todor: ProcessRenderTasks: OFFSCREEN:" << std::endl;
     if ( !renderTask.ReadyToRender( updateBufferIndex ) )
     {
       // Skip to next task
@@ -250,7 +312,9 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                                  *sourceNode,
                                                  *layer,
                                                  renderTask,
-                                                 sourceNode->GetDrawMode() );
+                                                 sourceNode->GetDrawMode(),
+                                                 clippingId,
+                                                 0 );
 
       renderTask.SetResourcesFinished( resourcesFinished );
       PrepareRenderInstruction( updateBufferIndex,
@@ -269,6 +333,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
   DALI_LOG_INFO(gRenderTaskLogFilter, Debug::General, "ProcessRenderTasks() Onscreen\n");
 
   // Now that the off screen renders are done we can process on screen render tasks
+  clippingId = 0;
   for ( RenderTaskList::RenderTaskContainer::Iterator iter = taskContainer.Begin(); endIter != iter; ++iter )
   {
     RenderTask& renderTask = **iter;
@@ -279,6 +344,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
       // Skip to next task
       continue;
     }
+    std::cout << "todor: ProcessRenderTasks: ONSCREEN:" << std::endl;
     if ( !renderTask.ReadyToRender( updateBufferIndex ) )
     {
       // Skip to next task
@@ -314,7 +380,9 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                                  *sourceNode,
                                                  *layer,
                                                  renderTask,
-                                                 sourceNode->GetDrawMode() );
+                                                 sourceNode->GetDrawMode(),
+                                                 clippingId,
+                                                 0 );
 
       PrepareRenderInstruction( updateBufferIndex,
                                 sortedLayers,

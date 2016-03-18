@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_SCENE_GRAPH_RENDERER2_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-
+#include <dali/public-api/actors/actor-enumerations.h>//todor remove-clippingmode
 #include <dali/devel-api/rendering/geometry.h>
 #include <dali/devel-api/rendering/renderer.h> // Dali::Renderer
 #include <dali/internal/common/blending-options.h>
@@ -26,6 +26,8 @@
 #include <dali/internal/update/common/uniform-map.h>
 #include <dali/internal/update/common/scene-graph-connection-change-propagator.h>
 #include <dali/internal/render/data-providers/render-data-provider.h>
+//todor
+#include <string>
 
 namespace Dali
 {
@@ -72,6 +74,17 @@ public:
    * Destructor
    */
   virtual ~Renderer();
+
+  //todor
+  void SetName( std::string name );
+  std::string GetName();
+  void SetClippingMode( Dali::ClippingMode::Type mode );
+  Dali::ClippingMode::Type GetClippingMode();
+  void SetClippingInformation( Dali::ClippingMode::Type clippingMode, int clippingId, int clippingDepth );
+  unsigned int GetClippingSortModifier() const
+  {
+    return mClippingSortModifier;
+  }
 
   /**
    * Overriden delete operator
@@ -311,6 +324,11 @@ private:
   bool         mResourcesReady;                ///< Set during the Update algorithm; true if the attachment has resources ready for the current frame.
   bool         mFinishedResourceAcquisition;   ///< Set during DoPrepareResources; true if ready & all resource acquisition has finished (successfully or otherwise)
   bool         mPremultipledAlphaEnabled;      ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+
+  std::string mName; ///<todor
+  Dali::ClippingMode::Type mClippingMode; ///< todor
+  unsigned int mClippingSortModifier; ///< todor
+  int mClippingDepth; ///< todor
 
 public:
   int mDepthIndex; ///< Used only in PrepareRenderInstructions

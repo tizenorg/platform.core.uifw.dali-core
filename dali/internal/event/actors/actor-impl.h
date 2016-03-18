@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ACTOR_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -644,6 +644,16 @@ public:
    * @return The actor's opacity.
    */
   float GetCurrentOpacity() const;
+
+  /**
+   * todor
+   */
+  void SetClippingMode( Dali::ClippingMode::Type clippingMode );
+
+  /**
+   * todor
+   */
+  Dali::ClippingMode::Type GetClippingMode() const;
 
   /**
    * Sets whether an actor should emit touch or hover signals; see SignalTouch() and SignalHover().
@@ -1830,6 +1840,9 @@ protected:
   DrawMode::Type mDrawMode                         : 2; ///< Cached: How the actor and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode : 2; ///< Cached: Determines how position is inherited
   ColorMode mColorMode                             : 2; ///< Cached: Determines whether mWorldColor is inherited
+
+  bool mClipEnabled                                : 1; ///< todor
+  int  mClipId;                                         ///< todor
 
 private:
 

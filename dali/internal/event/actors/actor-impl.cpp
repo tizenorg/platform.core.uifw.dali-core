@@ -52,6 +52,8 @@
 #include <dali/internal/event/events/actor-gesture-data.h>
 #include <dali/internal/common/message.h>
 #include <dali/integration-api/debug.h>
+//todor
+#include <iostream>
 
 using Dali::Internal::SceneGraph::Node;
 using Dali::Internal::SceneGraph::AnimatableProperty;
@@ -322,6 +324,45 @@ const std::string& Actor::GetName() const
 void Actor::SetName( const std::string& name )
 {
   mName = name;
+  std::cout << "todor: Actor::SetName:" << name << "  GetRendererCount():" << GetRendererCount() << std::endl;
+  if( GetRendererCount() > 0 )
+  {
+    std::string nodeName = name;
+    std::string rendererName = name;
+    nodeName += ":node:";
+    rendererName += ":renderer:";
+
+    GetRendererAt( 0 )->SetName( rendererName );
+
+    Dali::Renderer::ClippingMode newClippingMode = Dali::Renderer::CLIPPING_DISABLED;
+    //todor
+    //if( name == "test-actor2" || name == "test-actor4" )
+    if( ( name.size() >= 8 ) && ( name.compare( name.size() - 8, 8, "CLIPPING" ) == 0 ) )
+    {
+      //mClipEnabled = true;
+      newClippingMode = Dali::Renderer::CLIPPING_ENABLED;
+      //GetRendererAt( 0 )->SetClippingMode( Dali::Renderer::CLIPPING_ENABLED );
+    }
+    else if( ( name.size() >= 15 ) && ( name.compare( name.size() - 15, 15, "CLIPPING&RENDER" ) == 0 ) )
+    {
+      //mClipEnabled = true;
+      newClippingMode = Dali::Renderer::CLIP_AND_RENDER;
+      //GetRendererAt( 0 )->SetClippingMode( Dali::Renderer::CLIP_AND_RENDER );
+    }
+
+    //todor tmp
+    //if( newClippingMode != Dali::Renderer::CLIPPING_DISABLED )
+    if( newClippingMode != Dali::Renderer::CLIPPING_DISABLED )
+    {
+
+    }
+    {
+      //todorscnow putback
+      SetClippingInformationMessage( GetEventThreadServices(), *mNode, nodeName, newClippingMode, 0, 0 );
+      //todor del SetPositionInheritanceModeMessage( GetEventThreadServices(), *mNode, mode );
+    }
+
+  }
 
   if( NULL != mNode )
   {
@@ -1388,6 +1429,7 @@ bool Actor::RelayoutRequired( Dimension::Type dimension ) const
 
 unsigned int Actor::AddRenderer( Renderer& renderer )
 {
+  std::cout << "todor: Actor::AddRenderer: raw renderer:" << renderer.GetName() << std::endl;
   if( !mRenderers )
   {
     mRenderers = new RendererContainer;
@@ -1395,6 +1437,7 @@ unsigned int Actor::AddRenderer( Renderer& renderer )
 
   unsigned int index = mRenderers->size();
   RendererPtr rendererPtr = RendererPtr( &renderer );
+  std::cout << "todor: Actor::AddRenderer:" << rendererPtr->GetName() << std::endl;
   mRenderers->push_back( rendererPtr );
   AddRendererMessage( GetEventThreadServices(), *mNode, renderer.GetRendererSceneObject() );
 
@@ -1931,7 +1974,9 @@ Actor::Actor( DerivedType derivedType )
   mInheritScale( true ),
   mDrawMode( DrawMode::NORMAL ),
   mPositionInheritanceMode( Node::DEFAULT_POSITION_INHERITANCE_MODE ),
-  mColorMode( Node::DEFAULT_COLOR_MODE )
+  mColorMode( Node::DEFAULT_COLOR_MODE ),
+  mClipEnabled( false ),
+  mClipId( 0 )
 {
 }
 

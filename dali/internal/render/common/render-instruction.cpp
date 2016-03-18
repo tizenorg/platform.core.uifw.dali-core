@@ -22,6 +22,10 @@
 #include <dali/public-api/common/constants.h> // for Color::BLACK
 #include <dali/internal/render/common/render-tracker.h>
 #include <dali/integration-api/debug.h>
+//todor
+#include <string>
+#include <sstream>
+#include <iostream>
 
 namespace Dali
 {
@@ -31,6 +35,8 @@ namespace Internal
 
 namespace SceneGraph
 {
+
+static int g_instance = 0;
 
 RenderInstruction::RenderInstruction()
 : mRenderTracker( NULL ),
@@ -43,6 +49,9 @@ RenderInstruction::RenderInstruction()
 {
   // reserve 6 lists, which is enough for three layers with opaque and transparent things on
   mRenderLists.Reserve( 6 );
+  mCo = 0;//todor
+  mInstanceCo = g_instance++;
+  std::cout << "todor: CREATED RENDERINSTRUCTION:" << mInstanceCo << std::endl;
 }
 
 RenderInstruction::~RenderInstruction()
@@ -63,6 +72,11 @@ RenderList& RenderInstruction::GetNextFreeRenderList( size_t capacityRequired )
     mRenderLists[ mNextFreeRenderList ]->Reserve( capacityRequired );
   }
 
+  std::stringstream lName;
+  lName << "blah_I:" << mInstanceCo << "_N:" << mCo;
+  mCo++;
+  mRenderLists[ mNextFreeRenderList ]->SetName( lName.str() );//todor
+
   // return the list mNextFreeRenderList points to and increase by one
   return *mRenderLists[ mNextFreeRenderList++ ];
 }
@@ -73,17 +87,23 @@ void RenderInstruction::UpdateCompleted()
   // application might have removed a layer permanently
   RenderListContainer::Iterator iter = mRenderLists.Begin();
   RenderListContainer::ConstIterator end = mRenderLists.End();
+  std::cout << "todor: DOING RELEASE" << std::endl; int i = 0;
   for( ;iter != end; ++iter )
   {
+    std::cout << "todor: DOING RELEASE: " << i << std::endl; i++;
     // tell the list to do its housekeeping
     (*iter)->ReleaseUnusedItems();
   }
 
+  //todor
+#if 1
   // release any extra lists
   if( mRenderLists.Count() > mNextFreeRenderList )
   {
+    std::cout << "todor: DOING RESIZE" << std::endl;
     mRenderLists.Resize( mNextFreeRenderList );
   }
+#endif
 }
 
 RenderListContainer::SizeType RenderInstruction::RenderListCount() const

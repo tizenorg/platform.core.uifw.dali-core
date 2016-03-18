@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@
 #include <dali/internal/event/common/property-input-impl.h>
 #include <dali/internal/update/rendering/scene-graph-renderer.h>
 #include <dali/internal/update/manager/update-manager.h>
+//todor
+#include <string>
+#include <iostream>
 
 namespace Dali
 {
@@ -50,6 +53,7 @@ DALI_PROPERTY( "sourceBlendFactorAlpha",          INTEGER,   true, false,  false
 DALI_PROPERTY( "destinationBlendFactorAlpha",     INTEGER,   true, false,  false, Dali::Renderer::Property::BLENDING_DEST_FACTOR_ALPHA )
 DALI_PROPERTY( "blendingColor",                   VECTOR4,   true, false,  false, Dali::Renderer::Property::BLENDING_COLOR )
 DALI_PROPERTY( "blendPreMultipliedAlpha",         BOOLEAN,   true, false,  false, Dali::Renderer::Property::BLEND_PRE_MULTIPLIED_ALPHA )
+//clipping mode?
 DALI_PROPERTY_TABLE_END( DEFAULT_OBJECT_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> RENDERER_IMPL = { DEFAULT_PROPERTY_DETAILS };
@@ -68,6 +72,30 @@ RendererPtr Renderer::New()
   RendererPtr rendererPtr( new Renderer() );
   rendererPtr->Initialize();
   return rendererPtr;
+}
+
+//todor delete
+void Renderer::SetName( std::string name )
+{
+  mName = name;
+
+  //todorscnow putback ?
+  //mSceneObject->SetName( name );
+}
+std::string Renderer::GetName()
+{
+  return mName;
+}
+
+void Renderer::SetClippingMode( Dali::Renderer::ClippingMode mode )
+{
+  mClippingMode = mode;
+  mSceneObject->SetClippingMode( mode );
+}
+
+Dali::Renderer::ClippingMode Renderer::GetClippingMode()
+{
+  return mClippingMode;
 }
 
 void Renderer::SetGeometry( Geometry& geometry )
@@ -599,6 +627,7 @@ Renderer::Renderer()
 
 void Renderer::Initialize()
 {
+  std::cout << "todor: Renderer::Initialize:" << std::endl;
   EventThreadServices& eventThreadServices = GetEventThreadServices();
   SceneGraph::UpdateManager& updateManager = eventThreadServices.GetUpdateManager();
 

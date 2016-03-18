@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/actors/actor-enumerations.h> // Dali::ClippingMode
 #include <dali/public-api/common/dali-common.h> // DALI_ASSERT_ALWAYS
 #include <dali/public-api/common/intrusive-ptr.h> // Dali::IntrusivePtr
 #include <dali/devel-api/rendering/renderer.h> // Dali::Renderer
@@ -28,6 +29,11 @@
 #include <dali/internal/event/common/object-impl.h> // Dali::Internal::Object
 #include <dali/internal/event/rendering/texture-set-impl.h> // Dali::Internal::TextureSet
 #include <dali/internal/event/rendering/geometry-impl.h> // Dali::Internal::Geometry
+
+
+//todor
+#include <string>
+#include <iostream>
 
 namespace Dali
 {
@@ -54,6 +60,11 @@ public:
    * @return A smart-pointer to the newly allocated Renderer.
    */
   static RendererPtr New();
+
+  void SetName( std::string name );
+  std::string GetName();
+  void SetClippingMode( Dali::ClippingMode::Type mode );
+  Dali::ClippingMode::Type GetClippingMode();
 
   /**
    * @copydoc Dali::Renderer::SetGeometry()
@@ -319,6 +330,9 @@ private: // data
   BlendingOptions mBlendingOptions;                 ///< Local copy of blending options bitmask
   Dali::DepthWriteMode::Type mDepthWriteMode;       ///< Local copy of depth write mode
   Dali::DepthFunction::Type mDepthFunction;         ///< Local copy of depth function
+
+  std::string mName;//todor
+  Dali::ClippingMode::Type mClippingMode;//todor
 
   bool mPremultipledAlphaEnabled : 1;               ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
 };

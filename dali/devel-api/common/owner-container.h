@@ -21,6 +21,8 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/dali-vector.h>
+//todor
+#include <iostream>
 
 namespace Dali
 {
@@ -114,15 +116,19 @@ public:
    */
   void Resize( SizeType size )
   {
+    std::cout << "todor: DOING owner-container: Resize" << std::endl;
     if( size < VectorBase::Count() )
     {
       // OwnerContainer owns these heap-allocated objects
       ConstIterator end = Vector< T >::End();
+      int i = 0;//todor
       for( Iterator iter = Vector< T >::Begin() + size; iter != end; ++iter )
       {
+        std::cout << "todor: DOING owner-container: Resize: L#" << i << "  p:" << (void *)(*iter) << std::endl; i++;
         delete (*iter);
       }
     }
+    std::cout << "todor: DOING owner-container: vector:resize" << std::endl;
     Vector< T >::Resize( size );
   }
 

@@ -636,6 +636,16 @@ public:
   float GetCurrentOpacity() const;
 
   /**
+   * todor
+   */
+  void SetClippingMode( Dali::ClippingMode::Type clippingMode );
+
+  /**
+   * todor
+   */
+  Dali::ClippingMode::Type GetClippingMode() const;
+
+  /**
    * Sets whether an actor should emit touch or hover signals; see SignalTouch() and SignalHover().
    * An actor is sensitive by default, which means that as soon as an application connects to the SignalTouch(),
    * the touch event signal will be emitted, and as soon as an application connects to the SignalHover(), the
@@ -1819,6 +1829,7 @@ protected:
   DrawMode::Type mDrawMode                         : 2; ///< Cached: How the actor and its children should be drawn
   PositionInheritanceMode mPositionInheritanceMode : 2; ///< Cached: Determines how position is inherited
   ColorMode mColorMode                             : 2; ///< Cached: Determines whether mWorldColor is inherited
+  ClippingMode::Type mClippingMode                 : 2; ///< Cached: Determines which clipping mode (if any) to use.
 
 private:
 

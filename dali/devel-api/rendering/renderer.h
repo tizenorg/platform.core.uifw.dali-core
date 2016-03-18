@@ -24,6 +24,9 @@
 #include <dali/devel-api/rendering/geometry.h> // Dali::Geometry
 #include <dali/devel-api/rendering/texture-set.h> // Dali::TextureSet
 
+//todor
+#include <iostream>
+
 namespace Dali
 {
 
@@ -281,6 +284,10 @@ public:
    * @param[in] handle Handle to an object
    */
   Renderer( const Renderer& handle );
+
+  void SetName( std::string name );
+  std::string GetName();
+
 
   /**
    * @brief Downcast to a renderer handle.

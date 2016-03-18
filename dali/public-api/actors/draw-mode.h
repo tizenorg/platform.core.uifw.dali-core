@@ -2,7 +2,7 @@
 #define __DALI_DRAW_MODE_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ enum Type
 {
   NORMAL     = 0, ///< @brief binary 00. The default draw-mode @SINCE_1_0.0
   OVERLAY_2D = 1, ///< @brief binary 01. Draw the actor and its children as an overlay @SINCE_1_0.0
-  STENCIL    = 3  ///< @DEPRECATED_1_1.31 Will be replaced by separate ClippingMode enum @brief binary 11. Draw the actor and its children into the stencil buffer @SINCE_1_0.0
+  STENCIL    = 3  ///< @DEPRECATED_1_1.31 Will be replaced by separate ClippingMode enum @brief binary 11. Draw the actor and its children into the stencil buffer @SINCE_1_0.0 todor: remove
 };
 
 } // namespace DrawMode

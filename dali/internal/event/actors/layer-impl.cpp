@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/scripting/scripting.h>
 #include <dali/internal/event/actors/layer-list.h>
 #include <dali/internal/event/common/property-helper.h>
 #include <dali/internal/event/common/stage-impl.h>
@@ -38,6 +39,7 @@ namespace
 
 typedef Layer::Behavior Behavior;
 
+using namespace Scripting;
 DALI_ENUM_TO_STRING_TABLE_BEGIN( Behavior )
 DALI_ENUM_TO_STRING_INSIDE_CLASS( Layer, LAYER_2D )
 DALI_ENUM_TO_STRING_INSIDE_CLASS( Layer, LAYER_3D )

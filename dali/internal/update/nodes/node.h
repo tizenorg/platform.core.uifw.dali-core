@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_SCENE_GRAPH_NODE_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,9 @@
 #include <dali/internal/update/node-attachments/node-attachment-declarations.h>
 #include <dali/internal/render/data-providers/node-data-provider.h>
 #include <dali/internal/update/rendering/scene-graph-renderer.h>
+//todor
+#include <iostream>
+#include <string>
 
 namespace Dali
 {
@@ -47,6 +50,8 @@ namespace Internal
 // value types used by messages
 template <> struct ParameterType< ColorMode > : public BasicType< ColorMode > {};
 template <> struct ParameterType< PositionInheritanceMode > : public BasicType< PositionInheritanceMode > {};
+template <> struct ParameterType< Dali::ClippingMode::Type > : public BasicType< Dali::ClippingMode::Type > {};
+template <> struct ParameterType< const std::string > : public BasicType< const std::string > {};
 
 namespace SceneGraph
 {
@@ -69,7 +74,15 @@ enum NodePropertyFlags
   SizeFlag             = 0x008,
   OverlayFlag          = 0x010,
   SortModifierFlag     = 0x020,
-  ChildDeletedFlag     = 0x040
+  ChildDeletedFlag     = 0x040,
+};
+
+// todor: possibly combine with bit-field
+enum ClippingMode
+{
+  CLIPPING_DISABLED,
+  CLIPPING_ENABLED,
+  CLIP_AND_RENDER,
 };
 
 static const int AllFlags = ( ChildDeletedFlag << 1 ) - 1; // all the flags
@@ -78,10 +91,10 @@ static const int AllFlags = ( ChildDeletedFlag << 1 ) - 1; // all the flags
  * Size is not inherited.
  * VisibleFlag is inherited so that attachments can be synchronized with nodes after they become visible
  */
-static const int InheritedDirtyFlags = TransformFlag | VisibleFlag | ColorFlag | OverlayFlag;
+static const int InheritedDirtyFlags = TransformFlag | VisibleFlag | ColorFlag | OverlayFlag; //todor: check clip
 
 // Flags which require the scene renderable lists to be updated
-static const int RenderableUpdateFlags = TransformFlag | SortModifierFlag | ChildDeletedFlag;
+static const int RenderableUpdateFlags = TransformFlag | SortModifierFlag | ChildDeletedFlag; //todor: check clip
 
 /**
  * Node is the base class for all nodes in the Scene Graph.
@@ -160,12 +173,63 @@ public:
     return mAttachment;
   }
 
+  //todor
+  void SetClippingInformation( int clippingId )
+  {
+    mClippingId = clippingId;
+  }
+  //todor
+  void SetName( std::string name )
+  {
+    mName = name;
+  }
+  std::string GetName() const
+  {
+    return mName;
+  }
+  void SetClippingMode( Dali::ClippingMode::Type mode )
+  {
+    mClippingMode = mode;
+  }
+  Dali::ClippingMode::Type GetClippingMode() const
+  {
+    return mClippingMode;
+  }
+  int GetClippingDepth() const
+  {
+    return mClippingDepth;
+  }
+  void SetClippingSortModifier( int clippingId, int clippingDepth )
+  {
+    mClippingId = clippingId;
+    mClippingDepth = clippingDepth;
+    std::cout << "todor: ------------------------------------------------  Node::SetClippingSortModifier: " << GetName() << " id:" << clippingId << " depth:" << clippingDepth << std::endl;
+  }
+  void SetClippingInformation( const std::string name, Dali::ClippingMode::Type clippingMode, int clippingId, int clippingDepth )
+  {
+    //todorscnow
+    mName = name;
+    mClippingMode = clippingMode;
+    mClippingId = clippingId;
+    mClippingDepth = clippingDepth;
+    std::cout << "todor: Node::SetClippingInformation:" << name << " mode:" << clippingMode << " id:" << clippingId << " depth:" << clippingDepth << std::endl;
+  }
+  int GetClippingId() const
+  {
+    return mClippingId;
+  }
+  unsigned int GetClippingSortModifier() const
+  {
+    return mClippingSortModifier;
+  }
+
   /**
    * Add a renderer to the node
    * @param[in] renderer The renderer added to the node
    */
   void AddRenderer( Renderer* renderer )
   {
+    std::cout << "todor NODE:AddRenderer: START:" << renderer->GetName() << std::endl;
     //Check that it has not been already added
     unsigned int rendererCount( mRenderer.Size() );
     for( unsigned int i(0); i<rendererCount; ++i )
@@ -184,6 +248,7 @@ public:
       mDirtyFlags |= TransformFlag;
     }
 
+    std::cout << "todor NODE:AddRenderer: END:" << renderer->GetName() << std::endl;
     mRenderer.PushBack( renderer );
   }
 
@@ -1048,6 +1113,14 @@ protected:
   PositionInheritanceMode mPositionInheritanceMode:2;///< Determines how position is inherited, 2 bits is enough
   ColorMode               mColorMode:2;              ///< Determines whether mWorldColor is inherited, 2 bits is enough
 
+
+  //todor
+  int mClippingId; ///< todor
+  std::string mName; ///<todor
+  Dali::ClippingMode::Type mClippingMode; ///< todor
+  unsigned int mClippingSortModifier; ///< todor
+  int mClippingDepth; ///< todor
+
   // Changes scope, should be at end of class
   DALI_LOG_OBJECT_STRING_DECLARATION;
 };
@@ -1152,6 +1225,20 @@ inline void RemoveRendererMessage( EventThreadServices& eventThreadServices, con
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::RemoveRenderer, renderer );
 }
+
+//todor
+inline void SetClippingInformationMessage( EventThreadServices& eventThreadServices, const Node& node,
+    const std::string name, Dali::ClippingMode::Type mode, int clippingId, int clippingDepth )
+{
+  typedef MessageValue4< Node, const std::string, Dali::ClippingMode::Type, int, int > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::SetClippingInformation, name, mode, clippingId, clippingDepth );
+}
+
 } // namespace SceneGraph
 
 } // namespace Internal

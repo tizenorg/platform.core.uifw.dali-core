@@ -2,7 +2,7 @@
 #define __DALI_PROPERTY_HELPER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ namespace Internal
 struct PropertyDetails
 {
   const char* name;             ///< The name of the property.
-  Property::Type type;          ///< The property type.
+  Dali::Property::Type type;    ///< The property type.
   bool writable:1;              ///< Whether the property is writable
   bool animatable:1;            ///< Whether the property is animatable.
   bool constraintInput:1;       ///< Whether the property can be used as an input to a constraint.
@@ -97,7 +97,7 @@ struct PropertyDetails
 
 /**
  * DALI_ENUM_TO_STRING_INSIDE_CLASS
- * Example converts ( Layer, LAYER_2D) to ( "LAYER_2D", Layer::Layer2D)
+ * Example converts ( Layer, LAYER_2D ) to ( "LAYER_2D", Layer::Layer2D )
  */
 #define DALI_ENUM_TO_STRING_INSIDE_CLASS( className, enumName) { #enumName, className::enumName },
 

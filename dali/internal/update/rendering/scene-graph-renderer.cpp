@@ -127,6 +127,9 @@ Renderer::Renderer()
  mResendFlag(0),
  mResourcesReady(false),
  mFinishedResourceAcquisition(false),
+ mClippingMode( Dali::ClippingMode::CLIPPING_DISABLED ),
+ mClippingSortModifier( 0 ),
+ mClippingDepth( 0 ),
  mDepthIndex(0)
 {
   mUniformMapChanged[0]=false;
@@ -338,6 +341,39 @@ void Renderer::EnablePreMultipliedAlpha( bool preMultipled )
 {
   mPremultipledAlphaEnabled = preMultipled;
   mResendFlag |= RESEND_PREMULTIPLIED_ALPHA;
+}
+
+//todor delete
+void Renderer::SetName( std::string name )
+{
+  mName = name;
+  //mRenderer->SetName( name );
+}
+std::string Renderer::GetName()
+{
+  return mName;
+}
+
+void Renderer::SetClippingMode( Dali::ClippingMode::Type mode )
+{
+  mClippingMode = mode;
+  //mRenderer->SetClippingEnabled( enable ); //todor delete
+}
+
+Dali::ClippingMode::Type Renderer::GetClippingMode()
+{
+  return mClippingMode;
+}
+
+//todor tmp packing
+void Renderer::SetClippingInformation( Dali::ClippingMode::Type clippingMode, int clippingId, int clippingDepth )//todor unsigned?
+{
+  mClippingMode = clippingMode;
+  mClippingDepth = clippingDepth;
+  //todor expand for readability.
+  //todorscnow not functional currently
+  mClippingSortModifier = (unsigned int)clippingId | ( ( ( clippingMode != Dali::ClippingMode::CLIPPING_DISABLED ) ? 1 : 0 ) << 31 );//todor cast
+  std::cout << "todor: set clipping sort modifier to: " << mClippingSortModifier << "  for " << GetName() << std::endl;
 }
 
 //Called when a node with this renderer is added to the stage

@@ -12,6 +12,7 @@ internal_src_files = \
   \
   $(internal_src_dir)/event/actor-attachments/actor-attachment-impl.cpp \
   $(internal_src_dir)/event/actor-attachments/camera-attachment-impl.cpp \
+  $(internal_src_dir)/event/actor-enumeration-tables.h \
   $(internal_src_dir)/event/actors/actor-impl.cpp \
   $(internal_src_dir)/event/actors/custom-actor-internal.cpp \
   $(internal_src_dir)/event/actors/image-actor-impl.cpp \

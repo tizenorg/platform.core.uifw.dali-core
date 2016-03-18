@@ -1831,6 +1831,9 @@ protected:
   PositionInheritanceMode mPositionInheritanceMode : 2; ///< Cached: Determines how position is inherited
   ColorMode mColorMode                             : 2; ///< Cached: Determines whether mWorldColor is inherited
 
+  bool mClipEnabled                                : 1; ///< todor
+  int  mClipId;                                         ///< todor
+
 private:
 
   static ActorContainer mNullChildren;  ///< Empty container (shared by all actors, returned by GetChildren() const)

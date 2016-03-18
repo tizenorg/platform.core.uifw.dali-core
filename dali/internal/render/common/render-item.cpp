@@ -21,6 +21,8 @@
 // INTERNAL INCLUDES
 #include <dali/internal/common/memory-pool-object-allocator.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+//todor
+#include <iostream>
 
 namespace
 {
@@ -38,29 +40,41 @@ namespace SceneGraph
 
 RenderItem* RenderItem::New()
 {
+  //todor test
   return new ( gRenderItemPool.AllocateRaw() ) RenderItem();
+  RenderItem* ri = new ( gRenderItemPool.AllocateRaw() ) RenderItem();
+  std::cout << "todor: ...................................................... STATIC-NEW:   " << (void *)( ri ) << std::endl;
 }
 
 RenderItem::RenderItem()
 : mModelViewMatrix( false ),
   mRenderer( NULL ),
   mNode( NULL ),
+  mClippingMode( Dali::Renderer::CLIPPING_DISABLED ),
+  mClippingId( -1 ),
   mDepthIndex( 0 ),
-  mIsOpaque( true )
+  mIsOpaque( true ),
+  mVisitedId( 0 )
 {
+  std::cout << "todor: ...................................................... CONSTRUCTING: " << (void *)( this ) << std::endl;
+  mName2 = "ghjkl";//todor
 }
 
 RenderItem::~RenderItem()
 {
+  std::cout << "todor: ...................................................... @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ DESTRUCTING:  " << (void *)( this ) << std::endl;
 }
 
 void RenderItem::operator delete( void* ptr )
 {
+  std::cout << "todor: ...................................................... @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ DELETING:     " << (void *)( ptr ) << std::endl;
   gRenderItemPool.Free( static_cast<RenderItem*>( ptr ) );
+  std::cout << "todor: ...................................................... DELETING:     DONE" << std::endl;
 }
 
 void RenderItem::Reset()
 {
+  std::cout << "todor: ...................................................... RESETTING:    " << (void *)( this ) << std::endl;
   mRenderer = NULL;
 }
 

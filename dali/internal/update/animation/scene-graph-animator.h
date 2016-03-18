@@ -31,6 +31,7 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/math/quaternion.h>
 #include <dali/public-api/math/radian.h>
+#include <iostream>
 
 namespace Dali
 {
@@ -684,6 +685,14 @@ struct AnimateByVector3 : public AnimatorFunctionBase
   Vector3 operator()(float alpha, const Vector3& property)
   {
     return Vector3(property + mRelative * alpha);
+#if 0
+    Vector3 final = Vector3( mRelative * alpha * 20);
+    //Vector3 final = Vector3::ONE;
+    //final = final / Vector3(mRelative * alpha);
+    final += property - (property * alpha * alpha);
+    std::cout << "todor: prop:" << property << "  alpha:" << alpha << "  relative:" << mRelative << "  final:" << final << std::endl;
+    return final;
+#endif
   }
 
   Vector3 mRelative;

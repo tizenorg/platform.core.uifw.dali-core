@@ -23,6 +23,9 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/math/matrix.h>
 #include <dali/internal/update/nodes/node.h>
+//todor
+#include <iostream>
+#include <string>
 
 namespace Dali
 {
@@ -64,6 +67,8 @@ public:
    * Deletes the RenderItem from its global memory pool
    */
   void operator delete( void* ptr );
+
+  // Note: no size_t parameter!
 
   /**
    * Reset the render-item.
@@ -136,6 +141,47 @@ public:
     return mIsOpaque;
   }
 
+  //todornew
+  void SetName( std::string name )
+  {
+    mName = name;
+  }
+  void SetName2( std::string name )
+  {
+    //mName2 = name;
+  }
+  std::string GetName() const
+  {
+    return mName;
+    //return std::string( "blah" );
+  }
+  void SetClippingMode( Dali::ClippingMode::Type mode )
+  {
+    //std::cout << "todor SETTING clipping mode of RenderItem:" << mName << " to:" << (int)mode << std::endl;
+    mClippingMode = mode;
+  }
+  Dali::ClippingMode::Type GetClippingMode() const
+  {
+    //std::cout << "todor GETTING clipping mode of RenderItem:" << mName << " :" << (int)mClippingMode << std::endl;
+    return mClippingMode;
+  }
+  void SetClippingId( int id )
+  {
+    mClippingId = id;
+  }
+  int GetClippingId() const
+  {
+    return mClippingId;
+  }
+  void SetVisited()
+  {
+    ++mVisitedId;
+  }
+  bool IsVisited( int visitedId )//const
+  {
+    return mVisitedId == visitedId;
+  }
+
 private:
 
   /**
@@ -147,11 +193,23 @@ private:
   RenderItem( const RenderItem& item );
   RenderItem& operator = ( const RenderItem& item );
 
-  Matrix            mModelViewMatrix;
-  Render::Renderer* mRenderer;
-  Node*             mNode;
-  int               mDepthIndex;
-  bool              mIsOpaque:1;
+  Matrix                       mModelViewMatrix;
+  Render::Renderer*            mRenderer;
+  Node*                        mNode;
+
+  Dali::ClippingMode::Type mClippingMode;//todor
+  int                          mClippingId;//todor
+
+  int                          mDepthIndex;
+  bool                         mIsOpaque:1;
+
+  int mVisitedId;
+
+  std::string mName;//todor
+  //char pad1[128];
+  //std::string mName2;//todor del
+  //char pad2[128];
+
 };
 
 } // namespace SceneGraph

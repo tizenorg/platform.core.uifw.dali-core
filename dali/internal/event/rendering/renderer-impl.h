@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_RENDERER_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/actors/actor-enumerations.h> // Dali::ClippingMode
 #include <dali/public-api/common/dali-common.h> // DALI_ASSERT_ALWAYS
 #include <dali/public-api/common/intrusive-ptr.h> // Dali::IntrusivePtr
 #include <dali/devel-api/rendering/renderer.h> // Dali::Renderer
@@ -28,6 +29,11 @@
 #include <dali/internal/event/common/object-impl.h> // Dali::Internal::Object
 #include <dali/internal/event/rendering/material-impl.h> // Dali::Internal::Material
 #include <dali/internal/event/rendering/geometry-impl.h> // Dali::Internal::Geometry
+
+
+//todor
+#include <string>
+#include <iostream>
 
 namespace Dali
 {
@@ -54,6 +60,11 @@ public:
    * @return A smart-pointer to the newly allocated Renderer.
    */
   static RendererPtr New();
+
+  void SetName( std::string name );
+  std::string GetName();
+  void SetClippingMode( Dali::ClippingMode::Type mode );
+  Dali::ClippingMode::Type GetClippingMode();
 
   /**
    * @copydoc Dali::Renderer::SetGeometry()
@@ -294,6 +305,8 @@ private: // data
   BlendingMode::Type mBlendingMode;                 ///< Local copy of blending mode
   BlendingOptions mBlendingOptions;                 ///< Local copy of blending options bitmask
   bool mPremultipledAlphaEnabled;                   ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  std::string mName;//todor
+  Dali::ClippingMode::Type mClippingMode;//todor
 
 };
 

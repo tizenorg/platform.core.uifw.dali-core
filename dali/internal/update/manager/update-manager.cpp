@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -169,6 +169,9 @@ struct UpdateManager::Impl
 
     // create first 'dummy' node
     nodes.PushBack(0u);
+
+    // Set up PrepareRenderInstructions for use.
+    InitializePrepareRenderInstructions();
   }
 
   ~Impl()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,12 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+//todor
+#include <iostream>
+#include <string>
+
+//todor
+//static bool CLIP_DEBUG = false;
 
 namespace
 {
@@ -51,6 +57,344 @@ namespace Internal
 
 namespace SceneGraph
 {
+
+namespace
+{
+//todor helper
+// Recursively dumps node tree.
+void DumpNode( const Node& node, int indent = 0 )
+{
+  // Indent based on depth.
+  for( int t = 0; t < indent; ++t )
+  {
+    std::cout << "  ";
+  }
+  //std::cout << "Parent:" << (int)node.GetParent() << std::endl;
+  const NodeContainer& children = node.GetChildren();
+  std::cout << "Node: childrenCount:" << children.Count() << std::endl;
+  int i = 0;
+  // Iterate through child nodes.
+  const NodeIter endIter = children.End();
+  for ( NodeIter iter = children.Begin(); iter != endIter; ++iter )
+  {
+    Node& child = **iter;
+    DumpNode( child, indent + 1 );
+    i++;
+  }
+}
+
+// Recursively dumps node tree used by RenderList.
+// TODO: Traversing the whole list of RenderItems means the same node will be encountered more than once if it is parented / has children.
+// We need a "visited" list to resolve this.
+void DumpRenderList( RenderList& renderList, std::string name )
+{
+  int renderItemCount = renderList.Count();
+  for( int r = 0; r < renderItemCount; ++r )
+  {
+    RenderItem& item = renderList.GetItem( r );
+    const Node& node = item.GetNode();
+    std::cout << "RenderItem: " << r << std::endl;
+    DumpNode( node, 1 );
+  }
+}
+
+//todor helper
+std::string PrintBin( uint16_t value )
+{
+  std::string outString( "0000000000000000" );
+  int pos = 16 - 1;
+
+  for( int i = 15; i >= 0; i-- )
+  {
+    outString[ pos-- ] = ( value & 1 ) + '0';
+    value >>= 1;
+  }
+
+  return outString;
+}
+
+  //todor
+  typedef bool ( *ComparitorPointer )( const RendererWithSortAttributes& lhs, const RendererWithSortAttributes& rhs );
+
+  static std::vector< ComparitorPointer > sComparitors;
+} // Unnamed namespace
+
+
+/**
+ * Function which sorts render items by depth index then by instance
+ * ptrs of shader/geometry/material.
+ * @param lhs item
+ * @param rhs item
+ * @return true if left item is greater than right
+ */
+//todor mod
+bool CompareItems( const RendererWithSortAttributes& lhs, const RendererWithSortAttributes& rhs )
+{
+  // @todo MESH_REWORK Consider replacing all these sortAttributes with a single long int that
+  // encapsulates the same data (e.g. the middle-order bits of the ptrs)
+  if( lhs.renderItem->GetDepthIndex() == rhs.renderItem->GetDepthIndex() )
+  {
+    if( lhs.shader == rhs.shader )
+    {
+      if( lhs.textureResourceId == rhs.textureResourceId )
+      {
+        return lhs.geometry < rhs.geometry;
+      }
+      return lhs.textureResourceId < rhs.textureResourceId;
+    }
+    return lhs.shader < rhs.shader;
+  }
+  return lhs.renderItem->GetDepthIndex() < rhs.renderItem->GetDepthIndex();
+}
+
+/**
+ * Function which sorts render items by depth index then by instance
+ * ptrs of shader/geometry/material.
+ * Takes into account clipping hierarchy.
+ * @param lhs item
+ * @param rhs item
+ * @return true if left item is greater than right
+ */
+//todor mod
+bool CompareItemsWithClipping( const RendererWithSortAttributes& lhs, const RendererWithSortAttributes& rhs )
+{
+  // @todo MESH_REWORK Consider replacing all these sortAttributes with a single long int that
+  // encapsulates the same data (e.g. the middle-order bits of the ptrs)
+
+  //todor get sort modifier:
+#if 0
+  std::cout << "todor: ### Doing compare: depth:" << lhsNode.GetDepth() <<
+      "  UCID:" << lhsNode.GetClippingId() <<
+      "  CD:" << lhsNode.GetClippingDepth() <<
+      "  CM:" << (int)lhsNode.GetClippingMode() << std::endl;
+#endif
+
+  //todor optimise:
+  const Node& lhsNode = lhs.renderItem->GetNode();
+  const Node& rhsNode = rhs.renderItem->GetNode();
+
+#if 1
+  //todor
+  if( lhsNode.GetClippingId() == rhsNode.GetClippingId() )
+  {
+    bool lhsClip = lhsNode.GetClippingMode() != Dali::ClippingMode::CLIPPING_DISABLED;
+    bool rhsClip = rhsNode.GetClippingMode() != Dali::ClippingMode::CLIPPING_DISABLED;
+    if( lhsClip == rhsClip )
+    {
+#endif
+      if( lhs.renderItem->GetDepthIndex() == rhs.renderItem->GetDepthIndex() )
+      {
+        if( lhs.shader == rhs.shader )
+        {
+          if( lhs.textureResourceId == rhs.textureResourceId )
+          {
+            return lhs.geometry < rhs.geometry;
+          }
+          return lhs.textureResourceId < rhs.textureResourceId;
+        }
+        return lhs.shader < rhs.shader;
+      }
+      return lhs.renderItem->GetDepthIndex() < rhs.renderItem->GetDepthIndex();
+#if 1
+    }
+    return lhsClip && !rhsClip;
+  }
+  return lhsNode.GetClippingId() < rhsNode.GetClippingId();
+#endif
+}
+
+/**
+ * Function which sorts the render items by Z function, then
+ * by instance ptrs of shader/geometry/material.
+ * @param lhs item
+ * @param rhs item
+ * @return true if left item is greater than right
+ */
+//todor mod
+bool CompareItems3D( const RendererWithSortAttributes& lhs, const RendererWithSortAttributes& rhs )
+{
+  bool lhsIsOpaque = lhs.renderItem->IsOpaque();
+  if( lhsIsOpaque == rhs.renderItem->IsOpaque())
+  {
+    if( lhsIsOpaque )
+    {
+      //If both RenderItems are opaque, sort using shader, then material then geometry
+      if( lhs.shader == rhs.shader )
+      {
+        if( lhs.textureResourceId == rhs.textureResourceId )
+        {
+          return lhs.geometry < rhs.geometry;
+        }
+        return lhs.textureResourceId < rhs.textureResourceId;
+      }
+      return lhs.shader < rhs.shader;
+    }
+    else
+    {
+      //If both RenderItems are transparent, sort using z,then shader, then material, then geometry
+      if( Equals(lhs.zValue, rhs.zValue) )
+      {
+        if( lhs.shader == rhs.shader )
+        {
+          if( lhs.textureResourceId == rhs.textureResourceId )
+          {
+            return lhs.geometry < rhs.geometry;
+          }
+          return lhs.textureResourceId < rhs.textureResourceId;
+        }
+        return lhs.shader < rhs.shader;
+      }
+      return lhs.zValue > rhs.zValue;
+    }
+  }
+  else
+  {
+    return lhsIsOpaque;
+  }
+}
+
+/**
+ * Function which sorts the render items by Z function, then
+ * by instance ptrs of shader/geometry/material.
+ * @param lhs item
+ * @param rhs item
+ * @return true if left item is greater than right
+ */
+//todor mod
+bool CompareItems3DWithClipping( const RendererWithSortAttributes& lhs, const RendererWithSortAttributes& rhs )
+{
+  //todor get sort modifier:
+#if 0
+  std::cout << "todor: ### Doing compare: depth:" << lhsNode.GetDepth() <<
+      "  UCID:" << lhsNode.GetClippingId() <<
+      "  CD:" << lhsNode.GetClippingDepth() <<
+      "  CM:" << (int)lhsNode.GetClippingMode() << std::endl;
+#endif
+
+  //todor optimise:
+  const Node& lhsNode = lhs.renderItem->GetNode();
+  const Node& rhsNode = rhs.renderItem->GetNode();
+
+#if 1
+  //todor
+  if( lhsNode.GetClippingId() == rhsNode.GetClippingId() )
+  {
+    bool lhsClip = lhsNode.GetClippingMode() != Dali::ClippingMode::CLIPPING_DISABLED;
+    bool rhsClip = rhsNode.GetClippingMode() != Dali::ClippingMode::CLIPPING_DISABLED;
+    if( lhsClip == rhsClip )
+    {
+#endif
+
+
+      bool lhsIsOpaque = lhs.renderItem->IsOpaque();
+      if( lhsIsOpaque == rhs.renderItem->IsOpaque())
+      {
+        if( lhsIsOpaque )
+        {
+          //If both RenderItems are opaque, sort using shader, then material then geometry
+          if( lhs.shader == rhs.shader )
+          {
+            if( lhs.textureResourceId == rhs.textureResourceId )
+            {
+              return lhs.geometry < rhs.geometry;
+            }
+            return lhs.textureResourceId < rhs.textureResourceId;
+          }
+          return lhs.shader < rhs.shader;
+        }
+        else
+        {
+          //If both RenderItems are transparent, sort using z,then shader, then material, then geometry
+          if( Equals(lhs.zValue, rhs.zValue) )
+          {
+            if( lhs.shader == rhs.shader )
+            {
+              if( lhs.textureResourceId == rhs.textureResourceId )
+              {
+                return lhs.geometry < rhs.geometry;
+              }
+              return lhs.textureResourceId < rhs.textureResourceId;
+            }
+            return lhs.shader < rhs.shader;
+          }
+          return lhs.zValue > rhs.zValue;
+        }
+      }
+      else
+      {
+        return lhsIsOpaque;
+      }
+
+
+#if 1
+    }
+    return lhsClip && !rhsClip;
+  }
+  return lhsNode.GetClippingId() < rhsNode.GetClippingId();
+#endif
+}
+
+void InitializePrepareRenderInstructions()
+{
+  //todor
+#if 0
+  // Set up a container of comparators for fast run-time selection.
+  sComparitors.push_back( CompareItems );
+  sComparitors.push_back( CompareItemsWithClipping );
+  sComparitors.push_back( CompareItems3D );
+  sComparitors.push_back( CompareItems3DWithClipping );
+#else
+  // todordel: force old sort comparitors.
+  sComparitors.push_back( CompareItems );
+  sComparitors.push_back( CompareItems );
+  sComparitors.push_back( CompareItems3D );
+  sComparitors.push_back( CompareItems3D );
+#endif
+}
+
+#if 0
+// Recursively dumps node tree.
+void PrepareClippingNodeInformation( const Node& node, int indent = 0 )
+{
+  // Indent based on depth.
+  for( int t = 0; t < indent; ++t )
+  {
+    std::cout << "  ";
+  }
+
+  //std::cout << "Parent:" << (int)node.GetParent() << std::endl;
+  const NodeContainer& children = node.GetChildren();
+  std::cout << "Node: childrenCount:" << children.Count() << std::endl;
+  unsigned int i = 0;
+  // Iterate through child nodes.
+  const NodeIter endIter = children.End();
+  for ( NodeIter iter = children.Begin(); iter != endIter; ++iter )
+  {
+    Node& child = **iter;
+
+    //Dali::Internal::SceneGraph::Renderer r = node->GetRendererAt( 0 );
+    //std::cout << "VIS: node name" << 1 << std::endl;
+
+    PrepareClippingNodeInformation( child, indent + 1 );
+    i++;
+  }
+}
+
+// Recursively dumps node tree used by RenderList.
+// TODO: Traversing the whole list of RenderItems means the same node will be encountered more than once if it is parented / has children.
+// We need a "visited" list to resolve this.
+void PrepareClippingInformation( RenderList& renderList, std::string name )
+{
+  int renderItemCount = renderList.Count();
+  for( int r = 0; r < renderItemCount; ++r )
+  {
+    RenderItem& item = renderList.GetItem( r );
+    const Node& node = item.GetNode();
+    std::cout << "RenderItem: " << r << std::endl;
+    PrepareClippingNodeInformation( node, 1 );
+  }
+}
+#endif
 
 /**
  * Add a renderer to the list
@@ -70,7 +414,12 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
                                      bool isLayer3d,
                                      bool cull )
 {
+#if 1
+  if( CLIP_DEBUG ) std::cout << "todor: ++++++++++++++++++++ AddRendererToRenderList: RendererName:" << renderable.mRenderer->GetName() << "  ClippingMode:" << (int)renderable.mRenderer->GetClippingMode() << " ++++START++++" << std::endl;
+#endif
   bool inside( true );
+
+  //todor
 
   const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
   if ( cull && renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
@@ -106,10 +455,27 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
     if( opacity != Renderer::TRANSPARENT )
     {
       // Get the next free RenderItem
+      //std::cout << "todor: RL: #1# co: " << renderList.Count() << std::endl;
       RenderItem& item = renderList.GetNextFreeItem();
       item.SetRenderer( &renderable.mRenderer->GetRenderer() );
       item.SetNode( renderable.mNode );
       item.SetIsOpaque( opacity == Renderer::OPAQUE );
+
+      //todorscnow putback unsafe
+      item.SetName( renderable.mRenderer->GetName() );//todor
+      if( CLIP_DEBUG ) std::cout << "todor: Adding renderer to list: " << item.GetName() << std::endl;
+#if 0
+      item.SetClippingMode( renderable.mRenderer->GetClippingMode() );//todor
+      item.SetName( renderable.mRenderer->GetName() );//todor
+      std::cout << "todor: Adding renderer to list: " << item.GetName() << std::endl;
+#endif
+#if 1
+      //std::cout << "todor: RL: #2# co: " << renderList.Count() << std::endl;
+      //item.SetClippingMode( Dali::Renderer::CLIPPING_DISABLED );//todor
+      //item.SetName( "aaa" );//todor
+      //item.SetName2( "aaa" );//todor
+      //std::cout << "todor: Adding renderer to list: " << item.GetName() << std::endl;
+#endif
 
       if( isLayer3d )
       {
@@ -119,10 +485,13 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
       {
         item.SetDepthIndex( renderable.mRenderer->GetDepthIndex() + static_cast<int>( renderable.mNode->GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER );
       }
+
       // save MV matrix onto the item
       Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
+      //std::cout << "todor: RL: #3# co: " << renderList.Count() << std::endl;
     }
   }
+  if( CLIP_DEBUG ) std::cout << "todor: AddRendererToRenderList:                                                   ++++DONE++++" << std::endl;
 }
 
 /**
@@ -136,6 +505,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
  * @param isLayer3d Whether we are processing a 3D layer or not
  * @param cull Whether frustum culling is enabled or not
  */
+//todor
 inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
                                       RenderList& renderList,
                                       RenderableContainer& renderables,
@@ -146,9 +516,11 @@ inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
 {
   DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "AddRenderersToRenderList()\n");
 
+  //std::cout << "todor: AddRenderersToRenderList: gh1" << std::endl;
   unsigned int rendererCount( renderables.Size() );
-  for( unsigned int i(0); i<rendererCount; ++i )
+  for( unsigned int i(0); i < rendererCount; ++i )
   {
+    //std::cout << "todor: AddRenderersToRenderList: gh2" << std::endl;
     AddRendererToRenderList( updateBufferIndex, renderList, renderables[i], viewMatrix, cameraAttachment, isLayer3d, cull );
   }
 }
@@ -193,88 +565,17 @@ inline bool TryReuseCachedRenderers( Layer& layer,
 }
 
 /**
- * Function which sorts render items by depth index then by instance
- * ptrs of shader/geometry/material.
- * @param lhs item
- * @param rhs item
- * @return true if left item is greater than right
- */
-bool CompareItems( const RendererWithSortAttributes& lhs, const RendererWithSortAttributes& rhs )
-{
-  // @todo MESH_REWORK Consider replacing all these sortAttributes with a single long int that
-  // encapsulates the same data (e.g. the middle-order bits of the ptrs)
-  if( lhs.renderItem->GetDepthIndex() == rhs.renderItem->GetDepthIndex() )
-  {
-    if( lhs.shader == rhs.shader )
-    {
-      if( lhs.textureResourceId == rhs.textureResourceId )
-      {
-        return lhs.geometry < rhs.geometry;
-      }
-      return lhs.textureResourceId < rhs.textureResourceId;
-    }
-    return lhs.shader < rhs.shader;
-  }
-  return lhs.renderItem->GetDepthIndex() < rhs.renderItem->GetDepthIndex();
-}
-/**
- * Function which sorts the render items by Z function, then
- * by instance ptrs of shader/geometry/material.
- * @param lhs item
- * @param rhs item
- * @return true if left item is greater than right
- */
-bool CompareItems3D( const RendererWithSortAttributes& lhs, const RendererWithSortAttributes& rhs )
-{
-  bool lhsIsOpaque = lhs.renderItem->IsOpaque();
-  if( lhsIsOpaque ==  rhs.renderItem->IsOpaque())
-  {
-    if( lhsIsOpaque )
-    {
-      //If both RenderItems are opaque, sort using shader, then material then geometry
-      if( lhs.shader == rhs.shader )
-      {
-        if( lhs.textureResourceId == rhs.textureResourceId )
-        {
-          return lhs.geometry < rhs.geometry;
-        }
-        return lhs.textureResourceId < rhs.textureResourceId;
-      }
-      return lhs.shader < rhs.shader;
-    }
-    else
-    {
-      //If both RenderItems are transparent, sort using z,then shader, then material, then geometry
-      if( Equals(lhs.zValue, rhs.zValue) )
-      {
-        if( lhs.shader == rhs.shader )
-        {
-          if( lhs.textureResourceId == rhs.textureResourceId )
-          {
-            return lhs.geometry < rhs.geometry;
-          }
-          return lhs.textureResourceId < rhs.textureResourceId;
-        }
-        return lhs.shader < rhs.shader;
-      }
-      return lhs.zValue > rhs.zValue;
-    }
-  }
-  else
-  {
-    return lhsIsOpaque;
-  }
-}
-
-/**
  * Sort render items
  * @param bufferIndex The buffer to read from
  * @param renderList to sort
  * @param layer where the renderers are from
  * @param sortingHelper to use for sorting the renderitems (to avoid reallocating)
+ * @param respectClippingOrder Sort with the correct clipping hierarchy.
  */
-inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, Layer& layer, RendererSortingHelper& sortingHelper )
+//todor
+inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, Layer& layer, RendererSortingHelper& sortingHelper, bool respectClippingOrder )
 {
+  if( CLIP_DEBUG ) std::cout << "todor: SortRenderItems" << std::endl;
   const size_t renderableCount = renderList.Count();
   // reserve space if needed
   const unsigned int oldcapacity = sortingHelper.size();
@@ -324,16 +625,41 @@ inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, La
     }
   }
 
-  if( layer.GetBehavior() ==  Dali::Layer::LAYER_3D)
+  //todor comment
+  // Here we detemine which comparitor (of the 4) to use.
+  // The 3D comparitors start at index 2 (hence adding 2).
+  // The Clipping comparitors are offset from the 3D comparitors by 1. So 1 is added if clipping.
+  int comparitorIndex = ( respectClippingOrder ? 1 : 0 ) + ( layer.GetBehavior() == Dali::Layer::LAYER_3D ? 2 : 0 );
+  std::stable_sort( sortingHelper.begin(), sortingHelper.end(), sComparitors[ comparitorIndex ] );
+
+  //todor
+#if 0
+  if( layer.GetBehavior() == Dali::Layer::LAYER_3D )
   {
-    // sort the renderers back to front, Z Axis point from near plane to far plane
-    std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems3D );
+    if( !respectClippingOrder )
+    {
+      // sort the renderers back to front, Z Axis point from near plane to far plane
+      std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems3D );
+    }
+    else
+    {
+      std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems3DWithClipping );
+    }
   }
   else
   {
-    // sort the renderers based on DepthIndex
-    std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems );
+    if( !respectClippingOrder )
+    {
+      // Sort the renderers based on DepthIndex.
+      std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItems );
+    }
+    else
+    {
+      // Sort the renderers based on DepthIndex and Clipping order.
+      std::stable_sort( sortingHelper.begin(), sortingHelper.end(), CompareItemsWithClipping );
+    }
   }
+#endif
 
   // reorder/repopulate the renderitems in renderlist to correct order based on sortinghelper
   DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "Sorted Transparent List:\n");
@@ -343,20 +669,51 @@ inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, La
     *renderListIter = sortingHelper[ index ].renderItem;
     DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "  sortedList[%d] = %p\n", index, &sortingHelper[ index ].renderItem->GetRenderer() );
   }
+  if( CLIP_DEBUG ) std::cout << "todor: SortRenderItems: DONE" << std::endl;
 }
+
+#if 0
+// Recursively dumps node tree.
+void ProcessRenderItem( RenderItem& item, int indent = 0 )
+{
+  //std::cout << "Parent:" << (int)node.GetParent() << std::endl;
+
+  item.Get
+  const NodeContainer& children = node.GetChildren();
+  std::cout << "Node: childrenCount:" << children.Count() << std::endl;
+  int i = 0;
+  // Iterate through child nodes.
+  const NodeIter endIter = children.End();
+  for ( NodeIter iter = children.Begin(); iter != endIter; ++iter )
+  {
+    Node& child = **iter;
+    DumpNode( child, indent + 1 );
+    i++;
+  }
+
+  if( item.GetClippingMode() != Dali::Renderer::CLIPPING_DISABLED )
+  {
+    ++clippingId;
+  }
+
+  item.SetClippingId( clippingId );
+}
+#endif
 
 /**
  * Add color renderers from the layer onto the next free render list
- * @param updateBufferIndex to use
- * @param layer to get the renderers from
- * @param viewmatrix for the camera from rendertask
- * @param cameraAttachment to use the view frustum
- * @param stencilRenderablesExist is true if there are stencil renderers on this layer
- * @param instruction to fill in
- * @param sortingHelper to use for sorting the renderitems (to avoid reallocating)
- * @param tryReuseRenderList whether to try to reuse the cached items from the instruction
- * @param cull Whether frustum culling is enabled or not
+ * @param updateBufferIndex       to use
+ * @param layer                   to get the renderers from
+ * @param viewmatrix              for the camera from rendertask
+ * @param cameraAttachment        to use the view frustum
+ * @param stencilRenderablesExist is true if there are stencil (clipping) renderers on this layer, to optimize sorting if not
+ * @param instruction             to fill in
+ * @param sortingHelper           to use for sorting the renderitems (to avoid reallocating)
+ * @param tryReuseRenderList      whether to try to reuse the cached items from the instruction
+ * @param cull                    Whether frustum culling is enabled or not
  */
+//todor
+#if 0
 inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                Layer& layer,
                                const Matrix& viewMatrix,
@@ -365,10 +722,11 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                RenderInstruction& instruction,
                                RendererSortingHelper& sortingHelper,
                                bool tryReuseRenderList,
-                               bool cull)
+                               bool cull )
 {
+  std::cout << "todor: AddColorRenderers" << std::endl;
   RenderList& renderList = instruction.GetNextFreeRenderList( layer.colorRenderables.Size() );
-  renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
+  renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );//todordel
   renderList.SetHasColorRenderItems( true );
 
   // try to reuse cached renderitems from last time around
@@ -381,10 +739,16 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
   }
 
   AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
-  SortRenderItems( updateBufferIndex, renderList, layer, sortingHelper );
 
+  //DumpRenderList( renderList, "Color" );
+
+  SortRenderItems( updateBufferIndex, renderList, layer, sortingHelper, stencilRenderablesExist );
+
+  //todordel
   //Set render flags
   unsigned int flags = 0u;
+
+  //todor DO WE NEED THIS? check
   if( stencilRenderablesExist )
   {
     flags = RenderList::STENCIL_BUFFER_ENABLED;
@@ -398,19 +762,20 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
 
   if ( ( renderList.Count() == 1 ) &&
        ( !renderList.GetRenderer( 0 ).RequiresDepthTest() ) &&
-       ( !renderList.GetItem(0).IsOpaque() ) )
+       ( !renderList.GetItem( 0 ).IsOpaque() ) )
   {
     //Nothing to do here
   }
   else if( !layer.IsDepthTestDisabled())
   {
-    flags |= RenderList::DEPTH_BUFFER_ENABLED;
-    flags |= RenderList::DEPTH_CLEAR;
+    flags |= RenderList::DEPTH_BUFFER_ENABLED | RenderList::DEPTH_CLEAR;
   }
 
   renderList.ClearFlags();
-  renderList.SetFlags( flags );
+  renderList.SetFlags( flags ); //todor can we combine clear+set ?
+  std::cout << "todor: AddColorRenderers: DONE" << std::endl;
 }
+#endif
 
 /**
  * Add overlay renderers from the layer onto the next free render list
@@ -422,6 +787,8 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
  * @param tryReuseRenderList whether to try to reuse the cached items from the instruction
  * @param cull Whether frustum culling is enabled or not
  */
+//todor
+#if 0
 inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
                                  Layer& layer,
                                  const Matrix& viewMatrix,
@@ -438,6 +805,8 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
 
   //Set render flags
   overlayRenderList.ClearFlags();
+
+  //todor DO WE NEED THIS? check
   if(stencilRenderablesExist)
   {
     overlayRenderList.SetFlags(RenderList::STENCIL_BUFFER_ENABLED);
@@ -452,9 +821,116 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
     }
   }
   AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
-  SortRenderItems( updateBufferIndex, overlayRenderList, layer, sortingHelper );
+
+  DumpRenderList( overlayRenderList, "Overlay" );
+
+  // Clipping hierarchy is irrelevant when sorting overlay items.
+  SortRenderItems( updateBufferIndex, overlayRenderList, layer, sortingHelper, false );
+}
+#endif
+//todor ###########################################################################
+inline bool AddRenderers( RenderableContainer& renderables,
+                          Layer& layer,
+                          RenderInstruction& instruction,
+                          bool tryReuseRenderList,
+                          RenderList** renderList )
+{
+  *renderList = &( instruction.GetNextFreeRenderList( renderables.Size() ) );
+  ( *renderList )->SetClipping( layer.IsClipping(), layer.GetClippingBox() );
+
+  // Set render flags
+  ( *renderList )->ClearFlags();
+
+  // Try to reuse cached RenderItems from last time around
+  if( tryReuseRenderList )
+  {
+    if( TryReuseCachedRenderers( layer, **renderList, renderables ) )
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
+#if 0
+inline void AddColorRenderers( BufferIndex updateBufferIndex,
+                               Layer& layer,
+                               const Matrix& viewMatrix,
+                               SceneGraph::CameraAttachment& cameraAttachment,
+                               bool stencilRenderablesExist,
+                               RenderInstruction& instruction,
+                               RendererSortingHelper& sortingHelper,
+                               bool tryReuseRenderList,
+                               bool cull )
+{
+  RenderableContainer& renderables = layer.colorRenderables;
+  RenderList* renderList = NULL;
+
+  AddRenderers( renderables, layer, stencilRenderablesExist, instruction, tryReuseRenderList, &renderList );
+  renderList->SetHasColorRenderItems( true );
+  AddRenderersToRenderList( updateBufferIndex, *renderList, renderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+
+  //DumpRenderList( renderList, "Color" );
+  SortRenderItems( updateBufferIndex, *renderList, layer, sortingHelper, stencilRenderablesExist );
+
+  //todordel
+  //Set render flags
+  unsigned int flags = 0u;
+
+  //todor DO WE NEED THIS? check
+  if( stencilRenderablesExist )
+  {
+    flags = RenderList::STENCIL_BUFFER_ENABLED;
+  }
+
+  // Special optimization if depth test is disabled or if only one opaque rendered in the layer (for example background image)
+  // and this renderer does not need depth test against itself (e.g. mesh)
+  // and if this layer has got exactly one opaque renderer
+  // and this renderer is not interested in depth testing
+  // (i.e. is an image and not a mesh)
+
+  if ( ( renderList->Count() == 1 ) &&
+       ( !renderList->GetRenderer( 0 ).RequiresDepthTest() ) &&
+       ( !renderList->GetItem( 0 ).IsOpaque() ) )
+  {
+    //Nothing to do here
+  }
+  else if( !layer.IsDepthTestDisabled() )
+  {
+    flags |= RenderList::DEPTH_BUFFER_ENABLED | RenderList::DEPTH_CLEAR;
+  }
+
+  //renderList.ClearFlags(); //done by AR
+  renderList->SetFlags( flags ); //todor can we combine clear+set ?
+  std::cout << "todor: AddColorRenderers: DONE" << std::endl;
+}
+#endif
+#if 0
+inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
+                                 Layer& layer,
+                                 const Matrix& viewMatrix,
+                                 SceneGraph::CameraAttachment& cameraAttachment,
+                                 bool stencilRenderablesExist,
+                                 RenderInstruction& instruction,
+                                 RendererSortingHelper& sortingHelper,
+                                 bool tryReuseRenderList,
+                                 bool cull )
+{
+  RenderableContainer& renderables = layer.overlayRenderables;
+  RenderList* renderList = NULL;
+
+  AddRenderers( renderables, layer, stencilRenderablesExist, instruction, tryReuseRenderList, &renderList );
+  renderList->SetHasColorRenderItems( false );
+  AddRenderersToRenderList( updateBufferIndex, *renderList, layer.overlayRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+
+  // Clipping hierarchy is irrelevant when sorting overlay items.
+  //DumpRenderList( overlayRenderList, "Overlay" );
+  SortRenderItems( updateBufferIndex, *renderList, layer, sortingHelper, false );
+}
+#endif
+//todor del
+#if 0
 /**
  * Add stencil renderers from the layer onto the next free render list
  * @param updateBufferIndex to use
@@ -489,15 +965,20 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
     }
   }
   AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+  DumpRenderList( stencilRenderList, "Stencil" );
 }
-
+#endif
+//todor
+#if 0
 void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                                SortedLayerPointers& sortedLayers,
                                RenderTask& renderTask,
                                RendererSortingHelper& sortingHelper,
                                bool cull,
+                               bool stencilRenderablesExist,
                                RenderInstructionContainer& instructions )
 {
+  std::cout << "todor: PrepareRenderInstruction START" << std::endl;
   // Retrieve the RenderInstruction buffer from the RenderInstructionContainer
   // then populate with instructions.
   RenderInstruction& instruction = instructions.GetNextInstruction( updateBufferIndex );
@@ -512,17 +993,26 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
   {
     Layer& layer = **iter;
 
-    const bool stencilRenderablesExist( !layer.stencilRenderables.Empty() );
+    //todordel const bool stencilRenderablesExist( !layer.stencilRenderables.Empty() );
     const bool colorRenderablesExist( !layer.colorRenderables.Empty() );
     const bool overlayRenderablesExist( !layer.overlayRenderables.Empty() );
     const bool tryReuseRenderList( viewMatrixHasNotChanged && layer.CanReuseRenderers(renderTask.GetCamera()) );
 
+    std::cout << "todor: PrepareRenderInstruction: Layer:# " << //Stencils:" << stencilRenderablesExist <<
+        " Colors:" << colorRenderablesExist <<
+        " Overlays:" << overlayRenderablesExist <<
+        " TryReuse:" << tryReuseRenderList <<
+        std::endl;
+
+#if 0
+    //todor del
     // Ignore stencils if there's nothing to test
     if( stencilRenderablesExist &&
         ( colorRenderablesExist || overlayRenderablesExist ) )
     {
       AddStencilRenderers( updateBufferIndex, layer, viewMatrix, cameraAttachment, instruction, tryReuseRenderList, cull );
     }
+#endif
 
     if ( colorRenderablesExist )
     {
@@ -537,16 +1027,110 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                          cull );
     }
 
+    std::cout << "todor: AddOverlayRenderers START" << std::endl;
     if ( overlayRenderablesExist )
     {
-      AddOverlayRenderers( updateBufferIndex, layer, viewMatrix, cameraAttachment, stencilRenderablesExist,
+      // We deliberately ignore stencils for overlay renderers, this speeds up the sorting.
+      AddOverlayRenderers( updateBufferIndex, layer, viewMatrix, cameraAttachment, false,
                            instruction, sortingHelper, tryReuseRenderList, cull );
+    }
+    std::cout << "todor: AddOverlayRenderers END" << std::endl;
+  }
+
+  // inform the render instruction that all renderers have been added and this frame is complete
+  instruction.UpdateCompleted();
+  std::cout << "todor: PrepareRenderInstruction END" << std::endl;
+}
+#endif
+
+void PrepareRenderInstruction( BufferIndex updateBufferIndex,
+                               SortedLayerPointers& sortedLayers,
+                               RenderTask& renderTask,
+                               RendererSortingHelper& sortingHelper,
+                               bool cull,
+                               bool stencilRenderablesExist,
+                               RenderInstructionContainer& instructions )
+{
+  if( CLIP_DEBUG ) std::cout << "todor: PrepareRenderInstruction START" << std::endl;
+  // Retrieve the RenderInstruction buffer from the RenderInstructionContainer
+  // then populate with instructions.
+  RenderInstruction& instruction = instructions.GetNextInstruction( updateBufferIndex );
+  renderTask.PrepareRenderInstruction( instruction, updateBufferIndex );
+  bool viewMatrixHasNotChanged = !renderTask.ViewMatrixUpdated();
+
+  const Matrix& viewMatrix = renderTask.GetViewMatrix( updateBufferIndex );
+  SceneGraph::CameraAttachment& cameraAttachment = renderTask.GetCameraAttachment();
+
+  const SortedLayersIter endIter = sortedLayers.end();
+  for ( SortedLayersIter iter = sortedLayers.begin(); iter != endIter; ++iter )
+  {
+    Layer& layer = **iter;
+
+    const bool colorRenderablesExist( !layer.colorRenderables.Empty() );
+    const bool overlayRenderablesExist( !layer.overlayRenderables.Empty() );
+    const bool tryReuseRenderList( viewMatrixHasNotChanged && layer.CanReuseRenderers( renderTask.GetCamera() ) );
+
+    if( CLIP_DEBUG ) std::cout << "todor: PrepareRenderInstruction: Layer:#  Colors:" << colorRenderablesExist << " Overlays:" << overlayRenderablesExist << " TryReuse:" << tryReuseRenderList << std::endl;
+
+    RenderList* renderList = NULL;
+
+    if ( colorRenderablesExist )
+    {
+      if( CLIP_DEBUG ) std::cout << "todor: AddColorRenderers: START" << std::endl;
+      RenderableContainer& renderables = layer.colorRenderables;
+      if( !AddRenderers( renderables, layer, instruction, tryReuseRenderList, &renderList ) )
+      {
+        renderList->SetHasColorRenderItems( true );
+        AddRenderersToRenderList( updateBufferIndex, *renderList, renderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+
+        //DumpRenderList( renderList, "Color" );
+        SortRenderItems( updateBufferIndex, *renderList, layer, sortingHelper, stencilRenderablesExist );
+
+        // Set render flags
+        // Special optimization if depth test is disabled or if only one opaque rendered in the layer (for example background image)
+        // and this renderer does not need depth test against itself (e.g. mesh)
+        // and if this layer has got exactly one opaque renderer
+        // and this renderer is not interested in depth testing
+        // (i.e. is an image and not a mesh)
+
+        if ( ( renderList->Count() == 1 ) &&
+             ( !renderList->GetRenderer( 0 ).RequiresDepthTest() ) &&
+             ( !renderList->GetItem( 0 ).IsOpaque() ) )
+        {
+          // Nothing to do here (flags have already been cleared).
+        }
+        else if( !layer.IsDepthTestDisabled() )
+        {
+          // Note, the flags have already been cleared.
+          renderList->SetFlags( RenderList::DEPTH_BUFFER_ENABLED | RenderList::DEPTH_CLEAR );
+        }
+      }
+      if( CLIP_DEBUG ) std::cout << "todor: AddColorRenderers: DONE" << std::endl;
+    }
+
+    if ( overlayRenderablesExist )
+    {
+      if( CLIP_DEBUG ) std::cout << "todor: AddOverlayRenderers START" << std::endl;
+      RenderableContainer& renderables = layer.overlayRenderables;
+
+      if( !AddRenderers( renderables, layer, instruction, tryReuseRenderList, &renderList ) )
+      {
+        renderList->SetHasColorRenderItems( false );
+        AddRenderersToRenderList( updateBufferIndex, *renderList, renderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+
+        // Clipping hierarchy is irrelevant when sorting overlay items.
+        //DumpRenderList( overlayRenderList, "Overlay" );
+        SortRenderItems( updateBufferIndex, *renderList, layer, sortingHelper, false );
+      }
+      if( CLIP_DEBUG ) std::cout << "todor: AddOverlayRenderers END" << std::endl;
     }
   }
 
   // inform the render instruction that all renderers have been added and this frame is complete
   instruction.UpdateCompleted();
+  if( CLIP_DEBUG ) std::cout << "todor: PrepareRenderInstruction END" << std::endl;
 }
+
 
 } // SceneGraph
 

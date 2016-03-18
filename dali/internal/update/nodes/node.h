@@ -38,6 +38,12 @@
 #include <dali/internal/update/manager/transform-manager-property.h>
 #include <dali/internal/update/nodes/node-declarations.h>
 #include <dali/internal/update/rendering/scene-graph-renderer.h>
+//todor
+#include <iostream>
+#include <string>
+
+//todor
+static bool CLIP_DEBUG = false;
 
 namespace Dali
 {
@@ -48,6 +54,9 @@ namespace Internal
 // value types used by messages
 template <> struct ParameterType< ColorMode > : public BasicType< ColorMode > {};
 template <> struct ParameterType< PositionInheritanceMode > : public BasicType< PositionInheritanceMode > {};
+template <> struct ParameterType< Dali::ClippingMode::Type > : public BasicType< Dali::ClippingMode::Type > {};
+//todordel
+template <> struct ParameterType< const std::string > : public BasicType< const std::string > {};
 
 namespace SceneGraph
 {
@@ -69,7 +78,15 @@ enum NodePropertyFlags
   SizeFlag             = 0x008,
   OverlayFlag          = 0x010,
   SortModifierFlag     = 0x020,
-  ChildDeletedFlag     = 0x040
+  ChildDeletedFlag     = 0x040,
+};
+
+// todor: possibly combine with bit-field
+enum ClippingMode
+{
+  CLIPPING_DISABLED,
+  CLIPPING_ENABLED,
+  CLIP_AND_RENDER,
 };
 
 static const int AllFlags = ( ChildDeletedFlag << 1 ) - 1; // all the flags
@@ -77,10 +94,10 @@ static const int AllFlags = ( ChildDeletedFlag << 1 ) - 1; // all the flags
 /**
  * Size is not inherited. VisibleFlag is inherited
  */
-static const int InheritedDirtyFlags = TransformFlag | VisibleFlag | ColorFlag | OverlayFlag;
+static const int InheritedDirtyFlags = TransformFlag | VisibleFlag | ColorFlag | OverlayFlag; //todor: check clip
 
 // Flags which require the scene renderable lists to be updated
-static const int RenderableUpdateFlags = TransformFlag | SortModifierFlag | ChildDeletedFlag;
+static const int RenderableUpdateFlags = TransformFlag | SortModifierFlag | ChildDeletedFlag; //todor: check clip
 
 /**
  * Node is the base class for all nodes in the Scene Graph.
@@ -141,12 +158,76 @@ public:
     return NULL;
   }
 
+  //todordel
+  void SetClippingInformationDEP( int clippingId )
+  {
+    mClippingId = clippingId;
+  }
+  //todor
+  void SetName( std::string name )
+  {
+    mName = name;
+  }
+  std::string GetName() const
+  {
+    return mName;
+  }
+  void SetClippingMode( Dali::ClippingMode::Type mode )
+  {
+    mClippingMode = mode;
+  }
+  Dali::ClippingMode::Type GetClippingMode() const
+  {
+    return mClippingMode;
+  }
+  int GetClippingDepth() const
+  {
+    return mClippingDepth;
+  }
+  void SetClippingSortModifier( int clippingId, int clippingDepth )
+  {
+    mClippingId = clippingId;
+    mClippingDepth = clippingDepth;
+    if( CLIP_DEBUG ) std::cout << "todor: ------------------------------------------------  Node::SetClippingSortModifier: " << GetName() << " id:" << clippingId << " depth:" << clippingDepth << std::endl;
+  }
+  void SetClippingInformationTMP1( const std::string name, Dali::ClippingMode::Type clippingMode, int clippingId, int clippingDepth )
+  {
+    //todorscnow
+    mName = name;
+    mClippingMode = clippingMode;
+    mClippingId = clippingId;
+    mClippingDepth = clippingDepth;
+    if( CLIP_DEBUG ) std::cout << "todor: Node::SetClippingInformation: (ALL): mode:" << clippingMode << " name:" << name << " id:" << clippingId << " depth:" << clippingDepth << std::endl;
+  }
+  void SetClippingInformationTMP2( Dali::ClippingMode::Type clippingMode, const std::string name )
+  {
+    //todorscnow
+    mName = name;
+    mClippingMode = clippingMode;
+    if( CLIP_DEBUG ) std::cout << "todor: Node::SetClippingInformation: (MODE+NAME): mode:" << " mode:" << clippingMode << " name:" << name << std::endl;
+  }
+  void SetClippingInformation( Dali::ClippingMode::Type clippingMode )
+  {
+    //todorscnow
+    mClippingMode = clippingMode;
+    if( CLIP_DEBUG ) std::cout << "todor: Node::SetClippingInformation: (MODE ONLY): mode:" << clippingMode << std::endl;
+  }
+  int GetClippingId() const
+  {
+    return mClippingId;
+  }
+  unsigned int GetClippingSortModifier() const
+  {
+    return mClippingSortModifier;
+  }
+
   /**
    * Add a renderer to the node
    * @param[in] renderer The renderer added to the node
    */
   void AddRenderer( Renderer* renderer )
   {
+    if( CLIP_DEBUG ) std::cout << "todor NODE:AddRenderer: START:" << renderer->GetName() << std::endl;
     //Check that it has not been already added
     unsigned int rendererCount( mRenderer.Size() );
     for( unsigned int i(0); i<rendererCount; ++i )
@@ -165,6 +246,7 @@ public:
       mDirtyFlags |= TransformFlag;
     }
 
+    if( CLIP_DEBUG ) std::cout << "todor NODE:AddRenderer: END:" << renderer->GetName() << std::endl;
     mRenderer.PushBack( renderer );
   }
 
@@ -823,6 +905,14 @@ protected:
   DrawMode::Type          mDrawMode:2;               ///< How the Node and its children should be drawn
   ColorMode               mColorMode:2;              ///< Determines whether mWorldColor is inherited, 2 bits is enough
 
+
+  //todor
+  int mClippingId; ///< todor
+  std::string mName; ///<todor
+  Dali::ClippingMode::Type mClippingMode; ///< todor
+  unsigned int mClippingSortModifier; ///< todor
+  int mClippingDepth; ///< todor
+
   // Changes scope, should be at end of class
   DALI_LOG_OBJECT_STRING_DECLARATION;
 };
@@ -927,6 +1017,32 @@ inline void RemoveRendererMessage( EventThreadServices& eventThreadServices, con
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::RemoveRenderer, renderer );
 }
+
+//todor keep
+inline void SetClippingInformationMessage( EventThreadServices& eventThreadServices, const Node& node, Dali::ClippingMode::Type mode )
+{
+  typedef MessageValue1< Node, Dali::ClippingMode::Type > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::SetClippingInformation, mode );
+}
+
+//todordel
+inline void SetClippingInformationMessageTMP( EventThreadServices& eventThreadServices, const Node& node,
+    Dali::ClippingMode::Type mode, const std::string name )
+{
+  typedef MessageValue2< Node, Dali::ClippingMode::Type, const std::string > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::SetClippingInformationTMP2, mode, name );
+}
+
 } // namespace SceneGraph
 
 } // namespace Internal

@@ -22,6 +22,10 @@
 #include <dali/public-api/common/constants.h> // for Color::BLACK
 #include <dali/internal/render/common/render-tracker.h>
 #include <dali/integration-api/debug.h>
+//todor
+#include <string>
+#include <sstream>
+#include <iostream>
 
 namespace Dali
 {
@@ -31,6 +35,8 @@ namespace Internal
 
 namespace SceneGraph
 {
+
+static int g_instance = 0;
 
 RenderInstruction::RenderInstruction()
 : mRenderTracker( NULL ),
@@ -43,6 +49,9 @@ RenderInstruction::RenderInstruction()
 {
   // reserve 6 lists, which is enough for three layers with opaque and transparent things on
   mRenderLists.Reserve( 6 );
+  mCo = 0;//todor
+  mInstanceCo = g_instance++;
+  std::cout << "todor: CREATED RENDERINSTRUCTION:" << mInstanceCo << std::endl;
 }
 
 RenderInstruction::~RenderInstruction()
@@ -62,6 +71,11 @@ RenderList& RenderInstruction::GetNextFreeRenderList( size_t capacityRequired )
   {
     mRenderLists[ mNextFreeRenderList ]->Reserve( capacityRequired );
   }
+
+  std::stringstream lName;
+  lName << "blah_I:" << mInstanceCo << "_N:" << mCo;
+  mCo++;
+  mRenderLists[ mNextFreeRenderList ]->SetName( lName.str() );//todor
 
   // return the list mNextFreeRenderList points to and increase by one
   return *mRenderLists[ mNextFreeRenderList++ ];

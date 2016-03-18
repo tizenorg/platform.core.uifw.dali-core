@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
+
 #include <dali/public-api/images/resource-image.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/object/property-array.h>
@@ -38,52 +39,7 @@ namespace Scripting
 namespace
 {
 
-// Tables used here for converting strings to the enumerations and vice versa
-struct AnchorValue
-{
-  const char* name;
-  const Vector3 value;
-};
-const AnchorValue ANCHOR_CONSTANT_TABLE[] =
-{
-  { "TOP_LEFT",               ParentOrigin::TOP_LEFT               },
-  { "TOP_CENTER",             ParentOrigin::TOP_CENTER             },
-  { "TOP_RIGHT",              ParentOrigin::TOP_RIGHT              },
-  { "CENTER_LEFT",            ParentOrigin::CENTER_LEFT            },
-  { "CENTER",                 ParentOrigin::CENTER                 },
-  { "CENTER_RIGHT",           ParentOrigin::CENTER_RIGHT           },
-  { "BOTTOM_LEFT",            ParentOrigin::BOTTOM_LEFT            },
-  { "BOTTOM_CENTER",          ParentOrigin::BOTTOM_CENTER          },
-  { "BOTTOM_RIGHT",           ParentOrigin::BOTTOM_RIGHT           },
-};
-const unsigned int ANCHOR_CONSTANT_TABLE_COUNT = sizeof( ANCHOR_CONSTANT_TABLE ) / sizeof( ANCHOR_CONSTANT_TABLE[0] );
-
-const StringEnum COLOR_MODE_TABLE[] =
-{
-  { "USE_OWN_COLOR",                    USE_OWN_COLOR                    },
-  { "USE_PARENT_COLOR",                 USE_PARENT_COLOR                 },
-  { "USE_OWN_MULTIPLY_PARENT_COLOR",    USE_OWN_MULTIPLY_PARENT_COLOR    },
-  { "USE_OWN_MULTIPLY_PARENT_ALPHA",    USE_OWN_MULTIPLY_PARENT_ALPHA    },
-};
-const unsigned int COLOR_MODE_TABLE_COUNT = sizeof( COLOR_MODE_TABLE ) / sizeof( COLOR_MODE_TABLE[0] );
-
-const StringEnum POSITION_INHERITANCE_MODE_TABLE[] =
-{
-  { "INHERIT_PARENT_POSITION",                    INHERIT_PARENT_POSITION                    },
-  { "USE_PARENT_POSITION",                        USE_PARENT_POSITION                        },
-  { "USE_PARENT_POSITION_PLUS_LOCAL_POSITION",    USE_PARENT_POSITION_PLUS_LOCAL_POSITION    },
-  { "DONT_INHERIT_POSITION",                      DONT_INHERIT_POSITION                      },
-};
-const unsigned int POSITION_INHERITANCE_MODE_TABLE_COUNT = sizeof( POSITION_INHERITANCE_MODE_TABLE ) / sizeof( POSITION_INHERITANCE_MODE_TABLE[0] );
-
-const StringEnum DRAW_MODE_TABLE[] =
-{
-  { "NORMAL",     DrawMode::NORMAL     },
-  { "OVERLAY_2D", DrawMode::OVERLAY_2D },
-  { "STENCIL",    DrawMode::STENCIL    },
-};
-const unsigned int DRAW_MODE_TABLE_COUNT = sizeof( DRAW_MODE_TABLE ) / sizeof( DRAW_MODE_TABLE[0] );
-
+// TODO: Move enum tables into their respective contexts.
 const StringEnum IMAGE_LOAD_POLICY_TABLE[] =
 {
   { "IMMEDIATE", ResourceImage::IMMEDIATE },
@@ -150,9 +106,29 @@ const StringEnum IMAGE_SAMPLING_MODE_TABLE[] =
 };
 const unsigned int IMAGE_SAMPLING_MODE_TABLE_COUNT = sizeof( IMAGE_SAMPLING_MODE_TABLE ) / sizeof( IMAGE_SAMPLING_MODE_TABLE[0] );
 
+struct AnchorValue
+{
+  const char* name;
+  const Vector3 value;
+};
+const AnchorValue AnchorPointTable[] =
+{
+  { "TOP_LEFT",               ParentOrigin::TOP_LEFT               },
+  { "TOP_CENTER",             ParentOrigin::TOP_CENTER             },
+  { "TOP_RIGHT",              ParentOrigin::TOP_RIGHT              },
+  { "CENTER_LEFT",            ParentOrigin::CENTER_LEFT            },
+  { "CENTER",                 ParentOrigin::CENTER                 },
+  { "CENTER_RIGHT",           ParentOrigin::CENTER_RIGHT           },
+  { "BOTTOM_LEFT",            ParentOrigin::BOTTOM_LEFT            },
+  { "BOTTOM_CENTER",          ParentOrigin::BOTTOM_CENTER          },
+  { "BOTTOM_RIGHT",           ParentOrigin::BOTTOM_RIGHT           },
+};
+const unsigned int AnchorPointTableCount = sizeof( AnchorPointTable ) / sizeof( AnchorPointTable[0] );
+
 const char* ImageTypeName[] = { "ResourceImage", "FrameBufferImage", "BufferImage" };
 enum ImageType                { RESOURCE_IMAGE,  FRAME_BUFFER_IMAGE, BUFFER_IMAGE };
 const unsigned int imageTypeCount = sizeof( ImageTypeName ) / sizeof( const char* );
+
 
 bool CompareEnums( const char * a, const char * b, size_t& size )
 {
@@ -242,7 +218,6 @@ bool EnumStringToInteger( const char * const value, const StringEnum* const enum
           done = false;
         }
       }
-
     }
 
     integerEnum = ret;
@@ -276,78 +251,18 @@ unsigned int FindEnumIndex( const char* value, const StringEnum* table, unsigned
   return index;
 }
 
-ColorMode GetColorMode( const std::string& value )
-{
-  // return default on error
-  ColorMode mode( USE_OWN_MULTIPLY_PARENT_ALPHA );
-  GetEnumeration< ColorMode >( value.c_str(), COLOR_MODE_TABLE, COLOR_MODE_TABLE_COUNT, mode );
-  return mode;
-}
-
-
-std::string GetColorMode( ColorMode value )
-{
-  const char* name = GetEnumerationName< ColorMode >( value, COLOR_MODE_TABLE, COLOR_MODE_TABLE_COUNT );
-  if( name )
-  {
-    return std::string( name );
-  }
-  return std::string();
-}
-
-PositionInheritanceMode GetPositionInheritanceMode( const std::string& value )
-{
-  // return default on error
-  PositionInheritanceMode mode( INHERIT_PARENT_POSITION );
-  GetEnumeration< PositionInheritanceMode >( value.c_str(), POSITION_INHERITANCE_MODE_TABLE, POSITION_INHERITANCE_MODE_TABLE_COUNT, mode );
-  return mode;
-}
-
-
-std::string GetPositionInheritanceMode( PositionInheritanceMode value )
-{
-  const char* name = GetEnumerationName< PositionInheritanceMode >( value, POSITION_INHERITANCE_MODE_TABLE, POSITION_INHERITANCE_MODE_TABLE_COUNT );
-  if( name )
-  {
-    return std::string( name );
-  }
-  return std::string();
-}
-
-
-DrawMode::Type GetDrawMode( const std::string& value )
-{
-  // return default on error
-  DrawMode::Type mode( DrawMode::NORMAL );
-  GetEnumeration< DrawMode::Type >( value.c_str(), DRAW_MODE_TABLE, DRAW_MODE_TABLE_COUNT, mode );
-  return mode;
-}
-
-
-std::string GetDrawMode( DrawMode::Type value )
-{
-  const char* name = GetEnumerationName< DrawMode::Type >( value, DRAW_MODE_TABLE, DRAW_MODE_TABLE_COUNT );
-  if( name )
-  {
-    return std::string( name );
-  }
-  return std::string();
-}
-
-
 Vector3 GetAnchorConstant( const std::string& value )
 {
-  for( unsigned int i = 0; i < ANCHOR_CONSTANT_TABLE_COUNT; ++i )
+  for( unsigned int i = 0; i < AnchorPointTableCount; ++i )
   {
     size_t sizeIgnored = 0;
-    if( CompareEnums( value.c_str(), ANCHOR_CONSTANT_TABLE[ i ].name, sizeIgnored ) )
+    if( CompareEnums( value.c_str(), AnchorPointTable[ i ].name, sizeIgnored ) )
     {
-      return ANCHOR_CONSTANT_TABLE[ i ].value;
+      return AnchorPointTable[ i ].value;
     }
   }
   return Vector3();
 }
-
 
 Image NewImage( const Property::Value& property )
 {
@@ -835,6 +750,23 @@ void NewAnimation( const Property::Map& map, Dali::AnimationData& outputAnimatio
 
   outputAnimationData.Add( element );
 }
+
+
+
+//todor
+template< typename T >
+const char * GetLinearEnumerationName2( T value )
+{
+  int tableCount = 2;
+  const StringEnum* table;
+  if ( table && ( value > 0 || value <= (int)tableCount ) )
+  {
+    return table[value].string;
+  }
+  return NULL;
+}
+
+
 
 } // namespace scripting
 

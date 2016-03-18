@@ -2,7 +2,7 @@
 #define __DALI_ACTOR_ENUMERATIONS_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,24 +53,41 @@ enum PositionInheritanceMode
   DONT_INHERIT_POSITION                    ///< Actor will not inherit position. Local position is treated as world position. This is useful if a constraint is used to override local position or if an actor is positioned globally. This option ignores parent origin, anchor point and local position. @SINCE_1_0.0
 };
 
+#if 1
+//todor keep
+/**
+ * @brief ClippingMode describes how this control will be used for clipping its children
+ * @SINCE_1_1.34
+ */
+namespace ClippingMode
+{
+  enum Type
+  {
+    CLIPPING_DISABLED, ///< @brief This controls renderers will not create a clipping stencil. Default. @SINCE_1_1.34
+    CLIPPING_ENABLED,  ///< @brief This controls renderers will create a clipping area that children will be clipped against. @SINCE_1_1.34
+    CLIP_AND_RENDER,   ///< @brief This controls renderers will create a clipping area that children will be clipped against. The renderers will also be rendered visually. @SINCE_1_1.34
+  };
+};
+#endif
+
 /**
  * @brief Dimensions for layout
  * @SINCE_1_0.0
  */
 namespace Dimension
 {
-enum Type
-{
-  WIDTH  = 0x1,       ///< Width dimension @SINCE_1_0.0
-  HEIGHT = 0x2,       ///< Height dimension @SINCE_1_0.0
+  enum Type
+  {
+    WIDTH  = 0x1,       ///< Width dimension @SINCE_1_0.0
+    HEIGHT = 0x2,       ///< Height dimension @SINCE_1_0.0
 
-  ALL_DIMENSIONS = 0x3  ///< Mask to cover all flags @SINCE_1_0.0
-};
+    ALL_DIMENSIONS = 0x3  ///< Mask to cover all flags @SINCE_1_0.0
+  };
 
-enum Meta
-{
-  DIMENSION_COUNT = 2  ///< Number of dimensions - update this if adding new dimension @SINCE_1_0.0
-};
+  enum Meta
+  {
+    DIMENSION_COUNT = 2  ///< Number of dimensions - update this if adding new dimension @SINCE_1_0.0
+  };
 }
 
 /**
@@ -79,18 +96,18 @@ enum Meta
  */
 namespace ResizePolicy
 {
-enum Type
-{
-  FIXED,                 ///< Size is fixed as set by SetSize @SINCE_1_0.0
-  USE_NATURAL_SIZE,      ///< Size is to use the actor's natural size @SINCE_1_0.0
-  FILL_TO_PARENT,        ///< Size is to fill up to the actor's parent's bounds. Aspect ratio is not maintained. @SINCE_1_0.0
-  SIZE_RELATIVE_TO_PARENT,        ///< The actors size will be ( ParentSize * SizeRelativeToParentFactor ). @SINCE_1_0.0
-  SIZE_FIXED_OFFSET_FROM_PARENT,  ///< The actors size will be ( ParentSize + SizeRelativeToParentFactor ). @SINCE_1_0.0
-  FIT_TO_CHILDREN,       ///< Size will adjust to wrap around all children @SINCE_1_0.0
-  DIMENSION_DEPENDENCY,  ///< One dimension is dependent on the other @SINCE_1_0.0
-  USE_ASSIGNED_SIZE      ///< The size will be assigned to the actor @SINCE_1_0.0
-};
-const Type DEFAULT = USE_NATURAL_SIZE; ///< Default resize policy
+  enum Type
+  {
+    FIXED,                 ///< Size is fixed as set by SetSize @SINCE_1_0.0
+    USE_NATURAL_SIZE,      ///< Size is to use the actor's natural size @SINCE_1_0.0
+    FILL_TO_PARENT,        ///< Size is to fill up to the actor's parent's bounds. Aspect ratio is not maintained. @SINCE_1_0.0
+    SIZE_RELATIVE_TO_PARENT,        ///< The actors size will be ( ParentSize * SizeRelativeToParentFactor ). @SINCE_1_0.0
+    SIZE_FIXED_OFFSET_FROM_PARENT,  ///< The actors size will be ( ParentSize + SizeRelativeToParentFactor ). @SINCE_1_0.0
+    FIT_TO_CHILDREN,       ///< Size will adjust to wrap around all children @SINCE_1_0.0
+    DIMENSION_DEPENDENCY,  ///< One dimension is dependent on the other @SINCE_1_0.0
+    USE_ASSIGNED_SIZE      ///< The size will be assigned to the actor @SINCE_1_0.0
+  };
+  const Type DEFAULT = USE_NATURAL_SIZE; ///< Default resize policy
 }
 
 /**
@@ -99,12 +116,12 @@ const Type DEFAULT = USE_NATURAL_SIZE; ///< Default resize policy
  */
 namespace SizeScalePolicy
 {
-enum Type
-{
-  USE_SIZE_SET,                ///< Use the size that was set @SINCE_1_0.0
-  FIT_WITH_ASPECT_RATIO,       ///< Fit within the size set maintaining natural size aspect ratio @SINCE_1_0.0
-  FILL_WITH_ASPECT_RATIO       ///< Fill up the size set maintaining natural size aspect ratio. May exceed size bounds in one dimension. @SINCE_1_0.0
-};
+  enum Type
+  {
+    USE_SIZE_SET,                ///< Use the size that was set @SINCE_1_0.0
+    FIT_WITH_ASPECT_RATIO,       ///< Fit within the size set maintaining natural size aspect ratio @SINCE_1_0.0
+    FILL_WITH_ASPECT_RATIO       ///< Fill up the size set maintaining natural size aspect ratio. May exceed size bounds in one dimension. @SINCE_1_0.0
+  };
 }
 
 /**
@@ -113,12 +130,12 @@ enum Type
  */
 namespace HorizontalAlignment
 {
-enum Type
-{
-  LEFT,         ///< Align horizontally left @SINCE_1_0.0
-  CENTER,       ///< Align horizontally center @SINCE_1_0.0
-  RIGHT         ///< Align horiztonally right @SINCE_1_0.0
-};
+  enum Type
+  {
+    LEFT,         ///< Align horizontally left @SINCE_1_0.0
+    CENTER,       ///< Align horizontally center @SINCE_1_0.0
+    RIGHT         ///< Align horiztonally right @SINCE_1_0.0
+  };
 }
 
 /**
@@ -127,12 +144,12 @@ enum Type
  */
 namespace VerticalAlignment
 {
-enum Type
-{
-  TOP,          ///< Align vertically top @SINCE_1_0.0
-  CENTER,       ///< Align vertically center @SINCE_1_0.0
-  BOTTOM        ///< Align vertically bottom @SINCE_1_0.0
-};
+  enum Type
+  {
+    TOP,          ///< Align vertically top @SINCE_1_0.0
+    CENTER,       ///< Align vertically center @SINCE_1_0.0
+    BOTTOM        ///< Align vertically bottom @SINCE_1_0.0
+  };
 }
 
 /**

@@ -222,7 +222,7 @@ private:
 
 public: // For update-algorithms
 
-  RenderableContainer stencilRenderables;
+  RenderableContainer stencilRenderables;//todor delete?
   RenderableContainer colorRenderables;
   RenderableContainer overlayRenderables;
 

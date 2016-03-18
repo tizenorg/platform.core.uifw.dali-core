@@ -169,6 +169,9 @@ struct UpdateManager::Impl
 
     // create first 'dummy' node
     nodes.PushBack(0u);
+
+    // Set up PrepareRenderInstructions for use.
+    InitializePrepareRenderInstructions();
   }
 
   ~Impl()

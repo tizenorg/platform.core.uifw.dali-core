@@ -21,6 +21,8 @@
 // INTERNAL INCLUDES
 #include <dali/internal/common/memory-pool-object-allocator.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+//todor
+#include <iostream>
 
 namespace
 {
@@ -48,7 +50,9 @@ RenderItem::RenderItem()
   mRenderer( NULL ),
   mNode( NULL ),
   mDepthIndex( 0 ),
-  mIsOpaque( true )
+  mIsOpaque( true ),
+  mClippingMode( Dali::ClippingMode::CLIPPING_DISABLED ), //todordel
+  mClippingId( -1 ) //todordel
 {
 }
 

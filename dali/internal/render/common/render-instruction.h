@@ -147,6 +147,9 @@ private: // Data
   RenderListContainer mRenderLists;     ///< container of all render lists
   RenderListContainer::SizeType mNextFreeRenderList;     ///< index for the next free render list
 
+  int mCo;//todor
+  int mInstanceCo;//todor
+
 };
 
 } // namespace SceneGraph

@@ -20,6 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/common/fixed-size-memory-pool.h>
+//todor
+#include <iostream>
 
 namespace Dali
 {

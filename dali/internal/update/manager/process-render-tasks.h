@@ -24,6 +24,7 @@
 
 namespace Dali
 {
+
 namespace Internal
 {
 

@@ -67,6 +67,12 @@ typedef std::vector< RendererWithSortAttributes > RendererSortingHelper;
 class RenderTask;
 class RenderInstructionContainer;
 
+
+/**
+ * todor doxy
+ */
+void InitializePrepareRenderInstructions();
+
 /**
  * Sorts and prepares the list of opaque/transparent renderers for each layer.
  * Whilst iterating through each layer, update the renderitems ModelView matrices
@@ -82,6 +88,7 @@ class RenderInstructionContainer;
  * @param[in] renderTask The rendering task information.
  * @param[in] sortingHelper to avoid allocating containers for sorting every frame
  * @param[in] cull Whether frustum culling is enabled or not
+ * @param[in] hasClippingNodes Whether any clipping nodes exist within this layer, to optimize sorting if not
  * @param[out] instructions The rendering instructions for the next frame.
  */
 void PrepareRenderInstruction( BufferIndex updateBufferIndex,
@@ -89,6 +96,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
                                RenderTask& renderTask,
                                RendererSortingHelper& sortingHelper,
                                bool cull,
+                               bool hasClippingNodes,
                                RenderInstructionContainer& instructions );
 
 } // namespace SceneGraph

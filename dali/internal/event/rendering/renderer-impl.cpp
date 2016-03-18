@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,10 @@
 #include <dali/internal/update/rendering/scene-graph-renderer.h>
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/internal/render/renderers/render-geometry.h>
+
+//todor
+#include <string>
+#include <iostream>
 
 namespace Dali
 {
@@ -73,6 +77,30 @@ RendererPtr Renderer::New()
   RendererPtr rendererPtr( new Renderer() );
   rendererPtr->Initialize();
   return rendererPtr;
+}
+
+//todor delete
+void Renderer::SetName( std::string name )
+{
+  mName = name;
+
+  //todorscnow putback ?
+  //mSceneObject->SetName( name );
+}
+std::string Renderer::GetName()
+{
+  return mName;
+}
+
+void Renderer::SetClippingMode( Dali::ClippingMode::Type mode )
+{
+  mClippingMode = mode;
+  mSceneObject->SetClippingMode( mode );
+}
+
+Dali::ClippingMode::Type Renderer::GetClippingMode()
+{
+  return mClippingMode;
 }
 
 void Renderer::SetGeometry( Geometry& geometry )
@@ -695,12 +723,14 @@ Renderer::Renderer()
   mBlendingOptions(),
   mDepthWriteMode( DepthWriteMode::AUTO ),
   mDepthFunction( DepthFunction::LESS ),
+  //todor init clipping if kept
   mPremultipledAlphaEnabled( false )
 {
 }
 
 void Renderer::Initialize()
 {
+  std::cout << "todor: Renderer::Initialize:" << std::endl;
   EventThreadServices& eventThreadServices = GetEventThreadServices();
   SceneGraph::UpdateManager& updateManager = eventThreadServices.GetUpdateManager();
 

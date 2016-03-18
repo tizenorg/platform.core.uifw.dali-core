@@ -32,6 +32,9 @@
 #include <dali/internal/update/manager/prepare-render-instructions.h>
 #include <dali/internal/render/data-providers/render-data-provider.h>
 #include <dali/internal/render/renderers/render-geometry.h>
+//todor
+#include <iostream>
+#include <string>
 
 namespace Dali
 {
@@ -73,6 +76,24 @@ public:
    * @copydoc Dali::Internal::GlResourceOwner::GlCleanup()
    */
   void GlCleanup();
+
+  //todor
+  void SetName( std::string name )
+  {
+    mName = name;
+  }
+  std::string GetName()
+  {
+    return mName;
+  }
+  void SetClippingEnabled( bool enabled )
+  {
+    mClippingEnabled = enabled;
+  }
+  bool GetClippingEnabled()
+  {
+    return mClippingEnabled;
+  }
 
   /**
    * Create a new renderer instance
@@ -298,11 +319,14 @@ private:
   DepthWriteMode::Type  mDepthWriteMode;  /// Depth write mode
   DepthFunction::Type   mDepthFunction;   /// Depth function
 
-  size_t mIndexedDrawFirstElement;                  /// Offset of first element to draw
-  size_t mIndexedDrawElementsCount;                 /// Number of elements to draw
+  size_t mIndexedDrawFirstElement;        /// Offset of first element to draw
+  size_t mIndexedDrawElementsCount;       /// Number of elements to draw
 
-  bool mUpdateAttributesLocation:1;                 ///< Indicates attribute locations have changed
-  bool mPremultipledAlphaEnabled:1;                 ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mUpdateAttributesLocation:1;       ///< Indicates attribute locations have changed
+  bool mPremultipledAlphaEnabled:1;       ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+
+  std::string mName;//todor
+  bool mClippingEnabled;//todor
 };
 
 } // namespace SceneGraph

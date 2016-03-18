@@ -22,6 +22,8 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/devel-api/common/owner-container.h>
 #include <dali/internal/render/common/render-item.h>
+//todor
+#include <string>
 
 namespace Dali
 {
@@ -307,8 +309,18 @@ public:
     return mHasColorRenderItems;
   }
 
+  void SetName( std::string name )
+  {
+    mName = name;
+  }
+  std::string GetName(void) const
+  {
+    return mName;
+  }
 private:
 
+  //todor
+public:
   /*
    * Copy constructor and assignment operator not defined
    */
@@ -323,6 +335,8 @@ private:
   ClippingBox* mClippingBox;               ///< The clipping box, in window coordinates, when clipping is enabled
   Layer*       mSourceLayer;              ///< The originating layer where the renderers are from
   bool         mHasColorRenderItems : 1;  ///< True if list contains color render items
+
+  std::string mName;//todor
 };
 
 } // namespace SceneGraph

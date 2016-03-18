@@ -30,6 +30,8 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/integration-api/debug.h>
+//todor
+#include <iostream>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gRenderTaskLogFilter;
@@ -104,6 +106,8 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
                             RenderTask& renderTask,
                             int inheritedDrawMode )
 {
+  std::cout << "todor: AddRenderablesForTask: " << std::endl;
+
   bool resourcesFinished = true;
 
   // Short-circuit for invisible nodes
@@ -186,6 +190,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                          RendererSortingHelper& sortingHelper,
                          RenderInstructionContainer& instructions )
 {
+  std::cout << "todor: ProcessRenderTasks: START" << std::endl;
   RenderTaskList::RenderTaskContainer& taskContainer = renderTasks.GetTasks();
 
   if ( taskContainer.IsEmpty() )
@@ -215,6 +220,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
       continue;
     }
 
+    std::cout << "todor: ProcessRenderTasks: OFFSCREEN:" << std::endl;
     if ( !renderTask.ReadyToRender( updateBufferIndex ) )
     {
       // Skip to next task
@@ -279,6 +285,7 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
       // Skip to next task
       continue;
     }
+    std::cout << "todor: ProcessRenderTasks: ONSCREEN:" << std::endl;
     if ( !renderTask.ReadyToRender( updateBufferIndex ) )
     {
       // Skip to next task

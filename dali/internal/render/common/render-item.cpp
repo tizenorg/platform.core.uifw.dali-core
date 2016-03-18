@@ -45,6 +45,8 @@ RenderItem::RenderItem()
 : mModelViewMatrix( false ),
   mRenderer( NULL ),
   mNode( NULL ),
+  mClippingMode( Dali::Renderer::CLIPPING_DISABLED ),
+  mClippingId( -1 ),
   mDepthIndex( 0 ),
   mIsOpaque( true )
 {

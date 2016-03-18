@@ -56,6 +56,15 @@ Renderer& Renderer::operator=( const Renderer& handle )
   return *this;
 }
 
+void Renderer::SetName( std::string name )
+{
+  GetImplementation(*this).SetName( name );
+}
+std::string Renderer::GetName()
+{
+  return GetImplementation(*this).GetName();
+}
+
 void Renderer::SetGeometry( Geometry& geometry )
 {
   DALI_ASSERT_ALWAYS( geometry && "Geometry handle not initialized" );

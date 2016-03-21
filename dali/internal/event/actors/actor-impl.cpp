@@ -4079,6 +4079,18 @@ void Actor::NegotiateSize( const Vector2& allocatedSize, RelayoutContainer& cont
   {
     ActorPtr child = GetChildAt( i );
 
+    // Force the child with assigned size to do a size negotiation
+    if(child->GetResizePolicy(Dimension::WIDTH) == ResizePolicy::USE_ASSIGNED_SIZE)
+    {
+      child->SetLayoutNegotiated(false, Dimension::WIDTH);
+      child->SetLayoutDirty(true, Dimension::WIDTH);
+    }
+    if(child->GetResizePolicy(Dimension::HEIGHT) == ResizePolicy::USE_ASSIGNED_SIZE)
+    {
+      child->SetLayoutNegotiated(false, Dimension::HEIGHT);
+      child->SetLayoutDirty(true, Dimension::HEIGHT);
+    }
+
     // Only relayout if required
     if( child->RelayoutRequired() )
     {

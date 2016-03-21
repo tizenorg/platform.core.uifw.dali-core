@@ -415,17 +415,10 @@ public:
    * Sets the data of an existing property buffer
    * @param[in] propertyBuffer The property buffer.
    * @param[in] data The new data of the buffer
+   * @param[in] size The new size of the buffer
    * @post Sends a message to RenderManager to set the new data to the property buffer.
    */
-  void SetPropertyBufferData(Render::PropertyBuffer* propertyBuffer, Dali::Vector<char>* data);
-
-  /**
-   * Sets the size of an existing property buffer
-   * @param[in] propertyBuffer The property buffer.
-   * @param[in] size The new size of the buffer
-   * @post Sends a message to RenderManager to set the new size to the property buffer.
-   */
-  void SetPropertyBufferSize(Render::PropertyBuffer* propertyBuffer, size_t size );
+  void SetPropertyBufferData(Render::PropertyBuffer* propertyBuffer, Dali::Vector<char>* data, size_t size);
 
 public:
 

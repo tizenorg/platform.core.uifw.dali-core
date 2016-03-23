@@ -135,7 +135,7 @@ public: // UniformMap::Observer
    * Get the index buffer of the geometry
    * @return A pointer to the index buffer if it exists, or NULL if it doesn't.
    */
-   Render::PropertyBuffer* GetIndexBuffer();
+   Render::PropertyBuffer* GetIndexBuffer() const;
 
    /**
     * Gets the associated RenderGeometry

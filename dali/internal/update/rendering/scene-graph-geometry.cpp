@@ -130,7 +130,7 @@ Vector<Render::PropertyBuffer*>& Geometry::GetVertexBuffers()
   return mVertexBuffers;
 }
 
-Render::PropertyBuffer* Geometry::GetIndexBuffer()
+Render::PropertyBuffer* Geometry::GetIndexBuffer() const
 {
   return mIndexBuffer;
 }
@@ -172,7 +172,7 @@ void Geometry::UniformMappingsChanged( const UniformMap& mappings )
 
 RenderGeometry* Geometry::GetRenderGeometry(SceneController* sceneController)
 {
-  if(!mRenderGeometry )
+  if( !mRenderGeometry && sceneController )
   {
     //Create RenderGeometry
     mSceneController = sceneController;

@@ -30,14 +30,17 @@ namespace Dali
 namespace Internal
 {
 
+
 namespace Render
 {
 class Renderer;
+class PropertyBuffer;
 }
 
 namespace SceneGraph
 {
 
+class RenderGeometry;
 class RenderItem;
 
 typedef std::vector< RenderItem > RendererItemContainer;
@@ -82,6 +85,10 @@ public:
    */
   void SetRenderer( Render::Renderer* renderer );
 
+  void SetBatchGeometry( SceneGraph::RenderGeometry* geometry );
+
+  SceneGraph::RenderGeometry* GetBatchGeometry() const;
+
   /**
    * Set the node
    * @param[in] node The node
@@ -96,6 +103,19 @@ public:
   {
     return *mNode;
   }
+
+  /**
+   * Retrieve the model matrix.
+   * @return The model matrix.
+   */
+  Matrix& GetModelMatrix();
+
+  /**
+   * Retrieve the model matrix.
+   * @return The model matrix.
+   */
+  const Matrix& GetModelMatrix() const;
+
   /**
    * Retrieve the modelView matrix.
    * @return The modelView matrix.
@@ -165,12 +185,24 @@ private:
   RenderItem( const RenderItem& item );
   RenderItem& operator = ( const RenderItem& item );
 
+  Matrix            mModelMatrix;
   Matrix            mModelViewMatrix;
   Vector3           mSize;
   Render::Renderer* mRenderer;
+
   Node*             mNode;
   int               mDepthIndex;
   bool              mIsOpaque:1;
+
+public:
+
+  bool              mSkipIfBatched:1;
+  bool              mBatchUpdated:1;
+
+  SceneGraph::RenderGeometry* mBatchRenderGeometry; //<! alternative geometry used for batching objects
+  Render::PropertyBuffer* mBatchVertexBuffer;
+  Render::PropertyBuffer* mBatchIndexBuffer;
+
 };
 
 } // namespace SceneGraph

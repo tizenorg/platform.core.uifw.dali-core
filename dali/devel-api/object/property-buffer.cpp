@@ -66,7 +66,6 @@ std::size_t PropertyBuffer::GetSize() const
   return  GetImplementation(*this).GetSize();
 }
 
-
 PropertyBuffer::PropertyBuffer( Internal::PropertyBuffer* pointer )
 : BaseHandle( pointer )
 {

@@ -21,6 +21,8 @@
 #include <dali/internal/render/renderers/render-property-buffer.h>
 #include <dali/internal/render/shaders/program.h>
 
+#include <cstdio>
+
 namespace Dali
 {
 namespace Internal
@@ -116,8 +118,12 @@ void RenderGeometry::OnRenderFinished()
 void RenderGeometry::UploadAndDraw(
     Context& context,
     BufferIndex bufferIndex,
-    Vector<GLint>& attributeLocation )
+    Vector<GLint>& attributeLocation,
+    size_t elementOffset,
+    size_t elementLength )
 {
+  elementOffset = 0;
+  elementLength = 0;
   if( !mHasBeenUpdated )
   {
     // Update buffers
@@ -150,6 +156,7 @@ void RenderGeometry::UploadAndDraw(
     base += mVertexBuffers[i]->EnableVertexAttributes( context, attributeLocation, base );
   }
 
+
   if( mIndexBuffer )
   {
     mIndexBuffer->BindBuffer( GpuBuffer::ELEMENT_ARRAY_BUFFER );
@@ -159,9 +166,11 @@ void RenderGeometry::UploadAndDraw(
   unsigned int numIndices(0u);
   if( mIndexBuffer )
   {
-    numIndices = mIndexBuffer->GetDataSize() / mIndexBuffer->GetElementSize();
+    numIndices = elementLength ? elementLength : mIndexBuffer->GetDataSize() / mIndexBuffer->GetElementSize();
   }
 
+
+  //printf("Index buffer: %u, len = %u\n", (int)elementOffset, (int)elementLength);
   //Draw call
   switch(mGeometryType)
   {
@@ -169,7 +178,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_TRIANGLES, numIndices,  GL_UNSIGNED_SHORT,  (void*)(elementOffset*2) );
       }
       else
       {
@@ -182,7 +191,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_LINES, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_LINES, numIndices, GL_UNSIGNED_SHORT, (void*)(elementOffset*2) );
       }
       else
       {
@@ -201,7 +210,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, (void*)(elementOffset*2) );
       }
       else
       {
@@ -214,7 +223,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, (void*)(elementOffset*2) );
       }
       else
       {

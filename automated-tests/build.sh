@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 TEMP=`getopt -o rn --long rebuild,no-gen \
      -n 'genmake' -- "$@"`
 
@@ -29,25 +28,25 @@ fi
 function build
 {
     if [ $opt_generate == true -o $opt_rebuild == false ] ; then
-        (cd src/$1; ../../scripts/tcheadgen.sh tct-$1-core.h)
+        (cd src/; ../scripts/tcheadgen.sh Cts-dali-core.h)
         if [ $? -ne 0 ]; then echo "Aborting..."; exit 1; fi
     fi
-    (cd build ; cmake .. -DMODULE=$1 ; make -j7 )
+    (cd build ; cmake .. ; make -j7 )
 }
 
-if [ -n "$1" ] ; then
-  echo BUILDING ONLY $1
-  build $1
-else
-  for mod in `ls -1 src/ | grep -v CMakeList `
-  do
-    if [ $mod != 'common' ] && [ $mod != 'manual' ]; then
-        echo BUILDING $mod
-        build $mod
-        if [ $? -ne 0 ]; then echo "Build failed" ; exit 1; fi
-    fi
-  done
-fi
+#if [ -n "$1" ] ; then
+#  echo BUILDING ONLY $1
+  build 
+#else
+  #for mod in `ls -1 src/ | grep -v CMakeList `
+  #do
+   # if [ $mod != 'common' ] && [ $mod != 'manual' ]; then
+        #echo BUILDING $mod
+        #build $mod
+   #     if [ $? -ne 0 ]; then echo "Build failed" ; exit 1; fi
+   # fi
+  #done
+#fi
 
 echo "Build succeeded"
 exit 0

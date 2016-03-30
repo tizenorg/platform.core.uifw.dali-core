@@ -35,8 +35,6 @@ void tet_printf(const char* str, ...)
 }
 
 
-#include "test-application.h"
-
 /*****************************************************************************
  * Test to see if dali is linking correctly.
  * Only really tests that the internal function/method definitions exist and
@@ -49,7 +47,7 @@ void tet_printf(const char* str, ...)
 int main(int argc, char **argv)
 {
 #ifndef _ARCH_ARM_
-  Dali::TestApplication application;
+//  Dali::TestApplication application;
 #endif
   return 0;
 }

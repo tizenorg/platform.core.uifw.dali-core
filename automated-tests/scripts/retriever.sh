@@ -1,5 +1,20 @@
 #!/bin/bash
-
+#
+# Copyright (c) 2014 Samsung Electronics Co., Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the License);
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http:#www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+set -x;
 USAGE=$(cat <<EOF
 Usage note: retriever.sh [option] [directory]
 Options:
@@ -16,7 +31,7 @@ EOF
 function get_tc_files {
     CMAKE_FILE="$DIR/CMakeLists.txt"
     if [ ! -e $CMAKE_FILE ]; then
-        echo "File $CMAKE_FILE not found. Aborting..."
+        echo "File $CMAKE_FILE for $DIR not found. Aborting..."
         exit 1
     fi
 
@@ -58,6 +73,14 @@ function tc_names {
         clean_fun = "NULL";
         err_flag = 0;
         tc_list = "";
+        curr_file = "";
+    }
+    {
+        if(FILENAME != curr_file) {
+            start_fun = "NULL";
+            clean_fun = "NULL";
+            curr_file = FILENAME;
+        }
     }
     /^void .*startup\(void\)/ {
         gsub(/^void /, "");
@@ -87,6 +110,28 @@ function tc_names {
         }
     }
     ' $*
+}
+
+TFILE="/tmp/tnum.csv"
+SCRIPT_DIR="$(cd "$(dirname $0)" && pwd)"
+function tc_anum2 {
+        if [ -f /tmp/temp2 ];then
+			rm /tmp/temp2
+		fi
+        tc_fullinfo $TC_FILES > ${TFILE}_pre
+
+		cat ${TFILE}_pre | sort -t',' -k2,2 -s > ${TFILE}_remove
+		awk '!x[$0]++' ${TFILE}_remove > $TFILE
+
+        for fname in `cat $SCRIPT_DIR/../exclude.list`
+        do
+           sed -i "/$fname/d" $TFILE
+        done
+
+	count=$(cat $TFILE |wc -l)
+        echo $count
+
+        rm $TFILE ${TFILE}_pre ${TFILE}_remove
 }
 
 function tc_anum {
@@ -122,13 +167,9 @@ function tc_fullinfo {
     BEGIN {
         OFS=",";
         purpose = "";
-        set = "default";
+        set = "Default";
         err_flag = 0;
         tc_list = "";
-    }
-    /^\/\/& set:/ {
-        set = $3;
-        next;
     }
     /^\/\/& purpose:/ {
         purpose = $3;
@@ -161,12 +202,13 @@ function tc_fullinfo {
 
 
 # usage note and exit:
-# - argument begin with '-' but is not recognised or number of arguments is > 3,
-# - argument doesn't begin with '-' and number of arguments is > 2
-if [[ ( "$1" == -* && ( ! "$1" =~ ^-(anum|mnum|f)$ || $# > 3 ) ) || ( "$1" != -* && $# > 2 ) ]]; then
+# - argument begin with '-' but is not recognised or number of arguments is > 2,
+# - argument doesn't begin with '-' and number of arguments is > 1
+if [[ ( "$1" == -* && ( ! "$1" =~ ^-(anum|mnum|f)$ || $# > 2 ) ) || ( "$1" != -* && $# > 1 ) ]]; then
     echo -e "$USAGE"
     exit 1
 fi
+
 
 # get directory from last argument (or assume current one)
 if [[ ! "$1" =~ ^-(anum|mnum|f)$ ]]; then
@@ -175,34 +217,18 @@ else
     DIR=${2:-.}
 fi
 
-# get filename from last argument
-if [[ $# == 3 && -f $DIR/$3 ]] ; then
-    FILE=$3
-elif [[ $# == 2 && -f $DIR/$2 ]] ; then
-    FILE=$2
-fi
-
-#echo "Dir: $DIR  File: $FILE" >& 2
-
 
 # populate $TC_FILES with files declared in CMakeLists.txt
-if [[ -z $FILE ]]; then
-    get_tc_files $DIR
-    if [ $? != 0 ]; then
-        exit 1
-    fi
-    echo "Got all files" >& 2
-else
-    TC_FILES="$DIR/$FILE"
-    echo "TC_FILES: $TC_FILES" >& 2
+get_tc_files $DIR
+if [ $? != 0 ]; then
+    exit 1
 fi
-
 
 
 # run appropriate subcommand
 case "$1" in
     -anum)
-        tc_anum $TC_FILES ;;
+        tc_anum2 $TC_FILES ;;
     -mnum)
         tc_mnum $TC_FILES ;;
     -f)

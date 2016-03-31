@@ -74,6 +74,7 @@ CFLAGS="${CFLAGS:-%optflags}" ; export CFLAGS;
 CXXFLAGS="${CXXFLAGS:-%optflags}" ; export CXXFLAGS;
 LDFLAGS="${LDFLAGS:-%optflags}" ; export LDFLAGS;
 ./configure \
+      --enable-debug \
       --program-prefix=%{?_program_prefix} \
       --prefix=%{_prefix} \
       --exec-prefix=%{_exec_prefix} \

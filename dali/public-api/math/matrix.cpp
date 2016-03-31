@@ -425,6 +425,21 @@ void Matrix::Multiply( Matrix& result, const Matrix& lhs, const Quaternion& rhs 
 #endif
 }
 
+void Matrix::Multiply(Vector4& result, const Matrix& lhs, const Vector4& rhs)
+{
+  MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,16);
+
+  const float *matrix = &lhs.mMatrix[0];
+
+  result.x = rhs.x * matrix[0] + rhs.y * matrix[4] + rhs.z * matrix[8]  +  rhs.w * matrix[12];
+  result.y = rhs.x * matrix[1] + rhs.y * matrix[5] + rhs.z * matrix[9]  +  rhs.w * matrix[13];
+  result.z = rhs.x * matrix[2] + rhs.y * matrix[6] + rhs.z * matrix[10] +  rhs.w * matrix[14];
+  result.w = rhs.x * matrix[3] + rhs.y * matrix[7] + rhs.z * matrix[11] +  rhs.w * matrix[15];
+
+}
+
+
+
 Vector4 Matrix::operator*(const Vector4& rhs) const
 {
   MATH_INCREASE_BY(PerformanceMonitor::FLOAT_POINT_MULTIPLY,16);

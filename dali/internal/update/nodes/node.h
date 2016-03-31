@@ -4,7 +4,7 @@
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -186,6 +186,28 @@ public:
       mDirtyFlags |= TransformFlag;
     }
 
+    // if renderer is batchable, look for batch parent and set it
+    if( renderer->IsBatchable() )
+    {
+      Node* node = mParent->GetParent();
+      Node* batchParent = NULL;
+      while( node )
+      {
+        if( node->mBatching )
+        {
+          batchParent = node;
+        }
+        node = node->GetParent();
+      }
+
+      if( batchParent )
+      {
+        SetBatchParent( batchParent );
+      }
+    }
+
+    // make a connection between node and renderer
+    renderer->mNode = this;
     mRenderer.PushBack( renderer );
   }
 
@@ -199,7 +221,7 @@ public:
    * Get the renderer at the given index
    * @param[in] index
    */
-  Renderer* GetRendererAt( unsigned int index )
+  Renderer* GetRendererAt( unsigned int index ) const
   {
     return mRenderer[index];
   }
@@ -625,6 +647,19 @@ public:
     return mWorldMatrix.Get(bufferIndex);
   }
 
+  const Matrix& GetWorldInvertedMatrix( BufferIndex bufferIndex )
+  {
+    if( IsLocalMatrixDirty() )
+    {
+      if( mBatching )
+      {
+        mWorldInvertedMatrix.Get( bufferIndex ) = mWorldMatrix.Get( 0 );
+        mWorldInvertedMatrix.Get( bufferIndex ).Invert();
+      }
+    }
+    return mWorldInvertedMatrix[ bufferIndex ];
+  }
+
   /**
    * Mark the node as exclusive to a single RenderTask.
    * @param[in] renderTask The render-task, or NULL if the Node is not exclusive to a single RenderTask.
@@ -723,6 +758,62 @@ protected:
   void SetParent(Node& parentNode);
 
   /**
+   * Set the batch parent of a Node.
+   * @param[in] batchParentNode the new batch parent.
+   */
+  void SetBatchParent(Node* batchParentNode);
+
+public:
+
+  /**
+   * Retrieve the batch parent of a Node.
+   * @return The batch parent node, or NULL if the Node has not been added to the scene-graph.
+   */
+  Node* GetBatchParent()
+  {
+    // temporary look for actual batch parent
+
+    Node *node = mParent;
+    Node *batchParent = NULL;
+    while( node )
+    {
+      if( node->mBatching )
+      {
+        batchParent = node;
+      }
+      node = node->mParent;
+    }
+    return batchParent;
+
+    //return mBatchParent;
+  }
+
+  /**
+   * Retrieve the batch parent of a Node.
+   * @return The batch parent node, or NULL if the Node has not been added to the scene-graph.
+   */
+  Node* GetBatchParent() const
+  {
+    // temporary look for actual batch parent
+
+    Node *node = mParent;
+    Node *batchParent = NULL;
+    while( node )
+    {
+      if( node->mBatching )
+      {
+        batchParent = node;
+      }
+      node = node->mParent;
+    }
+    return batchParent;
+
+    //return mBatchParent;
+  }
+
+protected:
+
+  /**
    * Protected constructor; See also Node::New()
    */
   Node();
@@ -803,10 +894,13 @@ public: // Default properties
   TransformManagerQuaternionInput mWorldOrientation;  ///< Full inherited orientation
   TransformManagerMatrixInput     mWorldMatrix;       ///< Full inherited world matrix
   InheritedColor      mWorldColor;        ///< Full inherited color
+  InheritedMatrix     mWorldInvertedMatrix; ///<
+  mutable bool mBatching:1;
 
 protected:
 
   Node*               mParent;                       ///< Pointer to parent node (a child is owned by its parent)
+  Node*               mBatchParent;                  ///< Pointer to batch parent node
   RenderTask*         mExclusiveRenderTask;          ///< Nodes can be marked as exclusive to a single RenderTask
 
   NodeAttachmentOwner mAttachment;                   ///< Optional owned attachment
@@ -826,6 +920,7 @@ protected:
 
   DrawMode::Type          mDrawMode:2;               ///< How the Node and its children should be drawn
   ColorMode               mColorMode:2;              ///< Determines whether mWorldColor is inherited, 2 bits is enough
+
 
   // Changes scope, should be at end of class
   DALI_LOG_OBJECT_STRING_DECLARATION;
@@ -931,6 +1026,7 @@ inline void RemoveRendererMessage( EventThreadServices& eventThreadServices, con
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::RemoveRenderer, renderer );
 }
+
 } // namespace SceneGraph
 
 } // namespace Internal

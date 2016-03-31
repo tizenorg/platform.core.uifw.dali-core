@@ -79,6 +79,7 @@ class TextureCache;
 class Geometry;
 class PropertyBuffer;
 class Material;
+class GeometryBatcher;
 
 /**
  * UpdateManager maintains a scene graph i.e. a tree of nodes and attachments and

@@ -186,6 +186,7 @@ public:
                const Matrix& viewMatrix,
                const Matrix& projectionMatrix,
                const Vector3& size,
+               SceneGraph::RenderGeometry* externalGeometry,
                bool blend);
 
   /**
@@ -195,6 +196,24 @@ public:
    * @param[out] sortAttributes
    */
   void SetSortAttributes( BufferIndex bufferIndex, SceneGraph::RendererWithSortAttributes& sortAttributes ) const;
+
+  /**
+   * @brief SetElementsRange
+   * @param offset
+   * @param length
+   */
+  void SetElementsRange( size_t offset, size_t length );
+
+  /**
+   * @brief GetElementRange
+   * @param[out] offset
+   * @param[out] length
+   */
+  void GetElementRange( size_t& offset, size_t& length )
+  {
+    offset = mElementOffset;
+    length = mElementLength;
+  }
 
 private:
 
@@ -237,6 +256,11 @@ private:
 
 public:
 
+  SceneGraph::RenderGeometry* GetRenderGeometry()
+  {
+    return mRenderGeometry;
+  }
+
   OwnerPointer< SceneGraph::RenderDataProvider > mRenderDataProvider;
 
 private:
@@ -262,7 +286,11 @@ private:
 
   unsigned int mSamplerBitfield;                    ///< Sampler options used for texture filtering
   bool mUpdateAttributesLocation:1;                 ///< Indicates attribute locations have changed
-  bool mPremultipledAlphaEnabled:1;      ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mPremultipledAlphaEnabled:1;                 ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mBatchingEnabled:1;                          ///< Flag indicating if the renderer is batchable
+
+  size_t mElementOffset;
+  size_t mElementLength;
 };
 
 } // namespace SceneGraph

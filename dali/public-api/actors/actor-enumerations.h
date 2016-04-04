@@ -88,7 +88,8 @@ enum Type
   SIZE_FIXED_OFFSET_FROM_PARENT,  ///< The actors size will be ( ParentSize + SizeRelativeToParentFactor ). @SINCE_1_0.0
   FIT_TO_CHILDREN,       ///< Size will adjust to wrap around all children @SINCE_1_0.0
   DIMENSION_DEPENDENCY,  ///< One dimension is dependent on the other @SINCE_1_0.0
-  USE_ASSIGNED_SIZE      ///< The size will be assigned to the actor @SINCE_1_0.0
+  USE_FLEXBOX_SIZE,      ///< TODO todor
+  USE_ASSIGNED_SIZE      ///< The size will be assigned to the actor @SINCE_1_0.0 todor: deprecate?
 };
 const Type DEFAULT = USE_NATURAL_SIZE; ///< Default resize policy
 }

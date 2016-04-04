@@ -53,6 +53,8 @@
 #include <dali/internal/event/events/actor-gesture-data.h>
 #include <dali/internal/common/message.h>
 #include <dali/integration-api/debug.h>
+//todor
+#include <iostream>
 
 using Dali::Internal::SceneGraph::Node;
 using Dali::Internal::SceneGraph::AnimatableProperty;
@@ -331,6 +333,7 @@ float GetDimensionValue( const Vector2& values, Dimension::Type dimension )
     }
     default:
     {
+      //return values.width;//todortest
       break;
     }
   }
@@ -935,7 +938,7 @@ const Vector3& Actor::GetCurrentWorldScale() const
 
 void Actor::SetInheritScale( bool inherit )
 {
-
+  RelayoutRequest( Dimension::ALL_DIMENSIONS );//todor force
   if( mInheritScale != inherit && NULL != mNode )
   {
     // non animateable so keep local copy
@@ -1131,11 +1134,13 @@ void Actor::SetSize( const Vector3& size )
 {
   if( IsRelayoutEnabled() && !mRelayoutData->insideRelayout )
   {
+    std::cout << "todor: Actor::SetSize:SN: " << GetName() << " = " << size << std::endl;
     // TODO we cannot just ignore the given Z but that means rewrite the size negotiation!!
     SetPreferredSize( size.GetVectorXY() );
   }
   else
   {
+    std::cout << "todor: Actor::SetSize:IN: " << GetName() << " = " << size << std::endl;
     SetSizeInternal( size );
   }
 }
@@ -3604,7 +3609,12 @@ bool Actor::RelayoutDependentOnParent( Dimension::Type dimension )
     if( ( dimension & ( 1 << i ) ) )
     {
       const ResizePolicy::Type resizePolicy = GetResizePolicy( static_cast< Dimension::Type >( 1 << i ) );
-      if( resizePolicy == ResizePolicy::FILL_TO_PARENT || resizePolicy == ResizePolicy::SIZE_RELATIVE_TO_PARENT || resizePolicy == ResizePolicy::SIZE_FIXED_OFFSET_FROM_PARENT )
+      if( resizePolicy == ResizePolicy::FILL_TO_PARENT ||
+          resizePolicy == ResizePolicy::SIZE_RELATIVE_TO_PARENT ||
+          resizePolicy == ResizePolicy::SIZE_FIXED_OFFSET_FROM_PARENT
+          //|| resizePolicy == ResizePolicy::USE_ASSIGNED_SIZE || //todornew
+          //|| resizePolicy == ResizePolicy::USE_FLEXBOX_SIZE //todornew
+          )
       {
         return true;
       }
@@ -3825,6 +3835,7 @@ float Actor::GetWidthForHeight( float height )
 
 float Actor::GetLatestSize( Dimension::Type dimension ) const
 {
+  std::cout << "todor: GetLatestSize of " << GetName() << ", dim:" << (int)dimension << "  : IsLayoutNegotiated = " << IsLayoutNegotiated( dimension ) << " target size would be: " << GetSize( dimension ) << std::endl;
   return IsLayoutNegotiated( dimension ) ? GetNegotiatedDimension( dimension ) : GetSize( dimension );
 }
 
@@ -3893,6 +3904,8 @@ float Actor::CalculateSize( Dimension::Type dimension, const Vector2& maximumSiz
     }
 
     case ResizePolicy::USE_ASSIGNED_SIZE:
+    //case ResizePolicy::USE_FLEXBOX_SIZE: //todornew
+
     {
       return GetDimensionValue( maximumSize, dimension );
     }
@@ -3900,6 +3913,7 @@ float Actor::CalculateSize( Dimension::Type dimension, const Vector2& maximumSiz
     case ResizePolicy::FILL_TO_PARENT:
     case ResizePolicy::SIZE_RELATIVE_TO_PARENT:
     case ResizePolicy::SIZE_FIXED_OFFSET_FROM_PARENT:
+    //case ResizePolicy::USE_FLEXBOX_SIZE: //todornew
     {
       return NegotiateFromParent( dimension );
     }
@@ -4109,7 +4123,7 @@ void Actor::SetNegotiatedSize( RelayoutContainer& container )
 {
   // Do the set actor size
   Vector2 negotiatedSize( GetLatestSize( Dimension::WIDTH ), GetLatestSize( Dimension::HEIGHT ) );
-
+  std::cout << "todor: Actor::SetNegotiatedSize: " << GetName() << "  with: " << negotiatedSize << std::endl;
   // Adjust for size set policy
   negotiatedSize = ApplySizeSetPolicy( negotiatedSize );
 
@@ -4149,6 +4163,7 @@ void Actor::NegotiateSize( const Vector2& allocatedSize, RelayoutContainer& cont
     SetLayoutNegotiated(false, Dimension::HEIGHT);
   }
 
+  std::cout << "todor: NegotiateSize: " << GetName() << "  current allocatedSize:" << allocatedSize << std::endl;
   // Do the negotiation
   NegotiateDimensions( allocatedSize );
 

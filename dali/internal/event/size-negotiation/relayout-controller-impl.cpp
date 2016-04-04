@@ -440,6 +440,7 @@ void RelayoutController::OnObjectDestroyed( const Dali::RefObject* object )
 
 void RelayoutController::Relayout()
 {
+  std::cout << "todor: RelayoutController::Relayout: START @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
   // Only do something when requested
   if( mRelayoutFlag )
   {
@@ -491,7 +492,11 @@ void RelayoutController::Relayout()
           // 3. Negotiate the size with the current actor. Pass it an empty container which the actor
           //    has to fill with all the actors it has not done any size negotiation for.
 
-          actorImpl.NegotiateSize( size, *mRelayoutStack );
+          //todortest
+          //if( actorImpl.GetResizePolicy( Dimension::WIDTH ) != ResizePolicy::USE_ASSIGNED_SIZE )
+          {
+            actorImpl.NegotiateSize( size, *mRelayoutStack );
+          }
         }
       }
 
@@ -505,6 +510,8 @@ void RelayoutController::Relayout()
   }
   // should not disconnect the signal as that causes some control size negotiations to not work correctly
   // this algorithm needs more optimization as well
+
+  std::cout << "todor: RelayoutController::Relayout: END @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 }
 
 void RelayoutController::SetEnabled( bool enabled )

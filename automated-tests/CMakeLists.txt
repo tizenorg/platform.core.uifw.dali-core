@@ -3,11 +3,18 @@ PROJECT(tct_coreapi_utc)
 
 INCLUDE(FindPkgConfig)
 SET(BIN_DIR "/opt/usr/bin")
+SET(ERR_LOG "\"/tmp/tclog\"")
 
 INCLUDE_DIRECTORIES(
 	src/common
 )
 
-ADD_SUBDIRECTORY(src)
+MESSAGE(STATUS "Building: ${MODULE}")
+ADD_DEFINITIONS(-DERR_LOG=${ERR_LOG})
+IF ("${MODULE}" STREQUAL "Cts")
+    ADD_SUBDIRECTORY(Cts)
+ELSE()
+    ADD_SUBDIRECTORY(src)
+ENDIF()
 
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ")

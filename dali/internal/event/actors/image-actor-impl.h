@@ -334,8 +334,6 @@ private:
   Vector2                 mActorSize;               ///< The actor size
   Uint16Pair              mGridSize;                ///< The geometry grid size
   int                     mRendererIndex;           ///< The index location of mRenderer
-  size_t                  mTextureIndex;            ///< The texture index for this ImageActor's texture
-  size_t                  mEffectTextureIndex;      ///< The texture index for this ImageActor's effect texture
   FilterMode::Type        mMinFilter;               ///< The minification filter currently set
   FilterMode::Type        mMagFilter;               ///< The magnification filter currently set
   Dali::ImageActor::Style mStyle;                   ///< The style set by SetStyle. Not used internally, only used to store what is set so it can be returned for backwards compatibility.

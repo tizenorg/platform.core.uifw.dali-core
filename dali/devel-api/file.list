@@ -12,7 +12,7 @@ devel_api_src_files = \
   $(devel_api_src_dir)/object/weak-handle.cpp \
   $(devel_api_src_dir)/rendering/cull-face.cpp \
   $(devel_api_src_dir)/rendering/geometry.cpp \
-  $(devel_api_src_dir)/rendering/material.cpp \
+  $(devel_api_src_dir)/rendering/texture-set.cpp \
   $(devel_api_src_dir)/rendering/renderer.cpp \
   $(devel_api_src_dir)/rendering/sampler.cpp \
   $(devel_api_src_dir)/rendering/shader.cpp \
@@ -52,7 +52,7 @@ devel_api_core_object_header_files = \
 devel_api_core_rendering_header_files = \
   $(devel_api_src_dir)/rendering/cull-face.h \
   $(devel_api_src_dir)/rendering/geometry.h \
-  $(devel_api_src_dir)/rendering/material.h \
+  $(devel_api_src_dir)/rendering/texture-set.h \
   $(devel_api_src_dir)/rendering/renderer.h \
   $(devel_api_src_dir)/rendering/sampler.h \
   $(devel_api_src_dir)/rendering/shader.h

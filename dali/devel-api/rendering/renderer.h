@@ -37,7 +37,7 @@ class Renderer;
 }
 
 /**
- * @brief Renderer is a handle to an object that can be used to provide an image to a material.
+ * @brief Renderer is a handle to an object used to show content by combining a Geometry, an ImageArray and a shader
  */
 class DALI_IMPORT_API Renderer : public Handle
 {
@@ -61,7 +61,7 @@ public:
   {
     enum
     {
-      DEPTH_INDEX = DEFAULT_OBJECT_PROPERTY_START_INDEX,  ///< name "depthIndex",   type INTEGER
+      DEPTH_INDEX = DEFAULT_OBJECT_PROPERTY_START_INDEX,  ///< name "depthIndex",                     type INTEGER
       FACE_CULLING_MODE,                                  ///< name "faceCullingMode",                type INTEGER
       BLENDING_MODE,                                      ///< name "blendingMode",                   type INTEGER
       BLEND_EQUATION_RGB,                                 ///< name "blendEquationRgb",               type INTEGER
@@ -70,7 +70,7 @@ public:
       BLENDING_DEST_FACTOR_RGB,                           ///< name "destinationBlendFactorRgb",      type INTEGER
       BLENDING_SRC_FACTOR_ALPHA,                          ///< name "sourceBlendFactorAlpha",         type INTEGER
       BLENDING_DEST_FACTOR_ALPHA,                         ///< name "destinationBlendFactorAlpha",    type INTEGER
-      BLENDING_COLOR,                                     ///< name "blendingColor",                     type VECTOR4
+      BLENDING_COLOR,                                     ///< name "blendingColor",                  type VECTOR4
       BLEND_PRE_MULTIPLIED_ALPHA,                         ///< name "blendPreMultipledAlpha",         type BOOLEAN
     };
   };
@@ -81,7 +81,7 @@ public:
    * @param[in] geometry Geometry to be used by this renderer
    * @param[in] material Material to be used by this renderer
    */
-  static Renderer New( Geometry& geometry, Material& material );
+  static Renderer New( Geometry& geometry, Shader& shader );
 
   /**
    * @brief Default constructor, creates an empty handle
@@ -144,6 +144,9 @@ public:
    * @return The material used by the renderer
    */
   Material GetMaterial() const;
+
+  void SetShader( Shader& shader );
+  Shader GetShader() const;
 
   /**
    * @brief Specify the pixel arithmetic used when the actor is blended.

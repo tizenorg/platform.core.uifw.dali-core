@@ -48,8 +48,7 @@ Material* Material::New()
 }
 
 Material::Material()
-: mShader( NULL ),
-  mSamplers(),
+: mSamplers(),
   mTextureId(),
   mUniformName(),
   mConnectionObservers(),
@@ -122,8 +121,7 @@ void Material::Prepare( const ResourceManager& resourceManager )
       }
     }
 
-    //  whether the textures or the shader require the opacity to be translucent
-    mIsTranslucent = ( opaqueCount != textureCount ) || ( mShader && mShader->GeometryHintEnabled( Dali::ShaderEffect::HINT_BLENDING ) );
+    mIsTranslucent = ( opaqueCount != textureCount );
 
     // ready for rendering when all textures are either successfully loaded or they are FBOs
     mResourcesReady = (completeCount + frameBufferCount >= textureCount);
@@ -137,22 +135,6 @@ void Material::Prepare( const ResourceManager& resourceManager )
       mMaterialChanged = false;
     }
   }
-}
-
-void Material::SetShader( Shader* shader )
-{
-  mMaterialChanged = true;
-  mShader = shader;
-  mShader->AddUniformMapObserver( *this );
-
-  // Inform NewRenderer about this shader: (Will force a re-load of the
-  // shader from the data providers)
-  mConnectionObservers.ConnectionsChanged(*this);
-}
-
-Shader* Material::GetShader() const
-{
-  return mShader;
 }
 
 bool Material::IsTranslucent() const

@@ -55,20 +55,6 @@ MaterialPtr Material::New()
   return material;
 }
 
-void Material::SetShader( Shader& shader )
-{
-  DALI_ASSERT_DEBUG( mSceneObject )
-  mShader = &shader;
-
-  SceneGraph::Shader& sceneGraphShader = *shader.GetShaderSceneObject();
-  SceneGraph::SetShaderMessage( GetEventThreadServices(), *mSceneObject, sceneGraphShader );
-}
-
-Shader* Material::GetShader() const
-{
-  return mShader.Get();
-}
-
 size_t Material::AddTexture( ImagePtr image, const std::string& uniformName, SamplerPtr sampler )
 {
   size_t index = mTextures.size();
@@ -322,7 +308,6 @@ void Material::Disconnect()
 
 Material::Material()
 : mSceneObject( NULL ),
-  mShader( NULL ),
   mTextures(),
   mOnStage( false )
 {

@@ -74,7 +74,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 
   const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
   const Vector3& size = renderable.mNode->GetSize( updateBufferIndex );
-  if ( cull && renderable.mRenderer->GetMaterial().GetShader()->GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
+  if ( cull && renderable.mRenderer->GetShader().GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
     const Vector3& position = worldMatrix.GetTranslation3();
     float radius( size.Length() * 0.5f );

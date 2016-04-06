@@ -26,11 +26,9 @@
 namespace Dali
 {
 
-Material Material::New( Shader shader )
+Material Material::New()
 {
   Internal::MaterialPtr material = Internal::Material::New();
-  material->SetShader( GetImplementation(shader) );
-
   return Material( material.Get() );
 }
 
@@ -56,18 +54,6 @@ Material& Material::operator=( const Material& handle )
 {
   BaseHandle::operator=( handle );
   return *this;
-}
-
-void Material::SetShader( Shader& shader )
-{
-  DALI_ASSERT_ALWAYS( shader && "Shader handle is uninitialized" );
-  GetImplementation(*this).SetShader( GetImplementation( shader ) );
-}
-
-Shader Material::GetShader() const
-{
-  Internal::Shader* shaderPtr( GetImplementation(*this).GetShader() );
-  return Dali::Shader( shaderPtr );
 }
 
 int Material::AddTexture( Image image, const std::string& uniformName, Sampler sampler)

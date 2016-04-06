@@ -24,11 +24,11 @@
 namespace Dali
 {
 
-Renderer Renderer::New( Geometry& geometry, Material& material )
+Renderer Renderer::New( Geometry& geometry, Shader& shader )
 {
   Internal::RendererPtr renderer = Internal::Renderer::New(  );
   renderer->SetGeometry( GetImplementation(geometry) );
-  renderer->SetMaterial( GetImplementation(material) );
+  renderer->SetShader( GetImplementation(shader) );
   return Renderer( renderer.Get() );
 }
 
@@ -78,6 +78,18 @@ Material Renderer::GetMaterial() const
 {
   Internal::Material* materialPtr( GetImplementation(*this).GetMaterial() );
   return Dali::Material( materialPtr );
+}
+
+void Renderer::SetShader( Shader& shader )
+{
+  DALI_ASSERT_ALWAYS( shader && "Shader handle not initialized" );
+  GetImplementation(*this).SetShader( GetImplementation(shader) );
+}
+
+Shader Renderer::GetShader() const
+{
+  Internal::Shader* shaderPtr( GetImplementation(*this).GetShader() );
+  return Dali::Shader( shaderPtr );
 }
 
 void Renderer::SetBlendFunc( BlendingFactor::Type srcFactorRgba,

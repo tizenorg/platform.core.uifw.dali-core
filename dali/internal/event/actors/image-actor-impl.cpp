@@ -184,8 +184,8 @@ ImageActorPtr ImageActor::New()
   actor->mRenderer->SetGeometry( *quad );
 
   ShaderPtr shader = Shader::New( VERTEX_SHADER, FRAGMENT_SHADER, Dali::Shader::HINT_NONE );
+  actor->mRenderer->SetShader( *shader );
   MaterialPtr material = Material::New();
-  material->SetShader( *shader );
   actor->mRenderer->SetMaterial( *material );
 
   return actor;
@@ -712,7 +712,7 @@ void ImageActor::SetShaderEffect( ShaderEffect& effect )
   effect.Connect( this );
 
   ShaderPtr shader = mShaderEffect->GetShader();
-  mRenderer->GetMaterial()->SetShader( *shader );
+  mRenderer->SetShader( *shader );
 
   EffectImageUpdated();
 
@@ -731,7 +731,7 @@ void ImageActor::RemoveShaderEffect()
     mShaderEffect->Disconnect( this );
     // change to the standard shader and quad geometry
     ShaderPtr shader = Shader::New( VERTEX_SHADER, FRAGMENT_SHADER, Dali::Shader::HINT_NONE );
-    mRenderer->GetMaterial()->SetShader( *shader );
+    mRenderer->SetShader( *shader );
     mShaderEffect.Reset();
 
     UpdateGeometry();

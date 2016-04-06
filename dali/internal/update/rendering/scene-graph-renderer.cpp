@@ -162,15 +162,16 @@ void Renderer::PrepareRender( BufferIndex updateBufferIndex )
 
   // Can only be considered ready when all the scene graph objects are connected to the renderer
   if( ( mGeometry ) && ( mGeometry->GetVertexBuffers().Count() > 0 ) &&
-      ( mMaterial ) && ( mMaterial->GetShader() != NULL ) )
+      ( mShader != NULL ) && ( mMaterial != NULL )
+    )
   {
     mMaterial->GetResourcesStatus( mResourcesReady, mFinishedResourceAcquisition );
   }
 
   if( mRegenerateUniformMap > UNIFORM_MAP_READY )
   {
-    DALI_ASSERT_DEBUG( mGeometry != NULL && "No geometry available in DoPrepareRender()" );
-    DALI_ASSERT_DEBUG( mMaterial != NULL && "No geometry available in DoPrepareRender()" );
+    DALI_ASSERT_DEBUG( mGeometry != NULL && "No geometry available in PrepareRender()" );
+    DALI_ASSERT_DEBUG( mShader != NULL && "No shader available in PrepareRender()" );
 
     if( mRegenerateUniformMap == REGENERATE_UNIFORM_MAP)
     {
@@ -180,8 +181,12 @@ void Renderer::PrepareRender( BufferIndex updateBufferIndex )
       const UniformMap& rendererUniformMap = PropertyOwner::GetUniformMap();
       AddMappings( localMap, rendererUniformMap );
 
-      AddMappings( localMap, mMaterial->GetUniformMap() );
-      AddMappings( localMap, mMaterial->GetShader()->GetUniformMap() );
+      if( mMaterial )
+      {
+        AddMappings( localMap, mMaterial->GetUniformMap() );
+      }
+
+      AddMappings( localMap, mShader->GetUniformMap() );
       AddMappings( localMap, mGeometry->GetUniformMap() );
 
     }
@@ -264,7 +269,7 @@ void Renderer::PrepareRender( BufferIndex updateBufferIndex )
   }
 }
 
-void Renderer::SetMaterial( BufferIndex bufferIndex, Material* material)
+void Renderer::SetMaterial( Material* material)
 {
   DALI_ASSERT_DEBUG( material != NULL && "Material pointer is NULL" );
 
@@ -275,7 +280,16 @@ void Renderer::SetMaterial( BufferIndex bufferIndex, Material* material)
   mResendFlag |= RESEND_DATA_PROVIDER;
 }
 
-void Renderer::SetGeometry( BufferIndex bufferIndex, Geometry* geometry)
+void Renderer::SetShader( Shader* shader )
+{
+  DALI_ASSERT_DEBUG( shader != NULL && "Shader pointer is NULL" );
+
+  mShader = shader;
+  mRegenerateUniformMap = REGENERATE_UNIFORM_MAP;
+  mResendFlag |= RESEND_DATA_PROVIDER;
+}
+
+void Renderer::SetGeometry( Geometry* geometry )
 {
   DALI_ASSERT_DEBUG( geometry != NULL && "Geometry pointer is NULL");
   if( mGeometry)
@@ -397,15 +411,17 @@ RenderDataProvider* Renderer::NewRenderDataProvider()
   RenderDataProvider* dataProvider = new RenderDataProvider();
 
   dataProvider->mUniformMapDataProvider = this;
-  dataProvider->mShader = mMaterial->GetShader();
+  dataProvider->mShader = mShader;
 
-  size_t textureCount( mMaterial->GetTextureCount() );
-  dataProvider->mTextures.resize( textureCount );
-  for( unsigned int i(0); i<textureCount; ++i )
+  if( mMaterial )
   {
-    dataProvider->mTextures[i] = Render::Texture( mMaterial->GetTextureUniformName(i),
-                                                  mMaterial->GetTextureId(i),
-                                                  mMaterial->GetTextureSampler(i));
+    size_t textureCount( mMaterial->GetTextureCount() );
+    dataProvider->mTextures.resize( textureCount );
+    for( unsigned int i(0); i<textureCount; ++i )
+    {
+      dataProvider->mTextures[i] = Render::Texture( mMaterial->GetTextureId(i),
+                                                    mMaterial->GetTextureSampler(i));
+    }
   }
 
   return dataProvider;
@@ -431,43 +447,42 @@ Renderer::Opacity Renderer::GetOpacity( BufferIndex updateBufferIndex, const Nod
 {
   Renderer::Opacity opacity = Renderer::OPAQUE;
 
-  if( mMaterial )
+  switch( mBlendingMode )
   {
-    switch( mBlendingMode )
+    case BlendingMode::ON: // If the renderer should always be use blending
     {
-      case BlendingMode::ON: // If the renderer should always be use blending
+      opacity = Renderer::TRANSLUCENT;
+      break;
+    }
+    case BlendingMode::AUTO:
+    {
+      bool shaderRequiresBlending( mShader->GeometryHintEnabled( Dali::ShaderEffect::HINT_BLENDING ) );
+      if( shaderRequiresBlending || ( mMaterial && mMaterial->IsTranslucent() ) )
       {
         opacity = Renderer::TRANSLUCENT;
-        break;
       }
-      case BlendingMode::AUTO:
+      else // renderer should determine opacity using the actor color
       {
-        if(mMaterial->IsTranslucent() ) // If the renderer should determine opacity using the material
+        float alpha = node.GetWorldColor( updateBufferIndex ).a;
+        if( alpha <= FULLY_TRANSPARENT )
         {
-          opacity = Renderer::TRANSLUCENT;
+          opacity = TRANSPARENT;
         }
-        else // renderer should determine opacity using the actor color
+        else if( alpha <= FULLY_OPAQUE )
         {
-          float alpha = node.GetWorldColor( updateBufferIndex ).a;
-          if( alpha <= FULLY_TRANSPARENT )
-          {
-            opacity = TRANSPARENT;
-          }
-          else if( alpha <= FULLY_OPAQUE )
-          {
-            opacity = TRANSLUCENT;
-          }
+          opacity = TRANSLUCENT;
         }
-        break;
       }
-      case BlendingMode::OFF: // the renderer should never use blending
-      default:
-      {
-        opacity = Renderer::OPAQUE;
-        break;
-      }
+      break;
+    }
+    case BlendingMode::OFF: // the renderer should never use blending
+    default:
+    {
+      opacity = Renderer::OPAQUE;
+      break;
     }
   }
+
 
   return opacity;
 }

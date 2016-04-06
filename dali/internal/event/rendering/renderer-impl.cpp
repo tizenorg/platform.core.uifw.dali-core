@@ -95,6 +95,18 @@ Material* Renderer::GetMaterial() const
   return mMaterialConnector.Get().Get();
 }
 
+void Renderer::SetShader( Shader& shader )
+{
+  mShader = &shader;
+  SceneGraph::Shader& sceneGraphShader = *shader.GetShaderSceneObject();
+  SceneGraph::SetShaderMessage( GetEventThreadServices(), *mSceneObject, sceneGraphShader );
+}
+
+Shader* Renderer::GetShader() const
+{
+  return mShader.Get();
+}
+
 void Renderer::SetDepthIndex( int depthIndex )
 {
   if ( mDepthIndex != depthIndex )

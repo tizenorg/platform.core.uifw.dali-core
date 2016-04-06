@@ -81,10 +81,9 @@ public:
 
   /**
    * Set the material for the renderer
-   * @param[in] bufferIndex The current frame's buffer index
    * @param[in] material The material this renderer will use
    */
-  void SetMaterial( BufferIndex bufferIndex, Material* material);
+  void SetMaterial( Material* material );
 
   /**
    * Get the material of this renderer
@@ -96,11 +95,25 @@ public:
   }
 
   /**
+   * Set the shader for the renderer
+   * @param[in] shader The shader this renderer will use
+   */
+  void SetShader( Shader* shader );
+
+  /**
+   * Get the shader used by this renderer
+   * @return the shader this renderer uses
+   */
+  Shader& GetShader()
+  {
+    return *mShader;
+  }
+
+  /**
    * Set the geometry for the renderer
-   * @param[in] bufferIndex The current frame's buffer index
    * @param[in] geometry The geometry this renderer will use
    */
-  void SetGeometry( BufferIndex bufferIndex, Geometry* material);
+  void SetGeometry( Geometry* material );
 
   /**
    * Get the geometry of this renderer
@@ -297,6 +310,7 @@ private:
   Render::Renderer*  mRenderer;    ///< Raw pointer to the new renderer (that's owned by RenderManager)
   Material*          mMaterial;    ///< The material this renderer uses. (Not owned)
   Geometry*          mGeometry;    ///< The geometry this renderer uses. (Not owned)
+  Shader*            mShader;
 
   Vector4*                        mBlendColor;      ///< The blend color for blending operation
   unsigned int                    mBlendBitmask;    ///< The bitmask of blending options
@@ -320,7 +334,7 @@ public:
 /// Messages
 inline void SetMaterialMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, const Material& material )
 {
-  typedef MessageDoubleBuffered1< Renderer, Material* > LocalType;
+  typedef MessageValue1< Renderer, Material* > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
@@ -331,13 +345,24 @@ inline void SetMaterialMessage( EventThreadServices& eventThreadServices, const 
 
 inline void SetGeometryMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, const Geometry& geometry )
 {
-  typedef MessageDoubleBuffered1< Renderer, Geometry* > LocalType;
+  typedef MessageValue1< Renderer, Geometry* > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &renderer, &Renderer::SetGeometry, const_cast<Geometry*>(&geometry) );
+}
+
+inline void SetShaderMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, Shader& shader )
+{
+  typedef MessageValue1< Renderer, Shader* > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &renderer, &Renderer::SetShader, &shader );
 }
 
 inline void SetDepthIndexMessage( EventThreadServices& eventThreadServices, const Renderer& attachment, int depthIndex )

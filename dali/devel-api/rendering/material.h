@@ -48,7 +48,7 @@ public:
    *
    * @return A handle to a newly allocated Material
    */
-  static Material New( Shader shader );
+  static Material New();
 
   /**
    * @brief Default constructor, creates an empty handle
@@ -83,19 +83,22 @@ public:
    */
   Material& operator=( const Material& handle );
 
-  /**
-   * @brief Sets the Shader used by this material
-   *
-   * @param[in] shader Handle to a shader
-   */
-  void SetShader( Shader& shader );
+  void SetImage( Image image )
+  {}
 
-  /**
-   * @brief Gets the shader used by this material
-   *
-   * @return The shader used by the material
-   */
-  Shader GetShader() const;
+  void SetImage( size_t index, Image image )
+  {}
+
+  void SetSampler( size_t index, Sampler sampler )
+  {}
+
+  void RemoveImage( size_t index )
+  {}
+
+  size_t GetImageCount()
+  {
+    return 0;
+  }
 
   /**
    * @brief Add a new texture to be used by the material

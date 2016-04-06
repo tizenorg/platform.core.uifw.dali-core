@@ -71,18 +71,6 @@ public:
   void Prepare( const ResourceManager& resourceManager );
 
   /**
-   * Set the shader effect for this material
-   * @param[in] shader The shader effect to use
-   */
-  void SetShader( Shader* shader );
-
-  /**
-   * Get the shader effect of this material
-   * @return the shader effect;
-   */
-  Shader* GetShader() const;
-
-  /**
    * Adds a new texture to be used by the material
    * @param[in] image The image used by the texture
    * @param[in] uniformName The uniform name of the texture
@@ -231,7 +219,6 @@ private:
 
 private: // Data
 
-  Shader*                         mShader;
   Vector< Render::Sampler* >      mSamplers; // Not owned
   Vector< ResourceId >            mTextureId;
   std::vector< std::string >      mUniformName;
@@ -241,17 +228,6 @@ private: // Data
   bool                            mMaterialChanged; ///< if the material has changed since the last frame
   bool                            mIsTranslucent; ///< if the textures or the shader require the opacity to be translucent
 };
-
-inline void SetShaderMessage( EventThreadServices& eventThreadServices, const Material& material, Shader& shader )
-{
-  typedef MessageValue1< Material, Shader* > LocalType;
-
-  // Reserve some memory inside the message queue
-  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
-
-  // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &material, &Material::SetShader, &shader );
-}
 
 inline void AddTextureMessage( EventThreadServices& eventThreadServices, const Material& material, const std::string& uniformName, ResourceId id, Render::Sampler* sampler )
 {

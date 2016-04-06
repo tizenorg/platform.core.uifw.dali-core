@@ -76,6 +76,16 @@ public:
   Material* GetMaterial() const;
 
   /**
+   * @copydoc Dali::Renderer::SetMaterial()
+   */
+  void SetShader( Shader& shader );
+
+  /**
+   * @copydoc Dali::Renderer::GetMaterial()
+   */
+  Shader* GetShader() const;
+
+  /**
    * @copydoc Dali::Renderer::SetDepthIndex()
    */
   void SetDepthIndex( int depthIndex );
@@ -286,6 +296,7 @@ private: // data
   Vector4* mBlendColor;                         ///< Local copy of blend color, pointer only as its rarely used
   ObjectConnector<Geometry> mGeometryConnector; ///< Connector that holds the geometry used by this renderer
   ObjectConnector<Material> mMaterialConnector; ///< Connector that holds the material used by this renderer
+  IntrusivePtr<Shader> mShader;                 ///< Connector that holds the shader used by this renderer
 
   int mDepthIndex;
   int mOnStageCount;

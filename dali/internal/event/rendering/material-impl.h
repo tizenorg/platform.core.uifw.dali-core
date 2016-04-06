@@ -59,16 +59,6 @@ public:
   static MaterialPtr New();
 
   /**
-   * @copydoc Dali::Material::SetShader()
-   */
-  void SetShader( Shader& shader );
-
-  /**
-   * @copydoc Dali::Material::GetShader()
-   */
-  Shader* GetShader() const;
-
-  /**
    * @copydoc Dali::Material::AddTexture()
    */
   size_t AddTexture( ImagePtr image, const std::string& uniformName, SamplerPtr sampler );
@@ -264,7 +254,6 @@ private: // unimplemented methods
 private: // Data
 
   SceneGraph::Material* mSceneObject;
-  IntrusivePtr<Shader> mShader; ///< Connector that holds the shader used by this material
   std::vector<Material::Texture> mTextures; ///<Vector of textures used by this material
 
   bool mOnStage;

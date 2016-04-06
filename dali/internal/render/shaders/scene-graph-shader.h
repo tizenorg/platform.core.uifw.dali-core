@@ -31,9 +31,11 @@
 #include <dali/internal/event/effects/shader-declarations.h>
 
 #include <dali/internal/update/common/property-owner.h>
+#include <dali/internal/update/common/scene-graph-connection-change-propagator.h>
 
 #include <dali/internal/render/gl-resources/gl-resource-owner.h>
 #include <dali/internal/render/gl-resources/texture-declarations.h>
+
 #include <dali/internal/render/common/render-manager.h>
 
 
@@ -51,12 +53,14 @@ namespace SceneGraph
 class RenderQueue;
 class UniformMeta;
 class TextureCache;
+class ConnectionObserver;
+class SceneController;
 
 /**
  * A base class for a collection of shader programs, to apply an effect to different geometry types.
  * This class is also the default shader so its easier to override default behaviour
  */
-class Shader : public PropertyOwner
+class Shader : public PropertyOwner, public UniformMap::Observer
 {
 public:
 
@@ -262,6 +266,44 @@ public:
                     Program& program,
                     BufferIndex bufferIndex );
 
+
+public: // Implementation of ObjectOwnerContainer template methods
+
+  /**
+   * Connect the object to the scene graph
+   *
+   * @param[in] sceneController The scene controller - used for sending messages to render thread
+   * @param[in] bufferIndex The current buffer index - used for sending messages to render thread
+   */
+  void ConnectToSceneGraph( SceneController& sceneController, BufferIndex bufferIndex );
+
+  /**
+   * Disconnect the object from the scene graph
+   * @param[in] sceneController The scene controller - used for sending messages to render thread
+   * @param[in] bufferIndex The current buffer index - used for sending messages to render thread
+   */
+  void DisconnectFromSceneGraph( SceneController& sceneController, BufferIndex bufferIndex );
+
+public: // Implementation of ConnectionChangePropagator
+
+  /**
+   * @copydoc ConnectionChangePropagator::AddObserver
+   */
+  void AddConnectionObserver(ConnectionChangePropagator::Observer& observer);
+
+  /**
+   * @copydoc ConnectionChangePropagator::RemoveObserver
+   */
+  void RemoveConnectionObserver(ConnectionChangePropagator::Observer& observer);
+
+public:
+
+public: // UniformMap::Observer
+  /**
+   * @copydoc UniformMap::Observer::UniformMappingsChanged
+   */
+  virtual void UniformMappingsChanged( const UniformMap& mappings );
+
 private: // Data
 
   Dali::ShaderEffect::GeometryHints mGeometryHints;    ///< shader geometry hints for building the geometry
@@ -273,6 +315,7 @@ private: // Data
 
   Program*                       mProgram;
 
+  ConnectionChangePropagator      mConnectionObservers;
   typedef OwnerContainer< UniformMeta* > UniformMetaContainer;
   UniformMetaContainer           mUniformMetadata;     ///< A container of owned UniformMeta values; one for each property in PropertyOwner::mDynamicProperties
 

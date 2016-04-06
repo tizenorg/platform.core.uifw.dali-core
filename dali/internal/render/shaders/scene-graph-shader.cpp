@@ -80,13 +80,16 @@ Shader::Shader( Dali::ShaderEffect::GeometryHints& hints )
   mRenderTextureId( 0 ),
   mUpdateTextureId( 0 ),
   mProgram( NULL ),
+  mConnectionObservers(),
   mRenderQueue( NULL ),
   mTextureCache( NULL )
 {
+  AddUniformMapObserver( *this );
 }
 
 Shader::~Shader()
 {
+  mConnectionObservers.Destroy( *this );
 }
 
 void Shader::Initialize( RenderQueue& renderQueue, TextureCache& textureCache )
@@ -174,6 +177,7 @@ void Shader::SetTextureId( Integration::ResourceId textureId )
   {
     mRenderTextureId = textureId;
     mTexture = NULL;
+    mConnectionObservers.ConnectionsChanged(*this);
   }
 }
 
@@ -185,6 +189,7 @@ Integration::ResourceId Shader::GetTextureIdToRender()
 void Shader::SetGridDensity( float density )
 {
   mGridDensity = density;
+  mConnectionObservers.ConnectionsChanged(*this);
 }
 
 float Shader::GetGridDensity()
@@ -195,6 +200,7 @@ float Shader::GetGridDensity()
 void Shader::InstallUniformMetaInRender( UniformMeta* meta )
 {
   mUniformMetadata.PushBack( meta );
+  mConnectionObservers.ConnectionsChanged(*this);
 }
 
 void Shader::SetCoordinateTypeInRender( unsigned int index, Dali::ShaderEffect::UniformCoordinateType type )
@@ -211,6 +217,8 @@ void Shader::SetProgram( Internal::ShaderDataPtr shaderData,
 
   mProgram = Program::New( *programCache, shaderData, modifiesGeometry );
   // The program cache owns the Program object so we don't need to worry about this raw allocation here.
+
+  mConnectionObservers.ConnectionsChanged(*this);
 }
 
 Program* Shader::GetProgram()
@@ -396,6 +404,30 @@ void Shader::SetUniforms( Context& context,
   DALI_PRINT_SHADER_UNIFORMS(debugStream);
 }
 
+void Shader::ConnectToSceneGraph( SceneController& sceneController, BufferIndex bufferIndex )
+{
+}
+
+void Shader::DisconnectFromSceneGraph( SceneController& sceneController, BufferIndex bufferIndex )
+{
+}
+
+void Shader::AddConnectionObserver( ConnectionChangePropagator::Observer& observer )
+{
+  mConnectionObservers.Add(observer);
+}
+
+void Shader::RemoveConnectionObserver( ConnectionChangePropagator::Observer& observer )
+{
+  mConnectionObservers.Remove(observer);
+}
+
+void Shader::UniformMappingsChanged( const UniformMap& mappings )
+{
+  // Our uniform map, or that of one of the watched children has changed.
+  // Inform connected observers.
+  mConnectionObservers.ConnectedUniformMapChanged();
+}
 
 // Messages
 

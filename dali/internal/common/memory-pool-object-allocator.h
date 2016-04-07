@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_MEMORY_POOL_OBJECT_ALLOCATOR_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,25 +101,25 @@ public:
 
   /**
    * @brief Return the object to the memory pool
+   * Note: If not calling from an overloaded operator delete, the objects destructor must manually be called.
    *
    * @param object Pointer to the object to delete
    */
   void Free( T* object )
   {
-    object->~T();
-
+    // Note: As this can be called from overloaded operator delete, we do not
+    // manually call the destructor here, as it will have already been called.
     mPool->Free( object );
   }
 
   /**
    * @brief Thread-safe version of Free()
+   * Note: If not calling from an overloaded operator delete, the objects destructor must manually be called.
    *
    * @param object Pointer to the object to delete
    */
   void FreeThreadSafe( T* object )
   {
-    object->~T();
-
     mPool->FreeThreadSafe( object );
   }
 
@@ -128,10 +128,7 @@ public:
    */
   void ResetMemoryPool()
   {
-    if( mPool )
-    {
-      delete mPool;
-    }
+    delete mPool;
 
     mPool = new FixedSizeMemoryPool( TypeSizeWithAlignment< T >::size );
   }

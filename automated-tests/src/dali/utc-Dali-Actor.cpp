@@ -2276,9 +2276,13 @@ int UtcDaliActorSetDrawModeOverlayRender(void)
   BufferImage imageA = BufferImage::New(16, 16);
   BufferImage imageB = BufferImage::New(16, 16);
   BufferImage imageC = BufferImage::New(16, 16);
-  ImageActor a = ImageActor::New( imageA );
-  ImageActor b = ImageActor::New( imageB );
-  ImageActor c = ImageActor::New( imageC );
+  Actor a = CreateRenderableActor( imageA );
+  Actor b = CreateRenderableActor( imageB );
+  Actor c = CreateRenderableActor( imageC );
+
+  a.SetSize( 100, 100 );
+  b.SetSize( 100, 100 );
+  c.SetSize( 100, 100 );
 
   // Render a,b,c as regular non-overlays. so order will be:
   // a (8)

@@ -247,7 +247,7 @@ int UtcDaliNativeImageTestCreationFailure(void)
 
   nativeImageInterface->SetGlExtensionCreateResult( false );
 
-  ImageActor imageActor = ImageActor::New( nativeImage );
+  Actor imageActor = CreateRenderableActor( nativeImage );
   imageActor.SetParentOrigin( ParentOrigin::CENTER );
   Stage::GetCurrent().Add( imageActor );
 

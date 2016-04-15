@@ -959,8 +959,8 @@ int UtcDaliHoverOffscreenRenderTasks(void)
   // FrameBufferImage for offscreen RenderTask
   FrameBufferImage frameBufferImage( FrameBufferImage::New( stageSize.width, stageSize.height, Pixel::RGBA8888 ) );
 
-  // Create an image actor to display the FrameBufferImage
-  ImageActor imageActor ( ImageActor::New( frameBufferImage ) );
+  // Create a renderable actor to display the FrameBufferImage
+  Actor imageActor = CreateRenderableActor( frameBufferImage );
   imageActor.SetParentOrigin(ParentOrigin::CENTER);
   imageActor.SetSize( stageSize.x, stageSize.y );
   imageActor.ScaleBy( Vector3(1.0f, -1.0f, 1.0f) ); // FIXME
@@ -1006,15 +1006,14 @@ int UtcDaliHoverMultipleRenderableActors(void)
   Stage stage ( Stage::GetCurrent() );
   Vector2 stageSize ( stage.GetSize() );
 
-  ImageActor parent = ImageActor::New();
+  Actor parent = CreateRenderableActor();
   parent.SetSize( 100.0f, 100.0f );
   parent.SetAnchorPoint(AnchorPoint::TOP_LEFT);
   stage.Add(parent);
 
-  ImageActor actor = ImageActor::New();
+  Actor actor = CreateRenderableActor();
   actor.SetSize( 100.0f, 100.0f );
   actor.SetAnchorPoint(AnchorPoint::TOP_LEFT);
-  actor.SetSortModifier( 1.0f );
   parent.Add(actor);
 
   // Render and notify

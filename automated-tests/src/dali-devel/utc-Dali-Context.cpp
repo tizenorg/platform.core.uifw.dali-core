@@ -50,12 +50,12 @@ static BufferImage CreateBufferImage()
   return image;
 }
 
-static ImageActor CreateImageActor()
+static Actor CreateImageActor()
 {
   BufferImage image = CreateBufferImage();
-  ImageActor actor = ImageActor::New( image );
+  Actor actor = CreateRenderableActor( image );
   actor.SetSize( 100.0f, 100.0f );
-  actor.SetName("Test ImageActor");
+  actor.SetName("Test Image Rendering Actor");
   return actor;
 }
 
@@ -102,7 +102,7 @@ int UtcDaliContextVertexAttribImageRendering(void)
 
 
   // create a test image actor
-  ImageActor imageActor(CreateImageActor());
+  Actor imageActor(CreateImageActor());
   Stage::GetCurrent().Add(imageActor);
 
 

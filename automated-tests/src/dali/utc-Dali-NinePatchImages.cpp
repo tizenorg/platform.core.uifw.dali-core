@@ -145,8 +145,8 @@ NinePatchImage CustomizeNinePatch( TestApplication& application,
 
   Image image = ResourceImage::New( "blah.#.png" );
 
-  tet_infoline("Assign image to ImageActor");
-  ImageActor imageActor = ImageActor::New( image );
+  tet_infoline("Assign image to image rendering actor");
+  Actor imageActor = CreateRenderableActor( image );
   Stage::GetCurrent().Add( imageActor );
 
   tet_infoline("Downcast Image to a nine-patch image\n");

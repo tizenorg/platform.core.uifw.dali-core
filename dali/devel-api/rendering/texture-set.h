@@ -98,6 +98,19 @@ public:
    */
   void SetSampler( size_t index, Sampler sampler );
 
+  /**
+   * @brief Retrieve the total number of textures.
+   * @return The total number of textures in the texture-set.
+   */
+  size_t GetNumberOfTextures() const;
+
+  /**
+   * @brief Retrieve the texture at the specified index.
+   * @param[in] index The position of the texture to retrieve in the texture-set.
+   * @return The texture at the specified position.
+   */
+  Image GetTexture( size_t index );
+
 public:
   /**
    * @brief The constructor

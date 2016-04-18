@@ -68,6 +68,11 @@ public:
   void SetSampler( size_t index, SamplerPtr sampler );
 
   /**
+   * @copydoc Dali::TextureSet::GetNumberOfTextures()
+   */
+  size_t GetNumberOfTextures() const;
+
+  /**
    * @brief Get the image at position "index" in the texture set
    * @param[in] index The index of the image
    * @return A pointer to the image at position "index"

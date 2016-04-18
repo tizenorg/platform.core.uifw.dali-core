@@ -82,6 +82,16 @@ void TextureSet::SetSampler( size_t index, Sampler sampler )
   }
 }
 
+size_t TextureSet::GetNumberOfTextures() const
+{
+  return GetImplementation( *this ).GetNumberOfTextures();
+}
+
+Image TextureSet::GetTexture( size_t index )
+{
+  return Image( GetImplementation( *this ).GetImage( index ).Get() );
+}
+
 TextureSet::TextureSet( Internal::TextureSet* pointer )
 : Handle( pointer )
 {

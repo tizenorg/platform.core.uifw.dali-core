@@ -115,6 +115,11 @@ void TextureSet::SetSampler( size_t index, SamplerPtr sampler )
   SceneGraph::SetSamplerMessage( GetEventThreadServices(), *mSceneObject, index, renderSampler );
 }
 
+size_t TextureSet::GetNumberOfTextures() const
+{
+  return mTextures.size();
+}
+
 ImagePtr TextureSet::GetImage( size_t index )
 {
   ImagePtr result(0);

@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <cstddef> // std::size_t
-#include <string> // std::string
 
 // INTERNAL INCLUDES
 #include <dali/public-api/images/image.h> // Dali::Image
@@ -92,11 +91,25 @@ public:
   void SetImage( size_t index, Image image );
 
   /**
+   * @brief Get the image at position "index"
+   * @param[in] index The position in the texture set of the image
+   * @return A handle to the image at the the specified position
+   */
+  Image GetImage( size_t index );
+
+  /**
    * @brief Set the sampler to be used by the image at position "index"
    * @param[in] index The position in the texture set of the image
    * @param[in] image The sampler to use
    */
   void SetSampler( size_t index, Sampler sampler );
+
+  /**
+   * @brief Set the sampler to be used by the image at position "index"
+   * @param[in] index The position in the texture set of the image
+   * @return A handle to the sampler at the specified position
+   */
+  Sampler GetSampler( size_t index );
 
 public:
   /**

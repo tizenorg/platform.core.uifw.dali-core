@@ -72,7 +72,14 @@ public:
    * @param[in] index The index of the image
    * @return A pointer to the image at position "index"
    */
-  ImagePtr GetImage( size_t index );
+  Image* GetImage( size_t index );
+
+  /**
+   * @brief Get the sampler at position "index" in the texture set
+   * @param[in] index The index of the sampler
+   * @return A pointer to the sampler at position "index"
+   */
+  Sampler* GetSampler( size_t index );
 
  /**
    * @brief Get the TextureSet scene object

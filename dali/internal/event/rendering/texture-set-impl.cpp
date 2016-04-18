@@ -115,16 +115,31 @@ void TextureSet::SetSampler( size_t index, SamplerPtr sampler )
   SceneGraph::SetSamplerMessage( GetEventThreadServices(), *mSceneObject, index, renderSampler );
 }
 
-ImagePtr TextureSet::GetImage( size_t index )
+Image* TextureSet::GetImage( size_t index )
 {
-  ImagePtr result(0);
+  Image* result(0);
   if( index < mTextures.size() )
   {
-    result = mTextures[index].image;
+    result = mTextures[index].image.Get();
   }
   else
   {
     DALI_LOG_ERROR( "Error: Invalid index to TextureSet::GetImage");
+  }
+
+  return result;
+}
+
+Sampler* TextureSet::GetSampler( size_t index )
+{
+  Sampler* result(0);
+  if( index < mTextures.size() )
+  {
+    result = mTextures[index].sampler.Get();
+  }
+  else
+  {
+    DALI_LOG_ERROR( "Error: Invalid index to TextureSet::GetSampler");
   }
 
   return result;

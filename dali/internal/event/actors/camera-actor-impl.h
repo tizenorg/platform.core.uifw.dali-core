@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_CAMERA_ACTOR_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@
  */
 
 // INTERNAL INCLUES
-#include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/internal/event/actors/actor-impl.h>
 #include <dali/internal/event/actors/actor-declarations.h>
-#include <dali/internal/event/actor-attachments/actor-attachment-declarations.h>
 
 namespace Dali
 {
@@ -31,8 +29,13 @@ namespace Dali
 namespace Internal
 {
 
+namespace SceneGraph
+{
+class CameraAttachment;
+}
+
 /**
- * An actor with a conveniently pre-attached CameraAttachment.
+ * An actor with CameraAttachment.
  */
 class CameraActor : public Actor
 {
@@ -50,18 +53,14 @@ public:
   static CameraActorPtr New( const Size& size );
 
   /**
-   * @copydoc Dali::Actor::OnInitialize
+   * @copydoc Dali::CameraActor::SetTargetPosition
    */
-  void OnInitialize();
+  void SetTargetPosition( const Vector3& targetPosition );
 
   /**
-   * Retrieve the camera attachment.
-   * @return The attachment.
+   * @copydoc Dali::CameraActor::GetTargetPosition
    */
-  CameraAttachment& GetCameraAttachment()
-  {
-    return *mCameraAttachment;
-  }
+  Vector3 GetTargetPosition() const;
 
   /**
    * @copydoc Dali::CameraActor::SetType
@@ -91,7 +90,7 @@ public:
   /**
    * @copydoc Dali::CameraActor::GetFieldOfView
    */
-  float GetFieldOfView( ) const;
+  float GetFieldOfView() const;
 
   /**
    * @copydoc Dali::CameraActor::SetAspectRatio
@@ -101,7 +100,7 @@ public:
   /**
    * @copydoc Dali::CameraActor::GetAspectRatio
    */
-  float GetAspectRatio( ) const;
+  float GetAspectRatio() const;
 
   /**
    * @copydoc Dali::CameraActor::SetNearClippingPlane
@@ -111,7 +110,7 @@ public:
   /**
    * @copydoc Dali::CameraActor::GetNearClippingPlane
    */
-  float GetNearClippingPlane( ) const;
+  float GetNearClippingPlane() const;
 
   /**
    * @copydoc Dali::CameraActor::SetFarClippingPlane
@@ -121,22 +120,52 @@ public:
   /**
    * @copydoc Dali::CameraActor::GetFarClippingPlane
    */
-  float GetFarClippingPlane( ) const;
+  float GetFarClippingPlane() const;
 
   /**
-   * @copydoc Dali::CameraActor::SetTargetPosition
+   * @param leftClippingPlane to use
    */
-  void SetTargetPosition( const Vector3& targetPosition );
+  void SetLeftClippingPlane( float leftClippingPlane );
 
   /**
-   * @copydoc Dali::CameraActor::GetTargetPosition
+   * @return leftClippingPlane in use
    */
-  Vector3 GetTargetPosition() const;
+  float GetLeftClippingPlane() const;
+
+  /**
+   * @param rightClippingPlane to use
+   */
+  void SetRightClippingPlane( float rightClippingPlane );
+
+  /**
+   * @return rightClippingPlane in use
+   */
+  float GetRightClippingPlane() const;
+
+  /**
+   * @param topClippingPlane to use
+   */
+  void SetTopClippingPlane( float topClippingPlane );
+
+  /**
+   * @param topClippingPlane in use
+   */
+  float GetTopClippingPlane() const;
+
+  /**
+   * @param bottomClippingPlane to use
+   */
+  void SetBottomClippingPlane( float bottomClippingPlane );
+
+  /**
+   * @param bottomClippingPlane in use
+   */
+  float GetBottomClippingPlane() const;
 
   /**
    * @copydoc Dali::CameraActor::SetInvertYAxis
    */
-  void SetInvertYAxis(bool invertYAxis);
+  void SetInvertYAxis( bool invertYAxis );
 
   /**
    * @copydoc Dali::CameraActor::GetCurrentInvertYAxis
@@ -243,10 +272,10 @@ public: // properties
    */
   virtual const PropertyInputImpl* GetSceneObjectInputProperty( Property::Index index ) const;
 
-protected:
+private:
 
   /**
-   * Protected constructor; see also CameraActor::New()
+   * Constructor; see also CameraActor::New()
    */
   CameraActor();
 
@@ -255,9 +284,22 @@ protected:
    */
   virtual ~CameraActor();
 
-private:
+private: // Data
 
-  CameraAttachmentPtr mCameraAttachment;
+  const SceneGraph::CameraAttachment* mSceneObject; ///< Not owned
+
+  Vector3            mTarget;
+  Dali::Camera::Type mType;
+  Dali::Camera::ProjectionMode mProjectionMode;
+  float              mFieldOfView;
+  float              mAspectRatio;
+  float              mNearClippingPlane;
+  float              mFarClippingPlane;
+  float              mLeftClippingPlane;
+  float              mRightClippingPlane;
+  float              mTopClippingPlane;
+  float              mBottomClippingPlane;
+  bool               mInvertYAxis;
 
 };
 

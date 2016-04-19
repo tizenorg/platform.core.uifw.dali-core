@@ -148,6 +148,13 @@ public:
   void SetBlendColor( const Vector4* color );
 
   /**
+   * Set the drawing range withing the index buffer
+   * @param[in] offset index of first element to draw
+   * @param[in] count number of elements to draw
+   */
+  void SetIndicesRange( size_t offset, size_t count );
+
+  /**
    * @brief Set whether the Pre-multiplied Alpha Blending is required
    *
    * @param[in] preMultipled whether alpha is pre-multiplied.
@@ -259,6 +266,9 @@ private:
 
   BlendingOptions                 mBlendingOptions; /// Blending options including blend color, blend func and blend equation
   Dali::Renderer::FaceCullingMode mFaceCullingMode; /// Mode of face culling
+
+  size_t mIndicesRangeOffset;                       /// Offset of first element to draw
+  size_t mIndicesRangeCount;                        /// Number of elements to draw
 
   unsigned int mSamplerBitfield;                    ///< Sampler options used for texture filtering
   bool mUpdateAttributesLocation:1;                 ///< Indicates attribute locations have changed

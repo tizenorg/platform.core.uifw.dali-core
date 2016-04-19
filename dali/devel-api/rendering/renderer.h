@@ -129,6 +129,13 @@ public:
   Geometry GetGeometry() const;
 
   /**
+   * @brief Sets effective range of indices to draw from bound index buffer
+   * @param [in] first first element to draw
+   * @param [in] count number of elements to draw
+   */
+  void SetIndicesRange( size_t first, size_t count );
+
+  /**
    * @brief Sets the texture set to be used by this renderer
    *
    * @param[in] textureSet The texture set to be used by this renderer

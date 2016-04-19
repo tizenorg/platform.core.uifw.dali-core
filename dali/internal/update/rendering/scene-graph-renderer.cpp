@@ -95,7 +95,8 @@ enum Flags
   RESEND_FACE_CULLING_MODE = 1 << 2,
   RESEND_BLEND_COLOR = 1 << 3,
   RESEND_BLEND_BIT_MASK = 1 << 4,
-  RESEND_PREMULTIPLIED_ALPHA = 1 << 5
+  RESEND_PREMULTIPLIED_ALPHA = 1 << 5,
+  RESEND_INDICES_RANGE = 1 << 6
 };
 
 }
@@ -127,10 +128,12 @@ Renderer::Renderer()
  mResendFlag(0),
  mResourcesReady(false),
  mFinishedResourceAcquisition(false),
- mDepthIndex(0)
+ mDepthIndex(0),
+ mIndicesRangeOffset(0),
+ mIndicesRangeCount(0)
 {
-  mUniformMapChanged[0]=false;
-  mUniformMapChanged[1]=false;
+  mUniformMapChanged[0] = false;
+  mUniformMapChanged[1] = false;
 
   // Observe our own PropertyOwner's uniform map
   AddUniformMapObserver( *this );
@@ -280,6 +283,15 @@ void Renderer::PrepareRender( BufferIndex updateBufferIndex )
     new (slot) DerivedType( mRenderer, &Render::Renderer::EnablePreMultipliedAlpha, mPremultipledAlphaEnabled );
     mResendFlag &= ~RESEND_PREMULTIPLIED_ALPHA;
   }
+
+  if( mResendFlag & RESEND_INDICES_RANGE )
+  {
+    typedef MessageValue2< Render::Renderer, size_t, size_t > DerivedType;
+    unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+    new (slot) DerivedType( mRenderer, &Render::Renderer::SetIndicesRange, mIndicesRangeOffset, mIndicesRangeCount );
+    mResendFlag &= ~RESEND_INDICES_RANGE;
+  }
+
 }
 
 void Renderer::SetTextures( TextureSet* textureSet )
@@ -368,6 +380,13 @@ void Renderer::SetBlendColor( const Vector4& blendColor )
   }
 
   mResendFlag |= RESEND_BLEND_COLOR;
+}
+
+void Renderer::SetIndicesRange( size_t offset, size_t count )
+{
+  mIndicesRangeOffset = offset;
+  mIndicesRangeCount = count;
+  mResendFlag |= RESEND_INDICES_RANGE;
 }
 
 void Renderer::EnablePreMultipliedAlpha( bool preMultipled )

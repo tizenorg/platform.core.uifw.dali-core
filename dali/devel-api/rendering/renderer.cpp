@@ -68,6 +68,11 @@ Geometry Renderer::GetGeometry() const
   return Dali::Geometry( geometryPtr );
 }
 
+void Renderer::SetIndicesRange( size_t offset, size_t count )
+{
+  GetImplementation(*this).SetIndicesRange( offset, count );
+}
+
 void Renderer::SetTextures( TextureSet& textureSet )
 {
   DALI_ASSERT_ALWAYS( textureSet && "TextureSet handle not initialized" );

@@ -25,13 +25,13 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/stage.h>
 #include <dali/public-api/object/type-registry.h>
-#include <dali/internal/event/actor-attachments/camera-attachment-impl.h>
+#include <dali/integration-api/debug.h>
 #include <dali/internal/event/common/property-helper.h>
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/render-tasks/render-task-impl.h>
 #include <dali/internal/event/render-tasks/render-task-list-impl.h>
 #include <dali/internal/event/common/projection.h>
-#include <dali/integration-api/debug.h>
+#include <dali/internal/update/node-attachments/scene-graph-camera-attachment.h>
 
 namespace Dali
 {
@@ -146,10 +146,12 @@ CameraActorPtr CameraActor::New( const Size& size )
 
   actor->SetName("DefaultCamera");
 
-  // Create the attachment
-  actor->mCameraAttachment = CameraAttachment::New( actor->GetEventThreadServices(), *actor->mNode );
+  // Create scene-object and transfer ownership through message
+  SceneGraph::CameraAttachment* sceneObject = SceneGraph::CameraAttachment::New();
+  AttachToNodeMessage( actor->GetEventThreadServices().GetUpdateManager(), *actor->mNode, sceneObject );
 
-  actor->Attach(*actor->mCameraAttachment);
+  // Keep raw pointer for message passing
+  actor->mSceneObject = sceneObject;
 
   actor->SetPerspectiveProjection( size );
 
@@ -160,12 +162,21 @@ CameraActorPtr CameraActor::New( const Size& size )
   return actor;
 }
 
-void CameraActor::OnInitialize()
-{
-}
-
 CameraActor::CameraActor()
-: Actor( Actor::BASIC )
+: Actor( Actor::BASIC ),
+  mSceneObject( NULL ),
+  mTarget( SceneGraph::CameraAttachment::DEFAULT_TARGET_POSITION ),
+  mType( SceneGraph::CameraAttachment::DEFAULT_TYPE ),
+  mProjectionMode( SceneGraph::CameraAttachment::DEFAULT_MODE ),
+  mFieldOfView( SceneGraph::CameraAttachment::DEFAULT_FIELD_OF_VIEW ),
+  mAspectRatio( SceneGraph::CameraAttachment::DEFAULT_ASPECT_RATIO ),
+  mNearClippingPlane( SceneGraph::CameraAttachment::DEFAULT_NEAR_CLIPPING_PLANE ),
+  mFarClippingPlane( SceneGraph::CameraAttachment::DEFAULT_FAR_CLIPPING_PLANE ),
+  mLeftClippingPlane( SceneGraph::CameraAttachment::DEFAULT_LEFT_CLIPPING_PLANE ),
+  mRightClippingPlane( SceneGraph::CameraAttachment::DEFAULT_RIGHT_CLIPPING_PLANE ),
+  mTopClippingPlane( SceneGraph::CameraAttachment::DEFAULT_TOP_CLIPPING_PLANE ),
+  mBottomClippingPlane( SceneGraph::CameraAttachment::DEFAULT_BOTTOM_CLIPPING_PLANE ),
+  mInvertYAxis( SceneGraph::CameraAttachment::DEFAULT_INVERT_Y_AXIS )
 {
 }
 
@@ -173,84 +184,195 @@ CameraActor::~CameraActor()
 {
 }
 
-void CameraActor::SetType( Dali::Camera::Type type )
+void CameraActor::SetTargetPosition( const Vector3& target )
 {
-  mCameraAttachment->SetType(type);
-}
+  if( target != mTarget ) // using range epsilon
+  {
+    mTarget = target;
 
-Dali::Camera::Type CameraActor::GetType() const
-{
-  return mCameraAttachment->GetType();
-}
-
-void CameraActor::SetProjectionMode( Dali::Camera::ProjectionMode mode )
-{
-  mCameraAttachment->SetProjectionMode(mode);
-}
-
-Dali::Camera::ProjectionMode CameraActor::GetProjectionMode() const
-{
-  return mCameraAttachment->GetProjectionMode();
-}
-
-void CameraActor::SetFieldOfView( float fieldOfView )
-{
-  mCameraAttachment->SetFieldOfView(fieldOfView);
-}
-
-float CameraActor::GetFieldOfView( ) const
-{
-  return mCameraAttachment->GetFieldOfView();
-}
-
-void CameraActor::SetAspectRatio( float aspectRatio )
-{
-  mCameraAttachment->SetAspectRatio(aspectRatio);
-}
-
-float CameraActor::GetAspectRatio( ) const
-{
-  return mCameraAttachment->GetAspectRatio();
-}
-
-void CameraActor::SetNearClippingPlane( float nearClippingPlane )
-{
-  mCameraAttachment->SetNearClippingPlane(nearClippingPlane);
-}
-
-float CameraActor::GetNearClippingPlane( ) const
-{
-  return mCameraAttachment->GetNearClippingPlane();
-}
-
-void CameraActor::SetFarClippingPlane( float farClippingPlane )
-{
-  mCameraAttachment->SetFarClippingPlane(farClippingPlane);
-}
-
-float CameraActor::GetFarClippingPlane( ) const
-{
-  return mCameraAttachment->GetFarClippingPlane();
-}
-
-void CameraActor::SetTargetPosition(const Vector3& target)
-{
-  mCameraAttachment->SetTargetPosition(target);
+    SetTargetPositionMessage( GetEventThreadServices(),  *mSceneObject, mTarget );
+  }
 }
 
 Vector3 CameraActor::GetTargetPosition() const
 {
-  return mCameraAttachment->GetTargetPosition();
+  return mTarget;
+}
+
+void CameraActor::SetType( Dali::Camera::Type type )
+{
+  if( type != mType )
+  {
+    mType = type;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetTypeMessage( GetEventThreadServices(), *mSceneObject, mType );
+  }
+}
+
+Dali::Camera::Type CameraActor::GetType() const
+{
+  return mType;
+}
+
+void CameraActor::SetProjectionMode( Dali::Camera::ProjectionMode mode )
+{
+  if( mode != mProjectionMode )
+  {
+    mProjectionMode = mode;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetProjectionModeMessage( GetEventThreadServices(), *mSceneObject, mProjectionMode );
+  }
+}
+
+Dali::Camera::ProjectionMode CameraActor::GetProjectionMode() const
+{
+  return mProjectionMode;
+}
+
+void CameraActor::SetFieldOfView( float fieldOfView )
+{
+  if( ! Equals( fieldOfView, mFieldOfView ) )
+  {
+    mFieldOfView = fieldOfView;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetFieldOfViewMessage( GetEventThreadServices(), *mSceneObject, mFieldOfView );
+  }
+}
+
+float CameraActor::GetFieldOfView( ) const
+{
+  return mFieldOfView;
+}
+
+void CameraActor::SetAspectRatio( float aspectRatio )
+{
+  if( ! Equals( aspectRatio, mAspectRatio ) )
+  {
+    mAspectRatio = aspectRatio;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetAspectRatioMessage( GetEventThreadServices(), *mSceneObject, mAspectRatio );
+  }
+}
+
+float CameraActor::GetAspectRatio( ) const
+{
+  return mAspectRatio;
+}
+
+void CameraActor::SetNearClippingPlane( float nearClippingPlane )
+{
+  if( ! Equals(nearClippingPlane, mNearClippingPlane ) )
+  {
+    mNearClippingPlane = nearClippingPlane;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetNearClippingPlaneMessage( GetEventThreadServices(), *mSceneObject, mNearClippingPlane );
+  }
+}
+
+float CameraActor::GetNearClippingPlane() const
+{
+  return mNearClippingPlane;
+}
+
+void CameraActor::SetFarClippingPlane( float farClippingPlane )
+{
+  if( ! Equals( farClippingPlane, mFarClippingPlane ) )
+  {
+    mFarClippingPlane = farClippingPlane;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetFarClippingPlaneMessage( GetEventThreadServices(), *mSceneObject, mFarClippingPlane );
+  }
+}
+
+float CameraActor::GetFarClippingPlane() const
+{
+  return mFarClippingPlane;
+}
+
+void CameraActor::SetLeftClippingPlane( float leftClippingPlane )
+{
+  if( ! Equals(leftClippingPlane, mLeftClippingPlane ) )
+  {
+    mLeftClippingPlane = leftClippingPlane;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetLeftClippingPlaneMessage( GetEventThreadServices(), *mSceneObject, mLeftClippingPlane );
+  }
+}
+
+float CameraActor::GetLeftClippingPlane() const
+{
+  return mLeftClippingPlane;
+}
+
+void CameraActor::SetRightClippingPlane( float rightClippingPlane )
+{
+  if( ! Equals(rightClippingPlane, mRightClippingPlane ) )
+  {
+    mRightClippingPlane = rightClippingPlane;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetRightClippingPlaneMessage( GetEventThreadServices(), *mSceneObject, mRightClippingPlane );
+  }
+}
+
+float CameraActor::GetRightClippingPlane() const
+{
+  return mRightClippingPlane;
+}
+
+void CameraActor::SetTopClippingPlane( float topClippingPlane )
+{
+  if( ! Equals(topClippingPlane, mTopClippingPlane ) )
+  {
+    mTopClippingPlane = topClippingPlane;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetTopClippingPlaneMessage( GetEventThreadServices(), *mSceneObject, mTopClippingPlane );
+  }
+}
+
+float CameraActor::GetTopClippingPlane() const
+{
+  return mTopClippingPlane;
+}
+
+void CameraActor::SetBottomClippingPlane( float bottomClippingPlane )
+{
+  if( ! Equals(bottomClippingPlane, mBottomClippingPlane ) )
+  {
+    mBottomClippingPlane = bottomClippingPlane;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetBottomClippingPlaneMessage( GetEventThreadServices(), *mSceneObject, mBottomClippingPlane );
+  }
+}
+
+float CameraActor::GetBottomClippingPlane() const
+{
+  return mBottomClippingPlane;
 }
 
 void CameraActor::SetInvertYAxis(bool invertYAxis)
 {
-  mCameraAttachment->SetInvertYAxis(invertYAxis);
+  if( invertYAxis != mInvertYAxis )
+  {
+    mInvertYAxis = invertYAxis;
+
+    // sceneObject is being used in a separate thread; queue a message to set
+    SetInvertYAxisMessage( GetEventThreadServices(), *mSceneObject, mInvertYAxis );
+  }
 }
 
 bool CameraActor::GetInvertYAxis() const
 {
-  return mCameraAttachment->GetInvertYAxis();
+  return mInvertYAxis;
 }
 
 void CameraActor::SetPerspectiveProjection( const Size& size, const Vector2& stereoBias /* = Vector2::ZERO */ )
@@ -299,7 +421,8 @@ void CameraActor::SetPerspectiveProjection( const Size& size, const Vector2& ste
   SetNearClippingPlane( nearClippingPlane );
   SetFarClippingPlane( farClippingPlane );
   SetAspectRatio( aspectRatio );
-  mCameraAttachment->SetStereoBias( stereoBias );
+  // sceneObject is being used in a separate thread; queue a message to set
+  SetStereoBiasMessage( GetEventThreadServices(), *mSceneObject, stereoBias );
   SetZ( cameraZ );
 }
 
@@ -318,13 +441,13 @@ void CameraActor::SetOrthographicProjection( const Vector2& size )
 
 void CameraActor::SetOrthographicProjection( float left, float right, float top, float bottom, float near, float far )
 {
-  mCameraAttachment->SetLeftClippingPlane(left);
-  mCameraAttachment->SetRightClippingPlane(right);
-  mCameraAttachment->SetTopClippingPlane(top);
-  mCameraAttachment->SetBottomClippingPlane(bottom);
+  SetLeftClippingPlane( left );
+  SetRightClippingPlane( right );
+  SetTopClippingPlane( top );
+  SetBottomClippingPlane( bottom );
   SetNearClippingPlane( near );
   SetFarClippingPlane( far );
-  SetProjectionMode(Dali::Camera::ORTHOGRAPHIC_PROJECTION);
+  SetProjectionMode( Dali::Camera::ORTHOGRAPHIC_PROJECTION );
 }
 
 bool CameraActor::BuildPickingRay( const Vector2& screenCoordinates,
@@ -342,7 +465,8 @@ bool CameraActor::BuildPickingRay( const Vector2& screenCoordinates,
 
     // Transform the touch point from the screen coordinate system to the world coordinates system.
     Vector4 near( screenCoordinates.x - viewport.x, viewport.height - (screenCoordinates.y - viewport.y), 0.f, 1.f );
-    if( !Unproject( near, mCameraAttachment->GetInverseViewProjectionMatrix(), viewport.width, viewport.height, near ) )
+    const Matrix& invVP = mSceneObject->GetInverseViewProjectionMatrix( GetEventThreadServices().GetEventBufferIndex() );
+    if( !Unproject( near, invVP, viewport.width, viewport.height, near ) )
     {
       // unproject failed so no picking ray possible
       success = false;
@@ -374,7 +498,7 @@ const Matrix& CameraActor::GetViewMatrix() const
 {
   if ( OnStage() )
   {
-    return mCameraAttachment->GetViewMatrix();
+    return mSceneObject->GetViewMatrix( GetEventThreadServices().GetEventBufferIndex() );
   }
   else
   {
@@ -386,7 +510,7 @@ const Matrix& CameraActor::GetProjectionMatrix() const
 {
   if ( OnStage() )
   {
-    return mCameraAttachment->GetProjectionMatrix();
+    return mSceneObject->GetProjectionMatrix( GetEventThreadServices().GetEventBufferIndex() );
   }
   else
   {
@@ -521,93 +645,85 @@ void CameraActor::SetDefaultProperty( Property::Index index, const Property::Val
         std::string s( propertyValue.Get<std::string>() );
         if(s == "LOOK_AT_TARGET")
         {
-          mCameraAttachment->SetType(Dali::Camera::LOOK_AT_TARGET);
+          SetType( Dali::Camera::LOOK_AT_TARGET );
         }
         else if(s == "FREE_LOOK")
         {
-          mCameraAttachment->SetType(Dali::Camera::FREE_LOOK);
-        }
-        else
-        {
-          DALI_LOG_WARNING("Unknown camera type\n");
+          SetType( Dali::Camera::FREE_LOOK );
         }
         break;
       }
       case Dali::CameraActor::Property::PROJECTION_MODE:
       {
         std::string s(propertyValue.Get<std::string>());
-        if(s == "PERSPECTIVE_PROJECTION")
+        if( s == "PERSPECTIVE_PROJECTION" )
         {
-          mCameraAttachment->SetProjectionMode(Dali::Camera::PERSPECTIVE_PROJECTION);
+          SetProjectionMode( Dali::Camera::PERSPECTIVE_PROJECTION );
         }
-        else if(s == "ORTHOGRAPHIC_PROJECTION")
+        else if( s == "ORTHOGRAPHIC_PROJECTION" )
         {
-          mCameraAttachment->SetProjectionMode(Dali::Camera::ORTHOGRAPHIC_PROJECTION);
-        }
-        else
-        {
-          DALI_LOG_WARNING("Unknown projection mode\n");
+          SetProjectionMode( Dali::Camera::ORTHOGRAPHIC_PROJECTION );
         }
         break;
       }
       case Dali::CameraActor::Property::FIELD_OF_VIEW:
       {
-        mCameraAttachment->SetFieldOfView(propertyValue.Get<float>());
+        SetFieldOfView( propertyValue.Get<float>() ); // set to 0 in case property is not float
         break;
       }
       case Dali::CameraActor::Property::ASPECT_RATIO:
       {
-        mCameraAttachment->SetAspectRatio(propertyValue.Get<float>());
-        break;
-      }
-      case Dali::CameraActor::Property::LEFT_PLANE_DISTANCE:
-      {
-        mCameraAttachment->SetLeftClippingPlane(propertyValue.Get<float>());
-        break;
-      }
-      case Dali::CameraActor::Property::RIGHT_PLANE_DISTANCE:
-      {
-        mCameraAttachment->SetRightClippingPlane(propertyValue.Get<float>());
-        break;
-      }
-      case Dali::CameraActor::Property::TOP_PLANE_DISTANCE:
-      {
-        mCameraAttachment->SetTopClippingPlane(propertyValue.Get<float>());
-        break;
-      }
-      case Dali::CameraActor::Property::BOTTOM_PLANE_DISTANCE:
-      {
-        mCameraAttachment->SetBottomClippingPlane(propertyValue.Get<float>());
+        SetAspectRatio( propertyValue.Get<float>() ); // set to 0 in case property is not float
         break;
       }
       case Dali::CameraActor::Property::NEAR_PLANE_DISTANCE:
       {
-        mCameraAttachment->SetNearClippingPlane(propertyValue.Get<float>());
+        SetNearClippingPlane( propertyValue.Get<float>() ); // set to 0 in case property is not float
         break;
       }
       case Dali::CameraActor::Property::FAR_PLANE_DISTANCE:
       {
-        mCameraAttachment->SetFarClippingPlane(propertyValue.Get<float>());
+        SetFarClippingPlane( propertyValue.Get<float>() ); // set to 0 in case property is not float
+        break;
+      }
+      case Dali::CameraActor::Property::LEFT_PLANE_DISTANCE:
+      {
+        SetLeftClippingPlane( propertyValue.Get<float>() ); // set to 0 in case property is not float
+        break;
+      }
+      case Dali::CameraActor::Property::RIGHT_PLANE_DISTANCE:
+      {
+        SetRightClippingPlane( propertyValue.Get<float>() ); // set to 0 in case property is not float
+        break;
+      }
+      case Dali::CameraActor::Property::TOP_PLANE_DISTANCE:
+      {
+        SetTopClippingPlane( propertyValue.Get<float>() ); // set to 0 in case property is not float
+        break;
+      }
+      case Dali::CameraActor::Property::BOTTOM_PLANE_DISTANCE:
+      {
+        SetBottomClippingPlane( propertyValue.Get<float>() ); // set to 0 in case property is not float
         break;
       }
       case Dali::CameraActor::Property::TARGET_POSITION:
       {
-        mCameraAttachment->SetTargetPosition(propertyValue.Get<Vector3>());
+        SetTargetPosition( propertyValue.Get<Vector3>() ); // set to 0 in case property is not float
         break;
       }
       case Dali::CameraActor::Property::PROJECTION_MATRIX:
       {
-        DALI_LOG_WARNING("projection-matrix property is not animatable \n");
+        DALI_LOG_WARNING("projection-matrix is read-only\n");
         break;
       }
       case Dali::CameraActor::Property::VIEW_MATRIX:
       {
-        DALI_LOG_WARNING("view-matrix property is not animatable \n");
+        DALI_LOG_WARNING("view-matrix is read-only\n");
         break;
       }
       case Dali::CameraActor::Property::INVERT_Y_AXIS:
       {
-        mCameraAttachment->SetInvertYAxis(propertyValue.Get<bool>());
+        SetInvertYAxis( propertyValue.Get<bool>() ); // set to false in case property is not bool
         break;
       }
       default:
@@ -629,106 +745,90 @@ Property::Value CameraActor::GetDefaultProperty( Property::Index index ) const
   }
   else
   {
-    DALI_ASSERT_DEBUG(mCameraAttachment && "where is the camera?");
     switch(index)
     {
       case Dali::CameraActor::Property::TYPE:
       {
-        if(mCameraAttachment->GetType() == Dali::Camera::LOOK_AT_TARGET)
+        if( GetType() == Dali::Camera::LOOK_AT_TARGET )
         {
           ret = "LOOK_AT_TARGET";
         }
-        else if(mCameraAttachment->GetType() == Dali::Camera::FREE_LOOK)
+        else if( GetType() == Dali::Camera::FREE_LOOK )
         {
           ret = "FREE_LOOK";
-        }
-        else
-        {
-          ret = "";
-          DALI_ASSERT_DEBUG("Unknown camera type\n");
         }
         break;
       }
       case Dali::CameraActor::Property::PROJECTION_MODE:
       {
-        if(mCameraAttachment->GetProjectionMode() == Dali::Camera::PERSPECTIVE_PROJECTION)
+        if( GetProjectionMode() == Dali::Camera::PERSPECTIVE_PROJECTION )
         {
           ret = "PERSPECTIVE_PROJECTION";
         }
-        else if(mCameraAttachment->GetProjectionMode() == Dali::Camera::ORTHOGRAPHIC_PROJECTION)
+        else if( GetProjectionMode() == Dali::Camera::ORTHOGRAPHIC_PROJECTION )
         {
           ret = "ORTHOGRAPHIC_PROJECTION";
-        }
-        else
-        {
-          ret = "";
-          DALI_ASSERT_DEBUG("Unknown projection mode\n");
         }
         break;
       }
       case Dali::CameraActor::Property::FIELD_OF_VIEW:
       {
-        ret = mCameraAttachment->GetFieldOfView();
+        ret = GetFieldOfView();
         break;
       }
       case Dali::CameraActor::Property::ASPECT_RATIO:
       {
-        ret = mCameraAttachment->GetAspectRatio();
-        break;
-      }
-      case Dali::CameraActor::Property::LEFT_PLANE_DISTANCE:
-      {
-        ret = mCameraAttachment->GetLeftClippingPlane();
-        break;
-      }
-      case Dali::CameraActor::Property::RIGHT_PLANE_DISTANCE:
-      {
-        ret = mCameraAttachment->GetRightClippingPlane();
-        break;
-      }
-      case Dali::CameraActor::Property::TOP_PLANE_DISTANCE:
-      {
-        ret = mCameraAttachment->GetTopClippingPlane();
-        break;
-      }
-      case Dali::CameraActor::Property::BOTTOM_PLANE_DISTANCE:
-      {
-        ret = mCameraAttachment->GetBottomClippingPlane();
+        ret = GetAspectRatio();
         break;
       }
       case Dali::CameraActor::Property::NEAR_PLANE_DISTANCE:
       {
-        ret = mCameraAttachment->GetNearClippingPlane();
+        ret = GetNearClippingPlane();
         break;
       }
       case Dali::CameraActor::Property::FAR_PLANE_DISTANCE:
       {
-        ret = mCameraAttachment->GetFarClippingPlane();
+        ret = GetFarClippingPlane();
+        break;
+      }
+      case Dali::CameraActor::Property::LEFT_PLANE_DISTANCE:
+      {
+        ret = GetLeftClippingPlane();
+        break;
+      }
+      case Dali::CameraActor::Property::RIGHT_PLANE_DISTANCE:
+      {
+        ret = GetRightClippingPlane();
+        break;
+      }
+      case Dali::CameraActor::Property::TOP_PLANE_DISTANCE:
+      {
+        ret = GetTopClippingPlane();
+        break;
+      }
+      case Dali::CameraActor::Property::BOTTOM_PLANE_DISTANCE:
+      {
+        ret = GetBottomClippingPlane();
         break;
       }
       case Dali::CameraActor::Property::TARGET_POSITION:
       {
-        ret = mCameraAttachment->GetTargetPosition();
+        ret = GetTargetPosition();
         break;
       }
       case Dali::CameraActor::Property::PROJECTION_MATRIX:
       {
-        ret = mCameraAttachment->GetProjectionMatrix();
+        ret = GetProjectionMatrix();
         break;
       }
       case Dali::CameraActor::Property::VIEW_MATRIX:
       {
-        ret = mCameraAttachment->GetViewMatrix();
+        ret = GetViewMatrix();
         break;
       }
       case Dali::CameraActor::Property::INVERT_Y_AXIS:
       {
-        ret = mCameraAttachment->GetInvertYAxis();
-        break;
-      }
-      default:
-      {
-        DALI_LOG_WARNING("Unknown property (%d)\n", index);
+        ret = GetInvertYAxis();
         break;
       }
     } // switch(index)
@@ -779,12 +879,12 @@ const PropertyInputImpl* CameraActor::GetSceneObjectInputProperty( Property::Ind
     {
       case Dali::CameraActor::Property::PROJECTION_MATRIX:
       {
-        property = mCameraAttachment->GetProjectionMatrixProperty();
+        property = mSceneObject->GetProjectionMatrix();
         break;
       }
       case Dali::CameraActor::Property::VIEW_MATRIX:
       {
-        property = mCameraAttachment->GetViewMatrixProperty();
+        property = mSceneObject->GetViewMatrix();
         break;
       }
       default:
@@ -795,7 +895,6 @@ const PropertyInputImpl* CameraActor::GetSceneObjectInputProperty( Property::Ind
 
   return property;
 }
-
 
 } // namespace Internal
 

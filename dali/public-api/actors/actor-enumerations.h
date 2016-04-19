@@ -2,7 +2,7 @@
 #define __DALI_ACTOR_ENUMERATIONS_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,21 @@ enum PositionInheritanceMode
   USE_PARENT_POSITION_PLUS_LOCAL_POSITION, ///< Actor will copy its parent position and add local position. This is useful if many actors are stacked together in the same place with an offset.  This option ignores parent origin and anchor point. @SINCE_1_0.0
   DONT_INHERIT_POSITION                    ///< Actor will not inherit position. Local position is treated as world position. This is useful if a constraint is used to override local position or if an actor is positioned globally. This option ignores parent origin, anchor point and local position. @SINCE_1_0.0
 };
+
+/**
+ * EXPERIMENTAL_1_1.31 Clipping Modes not currently implemented.
+ * @brief Clipping Modes
+ * @SINCE_1_1.31
+ */
+namespace ClippingMode
+{
+enum Type
+{
+  CLIPPING_DISABLED,             ///< EXPERIMENTAL_1_1.31 Not currently implemented. @brief This actors renderers will not create a clipping stencil. Default. @SINCE_1_1.31
+  CLIPPING_ENABLED,              ///< EXPERIMENTAL_1_1.31 Not currently implemented. @brief This actors renderers will create a clipping area that children will be clipped against. @SINCE_1_1.31
+  CLIP_AND_RENDER,               ///< EXPERIMENTAL_1_1.31 Not currently implemented. @brief This actors renderers will create a clipping area that children will be clipped against. The renderers will also be rendered visually. @SINCE_1_1.31
+};
+}
 
 /**
  * @brief Dimensions for layout

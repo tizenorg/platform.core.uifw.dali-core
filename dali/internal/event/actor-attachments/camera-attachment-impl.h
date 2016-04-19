@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_CAMERA_ATTACHMENT_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/event/actor-attachments/actor-attachment-impl.h>
-#include <dali/internal/event/actor-attachments/actor-attachment-declarations.h>
-#include <dali/internal/update/common/animatable-property.h>
-#include <dali/internal/update/common/inherited-property.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/math/rect.h>
 
@@ -35,6 +31,12 @@ struct Vector3;
 namespace Internal
 {
 
+class CameraAttachment;
+typedef IntrusivePtr<CameraAttachment> CameraAttachmentPtr;
+
+class EventThreadServices;
+class PropertyInputImpl;
+
 class Camera;
 
 namespace SceneGraph
@@ -46,7 +48,7 @@ class Node;
 /**
  * An attachment for managing the properties of a camera in the scene
  */
-class CameraAttachment : public ActorAttachment
+class CameraAttachment : public Dali::RefObject
 {
 public:
   /**
@@ -231,17 +233,6 @@ public:
    */
   const PropertyInputImpl* GetProjectionMatrixProperty() const;
 
-  /**
-   * @copydoc Dali::Internal::Object::GetSceneObjectAnimatableProperty()
-   */
-  const SceneGraph::PropertyBase* GetSceneObjectAnimatableProperty( Property::Index index ) const;
-
-  /**
-   * @copydoc Dali::Internal::Object::GetSceneObjectInputProperty()
-   */
-  const PropertyInputImpl* GetSceneObjectInputProperty( Property::Index index ) const;
-
-
 private:
 
   /**
@@ -256,16 +247,6 @@ private:
    */
   static SceneGraph::CameraAttachment* CreateSceneObject();
 
-  /**
-   * @copydoc Dali::Internal::ActorAttachment::OnStageConnection()
-   */
-  virtual void OnStageConnection();
-
-  /**
-   * @copydoc Dali::Internal::ActorAttachment::OnStageDisconnection()
-   */
-  virtual void OnStageDisconnection();
-
 protected:
 
   /**
@@ -273,7 +254,28 @@ protected:
    */
   virtual ~CameraAttachment();
 
+  /**
+   * For use in message sending to and property reading from the scene graph
+   * Inlined for speed
+   * @return The EventThreadServices object
+   */
+  inline EventThreadServices& GetEventThreadServices()
+  {
+    return mEventThreadServices;
+  }
+
+  /**
+   * For use in message sending to and property reading from the scene graph
+   * Inlined for speed
+   */
+  inline const EventThreadServices& GetEventThreadServices() const
+  {
+    return mEventThreadServices;
+  }
+
 private:
+
+  EventThreadServices& mEventThreadServices; ///< Used to send messages to scene-graph; valid until Core destruction
 
   const SceneGraph::CameraAttachment* mSceneObject; ///< Not owned
 

@@ -45,7 +45,7 @@ CameraAttachmentPtr CameraAttachment::New( EventThreadServices& eventThreadServi
 }
 
 CameraAttachment::CameraAttachment( EventThreadServices& eventThreadServices )
-: ActorAttachment( eventThreadServices ),
+: mEventThreadServices( eventThreadServices ),
   mSceneObject( NULL ),
   mType( SceneGraph::CameraAttachment::DEFAULT_TYPE ),
   mProjectionMode( SceneGraph::CameraAttachment::DEFAULT_MODE ),
@@ -316,16 +316,6 @@ const PropertyInputImpl* CameraAttachment::GetProjectionMatrixProperty() const
   const SceneGraph::CameraAttachment& sceneObject = *mSceneObject;
 
   return sceneObject.GetProjectionMatrix();
-}
-
-void CameraAttachment::OnStageConnection()
-{
-  // do nothing
-}
-
-void CameraAttachment::OnStageDisconnection()
-{
-  // do nothing
 }
 
 } // namespace Internal

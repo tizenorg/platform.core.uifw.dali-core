@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_CAMERA_ACTOR_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@
  */
 
 // INTERNAL INCLUES
-#include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/internal/event/actors/actor-impl.h>
 #include <dali/internal/event/actors/actor-declarations.h>
-#include <dali/internal/event/actor-attachments/actor-attachment-declarations.h>
+#include <dali/internal/event/actor-attachments/camera-attachment-impl.h>
 
 namespace Dali
 {
@@ -32,7 +31,7 @@ namespace Internal
 {
 
 /**
- * An actor with a conveniently pre-attached CameraAttachment.
+ * An actor with CameraAttachment.
  */
 class CameraActor : public Actor
 {

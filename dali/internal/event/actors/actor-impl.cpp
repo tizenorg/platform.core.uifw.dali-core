@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,9 +59,10 @@ using Dali::Internal::SceneGraph::PropertyBase;
 
 namespace Dali
 {
+
+// Enumeration to / from string conversion tables
 namespace ResizePolicy
 {
-
 namespace
 {
 DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )
@@ -74,7 +75,6 @@ DALI_ENUM_TO_STRING( FIT_TO_CHILDREN )
 DALI_ENUM_TO_STRING( DIMENSION_DEPENDENCY )
 DALI_ENUM_TO_STRING( USE_ASSIGNED_SIZE )
 DALI_ENUM_TO_STRING_TABLE_END( Type )
-
 } // unnamed namespace
 } // ResizePolicy
 
@@ -82,7 +82,6 @@ namespace SizeScalePolicy
 {
 namespace
 {
-// Enumeration to / from string conversion tables
 DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )
 DALI_ENUM_TO_STRING( USE_SIZE_SET )
 DALI_ENUM_TO_STRING( FIT_WITH_ASPECT_RATIO )

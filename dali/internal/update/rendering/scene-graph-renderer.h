@@ -156,6 +156,13 @@ public:
   void SetBlendColor( const Vector4& blendColor );
 
   /**
+   * Set the drawing range withing the index buffer
+   * @param[in] offset index of first element to draw
+   * @param[in] count number of elements to draw
+   */
+  void SetIndicesRange( size_t offset, size_t count );
+
+  /**
    * @brief Set whether the Pre-multiplied Alpha Blending is required
    *
    * @param[in] preMultipled whether alpha is pre-multiplied.
@@ -320,6 +327,9 @@ private:
 
 public:
   int mDepthIndex; ///< Used only in PrepareRenderInstructions
+
+  size_t mIndicesRangeOffset;
+  size_t mIndicesRangeCount;
 };
 
 
@@ -406,6 +416,16 @@ inline void SetBlendColorMessage( EventThreadServices& eventThreadServices, cons
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &renderer, &Renderer::SetBlendColor, blendColor );
+}
+
+inline void SetIndicesRangeMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, size_t offset, size_t range )
+{
+  typedef MessageValue2< Renderer, size_t, size_t > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetIndicesRange, offset, range );
 }
 
 inline void SetEnablePreMultipliedAlphaMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, bool preMultiplied )

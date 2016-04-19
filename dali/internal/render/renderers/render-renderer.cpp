@@ -417,6 +417,12 @@ void Renderer::SetBlendColor( const Vector4* color )
   mBlendingOptions.SetBlendColor( *color );
 }
 
+void Renderer::SetIndicesRange( size_t offset, size_t count )
+{
+  mIndicesRangeOffset = offset;
+  mIndicesRangeCount = count;
+}
+
 void Renderer::EnablePreMultipliedAlpha( bool enable )
 {
   mPremultipledAlphaEnabled = enable;
@@ -491,7 +497,7 @@ void Renderer::Render( Context& context,
       mUpdateAttributesLocation = false;
     }
 
-    mRenderGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation );
+    mRenderGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation, mIndicesRangeOffset, mIndicesRangeCount );
   }
 }
 

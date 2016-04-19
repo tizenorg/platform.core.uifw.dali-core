@@ -220,6 +220,18 @@ Vector4 Renderer::GetBlendColor() const
   return Color::TRANSPARENT; // GL default
 }
 
+void Renderer::SetIndicesRange( size_t offset, size_t count )
+{
+
+  if( offset != mIndicesRangeOffset || count != mIndicesRangeCount )
+  {
+    mIndicesRangeOffset = offset;
+    mIndicesRangeCount = count;
+    SetIndicesRangeMessage( GetEventThreadServices(), *mSceneObject, mIndicesRangeOffset, mIndicesRangeCount );
+  }
+}
+
+
 void Renderer::EnablePreMultipliedAlpha( bool preMultipled )
 {
   if(  mPremultipledAlphaEnabled != preMultipled )
@@ -602,6 +614,8 @@ Renderer::Renderer()
   mBlendColor( NULL ),
   mDepthIndex(0),
   mOnStageCount(0),
+  mIndicesRangeOffset(0),
+  mIndicesRangeCount(0),
   mFaceCullingMode(Dali::Renderer::NONE),
   mBlendingMode( Dali::BlendingMode::AUTO ),
   mBlendingOptions(),

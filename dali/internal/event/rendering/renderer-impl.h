@@ -158,6 +158,11 @@ public:
    Vector4 GetBlendColor() const;
 
    /**
+    * @copydoc Dali::Renderer::SetIndicesRange
+    */
+   void SetIndicesRange( size_t offset, size_t count );
+
+   /**
     * @brief Set whether the Pre-multiplied Alpha Blending is required
     *
     * @param[in] preMultipled whether alpha is pre-multiplied.
@@ -300,6 +305,9 @@ private: // data
 
   int mDepthIndex;
   int mOnStageCount;
+
+  size_t mIndicesRangeOffset;                   ///< Offset of first element to draw from bound index buffer
+  size_t mIndicesRangeCount;                    ///< Number of elements to draw
 
   Dali::Renderer::FaceCullingMode mFaceCullingMode; ///< Local copy of face culling mode
   BlendingMode::Type mBlendingMode;                 ///< Local copy of blending mode

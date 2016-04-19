@@ -116,7 +116,9 @@ void RenderGeometry::OnRenderFinished()
 void RenderGeometry::UploadAndDraw(
     Context& context,
     BufferIndex bufferIndex,
-    Vector<GLint>& attributeLocation )
+    Vector<GLint>& attributeLocation,
+    size_t elementBufferOffset,
+    size_t elementBufferCount )
 {
   if( !mHasBeenUpdated )
   {
@@ -157,9 +159,18 @@ void RenderGeometry::UploadAndDraw(
 
   //Bind index buffer
   unsigned int numIndices(0u);
+  unsigned int firstIndex(0u);
   if( mIndexBuffer )
   {
-    numIndices = mIndexBuffer->GetDataSize() / mIndexBuffer->GetElementSize();
+    if ( elementBufferCount )
+    {
+      numIndices = elementBufferCount;
+    }
+    else
+    {
+      numIndices = mIndexBuffer->GetDataSize() / mIndexBuffer->GetElementSize();
+    }
+    firstIndex = elementBufferOffset*2;
   }
 
   //Draw call
@@ -169,7 +180,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, (void*)(intptr_t)firstIndex );
       }
       else
       {
@@ -182,7 +193,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_LINES, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_LINES, numIndices, GL_UNSIGNED_SHORT, (void*)(intptr_t)firstIndex );
       }
       else
       {
@@ -201,7 +212,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, (void*)(intptr_t)firstIndex );
       }
       else
       {
@@ -214,7 +225,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_TRIANGLE_FAN, numIndices, GL_UNSIGNED_SHORT, (void*)(intptr_t)firstIndex );
       }
       else
       {
@@ -227,7 +238,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_LINE_LOOP, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_LINE_LOOP, numIndices, GL_UNSIGNED_SHORT, (void*)(intptr_t)firstIndex );
       }
       else
       {
@@ -240,7 +251,7 @@ void RenderGeometry::UploadAndDraw(
     {
       if( numIndices )
       {
-        context.DrawElements(GL_LINE_STRIP, numIndices, GL_UNSIGNED_SHORT, 0);
+        context.DrawElements(GL_LINE_STRIP, numIndices, GL_UNSIGNED_SHORT, (void*)(intptr_t)firstIndex );
       }
       else
       {

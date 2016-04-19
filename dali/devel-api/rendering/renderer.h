@@ -227,6 +227,13 @@ public:
    */
   void GetBlendEquation( BlendingEquation::Type& equationRgb, BlendingEquation::Type& equationAlpha ) const;
 
+  /**
+   * @brief Sets effective range of indices to draw from bound index buffer
+   * @param [in] first first element to draw
+   * @param [in] count number of elements to draw
+   */
+  void SetIndicesRange( size_t first, size_t count );
+
 public:
   /**
    * @brief The constructor

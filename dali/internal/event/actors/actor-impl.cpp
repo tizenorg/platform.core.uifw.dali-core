@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,9 +59,10 @@ using Dali::Internal::SceneGraph::PropertyBase;
 
 namespace Dali
 {
+
+// Enumeration to / from string conversion tables
 namespace ResizePolicy
 {
-
 namespace
 {
 DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )
@@ -74,7 +75,6 @@ DALI_ENUM_TO_STRING( FIT_TO_CHILDREN )
 DALI_ENUM_TO_STRING( DIMENSION_DEPENDENCY )
 DALI_ENUM_TO_STRING( USE_ASSIGNED_SIZE )
 DALI_ENUM_TO_STRING_TABLE_END( Type )
-
 } // unnamed namespace
 } // ResizePolicy
 
@@ -82,7 +82,6 @@ namespace SizeScalePolicy
 {
 namespace
 {
-// Enumeration to / from string conversion tables
 DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )
 DALI_ENUM_TO_STRING( USE_SIZE_SET )
 DALI_ENUM_TO_STRING( FIT_WITH_ASPECT_RATIO )
@@ -90,6 +89,18 @@ DALI_ENUM_TO_STRING( FILL_WITH_ASPECT_RATIO )
 DALI_ENUM_TO_STRING_TABLE_END( Type )
 } // unnamed namespace
 } // SizeScalePolicy
+
+namespace ClippingMode
+{
+namespace
+{
+DALI_ENUM_TO_STRING_TABLE_BEGIN( Type )
+DALI_ENUM_TO_STRING( CLIPPING_DISABLED )
+DALI_ENUM_TO_STRING( CLIPPING_ENABLED )
+DALI_ENUM_TO_STRING( CLIP_AND_RENDER )
+DALI_ENUM_TO_STRING_TABLE_END( Type )
+} // unnamed namespace
+} // ClippingMode
 
 namespace Internal
 {
@@ -2584,6 +2595,17 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
       break;
     }
 
+    case Dali::Actor::Property::CLIPPING_MODE:
+    {
+      ClippingMode::Type mode( ClippingMode::CLIPPING_DISABLED );
+      if( Scripting::GetEnumeration< ClippingMode::Type >( property.Get< std::string >().c_str(), ClippingMode::TypeTable, ClippingMode::TypeTableCount, mode ) )
+      {
+        // TODO: ClippingMode is currently experimental, not implemented yet.
+        DALI_LOG_WARNING( "Set property \"clippingMode\" with %s (index: %d). not currently implemented", property.Get< std::string >().c_str(), static_cast< int >( mode ) );
+      }
+      break;
+    }
+
     default:
     {
       // this can happen in the case of a non-animatable default property so just do nothing
@@ -3072,6 +3094,14 @@ Property::Value Actor::GetDefaultProperty( Property::Index index ) const
     case Dali::Actor::Property::MAXIMUM_SIZE:
     {
       value = Vector2( GetMaximumSize( Dimension::WIDTH ), GetMaximumSize( Dimension::HEIGHT ) );
+      break;
+    }
+
+    case Dali::Actor::Property::CLIPPING_MODE:
+    {
+      // TODO: ClippingMode is currently experimental, not implemented yet.
+      //value = Scripting::GetLinearEnumerationName< ClippingMode::Type >( GetClippingMode(), ClippingMode::TypeTable, ClippingMode::TypeTableCount );
+      DALI_LOG_WARNING( "Get property \"clippingMode\" not currently implemented" );
       break;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ CameraAttachmentPtr CameraAttachment::New( EventThreadServices& eventThreadServi
 }
 
 CameraAttachment::CameraAttachment( EventThreadServices& eventThreadServices )
-: ActorAttachment( eventThreadServices ),
+: mEventThreadServices( eventThreadServices ),
   mSceneObject( NULL ),
   mType( SceneGraph::CameraAttachment::DEFAULT_TYPE ),
   mProjectionMode( SceneGraph::CameraAttachment::DEFAULT_MODE ),
@@ -302,8 +302,6 @@ const Matrix& CameraAttachment::GetInverseViewProjectionMatrix() const
 
 const PropertyInputImpl* CameraAttachment::GetViewMatrixProperty() const
 {
-  DALI_ASSERT_DEBUG( OnStage() );
-
   const SceneGraph::CameraAttachment& sceneObject = *mSceneObject;
 
   return sceneObject.GetViewMatrix();
@@ -311,21 +309,9 @@ const PropertyInputImpl* CameraAttachment::GetViewMatrixProperty() const
 
 const PropertyInputImpl* CameraAttachment::GetProjectionMatrixProperty() const
 {
-  DALI_ASSERT_DEBUG( OnStage() );
-
   const SceneGraph::CameraAttachment& sceneObject = *mSceneObject;
 
   return sceneObject.GetProjectionMatrix();
-}
-
-void CameraAttachment::OnStageConnection()
-{
-  // do nothing
-}
-
-void CameraAttachment::OnStageDisconnection()
-{
-  // do nothing
 }
 
 } // namespace Internal

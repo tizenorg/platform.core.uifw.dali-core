@@ -149,8 +149,6 @@ CameraActorPtr CameraActor::New( const Size& size )
   // Create the attachment
   actor->mCameraAttachment = CameraAttachment::New( actor->GetEventThreadServices(), *actor->mNode );
 
-  actor->Attach(*actor->mCameraAttachment);
-
   actor->SetPerspectiveProjection( size );
 
   // By default Actors face in the positive Z direction in world space

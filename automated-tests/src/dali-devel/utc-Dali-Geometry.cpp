@@ -63,18 +63,6 @@ PropertyBuffer CreateVertexBuffer( const std::string& aPosition, const std::stri
   return vertexData;
 }
 
-PropertyBuffer CreateIndexBuffer()
-{
-  const unsigned short indexData[6] = { 0, 3, 1, 0, 2, 3 };
-  const unsigned int numberElements = sizeof(indexData)/sizeof(indexData[0]) ;
-
-  Property::Map indexFormat;
-  indexFormat["indices"] = Property::INTEGER;
-  PropertyBuffer indices = PropertyBuffer::New( indexFormat );
-  indices.SetData( indexData, numberElements );
-
-  return indices;
-}
 
 }
 
@@ -263,7 +251,6 @@ int UtcDaliGeometrySetIndexBuffer(void)
   tet_infoline("Test SetIndexBuffer");
 
   PropertyBuffer vertexBuffer = CreateVertexBuffer("aPosition", "aTexCoord" );
-  PropertyBuffer indexBuffer = CreateIndexBuffer( );
 
   Geometry geometry = Geometry::New();
   geometry.AddVertexBuffer( vertexBuffer );
@@ -292,7 +279,8 @@ int UtcDaliGeometrySetIndexBuffer(void)
   // Set index buffer
   application.GetGlAbstraction().ResetBufferDataCalls();
 
-  geometry.SetIndexBuffer( indexBuffer );
+  const unsigned short indexData[6] = { 0, 3, 1, 0, 2, 3 };
+  geometry.SetIndexBuffer( indexData, sizeof(indexData)/sizeof(indexData[0]) );
   application.SendNotification();
   application.Render(0);
   application.Render();
@@ -450,11 +438,12 @@ int UtcDaliGeometrySetGetGeometryType02(void)
   unsigned int numVertex = 4u;
   unsigned int numIndex = 6u; // 6 unsigned short
   PropertyBuffer vertexBuffer = CreateVertexBuffer("aPosition", "aTexCoord" );
-  PropertyBuffer indexBuffer = CreateIndexBuffer( );
+
 
   Geometry geometry = Geometry::New();
   geometry.AddVertexBuffer( vertexBuffer );
-  geometry.SetIndexBuffer( indexBuffer );
+  const unsigned short indexData[6] = { 0, 3, 1, 0, 2, 3 };
+  geometry.SetIndexBuffer( indexData, sizeof(indexData)/sizeof(indexData[0]) );
 
   Shader shader = CreateShader();
   Renderer renderer = Renderer::New(geometry, shader);

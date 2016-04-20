@@ -221,9 +221,8 @@ public:
    * Adds a property buffer to a RenderGeometry from the render manager.
    * @param[in] geometry The geometry
    * @param[in] propertyBuffer The property buffer to remove.
-   * @param[in] isIndexBuffer True if the property buffer is intended to be used as an index buffer
    */
-  void AddPropertyBuffer( RenderGeometry* renderGeometry, Render::PropertyBuffer* propertyBuffer, bool isIndexBuffer );
+  void AddPropertyBuffer( RenderGeometry* renderGeometry, Render::PropertyBuffer* propertyBuffer );
 
   /**
    * Remove a property buffer from a RenderGeometry from the render manager.
@@ -247,6 +246,13 @@ public:
    * @param[in] size The new size of the buffer
    */
   void SetPropertyBufferData( Render::PropertyBuffer* propertyBuffer, Dali::Vector<char>* data, size_t size );
+
+  /**
+   * Sets the data for the index buffer of an existing geometry
+   * @param[in] geometry The geometry
+   * @param[in] data A vector containing the indices
+   */
+  void SetIndexBuffer( RenderGeometry* geometry, Dali::Vector<unsigned short>* data );
 
   /**
    * Set the geometry type of an existing render geometry

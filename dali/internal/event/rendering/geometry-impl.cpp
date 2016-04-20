@@ -79,10 +79,17 @@ void Geometry::RemoveVertexBuffer( std::size_t index )
   mVertexBuffers.erase( mVertexBuffers.begin() + index );
 }
 
-void Geometry::SetIndexBuffer( PropertyBuffer& indexBuffer )
+void Geometry::SetIndexBuffer( const unsigned short* indices, size_t count )
 {
-  mIndexBuffer = &indexBuffer;
-  SceneGraph::SetIndexBufferMessage( GetEventThreadServices(), *mSceneObject, *indexBuffer.GetRenderObject() );
+  Dali::Vector<unsigned short>* indexData(NULL);
+  if( indices && count )
+  {
+    indexData = new Dali::Vector<unsigned short>();
+    indexData->Resize( count );
+    std::copy( indices, indices + count, indexData->Begin() );
+  }
+
+  SceneGraph::SetIndexBufferMessage( GetEventThreadServices(), *mSceneObject, indexData );
 }
 
 void Geometry::SetGeometryType( Dali::Geometry::GeometryType geometryType )
@@ -285,7 +292,6 @@ void Geometry::Disconnect()
 
 Geometry::Geometry()
 : mSceneObject( NULL ),
-  mIndexBuffer( NULL ),
   mGeometryType(Dali::Geometry::TRIANGLES),
   mRequiresDepthTest(false),
   mOnStage( false )

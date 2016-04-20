@@ -88,12 +88,18 @@ public:
   void RemoveGeometry( RenderGeometry& renderGeometry );
 
   /**
+   * Sets the indices to be used by an existing geometry
+   * @param[in] renderGeometry The render geometry
+   * @param[in] indices A vector containing the indices
+   */
+  void SetIndexBuffer( RenderGeometry& renderGeometry, Dali::Vector<unsigned short>* indices );
+
+  /**
    * Add a PropertyBuffer.
    * @param[in] renderGeometry The geometry
    * @param[in] propertyBuffer The PropertyBuffer
-   * @param[in] isIndexBuffer True if the buffer is intended to be used as an index buffer
    */
-  void AddPropertyBuffer( RenderGeometry& renderGeometry, Render::PropertyBuffer* propertyBuffer, bool isIndexBuffer );
+  void AddPropertyBuffer( RenderGeometry& renderGeometry, Render::PropertyBuffer* propertyBuffer );
 
   /**
    * Remove a PropertyBuffer.

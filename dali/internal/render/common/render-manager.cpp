@@ -334,6 +334,11 @@ void RenderManager::SetPropertyBufferData( Render::PropertyBuffer* propertyBuffe
   propertyBuffer->SetData( data, size );
 }
 
+void RenderManager::SetIndexBuffer( RenderGeometry* geometry, Dali::Vector<unsigned short>* indices )
+{
+  geometry->SetIndexBuffer( indices );
+}
+
 void RenderManager::AddGeometry( RenderGeometry* renderGeometry )
 {
   mImpl->renderGeometryContainer.PushBack( renderGeometry );
@@ -356,7 +361,7 @@ void RenderManager::RemoveGeometry( RenderGeometry* renderGeometry )
   }
 }
 
-void RenderManager::AddPropertyBuffer( RenderGeometry* renderGeometry, Render::PropertyBuffer* propertyBuffer, bool isIndexBuffer )
+void RenderManager::AddPropertyBuffer( RenderGeometry* renderGeometry, Render::PropertyBuffer* propertyBuffer )
 {
   DALI_ASSERT_DEBUG( NULL != renderGeometry );
 
@@ -367,7 +372,7 @@ void RenderManager::AddPropertyBuffer( RenderGeometry* renderGeometry, Render::P
   {
     if ( *iter == renderGeometry )
     {
-      (*iter)->AddPropertyBuffer( propertyBuffer, isIndexBuffer );
+      (*iter)->AddPropertyBuffer( propertyBuffer );
       break;
     }
   }

@@ -33,7 +33,7 @@ namespace SceneGraph
 Geometry::Geometry()
 : mRenderGeometry(NULL),
   mSceneController(NULL),
-  mIndexBuffer( NULL ),
+  mIndices( NULL ),
   mGeometryType(Dali::Geometry::TRIANGLES),
   mRendererRefCount(0u),
   mRequiresDepthTest(false)
@@ -55,7 +55,7 @@ void Geometry::AddVertexBuffer( Render::PropertyBuffer* vertexBuffer )
 
   if( mRenderGeometry )
   {
-    mSceneController->GetRenderMessageDispatcher().AddPropertyBuffer( *mRenderGeometry, vertexBuffer, false);
+    mSceneController->GetRenderMessageDispatcher().AddPropertyBuffer( *mRenderGeometry, vertexBuffer );
   }
 }
 
@@ -80,30 +80,14 @@ void Geometry::RemoveVertexBuffer( Render::PropertyBuffer* vertexBuffer )
   }
 }
 
-void Geometry::SetIndexBuffer( Render::PropertyBuffer* indexBuffer )
+void Geometry::SetIndexBuffer( Dali::Vector<unsigned short>* indices )
 {
-  if( mIndexBuffer != indexBuffer )
+  mIndices = indices;
+  if( mRenderGeometry )
   {
-    mIndexBuffer = indexBuffer;
-    mConnectionObservers.ConnectionsChanged(*this);
-
-    if( mRenderGeometry )
-    {
-      mSceneController->GetRenderMessageDispatcher().AddPropertyBuffer( *mRenderGeometry, indexBuffer, true );
-    }
+    mSceneController->GetRenderMessageDispatcher().SetIndexBuffer( *mRenderGeometry, indices );
   }
-}
 
-void Geometry::ClearIndexBuffer()
-{
-  if( mIndexBuffer )
-  {
-    if( mRenderGeometry )
-    {
-      mSceneController->GetRenderMessageDispatcher().RemovePropertyBuffer( *mRenderGeometry, mIndexBuffer );
-    }
-  }
-  mIndexBuffer = 0;
   mConnectionObservers.ConnectionsChanged(*this);
 }
 
@@ -128,11 +112,6 @@ void Geometry::SetRequiresDepthTest( bool requiresDepthTest )
 Vector<Render::PropertyBuffer*>& Geometry::GetVertexBuffers()
 {
   return mVertexBuffers;
-}
-
-Render::PropertyBuffer* Geometry::GetIndexBuffer()
-{
-  return mIndexBuffer;
 }
 
 Geometry::GeometryType Geometry::GetGeometryType( BufferIndex bufferIndex) const
@@ -181,12 +160,12 @@ RenderGeometry* Geometry::GetRenderGeometry(SceneController* sceneController)
     size_t vertexBufferCount( mVertexBuffers.Size() );
     for( size_t i(0); i<vertexBufferCount; ++i )
     {
-      mRenderGeometry->AddPropertyBuffer( mVertexBuffers[i], false );
+      mRenderGeometry->AddPropertyBuffer( mVertexBuffers[i] );
     }
 
-    if( mIndexBuffer )
+    if( mIndices )
     {
-      mRenderGeometry->AddPropertyBuffer( mIndexBuffer, true );
+      mRenderGeometry->SetIndexBuffer( mIndices.Get() );
     }
 
     //Transfer ownership to RenderManager

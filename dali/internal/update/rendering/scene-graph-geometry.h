@@ -71,15 +71,9 @@ public:
 
   /**
    * Set the buffer to be used as a source of indices for the geometry
-   * @param[in] indexBuffer the Property buffer describing the indexes for Line, Triangle tyes.
+   * @param[in] indexData the index datas for Lines and Triangles types.
    */
-  void SetIndexBuffer( Render::PropertyBuffer* indexBuffer );
-
-  /**
-   * Clear the index buffer if it is no longer required, e.g. if changing geometry type
-   * to POINTS.
-   */
-  void ClearIndexBuffer();
+  void SetIndexBuffer( Dali::Vector<unsigned short>* indices );
 
   /**
    * Set the type of geometry to draw (Points, Lines, Triangles, etc)
@@ -131,12 +125,6 @@ public: // UniformMap::Observer
    */
   Vector<Render::PropertyBuffer*>& GetVertexBuffers();
 
-  /**
-   * Get the index buffer of the geometry
-   * @return A pointer to the index buffer if it exists, or NULL if it doesn't.
-   */
-   Render::PropertyBuffer* GetIndexBuffer();
-
    /**
     * Gets the associated RenderGeometry
     * @param[in] sceneController The scene controller
@@ -169,8 +157,8 @@ private:
   RenderGeometry*  mRenderGeometry;
   SceneController* mSceneController;
 
-  Render::PropertyBuffer*         mIndexBuffer;   ///< The index buffer if required
   Vector<Render::PropertyBuffer*> mVertexBuffers; ///< The vertex buffers
+  OwnerPointer< Vector<unsigned short> > mIndices;
 
   ConnectionChangePropagator mConnectionObservers;
 
@@ -201,26 +189,15 @@ inline void RemoveVertexBufferMessage( EventThreadServices& eventThreadServices,
   new (slot) LocalType( &geometry, &Geometry::RemoveVertexBuffer, const_cast<Render::PropertyBuffer*>(&vertexBuffer) );
 }
 
-inline void SetIndexBufferMessage( EventThreadServices& eventThreadServices, const Geometry& geometry, const Render::PropertyBuffer& indexBuffer )
+inline void SetIndexBufferMessage( EventThreadServices& eventThreadServices, const Geometry& geometry, Dali::Vector<unsigned short>* indices )
 {
-  typedef MessageValue1< Geometry, Render::PropertyBuffer* > LocalType;
+  typedef MessageValue1< Geometry, Dali::Vector<unsigned short>* > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &geometry, &Geometry::SetIndexBuffer, const_cast<Render::PropertyBuffer*>(&indexBuffer) );
-}
-
-inline void ClearIndexBufferMessage( EventThreadServices& eventThreadServices, const Geometry& geometry )
-{
-  typedef Message< Geometry > LocalType;
-
-  // Reserve some memory inside the message queue
-  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
-
-  // Construct message in the message queue memory; note that delete should not be called on the return value
-  new (slot) LocalType( &geometry, &Geometry::ClearIndexBuffer );
+  new (slot) LocalType( &geometry, &Geometry::SetIndexBuffer, indices );
 }
 
 } // namespace SceneGraph

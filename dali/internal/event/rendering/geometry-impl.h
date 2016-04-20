@@ -74,7 +74,7 @@ public:
   /**
    * @copydoc Dali::Geometry::SetIndexBuffer()
    */
-  void SetIndexBuffer( PropertyBuffer& indexBuffer );
+  void SetIndexBuffer( const unsigned short* indices, size_t count );
 
   /**
    * @copydoc Dali::Geometry::SetGeometryType()
@@ -219,7 +219,6 @@ private: // data
   SceneGraph::Geometry* mSceneObject;
 
   std::vector<PropertyBufferPtr> mVertexBuffers; ///< Vector of intrusive pointers to vertex buffers
-  PropertyBufferPtr              mIndexBuffer;   ///< Intrusive pointer to index buffer
 
   Dali::Geometry::GeometryType mGeometryType;      ///< Geometry type (cached)
   bool                         mRequiresDepthTest; ///< Establish if geometry requires depth testing (cached)

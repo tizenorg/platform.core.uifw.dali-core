@@ -88,14 +88,13 @@ public:
    * @brief Bind the property buffer
    * @param[in] target The binding point
    */
-  void BindBuffer(GpuBuffer::Target target);
+  bool BindBuffer(GpuBuffer::Target target);
 
   /**
    * Perform the upload of the buffer only when requiered
    * @param[in] context The GL context
-   * @param[in] isIndexBuffer True if the buffer is used as an index buffer
    */
-  bool Update( Context& context, bool isIndexBuffer );
+  bool Update( Context& context );
 
   /**
    * Enable the vertex attributes for each vertex buffer from the corresponding

@@ -87,15 +87,26 @@ void RenderMessageDispatcher::RemoveGeometry( RenderGeometry& renderGeometry )
   new (slot) DerivedType( &mRenderManager, &RenderManager::RemoveGeometry, &renderGeometry );
 }
 
-void RenderMessageDispatcher::AddPropertyBuffer( RenderGeometry& renderGeometry, Render::PropertyBuffer* propertyBuffer, bool isIndexBuffer )
+void RenderMessageDispatcher::SetIndexBuffer( RenderGeometry& renderGeometry, Dali::Vector<unsigned short>* indices )
 {
-  typedef MessageValue3< RenderManager, RenderGeometry*, Render::PropertyBuffer*, bool > DerivedType;
+  typedef MessageValue2< RenderManager, RenderGeometry*, Dali::Vector<unsigned short>* > DerivedType;
 
   // Reserve some memory inside the render queue
   unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
-  new (slot) DerivedType( &mRenderManager, &RenderManager::AddPropertyBuffer, &renderGeometry, propertyBuffer, isIndexBuffer);
+  new (slot) DerivedType( &mRenderManager, &RenderManager::SetIndexBuffer, &renderGeometry, indices );
+}
+
+void RenderMessageDispatcher::AddPropertyBuffer( RenderGeometry& renderGeometry, Render::PropertyBuffer* propertyBuffer )
+{
+  typedef MessageValue2< RenderManager, RenderGeometry*, Render::PropertyBuffer* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mRenderQueue.ReserveMessageSlot( mBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mRenderManager, &RenderManager::AddPropertyBuffer, &renderGeometry, propertyBuffer );
 }
 
 void RenderMessageDispatcher::RemovePropertyBuffer( RenderGeometry& renderGeometry, Render::PropertyBuffer* propertyBuffer )

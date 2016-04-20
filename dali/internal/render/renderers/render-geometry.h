@@ -19,6 +19,7 @@
 
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/devel-api/common/owner-container.h>
+#include <dali/internal/common/owner-pointer.h>
 #include <dali/integration-api/gl-defines.h>
 #include <dali/internal/common/buffer-index.h>
 #include <dali/internal/common/owner-pointer.h>
@@ -76,10 +77,14 @@ public:
   /**
    * Adds a property buffer to the geometry
    * @param[in] dataProvider The PropertyBuffer data provider
-   * @param[in] isIndexBuffer True if the property buffer is intended to be used as an index buffer
    */
-  void AddPropertyBuffer( Render::PropertyBuffer* propertyBuffer, bool isIndexBuffer );
+  void AddPropertyBuffer( Render::PropertyBuffer* propertyBuffer );
 
+  /**
+   * Set the data for the index buffer to be used by the geometry
+   * @param[in] indices A vector containing the indices
+   */
+  void SetIndexBuffer( const Dali::Vector<unsigned short>* indices );
   /**
    * Removes a PropertyBuffer from the geometry
    * @param[in] propertyBuffer The property buffer to be removed
@@ -149,8 +154,11 @@ public:
 private:
 
   // PropertyBuffers
-  Render::PropertyBuffer* mIndexBuffer;
-  Vector<Render::PropertyBuffer*> mVertexBuffers;
+  Vector< Render::PropertyBuffer* > mVertexBuffers;
+
+  const Dali::Vector< unsigned short>* mIndices; //Owned by SceneGraph::Geometry
+  OwnerPointer< GpuBuffer > mIndexBuffer;
+  bool mIndicesChanged;
 
   GeometryType  mGeometryType;
 

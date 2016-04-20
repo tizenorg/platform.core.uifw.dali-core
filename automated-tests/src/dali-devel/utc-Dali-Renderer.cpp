@@ -121,10 +121,7 @@ int UtcDaliRendererSetGetGeometry(void)
   tet_infoline( "Test SetGeometry, GetGeometry" );
 
   Geometry geometry1 = CreateQuadGeometry();
-  geometry1.RegisterProperty( "uFadeColor", Color::RED );
-
   Geometry geometry2 = CreateQuadGeometry();
-  geometry2.RegisterProperty( "uFadeColor", Color::GREEN );
 
   Shader shader = CreateShader();
   Renderer renderer = Renderer::New(geometry1, shader);
@@ -133,15 +130,8 @@ int UtcDaliRendererSetGetGeometry(void)
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
 
-  TestGlAbstraction& gl = application.GetGlAbstraction();
   application.SendNotification();
   application.Render(0);
-
-  // Expect that the first geometry's fade color property is accessed
-  Vector4 actualValue(Vector4::ZERO);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::RED, TEST_LOCATION );
-
   DALI_TEST_EQUALS( renderer.GetGeometry(), geometry1, TEST_LOCATION );
 
   // Set geometry2 to the renderer
@@ -149,11 +139,6 @@ int UtcDaliRendererSetGetGeometry(void)
 
   application.SendNotification();
   application.Render(0);
-
-  // Expect that the second geometry's fade color property is accessed
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::GREEN, TEST_LOCATION );
-
   DALI_TEST_EQUALS( renderer.GetGeometry(), geometry2, TEST_LOCATION );
 
   END_TEST;
@@ -1147,8 +1132,6 @@ int UtcDaliRendererUniformMapPrecendence01(void)
 
   shader.RegisterProperty( "uFadeColor", Color::MAGENTA );
 
-  geometry.RegisterProperty( "uFadeColor", Color::YELLOW );
-
   TestGlAbstraction& gl = application.GetGlAbstraction();
 
   application.SendNotification();
@@ -1211,8 +1194,6 @@ int UtcDaliRendererUniformMapPrecendence02(void)
 
   shader.RegisterProperty( "uFadeColor", Color::MAGENTA );
 
-  geometry.RegisterProperty( "uFadeColor", Color::YELLOW );
-
 
   TestGlAbstraction& gl = application.GetGlAbstraction();
 
@@ -1273,12 +1254,7 @@ int UtcDaliRendererUniformMapPrecendence03(void)
 
   textureSet.RegisterProperty( "uFadeColor", Color::BLUE );
 
-  shader.RegisterProperty( "uFadeColor", Color::MAGENTA );
-
-  Property::Index geometryFadeColorIndex = geometry.RegisterProperty( "uFadeColor", Color::YELLOW );
-
-  geometry.RegisterProperty( "uFadeColor", Color::BLACK );
-
+  Property::Index shaderFadeColorIndex = shader.RegisterProperty( "uFadeColor", Color::BLACK );
 
   TestGlAbstraction& gl = application.GetGlAbstraction();
 
@@ -1295,7 +1271,7 @@ int UtcDaliRendererUniformMapPrecendence03(void)
   KeyFrames keyFrames = KeyFrames::New();
   keyFrames.Add(0.0f, Color::WHITE);
   keyFrames.Add(1.0f, Color::TRANSPARENT);
-  animation.AnimateBetween( Property( geometry, geometryFadeColorIndex ), keyFrames );
+  animation.AnimateBetween( Property( shader, shaderFadeColorIndex ), keyFrames );
   animation.Play();
 
   application.SendNotification();
@@ -1307,132 +1283,6 @@ int UtcDaliRendererUniformMapPrecendence03(void)
   application.Render(500);
   DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
   DALI_TEST_EQUALS( actualValue, Color::BLUE, TEST_LOCATION );
-
-  END_TEST;
-}
-
-
-int UtcDaliRendererUniformMapPrecendence04(void)
-{
-  TestApplication application;
-
-  tet_infoline("Test the uniform map precedence is applied properly");
-
-  Image image = BufferImage::New( 64, 64, Pixel::RGBA8888 );
-
-  Shader shader = Shader::New("VertexSource", "FragmentSource");
-  TextureSet textureSet = CreateTextureSet( image );
-
-  PropertyBuffer vertexBuffer = CreatePropertyBuffer();
-  Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
-  Renderer renderer = Renderer::New( geometry, shader );
-  renderer.SetTextures( textureSet );
-
-  Actor actor = Actor::New();
-  actor.AddRenderer(renderer);
-  actor.SetSize(400, 400);
-  Stage::GetCurrent().Add(actor);
-  application.SendNotification();
-  application.Render(0);
-
-  // Don't add property / uniform map to renderer/actor/texture set
-  shader.RegisterProperty( "uFadeColor", Color::MAGENTA );
-
-  Property::Index geometryFadeColorIndex = geometry.RegisterProperty( "uFadeColor", Color::YELLOW );
-
-  geometry.RegisterProperty( "uFadeColor", Color::BLACK );
-
-
-  TestGlAbstraction& gl = application.GetGlAbstraction();
-
-  application.SendNotification();
-  application.Render(0);
-
-  // Expect that the sampler's fade color property is accessed
-  Vector4 actualValue(Vector4::ZERO);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::MAGENTA, TEST_LOCATION );
-
-  // Animate geometry's fade color property. Should be no change to uniform
-  Animation  animation = Animation::New(1.0f);
-  KeyFrames keyFrames = KeyFrames::New();
-  keyFrames.Add(0.0f, Color::WHITE);
-  keyFrames.Add(1.0f, Color::TRANSPARENT);
-  animation.AnimateBetween( Property( geometry, geometryFadeColorIndex ), keyFrames );
-  animation.Play();
-
-  application.SendNotification();
-  application.Render(500);
-
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::MAGENTA, TEST_LOCATION );
-
-  application.Render(500);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::MAGENTA, TEST_LOCATION );
-
-  END_TEST;
-}
-
-int UtcDaliRendererUniformMapPrecendence05(void)
-{
-  TestApplication application;
-
-  tet_infoline("Test the uniform map precedence is applied properly");
-
-  Image image = BufferImage::New( 64, 64, Pixel::RGBA8888 );
-
-  Shader shader = Shader::New("VertexSource", "FragmentSource");
-  TextureSet textureSet = CreateTextureSet( image );
-
-  PropertyBuffer vertexBuffer = CreatePropertyBuffer();
-  Geometry geometry = CreateQuadGeometryFromBuffer(vertexBuffer);
-  Renderer renderer = Renderer::New( geometry, shader );
-  renderer.SetTextures( textureSet );
-
-  Actor actor = Actor::New();
-  actor.AddRenderer(renderer);
-  actor.SetSize(400, 400);
-  Stage::GetCurrent().Add(actor);
-  application.SendNotification();
-  application.Render(0);
-
-  // Don't add property / uniform map to renderer/actor/texture set/sampler
-
-  shader.RegisterProperty( "uFadeColor", Color::MAGENTA );
-
-  Property::Index geometryFadeColorIndex = geometry.RegisterProperty( "uFadeColor", Color::YELLOW );
-
-  geometry.RegisterProperty( "uFadeColor", Color::BLACK );
-
-
-  TestGlAbstraction& gl = application.GetGlAbstraction();
-
-  application.SendNotification();
-  application.Render(0);
-
-  // Expect that the shader's fade color property is accessed
-  Vector4 actualValue(Vector4::ZERO);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::MAGENTA, TEST_LOCATION );
-
-  // Animate geometry's fade color property. Should be no change to uniform
-  Animation  animation = Animation::New(1.0f);
-  KeyFrames keyFrames = KeyFrames::New();
-  keyFrames.Add(0.0f, Color::WHITE);
-  keyFrames.Add(1.0f, Color::TRANSPARENT);
-  animation.AnimateBetween( Property( geometry, geometryFadeColorIndex ), keyFrames );
-  animation.Play();
-
-  application.SendNotification();
-  application.Render(500);
-
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::MAGENTA, TEST_LOCATION );
-
-  application.Render(500);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uFadeColor", actualValue ) );
-  DALI_TEST_EQUALS( actualValue, Color::MAGENTA, TEST_LOCATION );
 
   END_TEST;
 }
@@ -1464,7 +1314,6 @@ int UtcDaliRendererUniformMapMultipleUniforms01(void)
   actor.RegisterProperty( "uUniform2", Color::GREEN );
   textureSet.RegisterProperty( "uUniform3", Color::BLUE );
   shader.RegisterProperty( "uUniform4", Color::MAGENTA );
-  geometry.RegisterProperty( "uUniform5", Color::YELLOW );
 
   TestGlAbstraction& gl = application.GetGlAbstraction();
 
@@ -1484,17 +1333,12 @@ int UtcDaliRendererUniformMapMultipleUniforms01(void)
   DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uUniform3", uniform3Value ) );
   DALI_TEST_EQUALS( uniform3Value, Color::BLUE, TEST_LOCATION );
 
-  Vector4 uniform5Value(Vector4::ZERO);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uUniform4", uniform5Value ) );
-  DALI_TEST_EQUALS( uniform5Value, Color::MAGENTA, TEST_LOCATION );
-
-  Vector4 uniform6Value(Vector4::ZERO);
-  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uUniform5", uniform6Value ) );
-  DALI_TEST_EQUALS( uniform6Value, Color::YELLOW, TEST_LOCATION );
+  Vector4 uniform4Value(Vector4::ZERO);
+  DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uUniform4", uniform4Value ) );
+  DALI_TEST_EQUALS( uniform4Value, Color::MAGENTA, TEST_LOCATION );
 
   END_TEST;
 }
-
 
 int UtcDaliRendererUniformMapMultipleUniforms02(void)
 {
@@ -1531,9 +1375,6 @@ int UtcDaliRendererUniformMapMultipleUniforms02(void)
   Property::Value value5(Matrix3::IDENTITY);
   shader.RegisterProperty( "uANormalMatrix", value5 );
 
-  Property::Value value6(Matrix::IDENTITY);
-  geometry.RegisterProperty( "uAWorldMatrix", value6 );
-
   TestGlAbstraction& gl = application.GetGlAbstraction();
 
   application.SendNotification();
@@ -1555,10 +1396,6 @@ int UtcDaliRendererUniformMapMultipleUniforms02(void)
   Matrix3 uniform5Value;
   DALI_TEST_CHECK( gl.GetUniformValue<Matrix3>( "uANormalMatrix", uniform5Value ) );
   DALI_TEST_EQUALS( uniform5Value, value5.Get<Matrix3>(), TEST_LOCATION );
-
-  Matrix uniform6Value;
-  DALI_TEST_CHECK( gl.GetUniformValue<Matrix>( "uAWorldMatrix", uniform6Value ) );
-  DALI_TEST_EQUALS( uniform6Value, value6.Get<Matrix>(), TEST_LOCATION );
 
   END_TEST;
 }

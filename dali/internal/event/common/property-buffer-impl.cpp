@@ -22,6 +22,7 @@
 #include <dali/devel-api/object/property-buffer.h>
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/update/manager/update-manager.h>
+#include <dali/internal/render/renderers/render-geometry.h>
 
 namespace Dali
 {

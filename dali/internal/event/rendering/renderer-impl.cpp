@@ -42,14 +42,14 @@ namespace
 DALI_PROPERTY_TABLE_BEGIN
 DALI_PROPERTY( "depthIndex",                      INTEGER,   true, false,  false, Dali::Renderer::Property::DEPTH_INDEX )
 DALI_PROPERTY( "faceCullingMode",                 INTEGER,   true, false,  false, Dali::Renderer::Property::FACE_CULLING_MODE )
-DALI_PROPERTY( "blendingMode",                    INTEGER,   true, false,  false, Dali::Renderer::Property::BLENDING_MODE )
+DALI_PROPERTY( "blendMode",                       INTEGER,   true, false,  false, Dali::Renderer::Property::BLEND_MODE )
 DALI_PROPERTY( "blendEquationRgb",                INTEGER,   true, false,  false, Dali::Renderer::Property::BLEND_EQUATION_RGB )
 DALI_PROPERTY( "blendEquationAlpha",              INTEGER,   true, false,  false, Dali::Renderer::Property::BLEND_EQUATION_ALPHA )
-DALI_PROPERTY( "sourceBlendFactorRgb",            INTEGER,   true, false,  false, Dali::Renderer::Property::BLENDING_SRC_FACTOR_RGB )
-DALI_PROPERTY( "destinationBlendFactorRgb",       INTEGER,   true, false,  false, Dali::Renderer::Property::BLENDING_DEST_FACTOR_RGB )
-DALI_PROPERTY( "sourceBlendFactorAlpha",          INTEGER,   true, false,  false, Dali::Renderer::Property::BLENDING_SRC_FACTOR_ALPHA )
-DALI_PROPERTY( "destinationBlendFactorAlpha",     INTEGER,   true, false,  false, Dali::Renderer::Property::BLENDING_DEST_FACTOR_ALPHA )
-DALI_PROPERTY( "blendingColor",                   VECTOR4,   true, false,  false, Dali::Renderer::Property::BLENDING_COLOR )
+DALI_PROPERTY( "blendFactorSrcRgb",               INTEGER,   true, false,  false, Dali::Renderer::Property::BLEND_FACTOR_SRC_RGB )
+DALI_PROPERTY( "blendFactorDestRgb",              INTEGER,   true, false,  false, Dali::Renderer::Property::BLEND_FACTOR_DEST_RGB )
+DALI_PROPERTY( "blendFactorSrcAlpha",             INTEGER,   true, false,  false, Dali::Renderer::Property::BLEND_FACTOR_SRC_ALPHA )
+DALI_PROPERTY( "blendFactorDestAlpha",            INTEGER,   true, false,  false, Dali::Renderer::Property::BLEND_FACTOR_DEST_ALPHA )
+DALI_PROPERTY( "blendColor",                      VECTOR4,   true, false,  false, Dali::Renderer::Property::BLEND_COLOR )
 DALI_PROPERTY( "blendPreMultipliedAlpha",         BOOLEAN,   true, false,  false, Dali::Renderer::Property::BLEND_PRE_MULTIPLIED_ALPHA )
 DALI_PROPERTY( "indexRangeFirst",                 INTEGER,   true, false,  false, Dali::Renderer::Property::INDEX_RANGE_FIRST )
 DALI_PROPERTY( "indexRangeCount",                 INTEGER,   true, false,  false, Dali::Renderer::Property::INDEX_RANGE_COUNT )
@@ -324,7 +324,7 @@ void Renderer::SetDefaultProperty( Property::Index index,
       }
       break;
     }
-    case Dali::Renderer::Property::BLENDING_MODE:
+    case Dali::Renderer::Property::BLEND_MODE:
     {
       int blendingMode;
       if( propertyValue.Get( blendingMode ) )
@@ -355,7 +355,7 @@ void Renderer::SetDefaultProperty( Property::Index index,
       }
       break;
     }
-    case Dali::Renderer::Property::BLENDING_SRC_FACTOR_RGB:
+    case Dali::Renderer::Property::BLEND_FACTOR_SRC_RGB:
     {
       int blendingFactor;
       if( propertyValue.Get( blendingFactor ) )
@@ -372,7 +372,7 @@ void Renderer::SetDefaultProperty( Property::Index index,
       }
       break;
     }
-    case Dali::Renderer::Property::BLENDING_DEST_FACTOR_RGB:
+    case Dali::Renderer::Property::BLEND_FACTOR_DEST_RGB:
     {
       int blendingFactor;
       if( propertyValue.Get( blendingFactor ) )
@@ -389,7 +389,7 @@ void Renderer::SetDefaultProperty( Property::Index index,
       }
       break;
     }
-    case Dali::Renderer::Property::BLENDING_SRC_FACTOR_ALPHA:
+    case Dali::Renderer::Property::BLEND_FACTOR_SRC_ALPHA:
     {
       int blendingFactor;
       if( propertyValue.Get( blendingFactor ) )
@@ -406,7 +406,7 @@ void Renderer::SetDefaultProperty( Property::Index index,
       }
       break;
     }
-    case Dali::Renderer::Property::BLENDING_DEST_FACTOR_ALPHA:
+    case Dali::Renderer::Property::BLEND_FACTOR_DEST_ALPHA:
     {
       int blendingFactor;
       if( propertyValue.Get( blendingFactor ) )
@@ -423,7 +423,7 @@ void Renderer::SetDefaultProperty( Property::Index index,
       }
       break;
     }
-    case Dali::Renderer::Property::BLENDING_COLOR:
+    case Dali::Renderer::Property::BLEND_COLOR:
     {
       Vector4 blendColor;
       if( propertyValue.Get( blendColor ) )
@@ -485,7 +485,7 @@ Property::Value Renderer::GetDefaultProperty( Property::Index index ) const
       value = mFaceCullingMode;
       break;
     }
-    case Dali::Renderer::Property::BLENDING_MODE:
+    case Dali::Renderer::Property::BLEND_MODE:
     {
       value = mBlendingMode;
       break;
@@ -500,7 +500,7 @@ Property::Value Renderer::GetDefaultProperty( Property::Index index ) const
       value = static_cast<int>( mBlendingOptions.GetBlendEquationAlpha() );
       break;
     }
-    case Dali::Renderer::Property::BLENDING_SRC_FACTOR_RGB:
+    case Dali::Renderer::Property::BLEND_FACTOR_SRC_RGB:
     {
       BlendingFactor::Type srcFactorRgb;
       BlendingFactor::Type destFactorRgb;
@@ -510,7 +510,7 @@ Property::Value Renderer::GetDefaultProperty( Property::Index index ) const
       value = static_cast<int>( srcFactorRgb );
       break;
     }
-    case Dali::Renderer::Property::BLENDING_DEST_FACTOR_RGB:
+    case Dali::Renderer::Property::BLEND_FACTOR_DEST_RGB:
     {
       BlendingFactor::Type srcFactorRgb;
       BlendingFactor::Type destFactorRgb;
@@ -520,7 +520,7 @@ Property::Value Renderer::GetDefaultProperty( Property::Index index ) const
       value = static_cast<int>( destFactorRgb );
       break;
     }
-    case Dali::Renderer::Property::BLENDING_SRC_FACTOR_ALPHA:
+    case Dali::Renderer::Property::BLEND_FACTOR_SRC_ALPHA:
     {
       BlendingFactor::Type srcFactorRgb;
       BlendingFactor::Type destFactorRgb;
@@ -530,7 +530,7 @@ Property::Value Renderer::GetDefaultProperty( Property::Index index ) const
       value = static_cast<int>( srcFactorAlpha );
       break;
     }
-    case Dali::Renderer::Property::BLENDING_DEST_FACTOR_ALPHA:
+    case Dali::Renderer::Property::BLEND_FACTOR_DEST_ALPHA:
     {
       BlendingFactor::Type srcFactorRgb;
       BlendingFactor::Type destFactorRgb;
@@ -540,7 +540,7 @@ Property::Value Renderer::GetDefaultProperty( Property::Index index ) const
       value = static_cast<int>( destFactorAlpha );
       break;
     }
-    case Dali::Renderer::Property::BLENDING_COLOR:
+    case Dali::Renderer::Property::BLEND_COLOR:
     {
       if( mBlendColor )
       {

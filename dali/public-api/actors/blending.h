@@ -45,6 +45,8 @@ enum Type
 
 } //namespace BlendingMode
 
+namespace BlendMode = BlendingMode;
+
 namespace BlendingFactor
 {
 /**
@@ -75,6 +77,8 @@ enum Type
 
 } // namespace BlendingFactor
 
+namespace BlendFactor = BlendingFactor;
+
 namespace BlendingEquation
 {
 /**
@@ -92,6 +96,8 @@ enum Type
 };
 
 } // namespace BlendingEquation
+
+namespace BlendEquation = BlendingEquation;
 
 DALI_IMPORT_API extern const BlendingFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_RGB;    ///< BlendingFactor::SRC_ALPHA
 DALI_IMPORT_API extern const BlendingFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_RGB;   ///< BlendingFactor::ONE_MINUS_SRC_ALPHA

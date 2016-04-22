@@ -60,17 +60,17 @@ public:
     {
       DEPTH_INDEX = DEFAULT_OBJECT_PROPERTY_START_INDEX,  ///< name "depthIndex",                     type INTEGER
       FACE_CULLING_MODE,                                  ///< name "faceCullingMode",                type INTEGER
-      BLENDING_MODE,                                      ///< name "blendingMode",                   type INTEGER
+      BLEND_MODE,                                         ///< name "blendMode",                      type INTEGER
       BLEND_EQUATION_RGB,                                 ///< name "blendEquationRgb",               type INTEGER
       BLEND_EQUATION_ALPHA,                               ///< name "blendEquationAlpha",             type INTEGER
-      BLENDING_SRC_FACTOR_RGB,                            ///< name "sourceBlendFactorRgb",           type INTEGER
-      BLENDING_DEST_FACTOR_RGB,                           ///< name "destinationBlendFactorRgb",      type INTEGER
-      BLENDING_SRC_FACTOR_ALPHA,                          ///< name "sourceBlendFactorAlpha",         type INTEGER
-      BLENDING_DEST_FACTOR_ALPHA,                         ///< name "destinationBlendFactorAlpha",    type INTEGER
-      BLENDING_COLOR,                                     ///< name "blendingColor",                  type VECTOR4
+      BLEND_SRC_FACTOR_RGB,                               ///< name "blendSrcFactorRgb",              type INTEGER
+      BLEND_DEST_FACTOR_RGB,                              ///< name "blendDestFactorRgb",             type INTEGER
+      BLEND_SRC_FACTOR_ALPHA,                             ///< name "blendSrcFactorAlpha",            type INTEGER
+      BLEND_DEST_FACTOR_ALPHA,                            ///< name "blendDestFactorAlpha",           type INTEGER
+      BLEND_COLOR,                                        ///< name "blendColor",                     type VECTOR4
       BLEND_PRE_MULTIPLIED_ALPHA,                         ///< name "blendPreMultipledAlpha",         type BOOLEAN
-      INDEXED_DRAW_FIRST_ELEMENT,                         ///< name "indexedDrawFirstElement",        type INTEGER
-      INDEXED_DRAW_ELEMENTS_COUNT                         ///< name "indexedDrawElementsCount",       type INTEGER
+      INDEX_RANGE_FIRST,                                  ///< name "indexRangeFirst",                type INTEGER
+      INDEX_RANGE_COUNT                                   ///< name "indexRangeCount",                type INTEGER
     };
   };
 
@@ -135,10 +135,10 @@ public:
    * @param [in] firstElement first element to draw
    * @param [in] elementsCount number of elements to draw
    */
-  inline void SetIndicesRange( int firstElement, int elementsCount )
+  inline void SetIndexRange( int firstElement, int elementsCount )
   {
-    SetProperty( Property::INDEXED_DRAW_FIRST_ELEMENT, firstElement );
-    SetProperty( Property::INDEXED_DRAW_ELEMENTS_COUNT, elementsCount );
+    SetProperty( Property::INDEX_RANGE_FIRST, firstElement );
+    SetProperty( Property::INDEX_RANGE_COUNT, elementsCount );
   }
 
   /**

@@ -114,9 +114,9 @@ Renderer* Renderer::New( SceneGraph::RenderDataProvider* dataProvider,
                          Render::Geometry* geometry,
                          unsigned int blendingBitmask,
                          const Vector4* blendColor,
-                         Dali::Renderer::FaceCullingMode faceCullingMode,
+                         FaceCullingMode::Type faceCullingMode,
                          bool preMultipliedAlphaEnabled,
-                         Dali::Renderer::DepthWriteMode depthWriteMode )
+                         DepthWriteMode::Type depthWriteMode )
 {
   return new Renderer( dataProvider, geometry, blendingBitmask, blendColor, faceCullingMode, preMultipliedAlphaEnabled, depthWriteMode );
 }
@@ -125,9 +125,9 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
                     Render::Geometry* geometry,
                     unsigned int blendingBitmask,
                     const Vector4* blendColor,
-                    Dali::Renderer::FaceCullingMode faceCullingMode,
+                    FaceCullingMode::Type faceCullingMode,
                     bool preMultipliedAlphaEnabled,
-                    Dali::Renderer::DepthWriteMode depthWriteMode )
+                    DepthWriteMode::Type depthWriteMode )
 : mRenderDataProvider( dataProvider ),
   mContext(NULL),
   mTextureCache( NULL ),

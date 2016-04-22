@@ -88,9 +88,9 @@ public:
                         Render::Geometry* geometry,
                         unsigned int blendingBitmask,
                         const Vector4* blendColor,
-                        Dali::Renderer::FaceCullingMode faceCullingMode,
+                        FaceCullingMode::Type faceCullingMode,
                         bool preMultipliedAlphaEnabled,
-                        Dali::Renderer::DepthWriteMode depthWriteMode );
+                        DepthWriteMode::Type depthWriteMode );
 
   /**
    * Constructor.
@@ -106,9 +106,9 @@ public:
             Render::Geometry* geometry,
             unsigned int blendingBitmask,
             const Vector4* blendColor,
-            Dali::Renderer::FaceCullingMode faceCullingMode,
+            FaceCullingMode::Type faceCullingMode,
             bool preMultipliedAlphaEnabled,
-            Dali::Renderer::DepthWriteMode depthWriteMode );
+            DepthWriteMode::Type depthWriteMode );
 
   /**
    * Change the data providers of the renderer

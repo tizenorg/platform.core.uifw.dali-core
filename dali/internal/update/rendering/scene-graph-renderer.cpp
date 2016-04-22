@@ -123,7 +123,7 @@ Renderer::Renderer()
  mBlendColor( NULL ),
  mBlendBitmask( 0u ),
  mFaceCullingMode( Dali::Renderer::CULL_NONE ),
- mBlendingMode( Dali::BlendingMode::AUTO ),
+ mBlendingMode( Dali::BlendMode::AUTO ),
  mDepthWriteMode( Dali::Renderer::DEPTH_WRITE_AUTO ),
  mIndexedDrawFirstElement( 0 ),
  mIndexedDrawElementsCount( 0 ),
@@ -339,9 +339,9 @@ void Renderer::SetFaceCullingMode( unsigned int faceCullingMode )
   mResendFlag |= RESEND_FACE_CULLING_MODE;
 }
 
-void Renderer::SetBlendingMode( unsigned int blendingMode )
+void Renderer::SetBlendMode( unsigned int blendingMode )
 {
-  mBlendingMode = static_cast< BlendingMode::Type >( blendingMode );
+  mBlendMode = static_cast< BlendMode::Type >( blendingMode );
 }
 
 void Renderer::SetBlendingOptions( unsigned int options )
@@ -482,14 +482,14 @@ Renderer::Opacity Renderer::GetOpacity( BufferIndex updateBufferIndex, const Nod
 {
   Renderer::Opacity opacity = Renderer::OPAQUE;
 
-  switch( mBlendingMode )
+  switch( mBlendMode )
   {
-    case BlendingMode::ON: // If the renderer should always be use blending
+    case BlendMode::ON: // If the renderer should always be use blending
     {
       opacity = Renderer::TRANSLUCENT;
       break;
     }
-    case BlendingMode::AUTO:
+    case BlendMode::AUTO:
     {
       bool shaderRequiresBlending( mShader->HintEnabled( Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT ) );
       if( shaderRequiresBlending || ( mTextureSet && mTextureSet->HasAlpha() ) )
@@ -510,7 +510,7 @@ Renderer::Opacity Renderer::GetOpacity( BufferIndex updateBufferIndex, const Nod
       }
       break;
     }
-    case BlendingMode::OFF: // the renderer should never use blending
+    case BlendMode::OFF: // the renderer should never use blending
     default:
     {
       opacity = Renderer::OPAQUE;

@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/actors/blending.h> // Dali::BlendingMode, Dali::BlendingEquation, Dali::BlendingFactor
+#include <dali/public-api/actors/blending.h> // Dali::BlendMode, Dali::BlendEquation, Dali::BlendFactor
 #include <dali/public-api/object/handle.h> // Dali::Handle
 #include <dali/public-api/object/property-index-ranges.h> // DEFAULT_OBJECT_PROPERTY_START_INDEX
 #include <dali/devel-api/rendering/geometry.h> // Dali::Geometry
@@ -60,14 +60,14 @@ public:
     {
       DEPTH_INDEX = DEFAULT_OBJECT_PROPERTY_START_INDEX,  ///< name "depthIndex",                     type INTEGER
       FACE_CULLING_MODE,                                  ///< name "faceCullingMode",                type INTEGER
-      BLENDING_MODE,                                      ///< name "blendingMode",                   type INTEGER
+      BLEND_MODE,                                         ///< name "blendMode",                      type INTEGER
       BLEND_EQUATION_RGB,                                 ///< name "blendEquationRgb",               type INTEGER
       BLEND_EQUATION_ALPHA,                               ///< name "blendEquationAlpha",             type INTEGER
-      BLENDING_SRC_FACTOR_RGB,                            ///< name "sourceBlendFactorRgb",           type INTEGER
-      BLENDING_DEST_FACTOR_RGB,                           ///< name "destinationBlendFactorRgb",      type INTEGER
-      BLENDING_SRC_FACTOR_ALPHA,                          ///< name "sourceBlendFactorAlpha",         type INTEGER
-      BLENDING_DEST_FACTOR_ALPHA,                         ///< name "destinationBlendFactorAlpha",    type INTEGER
-      BLENDING_COLOR,                                     ///< name "blendingColor",                  type VECTOR4
+      BLEND_FACTOR_SRC_RGB,                               ///< name "blendFactorSrcRgb",              type INTEGER
+      BLEND_FACTOR_DEST_RGB,                              ///< name "blendFactorDestRgb",             type INTEGER
+      BLEND_FACTOR_SRC_ALPHA,                             ///< name "blendFactorSrcAlpha",            type INTEGER
+      BLEND_FACTOR_DEST_ALPHA,                            ///< name "blendFactorDestAlpha",           type INTEGER
+      BLEND_COLOR,                                        ///< name "blendColor",                     type VECTOR4
       BLEND_PRE_MULTIPLIED_ALPHA,                         ///< name "blendPreMultipledAlpha",         type BOOLEAN
       INDEX_RANGE_FIRST,                                  ///< name "indexRangeFirst",                type INTEGER
       INDEX_RANGE_COUNT                                   ///< name "indexRangeCount",                type INTEGER
@@ -170,67 +170,67 @@ public:
   /**
    * @brief Specify the pixel arithmetic used when the actor is blended.
    *
-   * @param[in] srcFactorRgba Specifies how the red, green, blue, and alpha source blending factors are computed.
-   * The options are BlendingFactor::ZERO, ONE, SRC_COLOR, ONE_MINUS_SRC_COLOR, DST_COLOR, ONE_MINUS_DST_COLOR,
+   * @param[in] srcFactorRgba Specifies how the red, green, blue, and alpha source blend factors are computed.
+   * The options are BlendFactor::ZERO, ONE, SRC_COLOR, ONE_MINUS_SRC_COLOR, DST_COLOR, ONE_MINUS_DST_COLOR,
    * SRC_ALPHA, ONE_MINUS_SRC_ALPHA, DST_ALPHA, ONE_MINUS_DST_ALPHA, CONSTANT_COLOR, ONE_MINUS_CONSTANT_COLOR,
    * GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA, and GL_SRC_ALPHA_SATURATE.
    *
-   * @param[in] destFactorRgba Specifies how the red, green, blue, and alpha destination blending factors are computed.
-   * The options are BlendingFactor::ZERO, ONE, SRC_COLOR, ONE_MINUS_SRC_COLOR, DST_COLOR, ONE_MINUS_DST_COLOR,
+   * @param[in] destFactorRgba Specifies how the red, green, blue, and alpha destination blend factors are computed.
+   * The options are BlendFactor::ZERO, ONE, SRC_COLOR, ONE_MINUS_SRC_COLOR, DST_COLOR, ONE_MINUS_DST_COLOR,
    * SRC_ALPHA, ONE_MINUS_SRC_ALPHA, DST_ALPHA, ONE_MINUS_DST_ALPHA, CONSTANT_COLOR, ONE_MINUS_CONSTANT_COLOR,
    * GL_CONSTANT_ALPHA, and GL_ONE_MINUS_CONSTANT_ALPHA.
    */
-  void SetBlendFunc( BlendingFactor::Type srcFactorRgba, BlendingFactor::Type destFactorRgba );
+  void SetBlendFunc( BlendFactor::Type srcFactorRgba, BlendFactor::Type destFactorRgba );
 
   /**
    * @brief Specify the pixel arithmetic used when the actor is blended.
    *
-   * @param[in] srcFactorRgb Specifies how the red, green, and blue source blending factors are computed.
-   * The options are BlendingFactor::ZERO, ONE, SRC_COLOR, ONE_MINUS_SRC_COLOR, DST_COLOR, ONE_MINUS_DST_COLOR,
+   * @param[in] srcFactorRgb Specifies how the red, green, and blue source blend factors are computed.
+   * The options are BlendFactor::ZERO, ONE, SRC_COLOR, ONE_MINUS_SRC_COLOR, DST_COLOR, ONE_MINUS_DST_COLOR,
    * SRC_ALPHA, ONE_MINUS_SRC_ALPHA, DST_ALPHA, ONE_MINUS_DST_ALPHA, CONSTANT_COLOR, ONE_MINUS_CONSTANT_COLOR,
    * GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA, and GL_SRC_ALPHA_SATURATE.
    *
-   * @param[in] destFactorRgb Specifies how the red, green, blue, and alpha destination blending factors are computed.
-   * The options are BlendingFactor::ZERO, ONE, SRC_COLOR, ONE_MINUS_SRC_COLOR, DST_COLOR, ONE_MINUS_DST_COLOR,
+   * @param[in] destFactorRgb Specifies how the red, green, blue, and alpha destination blend factors are computed.
+   * The options are BlendFactor::ZERO, ONE, SRC_COLOR, ONE_MINUS_SRC_COLOR, DST_COLOR, ONE_MINUS_DST_COLOR,
    * SRC_ALPHA, ONE_MINUS_SRC_ALPHA, DST_ALPHA, ONE_MINUS_DST_ALPHA, CONSTANT_COLOR, ONE_MINUS_CONSTANT_COLOR,
    * GL_CONSTANT_ALPHA, and GL_ONE_MINUS_CONSTANT_ALPHA.
    *
-   * @param[in] srcFactorAlpha Specifies how the alpha source blending factor is computed.
+   * @param[in] srcFactorAlpha Specifies how the alpha source blend factor is computed.
    * The options are the same as for srcFactorRgb.
    *
-   * @param[in] destFactorAlpha Specifies how the alpha source blending factor is computed.
+   * @param[in] destFactorAlpha Specifies how the alpha source blend factor is computed.
    * The options are the same as for destFactorRgb.
    */
-  void SetBlendFunc( BlendingFactor::Type srcFactorRgb,   BlendingFactor::Type destFactorRgb,
-                     BlendingFactor::Type srcFactorAlpha, BlendingFactor::Type destFactorAlpha );
+  void SetBlendFunc( BlendFactor::Type srcFactorRgb,   BlendFactor::Type destFactorRgb,
+                     BlendFactor::Type srcFactorAlpha, BlendFactor::Type destFactorAlpha );
 
   /**
    * @brief Query the pixel arithmetic used when the actor is blended.
    *
-   * @param[out] srcFactorRgb Specifies how the red, green, blue, and alpha source blending factors are computed.
-   * @param[out] destFactorRgb Specifies how the red, green, blue, and alpha destination blending factors are computed.
-   * @param[out] srcFactorAlpha Specifies how the red, green, blue, and alpha source blending factors are computed.
-   * @param[out] destFactorAlpha Specifies how the red, green, blue, and alpha destination blending factors are computed.
+   * @param[out] srcFactorRgb Specifies how the red, green, blue, and alpha source blend factors are computed.
+   * @param[out] destFactorRgb Specifies how the red, green, blue, and alpha destination blend factors are computed.
+   * @param[out] srcFactorAlpha Specifies how the red, green, blue, and alpha source blend factors are computed.
+   * @param[out] destFactorAlpha Specifies how the red, green, blue, and alpha destination blend factors are computed.
    */
-  void GetBlendFunc( BlendingFactor::Type& srcFactorRgb,   BlendingFactor::Type& destFactorRgb,
-                     BlendingFactor::Type& srcFactorAlpha, BlendingFactor::Type& destFactorAlpha ) const;
+  void GetBlendFunc( BlendFactor::Type& srcFactorRgb,   BlendFactor::Type& destFactorRgb,
+                     BlendFactor::Type& srcFactorAlpha, BlendFactor::Type& destFactorAlpha ) const;
 
   /**
    * @brief Specify the equation used when the actor is blended.
    *
-   * The options are BlendingEquation::ADD, SUBTRACT, or REVERSE_SUBTRACT.
+   * The options are BlendEquation::ADD, SUBTRACT, or REVERSE_SUBTRACT.
    * @param[in] equationRgba The equation used for combining red, green, blue, and alpha components.
    */
-  void SetBlendEquation( BlendingEquation::Type equationRgba );
+  void SetBlendEquation( BlendEquation::Type equationRgba );
 
   /**
    * @brief Specify the equation used when the actor is blended.
    *
    * @param[in] equationRgb The equation used for combining red, green, and blue components.
    * @param[in] equationAlpha The equation used for combining the alpha component.
-   * The options are BlendingEquation::ADD, SUBTRACT, or REVERSE_SUBTRACT.
+   * The options are BlendEquation::ADD, SUBTRACT, or REVERSE_SUBTRACT.
    */
-  void SetBlendEquation( BlendingEquation::Type equationRgb, BlendingEquation::Type equationAlpha );
+  void SetBlendEquation( BlendEquation::Type equationRgb, BlendEquation::Type equationAlpha );
 
   /**
    * @brief Query the equation used when the actor is blended.
@@ -238,7 +238,7 @@ public:
    * @param[out] equationRgb The equation used for combining red, green, and blue components.
    * @param[out] equationAlpha The equation used for combining the alpha component.
    */
-  void GetBlendEquation( BlendingEquation::Type& equationRgb, BlendingEquation::Type& equationAlpha ) const;
+  void GetBlendEquation( BlendEquation::Type& equationRgb, BlendEquation::Type& equationAlpha ) const;
 
 public:
   /**

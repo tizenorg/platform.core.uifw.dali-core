@@ -92,41 +92,41 @@ Shader Renderer::GetShader() const
   return Dali::Shader( shaderPtr );
 }
 
-void Renderer::SetBlendFunc( BlendingFactor::Type srcFactorRgba,
-                             BlendingFactor::Type destFactorRgba )
+void Renderer::SetBlendFunc( BlendFactor::Type srcFactorRgba,
+                             BlendFactor::Type destFactorRgba )
 {
   GetImplementation(*this).SetBlendFunc( srcFactorRgba, destFactorRgba );
 }
 
-void Renderer::SetBlendFunc( BlendingFactor::Type srcFactorRgb,
-                             BlendingFactor::Type destFactorRgb,
-                             BlendingFactor::Type srcFactorAlpha,
-                             BlendingFactor::Type destFactorAlpha )
+void Renderer::SetBlendFunc( BlendFactor::Type srcFactorRgb,
+                             BlendFactor::Type destFactorRgb,
+                             BlendFactor::Type srcFactorAlpha,
+                             BlendFactor::Type destFactorAlpha )
 {
   GetImplementation(*this).SetBlendFunc( srcFactorRgb, destFactorRgb, srcFactorAlpha, destFactorAlpha );
 }
 
-void Renderer::GetBlendFunc( BlendingFactor::Type& srcFactorRgb,
-                             BlendingFactor::Type& destFactorRgb,
-                             BlendingFactor::Type& srcFactorAlpha,
-                             BlendingFactor::Type& destFactorAlpha ) const
+void Renderer::GetBlendFunc( BlendFactor::Type& srcFactorRgb,
+                             BlendFactor::Type& destFactorRgb,
+                             BlendFactor::Type& srcFactorAlpha,
+                             BlendFactor::Type& destFactorAlpha ) const
 {
   GetImplementation(*this).GetBlendFunc( srcFactorRgb, destFactorRgb, srcFactorAlpha, destFactorAlpha );
 }
 
-void Renderer::SetBlendEquation( BlendingEquation::Type equationRgba )
+void Renderer::SetBlendEquation( BlendEquation::Type equationRgba )
 {
   GetImplementation(*this).SetBlendEquation( equationRgba );
 }
 
-void Renderer::SetBlendEquation( BlendingEquation::Type equationRgb,
-                                 BlendingEquation::Type equationAlpha )
+void Renderer::SetBlendEquation( BlendEquation::Type equationRgb,
+                                 BlendEquation::Type equationAlpha )
 {
   GetImplementation(*this).SetBlendEquation( equationRgb, equationAlpha );
 }
 
-void Renderer::GetBlendEquation( BlendingEquation::Type& equationRgb,
-                                 BlendingEquation::Type& equationAlpha ) const
+void Renderer::GetBlendEquation( BlendEquation::Type& equationRgb,
+                                 BlendEquation::Type& equationAlpha ) const
 {
   GetImplementation(*this).GetBlendEquation( equationRgb, equationAlpha );
 }

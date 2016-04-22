@@ -133,7 +133,7 @@ public:
    * Set the blending mode
    * @param[in] blendingMode to use
    */
-  void SetBlendingMode( unsigned int blendingMode );
+  void SetBlendMode( unsigned int blendingMode );
 
   /**
    * Set the blending options. This should only be called from the update thread.
@@ -321,7 +321,7 @@ private:
   Vector4*                        mBlendColor;      ///< The blend color for blending operation
   unsigned int                    mBlendBitmask;    ///< The bitmask of blending options
   Dali::Renderer::FaceCullingMode mFaceCullingMode; ///< The mode of face culling
-  BlendingMode::Type              mBlendingMode;    ///< The mode of blending
+  BlendMode::Type                 mBlendMode;       ///< The mode of blending
   Dali::Renderer::DepthWriteMode  mDepthWriteMode;  ///< The depth write mode
 
   CollectedUniformMap mCollectedUniformMap[2]; ///< Uniform maps collected by the renderer
@@ -397,14 +397,14 @@ inline void SetFaceCullingModeMessage( EventThreadServices& eventThreadServices,
   new (slot) LocalType( &renderer, &Renderer::SetFaceCullingMode, faceCullingMode );
 }
 
-inline void SetBlendingModeMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, BlendingMode::Type blendingMode )
+inline void SetBlendModeMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, BlendMode::Type blendingMode )
 {
   typedef MessageValue1< Renderer, unsigned int > LocalType;
 
   // Reserve some memory inside the message queue
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
-  new (slot) LocalType( &renderer, &Renderer::SetBlendingMode, blendingMode );
+  new (slot) LocalType( &renderer, &Renderer::SetBlendMode, blendingMode );
 }
 
 inline void SetBlendingOptionsMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, unsigned int options )

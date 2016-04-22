@@ -25,6 +25,7 @@
 #include <dali/public-api/animation/constraints.h> // for EqualToConstraint
 #include <dali/public-api/object/type-registry.h>
 #include <dali/devel-api/scripting/scripting.h>
+#include <dali/devel-api/rendering/renderer.h>
 #include <dali/internal/event/animation/constraint-impl.h>
 #include <dali/internal/event/common/property-helper.h>
 #include <dali/internal/event/effects/shader-effect-impl.h>
@@ -606,12 +607,12 @@ float ImageActor::GetSortModifier() const
 
 void ImageActor::SetBlendMode( BlendingMode::Type mode )
 {
-  mRenderer->SetBlendMode( mode );
+  mRenderer->SetBlendMode( static_cast<BlendMode::Type>( mode ) );
 }
 
 BlendingMode::Type ImageActor::GetBlendMode() const
 {
-  return mRenderer->GetBlendMode();
+  return static_cast<BlendingMode::Type>( mRenderer->GetBlendMode() );
 }
 
 void ImageActor::SetBlendFunc( BlendingFactor::Type srcFactorRgba,   BlendingFactor::Type destFactorRgba )

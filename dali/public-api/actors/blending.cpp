@@ -21,12 +21,21 @@
 namespace Dali
 {
 
-const BlendingFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_RGB(    BlendingFactor::SRC_ALPHA );
-const BlendingFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_RGB(   BlendingFactor::ONE_MINUS_SRC_ALPHA );
-const BlendingFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_ALPHA(  BlendingFactor::ONE );
-const BlendingFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_ALPHA( BlendingFactor::ONE_MINUS_SRC_ALPHA );
+const BlendFactor::Type   DEFAULT_BLEND_FACTOR_SRC_RGB(    BlendFactor::SRC_ALPHA );
+const BlendFactor::Type   DEFAULT_BLEND_FACTOR_DEST_RGB(   BlendFactor::ONE_MINUS_SRC_ALPHA );
+const BlendFactor::Type   DEFAULT_BLEND_FACTOR_SRC_ALPHA(  BlendFactor::ONE );
+const BlendFactor::Type   DEFAULT_BLEND_FACTOR_DEST_ALPHA( BlendFactor::ONE_MINUS_SRC_ALPHA );
 
-const BlendingEquation::Type DEFAULT_BLENDING_EQUATION_RGB(   BlendingEquation::ADD );
-const BlendingEquation::Type DEFAULT_BLENDING_EQUATION_ALPHA( BlendingEquation::ADD );
+const BlendEquation::Type DEFAULT_BLEND_EQUATION_RGB(   BlendEquation::ADD );
+const BlendEquation::Type DEFAULT_BLEND_EQUATION_ALPHA( BlendEquation::ADD );
+
+// @DEPRECATED_1.1.32.
+const BlendFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_RGB(    BlendFactor::SRC_ALPHA );
+const BlendFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_RGB(   BlendFactor::ONE_MINUS_SRC_ALPHA );
+const BlendFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_ALPHA(  BlendFactor::ONE );
+const BlendFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_ALPHA( BlendFactor::ONE_MINUS_SRC_ALPHA );
+
+const BlendEquation::Type DEFAULT_BLENDING_EQUATION_RGB(   BlendEquation::ADD );
+const BlendEquation::Type DEFAULT_BLENDING_EQUATION_ALPHA( BlendEquation::ADD );
 
 } // namespace Dali

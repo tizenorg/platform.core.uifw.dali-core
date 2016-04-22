@@ -1,5 +1,5 @@
-#ifndef __DALI_BLENDING_H__
-#define __DALI_BLENDING_H__
+#ifndef DALI_BLENDING_H
+#define DALI_BLENDING_H
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -28,10 +28,10 @@ namespace Dali
  * @{
  */
 
-namespace BlendingMode
+namespace BlendMode
 {
 /**
- * @brief Blending mode.
+ * @brief Blend mode.
  * @SINCE_1_0.0
  * @remarks This is an experimental feature and might not be supported in the next release.
  * We do recommend not to use it.
@@ -45,10 +45,12 @@ enum Type
 
 } //namespace BlendingMode
 
-namespace BlendingFactor
+namespace BlendingMode = BlendMode; // @DEPRECATED_1.1.32. Use BlendMode instead.
+
+namespace BlendFactor
 {
 /**
- * @brief Blending Factor.
+ * @brief Blend Factor.
  *
  * @SINCE_1_0.0
  * @remarks This is an experimental feature and might not be supported in the next release.
@@ -73,12 +75,14 @@ enum Type
   ONE_MINUS_CONSTANT_ALPHA = 0x8004  ///< ONE_MINUS_CONSTANT_ALPHA @SINCE_1_0.0
 };
 
-} // namespace BlendingFactor
+} // namespace BlendFactor
 
-namespace BlendingEquation
+namespace BlendingFactor = BlendFactor;
+
+namespace BlendEquation
 {
 /**
- * @brief Blending Equation.
+ * @brief Blend Equation.
  *
  * @SINCE_1_0.0
  * @remarks This is an experimental feature and might not be supported in the next release.
@@ -91,19 +95,30 @@ enum Type
   REVERSE_SUBTRACT = 0x800B  ///< Subtracts the source from the destination. @SINCE_1_0.0
 };
 
-} // namespace BlendingEquation
+} // namespace BlendEquation
 
-DALI_IMPORT_API extern const BlendingFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_RGB;    ///< BlendingFactor::SRC_ALPHA
-DALI_IMPORT_API extern const BlendingFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_RGB;   ///< BlendingFactor::ONE_MINUS_SRC_ALPHA
-DALI_IMPORT_API extern const BlendingFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_ALPHA;  ///< BlendingFactor::ONE
-DALI_IMPORT_API extern const BlendingFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_ALPHA; ///< BlendingFactor::ONE_MINUS_SRC_ALPHA
+namespace BlendingEquation = BlendEquation;
 
-DALI_IMPORT_API extern const BlendingEquation::Type DEFAULT_BLENDING_EQUATION_RGB;     ///< BlendingEquation::ADD
-DALI_IMPORT_API extern const BlendingEquation::Type DEFAULT_BLENDING_EQUATION_ALPHA;   ///< BlendingEquation::ADD
+DALI_IMPORT_API extern const BlendFactor::Type   DEFAULT_BLEND_FACTOR_SRC_RGB;    ///< BlendFactor::SRC_ALPHA
+DALI_IMPORT_API extern const BlendFactor::Type   DEFAULT_BLEND_FACTOR_DEST_RGB;   ///< BlendFactor::ONE_MINUS_SRC_ALPHA
+DALI_IMPORT_API extern const BlendFactor::Type   DEFAULT_BLEND_FACTOR_SRC_ALPHA;  ///< BlendFactor::ONE
+DALI_IMPORT_API extern const BlendFactor::Type   DEFAULT_BLEND_FACTOR_DEST_ALPHA; ///< BlendFactor::ONE_MINUS_SRC_ALPHA
+
+DALI_IMPORT_API extern const BlendEquation::Type DEFAULT_BLEND_EQUATION_RGB;     ///< BlendingEquation::ADD
+DALI_IMPORT_API extern const BlendEquation::Type DEFAULT_BLEND_EQUATION_ALPHA;   ///< BlendingEquation::ADD
+
+// @DEPRECATED_1.1.32.
+DALI_IMPORT_API extern const BlendFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_RGB;    ///< @DEPRECATED_1.1.32. Use DEFAULT_BLEND_FACTOR_SRC_RGB instead.
+DALI_IMPORT_API extern const BlendFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_RGB;   ///< @DEPRECATED_1.1.32. Use DEFAULT_BLEND_FACTOR_DEST_RGB instead.
+DALI_IMPORT_API extern const BlendFactor::Type   DEFAULT_BLENDING_SRC_FACTOR_ALPHA;  ///< @DEPRECATED_1.1.32. Use DEFAULT_BLEND_FACTOR_SRC_ALPHA values instead.
+DALI_IMPORT_API extern const BlendFactor::Type   DEFAULT_BLENDING_DEST_FACTOR_ALPHA; ///< @DEPRECATED_1.1.32. Use DEFAULT_BLEND_FACTOR_DEST_ALPHA values instead.
+
+DALI_IMPORT_API extern const BlendEquation::Type DEFAULT_BLENDING_EQUATION_RGB;     ///< @DEPRECATED_1.1.32. Use DEFAULT_BLEND_EQUATION_RGB instead.
+DALI_IMPORT_API extern const BlendEquation::Type DEFAULT_BLENDING_EQUATION_ALPHA;   ///< @DEPRECATED_1.1.32. Use DEFAULT_BLEND_EQUATION_ALPHA values instead.
 
 /**
  * @}
  */
 } // namespace Dali
 
-#endif // __DALI_BLENDING_H__
+#endif // DALI_BLENDING_H

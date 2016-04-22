@@ -310,11 +310,11 @@ int UtcDaliRendererSetGetFaceCullingMode(void)
   END_TEST;
 }
 
-int UtcDaliRendererBlendingOptions01(void)
+int UtcDaliRendererBlendOptions01(void)
 {
   TestApplication application;
 
-  tet_infoline("Test SetBlendFunc(src, dest) ");
+  tet_infoline("Test BLEND_FACTOR properties ");
 
   Geometry geometry = CreateQuadGeometry();
   Shader shader = CreateShader();
@@ -327,19 +327,21 @@ int UtcDaliRendererBlendingOptions01(void)
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetBlendFunc(BlendingFactor::ONE_MINUS_SRC_COLOR, BlendingFactor::SRC_ALPHA_SATURATE);
+  renderer.SetProperty( Renderer::Property::BLEND_FACTOR_SRC_RGB,    BlendFactor::ONE_MINUS_SRC_COLOR );
+  renderer.SetProperty( Renderer::Property::BLEND_FACTOR_DEST_RGB,   BlendFactor::SRC_ALPHA_SATURATE  );
+  renderer.SetProperty( Renderer::Property::BLEND_FACTOR_SRC_ALPHA,  BlendFactor::ONE_MINUS_SRC_COLOR );
+  renderer.SetProperty( Renderer::Property::BLEND_FACTOR_DEST_ALPHA, BlendFactor::SRC_ALPHA_SATURATE  );
 
   // Test that Set was successful:
-  BlendingFactor::Type srcFactorRgb( BlendingFactor::ZERO );
-  BlendingFactor::Type destFactorRgb( BlendingFactor::ZERO );
-  BlendingFactor::Type srcFactorAlpha( BlendingFactor::ZERO );
-  BlendingFactor::Type destFactorAlpha( BlendingFactor::ZERO );
-  renderer.GetBlendFunc( srcFactorRgb, destFactorRgb, srcFactorAlpha, destFactorAlpha );
+  int srcFactorRgb    = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_SRC_RGB );
+  int destFactorRgb   = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_DEST_RGB );
+  int srcFactorAlpha  = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_SRC_ALPHA );
+  int destFactorAlpha = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_DEST_ALPHA );
 
-  DALI_TEST_EQUALS( BlendingFactor::ONE_MINUS_SRC_COLOR, srcFactorRgb,    TEST_LOCATION );
-  DALI_TEST_EQUALS( BlendingFactor::SRC_ALPHA_SATURATE,  destFactorRgb,   TEST_LOCATION );
-  DALI_TEST_EQUALS( BlendingFactor::ONE_MINUS_SRC_COLOR, srcFactorAlpha,  TEST_LOCATION );
-  DALI_TEST_EQUALS( BlendingFactor::SRC_ALPHA_SATURATE,  destFactorAlpha, TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)BlendFactor::ONE_MINUS_SRC_COLOR, srcFactorRgb,    TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)BlendFactor::SRC_ALPHA_SATURATE,  destFactorRgb,   TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)BlendFactor::ONE_MINUS_SRC_COLOR, srcFactorAlpha,  TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)BlendFactor::SRC_ALPHA_SATURATE,  destFactorAlpha, TEST_LOCATION );
 
   application.SendNotification();
   application.Render();
@@ -354,11 +356,11 @@ int UtcDaliRendererBlendingOptions01(void)
   END_TEST;
 }
 
-int UtcDaliRendererBlendingOptions02(void)
+int UtcDaliRendererBlendOptions02(void)
 {
   TestApplication application;
 
-  tet_infoline("Test SetBlendFunc(srcRgb, destRgb, srcAlpha, destAlpha) ");
+  tet_infoline("Test BLEND_FACTOR properties ");
 
   Geometry geometry = CreateQuadGeometry();
   Shader shader = CreateShader();
@@ -370,21 +372,22 @@ int UtcDaliRendererBlendingOptions02(void)
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetBlendFunc( BlendingFactor::CONSTANT_COLOR, BlendingFactor::ONE_MINUS_CONSTANT_COLOR,
-                         BlendingFactor::CONSTANT_ALPHA, BlendingFactor::ONE_MINUS_CONSTANT_ALPHA );
+  renderer.SetProperty( Renderer::Property::BLEND_FACTOR_SRC_RGB,    BlendFactor::CONSTANT_COLOR );
+  renderer.SetProperty( Renderer::Property::BLEND_FACTOR_DEST_RGB,   BlendFactor::ONE_MINUS_CONSTANT_COLOR );
+  renderer.SetProperty( Renderer::Property::BLEND_FACTOR_SRC_ALPHA,  BlendFactor::CONSTANT_ALPHA );
+  renderer.SetProperty( Renderer::Property::BLEND_FACTOR_DEST_ALPHA, BlendFactor::ONE_MINUS_CONSTANT_ALPHA  );
 
   // Test that Set was successful:
   {
-    BlendingFactor::Type srcFactorRgb( BlendingFactor::ZERO );
-    BlendingFactor::Type destFactorRgb( BlendingFactor::ZERO );
-    BlendingFactor::Type srcFactorAlpha( BlendingFactor::ZERO );
-    BlendingFactor::Type destFactorAlpha( BlendingFactor::ZERO );
-    renderer.GetBlendFunc( srcFactorRgb, destFactorRgb, srcFactorAlpha, destFactorAlpha );
+    int srcFactorRgb    = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_SRC_RGB );
+    int destFactorRgb   = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_DEST_RGB );
+    int srcFactorAlpha  = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_SRC_ALPHA );
+    int destFactorAlpha = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_DEST_ALPHA );
 
-    DALI_TEST_EQUALS( BlendingFactor::CONSTANT_COLOR,            srcFactorRgb,    TEST_LOCATION );
-    DALI_TEST_EQUALS( BlendingFactor::ONE_MINUS_CONSTANT_COLOR,  destFactorRgb,   TEST_LOCATION );
-    DALI_TEST_EQUALS( BlendingFactor::CONSTANT_ALPHA,            srcFactorAlpha,  TEST_LOCATION );
-    DALI_TEST_EQUALS( BlendingFactor::ONE_MINUS_CONSTANT_ALPHA,  destFactorAlpha, TEST_LOCATION );
+    DALI_TEST_EQUALS( (int)BlendFactor::CONSTANT_COLOR,            srcFactorRgb,    TEST_LOCATION );
+    DALI_TEST_EQUALS( (int)BlendFactor::ONE_MINUS_CONSTANT_COLOR,  destFactorRgb,   TEST_LOCATION );
+    DALI_TEST_EQUALS( (int)BlendFactor::CONSTANT_ALPHA,            srcFactorAlpha,  TEST_LOCATION );
+    DALI_TEST_EQUALS( (int)BlendFactor::ONE_MINUS_CONSTANT_ALPHA,  destFactorAlpha, TEST_LOCATION );
   }
 
   application.SendNotification();
@@ -399,7 +402,7 @@ int UtcDaliRendererBlendingOptions02(void)
   END_TEST;
 }
 
-int UtcDaliRendererBlendingOptions03(void)
+int UtcDaliRendererBlendOptions03(void)
 {
   TestApplication application;
 
@@ -415,16 +418,16 @@ int UtcDaliRendererBlendingOptions03(void)
   Stage::GetCurrent().Add(actor);
 
   // Test the defaults as documented in blending.h
-  BlendingEquation::Type equationRgb( BlendingEquation::SUBTRACT );
-  BlendingEquation::Type equationAlpha( BlendingEquation::SUBTRACT );
-  renderer.GetBlendEquation( equationRgb, equationAlpha );
-  DALI_TEST_EQUALS( BlendingEquation::ADD, equationRgb, TEST_LOCATION );
-  DALI_TEST_EQUALS( BlendingEquation::ADD, equationAlpha, TEST_LOCATION );
+  int equationRgb   = renderer.GetProperty<int>( Renderer::Property::BLEND_EQUATION_RGB );
+  int equationAlpha = renderer.GetProperty<int>( Renderer::Property::BLEND_EQUATION_ALPHA );
+
+  DALI_TEST_EQUALS( (int)BlendEquation::ADD, equationRgb,   TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)BlendEquation::ADD, equationAlpha, TEST_LOCATION );
 
   END_TEST;
 }
 
-int UtcDaliRendererBlendingOptions04(void)
+int UtcDaliRendererBlendOptions04(void)
 {
   TestApplication application;
 
@@ -442,21 +445,20 @@ int UtcDaliRendererBlendingOptions04(void)
 
   // Test the single blending equation setting
   {
-    renderer.SetBlendEquation( BlendingEquation::REVERSE_SUBTRACT );
-    BlendingEquation::Type equationRgba( BlendingEquation::SUBTRACT );
-    renderer.GetBlendEquation( equationRgba, equationRgba );
-    DALI_TEST_EQUALS( BlendingEquation::REVERSE_SUBTRACT, equationRgba, TEST_LOCATION );
+    renderer.SetProperty( Renderer::Property::BLEND_EQUATION_RGB, BlendEquation::REVERSE_SUBTRACT );
+    int equationRgb = renderer.GetProperty<int>( Renderer::Property::BLEND_EQUATION_RGB );
+    DALI_TEST_EQUALS( (int)BlendEquation::REVERSE_SUBTRACT, equationRgb, TEST_LOCATION );
   }
 
-  renderer.SetBlendEquation( BlendingEquation::REVERSE_SUBTRACT, BlendingEquation::REVERSE_SUBTRACT );
+  renderer.SetProperty( Renderer::Property::BLEND_EQUATION_RGB,   BlendEquation::REVERSE_SUBTRACT );
+  renderer.SetProperty( Renderer::Property::BLEND_EQUATION_ALPHA, BlendEquation::REVERSE_SUBTRACT );
 
   // Test that Set was successful
   {
-    BlendingEquation::Type equationRgb( BlendingEquation::SUBTRACT );
-    BlendingEquation::Type equationAlpha( BlendingEquation::SUBTRACT );
-    renderer.GetBlendEquation( equationRgb, equationAlpha );
-    DALI_TEST_EQUALS( BlendingEquation::REVERSE_SUBTRACT, equationRgb, TEST_LOCATION );
-    DALI_TEST_EQUALS( BlendingEquation::REVERSE_SUBTRACT, equationAlpha, TEST_LOCATION );
+    int equationRgb   = renderer.GetProperty<int>( Renderer::Property::BLEND_EQUATION_RGB );
+    int equationAlpha = renderer.GetProperty<int>( Renderer::Property::BLEND_EQUATION_ALPHA );
+    DALI_TEST_EQUALS( (int)BlendEquation::REVERSE_SUBTRACT, equationRgb, TEST_LOCATION );
+    DALI_TEST_EQUALS( (int)BlendEquation::REVERSE_SUBTRACT, equationAlpha, TEST_LOCATION );
   }
 
   // Render & check GL commands
@@ -486,7 +488,7 @@ int UtcDaliRendererSetBlendMode01(void)
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::ON);
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::ON);
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
   glAbstraction.EnableEnableDisableCallTrace(true);
@@ -518,7 +520,7 @@ int UtcDaliRendererSetBlendMode02(void)
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::OFF);
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::OFF);
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
   glAbstraction.EnableEnableDisableCallTrace(true);
@@ -550,7 +552,7 @@ int UtcDaliRendererSetBlendMode03(void)
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::AUTO);
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::AUTO);
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
   glAbstraction.EnableEnableDisableCallTrace(true);
@@ -581,7 +583,7 @@ int UtcDaliRendererSetBlendMode04(void)
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::AUTO);
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::AUTO);
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
   glAbstraction.EnableEnableDisableCallTrace(true);
@@ -613,7 +615,7 @@ int UtcDaliRendererSetBlendMode04b(void)
   actor.SetColor( Vector4(1.0f, 0.0f, 1.0f, 0.5f) );
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::AUTO);
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::AUTO);
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
   glAbstraction.EnableEnableDisableCallTrace(true);
@@ -645,7 +647,7 @@ int UtcDaliRendererSetBlendMode04c(void)
   actor.SetColor( Color::MAGENTA );
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::AUTO);
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::AUTO);
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
   glAbstraction.EnableEnableDisableCallTrace(true);
@@ -680,7 +682,7 @@ int UtcDaliRendererSetBlendMode05(void)
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::AUTO);
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::AUTO);
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
   glAbstraction.EnableEnableDisableCallTrace(true);
@@ -711,7 +713,7 @@ int UtcDaliRendererSetBlendMode06(void)
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::AUTO);
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::AUTO);
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
   glAbstraction.EnableEnableDisableCallTrace(true);
@@ -745,7 +747,7 @@ int UtcDaliRendererSetBlendMode07(void)
   actor.SetSize(400, 400);
   Stage::GetCurrent().Add(actor);
 
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::AUTO);
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::AUTO);
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
   glAbstraction.EnableEnableDisableCallTrace(true);
@@ -770,18 +772,18 @@ int UtcDaliRendererGetBlendMode(void)
   Renderer renderer = Renderer::New( geometry, shader );
 
   // default value
-  unsigned int mode = renderer.GetProperty<int>( Renderer::Property::BLENDING_MODE );
-  DALI_TEST_EQUALS( static_cast< BlendingMode::Type >( mode ), BlendingMode::AUTO, TEST_LOCATION );
+  unsigned int mode = renderer.GetProperty<int>( Renderer::Property::BLEND_MODE );
+  DALI_TEST_EQUALS( static_cast< BlendMode::Type >( mode ), BlendMode::AUTO, TEST_LOCATION );
 
   // ON
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::ON );
-  mode = renderer.GetProperty<int>( Renderer::Property::BLENDING_MODE );
-  DALI_TEST_EQUALS( static_cast< BlendingMode::Type >( mode ), BlendingMode::ON, TEST_LOCATION );
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::ON );
+  mode = renderer.GetProperty<int>( Renderer::Property::BLEND_MODE );
+  DALI_TEST_EQUALS( static_cast< BlendMode::Type >( mode ), BlendMode::ON, TEST_LOCATION );
 
   // OFF
-  renderer.SetProperty( Renderer::Property::BLENDING_MODE, BlendingMode::OFF );
-  mode = renderer.GetProperty<int>( Renderer::Property::BLENDING_MODE );
-  DALI_TEST_EQUALS( static_cast< BlendingMode::Type >( mode ), BlendingMode::OFF, TEST_LOCATION );
+  renderer.SetProperty( Renderer::Property::BLEND_MODE, BlendMode::OFF );
+  mode = renderer.GetProperty<int>( Renderer::Property::BLEND_MODE );
+  DALI_TEST_EQUALS( static_cast< BlendMode::Type >( mode ), BlendMode::OFF, TEST_LOCATION );
 
   END_TEST;
 }
@@ -807,18 +809,18 @@ int UtcDaliRendererSetBlendColor(void)
 
   TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
 
-  renderer.SetProperty( Renderer::Property::BLENDING_COLOR, Color::TRANSPARENT );
+  renderer.SetProperty( Renderer::Property::BLEND_COLOR, Color::TRANSPARENT );
   application.SendNotification();
   application.Render();
   DALI_TEST_EQUALS( glAbstraction.GetLastBlendColor(), Color::TRANSPARENT, TEST_LOCATION );
 
-  renderer.SetProperty( Renderer::Property::BLENDING_COLOR, Color::MAGENTA );
+  renderer.SetProperty( Renderer::Property::BLEND_COLOR, Color::MAGENTA );
   application.SendNotification();
   application.Render();
   DALI_TEST_EQUALS( glAbstraction.GetLastBlendColor(), Color::MAGENTA, TEST_LOCATION );
 
   Vector4 color( 0.1f, 0.2f, 0.3f, 0.4f );
-  renderer.SetProperty( Renderer::Property::BLENDING_COLOR, color );
+  renderer.SetProperty( Renderer::Property::BLEND_COLOR, color );
   application.SendNotification();
   application.Render();
   DALI_TEST_EQUALS( glAbstraction.GetLastBlendColor(), color, TEST_LOCATION );
@@ -836,18 +838,18 @@ int UtcDaliRendererGetBlendColor(void)
   Shader shader = Shader::New( "vertexSrc", "fragmentSrc", Shader::HINT_OUTPUT_IS_OPAQUE );
   Renderer renderer = Renderer::New( geometry, shader );
 
-  DALI_TEST_EQUALS( renderer.GetProperty<Vector4>( Renderer::Property::BLENDING_COLOR ), Color::TRANSPARENT, TEST_LOCATION );
+  DALI_TEST_EQUALS( renderer.GetProperty<Vector4>( Renderer::Property::BLEND_COLOR ), Color::TRANSPARENT, TEST_LOCATION );
 
-  renderer.SetProperty( Renderer::Property::BLENDING_COLOR, Color::MAGENTA );
+  renderer.SetProperty( Renderer::Property::BLEND_COLOR, Color::MAGENTA );
   application.SendNotification();
   application.Render();
-  DALI_TEST_EQUALS( renderer.GetProperty<Vector4>( Renderer::Property::BLENDING_COLOR ), Color::MAGENTA, TEST_LOCATION );
+  DALI_TEST_EQUALS( renderer.GetProperty<Vector4>( Renderer::Property::BLEND_COLOR ), Color::MAGENTA, TEST_LOCATION );
 
   Vector4 color( 0.1f, 0.2f, 0.3f, 0.4f );
-  renderer.SetProperty( Renderer::Property::BLENDING_COLOR, color );
+  renderer.SetProperty( Renderer::Property::BLEND_COLOR, color );
   application.SendNotification();
   application.Render();
-  DALI_TEST_EQUALS( renderer.GetProperty<Vector4>( Renderer::Property::BLENDING_COLOR ), color, TEST_LOCATION );
+  DALI_TEST_EQUALS( renderer.GetProperty<Vector4>( Renderer::Property::BLEND_COLOR ), color, TEST_LOCATION );
 
   END_TEST;
 }
@@ -873,15 +875,15 @@ int UtcDaliRendererPreMultipledAlpha(void)
   DALI_TEST_CHECK( value.Get( preMultipliedAlpha ) );
   DALI_TEST_CHECK( !preMultipliedAlpha );
 
-  BlendingFactor::Type srcFactorRgb( BlendingFactor::ZERO );
-  BlendingFactor::Type destFactorRgb( BlendingFactor::ZERO );
-  BlendingFactor::Type srcFactorAlpha( BlendingFactor::ZERO );
-  BlendingFactor::Type destFactorAlpha( BlendingFactor::ZERO );
-  renderer.GetBlendFunc( srcFactorRgb, destFactorRgb, srcFactorAlpha, destFactorAlpha );
-  DALI_TEST_EQUALS( DEFAULT_BLENDING_SRC_FACTOR_RGB,    srcFactorRgb,    TEST_LOCATION );
-  DALI_TEST_EQUALS( DEFAULT_BLENDING_DEST_FACTOR_RGB,   destFactorRgb,   TEST_LOCATION );
-  DALI_TEST_EQUALS( DEFAULT_BLENDING_SRC_FACTOR_ALPHA,  srcFactorAlpha,  TEST_LOCATION );
-  DALI_TEST_EQUALS( DEFAULT_BLENDING_DEST_FACTOR_ALPHA, destFactorAlpha, TEST_LOCATION );
+  int srcFactorRgb    = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_SRC_RGB );
+  int destFactorRgb   = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_DEST_RGB );
+  int srcFactorAlpha  = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_SRC_ALPHA );
+  int destFactorAlpha = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_DEST_ALPHA );
+
+  DALI_TEST_EQUALS( (int)DEFAULT_BLEND_FACTOR_SRC_RGB,    srcFactorRgb,    TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)DEFAULT_BLEND_FACTOR_DEST_RGB,   destFactorRgb,   TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)DEFAULT_BLEND_FACTOR_SRC_ALPHA,  srcFactorAlpha,  TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)DEFAULT_BLEND_FACTOR_DEST_ALPHA, destFactorAlpha, TEST_LOCATION );
 
   application.SendNotification();
   application.Render();
@@ -900,11 +902,15 @@ int UtcDaliRendererPreMultipledAlpha(void)
   DALI_TEST_CHECK( value.Get( preMultipliedAlpha ) );
   DALI_TEST_CHECK( preMultipliedAlpha );
 
-  renderer.GetBlendFunc( srcFactorRgb, destFactorRgb, srcFactorAlpha, destFactorAlpha );
-  DALI_TEST_EQUALS( BlendingFactor::ONE,    srcFactorRgb,    TEST_LOCATION );
-  DALI_TEST_EQUALS( BlendingFactor::ONE_MINUS_SRC_ALPHA,   destFactorRgb,   TEST_LOCATION );
-  DALI_TEST_EQUALS( BlendingFactor::ONE,  srcFactorAlpha,  TEST_LOCATION );
-  DALI_TEST_EQUALS( BlendingFactor::ONE, destFactorAlpha, TEST_LOCATION );
+  srcFactorRgb    = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_SRC_RGB );
+  destFactorRgb   = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_DEST_RGB );
+  srcFactorAlpha  = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_SRC_ALPHA );
+  destFactorAlpha = renderer.GetProperty<int>( Renderer::Property::BLEND_FACTOR_DEST_ALPHA );
+
+  DALI_TEST_EQUALS( (int)BlendFactor::ONE,                 srcFactorRgb,    TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)BlendFactor::ONE_MINUS_SRC_ALPHA, destFactorRgb,   TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)BlendFactor::ONE,                 srcFactorAlpha,  TEST_LOCATION );
+  DALI_TEST_EQUALS( (int)BlendFactor::ONE,                 destFactorAlpha, TEST_LOCATION );
 
   DALI_TEST_CHECK( gl.GetUniformValue<Vector4>( "uColor", actualValue ) );
   DALI_TEST_EQUALS( actualValue, Vector4(0.5f, 0.0f, 0.5f, 0.5f), TEST_LOCATION );

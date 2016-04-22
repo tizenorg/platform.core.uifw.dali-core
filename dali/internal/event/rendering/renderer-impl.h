@@ -108,44 +108,44 @@ public:
    /**
     * @copydoc Dali::Renderer::SetBlendMode()
     */
-   void SetBlendMode( BlendingMode::Type mode );
+   void SetBlendMode( BlendMode::Type mode );
 
    /**
     * @copydoc Dali::Renderer::GetBlendMode()
     */
-   BlendingMode::Type GetBlendMode() const;
+   BlendMode::Type GetBlendMode() const;
 
    /**
     * @copydoc Dali::Renderer::SetBlendFunc()
     */
-   void SetBlendFunc( BlendingFactor::Type srcFactorRgba, BlendingFactor::Type destFactorRgba );
+   void SetBlendFunc( BlendFactor::Type srcFactorRgba, BlendFactor::Type destFactorRgba );
 
    /**
     * @copydoc Dali::Renderer::SetBlendFunc()
     */
-   void SetBlendFunc( BlendingFactor::Type srcFactorRgb,   BlendingFactor::Type destFactorRgb,
-                      BlendingFactor::Type srcFactorAlpha, BlendingFactor::Type destFactorAlpha );
+   void SetBlendFunc( BlendFactor::Type srcFactorRgb,   BlendFactor::Type destFactorRgb,
+                      BlendFactor::Type srcFactorAlpha, BlendFactor::Type destFactorAlpha );
 
    /**
     * @copydoc Dali::Renderer::GetBlendFunc()
     */
-   void GetBlendFunc( BlendingFactor::Type& srcFactorRgb,   BlendingFactor::Type& destFactorRgb,
-                      BlendingFactor::Type& srcFactorAlpha, BlendingFactor::Type& destFactorAlpha ) const;
+   void GetBlendFunc( BlendFactor::Type& srcFactorRgb,   BlendFactor::Type& destFactorRgb,
+                      BlendFactor::Type& srcFactorAlpha, BlendFactor::Type& destFactorAlpha ) const;
 
    /**
     * @copydoc Dali::Renderer::SetBlendEquation()
     */
-   void SetBlendEquation( BlendingEquation::Type equationRgba );
+   void SetBlendEquation( BlendEquation::Type equationRgba );
 
    /**
     * @copydoc Dali::Renderer::SetBlendEquation()
     */
-   void SetBlendEquation( BlendingEquation::Type equationRgb, BlendingEquation::Type equationAlpha );
+   void SetBlendEquation( BlendEquation::Type equationRgb, BlendEquation::Type equationAlpha );
 
    /**
     * @copydoc Dali::Renderer::GetBlendEquation()
     */
-   void GetBlendEquation( BlendingEquation::Type& equationRgb, BlendingEquation::Type& equationAlpha ) const;
+   void GetBlendEquation( BlendEquation::Type& equationRgb, BlendEquation::Type& equationAlpha ) const;
 
    /**
     * @copydoc Dali::Renderer::SetBlendColor()
@@ -315,7 +315,7 @@ private: // data
   size_t mIndexedDrawElementCount;                    ///< Number of elements to draw
 
   Dali::Renderer::FaceCullingMode mFaceCullingMode; ///< Local copy of face culling mode
-  BlendingMode::Type mBlendingMode;                 ///< Local copy of blending mode
+  BlendMode::Type mBlendMode;                 ///< Local copy of blending mode
   BlendingOptions mBlendingOptions;                 ///< Local copy of blending options bitmask
   bool mPremultipledAlphaEnabled;                   ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
 

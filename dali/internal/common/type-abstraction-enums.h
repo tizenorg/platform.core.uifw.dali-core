@@ -32,7 +32,7 @@ namespace Internal
 {
 
 template <> struct ParameterType< Dali::Renderer::FaceCullingMode > : public BasicType< Dali::Renderer::FaceCullingMode > {};
-template <> struct ParameterType< BlendingMode::Type > : public BasicType< BlendingMode::Type > {};
+template <> struct ParameterType< BlendMode::Type > : public BasicType< BlendMode::Type > {};
 
 } //namespace Internal
 

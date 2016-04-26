@@ -70,18 +70,24 @@ inline void SetRenderFlags( const RenderList& renderList, Context& context )
 {
   const unsigned int renderFlags = renderList.GetFlags();
 
-  bool enableDepthBuffer = ( ( renderFlags & RenderList::DEPTH_BUFFER_ENABLED ) != 0u );
+  if( ( renderFlags & RenderList::DEPTH_BUFFER_ENABLED ) != 0u )
+  {
+    //Enable depth testing
+    context.EnableDepthBuffer( true );
+  }
+  else
+  {
+    //Disable depth testing and depth writes
+    context.EnableDepthBuffer( true );
+    context.DepthMask( false );
+  }
 
   GLbitfield clearMask   = ( renderFlags & RenderList::DEPTH_CLEAR ) ? GL_DEPTH_BUFFER_BIT : 0u;
-
-  context.EnableDepthBuffer( enableDepthBuffer );
 
   // Stencil enabled, writing, and clearing...
   const bool enableStencilBuffer( renderFlags & RenderList::STENCIL_BUFFER_ENABLED );
   const bool enableStencilWrite( renderFlags & RenderList::STENCIL_WRITE );
-
   context.EnableStencilBuffer( enableStencilBuffer );
-
   if( enableStencilBuffer )
   {
     context.StencilFunc( (enableStencilWrite ? GL_ALWAYS : GL_EQUAL), 1, 0xFF );
@@ -135,8 +141,12 @@ inline void ProcessRenderList(
       const RenderItem& item = renderList.GetItem( index );
       DALI_PRINT_RENDER_ITEM( item );
 
-      //Enable depth writes if depth buffer is enabled and item is opaque
-      context.DepthMask( depthBufferEnabled && ( item.IsOpaque() || item.GetRenderer().RequiresDepthTest() ) );
+      if( depthBufferEnabled )
+      {
+        Dali::Renderer::DepthWriteMode depthWriteMode = item.GetRenderer().GetDepthWriteMode();
+        context.DepthMask( ( depthWriteMode == Dali::Renderer::DEPTH_WRITE_AUTO && item.IsOpaque() ) ||
+                           ( depthWriteMode == Dali::Renderer::DEPTH_WRITE_ON ) );
+      }
 
       item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, item.GetSize(), !item.IsOpaque() );
     }

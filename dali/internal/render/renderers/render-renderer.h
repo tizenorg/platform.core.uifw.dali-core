@@ -88,7 +88,8 @@ public:
                         unsigned int blendingBitmask,
                         const Vector4* blendColor,
                         Dali::Renderer::FaceCullingMode faceCullingMode,
-                        bool preMultipliedAlphaEnabled);
+                        bool preMultipliedAlphaEnabled,
+                        bool requiresDepthTesting);
 
   /**
    * Constructor.
@@ -98,13 +99,15 @@ public:
    * @param[in] blendColor The blend color to pass to GL
    * @param[in] faceCullingMode The face-culling mode.
    * @param[in] preMultipliedAlphaEnabled whether alpha is pre-multiplied.
+   * @param[in] requiresDepthTesting whether depth testing is required or not.
    */
   Renderer( SceneGraph::RenderDataProvider* dataProviders,
             Render::Geometry* geometry,
             unsigned int blendingBitmask,
             const Vector4* blendColor,
             Dali::Renderer::FaceCullingMode faceCullingMode,
-            bool preMultipliedAlphaEnabled);
+            bool preMultipliedAlphaEnabled,
+            bool requiresDepthTesting);
 
   /**
    * Change the data providers of the renderer
@@ -178,7 +181,16 @@ public:
    * Query whether the derived type of Renderer requires depth testing.
    * @return True if the renderer requires depth testing.
    */
-  bool RequiresDepthTest() const;
+  bool RequiresDepthTest() const
+  {
+    return mRequiresDepthTesting;
+  }
+
+  //FERRAN Comment this
+  void SetRequiresDepthTesting( bool requiresDepthTesting )
+  {
+    mRequiresDepthTesting = requiresDepthTesting;
+  }
 
   /**
    * Called to render during RenderManager::Render().
@@ -279,7 +291,8 @@ private:
 
   unsigned int mSamplerBitfield;                    ///< Sampler options used for texture filtering
   bool mUpdateAttributesLocation:1;                 ///< Indicates attribute locations have changed
-  bool mPremultipledAlphaEnabled:1;      ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mPremultipledAlphaEnabled:1;                 ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mRequiresDepthTesting:1;                     ///< Flag indicating whether depth testing is required
 };
 
 } // namespace SceneGraph

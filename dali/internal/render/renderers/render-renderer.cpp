@@ -115,9 +115,10 @@ Renderer* Renderer::New( SceneGraph::RenderDataProvider* dataProvider,
                          unsigned int blendingBitmask,
                          const Vector4* blendColor,
                          Dali::Renderer::FaceCullingMode faceCullingMode,
-                         bool preMultipliedAlphaEnabled )
+                         bool preMultipliedAlphaEnabled,
+                         bool requiresDepthTesting)
 {
-  return new Renderer( dataProvider, geometry, blendingBitmask, blendColor, faceCullingMode, preMultipliedAlphaEnabled );
+  return new Renderer( dataProvider, geometry, blendingBitmask, blendColor, faceCullingMode, preMultipliedAlphaEnabled, requiresDepthTesting );
 }
 
 Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
@@ -125,7 +126,8 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
                     unsigned int blendingBitmask,
                     const Vector4* blendColor,
                     Dali::Renderer::FaceCullingMode faceCullingMode,
-                    bool preMultipliedAlphaEnabled)
+                    bool preMultipliedAlphaEnabled,
+                    bool requiresDepthTesting)
 : mRenderDataProvider( dataProvider ),
   mContext(NULL),
   mTextureCache( NULL ),
@@ -139,7 +141,8 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
   mIndexedDrawElementsCount( 0 ),
   mSamplerBitfield( ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) ),
   mUpdateAttributesLocation( true ),
-  mPremultipledAlphaEnabled( preMultipliedAlphaEnabled )
+  mPremultipledAlphaEnabled( preMultipliedAlphaEnabled ),
+  mRequiresDepthTesting( requiresDepthTesting )
 {
   if(  blendingBitmask != 0u )
   {
@@ -173,14 +176,6 @@ void Renderer::SetGeometry( Render::Geometry* geometry )
 {
   mGeometry = geometry;
   mUpdateAttributesLocation = true;
-}
-
-// Note - this is currently called from UpdateThread, PrepareRenderInstructions,
-// as an optimisation.
-// @todo MESH_REWORK Should use Update thread objects only in PrepareRenderInstructions.
-bool Renderer::RequiresDepthTest() const
-{
-  return mGeometry->RequiresDepthTest();
 }
 
 void Renderer::SetBlending( Context& context, bool blend )

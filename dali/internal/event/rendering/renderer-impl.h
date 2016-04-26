@@ -318,6 +318,7 @@ private: // data
   BlendingMode::Type mBlendingMode;                 ///< Local copy of blending mode
   BlendingOptions mBlendingOptions;                 ///< Local copy of blending options bitmask
   bool mPremultipledAlphaEnabled;                   ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mRequiresDepthTesting;                       ///< Flag indicating whether depth testing is required or not
 
 };
 

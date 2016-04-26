@@ -53,6 +53,7 @@ DALI_PROPERTY( "blendingColor",                   VECTOR4,   true, false,  false
 DALI_PROPERTY( "blendPreMultipliedAlpha",         BOOLEAN,   true, false,  false, Dali::Renderer::Property::BLEND_PRE_MULTIPLIED_ALPHA )
 DALI_PROPERTY( "indexRangeFirst",                 INTEGER,   true, false,  false, Dali::Renderer::Property::INDEX_RANGE_FIRST )
 DALI_PROPERTY( "indexRangeCount",                 INTEGER,   true, false,  false, Dali::Renderer::Property::INDEX_RANGE_COUNT )
+DALI_PROPERTY( "requiresDepthTesting",            BOOLEAN,   true, false,  false, Dali::Renderer::Property::REQUIRES_DEPTH_TESTING )
 DALI_PROPERTY_TABLE_END( DEFAULT_OBJECT_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> RENDERER_IMPL = { DEFAULT_PROPERTY_DETAILS };
@@ -459,6 +460,18 @@ void Renderer::SetDefaultProperty( Property::Index index,
       }
       break;
     }
+    case Dali::Renderer::Property::REQUIRES_DEPTH_TESTING:
+    {
+      bool value;
+      propertyValue.Get( value );
+      if( value != mRequiresDepthTesting )
+      {
+        mRequiresDepthTesting = value;
+        SetRequiresDepthTestingMessage( GetEventThreadServices(), *mSceneObject, value );
+      }
+
+      break;
+    }
   }
 }
 
@@ -655,7 +668,8 @@ Renderer::Renderer()
   mFaceCullingMode( Dali::Renderer::NONE ),
   mBlendingMode( Dali::BlendingMode::AUTO ),
   mBlendingOptions(),
-  mPremultipledAlphaEnabled( false )
+  mPremultipledAlphaEnabled( false ),
+  mRequiresDepthTesting( false )
 {
 }
 

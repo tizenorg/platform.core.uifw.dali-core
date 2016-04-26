@@ -167,6 +167,12 @@ public:
   void EnablePreMultipliedAlpha( bool preMultipled );
 
   /**
+   * Sets if the renderer requires depth testing
+   * @param[in] requiresDepthTesting Whether depth testing is required
+   */
+  void SetRequiresDepthTesting( bool requiresDepthTesting );
+
+  /**
    * Called when an actor with this renderer is added to the stage
    */
   void OnStageConnect();
@@ -323,7 +329,8 @@ private:
   bool         mUniformMapChanged[2];          ///< Records if the uniform map has been altered this frame
   bool         mResourcesReady;                ///< Set during the Update algorithm; true if the attachment has resources ready for the current frame.
   bool         mFinishedResourceAcquisition;   ///< Set during DoPrepareResources; true if ready & all resource acquisition has finished (successfully or otherwise)
-  bool         mPremultipledAlphaEnabled;      ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool         mPremultipledAlphaEnabled : 1;      ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool         mRequiresDepthTesting : 1;          ///< Flag indicating whether the renderer requires depth testing
 
 public:
   int mDepthIndex; ///< Used only in PrepareRenderInstructions
@@ -443,6 +450,16 @@ inline void SetEnablePreMultipliedAlphaMessage( EventThreadServices& eventThread
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &renderer, &Renderer::EnablePreMultipliedAlpha, preMultiplied );
+}
+
+inline void SetRequiresDepthTestingMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, bool requiresDepthTesting )
+{
+  typedef MessageValue1< Renderer, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetRequiresDepthTesting, requiresDepthTesting );
 }
 
 inline void OnStageConnectMessage( EventThreadServices& eventThreadServices, const Renderer& renderer )

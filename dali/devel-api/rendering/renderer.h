@@ -52,6 +52,16 @@ public:
   };
 
   /**
+   * @brief Depth buffer write modes
+   */
+  enum DepthWriteMode
+  {
+    DEPTH_WRITE_OFF,  ///< Renderer doesn't write to the depth buffer
+    DEPTH_WRITE_AUTO, ///< Renderer only writes to the depth buffer if it's opaque
+    DEPTH_WRITE_ON    ///< Renderer writes to the depth buffer
+  };
+
+  /**
    * @brief An enumeration of properties belonging to the Renderer class.
    */
   struct Property
@@ -70,7 +80,8 @@ public:
       BLENDING_COLOR,                                     ///< name "blendingColor",                  type VECTOR4
       BLEND_PRE_MULTIPLIED_ALPHA,                         ///< name "blendPreMultipledAlpha",         type BOOLEAN
       INDEX_RANGE_FIRST,                                  ///< name "indexRangeFirst",                type INTEGER
-      INDEX_RANGE_COUNT                                   ///< name "indexRangeCount",                type INTEGER
+      INDEX_RANGE_COUNT,                                  ///< name "indexRangeCount",                type INTEGER
+      DEPTH_WRITE_MODE                                   ///< name "depthWriteMode",                  type INTEGER
     };
   };
 

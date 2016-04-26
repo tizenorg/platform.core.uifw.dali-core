@@ -215,6 +215,7 @@ public:
     return mReferenceCount > 0;
   }
 
+  void TextureSetChanged();
 
 public: // Implementation of ObjectOwnerContainer template methods
   /**

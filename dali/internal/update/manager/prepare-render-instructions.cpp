@@ -73,7 +73,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 
   const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
   const Vector3& size = renderable.mNode->GetSize( updateBufferIndex );
-  if ( cull && renderable.mRenderer->GetShader().GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
+  if ( cull && !renderable.mRenderer->GetShader().HintEnabled( Dali::Shader::HINT_MODIFIES_GEOMETRY ) )
   {
     const Vector3& position = worldMatrix.GetTranslation3();
     float radius( size.Length() * 0.5f );
@@ -371,15 +371,13 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
     flags = RenderList::STENCIL_BUFFER_ENABLED;
   }
 
-  // Special optimization if depth test is disabled or if only one opaque rendered in the layer (for example background image)
-  // and this renderer does not need depth test against itself (e.g. mesh)
-  // and if this layer has got exactly one opaque renderer
-  // and this renderer is not interested in depth testing
-  // (i.e. is an image and not a mesh)
-
+  // Special optimization. If this layer has got exactly one renderer
+  // and this renderer is not writing to the depth buffer (i.e. is a transparent object
+  // which doesn't require writing to the depth buffer) there is no point on enabling
+  // the depth testing
   if ( ( renderList.Count() == 1 ) &&
-       ( !renderList.GetRenderer( 0 ).RequiresDepthTest() ) &&
-       ( !renderList.GetItem(0).IsOpaque() ) )
+       ( !renderList.GetItem(0).IsOpaque() )  &&
+       ( !renderList.GetRenderer( 0 ).RequiresDepthWrite() ))
   {
     //Nothing to do here
   }

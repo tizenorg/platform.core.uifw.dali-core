@@ -70,7 +70,8 @@ public:
       BLENDING_COLOR,                                     ///< name "blendingColor",                  type VECTOR4
       BLEND_PRE_MULTIPLIED_ALPHA,                         ///< name "blendPreMultipledAlpha",         type BOOLEAN
       INDEX_RANGE_FIRST,                                  ///< name "indexRangeFirst",                type INTEGER
-      INDEX_RANGE_COUNT                                   ///< name "indexRangeCount",                type INTEGER
+      INDEX_RANGE_COUNT,                                  ///< name "indexRangeCount",                type INTEGER
+      REQUIRES_DEPTH_WRITE                                ///< name "requiresDepthWrite",             type BOOLEAN
     };
   };
 

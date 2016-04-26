@@ -317,7 +317,8 @@ private: // data
   Dali::Renderer::FaceCullingMode mFaceCullingMode; ///< Local copy of face culling mode
   BlendingMode::Type mBlendingMode;                 ///< Local copy of blending mode
   BlendingOptions mBlendingOptions;                 ///< Local copy of blending options bitmask
-  bool mPremultipledAlphaEnabled;                   ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mPremultipledAlphaEnabled : 1;               ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mRequiresDepthWrite : 1;                     ///< Flag indicating whether depth writing is required
 
 };
 

@@ -115,9 +115,10 @@ Renderer* Renderer::New( SceneGraph::RenderDataProvider* dataProvider,
                          unsigned int blendingBitmask,
                          const Vector4* blendColor,
                          Dali::Renderer::FaceCullingMode faceCullingMode,
-                         bool preMultipliedAlphaEnabled )
+                         bool preMultipliedAlphaEnabled,
+                         bool requiresDepthWrite)
 {
-  return new Renderer( dataProvider, geometry, blendingBitmask, blendColor, faceCullingMode, preMultipliedAlphaEnabled );
+  return new Renderer( dataProvider, geometry, blendingBitmask, blendColor, faceCullingMode, preMultipliedAlphaEnabled, requiresDepthWrite );
 }
 
 Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
@@ -125,7 +126,8 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
                     unsigned int blendingBitmask,
                     const Vector4* blendColor,
                     Dali::Renderer::FaceCullingMode faceCullingMode,
-                    bool preMultipliedAlphaEnabled)
+                    bool preMultipliedAlphaEnabled,
+                    bool requiresDepthWrite)
 : mRenderDataProvider( dataProvider ),
   mContext(NULL),
   mTextureCache( NULL ),
@@ -137,9 +139,9 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
   mFaceCullingMode( faceCullingMode  ),
   mIndexedDrawFirstElement( 0 ),
   mIndexedDrawElementsCount( 0 ),
-  mSamplerBitfield( ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) ),
   mUpdateAttributesLocation( true ),
-  mPremultipledAlphaEnabled( preMultipliedAlphaEnabled )
+  mPremultipledAlphaEnabled( preMultipliedAlphaEnabled ),
+  mRequiresDepthWrite( requiresDepthWrite )
 {
   if(  blendingBitmask != 0u )
   {
@@ -173,14 +175,6 @@ void Renderer::SetGeometry( Render::Geometry* geometry )
 {
   mGeometry = geometry;
   mUpdateAttributesLocation = true;
-}
-
-// Note - this is currently called from UpdateThread, PrepareRenderInstructions,
-// as an optimisation.
-// @todo MESH_REWORK Should use Update thread objects only in PrepareRenderInstructions.
-bool Renderer::RequiresDepthTest() const
-{
-  return mGeometry->RequiresDepthTest();
 }
 
 void Renderer::SetBlending( Context& context, bool blend )
@@ -432,11 +426,6 @@ void Renderer::SetIndexedDrawElementsCount( size_t elementsCount )
 void Renderer::EnablePreMultipliedAlpha( bool enable )
 {
   mPremultipledAlphaEnabled = enable;
-}
-
-void Renderer::SetSampler( unsigned int samplerBitfield )
-{
-  mSamplerBitfield = samplerBitfield;
 }
 
 void Renderer::Render( Context& context,

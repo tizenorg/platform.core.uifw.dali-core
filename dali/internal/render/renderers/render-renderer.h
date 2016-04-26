@@ -88,7 +88,8 @@ public:
                         unsigned int blendingBitmask,
                         const Vector4* blendColor,
                         Dali::Renderer::FaceCullingMode faceCullingMode,
-                        bool preMultipliedAlphaEnabled);
+                        bool preMultipliedAlphaEnabled,
+                        bool requiresDepthTesting);
 
   /**
    * Constructor.
@@ -98,13 +99,15 @@ public:
    * @param[in] blendColor The blend color to pass to GL
    * @param[in] faceCullingMode The face-culling mode.
    * @param[in] preMultipliedAlphaEnabled whether alpha is pre-multiplied.
+   * @param[in] requiresDepthTesting whether depth testing is required or not.
    */
   Renderer( SceneGraph::RenderDataProvider* dataProviders,
             Render::Geometry* geometry,
             unsigned int blendingBitmask,
             const Vector4* blendColor,
             Dali::Renderer::FaceCullingMode faceCullingMode,
-            bool preMultipliedAlphaEnabled);
+            bool preMultipliedAlphaEnabled,
+            bool requiresDepthTesting);
 
   /**
    * Change the data providers of the renderer
@@ -169,16 +172,22 @@ public:
   void EnablePreMultipliedAlpha( bool preMultipled );
 
   /**
-   * Set the sampler used to render the set texture.
-   * @param[in] samplerBitfield The packed sampler options used to render.
-   */
-  void SetSampler( unsigned int samplerBitfield );
-
-  /**
-   * Query whether the derived type of Renderer requires depth testing.
+   * Query whether the Renderer requires depth testing.
    * @return True if the renderer requires depth testing.
    */
-  bool RequiresDepthTest() const;
+  bool RequiresDepthTesting() const
+  {
+    return mRequiresDepthTesting;
+  }
+
+  /**
+   * Sets if the renderer requires depth testing
+   * @param[in] requiresDepthTesting Whether or not depth testing is required
+   */
+  void SetRequiresDepthTesting( bool requiresDepthTesting )
+  {
+    mRequiresDepthTesting = requiresDepthTesting;
+  }
 
   /**
    * Called to render during RenderManager::Render().
@@ -238,6 +247,9 @@ private:
 
   /**
    * Set the program uniform in the map from the mapped property
+   * @param[in] bufferIndex The index of the previous update buffer.
+   * @param[in] program The shader program
+   * @param[in] map The uniform
    */
   void SetUniformFromProperty( BufferIndex bufferIndex, Program& program, UniformIndexMap& map );
 
@@ -249,11 +261,9 @@ private:
    */
   bool BindTextures( SceneGraph::TextureCache& textureCache, Program& program );
 
-public:
+private:
 
   OwnerPointer< SceneGraph::RenderDataProvider > mRenderDataProvider;
-
-private:
 
   Context* mContext;
   SceneGraph::TextureCache* mTextureCache;
@@ -277,9 +287,9 @@ private:
   size_t mIndexedDrawFirstElement;                  /// Offset of first element to draw
   size_t mIndexedDrawElementsCount;                 /// Number of elements to draw
 
-  unsigned int mSamplerBitfield;                    ///< Sampler options used for texture filtering
   bool mUpdateAttributesLocation:1;                 ///< Indicates attribute locations have changed
-  bool mPremultipledAlphaEnabled:1;      ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mPremultipledAlphaEnabled:1;                 ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mRequiresDepthTesting:1;                     ///< Flag indicating whether depth testing is required
 };
 
 } // namespace SceneGraph

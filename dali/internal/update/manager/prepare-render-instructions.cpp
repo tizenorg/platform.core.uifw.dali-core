@@ -378,7 +378,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
   // (i.e. is an image and not a mesh)
 
   if ( ( renderList.Count() == 1 ) &&
-       ( !renderList.GetRenderer( 0 ).RequiresDepthTest() ) &&
+       ( !renderList.GetRenderer( 0 ).RequiresDepthTesting() ) &&
        ( !renderList.GetItem(0).IsOpaque() ) )
   {
     //Nothing to do here

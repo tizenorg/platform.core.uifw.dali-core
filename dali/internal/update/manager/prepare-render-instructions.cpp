@@ -42,6 +42,11 @@ Debug::Filter* gRenderListLogFilter = Debug::Filter::New(Debug::NoLogging, false
 #endif
 }
 
+// This log filter is global (to enable frame counting in update manager)
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gCullingLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_CULLING");
+#endif
+
 namespace Dali
 {
 
@@ -75,6 +80,8 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
     const Vector4& boundingSphere = renderable.mNode->GetBoundingSphere();
     inside = (boundingSphere.w > Math::MACHINE_EPSILON_1000) &&
              (camera.CheckSphereInFrustum( updateBufferIndex, Vector3(boundingSphere), boundingSphere.w ) );
+
+    DALI_LOG_INFO( gCullingLogFilter, Debug::Verbose, "Inside: %s; Position: (%f,%f,%f); size: (%f,%f,%f)\n", inside?"T":"F", position.x, position.y, position.z, size.x, size.y, size.z);
   }
 
   if ( inside )

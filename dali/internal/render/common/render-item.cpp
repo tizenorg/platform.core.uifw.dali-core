@@ -42,11 +42,17 @@ RenderItem* RenderItem::New()
 }
 
 RenderItem::RenderItem()
-: mModelViewMatrix( false ),
+: mModelMatrix( false ),
+  mModelViewMatrix( false ),
   mRenderer( NULL ),
   mNode( NULL ),
   mDepthIndex( 0 ),
-  mIsOpaque( true )
+  mIsOpaque( true ),
+  mSkipIfBatched( false ),
+  mBatchUpdated( false ),
+  mBatchRenderGeometry( NULL ),
+  mBatchVertexBuffer( NULL ),
+  mBatchIndexBuffer( NULL )
 {
 }
 
@@ -61,12 +67,25 @@ void RenderItem::operator delete( void* ptr )
 
 void RenderItem::Reset()
 {
+  mBatchRenderGeometry = NULL;
+  mBatchVertexBuffer = NULL;
+  mBatchIndexBuffer = NULL;
   mRenderer = NULL;
 }
 
 void RenderItem::SetRenderer( Render::Renderer* renderer )
 {
   mRenderer = renderer;
+}
+
+void RenderItem::SetBatchGeometry( Render::Geometry* geometry )
+{
+  mBatchRenderGeometry = geometry;
+}
+
+Render::Geometry* RenderItem::GetBatchGeometry() const
+{
+  return mBatchRenderGeometry;
 }
 
 void RenderItem::SetNode( Node* node )
@@ -77,6 +96,16 @@ void RenderItem::SetNode( Node* node )
 Render::Renderer& RenderItem::GetRenderer() const
 {
   return *mRenderer;
+}
+
+Matrix& RenderItem::GetModelMatrix()
+{
+  return mModelMatrix;
+}
+
+const Matrix& RenderItem::GetModelMatrix() const
+{
+  return mModelMatrix;
 }
 
 Matrix& RenderItem::GetModelViewMatrix()

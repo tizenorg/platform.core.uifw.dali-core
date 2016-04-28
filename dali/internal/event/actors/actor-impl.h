@@ -1772,6 +1772,8 @@ private:
    */
   Vector2 ApplySizeSetPolicy( const Vector2 size );
 
+  void MakeBatchParent( bool value );
+
 protected:
 
   Actor* mParent;                 ///< Each actor (except the root) can have one parent
@@ -1824,6 +1826,8 @@ private:
 
   static ActorContainer mNullChildren;  ///< Empty container (shared by all actors, returned by GetChildren() const)
   static unsigned int mActorCounter;    ///< A counter to track the actor instance creation
+
+  bool mIsBatchParent: 1;
 
 };
 

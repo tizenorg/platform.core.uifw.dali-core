@@ -79,10 +79,17 @@ public:
   void SetData( Dali::Vector<char>* data, size_t size );
 
   /**
+   * @brief Update current data
+   */
+  void UpdateData();
+
+  /**
    * @brief Set the number of elements
    * @param[in] size The number of elements
    */
   void SetSize( unsigned int size );
+
+  inline size_t GetSize() const { return mSize; }
 
   /**
    * @brief Bind the property buffer
@@ -155,14 +162,40 @@ public:
     return mSize;
   }
 
+  inline const Dali::Vector< char >& GetData() const
+  {
+    return *mData.Get();
+  }
+
+  /**
+   * Retrieve data writeable pointer ( direct access to the buffer data )
+   * @return void-ptr to stored data of the buffer
+   */
+  template <typename T>
+  inline T* GetDataTypedPtr()
+  {
+    Dali::Vector< char >* data = mData.Release();
+    mData = data;
+    return (T*)&(*data)[0];
+  }
+
+  inline const PropertyBuffer::Format* GetFormat() const
+  {
+    return mFormat.Get();
+  }
+
 private:
-  OwnerPointer< PropertyBuffer::Format >  mFormat;  ///< Format of the buffer
-  OwnerPointer< Dali::Vector< char > >    mData;    ///< Data
-  OwnerPointer<GpuBuffer> mGpuBuffer;               ///< Pointer to the GpuBuffer associated with this RenderPropertyBuffer
+  OwnerPointer< PropertyBuffer::Format >  mFormat;   ///< Format of the buffer
+  OwnerPointer< Dali::Vector< char > >    mData;     ///< Data
+  OwnerPointer< Dali::Vector< char > >    mBaseData; ///< BaseData
+  OwnerPointer<GpuBuffer> mGpuBuffer;                ///< Pointer to the GpuBuffer associated with this RenderPropertyBuffer
 
   size_t  mSize;      ///< Number of Elements in the buffer
+  unsigned int mOffset; ///< Offset of binding element in the buffer
   bool mDataChanged;  ///< Flag to know if data has changed in a frame
-
+  bool mExplicitDelete;
+public:
+  bool mBatchChanged;
 };
 
 } // namespace Render

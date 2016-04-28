@@ -86,6 +86,10 @@ public:
    */
   void SetTextures( TextureSet* textureSet );
 
+  TextureSet* GetTextures() const
+  {
+    return mTextureSet;
+  }
 
   /**
    * Set the shader for the renderer
@@ -97,7 +101,7 @@ public:
    * Get the shader used by this renderer
    * @return the shader this renderer uses
    */
-  Shader& GetShader()
+  Shader& GetShader() const
   {
     return *mShader;
   }
@@ -107,6 +111,15 @@ public:
    * @param[in] geometry The geometry this renderer will use
    */
   void SetGeometry( Render::Geometry* geometry );
+
+  /**
+   * Get the geometry of this renderer
+   * @return the geometry this renderer uses
+   */
+  Render::Geometry& GetGeometry() const
+  {
+    return *mGeometry;
+  }
 
   /**
    * Set the depth index
@@ -167,6 +180,12 @@ public:
   void EnablePreMultipliedAlpha( bool preMultipled );
 
   /**
+   * @brief SetBatchable
+   * @param batchable
+   */
+  void SetBatchable( bool batchable );
+
+  /**
    * Called when an actor with this renderer is added to the stage
    */
   void OnStageConnect();
@@ -219,6 +238,11 @@ public:
    * Called by the TextureSet to notify to the renderer that it has changed
    */
   void TextureSetChanged();
+
+  bool IsBatchable() const
+  {
+    return mBatchable;
+  }
 
 public: // Implementation of ObjectOwnerContainer template methods
   /**
@@ -328,9 +352,15 @@ private:
   bool         mResourcesReady;                ///< Set during the Update algorithm; true if the attachment has resources ready for the current frame.
   bool         mFinishedResourceAcquisition;   ///< Set during DoPrepareResources; true if ready & all resource acquisition has finished (successfully or otherwise)
   bool         mPremultipledAlphaEnabled;      ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool         mBatchable;                     ///< Flag indicating wheter the render supports batching
 
 public:
+  size_t       mElementOffset;
+  size_t       mElementLength;
+
   int mDepthIndex; ///< Used only in PrepareRenderInstructions
+
+  Node* mNode;
 };
 
 
@@ -447,6 +477,16 @@ inline void SetEnablePreMultipliedAlphaMessage( EventThreadServices& eventThread
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &renderer, &Renderer::EnablePreMultipliedAlpha, preMultiplied );
+}
+
+inline void SetBatchableMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, bool batchable )
+{
+  typedef MessageValue1< Renderer, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetBatchable, batchable );
 }
 
 inline void OnStageConnectMessage( EventThreadServices& eventThreadServices, const Renderer& renderer )

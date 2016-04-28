@@ -34,6 +34,11 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/render/renderers/render-property-buffer.h>
+
+#include "geometry-batcher.h"
+
+#include <cstdio>
 
 namespace
 {
@@ -71,8 +76,16 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 {
   bool inside( true );
 
-  const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
-  const Vector3& size = renderable.mNode->GetSize( updateBufferIndex );
+  updateBufferIndex = 0;
+
+  Node* node = renderable.mRenderer->IsBatchable() ?
+        renderable.mNode->GetBatchParent() : renderable.mNode;
+
+  if (!node)
+    node = renderable.mNode;
+
+  const Matrix& worldMatrix = node->GetWorldMatrix( updateBufferIndex );
+  const Vector3& size = node->GetSize( updateBufferIndex );
   if ( cull && renderable.mRenderer->GetShader().GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
     const Vector3& position = worldMatrix.GetTranslation3();
@@ -101,6 +114,9 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
       {
         item.SetDepthIndex( renderable.mRenderer->GetDepthIndex() + static_cast<int>( renderable.mNode->GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER );
       }
+      // save model matrix
+      item.GetModelMatrix() = worldMatrix;
+
       // save MV matrix onto the item
       Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
       item.SetSize( size );
@@ -148,6 +164,8 @@ inline bool TryReuseCachedRenderers( Layer& layer,
                                      RenderList& renderList,
                                      RenderableContainer& renderables )
 {
+  if(true)
+    return false;
   bool retValue = false;
   size_t renderableCount = renderables.Size();
   // check that the cached list originates from this layer and that the counts match
@@ -186,15 +204,21 @@ bool CompareItems( const RendererWithSortAttributes& lhs, const RendererWithSort
 {
   if( lhs.renderItem->GetDepthIndex() == rhs.renderItem->GetDepthIndex() )
   {
-    if( lhs.shader == rhs.shader )
+    if( lhs.renderItem->GetNode().GetBatchParent() == rhs.renderItem->GetNode().GetBatchParent() )
     {
-      if( lhs.textureResourceId == rhs.textureResourceId )
+      if( lhs.shader == rhs.shader )
       {
-        return lhs.geometry < rhs.geometry;
+        if( lhs.textureResourceId == rhs.textureResourceId )
+        {
+          {
+            return lhs.geometry < rhs.geometry;
+          }
+        }
+        return lhs.textureResourceId < rhs.textureResourceId;
       }
-      return lhs.textureResourceId < rhs.textureResourceId;
+      return lhs.shader < rhs.shader;
     }
-    return lhs.shader < rhs.shader;
+    return lhs.renderItem->GetNode().GetBatchParent() < rhs.renderItem->GetNode().GetBatchParent();
   }
   return lhs.renderItem->GetDepthIndex() < rhs.renderItem->GetDepthIndex();
 }
@@ -326,6 +350,15 @@ inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, La
   }
 }
 
+/*
+struct BatchTEntry
+{
+  BatchTEntry( const Matrix& m, const Vector< char >& b )
+    : mTransformatrix(m), mBackup( b ) {}
+  Matrix mTransformatrix;
+  Vector< char > mBackup;
+  Node* mNode;
+};*/
 /**
  * Add color renderers from the layer onto the next free render list
  * @param updateBufferIndex to use
@@ -338,6 +371,7 @@ inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, La
  * @param tryReuseRenderList whether to try to reuse the cached items from the instruction
  * @param cull Whether frustum culling is enabled or not
  */
+
 inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                Layer& layer,
                                const Matrix& viewMatrix,
@@ -348,6 +382,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                bool tryReuseRenderList,
                                bool cull)
 {
+  tryReuseRenderList = false;
   RenderList& renderList = instruction.GetNextFreeRenderList( layer.colorRenderables.Size() );
   renderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
   renderList.SetHasColorRenderItems( true );
@@ -361,8 +396,19 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
     }
   }
 
+
+
   AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
   SortRenderItems( updateBufferIndex, renderList, layer, sortingHelper );
+
+  RenderItemContainer& container = renderList.GetContainer();
+  // ------------------------------------------------------------------
+
+
+  if( container.Size() > 1 )
+  {
+    //g_batcher.RebuildBatches( (RenderItem**)container.Begin(), container.Size(), viewMatrix, updateBufferIndex );
+  }
 
   //Set render flags
   unsigned int flags = 0u;
@@ -389,6 +435,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
     flags |= RenderList::DEPTH_CLEAR;
   }
 
+  fflush(stdout);
   renderList.ClearFlags();
   renderList.SetFlags( flags );
 }
@@ -413,6 +460,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
                                  bool tryReuseRenderList,
                                  bool cull )
 {
+  tryReuseRenderList = false;
   RenderList& overlayRenderList = instruction.GetNextFreeRenderList( layer.overlayRenderables.Size() );
   overlayRenderList.SetClipping( layer.IsClipping(), layer.GetClippingBox() );
   overlayRenderList.SetHasColorRenderItems( false );

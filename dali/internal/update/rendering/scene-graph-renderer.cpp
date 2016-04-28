@@ -130,6 +130,7 @@ Renderer::Renderer()
  mResendFlag( 0 ),
  mResourcesReady( false ),
  mFinishedResourceAcquisition( false ),
+ mBatchable( false ),
  mDepthIndex( 0 )
 {
   mUniformMapChanged[0] = false;
@@ -381,6 +382,12 @@ void Renderer::EnablePreMultipliedAlpha( bool preMultipled )
 {
   mPremultipledAlphaEnabled = preMultipled;
   mResendFlag |= RESEND_PREMULTIPLIED_ALPHA;
+}
+
+void Renderer::SetBatchable( bool batchable )
+{
+  mBatchable = batchable;
+  //mResendFlag |= RESEND_PREMULTIPLIED_ALPHA;
 }
 
 //Called when a node with this renderer is added to the stage

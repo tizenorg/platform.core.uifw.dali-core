@@ -31,6 +31,8 @@
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/public-api/actors/blending.h>
 
+#include <cstdio>
+
 namespace Dali
 {
 
@@ -139,7 +141,9 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
   mIndexedDrawElementsCount( 0 ),
   mSamplerBitfield( ImageSampler::PackBitfield( FilterMode::DEFAULT, FilterMode::DEFAULT ) ),
   mUpdateAttributesLocation( true ),
-  mPremultipledAlphaEnabled( preMultipliedAlphaEnabled )
+  mPremultipledAlphaEnabled( preMultipliedAlphaEnabled ),
+  mElementOffset( 0 ),
+  mElementLength( 0 )
 {
   if(  blendingBitmask != 0u )
   {
@@ -448,6 +452,7 @@ void Renderer::Render( Context& context,
                        const Matrix& viewMatrix,
                        const Matrix& projectionMatrix,
                        const Vector3& size,
+                       Render::Geometry* externalGeometry,
                        bool blend )
 {
   // Get the program to use:
@@ -503,7 +508,8 @@ void Renderer::Render( Context& context,
       mUpdateAttributesLocation = false;
     }
 
-    mGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation, mIndexedDrawFirstElement, mIndexedDrawElementsCount );
+  Render::Geometry* geometry = externalGeometry ? externalGeometry : mGeometry;
+    geometry->UploadAndDraw( context, bufferIndex, mAttributesLocation, mIndexedDrawFirstElement, mIndexedDrawElementsCount );
   }
 }
 

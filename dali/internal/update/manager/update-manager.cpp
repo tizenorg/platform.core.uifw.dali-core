@@ -67,6 +67,14 @@
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-sampler.h>
 
+#include <dali/internal/render/common/render-item.h>
+#include <dali/internal/render/common/render-tracker.h>
+#include <dali/internal/render/common/render-instruction.h>
+#include <dali/internal/render/common/render-instruction-container.h>
+
+#include <dali/internal/update/manager/geometry-batcher.h>
+#include <cstdio>
+
 // Un-comment to enable node tree debug logging
 //#define NODE_TREE_LOGGING 1
 
@@ -166,7 +174,7 @@ struct UpdateManager::Impl
     sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue, textureCache );
 
     renderers.SetSceneController( *sceneController );
-
+    geometryBatcher.SetSceneController( *sceneController );
     // create first 'dummy' node
     nodes.PushBack(0u);
   }
@@ -271,6 +279,7 @@ struct UpdateManager::Impl
 
   GestureContainer                    gestures;                      ///< A container of owned gesture detectors
   bool                                renderTaskWaiting;             ///< A REFRESH_ONCE render task is waiting to be rendered
+  GeometryBatcher                     geometryBatcher;
 };
 
 UpdateManager::UpdateManager( NotificationManager& notificationManager,
@@ -314,13 +323,15 @@ void UpdateManager::InstallRoot( SceneGraph::Layer* layer, bool systemLevel )
   {
     DALI_ASSERT_DEBUG( mImpl->root == NULL && "Root Node already installed" );
     mImpl->root = layer;
-    mImpl->root->CreateTransform( &mImpl->transformManager);
+    mImpl->root->CreateTransform( &mImpl->transformManager );
+    mImpl->root->SetGeometryBatcher( &mImpl->geometryBatcher );
   }
   else
   {
     DALI_ASSERT_DEBUG( mImpl->systemLevelRoot == NULL && "System-level Root Node already installed" );
     mImpl->systemLevelRoot = layer;
-    mImpl->systemLevelRoot->CreateTransform( &mImpl->transformManager);
+    mImpl->systemLevelRoot->CreateTransform( &mImpl->transformManager );
+    mImpl->systemLevelRoot->SetGeometryBatcher( &mImpl->geometryBatcher );
   }
 
   layer->SetRoot(true);
@@ -338,7 +349,8 @@ void UpdateManager::AddNode( Node* node )
     if(node > (*iter))
     {
       mImpl->nodes.Insert((iter+1), node);
-      node->CreateTransform( &mImpl->transformManager);
+      node->CreateTransform( &mImpl->transformManager );
+      node->SetGeometryBatcher( &mImpl->geometryBatcher );
       break;
     }
   }
@@ -850,9 +862,11 @@ void UpdateManager::ForwardCompiledShadersToEventThread()
 
 void UpdateManager::UpdateRenderers( BufferIndex bufferIndex )
 {
+
   const OwnerContainer<Renderer*>& rendererContainer( mImpl->renderers.GetObjectContainer() );
   unsigned int rendererCount( rendererContainer.Size() );
-  for( unsigned int i(0); i<rendererCount; ++i )
+
+  for( unsigned int i(0); i<rendererCount; i++ )
   {
     //Apply constraints
     ConstrainPropertyOwner( *rendererContainer[i], bufferIndex );
@@ -998,6 +1012,16 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
                              mImpl->renderInstructions );
       }
     }
+
+
+
+    mImpl->geometryBatcher.Update(  this,
+                                    bufferIndex,
+                                    mImpl->renderInstructions
+                                    );
+
+    mImpl->geometryBatcher.DiscardBatches( this );
+
   }
 
   // check the countdown and notify (note, at the moment this is only done for normal tasks, not for systemlevel tasks)

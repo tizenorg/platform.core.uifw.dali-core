@@ -229,6 +229,7 @@ DALI_PROPERTY( "padding",           VECTOR4,  true,  false, false, Dali::Actor::
 DALI_PROPERTY( "minimumSize",       VECTOR2,  true,  false, false, Dali::Actor::Property::MINIMUM_SIZE )
 DALI_PROPERTY( "maximumSize",       VECTOR2,  true,  false, false, Dali::Actor::Property::MAXIMUM_SIZE )
 DALI_PROPERTY( "inheritPosition",   BOOLEAN,  true,  false, false, Dali::Actor::Property::INHERIT_POSITION )
+DALI_PROPERTY( "batchPArent",          BOOLEAN,  true,  false, false, Dali::Actor::Property::BATCH_PARENT )
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 // Signals
@@ -2553,6 +2554,12 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
       break;
     }
 
+    case Dali::Actor::Property::BATCH_PARENT:
+    {
+      bool value = property.Get< bool >();
+      MakeBatchParent(value);
+      break;
+    }
     default:
     {
       // this can happen in the case of a non-animatable default property so just do nothing
@@ -3044,6 +3051,12 @@ Property::Value Actor::GetDefaultProperty( Property::Index index ) const
       break;
     }
 
+    case Dali::Actor::Property::BATCH_PARENT:
+    {
+      value = mNode->mIsBatchParent;
+      break;
+    }
+
     default:
     {
       DALI_ASSERT_ALWAYS( false && "Actor Property index invalid" ); // should not come here
@@ -3063,6 +3076,18 @@ const SceneGraph::PropertyOwner* Actor::GetSceneObject() const
 {
   // This method should only return an object connected to the scene-graph
   return OnStage() ? mNode : NULL;
+}
+
+void Actor::MakeBatchParent( bool isBatchParent )
+{
+  // set batching for node
+  mIsBatchParent = isBatchParent;
+
+  if( NULL != mNode )
+  {
+    // mNode is being used in a separate thread; queue a message to set the value
+    MakeBatchParentMessage( GetEventThreadServices(), *mNode, isBatchParent );
+  }
 }
 
 const PropertyBase* Actor::GetSceneObjectAnimatableProperty( Property::Index index ) const

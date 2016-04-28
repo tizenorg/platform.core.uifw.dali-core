@@ -25,6 +25,7 @@
 #include <dali/internal/update/common/discard-queue.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/constants.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
 
 namespace //Unnamed namespace
 {
@@ -50,7 +51,8 @@ Node* Node::New()
 }
 
 Node::Node()
-: mTransformManager(0),
+  : mGeometryBatcher(NULL),
+  mTransformManager(0),
   mTransformId( INVALID_TRANSFORM_ID ),
   mParentOrigin( TRANSFORM_PROPERTY_PARENT_ORIGIN ),
   mAnchorPoint( TRANSFORM_PROPERTY_ANCHOR_POINT ),
@@ -66,6 +68,7 @@ Node::Node()
   mWorldMatrix(),
   mWorldColor( Color::WHITE ),
   mParent( NULL ),
+  mBatchParent( NULL ),
   mExclusiveRenderTask( NULL ),
   mAttachment( NULL ),
   mChildren(),
@@ -85,6 +88,11 @@ Node::~Node()
   if( mTransformId != INVALID_TRANSFORM_ID )
   {
     mTransformManager->RemoveTransform(mTransformId);
+  }
+
+  if( mIsBatchParent )
+  {
+    mGeometryBatcher->DiscardBatch( this );
   }
 }
 
@@ -211,6 +219,7 @@ void Node::ConnectChild( Node* childNode )
   {
     childNode->mAttachment->ConnectedToSceneGraph();
   }
+
 }
 
 void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode )
@@ -244,7 +253,9 @@ void Node::RemoveRenderer( Renderer* renderer )
   {
     if( mRenderer[i] == renderer )
     {
+      renderer->mNode = NULL; // may not be really needed
       mRenderer.Erase( mRenderer.Begin()+i);
+
       return;
     }
   }
@@ -291,6 +302,15 @@ void Node::SetParent(Node& parentNode)
   {
     mTransformManager->SetParent( mTransformId, parentNode.GetTransformId() );
   }
+}
+
+void Node::SetBatchParent( Node* batchParentNode )
+{
+  //DALI_ASSERT_ALWAYS(this != &batchParentNode);
+  DALI_ASSERT_ALWAYS(!mIsRoot);
+  DALI_ASSERT_ALWAYS(mBatchParent == NULL);
+  //DALI_ASSERT_ALWAYS(mBatching);
+  mBatchParent = batchParentNode;
 }
 
 void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )

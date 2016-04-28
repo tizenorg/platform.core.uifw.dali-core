@@ -21,6 +21,8 @@
 #include <dali/internal/render/renderers/render-property-buffer.h>
 #include <dali/internal/render/shaders/program.h>
 
+#include <cstdio>
+
 namespace Dali
 {
 namespace Internal
@@ -57,6 +59,12 @@ void Geometry::AddPropertyBuffer( Render::PropertyBuffer* propertyBuffer )
   mAttributesChanged = true;
 }
 
+void Geometry::SetPropertyBuffer( size_t index, Render::PropertyBuffer* propertyBuffer )
+{
+  mVertexBuffers[ index ] = propertyBuffer;
+  mAttributesChanged = true;
+}
+
 void Geometry::SetIndexBuffer( Dali::Vector<unsigned short>& indices )
 {
   mIndices.Swap( indices );
@@ -76,6 +84,15 @@ void Geometry::RemovePropertyBuffer( const Render::PropertyBuffer* propertyBuffe
       break;
     }
   }
+}
+
+const Render::PropertyBuffer* Geometry::GetPropertyBuffer( size_t index ) const
+{
+  if( index < mVertexBuffers.Size() )
+  {
+    return mVertexBuffers[ index ];
+  }
+  return NULL;
 }
 
 void Geometry::GetAttributeLocationFromProgram( Vector<GLint>& attributeLocation, Program& program, BufferIndex bufferIndex ) const

@@ -117,6 +117,16 @@ public:
    * @param[in] geometry The new geometry
    */
   void SetGeometry( Render::Geometry* geometry );
+
+  /**
+   * @brief GetGeometry
+   * @return
+   */
+  inline Render::Geometry* GetGeometry() const
+  {
+    return mGeometry;
+  }
+
   /**
    * Second-phase construction.
    * This is called when the renderer is inside render thread
@@ -200,6 +210,7 @@ public:
                const Matrix& viewMatrix,
                const Matrix& projectionMatrix,
                const Vector3& size,
+               Render::Geometry* externalGeometry,
                bool blend);
 
   /**
@@ -279,7 +290,11 @@ private:
 
   unsigned int mSamplerBitfield;                    ///< Sampler options used for texture filtering
   bool mUpdateAttributesLocation:1;                 ///< Indicates attribute locations have changed
-  bool mPremultipledAlphaEnabled:1;      ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mPremultipledAlphaEnabled:1;                 ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mBatchingEnabled:1;                          ///< Flag indicating if the renderer is batchable
+
+  size_t mElementOffset;
+  size_t mElementLength;
 };
 
 } // namespace SceneGraph

@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <iomanip>
+#include <limits>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/constants.h>
@@ -138,32 +139,57 @@ Filter::FilterList* Filter::GetActiveFilters()
 
 Filter* Filter::New( LogLevel level, bool trace, const char * environmentVariableName )
 {
+  int maxFrameCount = 0;
+  bool enableFrameCount=false;
+
   char * environmentVariableValue = getenv( environmentVariableName );
   if ( environmentVariableValue )
   {
     unsigned int envLevel(0);
-    char envTraceString(0);
-    sscanf( environmentVariableValue, "%u,%c", &envLevel, &envTraceString );
 
-    if ( envLevel > Verbose )
-    {
-      envLevel = Verbose;
-    }
-    level = LogLevel( envLevel );
+    // Format ::= <level> "," <trace> [ "," <frame-counter> ]
 
-    // Just use 'f' and 't' as it's faster than doing full string comparisons
-    if ( envTraceString == 't' )
+    char* tok1 = strtok( environmentVariableValue, "," );
+    if( tok1 != NULL )
     {
-      trace = true;
+      envLevel = atoi( tok1 );
+      if( envLevel > Verbose )
+      {
+        envLevel = Verbose;
+      }
+      level = LogLevel( envLevel );
     }
-    else if ( envTraceString == 'f' )
+
+    char* tok2 = strtok( NULL, "," );
+    if( tok2 != NULL )
     {
       trace = false;
+      if( tok2[0] == 't' || tok2[0] == 'T' || tok2[0] == 'y' || tok2[0] == 'Y' )
+      {
+        trace = true;
+      }
+    }
+
+    char* tok3 = strtok( NULL, "\0" );
+    if( tok3 != NULL )
+    {
+      maxFrameCount = atoi(tok3);
+      enableFrameCount = true;
     }
   }
 
   Filter* filter = new Filter(level, trace);
   filter->mNesting++;
+  if( enableFrameCount )
+  {
+    if( maxFrameCount <= 0 )
+    {
+      maxFrameCount = std::numeric_limits<int>::max();
+    }
+    filter->mMaxFrameNumber = maxFrameCount;
+    filter->mFrameCounterEnabled = true;
+  }
+
   GetActiveFilters()->push_back(filter);
   return filter;
 }
@@ -193,28 +219,31 @@ void Filter::DisableGlobalTrace()
 
 void Filter::Log(LogLevel level, const char* format, ...)
 {
-  if(level <= mLoggingLevel)
+  if( !mFrameCounterEnabled || mFrameCounter % mMaxFrameNumber == 0 )
   {
-    va_list arg;
-    va_start(arg, format);
+    if( level <= mLoggingLevel )
+    {
+      va_list arg;
+      va_start(arg, format);
 
-    if( mTraceEnabled )
-    {
-      char *buffer = NULL;
-      int numChars = asprintf( &buffer, "    %-*c %s", mNesting, ':', format );
-      if( numChars >= 0 ) // No error
+      if( mTraceEnabled )
       {
-        std::string message = ArgListToString( buffer, arg );
-        LogMessage( DebugInfo, message.c_str() );
-        free( buffer );
+        char *buffer = NULL;
+        int numChars = asprintf( &buffer, "    %-*c %s", mNesting, ':', format );
+        if( numChars >= 0 ) // No error
+        {
+          std::string message = ArgListToString( buffer, arg );
+          LogMessage( DebugInfo, message.c_str() );
+          free( buffer );
+        }
       }
+      else
+      {
+        std::string message = ArgListToString( format, arg );
+        LogMessage( DebugInfo, message.c_str() );
+      }
+      va_end(arg);
     }
-    else
-    {
-      std::string message = ArgListToString( format, arg );
-      LogMessage( DebugInfo, message.c_str() );
-    }
-    va_end(arg);
   }
 }
 

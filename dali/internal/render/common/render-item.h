@@ -154,6 +154,15 @@ public:
     return mSize;
   }
 
+  /**
+   * Retrives the size of the render item
+   * @return The size of the render item
+   */
+  Vector3& GetSize()
+  {
+    return mSize;
+  }
+
 private:
 
   /**

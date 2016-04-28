@@ -75,11 +75,11 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
   const Vector3& size = renderable.mNode->GetSize( updateBufferIndex );
   if ( cull && renderable.mRenderer->GetShader().GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
-    const Vector3& position = worldMatrix.GetTranslation3();
-    float radius( size.Length() * 0.5f );
-
+    //Transform the vector from the center to the edge to world space
+    Vector4 sphereEdge = worldMatrix * Vector4(size.Length() * 0.5f, 0.0f, 0.0f, 0.0f );
+    float radius = sphereEdge.Length();
     inside = (radius > Math::MACHINE_EPSILON_1000) &&
-        (cameraAttachment.CheckSphereInFrustum( updateBufferIndex, position, radius ) );
+             (cameraAttachment.CheckSphereInFrustum( updateBufferIndex, worldMatrix.GetTranslation3(), radius ) );
   }
 
   if ( inside )

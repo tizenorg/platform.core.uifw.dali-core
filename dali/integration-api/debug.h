@@ -180,6 +180,18 @@ public:
   void DisableTrace() { mTraceEnabled = false; }
 
   /**
+   * Increment a frame counter. Logging only happens
+   * if the frame counter leaves no remainder with mMaxFrameNumber
+   */
+  void IncrementFrameCount()
+  {
+    if( mFrameCounterEnabled )
+    {
+      mFrameCounter++;
+    }
+  }
+
+  /**
    * Set the log level for this filter. Setting to a higher value than Debug::General also
    * enables General;
    */
@@ -211,6 +223,7 @@ public:
    * FILTER_ENV=1,true dali-demo   // LogLevel Concise,   Trace ON
    * FILTER_ENV=2,false dali-demo  // LogLevel General,   Trace OFF
    * FILTER_ENV=0,true dali-demo   // LogLevel NoLogging, Trace ON
+   * FILTER_ENV=2,false,120        // Loglevel General,   Trace OFF, FrameCount=120
    * @endcode
    */
   static Filter* New(LogLevel level, bool trace, const char * environmentVariableName );
@@ -232,7 +245,15 @@ private:
    * @param[in] level - the highest log level.
    * @param[in] trace - whether this filter allows tracing.
    */
-  Filter(LogLevel level, bool trace) : mLoggingLevel(level), mTraceEnabled(trace), mNesting(0) {}
+  Filter(LogLevel level, bool trace)
+  : mLoggingLevel(level),
+    mFrameCounter(0),
+    mMaxFrameNumber(1),
+    mTraceEnabled(trace),
+    mFrameCounterEnabled(false),
+    mNesting(0)
+  {
+  }
 
   static FilterList* GetActiveFilters();
 
@@ -254,7 +275,11 @@ public:
 
 private:
   LogLevel mLoggingLevel;
+  int      mFrameCounter;
+  int      mMaxFrameNumber;
   bool     mTraceEnabled;
+  bool     mFrameCounterEnabled;
+
 public:
   int      mNesting;
 
@@ -324,8 +349,23 @@ public:
 #define DALI_LOG_TRACE_METHOD_FMT(filter, format, args...)
 #define DALI_LOG_TRACE_METHOD(filter)
 
+#endif
+
+/********************************************************************************
+ *                            Frame counting macros                             *
+ ********************************************************************************/
+
+#ifdef DEBUG_ENABLED
+
+#define DALI_LOG_INCREMENT_FRAME_COUNT( filter )\
+  if(filter) { filter->IncrementFrameCount(); }
+
+#else
+
+#define DALI_LOG_INCREMENT_FRAME_COUNT( filter )
 
 #endif
+
 
 /********************************************************************************
  *                              Extra object debug                              *

@@ -22,6 +22,7 @@
 #include <dali/public-api/shader-effects/shader-effect.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/common/math.h>
 #include <dali/internal/event/actors/layer-impl.h> // for the default sorting function
 #include <dali/internal/update/nodes/scene-graph-layer.h>
 #include <dali/internal/update/manager/sorted-layers.h>
@@ -75,11 +76,14 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
   const Vector3& size = renderable.mNode->GetSize( updateBufferIndex );
   if ( cull && renderable.mRenderer->GetShader().GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
-    const Vector3& position = worldMatrix.GetTranslation3();
-    float radius( size.Length() * 0.5f );
+    //Transform the vector from the center to the edge to world space
+    vec3 centerToEdge = { size.Length() * 0.5f, 0.0f, 0.0f };
+    vec3 centerToEdgeWorldSpace;
+    TransformVector3( centerToEdgeWorldSpace, worldMatrix.AsFloat(), centerToEdge);
 
+    float radius = Length( centerToEdgeWorldSpace );
     inside = (radius > Math::MACHINE_EPSILON_1000) &&
-        (cameraAttachment.CheckSphereInFrustum( updateBufferIndex, position, radius ) );
+             (cameraAttachment.CheckSphereInFrustum( updateBufferIndex, worldMatrix.GetTranslation3(), radius ) );
   }
 
   if ( inside )

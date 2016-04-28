@@ -35,6 +35,8 @@
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 
+#include <dali/internal/common/math.h>
+
 namespace
 {
 #if defined(DEBUG_ENABLED)
@@ -75,11 +77,14 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
   const Vector3& size = renderable.mNode->GetSize( updateBufferIndex );
   if ( cull && renderable.mRenderer->GetShader().GeometryHintEnabled( Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY ) )
   {
-    const Vector3& position = worldMatrix.GetTranslation3();
-    float radius( size.Length() * 0.5f );
+    //Transform the vector from the center to the edge to world space
+    vec3 centerToEdge = { size.Length() * 0.5f, 0.0f, 0.0f };
+    vec3 centerToEdgeWorldSpace;
+    TransformVector3( centerToEdge, worldMatrix.AsFloat(), centerToEdgeWorldSpace );
 
+    float radius = Length( centerToEdgeWorldSpace );
     inside = (radius > Math::MACHINE_EPSILON_1000) &&
-        (cameraAttachment.CheckSphereInFrustum( updateBufferIndex, position, radius ) );
+             (cameraAttachment.CheckSphereInFrustum( updateBufferIndex, worldMatrix.GetTranslation3(), radius ) );
   }
 
   if ( inside )

@@ -73,11 +73,10 @@
 #if ( defined( DEBUG_ENABLED ) && defined( NODE_TREE_LOGGING ) )
 #define SNAPSHOT_NODE_LOGGING \
 const int FRAME_COUNT_TRIGGER = 16;\
-if( mImpl->frameCounter >= FRAME_COUNT_TRIGGER )\
+if( (mImpl->frameCounter % FRAME_COUNT_TRIGGER) == 0 ) \
   {\
     if ( NULL != mImpl->root )\
     {\
-      mImpl->frameCounter = 0;\
       PrintNodeTree( *mImpl->root, mSceneGraphBuffers.GetUpdateBufferIndex(), "" );\
     }\
   }\
@@ -88,7 +87,9 @@ mImpl->frameCounter++;
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gRenderTaskLogFilter;
+extern Debug::Filter* gCullingLogFilter;
 #endif
+
 
 
 using namespace Dali::Integration;
@@ -1045,8 +1046,9 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
     mImpl->notificationManager.QueueCompleteNotification( mImpl->taskList.GetCompleteNotificationInterface() );
   }
 
-  // Macro is undefined in release build.
+  // Macros are undefined in release build.
   SNAPSHOT_NODE_LOGGING;
+  DALI_LOG_INCREMENT_FRAME_COUNT( gCullingLogFilter );
 
   // A ResetProperties() may be required in the next frame
   mImpl->previousUpdateScene = updateScene;

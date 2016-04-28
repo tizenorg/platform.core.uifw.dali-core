@@ -469,7 +469,6 @@ public:
    */
   void RemoveVertexBuffer( Render::Geometry* geometry, Render::PropertyBuffer* propertyBuffer );
 
-
 public:
 
   /**

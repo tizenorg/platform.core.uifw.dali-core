@@ -34,6 +34,8 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/render/renderers/render-property-buffer.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
 
 namespace
 {
@@ -71,8 +73,14 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
 {
   bool inside( true );
 
-  const Matrix& worldMatrix = renderable.mNode->GetWorldMatrix( updateBufferIndex );
-  const Vector3& size = renderable.mNode->GetSize( updateBufferIndex );
+  Node* node = renderable.mRenderer->IsBatchingEnabled() ?
+        renderable.mNode->GetBatchParent() : renderable.mNode;
+
+  if (!node)
+    node = renderable.mNode;
+
+  const Matrix& worldMatrix = node->GetWorldMatrix( updateBufferIndex );
+  const Vector3& size = node->GetSize( updateBufferIndex );
   if ( cull && !renderable.mRenderer->GetShader().HintEnabled( Dali::Shader::HINT_MODIFIES_GEOMETRY ) )
   {
     const Vector3& position = worldMatrix.GetTranslation3();
@@ -186,15 +194,21 @@ bool CompareItems( const RendererWithSortAttributes& lhs, const RendererWithSort
 {
   if( lhs.renderItem->GetDepthIndex() == rhs.renderItem->GetDepthIndex() )
   {
-    if( lhs.shader == rhs.shader )
+    if( lhs.renderItem->GetNode().GetBatchParent() == rhs.renderItem->GetNode().GetBatchParent() )
     {
-      if( lhs.textureResourceId == rhs.textureResourceId )
+      if( lhs.shader == rhs.shader )
       {
-        return lhs.geometry < rhs.geometry;
+        if( lhs.textureResourceId == rhs.textureResourceId )
+        {
+          {
+            return lhs.geometry < rhs.geometry;
+          }
+        }
+        return lhs.textureResourceId < rhs.textureResourceId;
       }
-      return lhs.textureResourceId < rhs.textureResourceId;
+      return lhs.shader < rhs.shader;
     }
-    return lhs.shader < rhs.shader;
+    return lhs.renderItem->GetNode().GetBatchParent() < rhs.renderItem->GetNode().GetBatchParent();
   }
   return lhs.renderItem->GetDepthIndex() < rhs.renderItem->GetDepthIndex();
 }

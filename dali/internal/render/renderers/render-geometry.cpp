@@ -77,6 +77,15 @@ void Geometry::RemovePropertyBuffer( const Render::PropertyBuffer* propertyBuffe
   }
 }
 
+const Render::PropertyBuffer* Geometry::GetPropertyBuffer( size_t index ) const
+{
+  if( index < mVertexBuffers.Size() )
+  {
+    return mVertexBuffers[ index ];
+  }
+  return NULL;
+}
+
 void Geometry::GetAttributeLocationFromProgram( Vector<GLint>& attributeLocation, Program& program, BufferIndex bufferIndex ) const
 {
   attributeLocation.Clear();

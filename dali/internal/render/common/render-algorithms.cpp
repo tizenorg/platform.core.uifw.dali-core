@@ -148,8 +148,17 @@ inline void ProcessRenderList(
         Dali::Renderer::DepthWriteMode depthWriteMode = renderer.GetDepthWriteMode();
         context.DepthMask( ( depthWriteMode == Dali::Renderer::DEPTH_WRITE_AUTO && item.IsOpaque() ) ||
                            ( depthWriteMode == Dali::Renderer::DEPTH_WRITE_ON ) );
-
-        renderer.Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, item.GetSize(), !item.IsOpaque() );
+        renderer.Render( context,
+                           textureCache,
+                           bufferIndex,
+                           item.GetNode(),
+                           defaultShader,
+                           item.GetModelViewMatrix(),
+                           viewMatrix,
+                           projectionMatrix,
+                           item.GetSize(),
+                           item.GetBatchGeometry(),
+                           !item.IsOpaque() );
       }
     }
     else
@@ -158,7 +167,17 @@ inline void ProcessRenderList(
       {
         const RenderItem& item = renderList.GetItem( index );
         DALI_PRINT_RENDER_ITEM( item );
-        item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, item.GetSize(), !item.IsOpaque() );
+        item.GetRenderer().Render( context,
+                           textureCache,
+                           bufferIndex,
+                           item.GetNode(),
+                           defaultShader,
+                           item.GetModelViewMatrix(),
+                           viewMatrix,
+                           projectionMatrix,
+                           item.GetSize(),
+                           item.GetBatchGeometry(),
+                           !item.IsOpaque() );
       }
     }
   }
@@ -170,9 +189,8 @@ inline void ProcessRenderList(
       const RenderItem& item = renderList.GetItem( index );
       DALI_PRINT_RENDER_ITEM( item );
 
-      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, item.GetSize(), !item.IsOpaque() );
+      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, item.GetSize(), item.GetBatchGeometry(), !item.IsOpaque() );
     }
-
   }
 }
 

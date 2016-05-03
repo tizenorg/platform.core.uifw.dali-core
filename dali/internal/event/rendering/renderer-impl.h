@@ -96,90 +96,102 @@ public:
   int GetDepthIndex() const;
 
   /**
-    * @copydoc Dali::Renderer::SetFaceCullingMode()
-    */
-   void SetFaceCullingMode( Dali::Renderer::FaceCullingMode cullingMode );
+   * @copydoc Dali::Renderer::SetFaceCullingMode()
+   */
+  void SetFaceCullingMode( Dali::Renderer::FaceCullingMode cullingMode );
 
-   /**
-    * @copydoc Dali::Renderer::GetFaceCullingMode()
-    */
-   Dali::Renderer::FaceCullingMode GetFaceCullingMode();
+  /**
+   * @copydoc Dali::Renderer::GetFaceCullingMode()
+   */
+  Dali::Renderer::FaceCullingMode GetFaceCullingMode();
 
-   /**
-    * @copydoc Dali::Renderer::SetBlendMode()
-    */
-   void SetBlendMode( BlendingMode::Type mode );
+  /**
+   * @copydoc Dali::Renderer::SetBlendMode()
+   */
+  void SetBlendMode( BlendingMode::Type mode );
 
-   /**
-    * @copydoc Dali::Renderer::GetBlendMode()
-    */
-   BlendingMode::Type GetBlendMode() const;
+  /**
+   * @copydoc Dali::Renderer::GetBlendMode()
+   */
+  BlendingMode::Type GetBlendMode() const;
 
-   /**
-    * @copydoc Dali::Renderer::SetBlendFunc()
-    */
-   void SetBlendFunc( BlendingFactor::Type srcFactorRgba, BlendingFactor::Type destFactorRgba );
+  /**
+   * @copydoc Dali::Renderer::SetBlendFunc()
+   */
+  void SetBlendFunc( BlendingFactor::Type srcFactorRgba, BlendingFactor::Type destFactorRgba );
 
-   /**
-    * @copydoc Dali::Renderer::SetBlendFunc()
-    */
-   void SetBlendFunc( BlendingFactor::Type srcFactorRgb,   BlendingFactor::Type destFactorRgb,
-                      BlendingFactor::Type srcFactorAlpha, BlendingFactor::Type destFactorAlpha );
+  /**
+   * @copydoc Dali::Renderer::SetBlendFunc()
+   */
+  void SetBlendFunc( BlendingFactor::Type srcFactorRgb,   BlendingFactor::Type destFactorRgb,
+                     BlendingFactor::Type srcFactorAlpha, BlendingFactor::Type destFactorAlpha );
 
-   /**
-    * @copydoc Dali::Renderer::GetBlendFunc()
-    */
-   void GetBlendFunc( BlendingFactor::Type& srcFactorRgb,   BlendingFactor::Type& destFactorRgb,
-                      BlendingFactor::Type& srcFactorAlpha, BlendingFactor::Type& destFactorAlpha ) const;
+  /**
+   * @copydoc Dali::Renderer::GetBlendFunc()
+   */
+  void GetBlendFunc( BlendingFactor::Type& srcFactorRgb,   BlendingFactor::Type& destFactorRgb,
+                     BlendingFactor::Type& srcFactorAlpha, BlendingFactor::Type& destFactorAlpha ) const;
 
-   /**
-    * @copydoc Dali::Renderer::SetBlendEquation()
-    */
-   void SetBlendEquation( BlendingEquation::Type equationRgba );
+  /**
+   * @copydoc Dali::Renderer::SetBlendEquation()
+   */
+  void SetBlendEquation( BlendingEquation::Type equationRgba );
 
-   /**
-    * @copydoc Dali::Renderer::SetBlendEquation()
-    */
-   void SetBlendEquation( BlendingEquation::Type equationRgb, BlendingEquation::Type equationAlpha );
+  /**
+   * @copydoc Dali::Renderer::SetBlendEquation()
+   */
+  void SetBlendEquation( BlendingEquation::Type equationRgb, BlendingEquation::Type equationAlpha );
 
-   /**
-    * @copydoc Dali::Renderer::GetBlendEquation()
-    */
-   void GetBlendEquation( BlendingEquation::Type& equationRgb, BlendingEquation::Type& equationAlpha ) const;
+  /**
+   * @copydoc Dali::Renderer::GetBlendEquation()
+   */
+  void GetBlendEquation( BlendingEquation::Type& equationRgb, BlendingEquation::Type& equationAlpha ) const;
 
-   /**
-    * @copydoc Dali::Renderer::SetBlendColor()
-    */
-   void SetBlendColor( const Vector4& color );
+  /**
+   * @copydoc Dali::Renderer::SetBlendColor()
+   */
+  void SetBlendColor( const Vector4& color );
 
-   /**
-    * @copydoc Dali::Renderer::GetBlendColor()
-    */
-   Vector4 GetBlendColor() const;
+  /**
+   * @copydoc Dali::Renderer::GetBlendColor()
+   */
+  Vector4 GetBlendColor() const;
 
-   /**
-    * @copydoc Dali::Renderer::SetIndexedDrawFirstElement
-    */
-   void SetIndexedDrawFirstElement( size_t firstElement );
+  /**
+  * @copydoc Dali::Renderer::SetIndexedDrawFirstElement
+  */
+  void SetIndexedDrawFirstElement( size_t firstElement );
 
-   /**
-    * @copydoc Dali::Renderer::SetIndexedDrawElementsCount
-    */
-   void SetIndexedDrawElementsCount( size_t elementsCount );
+  /**
+  * @copydoc Dali::Renderer::SetIndexedDrawElementsCount
+  */
+  void SetIndexedDrawElementsCount( size_t elementsCount );
 
-   /**
-    * @brief Set whether the Pre-multiplied Alpha Blending is required
-    *
-    * @param[in] preMultipled whether alpha is pre-multiplied.
-    */
-   void EnablePreMultipliedAlpha( bool preMultipled );
+  /**
+  * @brief Set whether the Pre-multiplied Alpha Blending is required
+  *
+  * @param[in] preMultipled whether alpha is pre-multiplied.
+  */
+  void EnablePreMultipliedAlpha( bool preMultipled );
 
-   /**
-    * @brief Query whether alpha is pre-multiplied.
-    *
-    * @return True is alpha is pre-multiplied, false otherwise.
-    */
-   bool IsPreMultipliedAlphaEnabled() const;
+  /**
+  * @brief Query whether alpha is pre-multiplied.
+  *
+  * @return True is alpha is pre-multiplied, false otherwise.
+  */
+  bool IsPreMultipliedAlphaEnabled() const;
+
+  /**
+  * Turns on/off batching feature for this renderer
+  * @param[in] enabled state of batching mode
+  */
+  void SetBatchingEnabled( bool enabled );
+
+  /**
+  * Returns state of batching mode
+  * @return batching mode state ( true if enabled )
+  */
+  bool IsBatchingEnabled() const;
 
   /**
    * @brief Get the scene graph object
@@ -320,6 +332,8 @@ private: // data
   Dali:: Renderer::DepthWriteMode mDepthWriteMode;  ///< Local copy of depth write mode
 
   bool mPremultipledAlphaEnabled : 1;               ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+
+  bool mBatchingEnabled : 1;                                  ///< Flag indicating whether render is batchable or not
 };
 
 } // namespace Internal

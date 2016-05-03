@@ -74,16 +74,33 @@ public:
   void AddPropertyBuffer( Render::PropertyBuffer* propertyBuffer );
 
   /**
+   *
+   */
+  void SetPropertyBuffer( size_t index, PropertyBuffer* propertyBuffer );
+
+  /**
    * Set the data for the index buffer to be used by the geometry
    * @param[in] indices A vector containing the indices
    */
   void SetIndexBuffer( Dali::Vector<unsigned short>& indices );
 
   /**
+   * @brief GetIndexBuffer
+   * @return
+   */
+  const Dali::Vector<unsigned short>* GetIndexBuffer() const
+  {
+    return &mIndices;
+  }
+
+  /**
    * Removes a PropertyBuffer from the geometry
    * @param[in] propertyBuffer The property buffer to be removed
    */
   void RemovePropertyBuffer(  const Render::PropertyBuffer* propertyBuffer );
+
+
+  const Render::PropertyBuffer* GetPropertyBuffer( size_t index ) const;
 
   /**
    * Gets the attribute locations on the shader for the attributes defined in the geometry RenderBuffers

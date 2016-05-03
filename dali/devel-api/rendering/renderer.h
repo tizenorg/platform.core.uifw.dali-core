@@ -81,7 +81,8 @@ public:
       BLEND_PRE_MULTIPLIED_ALPHA,                         ///< name "blendPreMultipledAlpha",         type BOOLEAN
       INDEX_RANGE_FIRST,                                  ///< name "indexRangeFirst",                type INTEGER
       INDEX_RANGE_COUNT,                                  ///< name "indexRangeCount",                type INTEGER
-      DEPTH_WRITE_MODE                                   ///< name "depthWriteMode",                  type INTEGER  @see DepthWriteMode
+      DEPTH_WRITE_MODE,                                   ///< name "depthWriteMode",                 type INTEGER  @see DepthWriteMode
+      BATCHING_ENABLED                                    ///< name "batchingEnabled",                type BOOLEAN
     };
   };
 

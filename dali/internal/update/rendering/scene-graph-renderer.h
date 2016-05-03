@@ -86,6 +86,14 @@ public:
    */
   void SetTextures( TextureSet* textureSet );
 
+  /**
+   * Returns current texture set object
+   * @return texture set
+   */
+  TextureSet* GetTextures() const
+  {
+    return mTextureSet;
+  }
 
   /**
    * Set the shader for the renderer
@@ -97,7 +105,7 @@ public:
    * Get the shader used by this renderer
    * @return the shader this renderer uses
    */
-  Shader& GetShader()
+  Shader& GetShader() const
   {
     return *mShader;
   }
@@ -107,6 +115,15 @@ public:
    * @param[in] geometry The geometry this renderer will use
    */
   void SetGeometry( Render::Geometry* geometry );
+
+  /**
+   * Get the geometry of this renderer
+   * @return the geometry this renderer uses
+   */
+  Render::Geometry& GetGeometry() const
+  {
+    return *mGeometry;
+  }
 
   /**
    * Set the depth index
@@ -171,6 +188,21 @@ public:
    * @param[in] depthWriteMode The depth buffer write mode
    */
   void SetDepthWriteMode( unsigned int depthWriteMode );
+
+  /**
+   * Turns on batching feature for the renderer
+   * @param batchingEnabled
+   */
+  void SetBatchingEnabled( bool batchingEnabled );
+
+  /**
+   * Tests wheter batching feature is enabled for this renderer
+   * @return batching state
+   */
+  bool IsBatchingEnabled() const
+  {
+    return mBatchingEnabled;
+  }
 
   /**
    * Called when an actor with this renderer is added to the stage
@@ -335,7 +367,7 @@ private:
   bool         mResourcesReady;                ///< Set during the Update algorithm; true if the attachment has resources ready for the current frame.
   bool         mFinishedResourceAcquisition;   ///< Set during DoPrepareResources; true if ready & all resource acquisition has finished (successfully or otherwise)
   bool         mPremultipledAlphaEnabled : 1;  ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
-
+  bool         mBatchingEnabled : 1;           ///< Flag indicating wheter the render supports batching
 
 public:
   int mDepthIndex; ///< Used only in PrepareRenderInstructions
@@ -465,6 +497,16 @@ inline void SetDepthWriteModeMessage( EventThreadServices& eventThreadServices, 
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &renderer, &Renderer::SetDepthWriteMode, depthWriteMode );
+}
+
+inline void SetBatchingEnabledMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, bool batchable )
+{
+  typedef MessageValue1< Renderer, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetBatchingEnabled, batchable );
 }
 
 inline void OnStageConnectMessage( EventThreadServices& eventThreadServices, const Renderer& renderer )

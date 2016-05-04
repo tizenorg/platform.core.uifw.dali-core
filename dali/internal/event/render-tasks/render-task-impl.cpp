@@ -130,6 +130,14 @@ bool RenderTask::GetInputEnabled() const
 
 void RenderTask::SetCameraActor( CameraActor* cameraActor )
 {
+  if( cameraActor )
+  {
+    mCamera = cameraActor->GetCamera();
+  }
+  else
+  {
+    mCamera = NULL;
+  }
   mCameraConnector.SetActor( cameraActor );
 }
 
@@ -887,7 +895,7 @@ void RenderTask::Connector::UpdateRenderTask()
     }
     else if( CAMERA_CONNECTOR == mType )
     {
-      SetCameraNodeMessage( mRenderTask.GetEventThreadServices(), *(mRenderTask.mSceneObject), node );
+      SetCameraMessage( mRenderTask.GetEventThreadServices(), *(mRenderTask.mSceneObject), node, mRenderTask.mCamera );
     }
   }
 }

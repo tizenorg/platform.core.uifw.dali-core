@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ namespace SceneGraph
  * @param renderList to add the item to
  * @param renderable Node-Renderer pair
  * @param viewMatrix used to calculate modelview matrix for the item
- * @param cameraAttachment The camera used to render
+ * @param camera The camera used to render
  * @param isLayer3d Whether we are processing a 3D layer or not
  * @param cull Whether frustum culling is enabled or not
  */
@@ -65,7 +65,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
                                      RenderList& renderList,
                                      Renderable& renderable,
                                      const Matrix& viewMatrix,
-                                     SceneGraph::CameraAttachment& cameraAttachment,
+                                     SceneGraph::Camera& camera,
                                      bool isLayer3d,
                                      bool cull )
 {
@@ -79,7 +79,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
     float radius( size.Length() * 0.5f );
 
     inside = (radius > Math::MACHINE_EPSILON_1000) &&
-        (cameraAttachment.CheckSphereInFrustum( updateBufferIndex, position, radius ) );
+        (camera.CheckSphereInFrustum( updateBufferIndex, position, radius ) );
   }
 
   if ( inside )
@@ -112,27 +112,27 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
  * Add all renderers to the list
  * @param updateBufferIndex to read the model matrix from
  * @param renderList to add the items to
- * @param renderable attachments
+ * @param renderers to render
  * NodeRendererContainer Node-Renderer pairs
  * @param viewMatrix used to calculate modelview matrix for the items
- * @param cameraAttachment The camera used to render
+ * @param camera The camera used to render
  * @param isLayer3d Whether we are processing a 3D layer or not
  * @param cull Whether frustum culling is enabled or not
  */
 inline void AddRenderersToRenderList( BufferIndex updateBufferIndex,
                                       RenderList& renderList,
-                                      RenderableContainer& renderables,
+                                      RenderableContainer& renderers,
                                       const Matrix& viewMatrix,
-                                      SceneGraph::CameraAttachment& cameraAttachment,
+                                      SceneGraph::Camera& camera,
                                       bool isLayer3d,
                                       bool cull)
 {
   DALI_LOG_INFO( gRenderListLogFilter, Debug::Verbose, "AddRenderersToRenderList()\n");
 
-  unsigned int rendererCount( renderables.Size() );
+  unsigned int rendererCount( renderers.Size() );
   for( unsigned int i(0); i<rendererCount; ++i )
   {
-    AddRendererToRenderList( updateBufferIndex, renderList, renderables[i], viewMatrix, cameraAttachment, isLayer3d, cull );
+    AddRendererToRenderList( updateBufferIndex, renderList, renderers[i], viewMatrix, camera, isLayer3d, cull );
   }
 }
 
@@ -154,8 +154,8 @@ inline bool TryReuseCachedRenderers( Layer& layer,
   if( ( renderList.GetSourceLayer() == &layer )&&
       ( renderList.GetCachedItemCount() == renderableCount ) )
   {
-    // check that all the same renderers are there. This gives us additional security in avoiding rendering the wrong attachments
-    // Attachments are not sorted, but render list is so at this stage renderers may be in different order
+    // check that all the same renderers are there. This gives us additional security in avoiding rendering the wrong things
+    // Render list is sorted so at this stage renderers may be in different order
     // therefore we check a combined sum of all renderer addresses
     size_t checkSumNew = 0;
     size_t checkSumOld = 0;
@@ -331,7 +331,7 @@ inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, La
  * @param updateBufferIndex to use
  * @param layer to get the renderers from
  * @param viewmatrix for the camera from rendertask
- * @param cameraAttachment to use the view frustum
+ * @param camera to use the view frustum
  * @param stencilRenderablesExist is true if there are stencil renderers on this layer
  * @param instruction to fill in
  * @param sortingHelper to use for sorting the renderitems (to avoid reallocating)
@@ -341,7 +341,7 @@ inline void SortRenderItems( BufferIndex bufferIndex, RenderList& renderList, La
 inline void AddColorRenderers( BufferIndex updateBufferIndex,
                                Layer& layer,
                                const Matrix& viewMatrix,
-                               SceneGraph::CameraAttachment& cameraAttachment,
+                               SceneGraph::Camera& camera,
                                bool stencilRenderablesExist,
                                RenderInstruction& instruction,
                                RendererSortingHelper& sortingHelper,
@@ -361,7 +361,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
     }
   }
 
-  AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+  AddRenderersToRenderList( updateBufferIndex, renderList, layer.colorRenderables, viewMatrix, camera, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
   SortRenderItems( updateBufferIndex, renderList, layer, sortingHelper );
 
   //Set render flags
@@ -395,6 +395,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
  * @param updateBufferIndex to use
  * @param layer to get the renderers from
  * @param viewmatrix for the camera from rendertask
+ * @param camera to use
  * @param stencilRenderablesExist is true if there are stencil renderers on this layer
  * @param instruction to fill in
  * @param tryReuseRenderList whether to try to reuse the cached items from the instruction
@@ -403,7 +404,7 @@ inline void AddColorRenderers( BufferIndex updateBufferIndex,
 inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
                                  Layer& layer,
                                  const Matrix& viewMatrix,
-                                 SceneGraph::CameraAttachment& cameraAttachment,
+                                 SceneGraph::Camera& camera,
                                  bool stencilRenderablesExist,
                                  RenderInstruction& instruction,
                                  RendererSortingHelper& sortingHelper,
@@ -429,7 +430,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+  AddRenderersToRenderList( updateBufferIndex, overlayRenderList, layer.overlayRenderables, viewMatrix, camera, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
   SortRenderItems( updateBufferIndex, overlayRenderList, layer, sortingHelper );
 }
 
@@ -438,6 +439,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
  * @param updateBufferIndex to use
  * @param layer to get the renderers from
  * @param viewmatrix for the camera from rendertask
+ * @param camera to use
  * @param instruction to fill in
  * @param tryReuseRenderList whether to try to reuse the cached items from the instruction
  * @param cull Whether frustum culling is enabled or not
@@ -445,7 +447,7 @@ inline void AddOverlayRenderers( BufferIndex updateBufferIndex,
 inline void AddStencilRenderers( BufferIndex updateBufferIndex,
                                  Layer& layer,
                                  const Matrix& viewMatrix,
-                                 SceneGraph::CameraAttachment& cameraAttachment,
+                                 SceneGraph::Camera& camera,
                                  RenderInstruction& instruction,
                                  bool tryReuseRenderList,
                                  bool cull )
@@ -466,7 +468,7 @@ inline void AddStencilRenderers( BufferIndex updateBufferIndex,
       return;
     }
   }
-  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, viewMatrix, cameraAttachment, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
+  AddRenderersToRenderList( updateBufferIndex, stencilRenderList, layer.stencilRenderables, viewMatrix, camera, layer.GetBehavior() == Dali::Layer::LAYER_3D, cull );
 }
 
 void PrepareRenderInstruction( BufferIndex updateBufferIndex,
@@ -483,7 +485,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
   bool viewMatrixHasNotChanged = !renderTask.ViewMatrixUpdated();
 
   const Matrix& viewMatrix = renderTask.GetViewMatrix( updateBufferIndex );
-  SceneGraph::CameraAttachment& cameraAttachment = renderTask.GetCameraAttachment();
+  SceneGraph::Camera& camera = renderTask.GetCamera();
 
   const SortedLayersIter endIter = sortedLayers.end();
   for ( SortedLayersIter iter = sortedLayers.begin(); iter != endIter; ++iter )
@@ -493,13 +495,13 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
     const bool stencilRenderablesExist( !layer.stencilRenderables.Empty() );
     const bool colorRenderablesExist( !layer.colorRenderables.Empty() );
     const bool overlayRenderablesExist( !layer.overlayRenderables.Empty() );
-    const bool tryReuseRenderList( viewMatrixHasNotChanged && layer.CanReuseRenderers(renderTask.GetCamera()) );
+    const bool tryReuseRenderList( viewMatrixHasNotChanged && layer.CanReuseRenderers( &renderTask.GetCamera() ) );
 
     // Ignore stencils if there's nothing to test
     if( stencilRenderablesExist &&
         ( colorRenderablesExist || overlayRenderablesExist ) )
     {
-      AddStencilRenderers( updateBufferIndex, layer, viewMatrix, cameraAttachment, instruction, tryReuseRenderList, cull );
+      AddStencilRenderers( updateBufferIndex, layer, viewMatrix, camera, instruction, tryReuseRenderList, cull );
     }
 
     if ( colorRenderablesExist )
@@ -507,7 +509,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
       AddColorRenderers( updateBufferIndex,
                          layer,
                          viewMatrix,
-                         cameraAttachment,
+                         camera,
                          stencilRenderablesExist,
                          instruction,
                          sortingHelper,
@@ -517,7 +519,7 @@ void PrepareRenderInstruction( BufferIndex updateBufferIndex,
 
     if ( overlayRenderablesExist )
     {
-      AddOverlayRenderers( updateBufferIndex, layer, viewMatrix, cameraAttachment, stencilRenderablesExist,
+      AddOverlayRenderers( updateBufferIndex, layer, viewMatrix, camera, stencilRenderablesExist,
                            instruction, sortingHelper, tryReuseRenderList, cull );
     }
   }

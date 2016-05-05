@@ -98,6 +98,7 @@ enum Flags
   RESEND_INDEXED_DRAW_FIRST_ELEMENT = 1 << 6,
   RESEND_INDEXED_DRAW_ELEMENTS_COUNT = 1 << 7,
   RESEND_DEPTH_WRITE_MODE = 1 << 8,
+  RESEND_DEPTH_FUNCTION = 1 << 9,
 };
 
 }
@@ -125,6 +126,7 @@ Renderer::Renderer()
  mFaceCullingMode( FaceCullingMode::NONE ),
  mBlendMode( BlendMode::AUTO ),
  mDepthWriteMode( DepthWriteMode::AUTO ),
+ mDepthFunction( DepthFunction::LESS ),
  mIndexedDrawFirstElement( 0 ),
  mIndexedDrawElementsCount( 0 ),
  mReferenceCount( 0 ),
@@ -283,6 +285,13 @@ void Renderer::PrepareRender( BufferIndex updateBufferIndex )
       new (slot) DerivedType( mRenderer, &Render::Renderer::SetDepthWriteMode, mDepthWriteMode );
     }
 
+    if( mResendFlag & RESEND_DEPTH_FUNCTION )
+    {
+      typedef MessageValue1< Render::Renderer, DepthFunction::Type > DerivedType;
+      unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+      new (slot) DerivedType( mRenderer, &Render::Renderer::SetDepthFunction, mDepthFunction );
+    }
+
     mResendFlag = 0;
   }
 }
@@ -389,6 +398,12 @@ void Renderer::SetDepthWriteMode( unsigned int depthWriteMode )
 {
   mDepthWriteMode = static_cast< DepthWriteMode::Type >( depthWriteMode );
   mResendFlag |= RESEND_DEPTH_WRITE_MODE;
+}
+
+void Renderer::SetDepthFunction( unsigned int depthFunction )
+{
+  mDepthFunction = static_cast< DepthFunction::Type >( depthFunction );
+  mResendFlag |= RESEND_DEPTH_FUNCTION;
 }
 
 //Called when a node with this renderer is added to the stage

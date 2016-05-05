@@ -438,6 +438,16 @@ DepthWriteMode::Type Renderer::GetDepthWriteMode() const
   return mDepthWriteMode;
 }
 
+void Renderer::SetDepthFunction( DepthFunction::Type depthFunction )
+{
+  mDepthFunction = depthFunction;
+}
+
+DepthFunction::Type Renderer::GetDepthFunction() const
+{
+  return mDepthFunction;
+}
+
 void Renderer::Render( Context& context,
                        SceneGraph::TextureCache& textureCache,
                        BufferIndex bufferIndex,

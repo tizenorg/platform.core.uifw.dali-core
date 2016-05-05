@@ -173,6 +173,12 @@ public:
   void SetDepthWriteMode( unsigned int depthWriteMode );
 
   /**
+   * Sets the depth function
+   * @param[in] depthFunction The depth function
+   */
+  void SetDepthFunction( unsigned int depthFunction );
+
+  /**
    * Called when an actor with this renderer is added to the stage
    */
   void OnStageConnect();
@@ -323,6 +329,7 @@ private:
   FaceCullingMode::Type mFaceCullingMode; ///< The mode of face culling
   BlendMode::Type       mBlendMode;       ///< The mode of blending
   DepthWriteMode::Type  mDepthWriteMode;  ///< The depth write mode
+  DepthFunction::Type   mDepthFunction;   ///< The depth function
 
   CollectedUniformMap mCollectedUniformMap[2]; ///< Uniform maps collected by the renderer
 
@@ -330,7 +337,7 @@ private:
   size_t mIndexedDrawElementsCount;            ///< number of elements to be drawn using indexed draw
   unsigned int mReferenceCount;                ///< Number of nodes currently using this renderer
   unsigned int mRegenerateUniformMap;          ///< 2 if the map should be regenerated, 1 if it should be copied.
-  unsigned char mResendFlag;                   ///< Indicate whether data should be resent to the renderer
+  unsigned int mResendFlag;                   ///< Indicate whether data should be resent to the renderer
   bool         mUniformMapChanged[2];          ///< Records if the uniform map has been altered this frame
   bool         mResourcesReady;                ///< Set during the Update algorithm; true if the renderer has resources ready for the current frame.
   bool         mFinishedResourceAcquisition;   ///< Set during DoPrepareResources; true if ready & all resource acquisition has finished (successfully or otherwise)
@@ -465,6 +472,16 @@ inline void SetDepthWriteModeMessage( EventThreadServices& eventThreadServices, 
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &renderer, &Renderer::SetDepthWriteMode, depthWriteMode );
+}
+
+inline void SetDepthFunctionMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, Dali::DepthFunction::Type depthFunction )
+{
+  typedef MessageValue1< Renderer, unsigned int > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetDepthFunction, depthFunction );
 }
 
 inline void OnStageConnectMessage( EventThreadServices& eventThreadServices, const Renderer& renderer )

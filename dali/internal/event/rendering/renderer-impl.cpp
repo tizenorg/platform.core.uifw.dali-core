@@ -55,6 +55,7 @@ DALI_PROPERTY( "indexRangeFirst",                 INTEGER,   true, false,  false
 DALI_PROPERTY( "indexRangeCount",                 INTEGER,   true, false,  false, Dali::Renderer::Property::INDEX_RANGE_COUNT )
 DALI_PROPERTY( "depthWriteMode",                  INTEGER,   true, false,  false, Dali::Renderer::Property::DEPTH_WRITE_MODE )
 DALI_PROPERTY( "depthFunction",                   INTEGER,   true, false,  false, Dali::Renderer::Property::DEPTH_FUNCTION )
+DALI_PROPERTY( "batchingEnabled",                 BOOLEAN,   true, false,  false, Dali::Renderer::Property::BATCHING_ENABLED )
 DALI_PROPERTY_TABLE_END( DEFAULT_OBJECT_PROPERTY_START_INDEX )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> RENDERER_IMPL = { DEFAULT_PROPERTY_DETAILS };
@@ -260,6 +261,20 @@ void Renderer::EnablePreMultipliedAlpha( bool preMultipled )
 bool Renderer::IsPreMultipliedAlphaEnabled() const
 {
   return mPremultipledAlphaEnabled;
+}
+
+void Renderer::SetBatchingEnabled( bool enabled )
+{
+  if( mBatchingEnabled != enabled )
+  {
+    mBatchingEnabled = enabled;
+    SetBatchingEnabledMessage( GetEventThreadServices(), *mSceneObject, mBatchingEnabled );
+  }
+}
+
+bool Renderer::IsBatchingEnabled() const
+{
+  return mBatchingEnabled;
 }
 
 SceneGraph::Renderer* Renderer::GetRendererSceneObject()
@@ -471,7 +486,14 @@ void Renderer::SetDefaultProperty( Property::Index index,
         mDepthWriteMode = mode;
         SetDepthWriteModeMessage( GetEventThreadServices(), *mSceneObject, mode );
       }
-
+  }
+    case Dali::Renderer::Property::BATCHING_ENABLED:
+    {
+      bool batchable;
+      if( propertyValue.Get( batchable ) )
+      {
+        SetBatchingEnabled( batchable );
+      }
       break;
     }
     case Dali::Renderer::Property::DEPTH_FUNCTION:
@@ -598,6 +620,10 @@ Property::Value Renderer::GetDefaultProperty( Property::Index index ) const
     case Dali::Renderer::Property::DEPTH_WRITE_MODE:
     {
       value = mDepthWriteMode;
+  }
+    case Dali::Renderer::Property::BATCHING_ENABLED:
+    {
+      value = mBatchingEnabled;
       break;
     }
     case Dali::Renderer::Property::DEPTH_FUNCTION:
@@ -695,7 +721,8 @@ Renderer::Renderer()
   mBlendingOptions(),
   mDepthWriteMode( DepthWriteMode::AUTO ),
   mDepthFunction( DepthFunction::LESS ),
-  mPremultipledAlphaEnabled( false )
+  mPremultipledAlphaEnabled( false ),
+  mBatchingEnabled( false )
 {
 }
 

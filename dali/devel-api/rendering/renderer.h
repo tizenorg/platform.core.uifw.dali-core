@@ -253,7 +253,14 @@ public:
        * @see DepthFunction
        * @note The default value is DepthFunction::LESS
        */
-      DEPTH_FUNCTION
+      DEPTH_FUNCTION,
+
+      /**
+       * @brief name "batchingEnabled", type BOOLEAN
+       * @see Batching
+       * @note The default value is 'false'
+       */
+      BATCHING_ENABLED
     };
   };
 

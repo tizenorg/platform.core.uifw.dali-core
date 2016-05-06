@@ -80,10 +80,26 @@ public:
   void SetIndexBuffer( Dali::Vector<unsigned short>& indices );
 
   /**
+   * Returns pointer to the index buffer
+   * @return Pointer to the index buffer
+   */
+  const Dali::Vector<unsigned short>* GetIndexBuffer() const
+  {
+    return &mIndices;
+  }
+
+  /**
    * Removes a PropertyBuffer from the geometry
    * @param[in] propertyBuffer The property buffer to be removed
    */
   void RemovePropertyBuffer(  const Render::PropertyBuffer* propertyBuffer );
+
+  /**
+   * Returns property buffer at specified index
+   * @param[in] index of the property buffer
+   * @return pointer to the property buffer or NULL
+   */
+  const Render::PropertyBuffer* GetPropertyBuffer( size_t index ) const;
 
   /**
    * Gets the attribute locations on the shader for the attributes defined in the geometry RenderBuffers

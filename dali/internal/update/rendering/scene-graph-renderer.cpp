@@ -99,6 +99,7 @@ enum Flags
   RESEND_INDEXED_DRAW_ELEMENTS_COUNT = 1 << 7,
   RESEND_DEPTH_WRITE_MODE = 1 << 8,
   RESEND_DEPTH_FUNCTION = 1 << 9,
+  RESEND_BATCHING_MODE = 1 << 10,
 };
 
 }
@@ -135,6 +136,7 @@ Renderer::Renderer()
  mResourcesReady( false ),
  mFinishedResourceAcquisition( false ),
  mPremultipledAlphaEnabled(false),
+ mBatchingEnabled( false ),
  mDepthIndex( 0 )
 {
   mUniformMapChanged[0] = false;
@@ -296,6 +298,13 @@ void Renderer::PrepareRender( BufferIndex updateBufferIndex )
       new (slot) DerivedType( mRenderer, &Render::Renderer::SetDepthFunction, mDepthFunction );
     }
 
+    if( mResendFlag & RESEND_BATCHING_MODE )
+    {
+      typedef MessageValue1< Render::Renderer, bool > DerivedType;
+      unsigned int* slot = mSceneController->GetRenderQueue().ReserveMessageSlot( updateBufferIndex, sizeof( DerivedType ) );
+      new (slot) DerivedType( mRenderer, &Render::Renderer::SetBatchingEnabled, mBatchingEnabled );
+    }
+
     mResendFlag = 0;
   }
 }
@@ -408,6 +417,12 @@ void Renderer::SetDepthFunction( DepthFunction::Type depthFunction )
 {
   mDepthFunction = depthFunction;
   mResendFlag |= RESEND_DEPTH_FUNCTION;
+}
+
+void Renderer::SetBatchingEnabled( bool batchingEnabled )
+{
+  mBatchingEnabled = batchingEnabled;
+  mResendFlag |= RESEND_BATCHING_MODE;
 }
 
 //Called when a node with this renderer is added to the stage

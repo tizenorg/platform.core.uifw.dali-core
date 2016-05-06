@@ -1784,6 +1784,12 @@ private:
    */
   virtual Object* GetParentObject() const;
 
+  /**
+   * @brief Turns actor to be a batch parent
+   * @param[in] value True if actor should be a batch parent
+   */
+  void SetIsBatchParent( bool value );
+
 protected:
 
   Actor* mParent;                 ///< Each actor (except the root) can have one parent
@@ -1837,6 +1843,8 @@ private:
 
   static ActorContainer mNullChildren;  ///< Empty container (shared by all actors, returned by GetChildren() const)
   static unsigned int mActorCounter;    ///< A counter to track the actor instance creation
+
+  bool mIsBatchParent : 1;              ///< Flag indicating that the actor is a batch parent
 
 };
 

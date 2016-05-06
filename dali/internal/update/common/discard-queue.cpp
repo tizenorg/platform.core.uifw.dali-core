@@ -26,6 +26,7 @@
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/update/render-tasks/scene-graph-camera.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
 
 namespace Dali
 {
@@ -118,6 +119,16 @@ void DiscardQueue::Clear( BufferIndex updateBufferIndex )
 
   if ( 0u == updateBufferIndex )
   {
+    NodeOwnerContainer::Iterator iter = mNodeQueue0.Begin();
+    NodeOwnerContainer::Iterator end = mNodeQueue0.End();
+    for( ; iter != end; ++iter )
+    {
+      Node* node = (*iter);
+      if( node->GetIsBatchParent() )
+      {
+        mGeometryBatcher->DiscardBatch( node );
+      }
+    }
     mNodeQueue0.Clear();
     mShaderQueue0.Clear();
     mRendererQueue0.Clear();
@@ -130,6 +141,11 @@ void DiscardQueue::Clear( BufferIndex updateBufferIndex )
     mRendererQueue1.Clear();
     mCameraQueue1.Clear();
   }
+}
+
+void DiscardQueue::SetGeometryBatcher( GeometryBatcher* geometryBatcher )
+{
+  mGeometryBatcher = geometryBatcher;
 }
 
 } // namespace SceneGraph

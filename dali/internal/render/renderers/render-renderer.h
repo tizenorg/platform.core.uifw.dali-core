@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_RENDER_RENDERER_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,12 +129,22 @@ public:
    * @param[in] geometry The new geometry
    */
   void SetGeometry( Render::Geometry* geometry );
+
+  /**
+   * Retrieves the geometry used by the renderer
+   * @return The geometry used by the renderer
+   */
+  Render::Geometry* GetGeometry() const
+  {
+    return mGeometry;
+  }
+
   /**
    * Second-phase construction.
    * This is called when the renderer is inside render thread
-   * @param[in] context to use
-   * @param[in] textureCache to use
-   * @param[in] uniformNameCache to use
+   * @param[in] context Context used by the renderer
+   * @param[in] textureCache The texture cache to use
+   * @param[in] uniformNameCache Cache of uniform names to use
    */
   void Initialize( Context& context, SceneGraph::TextureCache& textureCache, Render::UniformNameCache& uniformNameCache );
 
@@ -217,6 +227,12 @@ public:
   DepthFunction::Type GetDepthFunction() const;
 
   /**
+   * Sets batching mode on the renderer
+   * @param[in] batchingEnabled batching state
+   */
+  void SetBatchingEnabled( bool batchingEnabled );
+
+  /**
    * Called to render during RenderManager::Render().
    * @param[in] context The context used for rendering
    * @param[in] textureCache The texture cache used to get textures
@@ -226,6 +242,9 @@ public:
    * @param[in] modelViewMatrix The model-view matrix.
    * @param[in] viewMatrix The view matrix.
    * @param[in] projectionMatrix The projection matrix.
+   * @param[in] size Size of the render item
+   * @param[in] externalGeometry Optional external geometry, if set the original geometry is ignored. If NULL, original geometry will be drawn as normal.
+   * @param[in] blend If true, blending is enabled
    */
   void Render( Context& context,
                SceneGraph::TextureCache& textureCache,
@@ -237,6 +256,7 @@ public:
                const Matrix& viewMatrix,
                const Matrix& projectionMatrix,
                const Vector3& size,
+               Render::Geometry* externalGeometry,
                bool blend);
 
   /**
@@ -322,6 +342,7 @@ private:
 
   bool mUpdateAttributesLocation:1;       ///< Indicates attribute locations have changed
   bool mPremultipledAlphaEnabled:1;       ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool mBatchingEnabled:1;                ///< Flag indicating if the renderer is batchable
 };
 
 } // namespace SceneGraph

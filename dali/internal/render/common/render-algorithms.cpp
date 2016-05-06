@@ -183,9 +183,11 @@ inline void ProcessRenderList(
     {
       const RenderItem& item = renderList.GetItem( index );
       DALI_PRINT_RENDER_ITEM( item );
-
-      item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
-                              item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );
+      if( !item.mSkipIfBatched )
+      {
+        item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
+                                item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, item.mBatchRenderGeometry, !item.mIsOpaque );
+      }
     }
   }
   else
@@ -200,7 +202,7 @@ inline void ProcessRenderList(
       SetupDepthBuffer( item, context, isLayer3D );
 
       item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
-                              item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );
+                              item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, item.mBatchRenderGeometry, !item.mIsOpaque );
     }
   }
 }

@@ -47,8 +47,11 @@ RenderItem::RenderItem()
   mSize(),
   mRenderer( NULL ),
   mNode( NULL ),
+  mBatchParentNode( NULL ),
+  mBatchRenderGeometry( NULL ),
   mDepthIndex( 0 ),
-  mIsOpaque( true )
+  mIsOpaque( true ),
+  mBatched( false )
 {
 }
 

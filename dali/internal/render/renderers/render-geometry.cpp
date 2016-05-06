@@ -158,7 +158,7 @@ void Geometry::UploadAndDraw(
   }
 
   GLenum geometryGLType(0);
-  unsigned int numIndices(0u);
+  size_t numIndices(0u);
   intptr_t firstIndexOffset(0u);
   if( mIndexBuffer )
   {
@@ -166,12 +166,14 @@ void Geometry::UploadAndDraw(
 
     if( elementBufferOffset )
     {
-      elementBufferOffset = elementBufferOffset >= numIndices ? numIndices- 1 : elementBufferOffset;
+      elementBufferOffset = elementBufferOffset >= numIndices ? numIndices - 1 : elementBufferOffset;
       firstIndexOffset = elementBufferOffset * sizeof(GLushort);
     }
-    if ( elementBufferCount )
+
+    numIndices = numIndices - elementBufferOffset;
+    if( elementBufferCount )
     {
-      numIndices = std::min( elementBufferCount, numIndices - elementBufferOffset );
+      numIndices = std::min( elementBufferCount, numIndices );
     }
   }
 

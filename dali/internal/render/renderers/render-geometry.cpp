@@ -62,6 +62,11 @@ void Geometry::SetIndexBuffer( Dali::Vector<unsigned short>& indices )
   mIndicesChanged = true;
 }
 
+const Dali::Vector<unsigned short>* Geometry::GetIndexBuffer() const
+{
+  return &mIndices;
+}
+
 void Geometry::RemovePropertyBuffer( const Render::PropertyBuffer* propertyBuffer )
 {
   size_t bufferCount = mVertexBuffers.Size();
@@ -75,6 +80,15 @@ void Geometry::RemovePropertyBuffer( const Render::PropertyBuffer* propertyBuffe
       break;
     }
   }
+}
+
+const Render::PropertyBuffer* Geometry::GetPropertyBuffer( size_t index ) const
+{
+  if( index < mVertexBuffers.Size() )
+  {
+    return mVertexBuffers[ index ];
+  }
+  return NULL;
 }
 
 void Geometry::GetAttributeLocationFromProgram( Vector<GLint>& attributeLocation, Program& program, BufferIndex bufferIndex ) const

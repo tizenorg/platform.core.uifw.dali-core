@@ -58,15 +58,14 @@
 #include <dali/internal/update/render-tasks/scene-graph-render-task-list.h>
 #include <dali/internal/update/rendering/scene-graph-texture-set.h>
 #include <dali/internal/update/resources/resource-manager.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
+#include <dali/internal/update/render-tasks/scene-graph-camera.h>
 
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/common/render-manager.h>
 #include <dali/internal/render/queue/render-queue.h>
 #include <dali/internal/render/gl-resources/texture-cache.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
-#include <dali/internal/render/renderers/render-frame-buffer.h>
-#include <dali/internal/render/renderers/render-sampler.h>
-#include <dali/internal/update/render-tasks/scene-graph-camera.h>
 
 // Un-comment to enable node tree debug logging
 //#define NODE_TREE_LOGGING 1
@@ -164,6 +163,8 @@ struct UpdateManager::Impl
     sceneController = new SceneControllerImpl( renderMessageDispatcher, renderQueue, discardQueue );
 
     renderers.SetSceneController( *sceneController );
+
+    discardQueue.SetGeometryBatcher( &geometryBatcher );
 
     // create first 'dummy' node
     nodes.PushBack(0u);
@@ -268,6 +269,7 @@ struct UpdateManager::Impl
 
   GestureContainer                    gestures;                      ///< A container of owned gesture detectors
   bool                                renderTaskWaiting;             ///< A REFRESH_ONCE render task is waiting to be rendered
+  GeometryBatcher                     geometryBatcher;
 };
 
 UpdateManager::UpdateManager( NotificationManager& notificationManager,
@@ -308,13 +310,13 @@ void UpdateManager::InstallRoot( SceneGraph::Layer* layer, bool systemLevel )
   {
     DALI_ASSERT_DEBUG( mImpl->root == NULL && "Root Node already installed" );
     mImpl->root = layer;
-    mImpl->root->CreateTransform( &mImpl->transformManager);
+    mImpl->root->CreateTransform( &mImpl->transformManager );
   }
   else
   {
     DALI_ASSERT_DEBUG( mImpl->systemLevelRoot == NULL && "System-level Root Node already installed" );
     mImpl->systemLevelRoot = layer;
-    mImpl->systemLevelRoot->CreateTransform( &mImpl->transformManager);
+    mImpl->systemLevelRoot->CreateTransform( &mImpl->transformManager );
   }
 
   layer->SetRoot(true);
@@ -332,7 +334,7 @@ void UpdateManager::AddNode( Node* node )
     if(node > (*iter))
     {
       mImpl->nodes.Insert((iter+1), node);
-      node->CreateTransform( &mImpl->transformManager);
+      node->CreateTransform( &mImpl->transformManager );
       break;
     }
   }
@@ -1007,6 +1009,12 @@ unsigned int UpdateManager::Update( float elapsedSeconds,
                              mImpl->renderInstructions );
       }
     }
+
+    // Batch the geometry
+    mImpl->geometryBatcher.Update(  this,
+                                    bufferIndex,
+                                    mImpl->renderInstructions
+                                    );
   }
 
   // check the countdown and notify (note, at the moment this is only done for normal tasks, not for systemlevel tasks)

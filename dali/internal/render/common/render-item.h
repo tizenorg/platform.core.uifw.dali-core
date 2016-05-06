@@ -38,6 +38,7 @@ class Renderer;
 namespace SceneGraph
 {
 
+class RenderGeometry;
 class RenderItem;
 
 typedef std::vector< RenderItem > RendererItemContainer;
@@ -83,6 +84,18 @@ public:
   void SetRenderer( Render::Renderer* renderer );
 
   /**
+   * Sets alternative geometry for batching
+   * @param[in] geometry a geometry object containing batched vertices
+   */
+  void SetBatchGeometry( Render::Geometry* geometry );
+
+  /**
+   * Gets alternative geometry for batching
+   * @return the geometry object
+   */
+  Render::Geometry* GetBatchGeometry() const;
+
+  /**
    * Set the node
    * @param[in] node The node
    */
@@ -96,6 +109,13 @@ public:
   {
     return *mNode;
   }
+
+  /**
+   * Retrieve the model matrix.
+   * @return The model matrix.
+   */
+  const Matrix& GetModelMatrix() const;
+
   /**
    * Retrieve the modelView matrix.
    * @return The modelView matrix.
@@ -168,9 +188,16 @@ private:
   Matrix            mModelViewMatrix;
   Vector3           mSize;
   Render::Renderer* mRenderer;
+
   Node*             mNode;
   int               mDepthIndex;
   bool              mIsOpaque:1;
+
+public:
+
+  bool              mSkipIfBatched:1;
+
+  Render::Geometry*       mBatchRenderGeometry; //<! alternative geometry used for batching objects
 };
 
 } // namespace SceneGraph

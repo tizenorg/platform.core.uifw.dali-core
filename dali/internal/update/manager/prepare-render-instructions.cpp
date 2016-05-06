@@ -34,6 +34,8 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/render/renderers/render-property-buffer.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
 
 namespace
 {
@@ -70,9 +72,19 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
                                      bool cull )
 {
   bool inside( true );
+
+  Node* renderableNode = renderable.mNode;
+  Node* batchParentNode = renderable.mNode->GetBatchParent();
+
+  Node* node = renderable.mRenderer->IsBatchingEnabled() ?
+        batchParentNode : renderableNode;
+
+  if( !node )
+    node = renderableNode;
+
   if ( cull && !renderable.mRenderer->GetShader().HintEnabled( Dali::Shader::HINT_MODIFIES_GEOMETRY ) )
   {
-    const Vector4& boundingSphere = renderable.mNode->GetBoundingSphere();
+    const Vector4& boundingSphere = node->GetBoundingSphere();
     inside = (boundingSphere.w > Math::MACHINE_EPSILON_1000) &&
              (camera.CheckSphereInFrustum( updateBufferIndex, Vector3(boundingSphere), boundingSphere.w ) );
   }
@@ -86,6 +98,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
       RenderItem& item = renderList.GetNextFreeItem();
       item.mRenderer = &renderable.mRenderer->GetRenderer();
       item.mNode = renderable.mNode;
+      item.mBatchParentNode = batchParentNode;
       item.mIsOpaque = (opacity == Renderer::OPAQUE);
 
       if( isLayer3d )
@@ -97,7 +110,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
         item.mDepthIndex = renderable.mRenderer->GetDepthIndex() + static_cast<int>( renderable.mNode->GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER;
       }
       // save MV matrix onto the item
-      renderable.mNode->GetWorldMatrixAndSize( item.mModelMatrix, item.mSize );
+      node->GetWorldMatrixAndSize( item.mModelMatrix, item.mSize );
       Matrix::Multiply( item.mModelViewMatrix, item.mModelMatrix, viewMatrix );
     }
   }
@@ -181,15 +194,21 @@ bool CompareItems( const RendererWithSortAttributes& lhs, const RendererWithSort
 {
   if( lhs.renderItem->mDepthIndex == rhs.renderItem->mDepthIndex )
   {
-    if( lhs.shader == rhs.shader )
+    if( lhs.renderItem->mNode->GetBatchParent() == rhs.renderItem->mNode->GetBatchParent() )
     {
-      if( lhs.textureResourceId == rhs.textureResourceId )
+      if( lhs.shader == rhs.shader )
       {
-        return lhs.geometry < rhs.geometry;
+        if( lhs.textureResourceId == rhs.textureResourceId )
+        {
+          {
+            return lhs.geometry < rhs.geometry;
+          }
+        }
+        return lhs.textureResourceId < rhs.textureResourceId;
       }
-      return lhs.textureResourceId < rhs.textureResourceId;
+      return lhs.shader < rhs.shader;
     }
-    return lhs.shader < rhs.shader;
+    return lhs.renderItem->mNode->GetBatchParent() < rhs.renderItem->mNode->GetBatchParent();
   }
   return lhs.renderItem->mDepthIndex < rhs.renderItem->mDepthIndex;
 }

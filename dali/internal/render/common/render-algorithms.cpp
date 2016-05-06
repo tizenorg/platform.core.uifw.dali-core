@@ -214,8 +214,13 @@ inline void ProcessRenderList(
                            ( depthWriteMode == DepthWriteMode::ON ) );
 
         SetDepthFunction( context, item.mRenderer->GetDepthFunction() );
-        item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
-                                item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );
+        if( !item.mSkipIfBatched )
+        {
+           item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
+                           item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, item.mBatchRenderGeometry, !item.mIsOpaque );
+        }
+        item.mSkipIfBatched = false;
+        item.mBatchRenderGeometry = NULL;
       }
     }
     else
@@ -224,8 +229,13 @@ inline void ProcessRenderList(
       {
         const RenderItem& item = renderList.GetItem( index );
         DALI_PRINT_RENDER_ITEM( item );
-        item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
-                                item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );
+        if( !item.mSkipIfBatched )
+        {
+          item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
+                                  item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, item.mBatchRenderGeometry, !item.mIsOpaque );
+        }
+        item.mSkipIfBatched = false;
+        item.mBatchRenderGeometry = NULL;
       }
     }
   }
@@ -238,9 +248,8 @@ inline void ProcessRenderList(
       DALI_PRINT_RENDER_ITEM( item );
 
       item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
-                              item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );
+                              item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, item.mBatchRenderGeometry, !item.mIsOpaque );
     }
-
   }
 }
 

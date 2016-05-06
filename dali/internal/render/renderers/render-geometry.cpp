@@ -162,17 +162,16 @@ void Geometry::UploadAndDraw(
   intptr_t firstIndexOffset(0u);
   if( mIndexBuffer )
   {
-    numIndices = mIndices.Size();
+    const size_t INDICES_SIZE = mIndices.Size();
+    elementBufferCount = std::min( !elementBufferCount ? INDICES_SIZE : elementBufferCount, INDICES_SIZE ) ;
 
     if( elementBufferOffset )
     {
-      elementBufferOffset = elementBufferOffset >= numIndices ? numIndices- 1 : elementBufferOffset;
+      elementBufferOffset = elementBufferOffset >= INDICES_SIZE ? INDICES_SIZE - 1 : elementBufferOffset;
       firstIndexOffset = elementBufferOffset * sizeof(GLushort);
     }
-    if ( elementBufferCount )
-    {
-      numIndices = std::min( elementBufferCount, numIndices - elementBufferOffset );
-    }
+
+    numIndices = std::min( elementBufferCount, INDICES_SIZE - elementBufferOffset );
   }
 
   switch(mGeometryType)

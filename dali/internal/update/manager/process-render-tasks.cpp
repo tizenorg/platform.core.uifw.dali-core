@@ -102,7 +102,8 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
                             Node& node,
                             Layer& currentLayer,
                             RenderTask& renderTask,
-                            int inheritedDrawMode )
+                            int inheritedDrawMode,
+                            Node* topLevelBatchParent )
 {
   bool resourcesFinished = true;
 
@@ -133,6 +134,19 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
   DALI_ASSERT_DEBUG( NULL != layer );
 
   inheritedDrawMode |= node.GetDrawMode();
+
+  if( !node.IsRoot() )
+  {
+    if( node.GetIsBatchParent() && !topLevelBatchParent )
+    {
+      topLevelBatchParent = &node;
+      node.SetBatchParent( NULL );
+    }
+    else
+    {
+      node.SetBatchParent( topLevelBatchParent );
+    }
+  }
 
   const unsigned int count = node.GetRendererCount();
   for( unsigned int i = 0; i < count; ++i )
@@ -171,7 +185,7 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
   for ( NodeIter iter = children.Begin(); iter != endIter; ++iter )
   {
     Node& child = **iter;
-    bool childResourcesComplete = AddRenderablesForTask( updateBufferIndex, child, *layer, renderTask, inheritedDrawMode );
+    bool childResourcesComplete = AddRenderablesForTask( updateBufferIndex, child, *layer, renderTask, inheritedDrawMode, topLevelBatchParent );
     resourcesFinished &= childResourcesComplete;
   }
 
@@ -250,7 +264,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                                  *sourceNode,
                                                  *layer,
                                                  renderTask,
-                                                 sourceNode->GetDrawMode() );
+                                                 sourceNode->GetDrawMode(),
+                                                 NULL );
 
       renderTask.SetResourcesFinished( resourcesFinished );
       PrepareRenderInstruction( updateBufferIndex,
@@ -314,7 +329,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                                  *sourceNode,
                                                  *layer,
                                                  renderTask,
-                                                 sourceNode->GetDrawMode() );
+                                                 sourceNode->GetDrawMode(),
+                                                 NULL );
 
       PrepareRenderInstruction( updateBufferIndex,
                                 sortedLayers,

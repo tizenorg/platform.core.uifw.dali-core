@@ -22,6 +22,9 @@
 #include <dali/internal/common/internal-constants.h>
 #include <dali/internal/common/memory-pool-object-allocator.h>
 #include <dali/internal/update/common/discard-queue.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
+
+// PUBLIC INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/constants.h>
 
@@ -49,7 +52,8 @@ Node* Node::New()
 }
 
 Node::Node()
-: mTransformManager(0),
+: mGeometryBatcher( NULL ),
+  mTransformManager( NULL ),
   mTransformId( INVALID_TRANSFORM_ID ),
   mParentOrigin( TRANSFORM_PROPERTY_PARENT_ORIGIN ),
   mAnchorPoint( TRANSFORM_PROPERTY_ANCHOR_POINT ),
@@ -65,6 +69,7 @@ Node::Node()
   mWorldMatrix(),
   mWorldColor( Color::WHITE ),
   mParent( NULL ),
+  mBatchParent( NULL ),
   mExclusiveRenderTask( NULL ),
   mChildren(),
   mRegenerateUniformMap( 0 ),
@@ -72,7 +77,8 @@ Node::Node()
   mDirtyFlags(AllFlags),
   mIsRoot( false ),
   mDrawMode( DrawMode::NORMAL ),
-  mColorMode( DEFAULT_COLOR_MODE )
+  mColorMode( DEFAULT_COLOR_MODE ),
+  mIsBatchParent( false )
 {
   mUniformMapChanged[0] = 0u;
   mUniformMapChanged[1] = 0u;
@@ -83,6 +89,11 @@ Node::~Node()
   if( mTransformId != INVALID_TRANSFORM_ID )
   {
     mTransformManager->RemoveTransform(mTransformId);
+  }
+
+  if( mIsBatchParent )
+  {
+    mGeometryBatcher->DiscardBatch( this );
   }
 }
 
@@ -252,7 +263,7 @@ void Node::ResetDefaultProperties( BufferIndex updateBufferIndex )
   mDirtyFlags = NothingFlag;
 }
 
-void Node::SetParent(Node& parentNode)
+void Node::SetParent( Node& parentNode )
 {
   DALI_ASSERT_ALWAYS(this != &parentNode);
   DALI_ASSERT_ALWAYS(!mIsRoot);
@@ -265,6 +276,17 @@ void Node::SetParent(Node& parentNode)
   {
     mTransformManager->SetParent( mTransformId, parentNode.GetTransformId() );
   }
+}
+
+void Node::SetBatchParent( Node* batchParentNode, bool recursive )
+{
+  DALI_ASSERT_ALWAYS(!mIsRoot);
+  mBatchParent = batchParentNode;
+}
+
+void Node::SetIsBatchParent( bool enabled )
+{
+  mIsBatchParent = enabled;
 }
 
 void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
@@ -283,6 +305,7 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
 
   // Remove back-pointer to parent
   mParent = NULL;
+  mBatchParent = NULL;
   mDepth = 0u;
 
   // Remove all child pointers

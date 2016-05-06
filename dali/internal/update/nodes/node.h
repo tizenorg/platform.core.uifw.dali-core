@@ -56,6 +56,7 @@ class DiscardQueue;
 class Layer;
 class RenderTask;
 class UpdateManager;
+class GeometryBatcher;
 
 /**
  * Flag whether property has changed, during the Update phase.
@@ -178,7 +179,7 @@ public:
    * Get the renderer at the given index
    * @param[in] index
    */
-  Renderer* GetRendererAt( unsigned int index )
+  Renderer* GetRendererAt( unsigned int index ) const
   {
     return mRenderer[index];
   }
@@ -611,7 +612,6 @@ public:
            (mTransformManager->IsLocalMatrixDirty( mTransformId ));
   }
 
-
   /**
    * Retrieve the cached world-matrix of a node.
    * @param[in] bufferIndex The buffer to read from.
@@ -685,6 +685,21 @@ public:
     return mDepth;
   }
 
+  /**
+   * @brief Turns on or off being a batch parent for the node
+   * @param[in] enabled If true the node becomes a parent for batch of its children
+   */
+  void SetIsBatchParent( bool enabled );
+
+  /**
+   * @brief Tells if the node is a batch parent
+   * @return True if node is a batch parent, false otherwise.
+   */
+  inline bool GetIsBatchParent()
+  {
+    return mIsBatchParent;
+  }
+
 public:
   /**
    * @copydoc UniformMap::Add
@@ -711,13 +726,43 @@ public:
    */
   void CreateTransform( SceneGraph::TransformManager* transformManager );
 
+  /**
+   * Attaches the GeometryBatcher object to the node.
+   * @param[in] geometryBatcher The pointer to the instance of GeometryBatcher.
+   */
+  inline void SetGeometryBatcher( GeometryBatcher* geometryBatcher )
+  {
+    mGeometryBatcher = geometryBatcher;
+  }
+
 protected:
 
   /**
    * Set the parent of a Node.
    * @param[in] parentNode the new parent.
    */
-  void SetParent(Node& parentNode);
+  void SetParent( Node& parentNode );
+
+
+public:
+
+  /**
+   * Set the batch parent of a Node.
+   * @param[in] batchParentNode The new batch parent.
+   * @param[in] recursive If true, sets the batch parent recursively
+   */
+  void SetBatchParent( Node* batchParentNode, bool recursive );
+
+  /**
+   * Retrieve the batch parent of a Node.
+   * @return The batch parent node, or NULL if the Node has not been added to the scene-graph.
+   */
+  const Node* GetBatchParent() const
+  {
+    return mBatchParent;
+  }
+
+protected:
 
   /**
    * Protected constructor; See also Node::New()
@@ -781,6 +826,9 @@ private:
 
 public: // Default properties
 
+
+  GeometryBatcher* mGeometryBatcher;                 ///< Pointer to the instance of the GeometryBatcher
+
   TransformManager* mTransformManager;
   TransformId mTransformId;
   TransformManagerPropertyVector3    mParentOrigin;  ///< Local transform; the position is relative to this. Sets the TransformFlag dirty when changed
@@ -799,11 +847,12 @@ public: // Default properties
   TransformManagerVector3Input    mWorldScale;
   TransformManagerQuaternionInput mWorldOrientation;  ///< Full inherited orientation
   TransformManagerMatrixInput     mWorldMatrix;       ///< Full inherited world matrix
-  InheritedColor      mWorldColor;        ///< Full inherited color
+  InheritedColor                  mWorldColor;        ///< Full inherited color
 
 protected:
 
   Node*               mParent;                       ///< Pointer to parent node (a child is owned by its parent)
+  Node*               mBatchParent;                  ///< Pointer to batch parent node
   RenderTask*         mExclusiveRenderTask;          ///< Nodes can be marked as exclusive to a single RenderTask
 
   RendererContainer   mRenderer;                     ///< Container of renderers; not owned
@@ -822,6 +871,9 @@ protected:
 
   DrawMode::Type          mDrawMode:2;               ///< How the Node and its children should be drawn
   ColorMode               mColorMode:2;              ///< Determines whether mWorldColor is inherited, 2 bits is enough
+
+  bool                mIsBatchParent:1;              ///< Marks node as a batch parent
+
 
   // Changes scope, should be at end of class
   DALI_LOG_OBJECT_STRING_DECLARATION;
@@ -927,6 +979,19 @@ inline void RemoveRendererMessage( EventThreadServices& eventThreadServices, con
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &node, &Node::RemoveRenderer, renderer );
 }
+
+inline void SetIsBatchParentMessage( EventThreadServices& eventThreadServices, const Node& node, bool isBatchParent )
+{
+  typedef MessageValue1< Node, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &node, &Node::SetIsBatchParent, isBatchParent );
+}
+
+
 } // namespace SceneGraph
 
 } // namespace Internal

@@ -182,6 +182,18 @@ public:
    bool IsPreMultipliedAlphaEnabled() const;
 
   /**
+  * Turns on/off batching feature for this renderer
+  * @param[in] enabled state of batching mode
+  */
+  void SetBatchingEnabled( bool enabled );
+
+  /**
+  * Returns state of batching mode
+  * @return batching mode state ( true if enabled )
+  */
+  bool IsBatchingEnabled() const;
+
+  /**
    * @brief Get the scene graph object
    *
    * @return the scene object
@@ -322,6 +334,8 @@ private: // data
   Dali::DepthTestMode::Type mDepthTestMode;         ///< Local copy of depth test mode
 
   bool mPremultipledAlphaEnabled : 1;               ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+
+  bool mBatchingEnabled : 1;                        ///< Flag indicating whether render is batchable or not
 };
 
 } // namespace Internal

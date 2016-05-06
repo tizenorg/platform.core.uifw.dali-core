@@ -275,7 +275,14 @@ public:
        * @note The default value is DepthTestMode::AUTO
        * @SINCE_1_1.38
        */
-      DEPTH_TEST_MODE
+      DEPTH_TEST_MODE,
+
+      /**
+       * @brief name "batchingEnabled", type BOOLEAN
+       * @see Batching
+       * @note The default value is 'false'
+       */
+      BATCHING_ENABLED
     };
   };
 

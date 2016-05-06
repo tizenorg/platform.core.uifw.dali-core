@@ -33,6 +33,7 @@ namespace Internal
 namespace Render
 {
 class Renderer;
+class RenderGeometry;
 }
 
 namespace SceneGraph
@@ -65,8 +66,14 @@ struct RenderItem
   Vector3           mSize;
   Render::Renderer* mRenderer;
   Node*             mNode;
+  Node*             mBatchParentNode;
+
+  mutable Render::Geometry* mBatchRenderGeometry;
+
   int               mDepthIndex;
   bool              mIsOpaque:1;
+  mutable bool      mSkipIfBatched:1;
+
 
 private:
 

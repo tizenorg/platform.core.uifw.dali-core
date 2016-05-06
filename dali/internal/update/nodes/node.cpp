@@ -22,6 +22,9 @@
 #include <dali/internal/common/internal-constants.h>
 #include <dali/internal/common/memory-pool-object-allocator.h>
 #include <dali/internal/update/common/discard-queue.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
+
+// PUBLIC INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/constants.h>
 
@@ -49,7 +52,8 @@ Node* Node::New()
 }
 
 Node::Node()
-: mTransformManager(0),
+: mGeometryBatcher( NULL ),
+  mTransformManager( 0 ),
   mTransformId( INVALID_TRANSFORM_ID ),
   mParentOrigin( TRANSFORM_PROPERTY_PARENT_ORIGIN ),
   mAnchorPoint( TRANSFORM_PROPERTY_ANCHOR_POINT ),
@@ -65,6 +69,7 @@ Node::Node()
   mWorldMatrix(),
   mWorldColor( Color::WHITE ),
   mParent( NULL ),
+  mBatchParent( NULL ),
   mExclusiveRenderTask( NULL ),
   mChildren(),
   mRegenerateUniformMap( 0 ),
@@ -72,7 +77,8 @@ Node::Node()
   mDirtyFlags(AllFlags),
   mIsRoot( false ),
   mDrawMode( DrawMode::NORMAL ),
-  mColorMode( DEFAULT_COLOR_MODE )
+  mColorMode( DEFAULT_COLOR_MODE ),
+  mIsBatchParent( false )
 {
   mUniformMapChanged[0] = 0u;
   mUniformMapChanged[1] = 0u;
@@ -83,6 +89,11 @@ Node::~Node()
   if( mTransformId != INVALID_TRANSFORM_ID )
   {
     mTransformManager->RemoveTransform(mTransformId);
+  }
+
+  if( mIsBatchParent )
+  {
+    mGeometryBatcher->DiscardBatch( this );
   }
 }
 
@@ -265,6 +276,65 @@ void Node::SetParent(Node& parentNode)
   {
     mTransformManager->SetParent( mTransformId, parentNode.GetTransformId() );
   }
+
+  // if reparenting, find top most batch parent
+  Node *node = mParent;
+  Node *batchParent = NULL;
+  while( node )
+  {
+    if( node->mIsBatchParent )
+    {
+      batchParent = node;
+    }
+    node = node->mParent;
+  }
+  SetBatchParent( batchParent, true );
+}
+
+void Node::SetBatchParent( Node* batchParentNode, bool recursive )
+{
+  DALI_ASSERT_ALWAYS(!mIsRoot);
+  mBatchParent = batchParentNode;
+  if( recursive )
+  {
+    NodeContainer::Iterator iter = mChildren.Begin();
+    NodeContainer::Iterator end = mChildren.End();
+    for( ; iter != end; ++iter )
+    {
+      (*iter)->SetBatchParent( batchParentNode, true );
+    }
+  }
+}
+
+void Node::SetIsBatchParent( bool batchParent )
+{
+    mIsBatchParent = batchParent;
+
+    // we need top-most batch parent. if there is one, then there's
+    // no need to process children.
+    Node *node = mParent;
+    Node *topMostBatchParent = NULL;
+    while( node )
+    {
+      if( node->mIsBatchParent )
+      {
+        topMostBatchParent = node;
+      }
+      node = node->mParent;
+    }
+
+    if ( topMostBatchParent )
+    {
+      return;
+    }
+
+    // update children
+    NodeContainer::Iterator iter = mChildren.Begin();
+    NodeContainer::Iterator end = mChildren.End();
+    for( ; iter != end; ++iter )
+    {
+      (*iter)->SetBatchParent( this, true );
+    }
 }
 
 void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
@@ -283,6 +353,7 @@ void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )
 
   // Remove back-pointer to parent
   mParent = NULL;
+  mBatchParent = NULL;
   mDepth = 0u;
 
   // Remove all child pointers

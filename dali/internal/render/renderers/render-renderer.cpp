@@ -438,6 +438,11 @@ DepthWriteMode::Type Renderer::GetDepthWriteMode() const
   return mDepthWriteMode;
 }
 
+void Renderer::SetBatchingEnabled( bool batchingEnabled )
+{
+  mBatchingEnabled = batchingEnabled;
+}
+
 void Renderer::Render( Context& context,
                        SceneGraph::TextureCache& textureCache,
                        BufferIndex bufferIndex,
@@ -447,6 +452,7 @@ void Renderer::Render( Context& context,
                        const Matrix& viewMatrix,
                        const Matrix& projectionMatrix,
                        const Vector3& size,
+                       Render::Geometry* externalGeometry,
                        bool blend )
 {
   // Get the program to use:
@@ -502,7 +508,22 @@ void Renderer::Render( Context& context,
       mUpdateAttributesLocation = false;
     }
 
-    mGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation, mIndexedDrawFirstElement, mIndexedDrawElementsCount );
+    if( externalGeometry )
+    {
+      Render::Geometry* old = externalGeometry;
+      externalGeometry = NULL;
+      *((Render::Geometry**)&externalGeometry) = old;
+    }
+
+    if( externalGeometry )
+    {
+      externalGeometry = *(&externalGeometry);
+      const Render::PropertyBuffer* buf = externalGeometry->GetPropertyBuffer(0);
+      buf = *(&buf);
+    }
+
+  Render::Geometry* geometry = externalGeometry ? externalGeometry : mGeometry;
+  geometry->UploadAndDraw( context, bufferIndex, mAttributesLocation, mIndexedDrawFirstElement, mIndexedDrawElementsCount );
   }
 }
 

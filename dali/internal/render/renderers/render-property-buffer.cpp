@@ -104,7 +104,8 @@ PropertyBuffer::PropertyBuffer()
  mData(NULL),
  mGpuBuffer(NULL),
  mSize(0),
- mDataChanged(true)
+ mDataChanged(true),
+ mBatchChanged(false)
 {
 }
 
@@ -125,11 +126,26 @@ void PropertyBuffer::SetData( Dali::Vector<char>* data, size_t size )
   mDataChanged = true;
 }
 
+void PropertyBuffer::UpdateData()
+{
+  mDataChanged = true;
+}
+
 bool PropertyBuffer::Update( Context& context )
 {
   if( !mData || !mFormat || !mSize )
   {
     return false;
+  }
+
+  if( mSize > 144)
+  {
+    mSize = *(&mSize);
+  }
+  if(mBatchChanged)
+  {
+    mDataChanged = true;
+    mBatchChanged = false;
   }
 
   if( !mGpuBuffer || mDataChanged )

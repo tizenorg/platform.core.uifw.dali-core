@@ -34,6 +34,8 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/render/renderers/render-property-buffer.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
 
 namespace
 {
@@ -70,9 +72,16 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
                                      bool cull )
 {
   bool inside( true );
+
+  Node* node = renderable.mRenderer->IsBatchingEnabled() ?
+        renderable.mNode->GetBatchParent() : renderable.mNode;
+
+  if (!node)
+    node = renderable.mNode;
+
   if ( cull && !renderable.mRenderer->GetShader().HintEnabled( Dali::Shader::HINT_MODIFIES_GEOMETRY ) )
   {
-    const Vector4& boundingSphere = renderable.mNode->GetBoundingSphere();
+    const Vector4& boundingSphere = node->GetBoundingSphere();
     inside = (boundingSphere.w > Math::MACHINE_EPSILON_1000) &&
              (camera.CheckSphereInFrustum( updateBufferIndex, Vector3(boundingSphere), boundingSphere.w ) );
   }
@@ -97,7 +106,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
         item.SetDepthIndex( renderable.mRenderer->GetDepthIndex() + static_cast<int>( renderable.mNode->GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER );
       }
       // save MV matrix onto the item
-      const Matrix& worldMatrix = renderable.mNode->GetWorldMatrixAndSize( item.GetSize() );
+      const Matrix& worldMatrix = node->GetWorldMatrixAndSize( item.GetSize() );
       Matrix::Multiply( item.GetModelViewMatrix(), worldMatrix, viewMatrix );
     }
   }
@@ -181,15 +190,21 @@ bool CompareItems( const RendererWithSortAttributes& lhs, const RendererWithSort
 {
   if( lhs.renderItem->GetDepthIndex() == rhs.renderItem->GetDepthIndex() )
   {
-    if( lhs.shader == rhs.shader )
+    if( lhs.renderItem->GetNode().GetBatchParent() == rhs.renderItem->GetNode().GetBatchParent() )
     {
-      if( lhs.textureResourceId == rhs.textureResourceId )
+      if( lhs.shader == rhs.shader )
       {
-        return lhs.geometry < rhs.geometry;
+        if( lhs.textureResourceId == rhs.textureResourceId )
+        {
+          {
+            return lhs.geometry < rhs.geometry;
+          }
+        }
+        return lhs.textureResourceId < rhs.textureResourceId;
       }
-      return lhs.textureResourceId < rhs.textureResourceId;
+      return lhs.shader < rhs.shader;
     }
-    return lhs.shader < rhs.shader;
+    return lhs.renderItem->GetNode().GetBatchParent() < rhs.renderItem->GetNode().GetBatchParent();
   }
   return lhs.renderItem->GetDepthIndex() < rhs.renderItem->GetDepthIndex();
 }

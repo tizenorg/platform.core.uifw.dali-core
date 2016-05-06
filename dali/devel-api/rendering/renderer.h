@@ -225,7 +225,8 @@ public:
        * @see DepthWriteMode
        * @note The default value is DepthWriteMode::AUTO
        */
-      DEPTH_WRITE_MODE
+      DEPTH_WRITE_MODE,
+      BATCHING_ENABLED                                    ///< name "batchingEnabled",                type BOOLEAN
     };
   };
 

@@ -46,7 +46,9 @@ RenderItem::RenderItem()
   mRenderer( NULL ),
   mNode( NULL ),
   mDepthIndex( 0 ),
-  mIsOpaque( true )
+  mIsOpaque( true ),
+  mSkipIfBatched( false ),
+  mBatchRenderGeometry( NULL )
 {
 }
 
@@ -61,12 +63,23 @@ void RenderItem::operator delete( void* ptr )
 
 void RenderItem::Reset()
 {
+  mBatchRenderGeometry = NULL;
   mRenderer = NULL;
 }
 
 void RenderItem::SetRenderer( Render::Renderer* renderer )
 {
   mRenderer = renderer;
+}
+
+void RenderItem::SetBatchGeometry( Render::Geometry* geometry )
+{
+  mBatchRenderGeometry = geometry;
+}
+
+Render::Geometry* RenderItem::GetBatchGeometry() const
+{
+  return mBatchRenderGeometry;
 }
 
 void RenderItem::SetNode( Node* node )

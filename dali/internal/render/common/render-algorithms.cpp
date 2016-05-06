@@ -148,8 +148,20 @@ inline void ProcessRenderList(
         DepthWriteMode::Type depthWriteMode = renderer.GetDepthWriteMode();
         context.DepthMask( ( depthWriteMode == DepthWriteMode::AUTO && item.IsOpaque() ) ||
                            ( depthWriteMode == DepthWriteMode::ON ) );
-
-        renderer.Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, item.GetSize(), !item.IsOpaque() );
+        if( !item.mSkipIfBatched )
+        {
+          renderer.Render( context,
+                           textureCache,
+                           bufferIndex,
+                           item.GetNode(),
+                           defaultShader,
+                           item.GetModelViewMatrix(),
+                           viewMatrix,
+                           projectionMatrix,
+                           item.GetSize(),
+                           item.GetBatchGeometry(),
+                           !item.IsOpaque() );
+        }
       }
     }
     else
@@ -158,7 +170,20 @@ inline void ProcessRenderList(
       {
         const RenderItem& item = renderList.GetItem( index );
         DALI_PRINT_RENDER_ITEM( item );
-        item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, item.GetSize(), !item.IsOpaque() );
+        if( !item.mSkipIfBatched )
+        {
+          item.GetRenderer().Render( context,
+                           textureCache,
+                           bufferIndex,
+                           item.GetNode(),
+                           defaultShader,
+                           item.GetModelViewMatrix(),
+                           viewMatrix,
+                           projectionMatrix,
+                           item.GetSize(),
+                           item.GetBatchGeometry(),
+                           !item.IsOpaque() );
+        }
       }
     }
   }
@@ -170,9 +195,8 @@ inline void ProcessRenderList(
       const RenderItem& item = renderList.GetItem( index );
       DALI_PRINT_RENDER_ITEM( item );
 
-      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, item.GetSize(), !item.IsOpaque() );
+      item.GetRenderer().Render( context, textureCache, bufferIndex, item.GetNode(), defaultShader, item.GetModelViewMatrix(), viewMatrix, projectionMatrix, item.GetSize(), item.GetBatchGeometry(), !item.IsOpaque() );
     }
-
   }
 }
 

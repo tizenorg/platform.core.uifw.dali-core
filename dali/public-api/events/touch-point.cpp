@@ -37,6 +37,19 @@ TouchPoint::TouchPoint(int id, State state, float screenX, float screenY, float 
 {
 }
 
+TouchPoint::TouchPoint(int id, State state, float screenX, float screenY, float radius, float radiusX, float radiusY, float pressure, float angle)
+: deviceId(id),
+  state(state),
+  local(screenX, screenY),
+  screen(screenX, screenY),
+  radius(radius),
+  radiusX(radiusX),
+  radiusY(radiusY),
+  pressure(pressure),
+  angle(angle)
+{
+}
+
 TouchPoint::~TouchPoint()
 {
 }

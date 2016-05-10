@@ -84,6 +84,22 @@ struct DALI_IMPORT_API TouchPoint
   TouchPoint(int id, State state, float screenX, float screenY, float localX, float localY);
 
   /**
+   * @brief Constructor
+   *
+   * @SINCE_1_1.33
+   * @param[in]  id       The touch device ID.
+   * @param[in]  state    The state.
+   * @param[in]  screenX  The X co-ordinate relative to the screen's origin.
+   * @param[in]  screenY  The Y co-ordinate relative to the screen's origin.
+   * @param[in]  radius
+   * @param[in]  radiusX
+   * @param[in]  radiusY
+   * @param[in]  pressure
+   * @param[in]  angle
+   */
+  TouchPoint(int id, State state, float screenX, float screenY, float radius, float radiusX, float radiusY, float pressure, float angle);
+
+  /**
    * @brief Destructor
    * @SINCE_1_0.0
    */
@@ -121,6 +137,22 @@ struct DALI_IMPORT_API TouchPoint
    * @brief The co-ordinates relative to the top-left of the screen.
    */
   Vector2 screen;
+
+  /**
+   * @brief Radius of press point - radius_x and y if its an ellipse (radius is the average of the 2)
+   */
+  float radius, radiusX, radiusY;
+
+  /**
+   * @brief pressure < 1.0 == normal, > 1.0 == more, 0.0 == none
+   */
+  float pressure;
+
+  /**
+   * @brief angle relative to perpendicular (0.0 == perpendicular), in degrees
+   */
+  float angle;
+  
 };
 
 typedef std::vector<TouchPoint> TouchPointContainer; ///< Container of touch points. @SINCE_1_0.0

@@ -827,7 +827,10 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
         const AnimatableProperty<bool>* property = dynamic_cast< const AnimatableProperty<bool>* >( entry->GetSceneGraphProperty() );
         DALI_ASSERT_DEBUG( NULL != property );
 
-        value = (*property)[ bufferIndex ];
+        if( property )
+        {
+          value = (*property)[ bufferIndex ];
+        }
         break;
       }
 
@@ -836,7 +839,10 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
         const AnimatableProperty<int>* property = dynamic_cast< const AnimatableProperty<int>* >( entry->GetSceneGraphProperty() );
         DALI_ASSERT_DEBUG( NULL != property );
 
-        value = (*property)[ bufferIndex ];
+        if( property )
+        {
+          value = (*property)[ bufferIndex ];
+        }
         break;
       }
 
@@ -845,7 +851,10 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
         const AnimatableProperty<float>* property = dynamic_cast< const AnimatableProperty<float>* >( entry->GetSceneGraphProperty() );
         DALI_ASSERT_DEBUG( NULL != property );
 
-        value = (*property)[ bufferIndex ];
+        if( property )
+        {
+          value = (*property)[ bufferIndex ];
+        }
         break;
       }
 
@@ -854,19 +863,22 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
         const AnimatableProperty<Vector2>* property = dynamic_cast< const AnimatableProperty<Vector2>* >( entry->GetSceneGraphProperty() );
         DALI_ASSERT_DEBUG( NULL != property );
 
-        if(entry->componentIndex == 0)
+        if( property )
         {
-          value = (*property)[ bufferIndex ].x;
+          if(entry->componentIndex == 0)
+          {
+            value = (*property)[ bufferIndex ].x;
+          }
+          else if(entry->componentIndex == 1)
+          {
+            value = (*property)[ bufferIndex ].y;
+          }
+          else
+          {
+            value = (*property)[ bufferIndex ];
+          }
+          break;
         }
-        else if(entry->componentIndex == 1)
-        {
-          value = (*property)[ bufferIndex ].y;
-        }
-        else
-        {
-          value = (*property)[ bufferIndex ];
-        }
-        break;
       }
 
       case Property::VECTOR3:
@@ -874,23 +886,26 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
         const AnimatableProperty<Vector3>* property = dynamic_cast< const AnimatableProperty<Vector3>* >( entry->GetSceneGraphProperty() );
         DALI_ASSERT_DEBUG( NULL != property );
 
-        if(entry->componentIndex == 0)
+        if( property )
         {
-          value = (*property)[ bufferIndex ].x;
+          if(entry->componentIndex == 0)
+          {
+            value = (*property)[ bufferIndex ].x;
+          }
+          else if(entry->componentIndex == 1)
+          {
+            value = (*property)[ bufferIndex ].y;
+          }
+          else if(entry->componentIndex == 2)
+          {
+            value = (*property)[ bufferIndex ].z;
+          }
+          else
+          {
+            value = (*property)[ bufferIndex ];
+          }
+          break;
         }
-        else if(entry->componentIndex == 1)
-        {
-          value = (*property)[ bufferIndex ].y;
-        }
-        else if(entry->componentIndex == 2)
-        {
-          value = (*property)[ bufferIndex ].z;
-        }
-        else
-        {
-          value = (*property)[ bufferIndex ];
-        }
-        break;
       }
 
       case Property::VECTOR4:
@@ -898,27 +913,30 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
         const AnimatableProperty<Vector4>* property = dynamic_cast< const AnimatableProperty<Vector4>* >( entry->GetSceneGraphProperty() );
         DALI_ASSERT_DEBUG( NULL != property );
 
-        if(entry->componentIndex == 0)
+        if( property )
         {
-          value = (*property)[ bufferIndex ].x;
+          if(entry->componentIndex == 0)
+          {
+            value = (*property)[ bufferIndex ].x;
+          }
+          else if(entry->componentIndex == 1)
+          {
+            value = (*property)[ bufferIndex ].y;
+          }
+          else if(entry->componentIndex == 2)
+          {
+            value = (*property)[ bufferIndex ].z;
+          }
+          else if(entry->componentIndex == 3)
+          {
+            value = (*property)[ bufferIndex ].w;
+          }
+          else
+          {
+            value = (*property)[ bufferIndex ];
+          }
+          break;
         }
-        else if(entry->componentIndex == 1)
-        {
-          value = (*property)[ bufferIndex ].y;
-        }
-        else if(entry->componentIndex == 2)
-        {
-          value = (*property)[ bufferIndex ].z;
-        }
-        else if(entry->componentIndex == 3)
-        {
-          value = (*property)[ bufferIndex ].w;
-        }
-        else
-        {
-          value = (*property)[ bufferIndex ];
-        }
-        break;
       }
 
       case Property::MATRIX:
@@ -926,7 +944,10 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
         const AnimatableProperty<Matrix>* property = dynamic_cast< const AnimatableProperty<Matrix>* >( entry->GetSceneGraphProperty() );
         DALI_ASSERT_DEBUG( NULL != property );
 
-        value = (*property)[ bufferIndex ];
+        if( property )
+        {
+          value = (*property)[ bufferIndex ];
+        }
         break;
       }
 
@@ -935,7 +956,10 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
         const AnimatableProperty<Matrix3>* property = dynamic_cast< const AnimatableProperty<Matrix3>* >( entry->GetSceneGraphProperty() );
         DALI_ASSERT_DEBUG( NULL != property );
 
-        value = (*property)[ bufferIndex ];
+        if( property )
+        {
+          value = (*property)[ bufferIndex ];
+        }
         break;
       }
 
@@ -944,7 +968,10 @@ Property::Value Object::GetPropertyValue( const PropertyMetadata* entry ) const
         const AnimatableProperty<Quaternion>* property = dynamic_cast< const AnimatableProperty<Quaternion>* >( entry->GetSceneGraphProperty() );
         DALI_ASSERT_DEBUG( NULL != property );
 
-        value = (*property)[ bufferIndex ];
+        if( property )
+        {
+          value = (*property)[ bufferIndex ];
+        }
         break;
       }
 

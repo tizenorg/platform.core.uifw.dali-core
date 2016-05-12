@@ -58,18 +58,19 @@ Vector4::Vector4( const Vector3& vec3 )
 
 Vector4& Vector4::operator=(const Vector2& vec2 )
 {
-  // only set x and y
   x = vec2.x;
   y = vec2.y;
+  z = 0.0f;
+  w = 0.0f;
   return *this;
 }
 
 Vector4& Vector4::operator=(const Vector3& vec3 )
 {
-  // only set x, y and z
   x = vec3.x;
   y = vec3.y;
   z = vec3.z;
+  w = 0.0f;
   return *this;
 }
 

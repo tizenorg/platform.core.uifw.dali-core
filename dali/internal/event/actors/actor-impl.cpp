@@ -1731,7 +1731,7 @@ bool Actor::IsKeyboardFocusable() const
 
 bool Actor::GetTouchRequired() const
 {
-  return !mTouchedSignal.Empty() || mDerivedRequiresTouch;
+  return !mTouchedSignal.Empty() || !mTouchEventSignal.Empty() || mDerivedRequiresTouch;
 }
 
 bool Actor::GetHoverRequired() const
@@ -1765,20 +1765,21 @@ bool Actor::IsGestureRequred( Gesture::Type type ) const
   return mGestureData && mGestureData->IsGestureRequred( type );
 }
 
-bool Actor::EmitTouchEventSignal( const TouchEvent& event )
+bool Actor::EmitTouchEventSignal( const TouchEvent& event, const TouchEventHandle& eventHandle )
 {
   bool consumed = false;
 
-  if( !mTouchedSignal.Empty() )
+  if( !mTouchedSignal.Empty() || !mTouchEventSignal.Empty() )
   {
     Dali::Actor handle( this );
     consumed = mTouchedSignal.Emit( handle, event );
+    consumed = mTouchEventSignal.Emit( handle, eventHandle );
   }
 
   if( !consumed )
   {
     // Notification for derived classes
-    consumed = OnTouchEvent( event );
+    consumed = OnTouchEvent( event ); // TODO
   }
 
   return consumed;
@@ -1825,6 +1826,11 @@ bool Actor::EmitWheelEventSignal( const WheelEvent& event )
 Dali::Actor::TouchSignalType& Actor::TouchedSignal()
 {
   return mTouchedSignal;
+}
+
+Dali::Actor::TouchEventSignalType& Actor::TouchEventSignal()
+{
+  return mTouchEventSignal;
 }
 
 Dali::Actor::HoverSignalType& Actor::HoveredSignal()

@@ -47,6 +47,7 @@ class Quaternion;
 class Layer;
 struct KeyEvent;
 struct TouchEvent;
+class TouchEventHandle;
 struct HoverEvent;
 struct WheelEvent;
 struct Vector2;
@@ -312,12 +313,13 @@ public:
 
   // Typedefs
 
-  typedef Signal< bool (Actor, const TouchEvent&)> TouchSignalType;                 ///< Touch signal type @SINCE_1_0.0
-  typedef Signal< bool (Actor, const HoverEvent&)> HoverSignalType;                 ///< Hover signal type @SINCE_1_0.0
-  typedef Signal< bool (Actor, const WheelEvent&) > WheelEventSignalType;           ///< Wheel signal type @SINCE_1_0.0
-  typedef Signal< void (Actor) > OnStageSignalType;  ///< Stage connection signal type @SINCE_1_0.0
-  typedef Signal< void (Actor) > OffStageSignalType; ///< Stage disconnection signal type @SINCE_1_0.0
-  typedef Signal< void (Actor) > OnRelayoutSignalType; ///< Called when the actor is relaid out @SINCE_1_0.0
+  typedef Signal< bool (Actor, const TouchEvent&) > TouchSignalType;            ///< @DEPRECATED_1_1.36 @brief Touch signal type @SINCE_1_0.0
+  typedef Signal< bool (Actor, const TouchEventHandle&) > TouchEventSignalType; ///< Touch signal type @SINCE_1_1.36
+  typedef Signal< bool (Actor, const HoverEvent&) > HoverSignalType;            ///< Hover signal type @SINCE_1_0.0
+  typedef Signal< bool (Actor, const WheelEvent&) > WheelEventSignalType;       ///< Wheel signal type @SINCE_1_0.0
+  typedef Signal< void (Actor) > OnStageSignalType;                             ///< Stage connection signal type @SINCE_1_0.0
+  typedef Signal< void (Actor) > OffStageSignalType;                            ///< Stage disconnection signal type @SINCE_1_0.0
+  typedef Signal< void (Actor) > OnRelayoutSignalType;                          ///< Called when the actor is relaid out @SINCE_1_0.0
 
   // Creation
 
@@ -1438,6 +1440,7 @@ public: // Renderer
 public: // Signals
 
   /**
+   * @DEPRECATED_1_1.36
    * @brief This signal is emitted when touch input is received.
    *
    * A callback of the following type may be connected:
@@ -1451,6 +1454,21 @@ public: // Signals
    * @pre The Actor has been initialized.
    */
   TouchSignalType& TouchedSignal();
+
+  /**
+   * @brief This signal is emitted when touch input is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   bool YourCallbackName( Actor actor, const TouchEventHandle& event );
+   * @endcode
+   * The return value of True, indicates that the touch event has been consumed.
+   * Otherwise the signal will be emitted on the next sensitive parent of the actor.
+   * @SINCE_1_1.36
+   * @return The signal to connect to.
+   * @pre The Actor has been initialized.
+   */
+  TouchEventSignalType& TouchEventSignal();
 
   /**
    * @brief This signal is emitted when hover input is received.

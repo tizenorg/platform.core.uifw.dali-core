@@ -541,9 +541,10 @@ void Stage::EmitEventProcessingFinishedSignal()
    mEventProcessingFinishedSignal.Emit();
 }
 
-void Stage::EmitTouchedSignal( const TouchEvent& touch )
+void Stage::EmitTouchedSignal( const TouchEvent& touch, const TouchEventHandle& touchHandle )
 {
   mTouchedSignal.Emit( touch );
+  mTouchEventSignal.Emit( touchHandle );
 }
 
 void Stage::EmitWheelEventSignal(const WheelEvent& event)
@@ -571,6 +572,11 @@ Dali::Stage::EventProcessingFinishedSignalType& Stage::EventProcessingFinishedSi
 Dali::Stage::TouchedSignalType& Stage::TouchedSignal()
 {
   return mTouchedSignal;
+}
+
+Dali::Stage::TouchEventSignalType& Stage::TouchEventSignal()
+{
+  return mTouchEventSignal;
 }
 
 Dali::Stage::WheelEventSignalType& Stage::WheelEventSignal()

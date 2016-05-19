@@ -1358,10 +1358,11 @@ public:
 
   /**
    * Used by the EventProcessor to emit touch event signals.
-   * @param[in] event The touch event.
+   * @param[in] event The touch event (Old API).
+   * @param[in] eventHandle The touch event handle.
    * @return True if the event was consumed.
    */
-  bool EmitTouchEventSignal( const TouchEvent& event );
+  bool EmitTouchEventSignal( const TouchEvent& event, const TouchEventHandle& eventHandle );
 
   /**
    * Used by the EventProcessor to emit hover event signals.
@@ -1381,6 +1382,11 @@ public:
    * @copydoc Dali::Actor::TouchedSignal()
    */
   Dali::Actor::TouchSignalType& TouchedSignal();
+
+  /**
+   * @copydoc Dali::Actor::TouchEventSignal()
+   */
+  Dali::Actor::TouchEventSignalType& TouchEventSignal();
 
   /**
    * @copydoc Dali::Actor::HoveredSignal()
@@ -1795,6 +1801,7 @@ protected:
 
   // Signals
   Dali::Actor::TouchSignalType             mTouchedSignal;
+  Dali::Actor::TouchEventSignalType        mTouchEventSignal;
   Dali::Actor::HoverSignalType             mHoveredSignal;
   Dali::Actor::WheelEventSignalType        mWheelEventSignal;
   Dali::Actor::OnStageSignalType           mOnStageSignal;

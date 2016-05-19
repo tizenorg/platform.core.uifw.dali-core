@@ -23,6 +23,8 @@
 #endif
 
 // INTERNAL INCLUDES
+#include <dali/public-api/events/point.h>
+#include <dali/public-api/events/touch-event-handle.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/signals/callback.h>
 #include <dali/integration-api/debug.h>
@@ -32,6 +34,7 @@
 #include <dali/internal/event/common/stage-impl.h>
 #include <dali/internal/event/events/hit-test-algorithm-impl.h>
 #include <dali/internal/event/events/multi-point-event-util.h>
+#include <dali/internal/event/events/touch-conversions.h>
 #include <dali/internal/event/render-tasks/render-task-impl.h>
 
 namespace Dali
@@ -48,12 +51,12 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_TOU
 
 const char * TOUCH_POINT_STATE[TouchPoint::Last] =
 {
-  "Down",
-  "Up",
-  "Motion",
-  "Leave",
-  "Stationary",
-  "Interrupted",
+  "DOWN",
+  "UP",
+  "MOTION",
+  "LEAVE",
+  "STATIONARY",
+  "INTERRUPTED",
 };
 
 #endif // defined(DEBUG_ENABLED)
@@ -61,7 +64,7 @@ const char * TOUCH_POINT_STATE[TouchPoint::Last] =
 /**
  *  Recursively deliver events to the actor and its parents, until the event is consumed or the stage is reached.
  */
-Dali::Actor EmitTouchSignals( Dali::Actor actor, const TouchEvent& event )
+Dali::Actor EmitTouchSignals( Dali::Actor actor, const TouchEvent& event, const TouchEventHandle& eventHandle )
 {
   Dali::Actor consumedActor;
 
@@ -76,7 +79,7 @@ Dali::Actor EmitTouchSignals( Dali::Actor actor, const TouchEvent& event )
     // Only emit the signal if the actor's touch signal has connections (or derived actor implementation requires touch).
     if ( actorImpl.GetTouchRequired() )
     {
-      consumed = actorImpl.EmitTouchEventSignal( event );
+      consumed = actorImpl.EmitTouchEventSignal( event, eventHandle );
     }
 
     if ( consumed )
@@ -93,7 +96,7 @@ Dali::Actor EmitTouchSignals( Dali::Actor actor, const TouchEvent& event )
            (parent == oldParent) )
       {
         // One of the actor's parents may consumed the event and they should be set as the consumed actor.
-        consumedActor = EmitTouchSignals( parent, event );
+        consumedActor = EmitTouchSignals( parent, event, eventHandle );
       }
     }
   }
@@ -107,19 +110,24 @@ Dali::Actor EmitTouchSignals( Dali::Actor actor, const TouchEvent& event )
 Dali::Actor EmitTouchSignals( Actor* actor, RenderTask& renderTask, const TouchEvent& originalEvent, TouchPoint::State state )
 {
   TouchEvent touchEvent( originalEvent );
+  TouchEventHandle touchEventHandle;
+  ConvertTouchEventToTouchEventHandle( touchEvent, touchEventHandle );
 
   DALI_ASSERT_DEBUG( NULL != actor && "NULL actor pointer" );
   if( actor )
   {
-    TouchPoint& primaryPoint = touchEvent.points[0];
+    TouchPoint& primaryTouchPoint = touchEvent.points[0];
 
-    actor->ScreenToLocal( renderTask, primaryPoint.local.x, primaryPoint.local.y, primaryPoint.screen.x, primaryPoint.screen.y );
+    actor->ScreenToLocal( renderTask, primaryTouchPoint.local.x, primaryTouchPoint.local.y, primaryTouchPoint.screen.x, primaryTouchPoint.screen.y );
 
-    primaryPoint.hitActor = Dali::Actor(actor);
-    primaryPoint.state = state;
+    primaryTouchPoint.hitActor = Dali::Actor(actor);
+    primaryTouchPoint.state = state;
+
+    Point& primaryPoint = touchEventHandle.GetPoint( 0 );
+    ConvertTouchPointToPoint( primaryTouchPoint, primaryPoint );
   }
 
-  return EmitTouchSignals( Dali::Actor(actor), touchEvent );
+  return EmitTouchSignals( Dali::Actor(actor), touchEvent, touchEventHandle );
 }
 
 } // unnamed namespace
@@ -151,6 +159,7 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
 
   // Copy so we can add the results of a hit-test.
   TouchEvent touchEvent( event.time );
+  TouchEventHandle touchEventHandle( event.time );
 
   // 1) Check if it is an interrupted event - we should inform our last primary hit actor about this
   //    and emit the stage signal as well.
@@ -158,14 +167,20 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
   if ( event.points[0].state == TouchPoint::Interrupted )
   {
     Dali::Actor consumingActor;
-    touchEvent.points.push_back(event.points[0]);
+    const TouchPoint& currentPoint( event.points[0] );
+
+    touchEvent.points.push_back( currentPoint );
+
+    Point point( currentPoint.deviceId, static_cast< Point::State >( currentPoint.state ), currentPoint.screen );
+    touchEventHandle.AddPoint( point );
 
     Actor* lastPrimaryHitActor( mLastPrimaryHitActor.GetActor() );
     if ( lastPrimaryHitActor )
     {
       Dali::Actor lastPrimaryHitActorHandle( lastPrimaryHitActor );
       touchEvent.points[0].hitActor = lastPrimaryHitActorHandle;
-      consumingActor = EmitTouchSignals( lastPrimaryHitActorHandle, touchEvent );
+      touchEventHandle.GetPoint( 0 ).SetHitActor( lastPrimaryHitActorHandle );
+      consumingActor = EmitTouchSignals( lastPrimaryHitActorHandle, touchEvent, touchEventHandle );
     }
 
     // If the last consumed actor was different to the primary hit actor then inform it as well (if it has not already been informed).
@@ -176,7 +191,8 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
     {
       Dali::Actor lastConsumedActorHandle( lastConsumedActor );
       touchEvent.points[0].hitActor = lastConsumedActorHandle;
-      EmitTouchSignals( lastConsumedActorHandle, touchEvent );
+      touchEventHandle.GetPoint( 0 ).SetHitActor( lastConsumedActorHandle );
+      EmitTouchSignals( lastConsumedActorHandle, touchEvent, touchEventHandle );
     }
 
     // Tell the touch-down consuming actor as well, if required
@@ -188,7 +204,8 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
     {
       Dali::Actor touchDownConsumedActorHandle( touchDownConsumedActor );
       touchEvent.points[0].hitActor = touchDownConsumedActorHandle;
-      EmitTouchSignals( touchDownConsumedActorHandle, touchEvent );
+      touchEventHandle.GetPoint( 0 ).SetHitActor( touchDownConsumedActorHandle );
+      EmitTouchSignals( touchDownConsumedActorHandle, touchEvent, touchEventHandle );
     }
 
     mLastPrimaryHitActor.SetActor( NULL );
@@ -197,7 +214,7 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
     mLastRenderTask.Reset();
 
     touchEvent.points[0].hitActor.Reset();
-    mStage.EmitTouchedSignal( touchEvent );
+    mStage.EmitTouchedSignal( touchEvent, touchEventHandle );
 
     return; // No need for hit testing
   }
@@ -214,11 +231,14 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
     HitTestAlgorithm::Results hitTestResults;
     HitTestAlgorithm::HitTest( stage, iter->screen, hitTestResults );
 
-    TouchPoint newPoint( iter->deviceId, iter->state, iter->screen.x, iter->screen.y );
-    newPoint.hitActor = hitTestResults.actor;
-    newPoint.local = hitTestResults.actorCoordinates;
+    TouchPoint newTouchPoint( iter->deviceId, iter->state, iter->screen.x, iter->screen.y, hitTestResults.actorCoordinates.x, hitTestResults.actorCoordinates.y );
+    newTouchPoint.hitActor = hitTestResults.actor;
 
-    touchEvent.points.push_back( newPoint );
+    Point newPoint( iter->deviceId, static_cast< Point::State >( iter->state ), iter->screen, hitTestResults.actorCoordinates );
+    newPoint.SetHitActor( hitTestResults.actor );
+
+    touchEvent.points.push_back( newTouchPoint );
+    touchEventHandle.AddPoint( newPoint );
 
     DALI_LOG_INFO( gLogFilter, Debug::General, "  State(%s), Screen(%.0f, %.0f), HitActor(%p, %s), Local(%.2f, %.2f)\n",
                    TOUCH_POINT_STATE[iter->state], iter->screen.x, iter->screen.y,
@@ -239,7 +259,7 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
   Dali::Actor consumedActor;
   if ( currentRenderTask )
   {
-    consumedActor = EmitTouchSignals( touchEvent.points[0].hitActor, touchEvent );
+    consumedActor = EmitTouchSignals( touchEvent.points[0].hitActor, touchEvent, touchEventHandle );
   }
 
   TouchPoint& primaryPoint = touchEvent.points[0];
@@ -369,13 +389,21 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
              touchDownConsumedActor != lastConsumedActor )
         {
           Dali::Actor touchDownConsumedActorHandle( touchDownConsumedActor );
+
           touchEvent.points[0].hitActor = touchDownConsumedActorHandle;
           touchEvent.points[0].state = TouchPoint::Interrupted;
-          EmitTouchSignals( touchDownConsumedActorHandle, touchEvent );
+
+          Point& point = touchEventHandle.GetPoint( 0 );
+          point.SetHitActor( touchDownConsumedActorHandle );
+          point.SetState( Point::INTERRUPTED );
+
+          EmitTouchSignals( touchDownConsumedActorHandle, touchEvent, touchEventHandle );
 
           // Restore touch-event to original state
           touchEvent.points[0].hitActor = primaryHitActor;
           touchEvent.points[0].state = primaryPointState;
+          point.SetHitActor( primaryHitActor );
+          point.SetState( static_cast< Point::State >( primaryPointState ) );
         }
 
         mTouchDownConsumedActor.SetActor( NULL );
@@ -384,7 +412,7 @@ void TouchEventProcessor::ProcessTouchEvent( const Integration::TouchEvent& even
 
       case TouchPoint::Down:
       {
-        mStage.EmitTouchedSignal( touchEvent );
+        mStage.EmitTouchedSignal( touchEvent, touchEventHandle );
         break;
       }
 
@@ -410,11 +438,16 @@ void TouchEventProcessor::OnObservedActorDisconnected( Actor* actor )
     touchEvent.points.push_back( TouchPoint( 0, TouchPoint::Interrupted, 0.0f, 0.0f ) );
     touchEvent.points[0].hitActor = handle;
 
-    Dali::Actor eventConsumer = EmitTouchSignals( handle, touchEvent );
+    TouchEventHandle touchEventHandle( 0 );
+    Point point( 0, Point::INTERRUPTED, Vector2::ZERO );
+    point.SetHitActor( handle );
+    touchEventHandle.AddPoint( point );
+
+    Dali::Actor eventConsumer = EmitTouchSignals( handle, touchEvent, touchEventHandle );
 
     if ( mLastConsumedActor.GetActor() != eventConsumer )
     {
-      EmitTouchSignals( Dali::Actor( mLastConsumedActor.GetActor() ), touchEvent );
+      EmitTouchSignals( Dali::Actor( mLastConsumedActor.GetActor() ), touchEvent, touchEventHandle );
     }
 
     // Do not set mLastPrimaryHitActor to NULL we may be iterating through its observers

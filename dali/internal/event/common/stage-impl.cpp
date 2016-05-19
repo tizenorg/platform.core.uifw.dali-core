@@ -541,9 +541,10 @@ void Stage::EmitEventProcessingFinishedSignal()
    mEventProcessingFinishedSignal.Emit();
 }
 
-void Stage::EmitTouchedSignal( const TouchEvent& touch )
+void Stage::EmitTouchedSignal( const TouchEvent& touchEvent, const TouchData& touch )
 {
-  mTouchedSignal.Emit( touch );
+  mTouchedSignal.Emit( touchEvent );
+  mTouchSignal.Emit( touch );
 }
 
 void Stage::EmitWheelEventSignal(const WheelEvent& event)
@@ -570,7 +571,13 @@ Dali::Stage::EventProcessingFinishedSignalType& Stage::EventProcessingFinishedSi
 
 Dali::Stage::TouchedSignalType& Stage::TouchedSignal()
 {
+  DALI_LOG_WARNING( "Deprecated. Use TouchSignal() instead." );
   return mTouchedSignal;
+}
+
+Dali::Stage::TouchSignalType& Stage::TouchSignal()
+{
+  return mTouchSignal;
 }
 
 Dali::Stage::WheelEventSignalType& Stage::WheelEventSignal()

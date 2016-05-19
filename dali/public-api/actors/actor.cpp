@@ -539,6 +539,11 @@ Actor::TouchSignalType& Actor::TouchedSignal()
   return GetImplementation(*this).TouchedSignal();
 }
 
+Actor::TouchDataSignalType& Actor::TouchEventSignal()
+{
+  return GetImplementation( *this ).TouchEventSignal();
+}
+
 Actor::HoverSignalType& Actor::HoveredSignal()
 {
   return GetImplementation(*this).HoveredSignal();

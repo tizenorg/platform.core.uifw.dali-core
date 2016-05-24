@@ -46,6 +46,10 @@ Integration development package for the OpenGLES Canvas - headers for integratin
 %define dali_data_rw_dir /opt/usr/share/dali/
 %define dali_data_ro_dir /usr/share/dali/
 %define dev_include_path %{_includedir}
+%define enable_debug_command ""
+%if 0%{?enable_debug}
+%define enable_debug_command "--enable-debug"
+%endif
 
 ##############################
 # Build
@@ -88,7 +92,8 @@ LDFLAGS="${LDFLAGS:-%optflags}" ; export LDFLAGS;
       --sharedstatedir=%{_sharedstatedir} \
       --mandir=%{_mandir} \
       --enable-gles=%{target_gles_version} \
-      --infodir=%{_infodir}
+      --infodir=%{_infodir} \
+      %{enable_debug_command}
 
 make %{?jobs:-j%jobs}
 

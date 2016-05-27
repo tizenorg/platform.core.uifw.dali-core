@@ -18,6 +18,7 @@
 // CLASS HEADER
 #include <dali/devel-api/rendering/texture-set.h>  // Dali::TextureSet
 
+
 // INTERNAL INCLUDES
 #include <dali/internal/event/rendering/texture-set-impl.h> // Dali::Internal::TextureSet
 #include <dali/internal/event/rendering/sampler-impl.h> // Dali::Internal::Sampler
@@ -69,6 +70,19 @@ void TextureSet::SetImage( size_t index, Image image )
   }
 }
 
+void TextureSet::SetTexture( size_t index, Texture texture )
+{
+  if( texture )
+  {
+    Internal::NewTexturePtr texturePtr( &GetImplementation( texture ) );
+    GetImplementation(*this).SetTexture( index, texturePtr );
+  }
+  else
+  {
+    GetImplementation(*this).SetImage( index, NULL );
+  }
+}
+
 Image TextureSet::GetImage( size_t index ) const
 {
   Internal::Image* imagePtr = GetImplementation(*this).GetImage( index );
@@ -103,5 +117,48 @@ TextureSet::TextureSet( Internal::TextureSet* pointer )
 : BaseHandle( pointer )
 {
 }
+
+
+//FERRAN : Remove this
+//Texture Texture::New( TextureType::Type type, Pixel::Format format, unsigned int width, unsigned int height, bool hasMipmaps )
+//{
+//  Internal::NewTexturePtr texture = Internal::NewTexture::New(type, format, width, height, hasMipmaps );
+//  return Texture( texture.Get() );
+//}
+//
+//Texture::Texture()
+//{
+//}
+//
+//Texture::~Texture()
+//{
+//}
+//
+//Texture::Texture( const Texture& handle )
+//: BaseHandle( handle )
+//{
+//}
+//
+//Texture Texture::DownCast( BaseHandle handle )
+//{
+//  return Texture( dynamic_cast<Dali::Internal::NewTexture*>(handle.GetObjectPtr()));
+//}
+//
+//Texture& Texture::operator=( const Texture& handle )
+//{
+//  BaseHandle::operator=( handle );
+//  return *this;
+//}
+//
+//void Texture::Upload( Vector<unsigned char>& buffer, const TextureUploadParams& params )
+//{
+//  return GetImplementation(*this).Upload( buffer, params );
+//}
+//
+//Texture::Texture( Internal::NewTexture* pointer )
+//: BaseHandle( pointer )
+//{
+//}
+
 
 } //namespace Dali

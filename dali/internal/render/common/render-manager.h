@@ -50,6 +50,7 @@ class Renderer;
 class Sampler;
 class RenderTracker;
 class Geometry;
+class NewTexture;
 }
 
 namespace SceneGraph
@@ -260,6 +261,11 @@ public:
    * @param[in] geometryType The new geometry type
    */
   void SetGeometryType( Render::Geometry* geometry, unsigned int geometryType );
+
+  void AddTexture( Render::NewTexture* texture );
+  void RemoveTexture( Render::NewTexture* texture );
+  void UploadTexture( Render::NewTexture* texture, Vector<unsigned char>& buffer, const TextureUploadParams& params );
+  void GenerateMipmaps( Render::NewTexture* texture );
 
   /**
    * Adds a render tracker to the RenderManager. RenderManager takes ownership of the

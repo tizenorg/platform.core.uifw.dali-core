@@ -472,6 +472,12 @@ public:
   void RemoveVertexBuffer( Render::Geometry* geometry, Render::PropertyBuffer* propertyBuffer );
 
 
+  //FERRAN : Comment
+  void AddTexture( Render::NewTexture* texture );
+  void RemoveTexture( Render::NewTexture* texture );
+  void UploadTexture( Render::NewTexture* texture, Vector<unsigned char>& buffer, const TextureUploadParams& params );
+  void GenerateMipmaps( Render::NewTexture* texture );
+
 public:
 
   /**
@@ -1145,6 +1151,91 @@ inline void SetGeometryTypeMessage( UpdateManager& manager, Render::Geometry& ge
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &manager, &UpdateManager::SetGeometryType, &geometry, geometryType );
+}
+
+inline void AddTexture( UpdateManager& manager, Render::NewTexture& texture )
+{
+  typedef MessageValue1< UpdateManager, Render::NewTexture*  > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::AddTexture, &texture );
+}
+
+inline void RemoveTexture( UpdateManager& manager, Render::NewTexture& texture )
+{
+  typedef MessageValue1< UpdateManager, Render::NewTexture*  > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::RemoveTexture, &texture );
+}
+
+template< typename T >
+class UploadTextureDataMessage : public MessageBase
+{
+public:
+
+  /**
+   * Constructor which does a Vector::Swap()
+   */
+  UploadTextureDataMessage( T* manager, Render::NewTexture* texture, Dali::Vector<unsigned char>& data, const Dali::TextureUploadParams& params )
+  : MessageBase(),
+    mManager( manager ),
+    mRenderTexture( texture ),
+    mParams( params )
+  {
+    mData.Swap( data );
+  }
+
+  /**
+   * Virtual destructor
+   */
+  virtual ~UploadTextureDataMessage()
+  {
+  }
+
+  /**
+   * @copydoc MessageBase::Process
+   */
+  virtual void Process( BufferIndex /*bufferIndex*/ )
+  {
+    DALI_ASSERT_DEBUG( mManager && "Message does not have an object" );
+    mManager->UploadTexture( mRenderTexture, mData, mParams );
+  }
+
+private:
+
+  T* mManager;
+  Render::NewTexture* mRenderTexture;
+  Dali::Vector<unsigned char> mData;
+  Dali::TextureUploadParams mParams;
+};
+
+inline void UploadTextureMessage( UpdateManager& manager, Render::NewTexture& texture, Dali::Vector<unsigned char>& data, const Dali::TextureUploadParams& params )
+{
+  typedef UploadTextureDataMessage< UpdateManager > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &texture, data, params );
+}
+
+inline void GenerateMipmapsMessage( UpdateManager& manager, Render::NewTexture& texture )
+{
+  typedef MessageValue1< UpdateManager, Render::NewTexture*  > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::GenerateMipmaps, &texture );
 }
 
 } // namespace SceneGraph

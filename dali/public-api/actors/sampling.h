@@ -39,7 +39,12 @@ enum Type
   NONE = 0,   ///< Use GL defaults (minification NEAREST_MIPMAP_LINEAR, magnification LINEAR) @SINCE_1_0.0
   DEFAULT,    ///< Use Dali defaults (minification LINEAR, magnification LINEAR) @SINCE_1_0.0
   NEAREST,    ///< Filter nearest @SINCE_1_0.0
-  LINEAR      ///< Filter linear @SINCE_1_0.0
+  LINEAR,      ///< Filter linear @SINCE_1_0.0
+  NEAREST_MIPMAP_NEAREST,
+  LINEAR_MIPMAP_NEAREST,
+  NEAREST_MIPMAP_LINEAR,
+  LINEAR_MIPMAP_LINEAR
+
 };
 
 } //namespace FilterMode

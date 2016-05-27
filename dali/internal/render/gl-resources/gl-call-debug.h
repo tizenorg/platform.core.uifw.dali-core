@@ -43,7 +43,7 @@ void CheckGlError( Integration::GlAbstraction& glAbstraction, const char* operat
 #ifdef DALI_GL_ERROR_CHECK
 #define CHECK_GL(c,a)  (a); CheckGlError(c,#a)
 #else
-#define CHECK_GL(c,a)  (a)
+#define CHECK_GL(c,a)  (a); CheckGlError(c,#a)
 #endif
 
 #ifdef DEBUG_ENABLED

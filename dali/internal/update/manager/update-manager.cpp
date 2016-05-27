@@ -1168,15 +1168,15 @@ void UpdateManager::SetFilterMode( Render::Sampler* sampler, unsigned int minFil
   new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::SetFilterMode, sampler, minFilterMode, magFilterMode );
 }
 
-void UpdateManager::SetWrapMode( Render::Sampler* sampler, unsigned int uWrapMode, unsigned int vWrapMode )
+void UpdateManager::SetWrapMode( Render::Sampler* sampler, unsigned int rWrapMode, unsigned int sWrapMode, unsigned int tWrapMode )
 {
-  typedef MessageValue3< RenderManager, Render::Sampler*, unsigned int, unsigned int > DerivedType;
+  typedef MessageValue4< RenderManager, Render::Sampler*, unsigned int, unsigned int, unsigned int > DerivedType;
 
   // Reserve some memory inside the render queue
   unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
 
   // Construct message in the render queue memory; note that delete should not be called on the return value
-  new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::SetWrapMode, sampler, uWrapMode, vWrapMode );
+  new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::SetWrapMode, sampler, rWrapMode, sWrapMode, tWrapMode );
 }
 
 void UpdateManager::AddPropertyBuffer( Render::PropertyBuffer* propertyBuffer )
@@ -1289,6 +1289,49 @@ void UpdateManager::AddVertexBuffer( Render::Geometry* geometry, Render::Propert
   new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::AddVertexBuffer, geometry, propertyBuffer );
 }
 
+void UpdateManager::AddTexture( Render::NewTexture* texture )
+{
+  typedef MessageValue1< RenderManager, Render::NewTexture* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::AddTexture, texture );
+}
+
+void UpdateManager::RemoveTexture( Render::NewTexture* texture)
+{
+  typedef MessageValue1< RenderManager, Render::NewTexture* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::RemoveTexture, texture );
+}
+
+void UpdateManager::UploadTexture( Render::NewTexture* texture, Vector<unsigned char>& buffer, const TextureUploadParams& params )
+{
+  typedef UploadTextureDataMessage< RenderManager > DerivedType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mImpl->renderManager, texture, buffer, params );
+}
+
+void UpdateManager::GenerateMipmaps( Render::NewTexture* texture )
+{
+  typedef MessageValue1< RenderManager, Render::NewTexture* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::GenerateMipmaps, texture );
+}
 
 } // namespace SceneGraph
 

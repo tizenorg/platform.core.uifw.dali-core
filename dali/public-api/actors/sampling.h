@@ -39,7 +39,24 @@ enum Type
   NONE = 0,   ///< Use GL defaults (minification NEAREST_MIPMAP_LINEAR, magnification LINEAR) @SINCE_1_0.0
   DEFAULT,    ///< Use Dali defaults (minification LINEAR, magnification LINEAR) @SINCE_1_0.0
   NEAREST,    ///< Filter nearest @SINCE_1_0.0
-  LINEAR      ///< Filter linear @SINCE_1_0.0
+  LINEAR,      ///< Filter linear @SINCE_1_0.0
+
+  NEAREST_MIPMAP_NEAREST, ///<Chooses the mipmap that most closely matches the size of the pixel being textured and
+                          ///uses the GL_NEAREST criterion (the texture element closest to the specified texture coordinates)
+                          ///to produce a texture value. @SINCE_ 1_1.36
+
+  LINEAR_MIPMAP_NEAREST,  ///<Chooses the mipmap that most closely matches the size of the pixel being textured and uses the
+                          ///GL_LINEAR criterion (a weighted average of the four texture elements that are closest to the specified
+                          ///texture coordinates) to produce a texture value. @SINCE_ 1_1.36
+
+  NEAREST_MIPMAP_LINEAR,  ///<Chooses the two mipmaps that most closely match the size of the pixel being textured and uses the GL_NEAREST
+                          ///criterion (the texture element closest to the specified texture coordinates ) to produce a texture value from
+                          ///each mipmap. The final texture value is a weighted average of those two values. @SINCE_ 1_1.36
+
+  LINEAR_MIPMAP_LINEAR   ///<Chooses the two mipmaps that most closely match the size of the pixel being textured and uses the GL_LINEAR
+                         ///criterion (a weighted average of the texture elements that are closest to the specified texture coordinates) to produce
+                         ///a texture value from each mipmap. The final texture value is a weighted average of those two values. @SINCE_ 1_1.36
+
 };
 
 } //namespace FilterMode

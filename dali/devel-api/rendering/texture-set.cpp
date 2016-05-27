@@ -18,6 +18,7 @@
 // CLASS HEADER
 #include <dali/devel-api/rendering/texture-set.h>  // Dali::TextureSet
 
+
 // INTERNAL INCLUDES
 #include <dali/internal/event/rendering/texture-set-impl.h> // Dali::Internal::TextureSet
 #include <dali/internal/event/rendering/sampler-impl.h> // Dali::Internal::Sampler
@@ -62,6 +63,19 @@ void TextureSet::SetImage( size_t index, Image image )
   {
     Internal::ImagePtr imagePtr( &GetImplementation( image ) );
     GetImplementation(*this).SetImage( index, imagePtr );
+  }
+  else
+  {
+    GetImplementation(*this).SetImage( index, NULL );
+  }
+}
+
+void TextureSet::SetTexture( size_t index, Texture texture )
+{
+  if( texture )
+  {
+    Internal::NewTexturePtr texturePtr( &GetImplementation( texture ) );
+    GetImplementation(*this).SetTexture( index, texturePtr );
   }
   else
   {

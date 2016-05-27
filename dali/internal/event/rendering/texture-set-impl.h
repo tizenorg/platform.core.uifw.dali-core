@@ -30,6 +30,7 @@
 #include <dali/internal/event/common/object-impl.h> // Dali::Internal::Object
 #include <dali/internal/event/common/property-buffer-impl.h> // Dali::Internal::PropertyBuffer
 #include <dali/internal/event/rendering/sampler-impl.h> // Dali::Internal::Sampler
+#include <dali/internal/event/rendering/texture-impl.h> // Dali::Internal::Texture
 #include <dali/internal/event/rendering/shader-impl.h> // Dali::Internal::Shader
 
 namespace Dali
@@ -61,6 +62,8 @@ public:
    * @copydoc Dali::TextureSet::SetImage()
    */
   void SetImage( size_t index, ImagePtr image );
+
+  void SetTexture( size_t index, NewTexturePtr texture );
 
   /**
    * @copydoc Dali::TextureSet::GetImage()
@@ -107,17 +110,6 @@ public: // Functions from Connectable
 
 private: // implementation
 
-  struct Texture
-  {
-    Texture()
-    :image(NULL),
-     sampler( NULL )
-    {}
-
-    ImagePtr    image;
-    SamplerPtr  sampler;
-  };
-
   TextureSet();
 
   /**
@@ -138,7 +130,9 @@ private: // unimplemented methods
 private: // Data
   EventThreadServices& mEventThreadServices;    ///<Used to send messages to the update thread
   SceneGraph::TextureSet* mSceneObject;
-  std::vector<Texture> mTextures;
+  std::vector<ImagePtr> mImages;
+  std::vector<SamplerPtr> mSamplers;
+  std::vector<NewTexturePtr> mNewTextures;
   bool mOnStage;
 
 };

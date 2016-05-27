@@ -183,6 +183,17 @@ void RenderTask::SetTargetFrameBuffer( Dali::FrameBufferImage image )
   }
 }
 
+void RenderTask::SetFrameBuffer( FrameBufferPtr frameBuffer )
+{
+  mFrameBuffer = frameBuffer;
+  SetFrameBufferMessage( GetEventThreadServices(), *mSceneObject, frameBuffer->GetRenderObject() );
+}
+
+FrameBuffer* RenderTask::GetFrameBuffer() const
+{
+  return mFrameBuffer.Get();
+}
+
 Dali::FrameBufferImage RenderTask::GetTargetFrameBuffer() const
 {
   return mFrameBufferImage;

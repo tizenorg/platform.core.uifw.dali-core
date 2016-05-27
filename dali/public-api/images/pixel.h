@@ -61,6 +61,8 @@ enum Format
   RGBA8888,                                 ///< color depth 32 bit with alpha, 8-8-8-8 @SINCE_1_0.0
   BGRA8888,                                 ///< color depth 32 bit with alpha, 8-8-8-8 @SINCE_1_0.0
 
+  DEPTH_STENCIL,                            ///< color depth 32 bit, 24 for depth and 8 for stencil @SINCE_1_1.37
+
   // GLES 3 Standard compressed formats:
   COMPRESSED_R11_EAC,                       ///< ETC2 / EAC single-channel, unsigned @SINCE_1_0.0
   COMPRESSED_SIGNED_R11_EAC,                ///< ETC2 / EAC single-channel, signed @SINCE_1_0.0

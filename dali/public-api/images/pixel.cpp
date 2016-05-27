@@ -89,6 +89,7 @@ bool Pixel::HasAlpha(Format pixelformat)
     case COMPRESSED_SRGB8_ETC2:
     case COMPRESSED_RGB8_ETC1:
     case COMPRESSED_RGB_PVRTC_4BPPV1:
+    case DEPTH_STENCIL:
     case INVALID:
     {
       return false;
@@ -171,6 +172,7 @@ unsigned int Pixel::GetBytesPerPixel(Format pixelFormat)
     case COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
     case COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR:
     case COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
+    case DEPTH_STENCIL:
     case INVALID:
     {
       DALI_LOG_ERROR("Pixel formats for compressed images do not have meaningful integer bits per pixel values.\n");
@@ -274,6 +276,7 @@ void Pixel::GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitM
     case COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
     case COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR:
     case COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
+    case DEPTH_STENCIL:
     case INVALID:
     {
       DALI_LOG_ERROR("Pixel formats for compressed images are not compatible with simple masking-out of per-pixel alpha.\n");

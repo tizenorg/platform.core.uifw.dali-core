@@ -317,6 +317,7 @@
 #define GL_TEXTURE_MIN_FILTER                            0x2801
 #define GL_TEXTURE_WRAP_S                                0x2802
 #define GL_TEXTURE_WRAP_T                                0x2803
+#define GL_TEXTURE_WRAP_U                                0x2804
 
 /* TextureTarget */
 /*      GL_TEXTURE_2D */

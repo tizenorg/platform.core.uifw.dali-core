@@ -1296,6 +1296,27 @@ void UpdateManager::AddVertexBuffer( Render::Geometry* geometry, Render::Propert
   new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::AddVertexBuffer, geometry, propertyBuffer );
 }
 
+void UpdateManager::AddTexture( Render::NewTexture* texture )
+{
+  typedef MessageValue1< RenderManager, Render::NewTexture* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::AddTexture, texture );
+}
+
+void UpdateManager::RemoveTexture( Render::NewTexture* texture)
+{
+  typedef MessageValue1< RenderManager, Render::NewTexture* > DerivedType;
+
+  // Reserve some memory inside the render queue
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the render queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mImpl->renderManager,  &RenderManager::RemoveTexture, texture );
+}
 
 } // namespace SceneGraph
 

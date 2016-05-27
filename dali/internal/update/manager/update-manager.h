@@ -474,6 +474,10 @@ public:
   void RemoveVertexBuffer( Render::Geometry* geometry, Render::PropertyBuffer* propertyBuffer );
 
 
+  //FERRAN : Comment
+  void AddTexture( Render::NewTexture* texture );
+  void RemoveTexture( Render::NewTexture* texture );
+
 public:
 
   /**
@@ -1147,6 +1151,28 @@ inline void SetGeometryTypeMessage( UpdateManager& manager, Render::Geometry& ge
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &manager, &UpdateManager::SetGeometryType, &geometry, geometryType );
+}
+
+inline void AddTexture( UpdateManager& manager, Render::NewTexture& texture )
+{
+  typedef MessageValue1< UpdateManager, Render::NewTexture*  > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::AddTexture, &texture );
+}
+
+inline void RemoveTexture( UpdateManager& manager, Render::NewTexture& texture )
+{
+  typedef MessageValue1< UpdateManager, Render::NewTexture*  > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::RemoveTexture, &texture );
 }
 
 } // namespace SceneGraph

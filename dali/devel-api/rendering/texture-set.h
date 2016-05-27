@@ -25,6 +25,7 @@
 #include <dali/public-api/images/image.h> // Dali::Image
 #include <dali/public-api/object/handle.h> // Dali::Handle
 #include <dali/devel-api/rendering/sampler.h> // Dali::Sampler
+#include <dali/devel-api/rendering/texture.h> // Dali::Texture
 #include <dali/devel-api/rendering/shader.h> // Dali::Shader
 
 namespace Dali
@@ -89,6 +90,8 @@ public:
    * @param[in] image The image
    */
   void SetImage( size_t index, Image image );
+
+  void SetTexture( size_t index, Texture texture );
 
   /**
    * @brief Get the image at position "index"

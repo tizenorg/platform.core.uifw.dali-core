@@ -22,7 +22,13 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/rendering/sampler.h>
+#include <dali/devel-api/rendering/texture.h>
 #include <dali/integration-api/resource-declarations.h>
+
+#include <dali/internal/render/gl-resources/context.h>
+#include <dali/integration-api/gl-defines.h>
+#include <dali/internal/render/renderers/render-sampler.h>
+#include <stdio.h>
 
 namespace Dali
 {
@@ -94,6 +100,37 @@ private:
   Render::Sampler*        mSampler;
   Integration::ResourceId mTextureId;
 };
+
+
+class NewTexture
+{
+public:
+  NewTexture( Dali::TextureType::Type type, Pixel::Format format, unsigned int width, unsigned int height, bool mipmaps );
+
+  ~NewTexture();
+
+  void Initialize(Context& context);
+  void Destroy( Context& context );
+  void Upload( Context& context, Vector<unsigned char>& buffer, const Dali::TextureUploadParams& params );
+  void Bind( Context& context, unsigned int textureUnit, Render::Sampler* sampler );
+  bool HasAlphaChannel();
+
+private:
+
+  void ApplySampler( Context& context, Render::Sampler* sampler );
+
+  GLuint mId;
+  Dali::TextureType::Type mType;
+
+  GLenum mInternalFormat;
+  GLenum mPixelDataType;
+  unsigned int mWidth;
+  unsigned int mHeight;
+  Render::Sampler mSampler;
+  unsigned int mMipmapCount;
+  bool mHasAlpha : 1;
+};
+
 
 } // namespace Render
 

@@ -33,6 +33,7 @@ class ResourceManager;
 namespace Render
 {
 class Sampler;
+class NewTexture;
 }
 namespace SceneGraph
 {
@@ -78,6 +79,9 @@ public:
    * @param[in] sampler The sampler to be used by the texture
    */
   void SetSampler( size_t index, Render::Sampler* sampler );
+
+  //FERRAN Comment
+  void SetTexture( size_t index, Render::NewTexture* texture );
 
   /**
    * Return whether any texture in the texture set has an alpha channel
@@ -139,6 +143,15 @@ public:
     return mTextureId.Size();
   }
 
+  size_t GetNewTextureCount()
+  {
+    return mTextures.Size();
+  }
+
+  Render::NewTexture* GetNewTexture( size_t index )
+  {
+    return mTextures[index];
+  }
 
 private:
 
@@ -156,6 +169,7 @@ private:
 private: // Data
 
   Vector< Render::Sampler* >      mSamplers;                    ///< List of samplers used by each texture. Not owned
+  Vector< Render::NewTexture* >   mTextures;                    ///< List of samplers used by each texture. Not owned
   Vector< ResourceId >            mTextureId;                   ///< List of texture ids
   Vector<Renderer*>               mRenderers;                   ///< List of renderers using the TextureSet
   bool                            mResourcesReady;              ///< if the textures are ready to be used for rendering
@@ -173,6 +187,17 @@ inline void SetImageMessage( EventThreadServices& eventThreadServices, const Tex
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &textureSet, &TextureSet::SetImage, index, resourceId );
+}
+
+inline void SetTextureMessage( EventThreadServices& eventThreadServices, const TextureSet& textureSet, size_t index, Render::NewTexture* texture )
+{
+  typedef MessageValue2< TextureSet, size_t, Render::NewTexture* > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &textureSet, &TextureSet::SetTexture, index, texture );
 }
 
 inline void SetSamplerMessage( EventThreadServices& eventThreadServices, const TextureSet& textureSet, size_t index, Render::Sampler* sampler )

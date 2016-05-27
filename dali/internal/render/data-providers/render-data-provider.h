@@ -23,6 +23,7 @@
 #include <dali/internal/render/data-providers/property-buffer-data-provider.h>
 #include <dali/internal/render/data-providers/uniform-map-data-provider.h>
 #include <dali/internal/render/renderers/render-texture.h>
+#include <dali/internal/render/renderers/render-sampler.h>
 #include <dali/devel-api/rendering/renderer.h>
 
 namespace Dali
@@ -49,6 +50,7 @@ class RenderDataProvider
 public:
   typedef Dali::Vector< const PropertyBufferDataProvider* > VertexBuffers;
   typedef std::vector< Render::Texture > Textures;
+  typedef std::vector< Render::Sampler* > Samplers;
 
   /**
    * Constructor.
@@ -93,11 +95,17 @@ public:
    */
   Textures& GetTextures();
 
+  Samplers& GetSamplers();
+
+  std::vector<Render::NewTexture*>& GetNewTextures();
+
 private:
 
   const UniformMapDataProvider*       mUniformMapDataProvider;
   Shader*                             mShader;
   Textures                            mTextures;
+  std::vector<Render::NewTexture*>    mNewTextures;
+  Samplers                            mSamplers;
 
   // Give Renderer access to our private data to reduce copying vectors on construction.
   friend class Renderer;

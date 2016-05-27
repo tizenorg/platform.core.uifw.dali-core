@@ -75,9 +75,11 @@ GLint FilterModeToGL( FilterMode::Type filterMode, GLint defaultfilterMode, GLin
     {
       return defaultfilterMode;
     }
+    default:
+    {
+      return GL_LINEAR;
+    }
   }
-
-  return GL_LINEAR;
 }
 
 GLint WrapModeToGL( WrapMode::Type wrapMode, GLint defaultWrapMode )
@@ -100,9 +102,11 @@ GLint WrapModeToGL( WrapMode::Type wrapMode, GLint defaultWrapMode )
     {
       return GL_MIRRORED_REPEAT;
     }
+    default:
+    {
+      return defaultWrapMode;
+    }
   }
-
-  return defaultWrapMode;
 }
 
 using Dali::Internal::Vertex2D;

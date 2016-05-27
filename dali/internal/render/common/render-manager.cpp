@@ -59,6 +59,9 @@ typedef GeometryOwnerContainer::Iterator       GeometryOwnerIter;
 typedef OwnerContainer< Render::Sampler* >    SamplerOwnerContainer;
 typedef SamplerOwnerContainer::Iterator       SamplerOwnerIter;
 
+typedef OwnerContainer< Render::NewTexture* >   TextureOwnerContainer;
+typedef TextureOwnerContainer::Iterator         TextureOwnerIter;
+
 typedef OwnerContainer< Render::PropertyBuffer* > PropertyBufferOwnerContainer;
 typedef PropertyBufferOwnerContainer::Iterator    PropertyBufferOwnerIter;
 
@@ -147,6 +150,7 @@ struct RenderManager::Impl
 
   RendererOwnerContainer        rendererContainer;        ///< List of owned renderers
   SamplerOwnerContainer         samplerContainer;         ///< List of owned samplers
+  TextureOwnerContainer         textureContainer;         ///< List of owned textures
   PropertyBufferOwnerContainer  propertyBufferContainer;  ///< List of owned property buffers
   GeometryOwnerContainer        geometryContainer;        ///< List of owned Geometries
 
@@ -175,6 +179,11 @@ RenderManager::RenderManager()
 
 RenderManager::~RenderManager()
 {
+  for ( TextureOwnerIter iter = mImpl->textureContainer.Begin(); iter != mImpl->textureContainer.End(); ++iter )
+  {
+    (*iter)->Destroy( mImpl->context );
+  }
+
   delete mImpl;
 }
 
@@ -292,14 +301,45 @@ void RenderManager::RemoveSampler( Render::Sampler* sampler )
   }
 }
 
+void RenderManager::AddTexture( Render::NewTexture* texture )
+{
+  mImpl->textureContainer.PushBack( texture );
+  texture->Initialize(mImpl->context);
+}
+
+void RenderManager::RemoveTexture( Render::NewTexture* texture )
+{
+  DALI_ASSERT_DEBUG( NULL != texture );
+
+  TextureOwnerContainer& textures = mImpl->textureContainer;
+
+  // Find the sampler
+  for ( TextureOwnerIter iter = textures.Begin(); iter != textures.End(); ++iter )
+  {
+    if ( *iter == texture )
+    {
+      texture->Destroy( mImpl->context );
+      textures.Erase( iter ); // Texture found; now destroy it
+      break;
+    }
+  }
+}
+
+void RenderManager::UploadTexture( Render::NewTexture* texture, Vector<unsigned char>& buffer, const TextureUploadParams& params )
+{
+  texture->Upload( mImpl->context, buffer, params );
+}
+
 void RenderManager::SetFilterMode( Render::Sampler* sampler, unsigned int minFilterMode, unsigned int magFilterMode )
 {
-  sampler->SetFilterMode( (Dali::FilterMode::Type)minFilterMode, (Dali::FilterMode::Type)magFilterMode );
+  sampler->mMinificationFilter = static_cast<Dali::FilterMode::Type>(minFilterMode);
+  sampler->mMagnificationFilter = static_cast<Dali::FilterMode::Type>(magFilterMode );
 }
 
 void RenderManager::SetWrapMode( Render::Sampler* sampler, unsigned int uWrapMode, unsigned int vWrapMode )
 {
-  sampler->SetWrapMode( (Dali::WrapMode::Type)uWrapMode, (Dali::WrapMode::Type)vWrapMode );
+  sampler->mSWrapMode = static_cast<Dali::WrapMode::Type>(uWrapMode);
+  sampler->mTWrapMode = static_cast<Dali::WrapMode::Type>(vWrapMode);
 }
 
 void RenderManager::AddPropertyBuffer( Render::PropertyBuffer* propertyBuffer )

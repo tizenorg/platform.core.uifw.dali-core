@@ -271,7 +271,7 @@ private:
    * @param[in] program The shader program
    * @return False if create or bind failed, true if success.
    */
-  bool BindTextures( SceneGraph::TextureCache& textureCache, Program& program );
+  bool BindTextures( Context& context, SceneGraph::TextureCache& textureCache, Program& program );
 
 private:
 

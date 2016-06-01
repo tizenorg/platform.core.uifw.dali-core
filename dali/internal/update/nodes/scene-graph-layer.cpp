@@ -97,7 +97,7 @@ void Layer::SetDepthTestDisabled( bool disable )
 
 bool Layer::IsDepthTestDisabled() const
 {
-  return ( mBehavior == Dali::Layer::LAYER_2D ) || mDepthTestDisabled;
+  return mDepthTestDisabled;
 }
 
 void Layer::ClearRenderables()

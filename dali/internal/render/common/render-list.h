@@ -70,7 +70,6 @@ public:
     STENCIL_BUFFER_ENABLED = 1 << 3, ///< If stencil buffer should be used for writing / test operation
     STENCIL_WRITE          = 1 << 4, ///< If the stencil buffer is writable
     STENCIL_CLEAR          = 1 << 5, ///< If the stencil buffer should first be cleared
-
   };
 
   /**
@@ -273,13 +272,13 @@ public:
   /**
    * @return the source layer these renderitems originate from
    */
-  Layer* GetSourceLayer()
+  Layer* GetSourceLayer() const
   {
     return mSourceLayer;
   }
 
   /**
-   * @param layer these renderitems originate from
+   * @param layer The layer these RenderItems originate from
    */
   void SetSourceLayer( Layer* layer )
   {

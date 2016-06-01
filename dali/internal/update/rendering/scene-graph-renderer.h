@@ -174,6 +174,12 @@ public:
   void SetDepthWriteMode( DepthWriteMode::Type depthWriteMode );
 
   /**
+   * Sets the depth buffer test mode
+   * @param[in] depthTestMode The depth buffer test mode
+   */
+  void SetDepthTestMode( DepthTestMode::Type depthTestMode );
+
+  /**
    * Sets the depth function
    * @param[in] depthFunction The depth function
    */
@@ -325,12 +331,11 @@ private:
   Render::Geometry*  mGeometry;        ///< The geometry this renderer uses. (Not owned)
   Shader*            mShader;
 
-  Vector4*              mBlendColor;      ///< The blend color for blending operation
-  unsigned int          mBlendBitmask;    ///< The bitmask of blending options
-  FaceCullingMode::Type mFaceCullingMode; ///< The mode of face culling
-  BlendMode::Type       mBlendMode;       ///< The mode of blending
-  DepthWriteMode::Type  mDepthWriteMode;  ///< The depth write mode
-  DepthFunction::Type   mDepthFunction;   ///< The depth function
+  Vector4*              mBlendColor;           ///< The blend color for blending operation
+  unsigned int          mBlendBitmask;         ///< The bitmask of blending options
+  FaceCullingMode::Type mFaceCullingMode;      ///< The mode of face culling
+  BlendMode::Type       mBlendMode;            ///< The mode of blending
+  DepthFunction::Type   mDepthFunction;        ///< The depth function
 
   CollectedUniformMap mCollectedUniformMap[2]; ///< Uniform maps collected by the renderer
 
@@ -339,6 +344,9 @@ private:
   unsigned int mReferenceCount;                ///< Number of nodes currently using this renderer
   unsigned int mRegenerateUniformMap;          ///< 2 if the map should be regenerated, 1 if it should be copied.
   unsigned short mResendFlag;                  ///< Indicate whether data should be resent to the renderer
+
+  DepthWriteMode::Type  mDepthWriteMode:2;     ///< The depth write mode
+  DepthTestMode::Type   mDepthTestMode:2;      ///< The depth test mode
   bool         mUniformMapChanged[2];          ///< Records if the uniform map has been altered this frame
   bool         mResourcesReady;                ///< Set during the Update algorithm; true if the renderer has resources ready for the current frame.
   bool         mFinishedResourceAcquisition;   ///< Set during DoPrepareResources; true if ready & all resource acquisition has finished (successfully or otherwise)
@@ -473,6 +481,16 @@ inline void SetDepthWriteModeMessage( EventThreadServices& eventThreadServices, 
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &renderer, &Renderer::SetDepthWriteMode, depthWriteMode );
+}
+
+inline void SetDepthTestModeMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, DepthTestMode::Type depthTestMode )
+{
+  typedef MessageValue1< Renderer, DepthTestMode::Type > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetDepthTestMode, depthTestMode );
 }
 
 inline void SetDepthFunctionMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, DepthFunction::Type depthFunction )

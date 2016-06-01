@@ -277,7 +277,7 @@ void Layer::SetDepthTestDisabled( bool disable )
 
 bool Layer::IsDepthTestDisabled() const
 {
-  return mDepthTestDisabled || (mBehavior == Dali::Layer::LAYER_2D);
+  return mDepthTestDisabled;
 }
 
 void Layer::SetSortFunction(Dali::Layer::SortFunctionType function)

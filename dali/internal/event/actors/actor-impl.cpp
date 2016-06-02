@@ -230,6 +230,7 @@ DALI_PROPERTY( "padding",           VECTOR4,  true,  false, false, Dali::Actor::
 DALI_PROPERTY( "minimumSize",       VECTOR2,  true,  false, false, Dali::Actor::Property::MINIMUM_SIZE )
 DALI_PROPERTY( "maximumSize",       VECTOR2,  true,  false, false, Dali::Actor::Property::MAXIMUM_SIZE )
 DALI_PROPERTY( "inheritPosition",   BOOLEAN,  true,  false, false, Dali::Actor::Property::INHERIT_POSITION )
+DALI_PROPERTY( "clippingEnabled",   BOOLEAN,  true,  false, false, Dali::Actor::Property::CLIPPING_ENABLED )
 DALI_PROPERTY_TABLE_END( DEFAULT_ACTOR_PROPERTY_START_INDEX )
 
 // Signals
@@ -2566,6 +2567,11 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
       break;
     }
 
+    case Dali::Actor::Property::CLIPPING_ENABLED:
+    {
+      break;
+    }
+
     default:
     {
       // this can happen in the case of a non-animatable default property so just do nothing
@@ -3054,6 +3060,13 @@ Property::Value Actor::GetDefaultProperty( Property::Index index ) const
     case Dali::Actor::Property::MAXIMUM_SIZE:
     {
       value = Vector2( GetMaximumSize( Dimension::WIDTH ), GetMaximumSize( Dimension::HEIGHT ) );
+      break;
+    }
+
+    case Dali::Actor::Property::CLIPPING_ENABLED:
+    {
+      // Default to disabled.
+      value = false;
       break;
     }
 

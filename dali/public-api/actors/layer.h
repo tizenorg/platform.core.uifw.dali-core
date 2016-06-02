@@ -2,7 +2,7 @@
 #define __DALI_LAYER_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,6 +168,7 @@ public:
   {
     TREE_DEPTH_MULTIPLIER = 10000,
   };
+
   /**
    * @brief The sort function type
    *
@@ -389,6 +390,7 @@ public:
   // Depth test
 
   /**
+   * @DEPRECATED_1_1.37 Use "depthTestMode" Property in Renderer instead.
    * @brief Whether to disable the depth test.
    *
    * By default a layer enables depth test if there is more than one opaque actor or if there is one opaque actor and one, or more, transparent actors in LAYER_3D mode.
@@ -400,6 +402,7 @@ public:
   void SetDepthTestDisabled( bool disable );
 
   /**
+   * @DEPRECATED_1_1.37 Use "depthTestMode" Property in Renderer instead.
    * @brief Retrieves whether depth test is disabled.
    *
    * @SINCE_1_0.0

@@ -2,7 +2,7 @@
 #define __DALI_ACTOR_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -307,7 +307,8 @@ public:
       PADDING,                                            ///< name "padding",               type Vector4 @SINCE_1_0.0
       MINIMUM_SIZE,                                       ///< name "minimumSize",           type Vector2 @SINCE_1_0.0
       MAXIMUM_SIZE,                                       ///< name "maximumSize",           type Vector2 @SINCE_1_0.0
-      INHERIT_POSITION,                                   ///< name "inheritPosition", type bool @SINCE_1_1.24
+      INHERIT_POSITION,                                   ///< name "inheritPosition",       type Boolean @SINCE_1_1.24
+      CLIPPING_ENABLED,                                   ///< name "clippingEnabled",       type Boolean @SINCE_1_1.37
     };
   };
 

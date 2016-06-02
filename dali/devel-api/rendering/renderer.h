@@ -34,7 +34,6 @@ class Renderer;
 
 namespace FaceCullingMode
 {
-
 /**
  * @brief Set face culling mode.
  * @SINCE_1_1.33
@@ -51,7 +50,6 @@ enum Type
 
 namespace BlendMode
 {
-
 /**
  * @brief Blend mode.
  * @SINCE_1_1.33
@@ -76,8 +74,8 @@ namespace BlendEquation
  */
 enum Type
 {
-  ADD              = 0x8006,  ///< The source and destination colors are added to each other. @SINCE_1_0.0
-  SUBTRACT         = 0x800A,  ///< Subtracts the destination from the source. @SINCE_1_0.0
+  ADD              = 0x8006, ///< The source and destination colors are added to each other. @SINCE_1_0.0
+  SUBTRACT         = 0x800A, ///< Subtracts the destination from the source. @SINCE_1_0.0
   REVERSE_SUBTRACT = 0x800B  ///< Subtracts the source from the destination. @SINCE_1_0.0
 };
 
@@ -94,8 +92,8 @@ namespace BlendFactor
  */
 enum Type
 {
-  ZERO                     = 0,  ///< ZERO @SINCE_1_0.0
-  ONE                      = 1,  ///< ONE @SINCE_1_0.0
+  ZERO                     = 0,       ///< ZERO @SINCE_1_0.0
+  ONE                      = 1,       ///< ONE @SINCE_1_0.0
   SRC_COLOR                = 0x0300,  ///< SRC_COLOR @SINCE_1_0.0
   ONE_MINUS_SRC_COLOR      = 0x0301,  ///< ONE_MINUS_SRC_COLOR @SINCE_1_0.0
   SRC_ALPHA                = 0x0302,  ///< SRC_ALPHA @SINCE_1_0.0
@@ -108,14 +106,13 @@ enum Type
   CONSTANT_COLOR           = 0x8001,  ///< CONSTANT_COLOR @SINCE_1_0.0
   ONE_MINUS_CONSTANT_COLOR = 0x8002,  ///< ONE_MINUS_CONSTANT_COLOR @SINCE_1_0.0
   CONSTANT_ALPHA           = 0x8003,  ///< CONSTANT_ALPHA @SINCE_1_0.0
-  ONE_MINUS_CONSTANT_ALPHA = 0x8004  ///< ONE_MINUS_CONSTANT_ALPHA @SINCE_1_0.0
+  ONE_MINUS_CONSTANT_ALPHA = 0x8004   ///< ONE_MINUS_CONSTANT_ALPHA @SINCE_1_0.0
 };
 
 } // namespace BlendFactor
 
 namespace DepthWriteMode
 {
-
 /**
  * @brief Depth buffer write modes
  */
@@ -130,7 +127,6 @@ enum Type
 
 namespace DepthFunction
 {
-
 /**
  * @brief Depth functions
  */
@@ -148,6 +144,58 @@ enum Type
 };
 
 } // namespace DepthFunction
+
+namespace StencilMode
+{
+/**
+ * @brief How the stencil buffer will be managed.
+ */
+enum Type
+{
+  OFF,       ///< Off for this renderer @SINCE_1_1.37
+  AUTO,      ///< Managed by the Actor clipping API @SINCE_1_1.37
+  ON         ///< On for this renderer. Use the Renderer stencil properties to setup behavior @SINCE_1_1.37
+};
+
+} // namespace StencilMode
+
+namespace StencilFunction
+{
+/**
+ * @brief The comparison function used on the stencil buffer.
+ */
+enum Type
+{
+  NEVER,         ///< Always fails @SINCE_1_1.37
+  LESS,          ///< Passes if ( reference & mask ) < ( stencil & mask ) @SINCE_1_1.37
+  EQUAL,         ///< Passes if ( reference & mask ) = ( stencil & mask ) @SINCE_1_1.37
+  LESS_EQUAL,    ///< Passes if ( reference & mask ) <= ( stencil & mask ) @SINCE_1_1.37
+  GREATER,       ///< Passes if ( reference & mask ) > ( stencil & mask ) @SINCE_1_1.37
+  NOT_EQUAL,     ///< Passes if ( reference & mask ) != ( stencil & mask ) @SINCE_1_1.37
+  GREATER_EQUAL, ///< Passes if ( reference & mask ) >= ( stencil & mask ) @SINCE_1_1.37
+  ALWAYS,        ///< Always passes @SINCE_1_1.37
+};
+
+} // namespace StencilFunction
+
+namespace StencilOperation
+{
+/**
+ * @brief The comparison function used on the stencil buffer.
+ */
+enum Type
+{
+  ZERO,           ///< Sets the stencil buffer value to 0 @SINCE_1_1.37
+  KEEP,           ///< Keeps the current value @SINCE_1_1.37
+  REPLACE,        ///< Sets the stencil buffer value to ref, as specified by glStencilFunc @SINCE_1_1.37
+  INCREMENT,      ///< Increments the current stencil buffer value. Clamps to the maximum representable unsigned value @SINCE_1_1.37
+  DECREMENT,      ///< Decrements the current stencil buffer value. Clamps to 0 @SINCE_1_1.37
+  INVERT,         ///< Bitwise inverts the current stencil buffer value @SINCE_1_1.37
+  INCREMENT_WRAP, ///< Increments the current stencil buffer value. Wraps stencil buffer value to zero when incrementing the maximum representable unsigned value @SINCE_1_1.37
+  DECREMENT_WRAP  ///< Decrements the current stencil buffer value. Wraps stencil buffer value to the maximum representable unsigned value when decrementing a stencil buffer value of zero @SINCE_1_1.37
+};
+
+} // namespace StencilOperation
 
 /**
  * @brief Renderer is a handle to an object used to show content by combining a Geometry, a TextureSet and a shader
@@ -253,7 +301,54 @@ public:
        * @see DepthFunction
        * @note The default value is DepthFunction::LESS
        */
-      DEPTH_FUNCTION
+      DEPTH_FUNCTION,
+
+      /**
+       * @brief name "stencilMode", type INTEGER
+       * @see StencilMode
+       * @note The default value is StencilMode::AUTO
+       * @SINCE_1_1.37
+       */
+      STENCIL_MODE,
+
+      /**
+       * @brief name "stencilFunction", type INTEGER
+       * @see StencilFunction
+       * @note The default value is StencilFunction::ALWAYS
+       * @SINCE_1_1.37
+       */
+      STENCIL_FUNCTION,
+
+      /**
+       * @brief name "stencilOperationOnFail", type INTEGER
+       * @see StencilOperation
+       * @note The default value is StencilOperation::KEEP
+       * @SINCE_1_1.37
+       */
+      STENCIL_OPERATION_ON_FAIL,
+
+      /**
+       * @brief name "stencilOperationOnZFail", type INTEGER
+       * @see StencilOperation
+       * @note The default value is StencilOperation::KEEP
+       * @SINCE_1_1.37
+       */
+      STENCIL_OPERATION_ON_Z_FAIL,
+
+      /**
+       * @brief name "stencilOperationOnZPass", type INTEGER
+       * @see StencilOperation
+       * @note The default value is StencilOperation::KEEP
+       * @SINCE_1_1.37
+       */
+      STENCIL_OPERATION_ON_Z_PASS,
+
+      /**
+       * @brief name "stencilMask", type INTEGER
+       * @note The default value is 0xFF
+       * @SINCE_1_1.37
+       */
+      STENCIL_MASK
     };
   };
 

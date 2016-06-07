@@ -148,14 +148,7 @@ public:
      * Unlike LAYER_2D, parent-child relationship does not affect rendering order at all.
      *
      * @SINCE_1_0.0
-     * @remarks This is an experimental feature. Using 2D UI components of DALi Toolkit
-     * in LAYER_3D mode has not been enoughly tested yet
-     * because they are orginally designed for 2D use cases.
-     * Simple controls such as Toolkit::Control or Toolkit::ImageView might not have any problem with LAYER_3D,
-     * but more complex one like Toolkit::PushButton, you might get unexpected rendered order in LAYER_3D.
-     * Although we'll support 2D controls in LAYER_3D soon, we recommend to use 2D controls with LAYER_2D only at this moment.
-     * Of course, controls rendered in 3D space, such as SpiralLayout of Toolkit::ItemView
-     * (see Toolkit::DefaultItemLayout::New), should be used with LAYER_3D.
+     * @remarks This is an experimental feature and its behaviour could be subject to change.
      */
     LAYER_3D,
   };

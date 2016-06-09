@@ -25,6 +25,7 @@
 #include <dali/internal/render/common/texture-uploaded-dispatcher.h>
 #include <dali/internal/render/gl-resources/gpu-buffer.h>
 #include <dali/internal/render/renderers/render-property-buffer.h>
+#include <dali/internal/event/rendering/texture-impl.h>
 
 namespace Dali
 {
@@ -282,7 +283,7 @@ public:
    * @param[in] buffer Vector with the data to be uploaded
    * @param[in] params The parameters for the upload
    */
-  void UploadTexture( Render::NewTexture* texture, Vector<unsigned char>& buffer, const TextureUploadParams& params );
+  void UploadTexture( Render::NewTexture* texture, Vector<unsigned char>& buffer, const NewTexture::UploadParams& params );
 
   /**
    * Generates mipmaps for a given texture

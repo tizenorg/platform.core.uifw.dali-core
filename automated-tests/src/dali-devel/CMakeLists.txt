@@ -15,6 +15,7 @@ SET(TC_SOURCES
         utc-Dali-Geometry.cpp
         utc-Dali-Hash.cpp
         utc-Dali-HitTestAlgorithm.cpp
+        utc-Dali-Texture.cpp
         utc-Dali-TextureSet.cpp
         utc-Dali-Mutex.cpp
         utc-Dali-PixelData.cpp

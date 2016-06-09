@@ -37,6 +37,7 @@
 #include <dali/internal/update/rendering/scene-graph-renderer.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-property-buffer.h>
+#include <dali/internal/event/rendering/texture-impl.h>
 
 namespace Dali
 {
@@ -493,7 +494,7 @@ public:
    * @param[in] buffer Vector with the data to be uploaded
    * @param[in] params The parameters for the upload
    */
-  void UploadTexture( Render::NewTexture* texture, Vector<unsigned char>& buffer, const TextureUploadParams& params );
+  void UploadTexture( Render::NewTexture* texture, Vector<unsigned char>& buffer, const NewTexture::UploadParams& params );
 
   /**
    * Generates mipmaps for a texture owned by the RenderManager
@@ -1236,7 +1237,7 @@ public:
   /**
    * Constructor which does a Vector::Swap()
    */
-  UploadTextureDataMessage( T* manager, Render::NewTexture* texture, Dali::Vector<unsigned char>& data, const Dali::TextureUploadParams& params )
+  UploadTextureDataMessage( T* manager, Render::NewTexture* texture, Dali::Vector<unsigned char>& data, const NewTexture::UploadParams& params )
   : MessageBase(),
     mManager( manager ),
     mRenderTexture( texture ),
@@ -1266,10 +1267,10 @@ private:
   T* mManager;
   Render::NewTexture* mRenderTexture;
   Dali::Vector<unsigned char> mData;
-  Dali::TextureUploadParams mParams;
+  NewTexture::UploadParams mParams;
 };
 
-inline void UploadTextureMessage( UpdateManager& manager, Render::NewTexture& texture, Dali::Vector<unsigned char>& data, const Dali::TextureUploadParams& params )
+inline void UploadTextureMessage( UpdateManager& manager, Render::NewTexture& texture, Dali::Vector<unsigned char>& data, const NewTexture::UploadParams& params )
 {
   typedef UploadTextureDataMessage< UpdateManager > LocalType;
 

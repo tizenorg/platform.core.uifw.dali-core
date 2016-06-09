@@ -64,8 +64,18 @@ NewTexture::~NewTexture()
   }
 }
 
-void NewTexture::Upload( Vector<unsigned char>& buffer, const TextureUploadParams& params )
+void NewTexture::Upload( Vector<unsigned char>& buffer,
+                         unsigned int layer, unsigned int mipmap,
+                         unsigned int xOffset, unsigned int yOffset,
+                         unsigned int width, unsigned int height )
 {
+  UploadParams params = { layer, mipmap, xOffset, yOffset, width, height };
+  UploadTextureMessage(mEventThreadServices.GetUpdateManager(), *mRenderObject, buffer, params );
+}
+
+void NewTexture::Upload( Vector<unsigned char>& buffer )
+{
+  UploadParams params = {0u,0u,0u,0u,mWidth,mHeight};
   UploadTextureMessage(mEventThreadServices.GetUpdateManager(), *mRenderObject, buffer, params );
 }
 

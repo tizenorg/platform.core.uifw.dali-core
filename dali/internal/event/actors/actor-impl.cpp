@@ -2274,7 +2274,17 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
   {
     case Dali::Actor::Property::PARENT_ORIGIN:
     {
-      SetParentOrigin( property.Get< Vector3 >() );
+      Property::Type type = property.GetType();
+      if( type == Property::VECTOR3 )
+      {
+        SetParentOrigin( property.Get< Vector3 >() );
+      }
+      else if ( type == Property::STRING )
+      {
+        std::string parentOriginString;
+        property.Get( parentOriginString );
+        SetParentOrigin( Scripting::GetAnchorConstant( parentOriginString ) );
+      }
       break;
     }
 
@@ -2298,7 +2308,17 @@ void Actor::SetDefaultProperty( Property::Index index, const Property::Value& pr
 
     case Dali::Actor::Property::ANCHOR_POINT:
     {
-      SetAnchorPoint( property.Get< Vector3 >() );
+      Property::Type type = property.GetType();
+      if( type == Property::VECTOR3 )
+      {
+        SetAnchorPoint( property.Get< Vector3 >() );
+      }
+      else if ( type == Property::STRING )
+      {
+        std::string anchorPointString;
+        property.Get( anchorPointString );
+        SetAnchorPoint( Scripting::GetAnchorConstant( anchorPointString ) );
+      }
       break;
     }
 

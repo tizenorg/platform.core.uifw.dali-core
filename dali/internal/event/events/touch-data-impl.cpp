@@ -39,6 +39,14 @@ TouchData::TouchData( unsigned long time )
 {
 }
 
+TouchDataPtr TouchData::Clone( const TouchData& other )
+{
+  TouchDataPtr touchData( new TouchData );
+  touchData->mPoints = other.mPoints;
+  touchData->mTime = other.mTime;
+  return touchData;
+}
+
 TouchData::~TouchData()
 {
 }
@@ -57,7 +65,7 @@ int32_t TouchData::GetDeviceId( size_t point ) const
 {
   if( point < mPoints.size() )
   {
-    return mPoints[ point ].deviceId;
+    return mPoints[ point ].GetDeviceId();
   }
   return -1;
 }
@@ -66,7 +74,7 @@ PointState::Type TouchData::GetState( size_t point ) const
 {
   if( point < mPoints.size() )
   {
-    return static_cast< PointState::Type >( mPoints[ point ].state );
+    return mPoints[ point ].GetState();
   }
   return PointState::FINISHED;
 }
@@ -75,7 +83,7 @@ Dali::Actor TouchData::GetHitActor( size_t point ) const
 {
   if( point < mPoints.size() )
   {
-    return mPoints[ point ].hitActor;
+    return mPoints[ point ].GetHitActor();
   }
   return Dali::Actor();
 }
@@ -84,7 +92,7 @@ const Vector2& TouchData::GetLocalPosition( size_t point ) const
 {
   if( point < mPoints.size() )
   {
-    return mPoints[ point ].local;
+    return mPoints[ point ].GetLocalPosition();
   }
   return Vector2::ZERO;
 }
@@ -93,25 +101,26 @@ const Vector2& TouchData::GetScreenPosition( size_t point ) const
 {
   if( point < mPoints.size() )
   {
-    return mPoints[ point ].screen;
+    return mPoints[ point ].GetScreenPosition();
   }
   return Vector2::ZERO;
 }
 
-const TouchPoint& TouchData::GetPoint( size_t point ) const
+const Integration::Point& TouchData::GetPoint( size_t point ) const
 {
   DALI_ASSERT_DEBUG( point < mPoints.size() && "No point at index" );
   return mPoints[ point ];
 }
 
-void TouchData::AddPoint( const TouchPoint& point )
+Integration::Point& TouchData::GetPoint( size_t point )
 {
-  mPoints.push_back( point );
+  DALI_ASSERT_DEBUG( point < mPoints.size() && "No point at index" );
+  return mPoints[ point ];
 }
 
-void TouchData::SetPoints( const TouchPointContainer& points )
+void TouchData::AddPoint( const Integration::Point& point )
 {
-  mPoints = points;
+  mPoints.push_back( point );
 }
 
 } // namsespace Internal

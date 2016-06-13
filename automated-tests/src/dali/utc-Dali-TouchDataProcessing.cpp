@@ -210,10 +210,13 @@ struct OutOfBoundsFunctor
   bool returnValue;
 };
 
-Integration::TouchEvent GenerateSingleTouch( TouchPoint::State state, Vector2 screenPosition )
+Integration::TouchEvent GenerateSingleTouch( PointState::Type state, const Vector2& screenPosition )
 {
   Integration::TouchEvent touchEvent;
-  touchEvent.points.push_back( TouchPoint ( 0, state, screenPosition.x, screenPosition.y ) );
+  Integration::Point point;
+  point.SetState( state );
+  point.SetScreenPosition( screenPosition );
+  touchEvent.points.push_back( point );
   return touchEvent;
 }
 
@@ -244,7 +247,7 @@ int UtcDaliTouchDataNormalProcessing(void)
   actor.ScreenToLocal( localCoordinates.x, localCoordinates.y, screenCoordinates.x, screenCoordinates.y );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, screenCoordinates ) );
   const TestPoint *point1 = &data.touchData.GetPoint(0);
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( 1u, data.touchData.GetPointCount(), TEST_LOCATION );
@@ -256,7 +259,7 @@ int UtcDaliTouchDataNormalProcessing(void)
   // Emit a motion signal
   screenCoordinates.x = screenCoordinates.y = 11.0f;
   actor.ScreenToLocal( localCoordinates.x, localCoordinates.y, screenCoordinates.x, screenCoordinates.y );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, screenCoordinates ) );
   const TestPoint *point2 = &data.touchData.GetPoint(0);
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( 1u, data.touchData.GetPointCount(), TEST_LOCATION );
@@ -268,7 +271,7 @@ int UtcDaliTouchDataNormalProcessing(void)
   // Emit an up signal
   screenCoordinates.x = screenCoordinates.y = 12.0f;
   actor.ScreenToLocal( localCoordinates.x, localCoordinates.y, screenCoordinates.x, screenCoordinates.y );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Up, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::UP, screenCoordinates ) );
   const TestPoint *point3 = &data.touchData.GetPoint(0);
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( 1u, data.touchData.GetPointCount(), TEST_LOCATION );
@@ -279,7 +282,7 @@ int UtcDaliTouchDataNormalProcessing(void)
 
   // Emit a down signal where the actor is not present
   screenCoordinates.x = screenCoordinates.y = 200.0f;
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, screenCoordinates ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   END_TEST;
 }
@@ -308,7 +311,7 @@ int UtcDaliTouchDataAPINegative(void)
   actor.ScreenToLocal( localCoordinates.x, localCoordinates.y, screenCoordinates.x, screenCoordinates.y );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, screenCoordinates ) );
 
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( -1, data.point.deviceId, TEST_LOCATION );
@@ -357,7 +360,7 @@ int UtcDaliTouchDataOutsideCameraNearFarPlanes(void)
   Vector2 screenCoordinates( stageSize.x * 0.5f, stageSize.y * 0.5f );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, screenCoordinates ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -368,7 +371,7 @@ int UtcDaliTouchDataOutsideCameraNearFarPlanes(void)
   application.SendNotification();
   application.Render();
 
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, screenCoordinates ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -379,7 +382,7 @@ int UtcDaliTouchDataOutsideCameraNearFarPlanes(void)
   application.SendNotification();
   application.Render();
 
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, screenCoordinates ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -390,7 +393,7 @@ int UtcDaliTouchDataOutsideCameraNearFarPlanes(void)
   application.SendNotification();
   application.Render();
 
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, screenCoordinates ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -401,7 +404,7 @@ int UtcDaliTouchDataOutsideCameraNearFarPlanes(void)
   application.SendNotification();
   application.Render();
 
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, screenCoordinates ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
   END_TEST;
@@ -444,19 +447,19 @@ int UtcDaliTouchDataInterrupted(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
   data.Reset();
 
   // Emit an interrupted signal, we should be signalled regardless of whether there is a hit or not.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Interrupted, Vector2( 200.0f, 200.0f /* Outside actor */ ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::INTERRUPTED, Vector2( 200.0f, 200.0f /* Outside actor */ ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::INTERRUPTED, data.touchData.points[0].state, TEST_LOCATION );
   data.Reset();
 
   // Emit another interrupted signal, our signal handler should not be called.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Interrupted, Vector2( 200.0f, 200.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::INTERRUPTED, Vector2( 200.0f, 200.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   END_TEST;
 }
@@ -491,7 +494,7 @@ int UtcDaliTouchDataParentConsumer(void)
   rootActor.ScreenToLocal( rootCoordinates.x, rootCoordinates.y, screenCoordinates.x, screenCoordinates.y );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, screenCoordinates ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( 1u, data.touchData.GetPointCount(), TEST_LOCATION );
@@ -511,7 +514,7 @@ int UtcDaliTouchDataParentConsumer(void)
   screenCoordinates.x = screenCoordinates.y = 11.0f;
   actor.ScreenToLocal( actorCoordinates.x, actorCoordinates.y, screenCoordinates.x, screenCoordinates.y );
   rootActor.ScreenToLocal( rootCoordinates.x, rootCoordinates.y, screenCoordinates.x, screenCoordinates.y );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, screenCoordinates ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( 1u, data.touchData.GetPointCount(), TEST_LOCATION );
@@ -531,7 +534,7 @@ int UtcDaliTouchDataParentConsumer(void)
   screenCoordinates.x = screenCoordinates.y = 12.0f;
   actor.ScreenToLocal( actorCoordinates.x, actorCoordinates.y, screenCoordinates.x, screenCoordinates.y );
   rootActor.ScreenToLocal( rootCoordinates.x, rootCoordinates.y, screenCoordinates.x, screenCoordinates.y );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Up, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::UP, screenCoordinates ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( 1u, data.touchData.GetPointCount(), TEST_LOCATION );
@@ -550,7 +553,7 @@ int UtcDaliTouchDataParentConsumer(void)
   // Emit a down signal where the actor is not present, will hit the root actor though
   screenCoordinates.x = screenCoordinates.y = 200.0f;
   rootActor.ScreenToLocal( rootCoordinates.x, rootCoordinates.y, screenCoordinates.x, screenCoordinates.y );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, screenCoordinates ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, screenCoordinates ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( 1u, rootData.touchData.GetPointCount(), TEST_LOCATION );
@@ -586,7 +589,7 @@ int UtcDaliTouchDataInterruptedParentConsumer(void)
   rootActor.TouchSignal().Connect( &application, rootFunctor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
@@ -597,7 +600,7 @@ int UtcDaliTouchDataInterruptedParentConsumer(void)
   rootData.Reset();
 
   // Emit an interrupted signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Interrupted, Vector2( 200.0f, 200.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::INTERRUPTED, Vector2( 200.0f, 200.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::INTERRUPTED, data.touchData.points[0].state, TEST_LOCATION );
@@ -608,7 +611,7 @@ int UtcDaliTouchDataInterruptedParentConsumer(void)
   rootData.Reset();
 
   // Emit another down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
@@ -626,7 +629,7 @@ int UtcDaliTouchDataInterruptedParentConsumer(void)
   application.Render();
 
   // Emit an interrupted signal, only root actor's signal should be called.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Interrupted, Vector2( 200.0f, 200.0f /* Outside actor */ ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::INTERRUPTED, Vector2( 200.0f, 200.0f /* Outside actor */ ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::INTERRUPTED, rootData.touchData.points[0].state, TEST_LOCATION );
@@ -635,7 +638,7 @@ int UtcDaliTouchDataInterruptedParentConsumer(void)
   rootData.Reset();
 
   // Emit another interrupted state, none of the signal's should be called.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Interrupted, Vector2( 200.0f, 200.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::INTERRUPTED, Vector2( 200.0f, 200.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( false, rootData.functorCalled, TEST_LOCATION );
   END_TEST;
@@ -663,24 +666,24 @@ int UtcDaliTouchDataLeave(void)
   actor.SetLeaveRequired( true );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
   data.Reset();
 
   // Emit a motion signal outside of actor, should be signalled with a Leave
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 200.0f, 200.0f )) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2 ( 200.0f, 200.0f )) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::LEAVE, data.touchData.points[0].state, TEST_LOCATION );
   data.Reset();
 
   // Another motion outside of actor, no signalling
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 201.0f, 201.0f )) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2 ( 201.0f, 201.0f )) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
   // Another motion event inside actor, signalled with motion
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 10.0f, 10.0f )) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2 ( 10.0f, 10.0f )) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::MOTION, data.touchData.points[0].state, TEST_LOCATION );
   data.Reset();
@@ -689,7 +692,7 @@ int UtcDaliTouchDataLeave(void)
   actor.SetLeaveRequired( false );
 
   // Another motion event outside of actor, no signalling
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 200.0f, 200.0f )) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2 ( 200.0f, 200.0f )) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
   END_TEST;
@@ -724,7 +727,7 @@ int UtcDaliTouchDataLeaveParentConsumer(void)
   rootActor.SetLeaveRequired( true );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
@@ -735,7 +738,7 @@ int UtcDaliTouchDataLeaveParentConsumer(void)
   rootData.Reset();
 
   // Emit a motion signal outside of actor, should be signalled with a Leave
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 200.0f, 200.0f )) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2 ( 200.0f, 200.0f )) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::LEAVE, data.touchData.points[0].state, TEST_LOCATION );
@@ -746,7 +749,7 @@ int UtcDaliTouchDataLeaveParentConsumer(void)
   rootData.Reset();
 
   // Another motion outside of actor, only rootActor signalled
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 201.0f, 201.0f )) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2 ( 201.0f, 201.0f )) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::MOTION, rootData.touchData.points[0].state, TEST_LOCATION );
@@ -755,7 +758,7 @@ int UtcDaliTouchDataLeaveParentConsumer(void)
   rootData.Reset();
 
   // Another motion event inside actor, signalled with motion
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 10.0f, 10.0f )) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2 ( 10.0f, 10.0f )) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::MOTION, data.touchData.points[0].state, TEST_LOCATION );
@@ -770,7 +773,7 @@ int UtcDaliTouchDataLeaveParentConsumer(void)
 
   // Another motion event outside of root actor, only root signalled
   Vector2 stageSize( Stage::GetCurrent().GetSize() );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( stageSize.width + 10.0f, stageSize.height + 10.0f )) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2 ( stageSize.width + 10.0f, stageSize.height + 10.0f )) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::LEAVE, rootData.touchData.points[0].state, TEST_LOCATION );
@@ -796,7 +799,7 @@ int UtcDaliTouchDataActorBecomesInsensitive(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
   data.Reset();
@@ -805,7 +808,7 @@ int UtcDaliTouchDataActorBecomesInsensitive(void)
   actor.SetSensitive( false );
 
   // Emit a motion signal, signalled with an interrupted
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 200.0f, 200.0f )) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2 ( 200.0f, 200.0f )) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::INTERRUPTED, data.touchData.points[0].state, TEST_LOCATION );
   data.Reset();
@@ -837,7 +840,7 @@ int UtcDaliTouchDataActorBecomesInsensitiveParentConsumer(void)
   rootActor.TouchSignal().Connect( &application, rootFunctor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
@@ -855,7 +858,7 @@ int UtcDaliTouchDataActorBecomesInsensitiveParentConsumer(void)
   rootActor.SetSensitive( false );
 
   // Emit a motion signal, signalled with an interrupted (should get interrupted even if within root actor)
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2 ( 200.0f, 200.0f )) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2 ( 200.0f, 200.0f )) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::INTERRUPTED, data.touchData.points[0].state, TEST_LOCATION );
   DALI_TEST_EQUALS( true, rootData.functorCalled, TEST_LOCATION );
@@ -892,27 +895,27 @@ int UtcDaliTouchDataMultipleLayers(void)
   actor1.TouchSignal().Connect( &application, functor );
 
   // Hit in hittable area, actor1 should be hit
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_CHECK( data.touchedActor == actor1 );
   data.Reset();
 
   // Make layer1 insensitive, nothing should be hit
   layer1.SetSensitive( false );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
   // Make layer1 sensitive again, again actor1 will be hit
   layer1.SetSensitive( true );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_CHECK( data.touchedActor == actor1 );
   data.Reset();
 
   // Make rootActor insensitive, nothing should be hit
   rootActor.SetSensitive( false );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -940,21 +943,21 @@ int UtcDaliTouchDataMultipleLayers(void)
   actor2.TouchSignal().Connect( &application, functor );
 
   // Emit an event, should hit layer2
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   //DALI_TEST_CHECK( data.touchedActor == layer2 ); // TODO: Uncomment this after removing renderable hack!
   data.Reset();
 
   // Make layer2 insensitive, should hit actor1
   layer2.SetSensitive( false );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_CHECK( data.touchedActor == actor1 );
   data.Reset();
 
   // Make layer2 sensitive again, should hit layer2
   layer2.SetSensitive( true );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   //DALI_TEST_CHECK( data.touchedActor == layer2 ); // TODO: Uncomment this after removing renderable hack!
   data.Reset();
@@ -965,7 +968,7 @@ int UtcDaliTouchDataMultipleLayers(void)
   application.Render();
 
   // Should hit actor1
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_CHECK( data.touchedActor == actor1 );
   data.Reset();
@@ -976,7 +979,7 @@ int UtcDaliTouchDataMultipleLayers(void)
   application.Render();
 
   // Should not hit anything
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
   END_TEST;
@@ -1009,18 +1012,18 @@ int UtcDaliTouchDataMultipleRenderTasks(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
   // Ensure renderTask actor can be hit too.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( viewport.x + 5.0f, viewport.y + 5.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( viewport.x + 5.0f, viewport.y + 5.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
   // Disable input on renderTask, should not be hittable
   renderTask.SetInputEnabled( false );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( viewport.x + 5.0f, viewport.y + 5.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( viewport.x + 5.0f, viewport.y + 5.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
   END_TEST;
@@ -1060,18 +1063,18 @@ int UtcDaliTouchDataMultipleRenderTasksWithChildLayer(void)
   layer.TouchSignal().Connect( &application, functor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
   // Ensure renderTask actor can be hit too.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( viewport.x + 5.0f, viewport.y + 5.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( viewport.x + 5.0f, viewport.y + 5.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
   // Disable input on renderTask, should not be hittable
   renderTask.SetInputEnabled( false );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( viewport.x + 5.0f, viewport.y + 5.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( viewport.x + 5.0f, viewport.y + 5.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
   END_TEST;
@@ -1121,7 +1124,7 @@ int UtcDaliTouchDataOffscreenRenderTasks(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
   END_TEST;
@@ -1154,7 +1157,7 @@ int UtcDaliTouchDataMultipleRenderableActors(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_CHECK( actor == data.touchedActor );
   END_TEST;
@@ -1182,7 +1185,7 @@ int UtcDaliTouchDataActorRemovedInSignal(void)
   actor.SetLeaveRequired( true );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -1192,12 +1195,12 @@ int UtcDaliTouchDataActorRemovedInSignal(void)
   application.Render();
 
   // Emit another signal outside of actor's area, should not get anything as the scene has changed.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2( 210.0f, 210.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2( 210.0f, 210.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -1206,7 +1209,7 @@ int UtcDaliTouchDataActorRemovedInSignal(void)
   application.Render();
 
   // Emit another signal outside of actor's area, should not get anything as the scene has changed.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2( 210.0f, 210.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2( 210.0f, 210.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -1216,7 +1219,7 @@ int UtcDaliTouchDataActorRemovedInSignal(void)
   application.Render();
 
   // Emit another down event
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -1224,7 +1227,7 @@ int UtcDaliTouchDataActorRemovedInSignal(void)
   actor.Reset();
 
   // Emit event, should not crash and should not receive an event.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2( 210.0f, 210.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2( 210.0f, 210.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   END_TEST;
 }
@@ -1248,7 +1251,7 @@ int UtcDaliTouchDataActorSignalNotConsumed(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   END_TEST;
 }
@@ -1272,7 +1275,7 @@ int UtcDaliTouchDataActorUnStaged(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -1285,7 +1288,7 @@ int UtcDaliTouchDataActorUnStaged(void)
   application.Render();
 
   // Emit a move at the same point, we should not be signalled.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( false, data.functorCalled, TEST_LOCATION );
   data.Reset();
   END_TEST;
@@ -1321,7 +1324,7 @@ int UtcDaliTouchDataSystemOverlayActor(void)
   application.Render();
 
   // Emit a down signal, the system overlay is drawn last so is at the top, should hit the systemActor.
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_CHECK( systemActor == data.touchedActor );
   END_TEST;
@@ -1357,8 +1360,8 @@ int UtcDaliTouchDataLayerConsumesTouch(void)
   application.Render();
 
   // Emit a few touch signals
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Up, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::UP, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -1370,8 +1373,8 @@ int UtcDaliTouchDataLayerConsumesTouch(void)
   application.Render();
 
   // Emit the same signals again, should not receive
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Up, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::UP, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS(false, data.functorCalled, TEST_LOCATION);
   data.Reset();
 
@@ -1401,8 +1404,8 @@ int UtcDaliTouchDataLeaveActorReadded(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit a down and motion
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2( 11.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2( 11.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -1411,12 +1414,12 @@ int UtcDaliTouchDataLeaveActorReadded(void)
   stage.Add( actor );
 
   // Emit a motion within the actor's bounds
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2( 12.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2( 12.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
   // Emit a motion outside the actor's bounds
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2( 200.0f, 200.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2( 200.0f, 200.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::LEAVE, data.touchData.points[0].state, TEST_LOCATION );
   data.Reset();
@@ -1450,12 +1453,12 @@ int UtcDaliTouchDataStencilNonRenderableActor(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit an event within stencil area
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
   // Emit an event outside the stencil area but within the actor area, we should have a hit!
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 60.0f, 60.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 60.0f, 60.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   data.Reset();
 
@@ -1481,7 +1484,7 @@ int UtcDaliTouchDataActorUnstaged(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
   DALI_TEST_CHECK( actor == data.touchData.points[0].hitActor );
@@ -1524,7 +1527,7 @@ int UtcDaliTouchDataParentUnstaged(void)
   actor.TouchSignal().Connect( &application, functor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
   DALI_TEST_CHECK( actor == data.touchData.points[0].hitActor );
@@ -1572,7 +1575,7 @@ int UtcDaliTouchDataActorUnstagedDifferentConsumer(void)
   parent.TouchSignal().Connect( &application, parentFunctor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
   DALI_TEST_CHECK( actor == data.touchData.points[0].hitActor );
@@ -1607,7 +1610,7 @@ int UtcDaliTouchDataActorUnstagedDifferentConsumer(void)
   application.Render();
 
   // Emit a motion signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Motion, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::MOTION, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( true, parentData.functorCalled, TEST_LOCATION );
   data.Reset();
@@ -1670,7 +1673,7 @@ int UtcDaliTouchDataInterruptedDifferentConsumer(void)
   rootActor.TouchSignal().Connect( &application, rootFunctor );
 
   // Emit a down signal
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Down, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::DOWN, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::DOWN, data.touchData.points[0].state, TEST_LOCATION );
   DALI_TEST_CHECK( actor == data.touchData.points[0].hitActor );
@@ -1693,7 +1696,7 @@ int UtcDaliTouchDataInterruptedDifferentConsumer(void)
   parent.TouchSignal().Connect( &application, secondFunctor );
 
   // Emit an interrupted signal, all three should STILL be called
-  application.ProcessEvent( GenerateSingleTouch( TouchPoint::Interrupted, Vector2( 10.0f, 10.0f ) ) );
+  application.ProcessEvent( GenerateSingleTouch( PointState::INTERRUPTED, Vector2( 10.0f, 10.0f ) ) );
   DALI_TEST_EQUALS( true, data.functorCalled, TEST_LOCATION );
   DALI_TEST_EQUALS( PointState::INTERRUPTED, data.touchData.points[0].state, TEST_LOCATION );
   DALI_TEST_EQUALS( true, parentData.functorCalled, TEST_LOCATION );

@@ -67,6 +67,13 @@ public:
   static NewTexturePtr New(TextureType::Type type, Pixel::Format format, unsigned int width, unsigned int height);
 
   /**
+   * @brief Creates a new Texture
+   * @param[in] nativeImageInterface A reference to the object of the interface implementation.
+   * @return A smart-pointer to the newly allocated Texture.
+   */
+  static NewTexturePtr New( NativeImageInterface& nativeImageInterface );
+
+  /**
    * @brief Get the texture render object
    *
    * @return the texture render object
@@ -110,6 +117,11 @@ private: // implementation
   NewTexture(TextureType::Type type, Pixel::Format format, unsigned int width, unsigned int height );
 
   /**
+   * Constructor
+   */
+  NewTexture( NativeImageInterfacePtr nativeImageInterface );
+
+  /**
    * Second stage initialization of the Texture
    */
   void Initialize();
@@ -137,6 +149,7 @@ private: // data
   Internal::EventThreadServices& mEventThreadServices;    ///<Used to send messages to the render thread via update thread
   Internal::Render::NewTexture* mRenderObject;            ///<The Render::Texture associated to this texture
 
+  NativeImageInterfacePtr mNativeImage; ///< Pointer to native image
   Dali::TextureType::Type mType;      ///< Texture type (cached)
   Pixel::Format mFormat;              ///< Pixel format
   unsigned int mWidth;                ///< Width of the texture

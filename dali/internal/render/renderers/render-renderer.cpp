@@ -356,7 +356,7 @@ void Renderer::SetUniformFromProperty( BufferIndex bufferIndex, Program& program
 
 bool Renderer::BindTextures( Context& context, SceneGraph::TextureCache& textureCache, Program& program )
 {
-  unsigned int textureUnit = 0;
+  GLuint textureUnit = GL_TEXTURE0;
   bool result = true;
 
   std::vector<Render::Sampler*>& samplers( mRenderDataProvider->GetSamplers() );
@@ -368,7 +368,7 @@ bool Renderer::BindTextures( Context& context, SceneGraph::TextureCache& texture
     Internal::Texture* texture = textureCache.GetTexture( textureId );
     if( texture )
     {
-      result = textureCache.BindTexture( texture, textureId, GL_TEXTURE_2D, (TextureUnit)textureUnit );
+      result = textureCache.BindTexture( texture, textureId, GL_TEXTURE_2D, textureUnit );
 
       if( result )
       {
@@ -386,8 +386,9 @@ bool Renderer::BindTextures( Context& context, SceneGraph::TextureCache& texture
             samplerBitfield = sampler->mBitfield;
           }
 
-          texture->ApplySampler( (TextureUnit)textureUnit, samplerBitfield );
+          texture->ApplySampler( textureUnit, samplerBitfield );
 
+          // At the moment there's no checking if we run out of texture units.
           ++textureUnit;
         }
       }
@@ -405,6 +406,7 @@ bool Renderer::BindTextures( Context& context, SceneGraph::TextureCache& texture
       {
         newTextures[i]->Bind(context, textureUnit, samplers[i] );
         program.SetUniform1i( uniformLocation, textureUnit );
+        // At the moment there's no checking if we run out of texture units.
         ++textureUnit;
       }
     }

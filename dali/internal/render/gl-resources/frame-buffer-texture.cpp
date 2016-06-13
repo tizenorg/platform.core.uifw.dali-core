@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/internal/render/gl-resources/context.h>
-#include <dali/internal/render/gl-resources/texture-units.h>
 #include <dali/integration-api/debug.h>
 
 namespace Dali
@@ -140,9 +139,9 @@ bool FrameBufferTexture::CreateGlTexture()
     return false;
   }
 
-  mContext.GenTextures(1, &mId);
-  mContext.ActiveTexture( TEXTURE_UNIT_UPLOAD );  // bind in unused unit so rebind works the first time
-  mContext.Bind2dTexture(mId);
+  mContext.GenTextures( 1, &mId );
+  mContext.ActiveTexture( TEXTURE_UNIT_FRAMEBUFFER );
+  mContext.Bind2dTexture( mId );
 
   // set texture parameters
   mContext.PixelStorei(GL_UNPACK_ALIGNMENT, 1);

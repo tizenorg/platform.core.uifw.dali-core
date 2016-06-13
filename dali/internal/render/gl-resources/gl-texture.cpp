@@ -179,7 +179,7 @@ bool Texture::UpdateOnCreate()
   return false;
 }
 
-bool Texture::Bind(GLenum target, TextureUnit textureunit )
+bool Texture::Bind(GLenum target, GLuint textureunit )
 {
   // This is the only supported type at the moment
   DALI_ASSERT_DEBUG( target == GL_TEXTURE_2D );
@@ -224,7 +224,7 @@ unsigned int Texture::GetHeight() const
   return mHeight;
 }
 
-void Texture::ApplyFilterModeParameter( TextureUnit unit, GLint filterType, FilterMode::Type currentFilterMode, FilterMode::Type newFilterMode, GLint daliDefault, GLint systemDefault )
+void Texture::ApplyFilterModeParameter( GLuint unit, GLint filterType, FilterMode::Type currentFilterMode, FilterMode::Type newFilterMode, GLint daliDefault, GLint systemDefault )
 {
   GLint newFilterModeGL = FilterModeToGL( newFilterMode, daliDefault, systemDefault );
   GLint currentFilterModeGL = FilterModeToGL( currentFilterMode, daliDefault, systemDefault );
@@ -236,7 +236,7 @@ void Texture::ApplyFilterModeParameter( TextureUnit unit, GLint filterType, Filt
   }
 }
 
-void Texture::ApplyWrapModeParameter( TextureUnit unit, GLint wrapType, WrapMode::Type currentWrapMode, WrapMode::Type newWrapMode )
+void Texture::ApplyWrapModeParameter( GLuint unit, GLint wrapType, WrapMode::Type currentWrapMode, WrapMode::Type newWrapMode )
 {
   GLint newWrapModeGL = WrapModeToGL( newWrapMode, SYSTEM_WRAP_DEFAULT );
   GLint currentWrapModeGL = WrapModeToGL( currentWrapMode, SYSTEM_WRAP_DEFAULT );
@@ -248,7 +248,7 @@ void Texture::ApplyWrapModeParameter( TextureUnit unit, GLint wrapType, WrapMode
   }
 }
 
-void Texture::ApplySampler( TextureUnit unit, unsigned int samplerBitfield )
+void Texture::ApplySampler( GLuint unit, unsigned int samplerBitfield )
 {
   if( mSamplerBitfield != samplerBitfield && mId != 0 )
   {

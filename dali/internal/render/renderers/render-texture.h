@@ -87,7 +87,6 @@ public:
 public: // called from RenderThread
 
   /**
-   * @param[in] buffer A vector wit
    * Get the texture ID
    * @return the id of the associated texture
    */

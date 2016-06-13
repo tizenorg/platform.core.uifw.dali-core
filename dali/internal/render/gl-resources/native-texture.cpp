@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/internal/render/gl-resources/context.h>
-#include <dali/internal/render/gl-resources/texture-units.h>
 #include <dali/internal/render/gl-resources/gl-texture.h>
 
 namespace Dali
@@ -49,7 +48,7 @@ NativeTexture::~NativeTexture()
   // on the render thread. (And avoiding a potentially problematic virtual call in the destructor)
 }
 
-bool NativeTexture::Bind( GLenum target, TextureUnit textureunit )
+bool NativeTexture::Bind( GLenum target, GLuint textureunit )
 {
   bool result = true;
 

@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_NATIVE_TEXTURE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public:
   /**
    * @copydoc Texture::Bind
    */
-  virtual bool Bind( GLenum target, TextureUnit textureunit );
+  virtual bool Bind( GLenum target, GLuint textureunit );
 
   /**
    * @copydoc Texture::IsFullyOpaque

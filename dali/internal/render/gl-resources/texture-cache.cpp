@@ -294,7 +294,7 @@ void TextureCache::DiscardTexture( ResourceId id )
   }
 }
 
-bool TextureCache::BindTexture( Texture *texture, ResourceId id, GLenum target, TextureUnit textureunit )
+bool TextureCache::BindTexture( Texture *texture, ResourceId id, GLenum target, GLuint textureunit )
 {
   unsigned int glTextureId = texture->GetTextureId();
 

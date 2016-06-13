@@ -29,7 +29,6 @@
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/internal/event/images/pixel-data-impl.h>
 #include <dali/internal/render/gl-resources/gl-resource-owner.h>
-#include <dali/internal/render/gl-resources/texture-units.h>
 
 
 namespace Dali
@@ -109,7 +108,7 @@ public:
    *
    * @return true if the bind succeeded, or false if either the create or bind failed
    */
-  virtual bool Bind(GLenum target, TextureUnit textureunit);
+  virtual bool Bind(GLenum target, GLuint textureunit);
 
   /**
    * Returns GL texture ID
@@ -156,7 +155,7 @@ public:
    * @param[in] texture unit to use
    * @param[in] samplerBitfield A bitfield with packed sampler options.
    */
-  void ApplySampler( TextureUnit unit, unsigned int samplerBitfield );
+  void ApplySampler( GLuint unit, unsigned int samplerBitfield );
 
 protected:
 
@@ -225,7 +224,7 @@ private:
    * @param[in] daliDefault The default dali filter mode for the given filterType.
    * @param[in] systemDefault The default system filter mode for the given filterType.
    */
-  void ApplyFilterModeParameter( TextureUnit unit, GLint filterType, FilterMode::Type currentFilterMode, FilterMode::Type newFilterMode, GLint daliDefault, GLint systemDefault );
+  void ApplyFilterModeParameter( GLuint unit, GLint filterType, FilterMode::Type currentFilterMode, FilterMode::Type newFilterMode, GLint daliDefault, GLint systemDefault );
 
   /**
    * @brief Apply the given texture wrap mode.
@@ -235,7 +234,7 @@ private:
    * @param[in] currentWrapMode The current wrap mode.
    * @param[in] newWrapMode The new wrap mode.
    */
-  void ApplyWrapModeParameter( TextureUnit unit, GLint wrapType, WrapMode::Type currentWrapMode, WrapMode::Type newWrapMode );
+  void ApplyWrapModeParameter( GLuint unit, GLint wrapType, WrapMode::Type currentWrapMode, WrapMode::Type newWrapMode );
 
 protected:
 

@@ -28,7 +28,6 @@
 #include <dali/integration-api/gl-defines.h>
 #include <dali/devel-api/rendering/renderer.h>
 #include <dali/internal/render/common/performance-monitor.h>
-#include <dali/internal/render/gl-resources/texture-units.h>
 #include <dali/internal/render/gl-resources/frame-buffer-state-cache.h>
 #include <dali/internal/render/gl-resources/gl-call-debug.h>
 
@@ -37,6 +36,16 @@ namespace Dali
 
 namespace Internal
 {
+
+/**
+ * Some common unit values to use
+ */
+enum TextureUnit
+{
+  TEXTURE_UNIT_FRAMEBUFFER = GL_TEXTURE6,
+  TEXTURE_UNIT_UPLOAD = GL_TEXTURE7,
+  TEXTURE_UNIT_UNINITIALIZED = GL_TEXTURE31+1
+};
 
 /**
  * Context records the current GL state, and provides access to the OpenGL ES 2.0 API.
@@ -132,13 +141,13 @@ public:
   /**
    * Wrapper for OpenGL ES 2.0 glActiveTexture()
    */
-  void ActiveTexture( TextureUnit textureUnit )
+  void ActiveTexture( GLuint textureUnit )
   {
     if ( textureUnit != mActiveTextureUnit )
     {
       mActiveTextureUnit = textureUnit;
       LOG_GL("ActiveTexture %x\n", textureUnit);
-      CHECK_GL( mGlAbstraction, mGlAbstraction.ActiveTexture(TextureUnitAsGLenum(textureUnit)) );
+      CHECK_GL( mGlAbstraction, mGlAbstraction.ActiveTexture( textureUnit ) );
     }
   }
 
@@ -262,7 +271,7 @@ public:
    * @param textureunit to bind to
    * @param texture to bind
    */
-  void BindTextureForUnit( TextureUnit textureunit, GLuint texture )
+  void BindTextureForUnit( GLuint textureunit, GLuint texture )
   {
     if( mBound2dTextureId[ textureunit ] != texture )
     {
@@ -1718,7 +1727,7 @@ private: // Data
   GLuint mBoundTransformFeedbackBufferId; ///< The ID passed to glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER)
 
   // glBindTexture() state
-  TextureUnit mActiveTextureUnit;
+  GLuint mActiveTextureUnit;
   GLuint mBound2dTextureId[ MAX_TEXTURE_UNITS ];  ///< The ID passed to glBindTexture(GL_TEXTURE_2D)
 
   // glBlendColor() state

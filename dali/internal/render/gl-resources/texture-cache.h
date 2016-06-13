@@ -34,7 +34,6 @@
 #include <dali/internal/event/resources/resource-client.h> // For RectArea
 #include <dali/internal/update/common/scene-graph-buffers.h>
 #include <dali/internal/render/gl-resources/texture-declarations.h>
-#include <dali/internal/render/gl-resources/texture-units.h>
 
 namespace Dali
 {
@@ -198,7 +197,7 @@ public:
    *
    * @return true if the bind succeeded, false if either the create or bind failed.
    */
-  bool BindTexture( Texture* texture, ResourceId id, GLenum target, TextureUnit textureunit );
+  bool BindTexture( Texture* texture, ResourceId id, GLenum target, GLuint textureunit );
 
   /**
    * Get the texture associated with the resource ID

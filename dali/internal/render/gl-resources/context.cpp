@@ -39,8 +39,6 @@ namespace Internal
 namespace // unnamed namespace
 {
 
-DALI_COMPILE_TIME_ASSERT( TEXTURE_UNIT_LAST <= Context::MAX_TEXTURE_UNITS );
-
 /**
  * GL error strings
  */
@@ -83,7 +81,7 @@ Context::Context(Integration::GlAbstraction& glAbstraction)
   mBoundArrayBufferId(0),
   mBoundElementArrayBufferId(0),
   mBoundTransformFeedbackBufferId(0),
-  mActiveTextureUnit( TEXTURE_UNIT_LAST ),
+  mActiveTextureUnit( TEXTURE_UNIT_UNINITIALIZED ),
   mBlendColor(Color::TRANSPARENT),
   mBlendFuncSeparateSrcRGB(GL_ONE),
   mBlendFuncSeparateDstRGB(GL_ZERO),
@@ -215,7 +213,7 @@ void Context::InitializeGlState()
   mBoundArrayBufferId = 0;
   mBoundElementArrayBufferId = 0;
   mBoundTransformFeedbackBufferId = 0;
-  mActiveTextureUnit = TEXTURE_UNIT_IMAGE;
+  mActiveTextureUnit = TEXTURE_UNIT_UNINITIALIZED;
 
   mUsingDefaultBlendColor = true; //Default blend color is (0,0,0,0)
 

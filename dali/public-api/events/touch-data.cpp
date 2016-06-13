@@ -82,6 +82,21 @@ const Vector2& TouchData::GetScreenPosition( size_t point ) const
   return GetImplementation( *this ).GetScreenPosition( point );
 }
 
+float TouchData::GetRadius( size_t point ) const
+{
+  return GetImplementation( *this ).GetRadius( point );
+}
+
+const Vector2& TouchData::GetEllipseRadius( size_t point ) const
+{
+  return GetImplementation( *this ).GetEllipseRadius( point );
+}
+
+Degree TouchData::GetAngle( size_t point ) const
+{
+  return GetImplementation( *this ).GetAngle( point );
+}
+
 TouchData::TouchData( Internal::TouchData* internal )
 : BaseHandle( internal )
 {

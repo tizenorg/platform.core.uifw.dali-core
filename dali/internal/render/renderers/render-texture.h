@@ -109,10 +109,21 @@ class NewTexture
 public:
 
   typedef Dali::TextureType::Type Type;
+
   /**
    * Constructor
+   * @param[in] type The type of the texture
+   * @param[in] format The format of the pixel data
+   * @param[in] width The width of the texture
+   * @param[in] height The height of the texture
    */
   NewTexture( Type type, Pixel::Format format, unsigned int width, unsigned int height );
+
+  /**
+   * Constructor from native image
+   * @param[in] nativeImageInterface The native image
+   */
+  NewTexture( NativeImageInterfacePtr nativeImageInterface );
 
   /**
    * Destructor
@@ -205,14 +216,14 @@ private:
    */
   void ApplySampler( Context& context, Render::Sampler* sampler );
 
-
   GLuint mId;                         ///<Id of the texture
   Type mType;                         ///<Type of the texture
+  Render::Sampler mSampler;           ///<The current sampler state
+  NativeImageInterfacePtr mNativeImage; ///<Pointer to native image
   GLenum mInternalFormat;             ///<The format of the pixel data
   GLenum mPixelDataType;              ///<The data type of the pixel data
   unsigned int mWidth;                ///<Widht of the texture
   unsigned int mHeight;               ///<Height of the texture
-  Render::Sampler mSampler;           ///<The current sampler state
   bool mHasAlpha : 1;                 ///<Whether the format has an alpha channel
 };
 

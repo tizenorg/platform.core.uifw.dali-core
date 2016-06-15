@@ -286,6 +286,14 @@ public:
   void UploadTexture( Render::NewTexture* texture, Vector<unsigned char>& buffer, const NewTexture::UploadParams& params );
 
   /**
+   * Uploads data to an existing texture
+   * @param[in] texture The texture
+   * @param[in] pixelData The pixel data object
+   * @param[in] params The parameters for the upload
+   */
+  void UploadTexture( Render::NewTexture* texture, PixelDataPtr pixelData, const NewTexture::UploadParams& params );
+
+  /**
    * Generates mipmaps for a given texture
    * @param[in] texture The texture
    */

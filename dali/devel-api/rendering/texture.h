@@ -153,6 +153,21 @@ public:
   void Upload( PixelData pixelData );
 
   /**
+   * @brief Upload data to the texture from a PixelData object
+   * @param[in] pixelData The pixelData object
+   * @param[in] layer Specifies the layer of a cube map or array texture. (Unused for 2D textures)
+   * @param[in] mipmap Specifies the level-of-detail number. Level 0 is the base image level. Level n is the nth mipmap reduction image
+   * @param[in] xOffset Specifies a texel offset in the x direction within the texture array
+   * @param[in] yOffset Specifies a texel offset in the y direction within the texture array
+   * @param[in] width Specifies the width of the texture subimage
+   * @param[in] height Specifies the height of the texture subimage
+   */
+  void Upload( PixelData pixelData,
+               unsigned int layer, unsigned int mipmap,
+               unsigned int xOffset, unsigned int yOffset,
+               unsigned int width, unsigned int height );
+
+  /**
    * @brief Generate mipmaps for the texture
    * This will auto generate all the mipmaps for the texture based on the data in the base level
    */

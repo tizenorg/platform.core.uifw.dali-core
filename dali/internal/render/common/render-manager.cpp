@@ -342,6 +342,11 @@ void RenderManager::UploadTexture( Render::NewTexture* texture, Vector<unsigned 
   texture->Upload( mImpl->context, buffer, params );
 }
 
+void RenderManager::UploadTexture( Render::NewTexture* texture, PixelDataPtr pixelData, const NewTexture::UploadParams& params )
+{
+  texture->Upload( mImpl->context, pixelData, params );
+}
+
 void RenderManager::GenerateMipmaps( Render::NewTexture* texture )
 {
   texture->GenerateMipmaps( mImpl->context );

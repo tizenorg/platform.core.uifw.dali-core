@@ -1323,6 +1323,17 @@ void UpdateManager::UploadTexture( Render::NewTexture* texture, Vector<unsigned 
   new (slot) DerivedType( &mImpl->renderManager, texture, buffer, params );
 }
 
+void UpdateManager::UploadTexture( Render::NewTexture* texture, PixelDataPtr pixelData, const NewTexture::UploadParams& params )
+{
+  typedef MessageValue3< RenderManager, Render::NewTexture*, PixelDataPtr, NewTexture::UploadParams > DerivedType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = mImpl->renderQueue.ReserveMessageSlot( mSceneGraphBuffers.GetUpdateBufferIndex(), sizeof( DerivedType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) DerivedType( &mImpl->renderManager, &RenderManager::UploadTexture, texture, pixelData, params );
+}
+
 void UpdateManager::GenerateMipmaps( Render::NewTexture* texture )
 {
   typedef MessageValue1< RenderManager, Render::NewTexture* > DerivedType;

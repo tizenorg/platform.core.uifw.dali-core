@@ -152,6 +152,14 @@ public:
   void Upload( Context& context, Vector<unsigned char>& buffer, const Internal::NewTexture::UploadParams& params );
 
   /**
+   * Uploads data to the texture.
+   * @param[in] context The GL context
+   * @param[in] pixelData A pixel data object
+   * @param[in] params Upload parameters. See UploadParams
+   */
+  void Upload( Context& context, PixelDataPtr pixelData, const Internal::NewTexture::UploadParams& params );
+
+  /**
    * Bind the texture to the given texture unit and applies the given sampler
    * @param[in] context The GL context
    * @param[in] textureUnit the texture unit
@@ -216,6 +224,16 @@ private:
    * @param[in] sampler The sampler
    */
   void ApplySampler( Context& context, Render::Sampler* sampler );
+
+  /**
+   * Helper method to upload data to the texture
+   * @param[in] context The GL context
+   * @param[in] buffer Pointer to the data to upload
+   * @param[in] pixelFormat Format of the data to upload
+   * @param[in] dataType Data type of the data to upload
+   * @param[in] params Upload parameters. See UploadParams
+   */
+  void UploadData( Context& context, unsigned char* buffer, GLenum pixelFormat, GLenum dataType, const Internal::NewTexture::UploadParams& params);
 
   GLuint mId;                         ///<Id of the texture
   Type mType;                         ///<Type of the texture

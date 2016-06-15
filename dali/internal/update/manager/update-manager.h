@@ -497,6 +497,14 @@ public:
   void UploadTexture( Render::NewTexture* texture, Vector<unsigned char>& buffer, const NewTexture::UploadParams& params );
 
   /**
+   * Uploads data to a texture owned by the RenderManager
+   * @param[in] texture The texture
+   * @param[in] pixelData The pixel data object
+   * @param[in] params The parameters for the upload
+   */
+  void UploadTexture( Render::NewTexture* texture, PixelDataPtr pixelData, const NewTexture::UploadParams& params );
+
+  /**
    * Generates mipmaps for a texture owned by the RenderManager
    * @param[in] texture The texture
    */
@@ -1272,6 +1280,17 @@ inline void UploadTextureMessage( UpdateManager& manager, Render::NewTexture& te
 
   // Construct message in the message queue memory; note that delete should not be called on the return value
   new (slot) LocalType( &manager, &texture, data, params );
+}
+
+inline void UploadTextureMessage( UpdateManager& manager, Render::NewTexture& texture, PixelDataPtr pixelData, const NewTexture::UploadParams& params )
+{
+  typedef MessageValue3< UpdateManager, Render::NewTexture*, PixelDataPtr, NewTexture::UploadParams > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = manager.ReserveMessageSlot( sizeof( LocalType ) );
+
+  // Construct message in the message queue memory; note that delete should not be called on the return value
+  new (slot) LocalType( &manager, &UpdateManager::UploadTexture, &texture, pixelData, params );
 }
 
 inline void GenerateMipmapsMessage( UpdateManager& manager, Render::NewTexture& texture )

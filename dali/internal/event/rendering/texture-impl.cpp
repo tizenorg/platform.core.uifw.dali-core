@@ -90,28 +90,9 @@ NewTexture::~NewTexture()
   }
 }
 
-bool NewTexture::CheckUploadParametres( const Vector<unsigned char>& buffer, const UploadParams& parameters ) const
+void NewTexture::Upload( Vector<unsigned char>& buffer )
 {
-  if( mNativeImage )
-  {
-    DALI_LOG_ERROR( "Error: Uploading data to a native texture");
-    return false;
-  }
-  else if(  buffer.Size() < GetBytesPerPixel( mFormat ) * parameters.width * parameters.height )
-  {
-    DALI_LOG_ERROR( "Error: Buffer of an incorrect size when trying to update texture");
-    return false;
-  }
-  else if( ( parameters.xOffset + parameters.width  > static_cast<unsigned int>( mWidth/(1<<parameters.mipmap ))) ||
-           ( parameters.yOffset + parameters.height > static_cast<unsigned int>( mHeight/(1<<parameters.mipmap ))))
-  {
-    DALI_LOG_ERROR( "Error: Out of bounds texture update");
-    return false;
-  }
-  else
-  {
-    return true;
-  }
+  Upload( buffer, 0u, 0u, 0u, 0u, mWidth, mHeight );
 }
 
 void NewTexture::Upload( Vector<unsigned char>& buffer,
@@ -119,19 +100,65 @@ void NewTexture::Upload( Vector<unsigned char>& buffer,
                          unsigned int xOffset, unsigned int yOffset,
                          unsigned int width, unsigned int height )
 {
-  UploadParams params = { layer, mipmap, xOffset, yOffset, width, height };
-  if( CheckUploadParametres( buffer, params ) )
+
+  if( mNativeImage )
   {
+    DALI_LOG_ERROR( "Uploading data to a native texture");
+  }
+  else if(  buffer.Size() < GetBytesPerPixel( mFormat ) * width * height )
+  {
+    DALI_LOG_ERROR( "Buffer of an incorrect size when trying to update texture");
+  }
+  else if( ( xOffset + width  > static_cast<unsigned int>( mWidth/(1<<mipmap ))) ||
+           ( yOffset + height > static_cast<unsigned int>( mHeight/(1<<mipmap ))))
+  {
+    DALI_LOG_ERROR( "Out of bounds texture update");
+  }
+  else
+  {
+    UploadParams params = { layer, mipmap, xOffset, yOffset, width, height };
     UploadTextureMessage(mEventThreadServices.GetUpdateManager(), *mRenderObject, buffer, params );
   }
 }
 
-void NewTexture::Upload( Vector<unsigned char>& buffer )
+void NewTexture::Upload( PixelDataPtr pixelData )
 {
-  UploadParams params = {0u,0u,0u,0u,mWidth,mHeight};
-  if( CheckUploadParametres( buffer, params ) )
+  Upload( pixelData, 0u, 0u, 0u, 0u, mWidth, mHeight );
+}
+
+void NewTexture::Upload( PixelDataPtr pixelData,
+                         unsigned int layer, unsigned int mipmap,
+                         unsigned int xOffset, unsigned int yOffset,
+                         unsigned int width, unsigned int height )
+{
+  if( mNativeImage )
   {
-    UploadTextureMessage(mEventThreadServices.GetUpdateManager(), *mRenderObject, buffer, params );
+    DALI_LOG_ERROR( "Uploading data to a native texture");
+  }
+  else
+  {
+    Pixel::Format pixelDataFormat = pixelData->GetPixelFormat();
+    if( ( pixelDataFormat == mFormat ) || ( (pixelDataFormat == Pixel::RGB888 ) && ( mFormat == Pixel::RGBA8888 ) ) )
+    {
+      if( pixelData->GetWidth()*pixelData->GetHeight() < width * height )
+      {
+        DALI_LOG_ERROR( "Pixel data of an incorrect size when trying to update texture");
+      }
+      else if( ( xOffset + width  > static_cast<unsigned int>( mWidth/(1<<mipmap ))) ||
+               ( yOffset + height > static_cast<unsigned int>( mHeight/(1<<mipmap ))))
+      {
+        DALI_LOG_ERROR( "Out of bounds texture update");
+      }
+      else
+      {
+        UploadParams params = { layer, mipmap, xOffset, yOffset, width, height };
+        UploadTextureMessage(mEventThreadServices.GetUpdateManager(), *mRenderObject, pixelData, params );
+      }
+    }
+    else
+    {
+      DALI_LOG_ERROR( "Bad format");
+    }
   }
 }
 

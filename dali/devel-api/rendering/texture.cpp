@@ -76,8 +76,17 @@ void Texture::Upload( Vector<unsigned char>& buffer,
 
 void Texture::Upload( PixelData pixelData )
 {
-  //TODO: Implement this method once PixelData uses handle/body pattern
-  DALI_ASSERT_ALWAYS( false && "Not implemented yet");
+  Internal::PixelData& internalPixelData = GetImplementation( pixelData );
+  return GetImplementation(*this).Upload( &internalPixelData );
+}
+
+void Texture::Upload( PixelData pixelData,
+               unsigned int layer, unsigned int mipmap,
+               unsigned int xOffset, unsigned int yOffset,
+               unsigned int width, unsigned int height )
+{
+  Internal::PixelData& internalPixelData = GetImplementation( pixelData );
+  return GetImplementation(*this).Upload( &internalPixelData, layer, mipmap, xOffset, yOffset, width, height );
 }
 
 void Texture::GenerateMipmaps()

@@ -362,44 +362,48 @@ bool Renderer::BindTextures( Context& context, SceneGraph::TextureCache& texture
   std::vector<Render::Sampler*>& samplers( mRenderDataProvider->GetSamplers() );
 
   std::vector<Render::Texture>& textures( mRenderDataProvider->GetTextures() );
-  GLint uniformLocation(-1);
   for( size_t i(0); result && i<textures.size(); ++i )
   {
     ResourceId textureId = textures[i].GetTextureId();
     Internal::Texture* texture = textureCache.GetTexture( textureId );
     if( texture )
     {
-      result = program.GetSamplerUniformLocation( i, uniformLocation ) &&
-               textureCache.BindTexture( texture, textureId, GL_TEXTURE_2D, (TextureUnit)textureUnit );
+      result = textureCache.BindTexture( texture, textureId, GL_TEXTURE_2D, (TextureUnit)textureUnit );
 
-      if( result && Program::UNIFORM_UNKNOWN != uniformLocation )
+      if( result )
       {
-        program.SetUniform1i( uniformLocation, textureUnit );
+        GLint uniformLocation;
 
-        unsigned int samplerBitfield(ImageSampler::DEFAULT_BITFIELD);
-        const Render::Sampler* sampler(  samplers[i] );
-        if( sampler )
+        bool result = program.GetSamplerUniformLocation( i, uniformLocation );
+        if( result && Program::UNIFORM_UNKNOWN != uniformLocation )
         {
-          samplerBitfield = sampler->mBitfield;
+          program.SetUniform1i( uniformLocation, textureUnit );
+
+          unsigned int samplerBitfield(ImageSampler::DEFAULT_BITFIELD);
+          const Render::Sampler* sampler(  samplers[i] );
+          if( sampler )
+          {
+            samplerBitfield = sampler->mBitfield;
+          }
+
+          texture->ApplySampler( (TextureUnit)textureUnit, samplerBitfield );
+
+          ++textureUnit;
         }
-
-        texture->ApplySampler( (TextureUnit)textureUnit, samplerBitfield );
-
-        ++textureUnit;
       }
     }
   }
 
   std::vector<Render::NewTexture*>& newTextures( mRenderDataProvider->GetNewTextures() );
+  GLint uniformLocation(0);
   for( size_t i(0); result && i<newTextures.size(); ++i )
   {
     if( newTextures[i] )
     {
-      result = program.GetSamplerUniformLocation( i, uniformLocation ) &&
-               newTextures[i]->Bind(context, textureUnit, samplers[i] );
-
+      bool result = program.GetSamplerUniformLocation( i, uniformLocation );
       if( result )
       {
+        newTextures[i]->Bind(context, textureUnit, samplers[i] );
         program.SetUniform1i( uniformLocation, textureUnit );
         ++textureUnit;
       }

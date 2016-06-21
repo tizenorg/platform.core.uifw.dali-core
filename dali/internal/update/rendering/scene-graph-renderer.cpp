@@ -540,6 +540,10 @@ Renderer::Opacity Renderer::GetOpacity( BufferIndex updateBufferIndex, const Nod
       bool shaderRequiresBlending( mShader->HintEnabled( Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT ) );
       if( shaderRequiresBlending || ( mTextureSet && mTextureSet->HasAlpha() ) )
       {
+        if( ( mTextureSet && mTextureSet->HasAlpha() ) )
+        {
+          std::cout<<"Renderer requires alpha blending"<<std::endl;
+        }
         opacity = Renderer::TRANSLUCENT;
       }
       else // renderer should determine opacity using the actor color

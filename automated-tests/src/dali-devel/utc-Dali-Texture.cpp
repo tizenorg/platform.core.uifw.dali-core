@@ -17,10 +17,10 @@
 
 #include <dali/public-api/dali-core.h>
 #include <dali-test-suite-utils.h>
+#include <test-native-image.h>
+#include <mesh-builder.h>
 
 using namespace Dali;
-
-#include <mesh-builder.h>
 
 void texture_set_startup(void)
 {
@@ -431,6 +431,42 @@ int UtcDaliTextureGetHeight(void)
 
   Texture texture = Texture::New( TextureType::TEXTURE_2D, Pixel::RGBA8888, width, height );
   DALI_TEST_EQUALS( texture.GetHeight(), height, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliTextureIsNative(void)
+{
+  TestApplication application;
+  TestNativeImagePointer nativeImageInterface = TestNativeImage::New( 16, 16 );
+  Texture textureNative = Texture::New( *(nativeImageInterface.Get()) );
+  DALI_TEST_EQUALS( textureNative.IsNative(), true, TEST_LOCATION );
+
+  Texture texture = Texture::New( TextureType::TEXTURE_2D, Pixel::RGBA8888, 16u, 16u );
+  DALI_TEST_EQUALS( texture.IsNative(), false, TEST_LOCATION );
+  END_TEST;
+}
+
+int UtcDaliTextureGetCustomFragmentPreFix(void)
+{
+  TestApplication application;
+  TestNativeImagePointer nativeImageInterface = TestNativeImage::New( 16, 16 );
+  Texture nativeTexture = Texture::New( *(nativeImageInterface.Get()) );
+
+  const char* preFix = "#extension GL_OES_EGL_image_external:require\n";
+  DALI_TEST_EQUALS( nativeTexture.GetCustomFragmentPreFix(), preFix, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliTextureGetCustomSamplerTypename(void)
+{
+  TestApplication application;
+  TestNativeImagePointer nativeImageInterface = TestNativeImage::New( 16, 16 );
+  Texture nativeTexture = Texture::New( *(nativeImageInterface.Get()) );
+
+  const char* samplerTypename = "samplerExternalOES";
+  DALI_TEST_EQUALS( nativeTexture.GetCustomSamplerTypename(), samplerTypename, TEST_LOCATION );
 
   END_TEST;
 }

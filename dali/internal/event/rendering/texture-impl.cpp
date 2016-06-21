@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/update/manager/update-manager.h>
 #include <dali/internal/event/common/stage-impl.h>
+#include <dali/devel-api/images/native-image-interface-extension.h>
 
 namespace Dali
 {
@@ -153,6 +154,39 @@ unsigned int NewTexture::GetWidth() const
 unsigned int NewTexture::GetHeight() const
 {
   return mHeight;
+}
+
+bool NewTexture::IsNative() const
+{
+  return (mNativeImage != NULL);
+}
+
+const char* NewTexture::GetCustomFragmentPreFix() const
+{
+  if( mNativeImage )
+  {
+    NativeImageInterface::Extension* extension = mNativeImage->GetExtension();
+    if( extension )
+    {
+      return extension->GetCustomFragmentPreFix();
+    }
+  }
+
+  return NULL;
+}
+
+const char* NewTexture::GetCustomSamplerTypename() const
+{
+  if( mNativeImage )
+  {
+    NativeImageInterface::Extension* extension = mNativeImage->GetExtension();
+    if( extension )
+    {
+      return extension->GetCustomSamplerTypename();
+    }
+  }
+
+  return NULL;
 }
 
 } // namespace Internal

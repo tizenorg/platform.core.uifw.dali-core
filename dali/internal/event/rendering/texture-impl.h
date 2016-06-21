@@ -109,6 +109,20 @@ public:
    */
   unsigned int GetHeight() const;
 
+  /**
+   * @copydoc Dali::Texture::IsNative()
+   */
+  bool IsNative() const;
+
+  /**
+   * @copydoc Dali::Texture::GetCustomFragmentPreFix()
+   */
+  const char* GetCustomFragmentPreFix() const;
+
+  /**
+   * @copydoc Dali::Texture::GetCustomSamplerTypename()
+   */
+  const char* GetCustomSamplerTypename() const;
 
 private: // implementation
 

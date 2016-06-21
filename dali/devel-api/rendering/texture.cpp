@@ -91,6 +91,21 @@ unsigned int Texture::GetHeight() const
   return GetImplementation(*this).GetHeight();
 }
 
+bool Texture::IsNative() const
+{
+  return GetImplementation(*this).IsNative();
+}
+
+const char* Texture::GetCustomFragmentPreFix() const
+{
+  return GetImplementation(*this).GetCustomFragmentPreFix();
+}
+
+const char* Texture::GetCustomSamplerTypename() const
+{
+  return GetImplementation(*this).GetCustomSamplerTypename();
+}
+
 Texture::Texture( Internal::NewTexture* pointer )
 : BaseHandle( pointer )
 {

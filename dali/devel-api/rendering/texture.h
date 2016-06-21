@@ -159,6 +159,26 @@ public:
    */
   unsigned int GetHeight() const;
 
+  /**
+   * @brief Retrieves wheter the texture is a native texture
+   * @return true if the texture has been created from a native image, false otherwise
+   */
+  bool IsNative() const;
+
+  /**
+   * @brief Get custom fragment prefix for rendering a native texture
+   *
+   * @return String for custom fragment prefix
+   */
+  const char* GetCustomFragmentPreFix() const;
+
+  /**
+   * @brief Get custom sampler type name for rendering a native texture.
+   *
+   * @return String for custom sampler type name
+   */
+  const char* GetCustomSamplerTypename() const;
+
 public:
   /**
    * @brief The constructor

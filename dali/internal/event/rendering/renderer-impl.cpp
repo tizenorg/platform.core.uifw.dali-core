@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,10 +53,33 @@ DALI_PROPERTY( "blendColor",                      VECTOR4,   true, false,  false
 DALI_PROPERTY( "blendPreMultipliedAlpha",         BOOLEAN,   true, false,  false, Dali::Renderer::Property::BLEND_PRE_MULTIPLIED_ALPHA )
 DALI_PROPERTY( "indexRangeFirst",                 INTEGER,   true, false,  false, Dali::Renderer::Property::INDEX_RANGE_FIRST )
 DALI_PROPERTY( "indexRangeCount",                 INTEGER,   true, false,  false, Dali::Renderer::Property::INDEX_RANGE_COUNT )
-DALI_PROPERTY( "depthWriteMode",                  INTEGER,   true, false,  false, Dali::Renderer::Property::DEPTH_WRITE_MODE )
-DALI_PROPERTY( "depthFunction",                   INTEGER,   true, false,  false, Dali::Renderer::Property::DEPTH_FUNCTION )
-DALI_PROPERTY( "depthTestMode",                   INTEGER,   true, false,  false, Dali::Renderer::Property::DEPTH_TEST_MODE )
+DALI_PROPERTY( "depthWriteMode",                  STRING,    true, false,  false, Dali::Renderer::Property::DEPTH_WRITE_MODE )
+DALI_PROPERTY( "depthFunction",                   STRING,    true, false,  false, Dali::Renderer::Property::DEPTH_FUNCTION )
+DALI_PROPERTY( "depthTestMode",                   STRING,    true, false,  false, Dali::Renderer::Property::DEPTH_TEST_MODE )
 DALI_PROPERTY_TABLE_END( DEFAULT_OBJECT_PROPERTY_START_INDEX )
+
+DALI_ENUM_TO_STRING_TABLE_BEGIN( DEPTH_WRITE_MODE )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthWriteMode, OFF )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthWriteMode, AUTO )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthWriteMode, ON )
+DALI_ENUM_TO_STRING_TABLE_END( DEPTH_WRITE_MODE )
+
+DALI_ENUM_TO_STRING_TABLE_BEGIN( DEPTH_FUNCTION )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthFunction, NEVER )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthFunction, ALWAYS )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthFunction, LESS )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthFunction, EQUAL )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthFunction, ALWAYS )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthFunction, NOT_EQUAL )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthFunction, LESS_EQUAL )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthFunction, GREATER_EQUAL )
+DALI_ENUM_TO_STRING_TABLE_END( DEPTH_FUNCTION )
+
+DALI_ENUM_TO_STRING_TABLE_BEGIN( DEPTH_TEST_MODE )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthTestMode, OFF )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthTestMode, AUTO )
+DALI_ENUM_TO_STRING_WITH_SCOPE( DepthTestMode, ON )
+DALI_ENUM_TO_STRING_TABLE_END( DEPTH_TEST_MODE )
 
 const ObjectImplHelper<DEFAULT_PROPERTY_COUNT> RENDERER_IMPL = { DEFAULT_PROPERTY_DETAILS };
 
@@ -464,10 +487,10 @@ void Renderer::SetDefaultProperty( Property::Index index,
     }
     case Dali::Renderer::Property::DEPTH_WRITE_MODE:
     {
-      int value;
-      propertyValue.Get( value );
-      DepthWriteMode::Type mode = static_cast<DepthWriteMode::Type>(value);
-      if( mode != mDepthWriteMode )
+      DepthWriteMode::Type mode;
+      std::string propertyString;
+      if( ( propertyValue.Get( propertyString ) ) &&
+          ( Scripting::GetEnumeration< DepthWriteMode::Type >( propertyString.c_str(), DEPTH_WRITE_MODE_TABLE, DEPTH_WRITE_MODE_TABLE_COUNT, mode ) ) )
       {
         mDepthWriteMode = mode;
         SetDepthWriteModeMessage( GetEventThreadServices(), *mSceneObject, mode );
@@ -476,10 +499,10 @@ void Renderer::SetDefaultProperty( Property::Index index,
     }
     case Dali::Renderer::Property::DEPTH_FUNCTION:
     {
-      int value;
-      propertyValue.Get( value );
-      DepthFunction::Type depthFunction = static_cast<DepthFunction::Type>(value);
-      if( depthFunction != mDepthFunction )
+      DepthFunction::Type depthFunction;
+      std::string propertyString;
+      if( ( propertyValue.Get( propertyString ) ) &&
+          ( Scripting::GetEnumeration< DepthFunction::Type >( propertyString.c_str(), DEPTH_FUNCTION_TABLE, DEPTH_FUNCTION_TABLE_COUNT, depthFunction ) ) )
       {
         mDepthFunction = depthFunction;
         SetDepthFunctionMessage( GetEventThreadServices(), *mSceneObject, depthFunction );
@@ -488,10 +511,10 @@ void Renderer::SetDefaultProperty( Property::Index index,
     }
     case Dali::Renderer::Property::DEPTH_TEST_MODE:
     {
-      int value;
-      propertyValue.Get( value );
-      DepthTestMode::Type mode = static_cast<DepthTestMode::Type>(value);
-      if( mode != mDepthTestMode )
+      DepthTestMode::Type mode;
+      std::string propertyString;
+      if( ( propertyValue.Get( propertyString ) ) &&
+          ( Scripting::GetEnumeration< DepthTestMode::Type >( propertyString.c_str(), DEPTH_TEST_MODE_TABLE, DEPTH_TEST_MODE_TABLE_COUNT, mode ) ) )
       {
         mDepthTestMode = mode;
         SetDepthTestModeMessage( GetEventThreadServices(), *mSceneObject, mode );

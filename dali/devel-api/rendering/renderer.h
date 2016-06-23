@@ -256,21 +256,21 @@ public:
       INDEX_RANGE_COUNT,
 
       /**
-       * @brief name "depthWriteMode", type INTEGER
+       * @brief name "depthWriteMode", type STRING
        * @see DepthWriteMode
        * @note The default value is DepthWriteMode::AUTO
        */
       DEPTH_WRITE_MODE,
 
       /**
-       * @brief name "depthFunction", type INTEGER
+       * @brief name "depthFunction", type STRING
        * @see DepthFunction
        * @note The default value is DepthFunction::LESS
        */
       DEPTH_FUNCTION,
 
       /**
-       * @brief name "depthTestMode", type INTEGER
+       * @brief name "depthTestMode", type STRING
        * @see DepthTestMode
        * @note The default value is DepthTestMode::AUTO
        * @SINCE_1_1.38

@@ -158,6 +158,15 @@ DALI_IMPORT_API unsigned int GetBytesPerPixel(Format pixelFormat);
  */
 DALI_IMPORT_API void GetAlphaOffsetAndMask(Format pixelFormat, int& byteOffset, int& bitMask);
 
+/**
+ * @brief Whether specified pixel format is compressed.
+ *
+ * @SINCE_1_1.41
+ * @param [in] pixelformat Pixel format
+ * @return true if format is compressed, false otherwise
+ */
+DALI_IMPORT_API bool IsCompressed(Format pixelformat);
+
 } //namespace Pixel
 
 /**

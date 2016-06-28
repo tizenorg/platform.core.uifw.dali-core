@@ -524,7 +524,8 @@ NewTexture::NewTexture( Type type, Pixel::Format format, unsigned int width, uns
  mPixelDataType(GL_UNSIGNED_BYTE),
  mWidth( width ),
  mHeight( height ),
- mHasAlpha( HasAlpha( format ) )
+ mHasAlpha( HasAlpha( format ) ),
+ mIsCompressed( IsCompressed( format ) )
 {
   PixelFormatToGl( format, mPixelDataType, mInternalFormat );
 }
@@ -538,7 +539,8 @@ NewTexture::NewTexture( NativeImageInterfacePtr nativeImageInterface )
  mPixelDataType(GL_UNSIGNED_BYTE),
  mWidth( nativeImageInterface->GetWidth() ),
  mHeight( nativeImageInterface->GetHeight() ),
- mHasAlpha( nativeImageInterface->RequiresBlending() )
+ mHasAlpha( nativeImageInterface->RequiresBlending() ),
+ mIsCompressed( false )
 {
 }
 
@@ -581,7 +583,15 @@ void NewTexture::Initialize(Context& context)
     {
       //Creates the texture and reserves memory for the first mipmap level.
       context.Bind2dTexture( mId );
-      context.TexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, mWidth, mHeight, 0, mInternalFormat, mPixelDataType, 0 );
+
+      if( !mIsCompressed )
+      {
+        context.TexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, mWidth, mHeight, 0, mInternalFormat, mPixelDataType, 0 );
+      }
+      else
+      {
+        context.CompressedTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, mWidth, mHeight, 0, 0, 0 );
+      }
 
       //Apply default sampling parameters
       context.TexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, DALI_MINIFY_DEFAULT );
@@ -593,9 +603,20 @@ void NewTexture::Initialize(Context& context)
     {
       //Creates the texture and reserves memory for the first mipmap level.
       context.BindCubeMapTexture( mId );
-      for( unsigned int i(0); i<6; ++i )
+
+      if( !mIsCompressed )
       {
-        context.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, mInternalFormat, mWidth, mHeight, 0, mInternalFormat, mPixelDataType, 0 );
+        for( unsigned int i(0); i<6; ++i )
+        {
+          context.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, mInternalFormat, mWidth, mHeight, 0, mInternalFormat, mPixelDataType, 0 );
+        }
+      }
+      else
+      {
+        for( unsigned int i(0); i<6; ++i )
+        {
+          context.CompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, mInternalFormat, mWidth, mHeight, 0, 0, 0 );
+        }
       }
 
       //Apply default sampling parameters
@@ -652,12 +673,30 @@ void NewTexture::Upload( Context& context, PixelDataPtr pixelData, const Interna
         params.height == static_cast<unsigned int>(mHeight / (1<<params.mipmap)) )
     {
       //Specifying the whole image for the mipmap. We cannot assume that storage for that mipmap has been created so we need to use TexImage2D
-      context.TexImage2D(GL_TEXTURE_2D, params.mipmap, mInternalFormat, params.width, params.height, 0, pixelDataFormat, pixelDataElementType, buffer );
+      if( !mIsCompressed )
+      {
+        context.TexImage2D(GL_TEXTURE_2D, params.mipmap, mInternalFormat, params.width, params.height, 0, pixelDataFormat, pixelDataElementType, buffer );
+      }
+      else
+      {
+        context.CompressedTexImage2D(GL_TEXTURE_2D, params.mipmap, mInternalFormat, params.width, params.height, 0, pixelData->GetBufferSize(), buffer );
+      }
     }
     else
     {
       //Specifying part of the image for the mipmap
-      context.TexSubImage2D( GL_TEXTURE_2D, params.mipmap, params.xOffset, params.yOffset, params.width, params.height, pixelDataFormat, pixelDataElementType, buffer );
+      if( !mIsCompressed )
+      {
+        context.TexSubImage2D( GL_TEXTURE_2D, params.mipmap,
+                               params.xOffset, params.yOffset, params.width, params.height,
+                               pixelDataFormat, pixelDataElementType, buffer );
+      }
+      else
+      {
+        context.CompressedTexSubImage2D( GL_TEXTURE_2D, params.mipmap,
+                                         params.xOffset, params.yOffset, params.width, params.height,
+                                         pixelDataFormat, pixelData->GetBufferSize(), buffer );
+      }
     }
   }
   else if( mType == TextureType::TEXTURE_CUBE )
@@ -670,16 +709,34 @@ void NewTexture::Upload( Context& context, PixelDataPtr pixelData, const Interna
         params.height == static_cast<unsigned int>(mHeight / (1<<params.mipmap)) )
     {
       //Specifying the whole image for the mipmap. We cannot assume that storage for that mipmap has been created so we need to use TexImage2D
-      context.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + params.layer, params.mipmap, mInternalFormat,
-                         params.width, params.height, 0,
-                         pixelDataFormat, pixelDataElementType, buffer );
+      if( !mIsCompressed )
+      {
+        context.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + params.layer, params.mipmap, mInternalFormat,
+                           params.width, params.height, 0,
+                           pixelDataFormat, pixelDataElementType, buffer );
+      }
+      else
+      {
+        context.CompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + params.layer, params.mipmap, mInternalFormat,
+                                     params.width, params.height, 0,
+                                     pixelData->GetBufferSize(), buffer );
+      }
     }
     else
     {
       //Specifying part of the image for the mipmap
-      context.TexSubImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + params.layer, params.mipmap,
-                             params.xOffset, params.yOffset, params.width, params.height,
-                             pixelDataFormat, pixelDataElementType, buffer );
+      if( !mIsCompressed )
+      {
+        context.TexSubImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + params.layer, params.mipmap,
+                               params.xOffset, params.yOffset, params.width, params.height,
+                               pixelDataFormat, pixelDataElementType, buffer );
+      }
+      else
+      {
+        context.CompressedTexSubImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + params.layer, params.mipmap,
+                                         params.xOffset, params.yOffset, params.width, params.height,
+                                         pixelDataFormat, pixelData->GetBufferSize(), buffer );
+      }
     }
   }
 

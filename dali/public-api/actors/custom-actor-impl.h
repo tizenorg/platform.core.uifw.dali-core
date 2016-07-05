@@ -317,7 +317,7 @@ public:
     return NULL;
   }
 
-protected: // For derived classes
+public: // For derived classes
 
   // Flags for the constructor
   enum ActorFlags

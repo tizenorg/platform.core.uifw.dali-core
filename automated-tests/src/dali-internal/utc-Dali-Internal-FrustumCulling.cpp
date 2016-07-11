@@ -33,6 +33,7 @@ using namespace Dali;
 
 const char* VERTEX_SHADER = MAKE_SHADER(
 attribute mediump vec2    aPosition;
+attribute mediump vec2    aTexCoord;
 uniform   mediump mat4    uMvpMatrix;
 uniform   mediump vec3    uSize;
 varying   mediump vec2    vTexCoord;
@@ -42,7 +43,7 @@ void main()
   mediump vec4 vertexPosition = vec4(aPosition, 0.0, 1.0);
   vertexPosition.xyz *= uSize;
   vertexPosition = uMvpMatrix * vertexPosition;
-  vTexCoord = aPosition + vec2(0.5);
+  vTexCoord = aTexCoord;
   gl_Position = vertexPosition;
 }
 );
@@ -56,12 +57,39 @@ void main()
 }
 );
 
+Geometry CreateGeometry()
+{
+  const float halfQuadSize = .5f;
+  struct TexturedQuadVertex { Vector2 position; Vector2 textureCoordinates; };
+  TexturedQuadVertex texturedQuadVertexData[4] = {
+    { Vector2(-halfQuadSize, -halfQuadSize), Vector2(0.f, 0.f) },
+    { Vector2( halfQuadSize, -halfQuadSize), Vector2(1.f, 0.f) },
+    { Vector2(-halfQuadSize,  halfQuadSize), Vector2(0.f, 1.f) },
+    { Vector2( halfQuadSize,  halfQuadSize), Vector2(1.f, 1.f) } };
+
+  Property::Map texturedQuadVertexFormat;
+  texturedQuadVertexFormat["aPosition"] = Property::VECTOR2;
+  texturedQuadVertexFormat["aTexCoord"] = Property::VECTOR2;
+  PropertyBuffer texturedQuadVertices = PropertyBuffer::New( texturedQuadVertexFormat );
+  texturedQuadVertices.SetData( texturedQuadVertexData, 4 );
+
+  // Create indices
+  unsigned short indexData[6] = { 0, 3, 1, 0, 2, 3 };
+
+  // Create the geometry object
+  Geometry texturedQuadGeometry = Geometry::New();
+  texturedQuadGeometry.AddVertexBuffer( texturedQuadVertices );
+  texturedQuadGeometry.SetIndexBuffer( indexData, sizeof(indexData)/sizeof(indexData[0]) );
+
+  return texturedQuadGeometry;
+}
+
 Actor CreateMeshActorToStage( TestApplication& application, Vector3 parentOrigin = ParentOrigin::CENTER, Vector3 anchorPoint = AnchorPoint::CENTER, Shader::ShaderHints shaderHints = Shader::HINT_NONE )
 {
   PixelBuffer* pixelBuffer = new PixelBuffer[ 4 ];
   BufferImage image = BufferImage::New( pixelBuffer, 1, 1 );
 
-  Geometry geometry = Geometry::QUAD();
+  Geometry geometry = CreateGeometry();
   Shader shader = Shader::New( VERTEX_SHADER, FRAGMENT_SHADER, shaderHints );
   TextureSet textureSet = TextureSet::New();
   textureSet.SetImage( 0u, image );
@@ -120,7 +148,7 @@ int UtcFrustumCullN(void)
   application.SendNotification();
   application.Render( 16 );
 
-  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -145,7 +173,7 @@ int UtcFrustumLeftCullP(void)
   application.Render( 16 );
 
   // This will be sphere culled
-  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -164,7 +192,7 @@ int UtcFrustumLeftCullN(void)
   application.SendNotification();
   application.Render( 16 );
 
-  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -190,7 +218,7 @@ int UtcFrustumRightCullP(void)
   application.Render( 16 );
 
   // This will be sphere culled
-  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -209,7 +237,7 @@ int UtcFrustumRightCullN(void)
   application.SendNotification();
   application.Render( 16 );
 
-  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -235,7 +263,7 @@ int UtcFrustumTopCullP(void)
   application.Render( 16 );
 
   // This will be sphere culled
-  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -255,7 +283,7 @@ int UtcFrustumTopCullN(void)
   application.Render( 16 );
 
   // This will be box culled
-  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -281,7 +309,7 @@ int UtcFrustumBottomCullP(void)
   application.Render( 16 );
 
   // This will be sphere culled
-  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -300,7 +328,7 @@ int UtcFrustumBottomCullN(void)
   application.SendNotification();
   application.Render( 16 );
 
-  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -328,7 +356,7 @@ int UtcFrustumNearCullP(void)
   application.Render( 16 );
 
   // This will be sphere culled
-  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -354,7 +382,7 @@ int UtcFrustumNearCullN(void)
   application.SendNotification();
   application.Render( 16 );
 
-  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -382,7 +410,7 @@ int UtcFrustumFarCullP(void)
   application.Render( 16 );
 
   // This will be sphere culled
-  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( !drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -408,7 +436,7 @@ int UtcFrustumFarCullN(void)
   application.SendNotification();
   application.Render( 16 );
 
-  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }
@@ -427,7 +455,7 @@ int UtcFrustumCullDisabledP(void)
   application.Render( 16 );
 
   // This should not be culled
-  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawArrays" ) );
+  DALI_TEST_CHECK( drawTrace.FindMethod( "DrawElements" ) );
 
   END_TEST;
 }

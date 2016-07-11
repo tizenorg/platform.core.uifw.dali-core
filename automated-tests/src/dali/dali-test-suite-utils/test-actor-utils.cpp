@@ -28,6 +28,8 @@ namespace Dali
 
 namespace
 {
+const char * const TEXTURE_UNIFORM_NAME( "sTexture" );
+
 const char* VERTEX_SHADER = DALI_COMPOSE_SHADER(
   attribute mediump vec2 aPosition;\n
   uniform mediump mat4 uMvpMatrix;\n
@@ -65,7 +67,7 @@ Actor CreateRenderableActor( Image texture )
 Actor CreateRenderableActor( Image texture, const std::string& vertexShader, const std::string& fragmentShader )
 {
   // Create the geometry
-  Geometry geometry = Geometry::QUAD();
+  Geometry geometry = CreateQuadGeometry();
 
   // Create Shader
   Shader shader = Shader::New( vertexShader, fragmentShader );

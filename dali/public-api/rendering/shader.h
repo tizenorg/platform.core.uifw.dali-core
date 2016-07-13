@@ -2,7 +2,7 @@
 #define DALI_SHADER_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <string> // std::string
 
 // INTERNAL INCLUDES
-#include <dali/public-api/object/handle.h> // Dali::Handle
+#include <dali/public-api/object/handle.h>                // Dali::Handle
 #include <dali/public-api/object/property-index-ranges.h> // DEFAULT_DERIVED_HANDLE_PROPERTY_START_INDEX
 
 /**

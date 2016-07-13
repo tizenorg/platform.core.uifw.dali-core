@@ -19,10 +19,10 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/object/handle.h> // Dali::Handle
+#include <dali/public-api/object/handle.h>                // Dali::Handle
 #include <dali/public-api/object/property-index-ranges.h> // DEFAULT_OBJECT_PROPERTY_START_INDEX
-#include <dali/devel-api/rendering/geometry.h> // Dali::Geometry
-#include <dali/devel-api/rendering/texture-set.h> // Dali::TextureSet
+#include <dali/public-api/rendering/geometry.h>           // Dali::Geometry
+#include <dali/public-api/rendering/texture-set.h>        // Dali::TextureSet
 
 namespace Dali
 {

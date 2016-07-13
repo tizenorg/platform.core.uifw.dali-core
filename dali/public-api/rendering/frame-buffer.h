@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
-#include <dali/devel-api/rendering/texture.h>
+#include <dali/public-api/rendering/texture.h>
 
 namespace Dali
 {

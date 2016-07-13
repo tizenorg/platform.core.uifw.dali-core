@@ -70,6 +70,13 @@ public_api_src_files = \
   $(public_api_src_dir)/object/ref-object.cpp \
   $(public_api_src_dir)/render-tasks/render-task.cpp \
   $(public_api_src_dir)/render-tasks/render-task-list.cpp \
+  $(public_api_src_dir)/rendering/frame-buffer.cpp \
+  $(public_api_src_dir)/rendering/geometry.cpp \
+  $(public_api_src_dir)/rendering/texture.cpp \
+  $(public_api_src_dir)/rendering/texture-set.cpp \
+  $(public_api_src_dir)/rendering/renderer.cpp \
+  $(public_api_src_dir)/rendering/sampler.cpp \
+  $(public_api_src_dir)/rendering/shader.cpp \
   $(public_api_src_dir)/shader-effects/shader-effect.cpp \
   $(public_api_src_dir)/signals/callback.cpp \
   $(public_api_src_dir)/signals/connection-tracker.cpp \
@@ -198,6 +205,15 @@ public_api_core_object_header_files = \
 public_api_core_render_tasks_header_files = \
   $(public_api_src_dir)/render-tasks/render-task.h \
   $(public_api_src_dir)/render-tasks/render-task-list.h
+
+public_api_core_rendering_header_files = \
+  $(public_api_src_dir)/rendering/frame-buffer.h \
+  $(public_api_src_dir)/rendering/geometry.h \
+  $(public_api_src_dir)/rendering/texture.h \
+  $(public_api_src_dir)/rendering/texture-set.h \
+  $(public_api_src_dir)/rendering/renderer.h \
+  $(public_api_src_dir)/rendering/sampler.h \
+  $(public_api_src_dir)/rendering/shader.h
 
 public_api_core_shader_effects_header_files = \
   $(public_api_src_dir)/shader-effects/shader-effect.h

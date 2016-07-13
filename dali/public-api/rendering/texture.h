@@ -22,7 +22,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/images/pixel.h>
-#include <dali/devel-api/images/pixel-data.h>
+#include <dali/public-api/images/pixel-data.h>
 
 namespace Dali
 {

@@ -22,10 +22,10 @@
 #include <cstddef> // std::size_t
 
 // INTERNAL INCLUDES
-#include <dali/public-api/object/handle.h>    // Dali::Handle
-#include <dali/devel-api/rendering/sampler.h> // Dali::Sampler
-#include <dali/devel-api/rendering/texture.h> // Dali::Texture
-#include <dali/devel-api/rendering/shader.h>  // Dali::Shader
+#include <dali/public-api/object/handle.h>     // Dali::Handle
+#include <dali/public-api/rendering/sampler.h> // Dali::Sampler
+#include <dali/public-api/rendering/shader.h>  // Dali::Shader
+#include <dali/public-api/rendering/texture.h> // Dali::Texture
 
 namespace Dali
 {

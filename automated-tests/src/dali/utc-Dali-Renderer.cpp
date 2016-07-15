@@ -22,6 +22,7 @@
 
 // INTERNAL INCLUDES
 #include <dali-test-suite-utils.h>
+#include <test-trace-call-stack.h>
 #include <mesh-builder.h>
 
 using namespace Dali;
@@ -36,6 +37,16 @@ const BlendFactor::Type   DEFAULT_BLEND_FACTOR_DEST_ALPHA( BlendFactor::ONE_MINU
 
 const BlendEquation::Type DEFAULT_BLEND_EQUATION_RGB(   BlendEquation::ADD );
 const BlendEquation::Type DEFAULT_BLEND_EQUATION_ALPHA( BlendEquation::ADD );
+
+void PrintTrace( TraceCallStack& stack )
+{
+  int functionCount = stack.Count();
+  for( int i = 0; i < functionCount; ++i )
+  {
+    Dali::TraceCallStack::FunctionCall functionCall = stack.GetFunctionAtIndex( i );
+    tet_printf( "StackTrace: Index:%d,  Function:%s,  ParamList:%s\n", i, functionCall.method.c_str(), functionCall.paramList.c_str() );
+  }
+}
 
 void TestConstraintNoBlue( Vector4& current, const PropertyInputContainer& inputs )
 {
@@ -2012,6 +2023,156 @@ int UtcDaliRendererSetDepthFunction(void)
     depthFunctionStr << GL_GEQUAL;
     DALI_TEST_CHECK( glDepthFunctionStack.FindMethodAndParams( "DepthFunc", depthFunctionStr.str().c_str() ) );
   }
+
+  END_TEST;
+}
+
+//todor
+//########################################################################
+#if 0
+/**
+ * @brief name "stencilFunction", type INTEGER
+ * @see StencilFunction
+ * @note The default value is StencilFunction::ALWAYS
+ * @SINCE_1_1.43
+ */
+STENCIL_FUNCTION,
+
+/**
+ * @brief name "stencilFunctionMask", type INTEGER
+ * @note The default value is 0xFF
+ * @SINCE_1_1.43
+ */
+STENCIL_FUNCTION_MASK,
+
+/**
+ * @brief name "stencilFunctionReference", type INTEGER
+ * @note The default value is 0
+ * @SINCE_1_1.43
+ */
+STENCIL_FUNCTION_REFERENCE,
+
+/**
+ * @brief name "stencilMask", type INTEGER
+ * @note The default value is 0xFF
+ * @SINCE_1_1.43
+ */
+STENCIL_MASK,
+
+/**
+ * @brief name "stencilMode", type INTEGER
+ * @see StencilMode
+ * @note The default value is StencilMode::AUTO
+ * @SINCE_1_1.43
+ */
+STENCIL_MODE,
+
+/**
+ * @brief name "stencilOperationOnFail", type INTEGER
+ * @see StencilOperation
+ * @note The default value is StencilOperation::KEEP
+ * @SINCE_1_1.43
+ */
+STENCIL_OPERATION_ON_FAIL,
+
+/**
+ * @brief name "stencilOperationOnZFail", type INTEGER
+ * @see StencilOperation
+ * @note The default value is StencilOperation::KEEP
+ * @SINCE_1_1.43
+ */
+STENCIL_OPERATION_ON_Z_FAIL,
+
+/**
+ * @brief name "stencilOperationOnZPass", type INTEGER
+ * @see StencilOperation
+ * @note The default value is StencilOperation::KEEP
+ * @SINCE_1_1.43
+ */
+STENCIL_OPERATION_ON_Z_PASS,
+
+/**
+ * @brief name "writeToColorBuffer", type BOOLEAN
+ * This allows per-renderer control of writing to the color buffer.
+ * For example: This can be turned off to write to the stencil or depth buffers only.
+ * @note The default value is True
+ * @SINCE_1_1.43
+ */
+WRITE_TO_COLOR_BUFFER
+#endif
+//########################################################################
+int UtcDaliRendererSetStencilMode(void)
+{
+  TestApplication application;
+
+  tet_infoline("Test setting the stencil mode");
+
+  Geometry geometry = CreateQuadGeometry();
+  Shader shader = CreateShader();
+  Renderer renderer = Renderer::New( geometry, shader );
+
+  Actor actor = Actor::New();
+  actor.AddRenderer( renderer );
+  actor.SetSize( 400.0f, 400.0f );
+  Stage stage = Stage::GetCurrent();
+  stage.GetRootLayer().SetBehavior( Layer::LAYER_3D );
+  stage.Add( actor );
+
+  TestGlAbstraction& glAbstraction = application.GetGlAbstraction();
+  glAbstraction.EnableEnableDisableCallTrace( true );
+  glAbstraction.EnableStencilFunctionCallTrace( true );
+
+  TraceCallStack& glEnableDisableStack = glAbstraction.GetEnableDisableTrace();
+  TraceCallStack& glStencilFunctionStack = glAbstraction.GetStencilFunctionTrace();
+
+  std::ostringstream depthTestStr;
+  depthTestStr << GL_DEPTH_TEST;
+
+
+  renderer.SetProperty( Renderer::Property::DEPTH_FUNCTION, DepthFunction::NEVER);
+  glEnableDisableStack.Reset();
+  glStencilFunctionStack.Reset();
+  application.SendNotification();
+  application.Render();
+  tet_printf( "#1:\n" );
+  PrintTrace( glEnableDisableStack );
+  tet_printf( "#2b:\n" );
+  PrintTrace( glStencilFunctionStack );
+
+
+  //inline void StencilFunc(GLenum func, GLint ref, GLuint mask)
+  renderer.SetProperty( Renderer::Property::STENCIL_FUNCTION, StencilFunction::LESS );
+
+  application.SendNotification();
+  application.Render();
+
+#if 0
+  renderer.SetProperty( Renderer::Property::STENCIL_MODE, StencilMode::OFF );
+  application.SendNotification();
+  application.Render();
+  renderer.SetProperty( Renderer::Property::STENCIL_MODE, StencilMode::AUTO );
+  application.SendNotification();
+  application.Render();
+#endif
+
+  tet_printf( "#2:\n" );
+  PrintTrace( glEnableDisableStack );
+  tet_printf( "#2b:\n" );
+  PrintTrace( glStencilFunctionStack );
+
+
+
+
+
+
+#if 0
+  DALI_TEST_CHECK( glEnableDisableStack.FindMethodAndParams( "Enable", depthTestStr.str().c_str() ) );
+  std::ostringstream depthFunctionStr;
+  depthFunctionStr << GL_NEVER;
+  DALI_TEST_CHECK( glDepthFunctionStack.FindMethodAndParams( "DepthFunc", depthFunctionStr.str().c_str() ) );
+#endif
+
+  DALI_TEST_CHECK( true );
 
   END_TEST;
 }

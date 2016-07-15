@@ -288,6 +288,42 @@ void RenderTask::GetViewport( Viewport& viewPort ) const
   }
 }
 
+
+void RenderTask::GetViewport2( Viewport& viewPort ) const
+{
+  BufferIndex bufferIndex = GetEventThreadServices().GetEventBufferIndex();
+
+  if( !mSceneObject->GetViewportEnabled( bufferIndex ) )
+  {
+    if( mFrameBufferImage )
+    {
+      viewPort.x = viewPort.y = 0;
+      viewPort.width = mFrameBufferImage.GetWidth();
+      viewPort.height = mFrameBufferImage.GetHeight();
+    }
+    else
+    {
+      Internal::Stage* stage = Internal::Stage::GetCurrent();
+      if( stage )
+      {
+        Vector2 size( stage->GetSize() );
+        viewPort.x = viewPort.y = 0;
+        viewPort.width = size.width;
+        viewPort.height = size.height;
+      }
+    }
+  }
+  else
+  {
+    const Vector2& position = mSceneObject->GetViewportPosition(bufferIndex);
+    const Vector2& size = mSceneObject->GetViewportSize(bufferIndex);
+    viewPort.x = position.x;
+    viewPort.y = position.y;
+    viewPort.width = size.width;
+    viewPort.height = size.height;
+  }
+}
+
 void RenderTask::SetClearColor( const Vector4& color )
 {
   if ( mClearColor != color )

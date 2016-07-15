@@ -162,6 +162,7 @@ public:
    * @param[out] viewPort instance to copy the values into
    */
   void GetViewport( Viewport& viewPort ) const;
+  void GetViewport2( Viewport& viewPort ) const;
 
   /**
    * @copydoc Dali::RenderTask::SetClearColor()

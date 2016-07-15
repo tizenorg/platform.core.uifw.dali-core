@@ -1,8 +1,8 @@
-#ifndef __TEST_TRACE_CALL_STACK_H__
-#define __TEST_TRACE_CALL_STACK_H__
+#ifndef TEST_TRACE_CALL_STACK_H
+#define TEST_TRACE_CALL_STACK_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,29 @@ std::string ToString(float x);
 class TraceCallStack
 {
 public:
+
   /// Typedef for passing and storing named parameters
   typedef std::map< std::string, std::string > NamedParams;
+
+  ///todor
+
+  struct FunctionCall
+  {
+    std::string method;
+    std::string paramList;
+    NamedParams namedParams;
+    FunctionCall( const std::string& aMethod, const std::string& aParamList )
+    : method( aMethod ), paramList( aParamList )
+    {
+    }
+    FunctionCall( const std::string& aMethod, const std::string& aParamList, const NamedParams& altParams )
+    : method( aMethod ), paramList( aParamList ), namedParams( altParams )
+    {
+    }
+  };
+
+  /// todor
+  typedef std::vector< FunctionCall >          CallStackType;
 
   /**
    * Constructor
@@ -128,27 +149,25 @@ public:
    */
   void Reset();
 
+  int Count() const
+  {
+    return mCallStack.size();
+  }
+
+  //todor
+  const FunctionCall& GetFunctionAtIndex( int index ) const
+  {
+    //callStack = mCallStack;
+    return mCallStack[index];
+  }
+
 private:
+
   bool mTraceActive; ///< True if the trace is active
 
-  struct FunctionCall
-  {
-    std::string method;
-    std::string paramList;
-    NamedParams namedParams;
-    FunctionCall( const std::string& aMethod, const std::string& aParamList )
-    : method( aMethod ), paramList( aParamList )
-    {
-    }
-    FunctionCall( const std::string& aMethod, const std::string& aParamList, const NamedParams& altParams )
-    : method( aMethod ), paramList( aParamList ), namedParams( altParams )
-    {
-    }
-  };
-
-  std::vector< FunctionCall > mCallStack; ///< The call stack
+  CallStackType mCallStack; ///< The call stack
 };
 
 } // namespace dali
 
-#endif //__TEST_TRACE_CALL_STACK_H__
+#endif // TEST_TRACE_CALL_STACK_H

@@ -42,9 +42,19 @@ namespace Render
 
 namespace
 {
+
 // Table for fast look-up of Dali::DepthFunction enum to a GL depth function.
 // Note: These MUST be in the same order as Dali::DepthFunction enum.
-const short DaliDepthToGLDepthTable[] = { GL_NEVER, GL_ALWAYS, GL_LESS, GL_GREATER, GL_EQUAL, GL_NOTEQUAL, GL_LEQUAL, GL_GEQUAL };
+const int DaliDepthToGLDepthTable[]  = { GL_NEVER, GL_ALWAYS, GL_LESS, GL_GREATER, GL_EQUAL, GL_NOTEQUAL, GL_LEQUAL, GL_GEQUAL };
+
+// Table for fast look-up of Dali::StencilFunction enum to a GL stencil function.
+// Note: These MUST be in the same order as Dali::StencilFunction enum.
+const int DaliStencilFunctionToGL[]  = { GL_NEVER, GL_LESS, GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL, GL_ALWAYS };
+
+// Table for fast look-up of Dali::StencilOperation enum to a GL stencil operation.
+// Note: These MUST be in the same order as Dali::StencilOperation enum.
+const int DaliStencilOperationToGL[] = { GL_ZERO, GL_KEEP, GL_REPLACE, GL_INCR, GL_DECR, GL_INVERT, GL_INCR_WRAP, GL_DECR_WRAP };
+
 } // Unnamed namespace
 
 /**
@@ -118,6 +128,55 @@ inline void SetRenderFlags( const RenderList& renderList, Context& context, bool
 }
 
 /**
+ * @brief This method sets up the stencil and color buffer based on the current Renderers flags.
+ * @param[in]     item                     The current RenderItem about to be rendered
+ * @param[in]     context                  The context
+ * @param[in/out] usedStencilBuffer        True if the stencil buffer has been used so far within this RenderList
+ * @param[in]     stencilManagedByDrawMode True if the stencil and color buffer is being managed by DrawMode::STENCIL
+ */
+inline void SetupPerRendererFlags( const RenderItem& item, Context& context, bool& usedStencilBuffer, bool stencilManagedByDrawMode )
+{
+  // DrawMode::STENCIL is deprecated, however to support it we must not set
+  // flags based on the renderer properties if it is in use.
+  if( stencilManagedByDrawMode )
+  {
+    return;
+  }
+
+  // Setup the color buffer based on the renderers properties.
+  Renderer *renderer = item.mRenderer;
+  context.ColorMask( renderer->GetWriteToColorBuffer() );
+
+  // If the stencil buffer is disabled for this renderer, exit now to save unnecessary value setting.
+  if( renderer->GetStencilMode() != StencilMode::ON )
+  {
+    // No per-renderer stencil setup, exit.
+    context.EnableStencilBuffer( false );
+    return;
+  }
+
+  // At this point, the stencil buffer is enabled.
+  context.EnableStencilBuffer( true );
+
+  // If this is the first use of the stencil buffer within this RenderList, clear it now.
+  // This avoids unnecessary clears.
+  if( !usedStencilBuffer )
+  {
+    context.Clear( GL_STENCIL_BUFFER_BIT, Context::CHECK_CACHED_VALUES );
+    usedStencilBuffer = true;
+  }
+
+  // Setup the stencil buffer based on the renderers properties.
+  context.StencilFunc( DaliStencilFunctionToGL[ renderer->GetStencilFunction() ],
+      renderer->GetStencilFunctionReference(),
+      renderer->GetStencilFunctionMask() );
+  context.StencilOp( DaliStencilOperationToGL[ renderer->GetStencilOperationOnFail() ],
+      DaliStencilOperationToGL[ renderer->GetStencilOperationOnZFail() ],
+      DaliStencilOperationToGL[ renderer->GetStencilOperationOnZPass() ] );
+  context.StencilMask( renderer->GetStencilMask() );
+}
+
+/**
  * Sets up the depth buffer for reading and writing based on the current render item.
  * The items read and write mode are used if specified.
  * If AUTO is selected for reading, the decision will be based on the Layer Behavior.
@@ -169,6 +228,8 @@ inline void ProcessRenderList(
 
   bool depthTestEnabled = !( renderList.GetSourceLayer()->IsDepthTestDisabled() );
   bool isLayer3D = renderList.GetSourceLayer()->GetBehavior() == Dali::Layer::LAYER_3D;
+  bool usedStencilBuffer = false;
+  bool stencilManagedByDrawMode = renderList.GetFlags() & RenderList::STENCIL_BUFFER_ENABLED;
 
   SetScissorTest( renderList, context );
   SetRenderFlags( renderList, context, depthTestEnabled, isLayer3D );
@@ -184,6 +245,7 @@ inline void ProcessRenderList(
       const RenderItem& item = renderList.GetItem( index );
       DALI_PRINT_RENDER_ITEM( item );
 
+      SetupPerRendererFlags( item, context, usedStencilBuffer, stencilManagedByDrawMode );
       item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
                               item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );
     }
@@ -198,6 +260,7 @@ inline void ProcessRenderList(
 
       // Set up the depth buffer based on per-renderer flags.
       SetupDepthBuffer( item, context, isLayer3D );
+      SetupPerRendererFlags( item, context, usedStencilBuffer, stencilManagedByDrawMode );
 
       item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
                               item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );

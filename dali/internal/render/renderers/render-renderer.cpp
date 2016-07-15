@@ -118,11 +118,20 @@ Renderer* Renderer::New( SceneGraph::RenderDataProvider* dataProvider,
                          bool preMultipliedAlphaEnabled,
                          DepthWriteMode::Type depthWriteMode,
                          DepthTestMode::Type depthTestMode,
-                         DepthFunction::Type depthFunction )
+                         DepthFunction::Type depthFunction,
+                         //todor
+                         StencilMode::Type stencilMode, StencilFunction::Type stencilFunction, int stencilFunctionMask, int stencilFunctionReference,
+                         int stencilMask, StencilOperation::Type stencilOperationOnFail, StencilOperation::Type stencilOperationOnZFail, StencilOperation::Type stencilOperationOnZPass,
+                         bool writeToColorBuffer )
 {
-  return new Renderer( dataProvider, geometry, blendingBitmask, blendColor, faceCullingMode, preMultipliedAlphaEnabled, depthWriteMode, depthTestMode, depthFunction );
+  return new Renderer( dataProvider, geometry, blendingBitmask, blendColor,
+      faceCullingMode, preMultipliedAlphaEnabled, depthWriteMode, depthTestMode,
+      depthFunction,
+      stencilMode, stencilFunction, stencilFunctionMask, stencilFunctionReference,
+      stencilMask, stencilOperationOnFail, stencilOperationOnZFail, stencilOperationOnZPass, writeToColorBuffer );//todor
 }
 
+//todor: struct to hold params?
 Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
                     Render::Geometry* geometry,
                     unsigned int blendingBitmask,
@@ -131,7 +140,11 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
                     bool preMultipliedAlphaEnabled,
                     DepthWriteMode::Type depthWriteMode,
                     DepthTestMode::Type depthTestMode,
-                    DepthFunction::Type depthFunction )
+                    DepthFunction::Type depthFunction,
+                    //todor
+                    StencilMode::Type stencilMode, StencilFunction::Type stencilFunction, int stencilFunctionMask, int stencilFunctionReference,
+                    int stencilMask, StencilOperation::Type stencilOperationOnFail, StencilOperation::Type stencilOperationOnZFail, StencilOperation::Type stencilOperationOnZPass,
+                    bool writeToColorBuffer )
 : mRenderDataProvider( dataProvider ),
   mContext(NULL),
   mTextureCache( NULL ),
@@ -139,13 +152,24 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
   mGeometry( geometry ),
   mUniformIndexMap(),
   mAttributesLocation(),
-  mBlendingOptions(),
-  mFaceCullingMode( faceCullingMode ),
-  mDepthFunction( depthFunction ),
   mIndexedDrawFirstElement( 0 ),
   mIndexedDrawElementsCount( 0 ),
+  mBlendingOptions(),
+  //todor
+  mStencilFunctionMask( stencilFunctionMask ),
+  mStencilFunctionReference( stencilFunctionReference ),
+  mStencilMask( stencilMask ),
+  mDepthFunction( depthFunction ),
+  mStencilFunction( stencilFunction ),
+  mStencilOperationOnFail( stencilOperationOnFail ),
+  mStencilOperationOnZFail( stencilOperationOnZFail ),
+  mStencilOperationOnZPass( stencilOperationOnZPass ),
+  mFaceCullingMode( faceCullingMode ),
   mDepthWriteMode( depthWriteMode ),
   mDepthTestMode( depthTestMode ),
+  mStencilMode( stencilMode ),
+  mWriteToColorBuffer( writeToColorBuffer ),
+  //todor
   mUpdateAttributesLocation( true ),
   mPremultipledAlphaEnabled( preMultipliedAlphaEnabled )
 {
@@ -473,6 +497,97 @@ void Renderer::SetDepthFunction( DepthFunction::Type depthFunction )
 DepthFunction::Type Renderer::GetDepthFunction() const
 {
   return mDepthFunction;
+}
+
+//todor
+void Renderer::SetStencilMode( StencilMode::Type stencilMode )
+{
+  mStencilMode = stencilMode;
+}
+
+StencilMode::Type Renderer::GetStencilMode() const
+{
+  return mStencilMode;
+}
+
+void Renderer::SetStencilFunction( StencilFunction::Type stencilFunction )
+{
+  mStencilFunction = stencilFunction;
+}
+
+StencilFunction::Type Renderer::GetStencilFunction() const
+{
+  return mStencilFunction;
+}
+
+void Renderer::SetStencilFunctionMask( int stencilFunctionMask )
+{
+  mStencilFunctionMask = stencilFunctionMask;
+}
+
+int Renderer::GetStencilFunctionMask() const
+{
+  return mStencilFunctionMask;
+}
+
+void Renderer::SetStencilFunctionReference( int stencilFunctionReference )
+{
+  mStencilFunctionReference = stencilFunctionReference;
+}
+
+int Renderer::GetStencilFunctionReference() const
+{
+  return mStencilFunctionReference;
+}
+
+void Renderer::SetStencilMask( int stencilMask )
+{
+  mStencilMask = stencilMask;
+}
+
+int Renderer::GetStencilMask() const
+{
+  return mStencilMask;
+}
+
+void Renderer::SetStencilOperationOnFail( StencilOperation::Type stencilOperationOnFail )
+{
+  mStencilOperationOnFail = stencilOperationOnFail;
+}
+
+StencilOperation::Type Renderer::GetStencilOperationOnFail() const
+{
+  return mStencilOperationOnFail;
+}
+
+void Renderer::SetStencilOperationOnZFail( StencilOperation::Type stencilOperationOnZFail )
+{
+  mStencilOperationOnZFail = stencilOperationOnZFail;
+}
+
+StencilOperation::Type Renderer::GetStencilOperationOnZFail() const
+{
+  return mStencilOperationOnZFail;
+}
+
+void Renderer::SetStencilOperationOnZPass( StencilOperation::Type stencilOperationOnZPass )
+{
+  mStencilOperationOnZPass = stencilOperationOnZPass;
+}
+
+StencilOperation::Type Renderer::GetStencilOperationOnZPass() const
+{
+  return mStencilOperationOnZPass;
+}
+
+void Renderer::SetWriteToColorBuffer( bool writeToColorBuffer )
+{
+  mWriteToColorBuffer = writeToColorBuffer;
+}
+
+bool Renderer::GetWriteToColorBuffer() const
+{
+  return mWriteToColorBuffer;
 }
 
 void Renderer::Render( Context& context,

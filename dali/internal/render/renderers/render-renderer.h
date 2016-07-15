@@ -85,6 +85,7 @@ public:
    * @param[in] depthWriteMode Depth buffer write mode
    * @param[in] depthTestMode Depth buffer test mode
    * @param[in] depthFunction Depth function
+   * //todordoc
    */
   static Renderer* New( SceneGraph::RenderDataProvider* dataProviders,
                         Render::Geometry* geometry,
@@ -94,7 +95,11 @@ public:
                         bool preMultipliedAlphaEnabled,
                         DepthWriteMode::Type depthWriteMode,
                         DepthTestMode::Type depthTestMode,
-                        DepthFunction::Type depthFunction );
+                        DepthFunction::Type depthFunction,
+                        //todor
+                        StencilMode::Type stencilMode, StencilFunction::Type stencilFunction, int stencilFunctionMask, int stencilFunctionReference,
+                        int stencilMask, StencilOperation::Type stencilOperationOnFail, StencilOperation::Type stencilOperationOnZFail, StencilOperation::Type stencilOperationOnZPass,
+                        bool writeToColorBuffer );
 
   /**
    * Constructor.
@@ -107,6 +112,7 @@ public:
    * @param[in] depthWriteMode Depth buffer write mode
    * @param[in] depthTestMode Depth buffer test mode
    * @param[in] depthFunction Depth function
+   * //todordoc
    */
   Renderer( SceneGraph::RenderDataProvider* dataProviders,
             Render::Geometry* geometry,
@@ -116,7 +122,11 @@ public:
             bool preMultipliedAlphaEnabled,
             DepthWriteMode::Type depthWriteMode,
             DepthTestMode::Type depthTestMode,
-            DepthFunction::Type depthFunction );
+            DepthFunction::Type depthFunction,
+            //todor
+            StencilMode::Type stencilMode, StencilFunction::Type stencilFunction, int stencilFunctionMask, int stencilFunctionReference,
+            int stencilMask, StencilOperation::Type stencilOperationOnFail, StencilOperation::Type stencilOperationOnZFail, StencilOperation::Type stencilOperationOnZPass,
+            bool writeToColorBuffer );
 
   /**
    * Change the data providers of the renderer
@@ -216,6 +226,26 @@ public:
    */
   DepthFunction::Type GetDepthFunction() const;
 
+  //todor
+  void SetStencilMode( StencilMode::Type stencilMode );
+  StencilMode::Type GetStencilMode() const;
+  void SetStencilFunction( StencilFunction::Type stencilFunction );
+  StencilFunction::Type GetStencilFunction() const;
+  void SetStencilFunctionMask( int stencilFunctionMask );
+  int GetStencilFunctionMask() const;
+  void SetStencilFunctionReference( int stencilFunctionReference );
+  int GetStencilFunctionReference() const;
+  void SetStencilMask( int stencilMask );
+  int GetStencilMask() const;
+  void SetStencilOperationOnFail( StencilOperation::Type stencilOperationOnFail );
+  StencilOperation::Type GetStencilOperationOnFail() const;
+  void SetStencilOperationOnZFail( StencilOperation::Type stencilOperationOnZFail );
+  StencilOperation::Type GetStencilOperationOnZFail() const;
+  void SetStencilOperationOnZPass( StencilOperation::Type stencilOperationOnZPass );
+  StencilOperation::Type GetStencilOperationOnZPass() const;
+  void SetWriteToColorBuffer( bool writeToColorBuffer );
+  bool GetWriteToColorBuffer() const;
+
   /**
    * Called to render during RenderManager::Render().
    * @param[in] context The context used for rendering
@@ -310,18 +340,29 @@ private:
 
   Vector<GLint> mAttributesLocation;
 
-  BlendingOptions       mBlendingOptions; /// Blending options including blend color, blend func and blend equation
-  FaceCullingMode::Type mFaceCullingMode; /// Mode of face culling
-  DepthFunction::Type   mDepthFunction;   /// Depth function
+  size_t mIndexedDrawFirstElement;        ///< Offset of first element to draw
+  size_t mIndexedDrawElementsCount;       ///< Number of elements to draw
 
-  size_t mIndexedDrawFirstElement;        /// Offset of first element to draw
-  size_t mIndexedDrawElementsCount;       /// Number of elements to draw
+  BlendingOptions              mBlendingOptions;            ///< Blending options including blend color, blend func and blend equation
 
-  DepthWriteMode::Type mDepthWriteMode:2; /// Depth write mode
-  DepthTestMode::Type mDepthTestMode:2;   /// Depth test mode
+  //todor
+  int                          mStencilFunctionMask;        ///< Local copy of todor
+  int                          mStencilFunctionReference;   ///< Local copy of todor
+  int                          mStencilMask;                ///< Local copy of todor
+  DepthFunction::Type          mDepthFunction:3;            ///< The depth function
+  Dali::StencilFunction::Type  mStencilFunction:3;          ///< Local copy of todor
+  Dali::StencilOperation::Type mStencilOperationOnFail:3;   ///< Local copy of todor
+  Dali::StencilOperation::Type mStencilOperationOnZFail:3;  ///< Local copy of todor
+  Dali::StencilOperation::Type mStencilOperationOnZPass:3;  ///< Local copy of todor
+  FaceCullingMode::Type        mFaceCullingMode:2;          ///< The mode of face culling
+  BlendMode::Type              mBlendMode:2;                ///< The mode of blending
+  DepthWriteMode::Type         mDepthWriteMode:2;           ///< The depth write mode
+  DepthTestMode::Type          mDepthTestMode:2;            ///< The depth test mode
+  Dali::StencilMode::Type      mStencilMode:2;              ///< The stencil mode
+  bool                         mWriteToColorBuffer:1;       ///< Local copy of todor
 
-  bool mUpdateAttributesLocation:1;       ///< Indicates attribute locations have changed
-  bool mPremultipledAlphaEnabled:1;       ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool                         mUpdateAttributesLocation:1; ///< Indicates attribute locations have changed
+  bool                         mPremultipledAlphaEnabled:1; ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
 };
 
 } // namespace SceneGraph

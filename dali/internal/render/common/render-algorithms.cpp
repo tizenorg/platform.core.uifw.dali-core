@@ -117,6 +117,19 @@ inline void SetRenderFlags( const RenderList& renderList, Context& context, bool
   context.Clear( clearMask, Context::CHECK_CACHED_VALUES );
 }
 
+//todor
+inline void SetupStencilForRenderItem( const RenderItem& item )
+{
+  Renderer *renderer = item.mRenderer;
+  if( renderer->GetStencilMode() != StencilMode::ON )
+  {
+    // No per-renderer stencil setup, exit.
+    return;
+  }
+
+
+}
+
 /**
  * Sets up the depth buffer for reading and writing based on the current render item.
  * The items read and write mode are used if specified.
@@ -184,6 +197,7 @@ inline void ProcessRenderList(
       const RenderItem& item = renderList.GetItem( index );
       DALI_PRINT_RENDER_ITEM( item );
 
+      SetupStencilForRenderItem( item );
       item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
                               item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );
     }
@@ -198,6 +212,8 @@ inline void ProcessRenderList(
 
       // Set up the depth buffer based on per-renderer flags.
       SetupDepthBuffer( item, context, isLayer3D );
+
+      SetupStencilForRenderItem( item );
 
       item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
                               item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );

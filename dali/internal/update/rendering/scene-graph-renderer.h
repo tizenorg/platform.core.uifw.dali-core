@@ -185,6 +185,17 @@ public:
    */
   void SetDepthFunction( DepthFunction::Type depthFunction );
 
+  //todor
+  void SetStencilMode( StencilMode::Type mode );
+  void SetStencilFunction( StencilFunction::Type stencilFunction );
+  void SetStencilFunctionMask( int stencilFunctionMask );
+  void SetStencilFunctionReference( int stencilFunctionReference );
+  void SetStencilMask( int stencilMask );
+  void SetStencilOperationOnFail( StencilOperation::Type stencilOperationOnFail );
+  void SetStencilOperationOnZFail( StencilOperation::Type stencilOperationOnZFail );
+  void SetStencilOperationOnZPass( StencilOperation::Type stencilOperationOnZPass );
+  void SetWriteToColorBuffer( bool writeToColorBuffer );
+
   /**
    * Called when an actor with this renderer is added to the stage
    */
@@ -325,35 +336,44 @@ private:
 
 private:
 
-  CollectedUniformMap   mCollectedUniformMap[2];        ///< Uniform maps collected by the renderer
-  SceneController*      mSceneController;               ///< Used for initializing renderers
-  Render::Renderer*     mRenderer;                      ///< Raw pointer to the renderer (that's owned by RenderManager)
-  TextureSet*           mTextureSet;                    ///< The texture set this renderer uses. (Not owned)
-  Render::Geometry*     mGeometry;                      ///< The geometry this renderer uses. (Not owned)
-  Shader*               mShader;                        ///< The shader this renderer uses. (Not owned)
-  Vector4*              mBlendColor;                    ///< The blend color for blending operation
+  CollectedUniformMap   mCollectedUniformMap[2];           ///< Uniform maps collected by the renderer
+  SceneController*      mSceneController;                  ///< Used for initializing renderers
+  Render::Renderer*     mRenderer;                         ///< Raw pointer to the renderer (that's owned by RenderManager)
+  TextureSet*           mTextureSet;                       ///< The texture set this renderer uses. (Not owned)
+  Render::Geometry*     mGeometry;                         ///< The geometry this renderer uses. (Not owned)
+  Shader*               mShader;                           ///< The shader this renderer uses. (Not owned)
+  Vector4*              mBlendColor;                       ///< The blend color for blending operation
 
-  size_t                mIndexedDrawFirstElement;       ///< first element index to be drawn using indexed draw
-  size_t                mIndexedDrawElementsCount;      ///< number of elements to be drawn using indexed draw
-  unsigned int          mBlendBitmask;                  ///< The bitmask of blending options
-  unsigned int          mReferenceCount;                ///< Number of nodes currently using this renderer
-  unsigned int          mRegenerateUniformMap;          ///< 2 if the map should be regenerated, 1 if it should be copied.
-  unsigned short        mResendFlag;                    ///< Indicate whether data should be resent to the renderer
+  size_t                mIndexedDrawFirstElement;          ///< first element index to be drawn using indexed draw
+  size_t                mIndexedDrawElementsCount;         ///< number of elements to be drawn using indexed draw
+  unsigned int          mBlendBitmask;                     ///< The bitmask of blending options
+  unsigned int          mReferenceCount;                   ///< Number of nodes currently using this renderer
+  unsigned int          mRegenerateUniformMap;             ///< 2 if the map should be regenerated, 1 if it should be copied.
+  unsigned int          mResendFlag;                       ///< Indicate whether data should be resent to the renderer
 
-  DepthFunction::Type   mDepthFunction:3;               ///< The depth function
-  FaceCullingMode::Type mFaceCullingMode:2;             ///< The mode of face culling
-  BlendMode::Type       mBlendMode:2;                   ///< The mode of blending
-  DepthWriteMode::Type  mDepthWriteMode:2;              ///< The depth write mode
-  DepthTestMode::Type   mDepthTestMode:2;               ///< The depth test mode
+  int                          mStencilFunctionMask;       ///< Local copy of todor
+  int                          mStencilFunctionReference;  ///< Local copy of todor
+  int                          mStencilMask;               ///< Local copy of todor
+  DepthFunction::Type          mDepthFunction:3;           ///< The depth function
+  Dali::StencilFunction::Type  mStencilFunction:3;         ///< Local copy of todor
+  Dali::StencilOperation::Type mStencilOperationOnFail:3;  ///< Local copy of todor
+  Dali::StencilOperation::Type mStencilOperationOnZFail:3; ///< Local copy of todor
+  Dali::StencilOperation::Type mStencilOperationOnZPass:3; ///< Local copy of todor
+  FaceCullingMode::Type        mFaceCullingMode:2;         ///< The mode of face culling
+  BlendMode::Type              mBlendMode:2;               ///< The mode of blending
+  DepthWriteMode::Type         mDepthWriteMode:2;          ///< The depth write mode
+  DepthTestMode::Type          mDepthTestMode:2;           ///< The depth test mode
+  Dali::StencilMode::Type      mStencilMode:2;             ///< The stencil mode
+  bool                         mWriteToColorBuffer:1;      ///< Local copy of todor
 
-  bool                  mUniformMapChanged[2];          ///< Records if the uniform map has been altered this frame
-  bool                  mResourcesReady;                ///< Set during the Update algorithm; true if the renderer has resources ready for the current frame.
-  bool                  mFinishedResourceAcquisition;   ///< Set during DoPrepareResources; true if ready & all resource acquisition has finished (successfully or otherwise)
-  bool                  mPremultipledAlphaEnabled:1;    ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  bool                  mUniformMapChanged[2];             ///< Records if the uniform map has been altered this frame
+  bool                  mResourcesReady;                   ///< Set during the Update algorithm; true if the renderer has resources ready for the current frame.
+  bool                  mFinishedResourceAcquisition;      ///< Set during DoPrepareResources; true if ready & all resource acquisition has finished (successfully or otherwise)
+  bool                  mPremultipledAlphaEnabled:1;       ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
 
 public:
 
-  int                   mDepthIndex;                    ///< Used only in PrepareRenderInstructions
+  int                   mDepthIndex;                       ///< Used only in PrepareRenderInstructions
 };
 
 
@@ -500,6 +520,108 @@ inline void SetDepthFunctionMessage( EventThreadServices& eventThreadServices, c
   unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
 
   new (slot) LocalType( &renderer, &Renderer::SetDepthFunction, depthFunction );
+}
+
+//todor
+#if 0
+DALI_PROPERTY( "stencilMode",                     INTEGER,   true, false,  false, Dali::Renderer::Property::STENCIL_MODE )
+DALI_PROPERTY( "stencilFunction",                 INTEGER,   true, false,  false, Dali::Renderer::Property::STENCIL_FUNCTION )
+DALI_PROPERTY( "stencilFunctionMask",             INTEGER,   true, false,  false, Dali::Renderer::Property::STENCIL_FUNCTION_MASK )
+DALI_PROPERTY( "stencilFunctionReference",        INTEGER,   true, false,  false, Dali::Renderer::Property::STENCIL_FUNCTION_REFERENCE )
+DALI_PROPERTY( "stencilMask",                     INTEGER,   true, false,  false, Dali::Renderer::Property::STENCIL_MASK )
+DALI_PROPERTY( "stencilOperationOnFail",          INTEGER,   true, false,  false, Dali::Renderer::Property::STENCIL_OPERATION_ON_FAIL )
+DALI_PROPERTY( "stencilOperationOnZFail",         INTEGER,   true, false,  false, Dali::Renderer::Property::STENCIL_OPERATION_ON_Z_FAIL )
+DALI_PROPERTY( "stencilOperationOnZPass",         INTEGER,   true, false,  false, Dali::Renderer::Property::STENCIL_OPERATION_ON_Z_PASS )
+DALI_PROPERTY( "writeToColorBuffer",              BOOLEAN,   true, false,  false, Dali::Renderer::Property::WRITE_TO_COLOR_BUFFER )
+#endif
+inline void SetStencilModeMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, StencilMode::Type mode )
+{
+  typedef MessageValue1< Renderer, StencilMode::Type > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetStencilMode, mode );
+}
+
+inline void SetStencilFunctionMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, StencilFunction::Type stencilFunction )
+{
+  typedef MessageValue1< Renderer, StencilFunction::Type > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetStencilFunction, stencilFunction );
+}
+
+inline void SetStencilFunctionMaskMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, int mask )
+{
+  typedef MessageValue1< Renderer, int > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetStencilFunctionMask, mask );
+}
+
+inline void SetStencilFunctionReferenceMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, int stencilFunctionReference )
+{
+  typedef MessageValue1< Renderer, int > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetStencilFunctionReference, stencilFunctionReference );
+}
+
+inline void SetStencilMaskMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, int stencilMask )
+{
+  typedef MessageValue1< Renderer, int > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetStencilMask, stencilMask );
+}
+
+inline void SetStencilOperationOnFailMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, StencilOperation::Type stencilOperation )
+{
+  typedef MessageValue1< Renderer, StencilOperation::Type > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetStencilOperationOnFail, stencilOperation );
+}
+
+inline void SetStencilOperationOnZFailMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, StencilOperation::Type stencilOperation )
+{
+  typedef MessageValue1< Renderer, StencilOperation::Type > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetStencilOperationOnZFail, stencilOperation );
+}
+
+inline void SetStencilOperationOnZPassMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, StencilOperation::Type stencilOperation )
+{
+  typedef MessageValue1< Renderer, StencilOperation::Type > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetStencilOperationOnZPass, stencilOperation );
+}
+
+inline void SetWriteToColorBufferMessage( EventThreadServices& eventThreadServices, const Renderer& renderer, bool writeToColorBuffer )
+{
+  typedef MessageValue1< Renderer, bool > LocalType;
+
+  // Reserve some memory inside the message queue
+  unsigned int* slot = eventThreadServices.ReserveMessageSlot( sizeof( LocalType ) );
+
+  new (slot) LocalType( &renderer, &Renderer::SetWriteToColorBuffer, writeToColorBuffer );
 }
 
 inline void OnStageConnectMessage( EventThreadServices& eventThreadServices, const Renderer& renderer )

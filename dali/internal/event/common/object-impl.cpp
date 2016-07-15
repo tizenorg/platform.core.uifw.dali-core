@@ -648,6 +648,8 @@ Property::Index Object::RegisterSceneGraphProperty(const std::string& name, Prop
     const PropertyBase* property = newProperty.Get();
     if(index >= PROPERTY_CUSTOM_START_INDEX)
     {
+      DALI_ASSERT_ALWAYS( index <= PROPERTY_CUSTOM_MAX_INDEX && "Too many custom properties have been registered" );
+
       mCustomProperties.PushBack( new CustomPropertyMetadata( name, propertyValue.GetType(), property ) );
     }
     else

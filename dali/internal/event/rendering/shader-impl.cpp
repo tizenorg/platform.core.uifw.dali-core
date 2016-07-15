@@ -265,7 +265,7 @@ const PropertyInputImpl* Shader::GetSceneObjectInputProperty( Property::Index in
 {
   PropertyMetadata* property = NULL;
 
-  if(index >= PROPERTY_CUSTOM_START_INDEX )
+  if( ( index >= PROPERTY_CUSTOM_START_INDEX ) && ( index <= PROPERTY_CUSTOM_MAX_INDEX ) )
   {
     property = FindCustomProperty( index );
   }

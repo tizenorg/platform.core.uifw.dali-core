@@ -38,7 +38,6 @@ namespace SceneGraph
 class Renderer;
 }
 
-
 class Renderer;
 typedef IntrusivePtr<Renderer> RendererPtr;
 
@@ -303,25 +302,34 @@ private: // unimplemented methods
 
 private: // data
   SceneGraph::Renderer* mSceneObject;
-  Vector4* mBlendColor;                             ///< Local copy of blend color, pointer only as its rarely used
-  GeometryPtr mGeometry;                            ///< Connector that holds the geometry used by this renderer
-  ObjectConnector<TextureSet> mTextureSetConnector; ///< Connector that holds the texture set used by this renderer
-  IntrusivePtr<Shader> mShader;                     ///< Connector that holds the shader used by this renderer
+  Vector4* mBlendColor;                                       ///< Local copy of blend color, pointer only as its rarely used
+  GeometryPtr mGeometry;                                      ///< Connector that holds the geometry used by this renderer
+  ObjectConnector<TextureSet> mTextureSetConnector;           ///< Connector that holds the texture set used by this renderer
+  IntrusivePtr<Shader> mShader;                               ///< Connector that holds the shader used by this renderer
 
   int mDepthIndex;
   int mOnStageCount;
 
-  size_t mIndexedDrawFirstElement;                  ///< Offset of first element to draw from bound index buffer
-  size_t mIndexedDrawElementCount;                  ///< Number of elements to draw
+  size_t mIndexedDrawFirstElement;                            ///< Offset of first element to draw from bound index buffer
+  size_t mIndexedDrawElementCount;                            ///< Number of elements to draw
 
-  Dali::FaceCullingMode::Type mFaceCullingMode;     ///< Local copy of face culling mode
-  BlendMode::Type mBlendMode;                       ///< Local copy of blending mode
-  BlendingOptions mBlendingOptions;                 ///< Local copy of blending options bitmask
-  Dali::DepthWriteMode::Type mDepthWriteMode;       ///< Local copy of depth write mode
-  Dali::DepthFunction::Type mDepthFunction;         ///< Local copy of depth function
-  Dali::DepthTestMode::Type mDepthTestMode;         ///< Local copy of depth test mode
+  BlendingOptions              mBlendingOptions;              ///< Local copy of blending options bitmask
 
-  bool mPremultipledAlphaEnabled : 1;               ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
+  int                          mStencilFunctionMask;          ///< Local copy of the stencil function mask
+  int                          mStencilFunctionReference;     ///< Local copy of the stencil function reference
+  int                          mStencilMask;                  ///< Local copy of the stencil mask
+  DepthFunction::Type          mDepthFunction:3;              ///< Local copy of the depth function
+  Dali::StencilFunction::Type  mStencilFunction:3;            ///< Local copy of the stencil function
+  Dali::StencilOperation::Type mStencilOperationOnFail:3;     ///< Local copy of the stencil operation for stencil test fail
+  Dali::StencilOperation::Type mStencilOperationOnZFail:3;    ///< Local copy of the stencil operation for depth test fail
+  Dali::StencilOperation::Type mStencilOperationOnZPass:3;    ///< Local copy of the stencil operation for depth test pass
+  FaceCullingMode::Type        mFaceCullingMode:2;            ///< Local copy of the mode of face culling
+  BlendMode::Type              mBlendMode:2;                  ///< Local copy of the mode of blending
+  DepthWriteMode::Type         mDepthWriteMode:2;             ///< Local copy of the depth write mode
+  DepthTestMode::Type          mDepthTestMode:2;              ///< Local copy of the depth test mode
+  Dali::StencilMode::Type      mStencilMode:2;                ///< Local copy of the stencil mode
+  bool                         mWriteToColorBuffer:1;         ///< Local copy of the write to color buffer flag
+  bool                         mPremultipledAlphaEnabled:1;   ///< Flag indicating whether the Pre-multiplied Alpha Blending is required
 };
 
 } // namespace Internal

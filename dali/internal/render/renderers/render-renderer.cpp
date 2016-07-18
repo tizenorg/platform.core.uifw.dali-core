@@ -147,7 +147,8 @@ Renderer::Renderer( SceneGraph::RenderDataProvider* dataProvider,
   mDepthWriteMode( depthWriteMode ),
   mDepthTestMode( depthTestMode ),
   mUpdateAttributesLocation( true ),
-  mPremultipledAlphaEnabled( preMultipliedAlphaEnabled )
+  mPremultipledAlphaEnabled( preMultipliedAlphaEnabled ),
+  mBatchingEnabled( false )
 {
   if(  blendingBitmask != 0u )
   {
@@ -475,6 +476,11 @@ DepthFunction::Type Renderer::GetDepthFunction() const
   return mDepthFunction;
 }
 
+void Renderer::SetBatchingEnabled( bool batchingEnabled )
+{
+  mBatchingEnabled = batchingEnabled;
+}
+
 void Renderer::Render( Context& context,
                        SceneGraph::TextureCache& textureCache,
                        BufferIndex bufferIndex,
@@ -485,6 +491,7 @@ void Renderer::Render( Context& context,
                        const Matrix& viewMatrix,
                        const Matrix& projectionMatrix,
                        const Vector3& size,
+                       Render::Geometry* externalGeometry,
                        bool blend )
 {
   // Get the program to use:
@@ -533,14 +540,15 @@ void Renderer::Render( Context& context,
     }
 
     SetUniforms( bufferIndex, node, size, *program );
+    Render::Geometry* geometry = externalGeometry ? externalGeometry : mGeometry;
 
-    if( mUpdateAttributesLocation || mGeometry->AttributesChanged() )
+    if( mUpdateAttributesLocation || geometry->AttributesChanged() )
     {
-      mGeometry->GetAttributeLocationFromProgram( mAttributesLocation, *program, bufferIndex );
+      geometry->GetAttributeLocationFromProgram( mAttributesLocation, *program, bufferIndex );
       mUpdateAttributesLocation = false;
     }
 
-    mGeometry->UploadAndDraw( context, bufferIndex, mAttributesLocation, mIndexedDrawFirstElement, mIndexedDrawElementsCount );
+    geometry->UploadAndDraw( context, bufferIndex, mAttributesLocation, mIndexedDrawFirstElement, mIndexedDrawElementsCount );
   }
 }
 

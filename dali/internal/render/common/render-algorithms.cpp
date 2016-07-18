@@ -25,11 +25,14 @@
 #include <dali/internal/render/gl-resources/context.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/internal/update/nodes/scene-graph-layer.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
+#include <stdio.h>
 
 using Dali::Internal::SceneGraph::RenderItem;
 using Dali::Internal::SceneGraph::RenderList;
 using Dali::Internal::SceneGraph::RenderListContainer;
 using Dali::Internal::SceneGraph::RenderInstruction;
+using Dali::Internal::SceneGraph::GeometryBatcher;
 
 namespace Dali
 {
@@ -183,9 +186,17 @@ inline void ProcessRenderList(
     {
       const RenderItem& item = renderList.GetItem( index );
       DALI_PRINT_RENDER_ITEM( item );
-
+      int batchIndex = item.mNode->mBatchIndex;
+      if( batchIndex > -1 )
+      {
+        item.mBatchRenderGeometry = GeometryBatcher::Get()->GetGeometry( batchIndex );
+      }
+      else
+      {
+        item.mBatchRenderGeometry = NULL;
+      }
       item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
-                              item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );
+                              item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, item.mBatchRenderGeometry, !item.mIsOpaque );
     }
   }
   else
@@ -200,7 +211,7 @@ inline void ProcessRenderList(
       SetupDepthBuffer( item, context, isLayer3D );
 
       item.mRenderer->Render( context, textureCache, bufferIndex, *item.mNode, defaultShader,
-                              item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, !item.mIsOpaque );
+                              item.mModelMatrix, item.mModelViewMatrix, viewMatrix, projectionMatrix, item.mSize, item.mBatchRenderGeometry, !item.mIsOpaque );
     }
   }
 }

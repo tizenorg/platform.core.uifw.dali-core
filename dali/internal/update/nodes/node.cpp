@@ -22,6 +22,9 @@
 #include <dali/internal/common/internal-constants.h>
 #include <dali/internal/common/memory-pool-object-allocator.h>
 #include <dali/internal/update/common/discard-queue.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
+
+// PUBLIC INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/constants.h>
 
@@ -49,7 +52,7 @@ Node* Node::New()
 }
 
 Node::Node()
-: mTransformManager(0),
+: mTransformManager( NULL ),
   mTransformId( INVALID_TRANSFORM_ID ),
   mParentOrigin( TRANSFORM_PROPERTY_PARENT_ORIGIN ),
   mAnchorPoint( TRANSFORM_PROPERTY_ANCHOR_POINT ),
@@ -65,6 +68,7 @@ Node::Node()
   mWorldMatrix(),
   mWorldColor( Color::WHITE ),
   mParent( NULL ),
+  mBatchParent( NULL ),
   mExclusiveRenderTask( NULL ),
   mChildren(),
   mRegenerateUniformMap( 0 ),
@@ -72,7 +76,9 @@ Node::Node()
   mDirtyFlags(AllFlags),
   mIsRoot( false ),
   mDrawMode( DrawMode::NORMAL ),
-  mColorMode( DEFAULT_COLOR_MODE )
+  mColorMode( DEFAULT_COLOR_MODE ),
+  mIsBatchParent( false ),
+  mBatchIndex( -1 )
 {
   mUniformMapChanged[0] = 0u;
   mUniformMapChanged[1] = 0u;
@@ -211,6 +217,35 @@ void Node::DisconnectChild( BufferIndex updateBufferIndex, Node& childNode )
   found->RecursiveDisconnectFromSceneGraph( updateBufferIndex );
 }
 
+void Node::AddRenderer( Renderer* renderer )
+{
+  //Check that it has not been already added
+  unsigned int rendererCount( mRenderer.Size() );
+  for( unsigned int i(0); i<rendererCount; ++i )
+  {
+    if( mRenderer[i] == renderer )
+    {
+      //Renderer already in the list
+      return;
+    }
+  }
+
+  //If it is the first renderer added, make sure the world transform will be calculated
+  //in the next update as world transform is not computed if node has no renderers
+  if( rendererCount == 0 )
+  {
+    mDirtyFlags |= TransformFlag;
+  }
+
+  mRenderer.PushBack( renderer );
+
+  // Tell geometry batcher if should batch the child
+  if( mRenderer.Size() == 1 && mRenderer[0]->mBatchingEnabled )
+  {
+    GeometryBatcher::Get()->AddNode( this );
+  }
+}
+
 void Node::RemoveRenderer( Renderer* renderer )
 {
   unsigned int rendererCount( mRenderer.Size() );
@@ -252,7 +287,7 @@ void Node::ResetDefaultProperties( BufferIndex updateBufferIndex )
   mDirtyFlags = NothingFlag;
 }
 
-void Node::SetParent(Node& parentNode)
+void Node::SetParent( Node& parentNode )
 {
   DALI_ASSERT_ALWAYS(this != &parentNode);
   DALI_ASSERT_ALWAYS(!mIsRoot);
@@ -265,6 +300,27 @@ void Node::SetParent(Node& parentNode)
   {
     mTransformManager->SetParent( mTransformId, parentNode.GetTransformId() );
   }
+}
+
+void Node::SetBatchParent( Node* batchParentNode )
+{
+  if(mBatchParent && !batchParentNode)
+  {
+    mBatchParent = batchParentNode;
+  }
+  DALI_ASSERT_ALWAYS(!mIsRoot);
+  mBatchParent = batchParentNode;
+}
+
+void Node::SetIsBatchParent( bool enabled )
+{
+  mIsBatchParent = enabled;
+
+  if( enabled )
+  {
+    GeometryBatcher::Get()->AddBatchParent( this );
+  }
+
 }
 
 void Node::RecursiveDisconnectFromSceneGraph( BufferIndex updateBufferIndex )

@@ -30,6 +30,7 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gRenderTaskLogFilter;
@@ -102,7 +103,8 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
                             Node& node,
                             Layer& currentLayer,
                             RenderTask& renderTask,
-                            int inheritedDrawMode )
+                            int inheritedDrawMode,
+                            Node* topLevelBatchParent )
 {
   bool resourcesFinished = true;
 
@@ -134,6 +136,25 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
 
   inheritedDrawMode |= node.GetDrawMode();
 
+  if( !node.IsRoot() )
+  {
+    if( node.GetIsBatchParent() && !topLevelBatchParent )
+    {
+      topLevelBatchParent = &node;
+      node.SetBatchParent( NULL );
+      topLevelBatchParent->mBatchedChildren.Clear();
+    }
+    else
+    {
+      node.SetBatchParent( topLevelBatchParent );
+      // store only renderables
+      if( topLevelBatchParent && node.GetRendererCount() && node.GetRendererAt(0)->IsBatchingEnabled() )
+      {
+        topLevelBatchParent->mBatchedChildren.PushBack( &node );
+      }
+    }
+  }
+
   const unsigned int count = node.GetRendererCount();
   for( unsigned int i = 0; i < count; ++i )
   {
@@ -163,15 +184,13 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
     }
   }
 
-
-
   // Recurse children
   NodeContainer& children = node.GetChildren();
   const NodeIter endIter = children.End();
   for ( NodeIter iter = children.Begin(); iter != endIter; ++iter )
   {
     Node& child = **iter;
-    bool childResourcesComplete = AddRenderablesForTask( updateBufferIndex, child, *layer, renderTask, inheritedDrawMode );
+    bool childResourcesComplete = AddRenderablesForTask( updateBufferIndex, child, *layer, renderTask, inheritedDrawMode, topLevelBatchParent );
     resourcesFinished &= childResourcesComplete;
   }
 
@@ -250,7 +269,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                                  *sourceNode,
                                                  *layer,
                                                  renderTask,
-                                                 sourceNode->GetDrawMode() );
+                                                 sourceNode->GetDrawMode(),
+                                                 NULL );
 
       renderTask.SetResourcesFinished( resourcesFinished );
       PrepareRenderInstruction( updateBufferIndex,
@@ -314,7 +334,8 @@ void ProcessRenderTasks( BufferIndex updateBufferIndex,
                                                  *sourceNode,
                                                  *layer,
                                                  renderTask,
-                                                 sourceNode->GetDrawMode() );
+                                                 sourceNode->GetDrawMode(),
+                                                 NULL );
 
       PrepareRenderInstruction( updateBufferIndex,
                                 sortedLayers,

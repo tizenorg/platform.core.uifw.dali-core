@@ -30,6 +30,7 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/renderers/render-renderer.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gRenderTaskLogFilter;
@@ -162,8 +163,6 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
       }
     }
   }
-
-
 
   // Recurse children
   NodeContainer& children = node.GetChildren();

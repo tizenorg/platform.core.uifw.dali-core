@@ -227,14 +227,6 @@ public:
   Opacity GetOpacity( BufferIndex updateBufferIndex, const Node& node ) const;
 
   /**
-   * Query whether the renderer is currently in use by an actor on the stage
-   */
-  bool IsReferenced() const
-  {
-    return mReferenceCount > 0;
-  }
-
-  /**
    * Called by the TextureSet to notify to the renderer that it has changed
    */
   void TextureSetChanged();
@@ -336,7 +328,6 @@ private:
   size_t                mIndexedDrawFirstElement;       ///< first element index to be drawn using indexed draw
   size_t                mIndexedDrawElementsCount;      ///< number of elements to be drawn using indexed draw
   unsigned int          mBlendBitmask;                  ///< The bitmask of blending options
-  unsigned int          mReferenceCount;                ///< Number of nodes currently using this renderer
   unsigned int          mRegenerateUniformMap;          ///< 2 if the map should be regenerated, 1 if it should be copied.
   unsigned short        mResendFlag;                    ///< Indicate whether data should be resent to the renderer
 

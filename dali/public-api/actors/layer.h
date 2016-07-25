@@ -107,6 +107,11 @@ public:
   enum Behavior
   {
     /**
+     * @DEPRECATED_1_1.45, use LAYER_UI instead, @see LAYER_UI
+     */
+    LAYER_2D,
+
+    /**
      * @brief Layer doesn't make use of the depth test (default mode).
      *
      * This mode is expected to have better performance than the 3D mode.
@@ -131,7 +136,7 @@ public:
      *
      * @SINCE_1_0.0
      */
-    LAYER_2D,
+    LAYER_UI = LAYER_2D,
 
     /**
      * @brief Layer will use depth test.
@@ -149,7 +154,8 @@ public:
      *
      * @SINCE_1_0.0
      */
-    LAYER_3D,
+    LAYER_3D
+
   };
 
   /**

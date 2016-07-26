@@ -859,7 +859,7 @@ int UtcDaliScriptingEnumStringToIntegerP(void)
     };
   const unsigned int myTableCount = sizeof( myTable ) / sizeof( myTable[0] );
 
-  unsigned int integerEnum = 0;
+  int integerEnum = 0;
   DALI_TEST_CHECK( EnumStringToInteger( "ONE", myTable, myTableCount, integerEnum ) );
 
   DALI_TEST_EQUALS( integerEnum, (1<<1), TEST_LOCATION );
@@ -905,7 +905,7 @@ int UtcDaliScriptingEnumStringToIntegerN(void)
   };
   const unsigned int myTableCount = sizeof( myTable ) / sizeof( myTable[0] );
 
-  unsigned int integerEnum = 0;
+  int integerEnum = 0;
   DALI_TEST_CHECK( !EnumStringToInteger( "Foo", myTable, myTableCount, integerEnum ) );
 
   DALI_TEST_CHECK( !EnumStringToInteger( "", myTable, myTableCount, integerEnum ) );
@@ -934,7 +934,7 @@ int UtcDaliScriptingEnumStringToIntegerInvalidEnumP(void)
 
   const unsigned int myTableCount = sizeof( myTable ) / sizeof( myTable[0] );
 
-  unsigned int integerEnum = 0;
+  int integerEnum = 0;
   DALI_TEST_CHECK( EnumStringToInteger( "", myTable, myTableCount, integerEnum ) );
   DALI_TEST_EQUALS( integerEnum, 1, TEST_LOCATION );
 
@@ -952,7 +952,7 @@ int UtcDaliScriptingEnumStringToIntegerInvalidEnumN(void)
 
   const unsigned int myTableCount = sizeof( myTable ) / sizeof( myTable[0] );
 
-  unsigned int integerEnum = 0;
+  int integerEnum = 0;
   DALI_TEST_CHECK( !EnumStringToInteger( NULL, NULL, 0, integerEnum ) );
 
   DALI_TEST_CHECK( !EnumStringToInteger( "ONE", NULL, 0, integerEnum ) );

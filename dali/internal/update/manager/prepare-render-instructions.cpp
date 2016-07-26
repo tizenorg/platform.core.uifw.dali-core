@@ -34,6 +34,8 @@
 #include <dali/internal/render/common/render-instruction-container.h>
 #include <dali/internal/render/shaders/scene-graph-shader.h>
 #include <dali/internal/render/renderers/render-renderer.h>
+#include <dali/internal/render/renderers/render-property-buffer.h>
+#include <dali/internal/update/manager/geometry-batcher.h>
 
 namespace
 {
@@ -69,16 +71,34 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
                                      bool isLayer3d,
                                      bool cull )
 {
-  bool inside( true );
-  if ( cull && !renderable.mRenderer->GetShader().HintEnabled( Dali::Shader::HINT_MODIFIES_GEOMETRY ) )
+  // discard renderable early if it belongs to the batch which has been consumed in during frame
+  GeometryBatcher* batcher = GeometryBatcher::Get();
+  Node* renderableNode = renderable.mNode;
+  if( renderableNode->mBatchIndex != BATCH_NULL_HANDLE && batcher->HasRendered( renderableNode->mBatchIndex ) )
   {
-    const Vector4& boundingSphere = renderable.mNode->GetBoundingSphere();
+    return;
+  }
+
+  bool inside( true );
+
+  const Node* batchParentNode = renderable.mNode->GetBatchParent();
+  const Node* node = ( renderable.mRenderer->IsBatchingEnabled() && batchParentNode ) ?
+        batchParentNode : renderableNode;
+
+  if( cull && !renderable.mRenderer->GetShader().HintEnabled( Dali::Shader::HINT_MODIFIES_GEOMETRY ) )
+  {
+    const Vector4& boundingSphere = node->GetBoundingSphere();
     inside = (boundingSphere.w > Math::MACHINE_EPSILON_1000) &&
              (camera.CheckSphereInFrustum( updateBufferIndex, Vector3(boundingSphere), boundingSphere.w ) );
   }
 
-  if ( inside )
+  if( inside )
   {
+    if( renderableNode->mBatchIndex != BATCH_NULL_HANDLE )
+    {
+      batcher->SetRendered( renderableNode->mBatchIndex );
+    }
+
     Renderer::Opacity opacity = renderable.mRenderer->GetOpacity( updateBufferIndex, *renderable.mNode );
     if( opacity != Renderer::TRANSPARENT )
     {
@@ -97,7 +117,7 @@ inline void AddRendererToRenderList( BufferIndex updateBufferIndex,
         item.mDepthIndex = renderable.mRenderer->GetDepthIndex() + static_cast<int>( renderable.mNode->GetDepth() ) * Dali::Layer::TREE_DEPTH_MULTIPLIER;
       }
       // save MV matrix onto the item
-      renderable.mNode->GetWorldMatrixAndSize( item.mModelMatrix, item.mSize );
+      node->GetWorldMatrixAndSize( item.mModelMatrix, item.mSize );
       Matrix::Multiply( item.mModelViewMatrix, item.mModelMatrix, viewMatrix );
     }
   }

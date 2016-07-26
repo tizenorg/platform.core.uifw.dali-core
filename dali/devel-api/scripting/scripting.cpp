@@ -111,9 +111,9 @@ const unsigned int imageTypeCount = sizeof( ImageTypeName ) / sizeof( const char
 
 } // unnamed namespace
 
-bool EnumStringToInteger( const char * const value, const StringEnum* const enumTable, unsigned int tableCount, unsigned int& integerEnum )
+bool EnumStringToInteger( const char * const value, const StringEnum* const enumTable, unsigned int tableCount, int& integerEnum )
 {
-  unsigned int ret = 0;
+  int ret = 0;
 
   bool found = false;
   bool done = false;

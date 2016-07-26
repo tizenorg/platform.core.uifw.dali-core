@@ -163,8 +163,6 @@ bool AddRenderablesForTask( BufferIndex updateBufferIndex,
     }
   }
 
-
-
   // Recurse children
   NodeContainer& children = node.GetChildren();
   const NodeIter endIter = children.End();

@@ -26,7 +26,7 @@ namespace Dali
 
 Shader Shader::New( const std::string& vertexShader,
                     const std::string& fragmentShader,
-                    ShaderHints hints )
+                    Hints::Value hints )
 {
   Internal::ShaderPtr renderer = Internal::Shader::New( vertexShader, fragmentShader, hints );
   return Shader( renderer.Get() );

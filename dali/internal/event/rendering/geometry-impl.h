@@ -80,12 +80,12 @@ public:
   /**
    * @copydoc Dali::Geometry::SetGeometryType()
    */
-  void SetGeometryType( Dali::Geometry::GeometryType geometryType );
+  void SetGeometryType( Dali::Geometry::Type geometryType );
 
   /**
    * @copydoc Dali::Geometry::GetGeometryType()
    */
-  Dali::Geometry::GeometryType GetGeometryType() const;
+  Dali::Geometry::Type GetGeometryType() const;
 
   /**
    * @brief Get the geometry scene object
@@ -123,7 +123,7 @@ private: // data
   Render::Geometry* mRenderObject;
 
   std::vector<PropertyBufferPtr> mVertexBuffers; ///< Vector of intrusive pointers to vertex buffers
-  Dali::Geometry::GeometryType mGeometryType;      ///< Geometry type (cached)
+  Dali::Geometry::Type mGeometryType;      ///< Geometry type (cached)
 };
 
 } // namespace Internal

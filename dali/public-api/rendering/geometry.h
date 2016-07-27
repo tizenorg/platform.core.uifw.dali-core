@@ -44,18 +44,18 @@ class DALI_IMPORT_API Geometry : public BaseHandle
 public:
 
   /**
-   * @brief Describes the type of geometry, used to determine how the coordinates will be used.
-   * @SINCE_1_1.43
+   * @brief Describes how the vertex stream is broken down into an ordered sequence of base primitives
+   * @SINCE_1_1.45
    */
-  enum GeometryType
+  enum Type
   {
-    POINTS,        ///< Individual points                                                                                          @SINCE_1_1.43
-    LINES,         ///< Individual lines (made of 2 points each)                                                                   @SINCE_1_1.43
-    LINE_LOOP,     ///< A strip of lines (made of 1 point each) which also joins the first and last point                          @SINCE_1_1.43
-    LINE_STRIP,    ///< A strip of lines (made of 1 point each)                                                                    @SINCE_1_1.43
-    TRIANGLES,     ///< Individual triangles (made of 3 points each)                                                               @SINCE_1_1.43
-    TRIANGLE_FAN,  ///< A fan of triangles around a centre point (after the first triangle, following triangles need only 1 point) @SINCE_1_1.43
-    TRIANGLE_STRIP ///< A strip of triangles (after the first triangle, following triangles need only 1 point)                     @SINCE_1_1.43
+    POINTS,        ///< Individual points                                                                                          @SINCE_1_1.45
+    LINES,         ///< Individual lines (made of 2 points each)                                                                   @SINCE_1_1.45
+    LINE_LOOP,     ///< A strip of lines (made of 1 point each) which also joins the first and last point                          @SINCE_1_1.45
+    LINE_STRIP,    ///< A strip of lines (made of 1 point each)                                                                    @SINCE_1_1.45
+    TRIANGLES,     ///< Individual triangles (made of 3 points each)                                                               @SINCE_1_1.45
+    TRIANGLE_FAN,  ///< A fan of triangles around a centre point (after the first triangle, following triangles need only 1 point) @SINCE_1_1.45
+    TRIANGLE_STRIP ///< A strip of triangles (after the first triangle, following triangles need only 1 point)                     @SINCE_1_1.45
   };
 
 
@@ -152,7 +152,7 @@ public:
    * @SINCE_1_1.43
    * @param[in] geometryType Type of primitives this geometry contains
    */
-  void SetGeometryType( GeometryType geometryType );
+  void SetGeometryType( Type geometryType );
 
   /**
    * @brief Get the type of primitives this geometry contains
@@ -161,7 +161,7 @@ public:
    * @SINCE_1_1.43
    * @return Type of primitives this geometry contains
    */
-  GeometryType GetGeometryType() const;
+  Type GetGeometryType() const;
 
 public:
 

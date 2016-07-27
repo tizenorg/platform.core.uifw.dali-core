@@ -68,7 +68,7 @@ void Geometry::SetIndexBuffer( const unsigned short* indices, size_t count )
   SceneGraph::SetIndexBufferMessage( mEventThreadServices.GetUpdateManager(), *mRenderObject, indexData );
 }
 
-void Geometry::SetGeometryType( Dali::Geometry::GeometryType geometryType )
+void Geometry::SetGeometryType( Dali::Geometry::Type geometryType )
 {
   if( geometryType != mGeometryType )
   {
@@ -78,7 +78,7 @@ void Geometry::SetGeometryType( Dali::Geometry::GeometryType geometryType )
   }
 }
 
-Dali::Geometry::GeometryType Geometry::GetGeometryType() const
+Dali::Geometry::Type Geometry::GetGeometryType() const
 {
   return mGeometryType;
 }

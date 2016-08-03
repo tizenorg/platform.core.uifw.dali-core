@@ -3550,3 +3550,46 @@ int UtcDaliActorRemoveRendererN(void)
 
   END_TEST;
 }
+
+struct ObjectDestructionFunctor
+{
+  ObjectDestructionFunctor( Dali::RefObject*& objectPtr, bool& refObjectDestroyed )
+  : refObjectPointerToCheck( objectPtr ),
+    refObjectDestroyedBoolean( refObjectDestroyed )
+  {
+    refObjectDestroyed = false;
+  }
+
+  void operator()( const Dali::RefObject* objectPointer )
+  {
+    if( refObjectPointerToCheck == objectPointer )
+    {
+      refObjectDestroyedBoolean = true;
+    }
+  }
+
+  Dali::RefObject*& refObjectPointerToCheck;
+  bool& refObjectDestroyedBoolean;
+};
+
+int UtcDaliActorTestActorCreationAndDestruction(void)
+{
+  TestApplication application;
+
+  Dali::RefObject* refObject = NULL;
+  bool refObjectDestroyed = false;
+  ObjectDestructionFunctor destructionFunctor( refObject, refObjectDestroyed );
+
+  ObjectRegistry objectRegistry = Stage::GetCurrent().GetObjectRegistry();
+  objectRegistry.ObjectDestroyedSignal().Connect( &application, destructionFunctor );
+
+  // Create Actor within Scope so our destruction callback gets called
+  {
+    Actor actor = Actor::New();
+    refObject = actor.GetObjectPtr();
+  }
+
+  DALI_TEST_EQUALS( refObjectDestroyed, true, TEST_LOCATION );
+
+  END_TEST;
+}
